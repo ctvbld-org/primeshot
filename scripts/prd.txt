@@ -1,0 +1,311 @@
+# Overview
+Primeshot is an AI-powered headshot generator that transforms user-provided photos into professional-quality headshots. The platform allows users to create multiple style compositions, combining different backgrounds, outfits, and photographic styles to generate a variety of professional headshots. By leveraging advanced AI technology, Primeshot solves the problem of expensive professional photoshoots while providing high-quality, customizable results at a fraction of the cost.
+
+Target Audience:
+- Professionals needing LinkedIn/corporate headshots
+- Job seekers requiring professional photos
+- Real estate agents and business professionals
+- Actors and performers needing portfolio shots
+- Small business owners and entrepreneurs
+
+Value Proposition:
+- Cost-effective alternative to professional photoshoots
+- Multiple styles and variations from a single session
+- Quick turnaround time
+- Convenient online platform
+- Professional-quality results
+
+# Core Features
+
+1. Multi-Style Composition System
+- What: Users can create multiple compositions combining background, outfit, and photographic styles
+- Why: Provides variety and customization options for different professional contexts
+- How: Interface for selecting and combining style elements with live preview
+
+Composition Creation Flow:
+a. Style Selection
+   - Background styles (e.g., office, studio, outdoor, gradient)
+   - Outfit styles (e.g., business formal, business casual, creative professional)
+   - Outfit colors (predefined palette optimized for professional looks)
+   - Photographic styles (e.g., natural light, studio lighting, dramatic, minimalist, B&W)
+
+b. Headshot Generation Logic:
+   - 1 composition: 20 headshots (Individual Tier Pricing)
+   - 2 compositions: 30 headshots each (60 total) (Professional Tier Pricing)
+   - 3 compositions: 20 headshots each (60 total) (Professional Tier Pricing)
+   - 4 compositions: 30 headshots each (120 total) (Studio Tier Pricing)
+   - 5 compositions: 24 headshots each (120 total) (Studio Tier Pricing)
+   - 6 compositions: 20 headshots each (120 total) (Studio Tier Pricing)
+   - 7+ compositions: 20 headshots each (Studio Tier Pricing + 20 shots add-on)
+
+c. Preview System:
+   - Real-time style combination preview using placeholder models
+   - Sample gallery for each style combination
+   - Style comparison view for multiple compositions
+
+2. Intelligent Photo Upload System
+- What: Advanced photo quality checking and processing system
+- Why: Ensures optimal input quality for AI processing
+- How: 
+  - OpenCV.js for face detection and quality metrics
+  - Sharp.js for image processing and optimization
+  - Automated feedback for photo improvement
+
+3. AI Generation Pipeline
+- What: Advanced AI model integration for headshot generation
+- Why: Creates professional-quality headshots from user photos
+- How: Integration with Fal.ai and/or Replicate APIs with fallback mechanisms
+
+4. User Dashboard
+- What: Central hub for managing compositions and generated images
+- Why: Provides easy access to all user's content and generation progress
+- How: Real-time status updates, preview capabilities, and download options
+
+# User Experience
+
+User Personas:
+
+1. Sarah - Corporate Professional
+- Needs: Professional LinkedIn headshot
+- Pain Points: Limited time, budget constraints
+- Goals: Quick, professional results
+
+2. Mike - Real Estate Agent
+- Needs: Multiple headshot styles for different platforms
+- Pain Points: Consistency across platforms
+- Goals: Variety of professional looks
+
+Key User Flows:
+
+1. First-Time User Flow:
+- Sign up (Google/Email)
+- Create composition(s):
+  1. Select background style from predefined options
+  2. Choose outfit style and color
+  3. Pick photographic style
+  4. Preview combination
+  5. Save composition
+  6. Option to create additional compositions
+  7. System displays total headshots to be generated based on number of compositions
+- Upload photos:
+  1. Minimum 10 photos required
+  2. Real-time quality check feedback
+  3. Option to replace rejected photos
+  4. Progress indicator for upload and processing
+- Complete payment:
+  1. Display pricing based on total compositions/headshots
+  2. Payment processing
+  3. Order confirmation
+- View generation progress:
+  1. Status dashboard for each composition
+  2. Email notifications for completion
+  3. Preview of completed headshots
+- Download results:
+  1. Batch download options
+  2. Individual image download
+  3. Organization by composition
+
+2. Returning User Flow:
+- Resume incomplete session
+- View existing compositions
+- Create new compositions
+- Download/share images
+
+UI/UX Considerations:
+- Clean, professional interface
+- Clear progress indicators
+- Intuitive style selection
+- Mobile-responsive design
+- Helpful tooltips and guides
+
+# Technical Architecture
+
+System Components:
+
+1. Frontend:
+- Next.js framework
+- React components
+- TypeScript for type safety
+- Shadcn UI components
+- Tailwind CSS for styling
+- Zod for validation
+
+2. Backend:
+- Supabase for authentication and database
+- Supabase Edge Functions for AI API integration
+- AWS S3 for image storage
+
+3. AI Processing:
+- Fal.ai/Replicate API integration
+- OpenCV.js for image quality analysis
+- Sharp.js for image processing
+
+Data Models:
+
+1. Users
+- Authentication details
+- Subscription status
+- Creation date
+
+2. Sessions
+- Current progress state
+- Timestamp
+- User reference
+
+3. Compositions
+- Style selections:
+  * background_style: string
+  * outfit_style: string
+  * outfit_color: string
+  * photographic_style: string
+- Status: enum ('draft', 'pending', 'processing', 'completed')
+- Generation progress: number
+- Total headshots: number
+- Generated headshots: number
+- Creation date: timestamp
+- Completion date: timestamp
+- Preview URL: string
+- Sample images: string[]
+
+4. Images
+- Source images
+- Generated images
+- Quality metrics
+- S3 references
+
+# Development Roadmap
+
+Phase 1 - MVP:
+- Basic auth system
+- Single composition flow
+- Simple style selection
+- Basic photo upload
+- AI integration (single provider)
+- Basic dashboard
+- Essential payment integration
+
+Phase 2 - Core Features:
+- Multiple composition support
+- Advanced photo quality checking
+- Image processing optimization
+- Enhanced dashboard features
+- Download and sharing capabilities
+
+Phase 3 - Enhancement:
+- Multiple AI provider integration
+- Advanced style previews
+- Batch processing capabilities
+- User preferences and templates
+- Advanced image editing tools:
+  * Post-Generation Adjustments:
+    - Fine-tune lighting and contrast
+    - Adjust color temperature
+    - Control sharpness levels
+    - Modify background blur
+    - Outfit color refinements
+  * Portrait Enhancement:
+    - Subtle facial retouching
+    - Hair styling adjustments
+    - Skin tone balancing
+    - Eye clarity enhancement
+  * Composition Refinements:
+    - Crop and frame adjustments
+    - Multiple aspect ratio support
+    - Portrait/landscape orientation options
+  * Batch Operations:
+    - Apply edits across multiple photos
+    - Save and apply presets
+    - Bulk export options
+  * Export Customization:
+    - Multiple resolution options
+    - Social media optimized exports
+    - Professional print-ready formats
+  Note: All editing tools will be preset-based and simplified to maintain professional results while ensuring ease of use.
+
+Phase 4 - Optimization:
+- Performance improvements
+- Advanced caching
+- CDN integration
+- Analytics and tracking
+- A/B testing framework
+
+# Logical Dependency Chain
+
+1. Foundation (Week 1-2):
+- Auth system
+- Basic database schema
+- S3 setup
+- Basic UI framework
+
+2. Core Systems (Week 2-3):
+- Photo upload system
+- Image quality checking
+- Basic composition creation
+- AI integration (single provider)
+
+3. User Interface (Week 3-4):
+- Style selection interface
+- Dashboard implementation
+- Progress tracking
+- Basic payment integration
+
+4. Enhancement (Week 4+):
+- Multiple composition support
+- Advanced processing features
+- Optimization and scaling
+- Additional AI provider integration
+
+# Risks and Mitigations
+
+Technical Risks:
+1. AI API Reliability
+- Mitigation: Implement multiple provider support
+- Robust error handling
+- Fallback mechanisms
+
+2. Image Processing Performance
+- Mitigation: Implement efficient processing pipeline
+- Client-side optimization
+- CDN integration
+
+3. Scalability Challenges
+- Mitigation: Implement proper caching
+- Queue system for processing
+- Load balancing strategy
+
+Resource Constraints:
+1. API Costs
+- Mitigation: Optimize API usage
+- Implement proper pricing strategy
+- Batch processing when possible
+
+2. Storage Costs
+- Mitigation: Implement cleanup policies
+- Optimize image storage
+- Implement TTL for temporary files
+
+# Appendix
+
+Pricing Structure:
+1. Individual Tier - $29
+- 20 headshots
+- 1 composition
+- Standard processing
+
+2. Professional Tier - $49
+- 60 headshots
+- Up to 3 compositions
+- Priority processing
+
+3. Studio Tier - $79
+- 120 headshots
+- Up to 6 compositions
+- Priority processing
+- Advanced features
+
+Image Quality Requirements:
+- Minimum resolution: 1080p
+- Format: JPEG, PNG
+- Face visibility: Clear, unobstructed
+- Lighting: Well-lit, even lighting
+- Background: Clean, simple backgrounds preferred 
