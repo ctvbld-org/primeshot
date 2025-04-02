@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cookies } from 'next/headers';
+import Link from 'next/link';
 
 export default async function AppHome() {
   const supabase = await createClient();
@@ -47,10 +48,12 @@ export default async function AppHome() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full">Settings</Button>
+            <Link href="/app/settings">
+              <Button variant="outline" className="w-full">Settings</Button>
+            </Link>
           </CardContent>
         </Card>
       </div>
-      </div>
+    </div>
   );
 } 
