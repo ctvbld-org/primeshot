@@ -18,17 +18,14 @@ export const sessionSchema = z.object({
 
 // Detailed composition settings validation
 const compositionSettingsSchema = z.object({
+  photographyStyle: z.enum(['studio', 'natural', 'dramatic'], {
+    errorMap: () => ({ message: 'Invalid photography style selection' })
+  }),
   style: z.enum(['professional', 'casual', 'creative'], {
     errorMap: () => ({ message: 'Invalid style selection' })
   }),
   background: z.enum(['plain', 'office', 'outdoor', 'custom'], {
     errorMap: () => ({ message: 'Invalid background selection' })
-  }),
-  lighting: z.enum(['studio', 'natural', 'dramatic'], {
-    errorMap: () => ({ message: 'Invalid lighting selection' })
-  }),
-  pose: z.enum(['front', 'threequarter', 'side'], {
-    errorMap: () => ({ message: 'Invalid pose selection' })
   }),
   customSettings: z.record(z.string(), z.any()).optional(),
 });
@@ -38,6 +35,9 @@ export const compositionSchema = z.object({
   user_id: z.string().uuid('Invalid user ID'),
   name: z.string().min(1, 'Name is required').max(100, 'Name is too long'),
   settings: compositionSettingsSchema,
+  status: z.enum(['draft', 'pending', 'processing', 'completed'], {
+    errorMap: () => ({ message: 'Invalid composition status' })
+  }),
   created_at: z.string().datetime('Invalid creation date'),
   updated_at: z.string().datetime('Invalid update date'),
 });

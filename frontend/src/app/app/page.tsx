@@ -26,7 +26,9 @@ export default function AppHome() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button className="w-full">Start Generating</Button>
+            <Link href="/app/composition">
+              <Button className="w-full">Start Generating</Button>
+            </Link>
           </CardContent>
         </Card>
         <Card>

@@ -13,16 +13,15 @@ export type Session = {
   expires_at: string
 }
 
-export type CompositionStyle = 'professional' | 'casual' | 'creative'
+export type CompositionOutfit = 'professional' | 'casual' | 'creative'
 export type CompositionBackground = 'plain' | 'office' | 'outdoor' | 'custom'
-export type CompositionLighting = 'studio' | 'natural' | 'dramatic'
-export type CompositionPose = 'front' | 'threequarter' | 'side'
+export type CompositionPhotographyStyle = 'studio' | 'natural' | 'dramatic'
+export type CompositionStatus = 'draft' | 'pending' | 'processing' | 'completed'
 
 export type CompositionSettings = {
-  style: CompositionStyle
+  photographyStyle: CompositionPhotographyStyle
+  outfit: CompositionOutfit
   background: CompositionBackground
-  lighting: CompositionLighting
-  pose: CompositionPose
   customSettings?: Record<string, any>
 }
 
@@ -31,6 +30,7 @@ export type Composition = {
   user_id: string
   name: string
   settings: CompositionSettings
+  status: CompositionStatus
   created_at: string
   updated_at: string
 }

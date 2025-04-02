@@ -34,12 +34,37 @@ export type Database = {
   }
   public: {
     Tables: {
+      completed_user_journeys: {
+        Row: {
+          completed_at: string
+          created_at: string
+          id: string
+          journey_data: Json
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          created_at?: string
+          id?: string
+          journey_data: Json
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          created_at?: string
+          id?: string
+          journey_data?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       compositions: {
         Row: {
           created_at: string
           id: string
           name: string
           settings: Json
+          status: string
           updated_at: string
           user_id: string
         }
@@ -48,6 +73,7 @@ export type Database = {
           id?: string
           name: string
           settings?: Json
+          status?: string
           updated_at?: string
           user_id: string
         }
@@ -56,6 +82,7 @@ export type Database = {
           id?: string
           name?: string
           settings?: Json
+          status?: string
           updated_at?: string
           user_id?: string
         }
@@ -149,6 +176,39 @@ export type Database = {
           },
         ]
       }
+      user_progress: {
+        Row: {
+          completed_stages: Database["public"]["Enums"]["flow_stage"][]
+          created_at: string
+          current_stage: Database["public"]["Enums"]["flow_stage"]
+          id: string
+          last_active_at: string
+          stage_data: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_stages?: Database["public"]["Enums"]["flow_stage"][]
+          created_at?: string
+          current_stage: Database["public"]["Enums"]["flow_stage"]
+          id?: string
+          last_active_at?: string
+          stage_data?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_stages?: Database["public"]["Enums"]["flow_stage"][]
+          created_at?: string
+          current_stage?: Database["public"]["Enums"]["flow_stage"]
+          id?: string
+          last_active_at?: string
+          stage_data?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           avatar_url: string | null
@@ -184,7 +244,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      flow_stage: "compositions" | "upload" | "review" | "payment" | "dashboard"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -302,7 +362,9 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      flow_stage: ["compositions", "upload", "review", "payment", "dashboard"],
+    },
   },
 } as const
 

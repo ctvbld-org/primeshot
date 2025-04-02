@@ -1,0 +1,178 @@
+---
+description: Authentication patterns and best practices for Next.js middleware using Supabase SSR
+globs: src/middleware.ts, src/lib/supabase/middleware.ts
+alwaysApply: false
+---
+
+- **Middleware Authentication Pattern**
+  - ✅ DO: Use Supabase SSR for authentication
+    ```typescript
+    // ✅ DO: Use updateSession from lib/supabase/middleware
+    import { updateSession } from '@/lib/supabase/middleware'
+    
+    export async function middleware(request: NextRequest) {
+      return await updateSession(request)
+    }
+    ```
+  
+  - ❌ DON'T: Use deprecated auth-helpers-nextjs
+    ```typescript
+    // ❌ DON'T: Use createMiddlewareClient (deprecated)
+    import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
+    ```
+
+- **User Session Verification**
+  - ✅ DO: Use getUser() for secure session checks
+    ```typescript
+    // ✅ DO: Use getUser() for session verification
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.redirect(new URL('/auth', request.url))
+    }
+    ```
+  
+  - ❌ DON'T: Use getSession() (less secure)
+    ```typescript
+    // ❌ DON'T: Use getSession()
+    const { data: { session } } = await supabase.auth.getSession()
+    ```
+
+- **Cookie Management with createServerClient**
+  - ✅ DO: Use *All() methods for cookie management
+    ```typescript
+    // ✅ DO: Use getAll(), setAll(), removeAll()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll()
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              response.cookies.set({ name, value, ...options })
+            })
+          }
+        }
+      }
+    )
+    ```
+  
+  - ❌ DON'T: Use individual cookie methods
+    ```typescript
+    // ❌ DON'T: Use get(), set(), remove()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) { // Wrong
+            return request.cookies.get(name)?.value
+          },
+          set(name: string, value: string, options: CookieOptions) { // Wrong
+            response.cookies.set({ name, value, ...options })
+          },
+          remove(name: string) { // Wrong
+            response.cookies.set({ name, value: '' })
+          }
+        }
+      }
+    )
+    ```
+
+- **Middleware Implementation**
+  ```typescript
+  // src/lib/supabase/middleware.ts
+  import { createServerClient, type CookieOptions } from '@supabase/ssr'
+  import { NextResponse, type NextRequest } from 'next/server'
+
+  export async function updateSession(request: NextRequest) {
+    let response = NextResponse.next({
+      request: {
+        headers: request.headers,
+      },
+    })
+
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll()
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              response.cookies.set({ name, value, ...options })
+            })
+          },
+        },
+      }
+    )
+
+    // Refresh session if expired
+    await supabase.auth.getUser()
+
+    return response
+  }
+  ```
+
+- **Route Protection**
+  ```typescript
+  // src/middleware.ts
+  import { updateSession } from '@/lib/supabase/middleware'
+  import { createServerClient } from '@supabase/ssr'
+  import { NextResponse, type NextRequest } from 'next/server'
+
+  export async function middleware(request: NextRequest) {
+    // Update session using our shared middleware function
+    const response = await updateSession(request)
+
+    // Create server client for additional checks
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+           getAll() {
+            return request.cookies.getAll()
+          }
+        },
+      }
+    )
+
+    // Protect routes under /app
+    if (request.nextUrl.pathname.startsWith('/app')) {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        return NextResponse.redirect(new URL('/auth', request.url))
+      }
+    }
+
+    return response
+  }
+  ```
+
+- **Best Practices**
+  - Always use `createServerClient` from '@supabase/ssr'
+  - Use `getUser()` instead of `getSession()`
+  - Use `getAll()`, `setAll()` for cookie management
+  - Handle cookie management properly
+  - Refresh session in middleware
+  - Keep middleware logic minimal
+  - Use proper error handling
+  - Avoid any logic between createServerClient and getUser()
+
+- **Security Considerations**
+  - Never expose sensitive data in middleware
+  - Always verify user session before protected routes
+  - Use proper cookie settings for security
+  - Handle session refresh properly
+  - Implement proper error handling
+  - Use *All() methods for cookie operations to maintain session consistency
+
+- **Related Rules**
+  - See [auth.mdc](mdc:.cursor/rules/auth.mdc) for authentication patterns
+  - See [project_structure.mdc](mdc:.cursor/rules/project_structure.mdc) for file organization
+  - See [cursor_rules.mdc](mdc:.cursor/rules/cursor_rules.mdc) for rule formatting
