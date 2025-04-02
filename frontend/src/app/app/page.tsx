@@ -1,17 +1,17 @@
-import { createClient } from '@/lib/supabase/server';
+'use client'
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { cookies } from 'next/headers';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/auth-context';
 
-export default async function AppHome() {
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.getUser();
+export default function AppHome() {
+  const { user } = useAuth();
 
   return (
     <div className="space-y-6 mt-[80px]">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Welcome back!</h2>
+        <h2 className="text-2xl font-bold tracking-tight">Welcome back{user?.full_name ? `, ${user.full_name}` : ''}!</h2>
         <p className="text-muted-foreground">
           Here&apos;s your dashboard for managing your headshots.
         </p>

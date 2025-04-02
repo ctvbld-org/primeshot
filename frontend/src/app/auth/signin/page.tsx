@@ -3,53 +3,16 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from "@/contexts/auth-context";
 import { useState } from "react";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const supabase = createClient()
+  const { signIn, signInWithGoogle, isLoading, error } = useAuth();
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`
-        }
-      });
-
-      if (error) throw error;
-
-      window.location.href = '/auth/verify';
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent'
-          }
-        }
-      });
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error:', error);
-    }
+    await signIn(email);
   };
 
   return (
@@ -69,6 +32,9 @@ export default function SignIn() {
                 placeholder="Enter your email"
                 required
               />
+              {error && (
+                <p className="text-sm text-red-500">{error.message}</p>
+              )}
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Loading..." : "Continue with Email"}
@@ -90,7 +56,7 @@ export default function SignIn() {
             type="button"
             variant="outline"
             className="w-full"
-            onClick={handleGoogleSignIn}
+            onClick={signInWithGoogle}
             disabled={isLoading}
           >
             Continue with Google

@@ -41,12 +41,22 @@ export async function GET(request: Request) {
       if (userError) throw userError
 
       if (user) {
+        // Get user metadata from OAuth provider if available
+        const full_name = user.user_metadata?.full_name || 
+                         user.user_metadata?.name ||
+                         user.user_metadata?.user_name ||
+                         null
+
+        const avatar_url = user.user_metadata?.avatar_url || null
+
         // Create/update user in database using same client (has service role permissions)
         const { error: dbError } = await supabase
           .from('users')
           .upsert({
             id: user.id,
             email: user.email,
+            full_name,
+            avatar_url,
             updated_at: new Date().toISOString()
           })
         if (dbError) {

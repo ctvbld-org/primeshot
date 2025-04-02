@@ -1,22 +1,31 @@
-import { createClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Toaster } from '@/components/ui/toaster';
+'use client'
 
-export default async function AppLayout({
+import { Button } from '@/components/ui/button'
+import { Toaster } from '@/components/ui/toaster'
+import { useAuth } from '@/contexts/auth-context'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+
+export default function AppLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  const supabase = await createClient();
+  const { isAuthenticated, isLoading, user, signOut } = useAuth()
+  const router = useRouter()
 
-  const {
-    data, error
-  } = await supabase.auth.getUser();
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.replace('/auth/signin')
+    }
+  }, [isLoading, isAuthenticated, router])
 
-  if (!data.user || error) {
-    redirect('/auth/signin');
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
+
+  if (!isAuthenticated) {
+    return null // Router will handle redirect
   }
 
   return (
@@ -27,14 +36,12 @@ export default async function AppLayout({
             <nav className="flex items-center space-x-4">
               <h1 className="text-xl font-bold">Primeshot</h1>
             </nav>
-            <form
-              action="/auth/signout"
-              method="post"
+            <Button 
+              variant="ghost"
+              onClick={() => signOut()}
             >
-              <Button variant="ghost">
-                Sign Out
-              </Button>
-            </form>
+              Sign Out
+            </Button>
           </div>
         </div>
       </header>
@@ -43,5 +50,5 @@ export default async function AppLayout({
       </main>
       <Toaster />
     </div>
-  );
+  )
 } 

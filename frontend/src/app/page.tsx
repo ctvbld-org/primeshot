@@ -1,17 +1,23 @@
-import { createClient } from '@/lib/supabase/server'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import Image from "next/image";
-import { redirect } from 'next/navigation'
+'use client'
 
-export default async function Home() {
-  const supabase = await createClient();
+import { useAuth } from '@/contexts/auth-context'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
-  const { data, error } = await supabase.auth.getUser()
-  
-  if (!data.user) {
-    redirect('/auth/signin')
-  }
+export default function Home() {
+  const { isAuthenticated, isLoading } = useAuth()
+  const router = useRouter()
 
-  redirect('/app')
+  useEffect(() => {
+    if (!isLoading) {
+      if (isAuthenticated) {
+        router.replace('/app')
+      } else {
+        router.replace('/auth/signin')
+      }
+    }
+  }, [isLoading, isAuthenticated, router])
+
+  // Show nothing while redirecting
+  return null
 }
