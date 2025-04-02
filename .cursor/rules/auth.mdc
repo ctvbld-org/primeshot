@@ -4,6 +4,12 @@ globs:
 alwaysApply: false
 ---
 
+⚠️ **IMPORTANT DEPRECATION NOTICE**
+- `@supabase/auth-helpers-nextjs` is deprecated
+- Use `@supabase/ssr` and `@supabase/supabase-js` instead for Next.js server and client components
+- Migration guide: https://supabase.com/docs/guides/auth/auth-helpers/nextjs-migration
+
+
 # Authentication Architecture
 
 - **Core Components Structure**

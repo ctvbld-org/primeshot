@@ -4,9 +4,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/auth-context';
+import { useUserProgress } from '@/hooks/use-user-progress';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function AppHome() {
   const { user } = useAuth();
+  const { progress, isLoading } = useUserProgress();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && progress && !progress.completed_stages.includes('payment')) {
+      router.replace(`/app/${progress.current_stage}`);
+    }
+  }, [isLoading, progress, router]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="space-y-6 mt-[80px]">
@@ -26,7 +41,7 @@ export default function AppHome() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/app/composition">
+            <Link href="/app/compositions">
               <Button className="w-full">Start Generating</Button>
             </Link>
           </CardContent>

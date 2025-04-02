@@ -33,15 +33,27 @@ export async function middleware(request: NextRequest) {
       .eq('user_id', user.id)
       .single()
 
-    // If user hasn't completed payment and tries to access a route other than their current stage
+    // If user hasn't completed payment, enforce stage progression
+    if (progress && !progress.completed_stages.includes('payment')) {
+      // Allow access only to compositions and current stage
+      const isCompositionsRoute = request.nextUrl.pathname === '/app/compositions'
+      const isCurrentStageRoute = request.nextUrl.pathname.includes(progress.current_stage)
+      
+      if (!isCompositionsRoute && !isCurrentStageRoute) {
+        // Redirect to their current stage
+        return NextResponse.redirect(
+          new URL(`/app/${progress.current_stage}`, request.url)
+        )
+      }
+    }
+
+    // If no progress exists and not on compositions page, redirect to compositions
     if (
-      progress &&
-      !progress.completed_stages.includes('payment') &&
-      !request.nextUrl.pathname.includes(progress.current_stage)
+      !progress &&
+      request.nextUrl.pathname !== '/app/compositions'
     ) {
-      // Redirect to their current stage
       return NextResponse.redirect(
-        new URL(`/app/${progress.current_stage}`, request.url)
+        new URL('/app/compositions', request.url)
       )
     }
   }
