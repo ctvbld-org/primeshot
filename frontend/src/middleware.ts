@@ -50,7 +50,7 @@ export async function middleware(request: NextRequest) {
     // If no progress exists and not on compositions page, redirect to compositions
     if (
       !progress &&
-      request.nextUrl.pathname !== '/app/compositions'
+      !request.nextUrl.pathname.startsWith('/app/composition')
     ) {
       return NextResponse.redirect(
         new URL('/app/compositions', request.url)

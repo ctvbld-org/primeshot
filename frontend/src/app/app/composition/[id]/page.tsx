@@ -23,6 +23,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { deleteComposition } from '@/lib/api/compositions'
+import { TrashIcon } from '@heroicons/react/24/outline'
 
 export default function CompositionPage() {
   const params = useParams()
@@ -34,6 +36,8 @@ export default function CompositionPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [showDiscardDialog, setShowDiscardDialog] = useState(false)
   const [originalSettings, setOriginalSettings] = useState<CompositionSettings | null>(null)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const hasUnsavedChanges = originalSettings && (
     originalSettings.background !== settings.background ||
@@ -139,6 +143,29 @@ export default function CompositionPage() {
     router.push('/app/compositions')
   }
 
+  const handleDelete = async () => {
+    if (!user || !params.id) return
+
+    try {
+      setIsDeleting(true)
+      await deleteComposition(Array.isArray(params.id) ? params.id[0] : params.id, user.id)
+      toast({
+        title: 'Success',
+        description: 'Composition deleted successfully'
+      })
+      router.push('/app/compositions')
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to delete composition',
+        variant: 'destructive'
+      })
+    } finally {
+      setIsDeleting(false)
+      setShowDeleteDialog(false)
+    }
+  }
+
   if (isLoading) {
     return <div className="text-center py-8">Loading composition...</div>
   }
@@ -178,6 +205,14 @@ export default function CompositionPage() {
           </CardContent>
           <CardFooter className="flex gap-4">
             <Button 
+              variant="destructive"
+              size="icon"
+              onClick={() => setShowDeleteDialog(true)}
+              disabled={isDeleting}
+            >
+              <TrashIcon className="h-4 w-4" />
+            </Button>
+            <Button 
               variant="outline"
               className="flex-1"
               onClick={handleCancel}
@@ -207,6 +242,26 @@ export default function CompositionPage() {
             <AlertDialogCancel>Continue Editing</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmDiscard}>
               Discard Changes
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Composition</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this composition? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
