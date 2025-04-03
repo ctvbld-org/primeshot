@@ -14,7 +14,20 @@ export type Session = {
 }
 
 export type CompositionOutfit = 'professional' | 'casual' | 'creative'
-export type CompositionBackground = 'plain' | 'office' | 'outdoor' | 'custom'
+export type CompositionBackground = 
+  | 'plain'
+  | 'office'
+  | 'outdoor'
+  | 'bookshelf'
+  | 'cafe'
+  | 'studio'
+  | 'gradient'
+  | 'cityscape'
+  | 'abstract'
+  | 'brick'
+  | 'nature'
+  | 'tech'
+  | 'custom'
 export type CompositionPhotographyStyle = 'studio' | 'natural' | 'dramatic'
 export type CompositionStatus = 'draft' | 'pending' | 'processing' | 'completed'
 

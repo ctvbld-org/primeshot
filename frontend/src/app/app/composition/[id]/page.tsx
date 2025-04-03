@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
 import { useAuth } from '@/contexts/auth-context'
@@ -13,6 +12,7 @@ import { PhotographyStyleSelector } from '@/components/composition/photography-s
 import { useCompositionStore } from '@/store/composition'
 import { createClient } from '@/lib/supabase/client'
 import { Composition, CompositionSettings } from '@/lib/types'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,6 +38,7 @@ export default function CompositionPage() {
   const [originalSettings, setOriginalSettings] = useState<CompositionSettings | null>(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [openDrawer, setOpenDrawer] = useState<'background' | 'outfit' | null>(null)
 
   const hasUnsavedChanges = originalSettings && (
     originalSettings.background !== settings.background ||
@@ -166,6 +167,13 @@ export default function CompositionPage() {
     }
   }
 
+  const handleDrawerToggle = (drawer: 'background' | 'outfit') => {
+    // If the clicked drawer is already open, do nothing
+    if (openDrawer === drawer) return
+    // Otherwise, open the clicked drawer
+    setOpenDrawer(drawer)
+  }
+
   if (isLoading) {
     return <div className="text-center py-8">Loading composition...</div>
   }
@@ -180,54 +188,105 @@ export default function CompositionPage() {
           </p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Style Selection</CardTitle>
-            <CardDescription>
-              Your selected style elements for this composition.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <PhotographyStyleSelector />
-            
-            <Tabs defaultValue="background" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="background">Background</TabsTrigger>
-                <TabsTrigger value="outfit">Outfit</TabsTrigger>
-              </TabsList>
-              <TabsContent value="background" className="mt-4">
-                <BackgroundSelector />
-              </TabsContent>
-              <TabsContent value="outfit" className="mt-4">
-                <OutfitSelector />
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-          <CardFooter className="flex gap-4">
+        <div className="relative">
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col gap-4">
             <Button 
-              variant="destructive"
-              size="icon"
-              onClick={() => setShowDeleteDialog(true)}
-              disabled={isDeleting}
+              variant="outline" 
+              size="lg"
+              className="w-48"
+              onClick={() => handleDrawerToggle('background')}
             >
-              <TrashIcon className="h-4 w-4" />
+              Choose Background
             </Button>
             <Button 
-              variant="outline"
-              className="flex-1"
-              onClick={handleCancel}
+              variant="outline" 
+              size="lg"
+              className="w-48"
+              onClick={() => handleDrawerToggle('outfit')}
             >
-              Cancel
+              Choose Outfit
             </Button>
-            <Button 
-              className="flex-1"
-              onClick={handleSave}
-              disabled={isSaving || !hasUnsavedChanges}
-            >
-              {isSaving ? 'Saving...' : 'Save Changes'}
-            </Button>
-          </CardFooter>
-        </Card>
+          </div>
+
+          <div className="mx-auto max-w-2xl">
+            <Card>
+              <CardContent className="space-y-6">
+                <PhotographyStyleSelector />
+                <div className="aspect-[3/4] w-full bg-muted rounded-lg flex items-center justify-center">
+                  <p className="text-muted-foreground">Preview image will be shown here</p>
+                </div>
+              </CardContent>
+              <CardFooter className="flex gap-4">
+                <Button 
+                  variant="destructive"
+                  size="icon"
+                  onClick={() => setShowDeleteDialog(true)}
+                  disabled={isDeleting}
+                >
+                  <TrashIcon className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="flex-1"
+                  onClick={handleCancel}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  className="flex-1"
+                  onClick={handleSave}
+                  disabled={isSaving || !hasUnsavedChanges}
+                >
+                  {isSaving ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+        </div>
+
+        <Sheet 
+          open={openDrawer === 'background'} 
+          modal={false}
+          onOpenChange={(open) => !open && setOpenDrawer(null)}
+        >
+          <SheetContent 
+            side="right" 
+            className="w-[400px] sm:w-[540px]" 
+            onPointerDownOutside={(e) => e.preventDefault()}
+            onInteractOutside={(e) => e.preventDefault()}
+            onEscapeKeyDown={(e) => e.preventDefault()}
+            onCloseAutoFocus={(e) => e.preventDefault()}
+          >
+            <SheetHeader>
+              <SheetTitle>Choose Background</SheetTitle>
+            </SheetHeader>
+            <div className="mt-8 overflow-y-auto pr-6" style={{ maxHeight: 'calc(100vh - 8rem)' }}>
+              <BackgroundSelector />
+            </div>
+          </SheetContent>
+        </Sheet>
+
+        <Sheet 
+          open={openDrawer === 'outfit'} 
+          modal={false}
+          onOpenChange={(open) => !open && setOpenDrawer(null)}
+        >
+          <SheetContent 
+            side="right" 
+            className="w-[400px] sm:w-[540px]" 
+            onPointerDownOutside={(e) => e.preventDefault()}
+            onInteractOutside={(e) => e.preventDefault()}
+            onEscapeKeyDown={(e) => e.preventDefault()}
+            onCloseAutoFocus={(e) => e.preventDefault()}
+          >
+            <SheetHeader>
+              <SheetTitle>Choose Outfit</SheetTitle>
+            </SheetHeader>
+            <div className="mt-8 overflow-y-auto pr-6" style={{ maxHeight: 'calc(100vh - 8rem)' }}>
+              <OutfitSelector />
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
 
       <AlertDialog open={showDiscardDialog} onOpenChange={setShowDiscardDialog}>
@@ -257,7 +316,7 @@ export default function CompositionPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
+            <AlertDialogAction 
               onClick={handleDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
