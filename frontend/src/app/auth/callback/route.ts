@@ -62,18 +62,35 @@ export async function GET(request: Request) {
         if (dbError) {
           console.error('Error creating user in database:', dbError)
         }
+
+        // Check for user progress
+        const { data: progress } = await supabase
+          .from('user_progress')
+          .select()
+          .eq('user_id', user.id)
+          .single()
+
+        // Create a new response with the redirect
+        const response = NextResponse.redirect(
+          new URL(
+            progress && !progress.completed_stages.includes('payment')
+              ? `/app/${progress.current_stage}`
+              : '/app/compositions',
+            requestUrl.origin
+          )
+        )
+        
+        // Copy over the cookies from the cookie store
+        const allCookies = cookieStore.getAll()
+        allCookies.forEach(cookie => {
+          response.cookies.set(cookie.name, cookie.value)
+        })
+
+        return response
       }
       
-      // Create a new response with the redirect
-      const response = NextResponse.redirect(new URL('/app', requestUrl.origin))
-      
-      // Copy over the cookies from the cookie store
-      const allCookies = cookieStore.getAll()
-      allCookies.forEach(cookie => {
-        response.cookies.set(cookie.name, cookie.value)
-      })
-
-      return response
+      // If no user, redirect to home
+      return NextResponse.redirect(new URL('/', requestUrl.origin))
     } catch (error) {
       return NextResponse.redirect(new URL('/auth/auth-code-error', requestUrl.origin))
     }

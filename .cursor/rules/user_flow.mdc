@@ -1,0 +1,350 @@
+---
+description: User flow and state transitions for the headshot generation process
+globs: src/app/app/**/*.tsx, src/components/**/*.tsx
+alwaysApply: true
+---
+- **User Flow Stages**
+  - Each stage corresponds to specific routes and components
+  - Flow enforces sequential progression through required steps
+  - State management tracks completion of each stage
+
+  ```typescript
+  // Stage status types
+  type FlowStage = 
+    | 'compositions'  // Creating style compositions
+    | 'upload'        // Uploading user photos
+    | 'review'        // Image quality review
+    | 'payment'       // Payment processing
+    | 'confirmation'  // Order confirmation
+    | 'dashboard'     // Results viewing
+  ```
+
+- **1. Authentication (Route: /auth)**
+  - Required before accessing any app features
+  - Handled by Supabase authentication
+  - Redirects to compositions page on success
+  ```typescript
+  // ✅ DO: Check auth state before rendering protected routes
+  if (!user) return <RedirectToAuth />
+  
+  // ❌ DON'T: Allow access to protected routes without auth
+  if (!user) renderProtectedContent() // Wrong
+  ```
+
+- **2. Compositions Page (Route: /app/compositions)**
+  - Initial state shows empty grid with "New Composition" button
+  - Lists all draft compositions for the user
+  - "Next" button enabled only with at least one composition
+  ```typescript
+  // ✅ DO: Filter compositions by status
+  .eq('status', 'draft')
+  
+  // ✅ DO: Enable next button conditionally
+  disabled={compositions.length === 0}
+  ```
+
+- **3. Composition Creation (Route: /app/composition)**
+  - Three main selectors:
+    - Photography Style (studio, natural, dramatic)
+    - Outfit (professional, casual, creative)
+    - Background (plain, office, outdoor, custom)
+  - Saves as draft status
+  ```typescript
+  // ✅ DO: Save with draft status
+  status: 'draft' as CompositionStatus
+  
+  // ✅ DO: Format name consistently
+  `${photographyStyle} ${outfit} ${background}`
+  ```
+
+- **4. Photo Upload (Route: /app/upload)**
+  - Only accessible with at least one draft composition
+  - Handles multiple photo uploads
+  - Validates image requirements:
+    - Minimum resolution
+    - Face detection
+    - Image quality checks
+  ```typescript
+  // ✅ DO: Validate images before upload
+  validateImageRequirements(file)
+  
+  // ✅ DO: Show clear upload feedback
+  uploadProgress, uploadStatus
+  ```
+
+- **5. Upload Review (Route: /app/review)**
+  - Shows upload results with quality ratings
+  - Allows re-upload of rejected images
+  - Requires all images to pass quality check
+  ```typescript
+  // ✅ DO: Show clear rejection reasons
+  image.rejectionReasons.map(reason => ...)
+  
+  // ✅ DO: Enable continue only when all images valid
+  disabled={hasRejectedImages}
+  ```
+
+- **6. Payment (Route: /app/payment)**
+  - Shows order summary
+  - Handles payment processing
+  - Updates composition status on success
+  ```typescript
+  // ✅ DO: Update all compositions on payment
+  compositions.map(comp => updateStatus(comp.id, 'processing'))
+  
+  // ✅ DO: Show clear payment feedback
+  paymentStatus, paymentError
+  ```
+
+- **7. Dashboard (Route: /app/dashboard)**
+  - Shows all compositions grouped by status:
+    - Completed: Ready for viewing
+    - Processing: Being generated
+    - Draft: Not yet submitted
+  ```typescript
+  // ✅ DO: Group compositions by status
+  groupBy(compositions, 'status')
+  
+  // ✅ DO: Sort by creation date within groups
+  orderBy(group, 'created_at', 'desc')
+  ```
+
+- **8. Results View (Route: /app/compositions/[id])**
+  - Shows generated images for completed compositions
+  - Allows image downloads
+  - Displays original composition settings
+  ```typescript
+  // ✅ DO: Check composition status before showing results
+  if (composition.status !== 'completed') return <NotReady />
+  
+  // ✅ DO: Enable download for completed images
+  disabled={!image.isReady}
+  ```
+
+- **State Transitions**
+  ```mermaid
+  graph LR
+    A[Draft] --> B[Processing]
+    B --> C[Completed]
+    B --> D[Failed]
+    D --> A
+  ```
+
+- **Error Handling**
+  - Each stage should handle:
+    - Network errors
+    - Validation failures
+    - Payment failures
+    - Processing errors
+  ```typescript
+  // ✅ DO: Show user-friendly error messages
+  toast({
+    title: 'Error',
+    description: getErrorMessage(error),
+    variant: 'destructive'
+  })
+  ```
+
+- **Navigation Rules**
+  - Forward progression requires completion of previous steps
+  - Back navigation allowed to any previous step
+  - Composition editing only allowed in draft status
+  ```typescript
+  // ✅ DO: Check step completion
+  if (!hasCompletedPrp) redirect('/previous-step')
+  
+  //nly in draft
+  disabled={compos}
+  ```
+
+- **Related Rules**
+  - See [auth.mdc](mdc:.cursor/rules/auth.mdc) for authentication patterns
+  - See [project_structure.mdc](mdc:.cursor/rules/project_structure.mdc) for file organization
+  - See [supabase_migrations.mdc](mdc:.cursor/rules/supabase_migrations.mdc) for database schema
+
+- **Session Persistence and State Recovery**
+  - Track and restore user's progress through the flow
+  - Persist state for users who haven't completed payment
+  - Automatically redirect to last active step on return
+
+  ```typescript
+  // Flow progress tracking type
+  type FlowProgress = {
+    currentStage: FlowStage
+    lastActiveAt: string
+    completedStages: FlowStage[]
+    stageData: {
+      compositions?: {
+        savedCount: number
+        lastSavedAt?: string
+      }
+      upload?: {
+        uploadedFiles: string[]
+        uploadProgress: number
+        lastUploadAt?: string
+      }
+      review?: {
+        reviewedImages: string[]
+        rejectedImages: string[]
+        lastReviewAt?: string
+      }
+      payment?: {
+        attemptCount: number
+        lastAttemptAt?: string
+      }
+    }
+  }
+  ```
+
+  ```typescript
+  // ✅ DO: Save progress after each significant action
+  await supabase
+    .from('user_progress')
+    .upsert({
+      user_id: user.id,
+      current_stage: 'upload',
+      completed_stages: ['compositions'],
+      stage_data: stageData,
+      last_active_at: new Date().toISOString()
+    })
+
+  // ✅ DO: Check and restore progress on page load
+  useEffect(() => {
+    const { data: progress } = await supabase
+      .from('user_progress')
+      .select()
+      .eq('user_id', user.id)
+      .single()
+
+    if (progress && !isPaymentCompleted) {
+      router.push(`/app/${progress.current_stage}`)
+    }
+  }, [user])
+
+  // ❌ DON'T: Allow skipping to future stages
+  if (!progress.completedStages.includes('compositions')) {
+    return redirect('/app/compositions')
+  }
+  ```
+
+- **Progress Persistence Points**
+  1. **Compositions Stage**
+     - After landing on empty compositions page
+     - After each composition save
+     - Before proceeding to upload
+     ```typescript
+     // ✅ DO: Update progress after composition save
+     await updateProgress({
+       currentStage: 'compositions',
+       stageData: {
+         compositions: {
+           savedCount: compositions.length,
+           lastSavedAt: new Date().toISOString()
+         }
+       }
+     })
+     ```
+
+  2. **Upload Stage**
+     - On upload page load
+     - During file upload (progress)
+     - After upload completion
+     ```typescript
+     // ✅ DO: Track upload progress
+     await updateProgress({
+       currentStage: 'upload',
+       stageData: {
+         upload: {
+           uploadedFiles: [...existingFiles, newFile],
+           uploadProgress: (uploadedCount / totalFiles) * 100,
+           lastUploadAt: new Date().toISOString()
+         }
+       }
+     })
+     ```
+
+  3. **Review Stage**
+     - Initial image review status
+     - After each image rejection/approval
+     - Before proceeding to payment
+     ```typescript
+     // ✅ DO: Save review decisions
+     await updateProgress({
+       currentStage: 'review',
+       stageData: {
+         review: {
+           reviewedImages: approvedImages,
+           rejectedImages: rejectedImages,
+           lastReviewAt: new Date().toISOString()
+         }
+       }
+     })
+     ```
+
+  4. **Payment Stage**
+     - Payment page load
+     - Payment attempt tracking
+     ```typescript
+     // ✅ DO: Track payment attempts
+     await updateProgress({
+       currentStage: 'payment',
+       stageData: {
+         payment: {
+           attemptCount: progress.stageData.payment.attemptCount + 1,
+           lastAttemptAt: new Date().toISOString()
+         }
+       }
+     })
+     ```
+
+- **Progress Cleanup**
+  - Clear progress data after successful payment
+  - Retain historical data for analytics
+  ```typescript
+  // ✅ DO: Clear progress after payment
+  if (paymentSuccess) {
+    await supabase
+      .from('user_progress')
+      .delete()
+      .eq('user_id', user.id)
+    
+    // Archive for analytics
+    await supabase
+      .from('completed_user_journeys')
+      .insert({
+        user_id: user.id,
+        journey_data: progress,
+        completed_at: new Date().toISOString()
+      })
+  }
+  ```
+
+- **State Recovery Rules**
+  - Always validate stage access against completed stages
+  - Prevent direct URL access to future stages
+  - Maintain data consistency across page reloads
+  - Handle browser back/forward navigation
+  ```typescript
+  // ✅ DO: Validate stage access
+  export function validateStageAccess(
+    currentStage: FlowStage,
+    progress: FlowProgress
+  ) {
+    const stageOrder = [
+      'compositions',
+      'upload',
+      'review',
+      'payment',
+      'dashboard'
+    ]
+    
+    const currentIndex = stageOrder.indexOf(currentStage)
+    const completedIndex = Math.max(
+      ...progress.completedStages.map(stage => 
+        stageOrder.indexOf(stage)
+      )
+    )
+    
+    return currentIndex <= completedIndex + 1
+  }
+  ```
