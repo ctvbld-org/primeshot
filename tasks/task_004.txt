@@ -1,6 +1,6 @@
 # Task ID: 4
 # Title: Implement Multi-Style Composition System
-# Status: pending
+# Status: in-progress
 # Dependencies: 3
 # Priority: high
 # Description: Develop the interface for creating and managing multiple style compositions with selection of background, outfit, and photographic styles.

@@ -26,7 +26,7 @@
       "id": 3,
       "title": "Create Database Schema and Storage Setup",
       "description": "Design and implement the complete database schema in Supabase and configure AWS S3 for image storage.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         2
       ],
@@ -38,7 +38,7 @@
       "id": 4,
       "title": "Implement Multi-Style Composition System",
       "description": "Develop the interface for creating and managing multiple style compositions with selection of background, outfit, and photographic styles.",
-      "status": "pending",
+      "status": "in-progress",
       "dependencies": [
         3
       ],

@@ -1,6 +1,6 @@
 # Task ID: 3
 # Title: Create Database Schema and Storage Setup
-# Status: pending
+# Status: done
 # Dependencies: 2
 # Priority: high
 # Description: Design and implement the complete database schema in Supabase and configure AWS S3 for image storage.
