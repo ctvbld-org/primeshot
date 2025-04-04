@@ -1,0 +1,11 @@
+# Task ID: 5
+# Title: Develop Photo Upload System with Quality Checking
+# Status: pending
+# Dependencies: 3
+# Priority: high
+# Description: Create an intelligent photo upload system with real-time quality checking using OpenCV.js and feedback mechanisms.
+# Details:
+Implement drag-and-drop and file selection UI for photo uploads. Integrate OpenCV.js for face detection and quality metrics (resolution, lighting, face visibility). Create Sharp.js pipeline for image optimization and processing. Develop real-time feedback system for photo quality issues with specific improvement suggestions. Implement batch upload capability with progress indicators. Store uploaded photos in S3 with references in the Images table.
+
+# Test Strategy:
+Test with various photo qualities to verify detection of issues. Validate face detection accuracy across different types of photos. Test upload performance with multiple simultaneous uploads. Verify that quality feedback is accurate and helpful. Ensure processed images maintain sufficient quality for AI processing.

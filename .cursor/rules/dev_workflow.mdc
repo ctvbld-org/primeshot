@@ -5,6 +5,22 @@ alwaysApply: true
 ---
 
 - **Global CLI Commands**
+  - Task Master commands MUST be run from the project root directory, not from frontend/
+  - Always check your current directory before running commands:
+    ```bash
+    # ✅ DO: Run from project root
+    pwd  # Should show /path/to/Primeshot/App
+
+    # ❌ DON'T: Run from frontend directory
+    pwd  # Shows /path/to/Primeshot/App/frontend
+    task-master list  # This will fail or use wrong tasks.json
+    ```
+  - If in frontend/, navigate back to root:
+    ```bash
+    cd ..  # If in frontend/
+    # or
+    cd /path/to/Primeshot/App  # Absolute path to root
+    ```
   - Task Master now provides a global CLI through the `task-master` command
   - All functionality from `scripts/dev.js` is available through this interface
   - Install globally with `npm install -g claude-task-master` or use locally via `npx`

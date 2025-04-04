@@ -79,31 +79,37 @@ Key User Flows:
 
 1. First-Time User Flow:
 - Sign up (Google/Email)
-- Create composition(s):
+- Compositions page:
+  1. Create a new composition
+  2. View draft compositions previously created
+- Create composition page:
   1. Select background style from predefined options
   2. Choose outfit style and color
   3. Pick photographic style
   4. Preview combination
   5. Save composition
   6. Option to create additional compositions
-  7. System displays total headshots to be generated based on number of compositions
-- Upload photos:
+  7. System displays total headshots to be generated based on number of compositions and total price
+- Complete payment page:
+  1. Payment processing
+  2. Order confirmation
+- Upload photos page:
   1. Minimum 10 photos required
   2. Real-time quality check feedback
   3. Option to replace rejected photos
   4. Progress indicator for upload and processing
-- Complete payment:
-  1. Display pricing based on total compositions/headshots
-  2. Payment processing
-  3. Order confirmation
+- Confirmation screen before image generation process:
+  1. Selected compositions
+  2. Questionnaire details
 - View generation progress:
   1. Status dashboard for each composition
   2. Email notifications for completion
   3. Preview of completed headshots
-- Download results:
-  1. Batch download options
-  2. Individual image download
-  3. Organization by composition
+- Composition page results:
+  1. View images
+  2. Tag favourite images
+  3. Make image edits
+  4. Batch download options
 
 2. Returning User Flow:
 - Resume incomplete session
@@ -136,7 +142,10 @@ System Components:
 - AWS S3 for image storage
 
 3. AI Processing:
-- Fal.ai/Replicate API integration
+- Replicate API integration
+- Use 'ostris/flux-dev-lora-trainer' to train User's uploaded pictures
+- Use ComfyUI for inference using Flux-dev, trained LoRAs and upscalers
+- Deploy our own dedicated instance on Replicate for ComfyUI using 'fofr/any-comfyui-workflow' by either using a private deployment or a fork using Cog as explained in this readme: https://github.com/replicate/cog-comfyui?tab=readme-ov-file
 - OpenCV.js for image quality analysis
 - Sharp.js for image processing
 
@@ -177,19 +186,19 @@ Data Models:
 
 Phase 1 - MVP:
 - Basic auth system
-- Single composition flow
+- Multiple composition flow
 - Simple style selection
 - Basic photo upload
-- AI integration (single provider)
+- AI integration
 - Basic dashboard
 - Essential payment integration
 
 Phase 2 - Core Features:
-- Multiple composition support
 - Advanced photo quality checking
 - Image processing optimization
 - Enhanced dashboard features
 - Download and sharing capabilities
+- Multi Languages support
 
 Phase 3 - Enhancement:
 - Multiple AI provider integration
@@ -240,8 +249,8 @@ Phase 4 - Optimization:
 2. Core Systems (Week 2-3):
 - Photo upload system
 - Image quality checking
-- Basic composition creation
-- AI integration (single provider)
+- Multi composition creation
+- AI integration
 
 3. User Interface (Week 3-4):
 - Style selection interface
@@ -250,7 +259,6 @@ Phase 4 - Optimization:
 - Basic payment integration
 
 4. Enhancement (Week 4+):
-- Multiple composition support
 - Advanced processing features
 - Optimization and scaling
 - Additional AI provider integration

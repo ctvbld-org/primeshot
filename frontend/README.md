@@ -48,7 +48,7 @@ AWS_SECRET_ACCESS_KEY=your_aws_secret_key
 1. Clone the repository:
 ```bash
 git clone https://github.com/yourusername/primeshot.git
-cd primeshot/frontend
+cd Primeshot/App/frontend
 ```
 
 2. Install dependencies:

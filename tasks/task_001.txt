@@ -1,0 +1,11 @@
+# Task ID: 1
+# Title: Setup Project Foundation
+# Status: done
+# Dependencies: None
+# Priority: high
+# Description: Initialize the Next.js project with TypeScript, configure Tailwind CSS, Shadcn UI components, and set up the basic folder structure.
+# Details:
+Create a new Next.js project with TypeScript support using 'npx create-next-app@latest --typescript'. Install and configure Tailwind CSS, Shadcn UI, and Zod for validation. Set up the project structure with folders for components, pages, hooks, utils, and types. Initialize Git repository and create the initial commit.
+
+# Test Strategy:
+Verify successful project creation by running the development server and confirming all dependencies are correctly installed. Create a simple test page to ensure Tailwind CSS and Shadcn UI components render correctly.
