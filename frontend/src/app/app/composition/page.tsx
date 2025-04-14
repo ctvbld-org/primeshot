@@ -1,18 +1,20 @@
 'use client'
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
 import { useAuth } from '@/contexts/auth-context'
 import { BackgroundSelector } from '@/components/composition/background-selector'
 import { OutfitSelector } from '@/components/composition/outfit-selector'
 import { PhotographyStyleSelector } from '@/components/composition/photography-style-selector'
+import { StylePreview } from '@/components/composition/style-preview'
 import { useCompositionStore } from '@/store/composition'
 import { saveComposition } from '@/lib/api/compositions'
 import { CompositionStatus } from '@/lib/types'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { X } from 'lucide-react'
 
 export default function CompositionPage() {
   const router = useRouter()
@@ -20,6 +22,7 @@ export default function CompositionPage() {
   const { settings, reset } = useCompositionStore()
   const { toast } = useToast()
   const [isSaving, setIsSaving] = useState(false)
+  const [openDrawer, setOpenDrawer] = useState<'background' | 'outfit' | null>(null)
 
   const handleSave = async () => {
     if (!user) {
@@ -67,6 +70,13 @@ export default function CompositionPage() {
     }
   }
 
+  const handleDrawerToggle = (drawer: 'background' | 'outfit') => {
+    // If the clicked drawer is already open, do nothing
+    if (openDrawer === drawer) return
+    // Otherwise, open the clicked drawer
+    setOpenDrawer(drawer)
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -76,39 +86,90 @@ export default function CompositionPage() {
         </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Style Selection</CardTitle>
-          <CardDescription>
-            Choose your preferred style elements to create your unique headshot composition.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <PhotographyStyleSelector />
-          
-          <Tabs defaultValue="background" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="background">Background</TabsTrigger>
-              <TabsTrigger value="outfit">Outfit</TabsTrigger>
-            </TabsList>
-            <TabsContent value="background" className="mt-4">
-              <BackgroundSelector />
-            </TabsContent>
-            <TabsContent value="outfit" className="mt-4">
-              <OutfitSelector />
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-        <CardFooter>
+      <div className="relative">
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col gap-4">
           <Button 
-            className="w-full"
-            onClick={handleSave}
-            disabled={isSaving}
+            variant="outline" 
+            size="lg"
+            className="w-48"
+            onClick={() => handleDrawerToggle('background')}
           >
-            {isSaving ? 'Saving...' : 'Save Composition'}
+            Choose Background
           </Button>
-        </CardFooter>
-      </Card>
+          <Button 
+            variant="outline" 
+            size="lg"
+            className="w-48"
+            onClick={() => handleDrawerToggle('outfit')}
+          >
+            Choose Outfit
+          </Button>
+        </div>
+
+        <div className="mx-auto max-w-2xl">
+          <Card>
+            <CardContent className="space-y-6">
+              <PhotographyStyleSelector />
+              <div className="aspect-[3/4] w-full bg-muted rounded-lg flex items-center justify-center">
+                <p className="text-muted-foreground">Preview image will be shown here</p>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button 
+                className="w-full"
+                onClick={handleSave}
+                disabled={isSaving}
+              >
+                {isSaving ? 'Saving...' : 'Save Composition'}
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      </div>
+
+      <Sheet 
+        open={openDrawer === 'background'} 
+        modal={false}
+        onOpenChange={(open) => !open && setOpenDrawer(null)}
+      >
+        <SheetContent 
+          side="right" 
+          className="w-[400px] sm:w-[540px]" 
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+          onCloseAutoFocus={(e) => e.preventDefault()}
+        >
+          <SheetHeader>
+            <SheetTitle>Choose Background</SheetTitle>
+          </SheetHeader>
+          <div className="mt-8 overflow-y-auto pr-6" style={{ maxHeight: 'calc(100vh - 8rem)' }}>
+            <BackgroundSelector />
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <Sheet 
+        open={openDrawer === 'outfit'} 
+        modal={false}
+        onOpenChange={(open) => !open && setOpenDrawer(null)}
+      >
+        <SheetContent 
+          side="right" 
+          className="w-[400px] sm:w-[540px]" 
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+          onCloseAutoFocus={(e) => e.preventDefault()}
+        >
+          <SheetHeader>
+            <SheetTitle>Choose Outfit</SheetTitle>
+          </SheetHeader>
+          <div className="mt-8 overflow-y-auto pr-6" style={{ maxHeight: 'calc(100vh - 8rem)' }}>
+            <OutfitSelector />
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   )
 } 

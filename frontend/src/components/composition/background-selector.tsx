@@ -4,28 +4,73 @@ import { Label } from '@/components/ui/label'
 import { useCompositionStore } from '@/store/composition'
 import { CompositionBackground } from '@/lib/types'
 
-const backgroundOptions: { value: CompositionBackground; label: string; description: string }[] = [
+const backgroundOptions = [
   {
     value: 'plain',
     label: 'Plain Background',
-    description: 'Clean and professional look with a solid color background'
+    description: 'Clean and professional solid color background'
   },
   {
     value: 'office',
-    label: 'Office Setting',
-    description: 'Professional office environment with modern decor'
+    label: 'Modern Office',
+    description: 'Contemporary office environment'
   },
   {
     value: 'outdoor',
-    label: 'Outdoor',
-    description: 'Natural lighting with a soft, blurred outdoor setting'
+    label: 'Outdoor Natural',
+    description: 'Natural outdoor environment'
+  },
+  {
+    value: 'bookshelf',
+    label: 'Library Bookshelf',
+    description: 'Sophisticated library background'
+  },
+  {
+    value: 'cafe',
+    label: 'Coffee Shop',
+    description: 'Casual cafe environment'
+  },
+  {
+    value: 'studio',
+    label: 'Studio Lighting',
+    description: 'Professional studio setup'
+  },
+  {
+    value: 'gradient',
+    label: 'Color Gradient',
+    description: 'Modern gradient background'
+  },
+  {
+    value: 'cityscape',
+    label: 'Urban Cityscape',
+    description: 'Modern city skyline view'
+  },
+  {
+    value: 'abstract',
+    label: 'Abstract Pattern',
+    description: 'Contemporary abstract design'
+  },
+  {
+    value: 'brick',
+    label: 'Brick Wall',
+    description: 'Industrial brick texture'
+  },
+  {
+    value: 'nature',
+    label: 'Nature Scene',
+    description: 'Scenic natural landscape'
+  },
+  {
+    value: 'tech',
+    label: 'Tech Space',
+    description: 'Modern technology environment'
   },
   {
     value: 'custom',
     label: 'Custom Background',
-    description: 'Upload your own background image'
+    description: 'Upload your own background'
   }
-]
+] as const
 
 export function BackgroundSelector() {
   const { settings, setBackground } = useCompositionStore()
