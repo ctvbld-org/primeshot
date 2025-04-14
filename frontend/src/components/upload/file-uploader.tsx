@@ -1,19 +1,54 @@
 'use client'
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { UploadIcon, ImageIcon } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast'
+import { analyzeImageQuality, loadModels, ImageQualityResult } from '@/lib/image-quality'
 
 interface FileUploaderProps {
-  onFilesAdded: (files: File[]) => void
+  onFilesAdded: (files: File[], qualityResults?: Record<string, ImageQualityResult>) => void
 }
 
 export function FileUploader({ onFilesAdded }: FileUploaderProps) {
   const [isDragging, setIsDragging] = useState(false)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
   const { toast } = useToast()
   const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const [modelsStatus, setModelsStatus] = useState<'loading' | 'loaded' | 'error'>('loading')
+
+  // Load face detection models on component mount
+  useEffect(() => {
+    const initModels = async () => {
+      try {
+        const success = await loadModels()
+        setModelsStatus(success ? 'loaded' : 'error')
+        
+        if (!success) {
+          toast({
+            title: 'Warning',
+            description: 'Face detection models could not be loaded. Quality analysis will be limited to other image attributes.',
+            variant: 'default',
+            duration: 5000,
+          })
+        }
+      } catch (error) {
+        console.error('Error loading face detection models:', error)
+        setModelsStatus('error')
+        toast({
+          title: 'Warning',
+          description: 'Face detection models could not be loaded. Quality analysis may be limited.',
+          variant: 'destructive',
+        })
+      }
+    }
+    
+    // Only run in the browser
+    if (typeof window !== 'undefined') {
+      initModels()
+    }
+  }, [toast])
 
   // File validation
   const validateFiles = (files: File[]): File[] => {
@@ -53,6 +88,110 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
     return validFiles
   }
 
+  // Analyze image quality
+  const analyzeImages = async (files: File[]): Promise<[File[], Record<string, ImageQualityResult>]> => {
+    setIsAnalyzing(true)
+    
+    try {
+      const qualityResults: Record<string, ImageQualityResult> = {}
+      let noFaceImages: string[] = [];
+      let faceDetectionSkipped = false;
+      
+      // Process files sequentially to avoid overwhelming the browser
+      for (const file of files) {
+        try {
+          console.log(`Starting analysis of ${file.name}`)
+          const result = await analyzeImageQuality(file)
+          console.log(`Completed analysis of ${file.name}:`, result)
+          
+          // Track if face detection was skipped
+          if (result.faceDetectionSkipped) {
+            faceDetectionSkipped = true;
+          }
+          
+          // Check if a face was found
+          if (!result.hasFace && !result.faceDetectionSkipped) {
+            noFaceImages.push(file.name);
+          }
+          
+          qualityResults[file.name] = result
+        } catch (error) {
+          console.error(`Error analyzing ${file.name}:`, error)
+          faceDetectionSkipped = true;
+          
+          // If analysis fails, add a basic result to allow upload to continue
+          qualityResults[file.name] = {
+            score: 0.5, // Give a medium score by default
+            isAcceptable: true, // Mark as acceptable to allow uploads
+            width: 0,
+            height: 0,
+            hasFace: false, // Don't assume there's a face
+            faceScore: 0.5,
+            brightnessScore: 0.5,
+            contrastScore: 0.5,
+            blurScore: 0.5,
+            resolutionScore: 0.5,
+            issues: ['Image analysis was limited. Quality assessment is based on minimal checks.'],
+            faceDetectionSkipped: true
+          }
+        }
+      }
+      
+      // If face detection was skipped for any image, show a notice
+      if (faceDetectionSkipped) {
+        toast({
+          title: 'Limited analysis available',
+          description: 'Advanced face detection is currently unavailable. Images will be evaluated based on basic quality metrics only.',
+          variant: 'default',
+          duration: 5000,
+        });
+      }
+      // Warn about images with no faces only if face detection wasn't skipped
+      else if (noFaceImages.length > 0) {
+        toast({
+          title: 'Face detection issue',
+          description: noFaceImages.length === 1 
+            ? `Face detection had difficulty with "${noFaceImages[0]}". The image may still work if it has good quality.`
+            : `Face detection had difficulty with ${noFaceImages.length} images. They may still work if they have good quality.`,
+          variant: 'default',
+          duration: 6000,
+        });
+      }
+      
+      return [files, qualityResults]
+    } catch (error) {
+      console.error('Error during image analysis:', error)
+      toast({
+        title: 'Analysis limited',
+        description: 'Image quality analysis was limited. All images will be accepted.',
+        variant: 'default',
+      })
+      
+      // Return basic quality results for all files, marking them as acceptable
+      const basicResults: Record<string, ImageQualityResult> = {}
+      files.forEach(file => {
+        basicResults[file.name] = {
+          score: 0.7,
+          isAcceptable: true, // Mark as acceptable to bypass quality checks
+          width: 0,
+          height: 0,
+          hasFace: false,
+          faceScore: 0.5,
+          brightnessScore: 0.7,
+          contrastScore: 0.7,
+          blurScore: 0.7,
+          resolutionScore: 0.7,
+          issues: ['Image analysis unavailable. All images are accepted by default.'],
+          faceDetectionSkipped: true
+        }
+      })
+      
+      return [files, basicResults]
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }
+
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     e.stopPropagation()
@@ -66,7 +205,7 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
   }, [])
 
   const handleDrop = useCallback(
-    (e: React.DragEvent<HTMLDivElement>) => {
+    async (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault()
       e.stopPropagation()
       setIsDragging(false)
@@ -75,7 +214,8 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
       if (files && files.length > 0) {
         const validFiles = validateFiles(Array.from(files))
         if (validFiles.length > 0) {
-          onFilesAdded(validFiles)
+          const [analyzedFiles, qualityResults] = await analyzeImages(validFiles)
+          onFilesAdded(analyzedFiles, qualityResults)
         }
       }
     },
@@ -83,12 +223,13 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
   )
 
   const handleFileInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
       const { files } = e.target
       if (files && files.length > 0) {
         const validFiles = validateFiles(Array.from(files))
         if (validFiles.length > 0) {
-          onFilesAdded(validFiles)
+          const [analyzedFiles, qualityResults] = await analyzeImages(validFiles)
+          onFilesAdded(analyzedFiles, qualityResults)
         }
       }
       
@@ -117,14 +258,25 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
           <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
             {isDragging ? (
               <UploadIcon className="h-10 w-10 text-primary animate-pulse" />
+            ) : isAnalyzing ? (
+              <div className="h-10 w-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
             ) : (
               <ImageIcon className="h-10 w-10 text-primary" />
             )}
           </div>
           <div className="space-y-2">
-            <h3 className="font-medium text-xl">Drag photos here</h3>
+            <h3 className="font-medium text-xl">
+              {isAnalyzing 
+                ? 'Analyzing images...' 
+                : 'Drag photos here'}
+            </h3>
             <p className="text-muted-foreground text-sm">
-              or click to browse from your device
+              {isAnalyzing 
+                ? 'This may take a few moments' 
+                : 'or click to browse from your device'}
+            </p>
+            <p className="text-muted-foreground text-xs mt-2">
+              Upload photos that clearly show your face for best results
             </p>
           </div>
           <input
@@ -134,12 +286,19 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
             multiple
             onChange={handleFileInputChange}
             ref={fileInputRef}
+            disabled={isAnalyzing}
           />
-          <Button type="button" variant="outline" className="mt-4" onClick={(e) => {
-            e.stopPropagation()
-            handleButtonClick()
-          }}>
-            Select Files
+          <Button 
+            type="button" 
+            variant="outline" 
+            className="mt-4" 
+            onClick={(e) => {
+              e.stopPropagation()
+              handleButtonClick()
+            }}
+            disabled={isAnalyzing}
+          >
+            {isAnalyzing ? 'Processing...' : 'Select Files'}
           </Button>
         </div>
       </CardContent>

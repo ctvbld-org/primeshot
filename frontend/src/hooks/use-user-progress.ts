@@ -41,6 +41,8 @@ export function useUserProgress() {
 
     async function loadProgress() {
       try {
+        if (!session || !session.user) return;
+        
         const { data, error } = await supabase
           .from('user_progress')
           .select()
@@ -79,7 +81,7 @@ export function useUserProgress() {
         current_stage: currentStage,
         completed_stages: completedStages,
         stage_data: {
-          ...progress?.stage_data,
+          ...(progress?.stage_data as any),
           ...stageData
         },
         last_active_at: new Date().toISOString()
