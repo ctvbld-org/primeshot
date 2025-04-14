@@ -75,7 +75,7 @@
             1
           ],
           "details": "Implementation steps:\n1. Set up OpenCV.js library integration in the project.\n2. Create a service for image analysis that will run before upload completion.\n3. Implement face detection algorithm using OpenCV.js Haar cascades or similar approach.\n4. Add quality metric calculations for:\n   - Image resolution verification (minimum acceptable dimensions)\n   - Brightness and contrast assessment\n   - Face visibility and positioning (centered, not too close to edges)\n   - Blur detection\n5. Develop a quality scoring system that combines multiple metrics.\n6. Create specific feedback messages for each type of quality issue.\n7. Implement real-time analysis so feedback appears as soon as images are selected.\n8. Add visual indicators on thumbnails showing quality status (good/needs improvement).\n\nTesting approach:\n- Test with various sample images of different qualities.\n- Verify face detection works correctly with different face positions and lighting conditions.\n- Confirm quality metrics provide accurate assessments.\n- Measure performance to ensure analysis doesn't significantly delay the user experience.\n- Test edge cases like images with multiple faces or unusual lighting conditions.",
-          "status": "pending",
+          "status": "done",
           "parentTaskId": 5
         },
         {

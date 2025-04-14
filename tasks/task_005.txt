@@ -31,7 +31,7 @@ Testing approach:
 - Confirm the UI provides appropriate feedback during different upload states.
 - Test across different browsers and devices to ensure compatibility.
 
-## 2. Integrate OpenCV.js for Photo Quality Analysis [pending]
+## 2. Integrate OpenCV.js for Photo Quality Analysis [done]
 ### Dependencies: 5.1
 ### Description: Implement the core image quality checking functionality using OpenCV.js, including face detection and quality metrics evaluation.
 ### Details:

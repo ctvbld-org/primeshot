@@ -26,6 +26,10 @@ const MAX_BRIGHTNESS = 0.8;
 const MIN_CONTRAST = 0.4;
 const MAX_BLUR = 0.5;
 
+// Constants for body detection
+const MIN_BODY_PERCENTAGE = 0.10; // 10% of images should include body
+const MAX_BODY_PERCENTAGE = 0.40; // 40% maximum for body shots
+
 // Initialize face-api models
 let modelsLoaded = false;
 let modelsLoading = false;
@@ -96,7 +100,9 @@ export interface ImageQualityResult {
   width: number;
   height: number;
   hasFace: boolean;
+  hasBody: boolean;
   faceScore: number;
+  bodyScore: number;
   brightnessScore: number;
   contrastScore: number;
   blurScore: number;
@@ -128,7 +134,9 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
     width: width,
     height: height,
     hasFace: false,
+    hasBody: false,
     faceScore: 0,
+    bodyScore: 0,
     brightnessScore: 0,
     contrastScore: 0,
     blurScore: 0,
@@ -155,6 +163,26 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
         img, 
         new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 })
       ).withFaceLandmarks();
+      
+      // Detect body presence by checking face position and size relative to image
+      const faceBox = faceDetections[0].detection.box;
+      const faceArea = faceBox.width * faceBox.height;
+      const imageArea = img.width * img.height;
+      const faceRelativeSize = faceArea / imageArea;
+      const faceBottomY = faceBox.y + faceBox.height;
+      const spaceBelow = (img.height - faceBottomY) / img.height;
+      
+      // Consider it a body shot if:
+      // 1. Face takes up less than 15% of the image area AND
+      // 2. There's significant space below the face (at least 40% of image height) AND
+      // 3. Face is positioned in the upper 35% of the image
+      const hasBody = faceDetections.length > 0 && 
+        faceRelativeSize < 0.15 && // Face should be smaller for body shots
+        spaceBelow > 0.4 && // Significant space below face for body
+        faceBox.y < img.height * 0.35; // Face in upper portion
+      
+      result.hasBody = hasBody;
+      result.bodyScore = hasBody ? 1 : 0;
       
       // If no faces detected, try SSD MobileNet as a fallback with lower threshold
       if (faceDetections.length === 0) {
@@ -194,6 +222,18 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
           if (result.faceScore < 0.7) {
             result.issues.push('Face position is not optimal. Ensure your face is centered and occupies a good portion of the image.');
           }
+          
+          // Update body detection for SSD results
+          const ssdFaceBox = ssdDetections[0].detection.box;
+          const ssdFaceArea = ssdFaceBox.width * ssdFaceBox.height;
+          const ssdFaceRelativeSize = ssdFaceArea / (width * height);
+          const ssdFaceBottomY = ssdFaceBox.y + ssdFaceBox.height;
+          const ssdSpaceBelow = (height - ssdFaceBottomY) / height;
+          
+          result.hasBody = ssdFaceRelativeSize < 0.15 && 
+            ssdSpaceBelow > 0.4 &&
+            ssdFaceBox.y < height * 0.35;
+          result.bodyScore = result.hasBody ? 1 : 0;
           
           return result;
         }
@@ -264,19 +304,22 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
         }
       }
     } catch (error) {
-      console.error('Face detection error, will proceed with other quality checks:', error);
-      // Face detection failed, but models were available
+      console.error('Face/body detection error:', error);
+      result.hasBody = false;
+      result.bodyScore = 0;
       result.faceDetectionSkipped = true;
       result.hasFace = false; 
       result.faceScore = 0.5; // Give a medium score as fallback
-      result.issues.push('Face detection was skipped. Analysis will rely on other image quality metrics.');
+      result.issues.push('Face/body detection was skipped. Analysis will rely on other image quality metrics.');
     }
   } else {
-    // Models not available - mark detection as skipped
+    // Models not available
+    result.hasBody = false;
+    result.bodyScore = 0;
     result.faceDetectionSkipped = true;
     result.hasFace = false;
     result.faceScore = 0.5; // Medium fallback score when face detection is skipped
-    result.issues.push('Face detection was skipped. Analysis will rely on other image quality metrics.');
+    result.issues.push('Face/body detection was skipped. Analysis will rely on other image quality metrics.');
   }
   
   // Analyze image stats using canvas
@@ -518,7 +561,8 @@ function calculateBlurScore(blur: number): number {
 function calculateOverallScore(result: ImageQualityResult): number {
   // Weight factors for different aspects
   const weights = {
-    face: 0.35,
+    face: 0.30,
+    body: 0.05,
     resolution: 0.25,
     brightness: 0.15,
     contrast: 0.15,
@@ -528,23 +572,26 @@ function calculateOverallScore(result: ImageQualityResult): number {
   // Adjust weights based on face detection results
   let faceWeight = weights.face;
   let faceScore = result.faceScore;
+  let bodyWeight = weights.body;
+  let bodyScore = result.bodyScore;
 
   // If face detection was skipped, redistribute weights
   if (result.faceDetectionSkipped) {
-    faceWeight = 0.1; // Drastically reduce face weight
-    faceScore = 0.7; // Give a generous score when skipped
+    faceWeight = 0.1;
+    bodyWeight = 0;
+    faceScore = 0.7;
     
     // Redistribute weights to other factors
-    const weightIncrease = (weights.face - faceWeight) / 4;
+    const weightIncrease = (weights.face + weights.body - faceWeight) / 4;
     const newWeights = {
       face: faceWeight,
+      body: 0,
       resolution: weights.resolution + weightIncrease,
       brightness: weights.brightness + weightIncrease,
       contrast: weights.contrast + weightIncrease,
       blur: weights.blur + weightIncrease
     };
     
-    // Calculate score with adjusted weights
     return (
       newWeights.face * faceScore +
       newWeights.resolution * result.resolutionScore +
@@ -554,25 +601,23 @@ function calculateOverallScore(result: ImageQualityResult): number {
     );
   }
   
-  // If no face detected but detection was performed
-  if (!result.hasFace) {
-    faceWeight = 0.25; // Reduced penalty
-    faceScore = 0.4; // Higher than before but still penalized
-  }
-  
-  // Redistribute the remaining weight to other factors
-  const remainingWeight = 1 - faceWeight;
-  const originalNonFaceWeight = 1 - weights.face;
-  const weightScale = remainingWeight / originalNonFaceWeight;
-  
-  // Calculate combined score
-  const combinedScore = (
+  return (
     faceWeight * faceScore +
-    weightScale * weights.resolution * result.resolutionScore +
-    weightScale * weights.brightness * result.brightnessScore +
-    weightScale * weights.contrast * result.contrastScore +
-    weightScale * weights.blur * result.blurScore
+    bodyWeight * bodyScore +
+    weights.resolution * result.resolutionScore +
+    weights.brightness * result.brightnessScore +
+    weights.contrast * result.contrastScore +
+    weights.blur * result.blurScore
   );
+}
+
+// Add function to check body percentage requirements
+export function checkBodyPercentageRequirements(results: Record<string, ImageQualityResult>): boolean {
+  const totalImages = Object.keys(results).length;
+  if (totalImages === 0) return false;
   
-  return combinedScore;
+  const bodyCount = Object.values(results).filter(r => r.hasBody).length;
+  const bodyPercentage = bodyCount / totalImages;
+  
+  return bodyPercentage >= MIN_BODY_PERCENTAGE && bodyPercentage <= MAX_BODY_PERCENTAGE;
 } 

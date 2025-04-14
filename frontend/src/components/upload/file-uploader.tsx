@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { UploadIcon, ImageIcon } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast'
-import { analyzeImageQuality, loadModels, ImageQualityResult } from '@/lib/image-quality'
+import { analyzeImageQuality, loadModels, checkBodyPercentageRequirements, type ImageQualityResult } from '@/lib/image-quality'
 
 interface FileUploaderProps {
   onFilesAdded: (files: File[], qualityResults?: Record<string, ImageQualityResult>) => void
@@ -126,7 +126,9 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
             width: 0,
             height: 0,
             hasFace: false, // Don't assume there's a face
+            hasBody: false, // Don't assume there's a body
             faceScore: 0.5,
+            bodyScore: 0.5,
             brightnessScore: 0.5,
             contrastScore: 0.5,
             blurScore: 0.5,
@@ -158,6 +160,21 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
         });
       }
       
+      // Check body percentage requirements
+      const bodyPercentageOk = checkBodyPercentageRequirements(qualityResults);
+      if (!bodyPercentageOk) {
+        const bodyCount = Object.values(qualityResults).filter(r => r.hasBody).length;
+        const totalImages = files.length;
+        const bodyPercentage = (bodyCount / totalImages) * 100;
+        
+        toast({
+          title: 'Body Shot Requirements',
+          description: `Your selection should include 15-30% body shots. Currently: ${Math.round(bodyPercentage)}%`,
+          variant: 'default',
+          duration: 6000,
+        });
+      }
+      
       return [files, qualityResults]
     } catch (error) {
       console.error('Error during image analysis:', error)
@@ -176,7 +193,9 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
           width: 0,
           height: 0,
           hasFace: false,
+          hasBody: false,
           faceScore: 0.5,
+          bodyScore: 0.5,
           brightnessScore: 0.7,
           contrastScore: 0.7,
           blurScore: 0.7,

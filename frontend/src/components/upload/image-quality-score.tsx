@@ -181,6 +181,14 @@ export function ImageQualityScore({ result, fileName }: ImageQualityScoreProps) 
           </div>
           <Progress value={result.blurScore * 100} className="h-1.5 mt-1" />
         </div>
+
+        <div>
+          <div className="flex justify-between">
+            <span>Body Shot</span>
+            <span>{result.hasBody ? 'Yes' : 'No'}</span>
+          </div>
+          <Progress value={result.bodyScore * 100} className="h-1.5 mt-1" />
+        </div>
       </div>
       
       {/* Issues list */}
