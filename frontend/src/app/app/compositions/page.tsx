@@ -18,6 +18,35 @@ export default function CompositionsPage() {
   const [compositions, setCompositions] = useState<Composition[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
+  // Check if user has already progressed beyond compositions stage
+  useEffect(() => {
+    const checkUserProgress = async () => {
+      if (!user) return;
+      
+      try {
+        const supabase = createClient();
+        const { data: progress, error } = await supabase
+          .from('user_progress')
+          .select('current_stage')
+          .eq('user_id', user.id)
+          .single();
+          
+        if (error) throw error;
+        
+        // If user has already progressed to upload, payment, or later stage, redirect
+        if (progress && 
+            ['upload', 'payment', 'review', 'dashboard'].includes(progress.current_stage)) {
+          console.log('User already progressed to:', progress.current_stage);
+          router.replace(`/app/${progress.current_stage}`);
+        }
+      } catch (error) {
+        console.error('Error checking user progress:', error);
+      }
+    };
+    
+    checkUserProgress();
+  }, [user, router]);
+
   async function loadCompositions() {
     if (!user) return
 
@@ -81,6 +110,46 @@ export default function CompositionsPage() {
     loadCompositions()
   }, [user, toast])
 
+  async function saveUserProgress(stage: string) {
+    if (!user) return
+    
+    try {
+      const supabase = createClient()
+      
+      // Get existing progress
+      const { data: existingProgress } = await supabase
+        .from('user_progress')
+        .select()
+        .eq('user_id', user.id)
+        .single()
+      
+      if (existingProgress) {
+        // Update existing progress
+        await supabase
+          .from('user_progress')
+          .update({
+            current_stage: stage,
+            completed_stages: [...existingProgress.completed_stages, 'compositions'],
+            last_active_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id)
+      } else {
+        // Create new progress
+        await supabase
+          .from('user_progress')
+          .insert({
+            user_id: user.id,
+            current_stage: stage,
+            completed_stages: ['compositions'],
+            last_active_at: new Date().toISOString()
+          })
+      }
+    } catch (error) {
+      console.error('Failed to save progress:', error)
+      throw error
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -95,12 +164,18 @@ export default function CompositionsPage() {
       ) : compositions.length === 0 ? (
         <div className="grid place-items-center">
           <div className="max-w-sm w-full">
-            <NewCompositionCard onClick={() => router.push('/app/composition')} />
+            <NewCompositionCard onClick={() => {
+              console.log("Navigating to composition creation page...");
+              router.push('/app/composition');
+            }} />
           </div>
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          <NewCompositionCard onClick={() => router.push('/app/composition')} />
+          <NewCompositionCard onClick={() => {
+            console.log("Navigating to composition creation page...");
+            router.push('/app/composition');
+          }} />
           {compositions.map((composition) => (
             <CompositionCard
               key={composition.id}
@@ -119,7 +194,17 @@ export default function CompositionsPage() {
           disabled={compositions.length === 0}
           onClick={() => {
             if (compositions.length > 0) {
-              router.push('/app/upload')
+              // Save user progress to indicate they're in the upload stage
+              saveUserProgress('upload')
+                .then(() => {
+                  // After progress is saved, navigate to upload page
+                  router.push('/app/upload')
+                })
+                .catch(error => {
+                  console.error('Error saving progress:', error)
+                  // Navigate anyway even if progress saving fails
+                  router.push('/app/upload')
+                })
             }
           }}
         >

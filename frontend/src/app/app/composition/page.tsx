@@ -11,10 +11,11 @@ import { StylePreview } from '@/components/composition/style-preview'
 import { useCompositionStore } from '@/store/composition'
 import { saveComposition } from '@/lib/api/compositions'
 import { CompositionStatus } from '@/lib/types'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { X } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
 export default function CompositionPage() {
   const router = useRouter()
@@ -23,6 +24,45 @@ export default function CompositionPage() {
   const { toast } = useToast()
   const [isSaving, setIsSaving] = useState(false)
   const [openDrawer, setOpenDrawer] = useState<'background' | 'outfit' | null>(null)
+
+  // Check if user has already progressed beyond compositions stage
+  useEffect(() => {
+    const checkUserProgress = async () => {
+      if (!user) return;
+      
+      try {
+        const supabase = createClient();
+        const { data: progress, error } = await supabase
+          .from('user_progress')
+          .select('current_stage')
+          .eq('user_id', user.id)
+          .single();
+          
+        if (error) throw error;
+        
+        // If user has already progressed to upload, payment, or later stage, redirect
+        if (progress && 
+            ['upload', 'payment', 'review', 'dashboard'].includes(progress.current_stage)) {
+          
+          // Show toast notification before redirecting
+          toast({
+            title: 'Access denied',
+            description: `You've already progressed to the ${progress.current_stage} stage. You cannot modify compositions now.`,
+            variant: 'destructive',
+          });
+          
+          // Short delay to ensure toast is visible before redirect
+          setTimeout(() => {
+            router.replace(`/app/${progress.current_stage}`);
+          }, 1500);
+        }
+      } catch (error) {
+        console.error('Error checking user progress:', error);
+      }
+    };
+    
+    checkUserProgress();
+  }, [user, router, toast]);
 
   const handleSave = async () => {
     if (!user) {
