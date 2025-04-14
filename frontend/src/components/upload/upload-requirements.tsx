@@ -20,7 +20,7 @@ export function UploadRequirements() {
         <CardTitle>Photo Requirements</CardTitle>
       </CardHeader>
       <CardContent>
-        <ul className="space-y-2">
+        <ul className="flex space-y-2">
           {requirements.map((requirement, index) => (
             <li key={index} className="flex items-start gap-2">
               <CheckCircle2Icon className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />

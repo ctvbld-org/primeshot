@@ -3,13 +3,28 @@
 import React, { useCallback, useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { UploadIcon, ImageIcon } from 'lucide-react'
+import { UploadIcon, ImageIcon, Trash2Icon, XCircleIcon, AlertTriangle, CheckCircle, X } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast'
-import { analyzeImageQuality, loadModels, checkBodyPercentageRequirements, type ImageQualityResult } from '@/lib/image-quality'
+import { analyzeImageQuality, loadModels, checkBodyPercentageRequirements } from '@/lib/image-quality'
+import type { ImageQualityResult } from '@/lib/image-quality'
+import { Progress } from "@/components/ui/progress"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { cn } from "@/lib/utils"
+import { Toast, ToastDescription, ToastTitle } from "@/components/ui/toast"
 
 interface FileUploaderProps {
   onFilesAdded: (files: File[], qualityResults?: Record<string, ImageQualityResult>) => void
 }
+
+interface FilePreviewProps {
+  file: File;
+  qualityResult: ImageQualityResult;
+  onRemove: () => void;
+}
+
+// Constants for image limits
+const MIN_IMAGES = 15;
+const MAX_IMAGES = 30;
 
 export function FileUploader({ onFilesAdded }: FileUploaderProps) {
   const [isDragging, setIsDragging] = useState(false)
@@ -17,6 +32,8 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
   const { toast } = useToast()
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [modelsStatus, setModelsStatus] = useState<'loading' | 'loaded' | 'error'>('loading')
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const [qualityResults, setQualityResults] = useState<Record<string, ImageQualityResult>>({})
 
   // Load face detection models on component mount
   useEffect(() => {
@@ -121,43 +138,26 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
           
           // If analysis fails, add a basic result to allow upload to continue
           qualityResults[file.name] = {
-            score: 0.5, // Give a medium score by default
-            isAcceptable: true, // Mark as acceptable to allow uploads
             width: 0,
             height: 0,
-            hasFace: false, // Don't assume there's a face
-            hasBody: false, // Don't assume there's a body
+            faceCount: 0,
+            score: 0.5,
             faceScore: 0.5,
             bodyScore: 0.5,
             brightnessScore: 0.5,
             contrastScore: 0.5,
             blurScore: 0.5,
             resolutionScore: 0.5,
-            issues: ['Image analysis was limited. Quality assessment is based on minimal checks.'],
-            faceDetectionSkipped: true
+            hasSingleFace: false,
+            hasGoodResolution: false,
+            hasGoodScore: false,
+            isAcceptable: true,
+            hasFace: false,
+            hasBody: false,
+            faceDetectionSkipped: true,
+            issues: ['Image analysis was limited. Quality assessment is based on minimal checks.']
           }
         }
-      }
-      
-      // If face detection was skipped for any image, show a notice
-      if (faceDetectionSkipped) {
-        toast({
-          title: 'Limited analysis available',
-          description: 'Advanced face detection is currently unavailable. Images will be evaluated based on basic quality metrics only.',
-          variant: 'default',
-          duration: 5000,
-        });
-      }
-      // Warn about images with no faces only if face detection wasn't skipped
-      else if (noFaceImages.length > 0) {
-        toast({
-          title: 'Face detection issue',
-          description: noFaceImages.length === 1 
-            ? `Face detection had difficulty with "${noFaceImages[0]}". The image may still work if it has good quality.`
-            : `Face detection had difficulty with ${noFaceImages.length} images. They may still work if they have good quality.`,
-          variant: 'default',
-          duration: 6000,
-        });
       }
       
       // Check body percentage requirements
@@ -166,13 +166,6 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
         const bodyCount = Object.values(qualityResults).filter(r => r.hasBody).length;
         const totalImages = files.length;
         const bodyPercentage = (bodyCount / totalImages) * 100;
-        
-        toast({
-          title: 'Body Shot Requirements',
-          description: `Your selection should include 15-30% body shots. Currently: ${Math.round(bodyPercentage)}%`,
-          variant: 'default',
-          duration: 6000,
-        });
       }
       
       return [files, qualityResults]
@@ -188,20 +181,24 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
       const basicResults: Record<string, ImageQualityResult> = {}
       files.forEach(file => {
         basicResults[file.name] = {
-          score: 0.7,
-          isAcceptable: true, // Mark as acceptable to bypass quality checks
           width: 0,
           height: 0,
-          hasFace: false,
-          hasBody: false,
-          faceScore: 0.5,
-          bodyScore: 0.5,
+          faceCount: 0,
+          score: 0.7,
+          faceScore: 0.7,
+          bodyScore: 0.7,
           brightnessScore: 0.7,
           contrastScore: 0.7,
           blurScore: 0.7,
           resolutionScore: 0.7,
-          issues: ['Image analysis unavailable. All images are accepted by default.'],
-          faceDetectionSkipped: true
+          hasSingleFace: false,
+          hasGoodResolution: false,
+          hasGoodScore: true,
+          isAcceptable: true,
+          hasFace: false,
+          hasBody: false,
+          faceDetectionSkipped: true,
+          issues: ['Image analysis unavailable. All images are accepted by default.']
         }
       })
       
@@ -234,6 +231,8 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
         const validFiles = validateFiles(Array.from(files))
         if (validFiles.length > 0) {
           const [analyzedFiles, qualityResults] = await analyzeImages(validFiles)
+          setSelectedFiles(prev => [...prev, ...analyzedFiles])
+          setQualityResults(prev => ({ ...prev, ...qualityResults }))
           onFilesAdded(analyzedFiles, qualityResults)
         }
       }
@@ -248,6 +247,8 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
         const validFiles = validateFiles(Array.from(files))
         if (validFiles.length > 0) {
           const [analyzedFiles, qualityResults] = await analyzeImages(validFiles)
+          setSelectedFiles(prev => [...prev, ...analyzedFiles])
+          setQualityResults(prev => ({ ...prev, ...qualityResults }))
           onFilesAdded(analyzedFiles, qualityResults)
         }
       }
@@ -264,63 +265,86 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
     fileInputRef.current?.click()
   }, [])
 
+  const handleRemoveFile = (fileToRemove: File) => {
+    setSelectedFiles(selectedFiles.filter(file => file !== fileToRemove));
+  };
+
+  // Calculate overall stats
+  const calculateStats = () => {
+    if (!qualityResults || Object.keys(qualityResults).length === 0) return null;
+
+    const totalScore = Object.values(qualityResults).reduce((sum, result) => sum + result.score, 0);
+    const avgScore = totalScore / Object.keys(qualityResults).length;
+    const acceptableCount = Object.values(qualityResults).filter(r => r.isAcceptable).length;
+    const bodyCount = Object.values(qualityResults).filter(r => r.hasBody).length;
+    const bodyPercentage = (bodyCount / Object.keys(qualityResults).length) * 100;
+
+    return {
+      averageScore: avgScore * 100,
+      acceptableImages: acceptableCount,
+      totalImages: Object.keys(qualityResults).length,
+      bodyPercentage
+    };
+  };
+
+  const stats = calculateStats();
+
+  // Filter files based on acceptability
+  const acceptableFiles = selectedFiles.filter((file) => 
+    qualityResults[file.name] && qualityResults[file.name].isAcceptable
+  );
+  
+  const unacceptableFiles = selectedFiles.filter((file) => 
+    qualityResults[file.name] && !qualityResults[file.name].isAcceptable
+  );
+
   return (
-    <Card className={`border-2 ${isDragging ? 'border-primary border-dashed' : 'border-dashed'}`}>
-      <CardContent className="p-0">
-        <div
-          className="flex flex-col items-center justify-center p-8 space-y-4 text-center cursor-pointer"
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          onClick={handleButtonClick}
-        >
-          <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
-            {isDragging ? (
-              <UploadIcon className="h-10 w-10 text-primary animate-pulse" />
-            ) : isAnalyzing ? (
-              <div className="h-10 w-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <ImageIcon className="h-10 w-10 text-primary" />
-            )}
-          </div>
-          <div className="space-y-2">
-            <h3 className="font-medium text-xl">
-              {isAnalyzing 
-                ? 'Analyzing images...' 
-                : 'Drag photos here'}
-            </h3>
-            <p className="text-muted-foreground text-sm">
-              {isAnalyzing 
-                ? 'This may take a few moments' 
-                : 'or click to browse from your device'}
-            </p>
-            <p className="text-muted-foreground text-xs mt-2">
-              Upload photos that clearly show your face for best results
-            </p>
-          </div>
-          <input
-            type="file"
-            className="hidden"
-            accept="image/jpeg, image/png, image/webp"
-            multiple
-            onChange={handleFileInputChange}
-            ref={fileInputRef}
-            disabled={isAnalyzing}
-          />
-          <Button 
-            type="button" 
-            variant="outline" 
-            className="mt-4" 
-            onClick={(e) => {
-              e.stopPropagation()
-              handleButtonClick()
-            }}
-            disabled={isAnalyzing}
+    <div className="w-full space-y-4">
+      <Card className={`border-2 ${isDragging ? 'border-primary border-dashed' : 'border-dashed'}`}>
+        <CardContent className="p-0">
+          <div
+            className="flex flex-col items-center justify-center p-8 space-y-4 text-center cursor-pointer"
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onClick={handleButtonClick}
           >
-            {isAnalyzing ? 'Processing...' : 'Select Files'}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+            <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
+              {isDragging ? (
+                <UploadIcon className="h-10 w-10 text-primary animate-pulse" />
+              ) : isAnalyzing ? (
+                <div className="h-10 w-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <ImageIcon className="h-10 w-10 text-primary" />
+              )}
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-medium text-xl">
+                {isAnalyzing 
+                  ? 'Analyzing images...' 
+                  : 'Drag photos here'}
+              </h3>
+              <p className="text-muted-foreground text-sm">
+                {isAnalyzing 
+                  ? 'This may take a few moments' 
+                  : 'or click to browse from your device'}
+              </p>
+              <p className="text-muted-foreground text-xs mt-2">
+                Upload photos that clearly show your face for best results
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        className="hidden"
+        onChange={handleFileInputChange}
+      />
+    </div>
   )
 } 

@@ -95,20 +95,31 @@ export async function loadModels() {
 
 // Quality analysis result interface
 export interface ImageQualityResult {
-  score: number;
-  isAcceptable: boolean;
+  // Basic image properties
   width: number;
   height: number;
-  hasFace: boolean;
-  hasBody: boolean;
+  faceCount: number;
+  
+  // Scores
+  score: number;
   faceScore: number;
   bodyScore: number;
   brightnessScore: number;
   contrastScore: number;
   blurScore: number;
   resolutionScore: number;
-  issues: string[];
+  
+  // Status flags
+  hasSingleFace: boolean;
+  hasGoodResolution: boolean;
+  hasGoodScore: boolean;
+  isAcceptable: boolean;
+  hasFace: boolean;
+  hasBody: boolean;
   faceDetectionSkipped: boolean;
+  
+  // Additional info
+  issues: string[];
 }
 
 // Analyze image quality using face-api.js and browser canvas
@@ -128,22 +139,7 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
   const height = img.height;
   
   // Initialize result
-  const result: ImageQualityResult = {
-    score: 0,
-    isAcceptable: false,
-    width: width,
-    height: height,
-    hasFace: false,
-    hasBody: false,
-    faceScore: 0,
-    bodyScore: 0,
-    brightnessScore: 0,
-    contrastScore: 0,
-    blurScore: 0,
-    resolutionScore: 0,
-    issues: [],
-    faceDetectionSkipped: false
-  };
+  const result: ImageQualityResult = initializeResult(width, height);
   
   // Check resolution
   const resolutionScore = checkResolution(width, height);
@@ -163,6 +159,9 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
         img, 
         new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 })
       ).withFaceLandmarks();
+      
+      // Set faceCount based on TinyFaceDetector results
+      result.faceCount = faceDetections.length;
       
       // Detect body presence by checking face position and size relative to image
       const faceBox = faceDetections[0].detection.box;
@@ -203,6 +202,7 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
           // SSD found faces that TinyFaceDetector missed
           faceDetectionPerformed = true;
           result.hasFace = true;
+          result.faceCount = ssdDetections.length;
           
           // Use the largest face if multiple are detected
           if (ssdDetections.length > 1) {
@@ -250,6 +250,7 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
             console.log('SSD MobileNet (raw) detected faces:', rawFaceDetections.length);
             faceDetectionPerformed = true;
             result.hasFace = true;
+            result.faceCount = rawFaceDetections.length;
             
             // Since we don't have landmarks, estimate face score based on size and position
             const face = rawFaceDetections[0];
@@ -286,15 +287,18 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
       if (faceDetections.length === 0) {
         // No face detected - mark as an issue
         result.hasFace = false;
+        result.faceCount = 0;
         result.faceScore = 0.1; // Very low score for no face
         result.issues.push('No face detected. Please upload a photo that clearly shows your face.');
       } else if (faceDetections.length > 1) {
         result.hasFace = true;
+        result.faceCount = faceDetections.length;
         result.issues.push('Multiple faces detected. Please upload a photo with only your face.');
         result.faceScore = 0.5;
       } else {
         // One face detected
         result.hasFace = true;
+        result.faceCount = 1;
         
         // Evaluate face position and size
         result.faceScore = evaluateFacePosition(faceDetections[0], width, height);
@@ -309,6 +313,7 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
       result.bodyScore = 0;
       result.faceDetectionSkipped = true;
       result.hasFace = false; 
+      result.faceCount = 0;
       result.faceScore = 0.5; // Give a medium score as fallback
       result.issues.push('Face/body detection was skipped. Analysis will rely on other image quality metrics.');
     }
@@ -318,6 +323,7 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
     result.bodyScore = 0;
     result.faceDetectionSkipped = true;
     result.hasFace = false;
+    result.faceCount = 0;
     result.faceScore = 0.5; // Medium fallback score when face detection is skipped
     result.issues.push('Face/body detection was skipped. Analysis will rely on other image quality metrics.');
   }
@@ -341,37 +347,18 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
     result.issues.push('Image has poor contrast. Please upload a photo with good contrast.');
   }
   
-  // Check blur
+ // Check blur
   result.blurScore = calculateBlurScore(stats.blurValue);
   if (result.blurScore < 0.7) {
     result.issues.push('Image appears to be blurry. Please upload a sharper photo.');
   }
   
-  // Calculate overall score - weight face detection more heavily
+  // Calculate overall score
   result.score = calculateOverallScore(result);
+  result.score = result.score * 100; // Convert to 0-100 scale
   
-  // Make all images acceptable if face detection is skipped and other metrics are good
-  if (result.faceDetectionSkipped) {
-    const otherMetricsAvg = (
-      result.resolutionScore + 
-      result.brightnessScore + 
-      result.contrastScore + 
-      result.blurScore
-    ) / 4;
-    
-    // More lenient acceptance criteria when face detection is skipped
-    if (otherMetricsAvg > 0.6) {
-      result.isAcceptable = true;
-      console.log('Image accepted based on quality metrics only (face detection skipped)');
-    } else {
-      result.isAcceptable = false;
-    }
-  } else {
-    // Normal criteria
-    result.isAcceptable = (faceDetectionPerformed && result.hasFace && result.score >= 0.65) || 
-                        (!faceDetectionPerformed && result.score >= 0.65) ||
-                        (result.score >= 0.7);
-  }
+  // Determine if image is acceptable
+  result.isAcceptable = isAcceptable(result);
   
   // Clean up
   URL.revokeObjectURL(img.src);
@@ -393,7 +380,14 @@ function checkResolution(width: number, height: number): number {
   if (width < MIN_WIDTH || height < MIN_HEIGHT) {
     const widthRatio = width / MIN_WIDTH;
     const heightRatio = height / MIN_HEIGHT;
-    return Math.min(widthRatio, heightRatio, 1);
+    const ratio = Math.min(widthRatio, heightRatio);
+    
+    // More aggressive scoring for below-minimum dimensions
+    // If either dimension is less than 70% of minimum, score drops rapidly
+    if (ratio < 0.7) {
+      return ratio * 0.5; // Halve the score for significantly undersized images
+    }
+    return ratio * 0.7; // 70% max score for any undersized dimension
   }
   return 1;
 }
@@ -569,41 +563,32 @@ function calculateOverallScore(result: ImageQualityResult): number {
     blur: 0.1
   };
   
-  // Adjust weights based on face detection results
-  let faceWeight = weights.face;
-  let faceScore = result.faceScore;
-  let bodyWeight = weights.body;
-  let bodyScore = result.bodyScore;
-
+  // Binary face score: 1 for single face, 0 for no face or multiple faces
+  let faceScore = result.faceCount === 1 ? 1 : 0;
+  
   // If face detection was skipped, redistribute weights
   if (result.faceDetectionSkipped) {
-    faceWeight = 0.1;
-    bodyWeight = 0;
-    faceScore = 0.7;
+    // When face detection is skipped, we reduce its importance and use a default passing score
+    const reducedFaceWeight = 0.1;
+    faceScore = 0.7; // Default passing score when skipped
     
-    // Redistribute weights to other factors
-    const weightIncrease = (weights.face + weights.body - faceWeight) / 4;
-    const newWeights = {
-      face: faceWeight,
-      body: 0,
-      resolution: weights.resolution + weightIncrease,
-      brightness: weights.brightness + weightIncrease,
-      contrast: weights.contrast + weightIncrease,
-      blur: weights.blur + weightIncrease
-    };
+    // Redistribute remaining face weight to other factors
+    const weightToRedistribute = (weights.face - reducedFaceWeight);
+    const redistributionPerFactor = weightToRedistribute / 4; // Split among resolution, brightness, contrast, and blur
     
     return (
-      newWeights.face * faceScore +
-      newWeights.resolution * result.resolutionScore +
-      newWeights.brightness * result.brightnessScore +
-      newWeights.contrast * result.contrastScore +
-      newWeights.blur * result.blurScore
+      reducedFaceWeight * faceScore +
+      (weights.resolution + redistributionPerFactor) * result.resolutionScore +
+      (weights.brightness + redistributionPerFactor) * result.brightnessScore +
+      (weights.contrast + redistributionPerFactor) * result.contrastScore +
+      (weights.blur + redistributionPerFactor) * result.blurScore
     );
   }
   
+  // Normal scoring with binary face detection
   return (
-    faceWeight * faceScore +
-    bodyWeight * bodyScore +
+    weights.face * faceScore +
+    weights.body * result.bodyScore +
     weights.resolution * result.resolutionScore +
     weights.brightness * result.brightnessScore +
     weights.contrast * result.contrastScore +
@@ -620,4 +605,44 @@ export function checkBodyPercentageRequirements(results: Record<string, ImageQua
   const bodyPercentage = bodyCount / totalImages;
   
   return bodyPercentage >= MIN_BODY_PERCENTAGE && bodyPercentage <= MAX_BODY_PERCENTAGE;
+}
+
+function isAcceptable(result: ImageQualityResult): boolean {
+  // Check for minimum dimensions
+  result.hasGoodResolution = result.width >= 1000 && result.height >= 1000;
+  
+  // Check for single face - binary check
+  result.hasSingleFace = result.faceCount === 1;
+  result.hasFace = result.faceCount === 1; // Only true for exactly one face
+  
+  // Check for overall quality score - slightly more lenient since face detection is now stricter
+  result.hasGoodScore = result.score >= 0.55; // 55% threshold since face detection is now stricter
+  
+  // Set final acceptability
+  result.isAcceptable = result.hasGoodResolution && result.hasSingleFace && result.hasGoodScore;
+  return result.isAcceptable;
+}
+
+// Initialize result with all required properties
+function initializeResult(width: number, height: number): ImageQualityResult {
+  return {
+    width,
+    height,
+    faceCount: 0,
+    score: 0,
+    faceScore: 0,
+    bodyScore: 0,
+    brightnessScore: 0,
+    contrastScore: 0,
+    blurScore: 0,
+    resolutionScore: 0,
+    hasSingleFace: false,
+    hasGoodResolution: false,
+    hasGoodScore: false,
+    isAcceptable: false,
+    hasFace: false,
+    hasBody: false,
+    faceDetectionSkipped: false,
+    issues: []
+  };
 } 

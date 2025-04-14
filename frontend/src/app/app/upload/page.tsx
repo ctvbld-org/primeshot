@@ -11,16 +11,24 @@ import { UploadedFilesList } from '@/components/upload/uploaded-files-list'
 import { UploadRequirements } from '@/components/upload/upload-requirements'
 import { ImageQualityResult } from '@/lib/image-quality'
 import { createClient } from '@/lib/supabase/client'
+import { cn } from '@/lib/utils'
+import { Progress } from '@/components/ui/progress'
 
 export default function UploadPage() {
   const { user } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [isUploading, setIsUploading] = useState(false)
   const [progress, setProgress] = useState(0)
   const [qualityResults, setQualityResults] = useState<Record<string, ImageQualityResult>>({})
   const [hasUnacceptableImages, setHasUnacceptableImages] = useState(false)
+  const [acceptedImages, setAcceptedImages] = useState<ImageQualityResult[]>([])
+  const [averageScore, setAverageScore] = useState(0)
+  
+  // Constants
+  const MIN_IMAGES = 15 // Minimum required images
+  const MAX_IMAGES = 30 // Maximum allowed images
 
   // Check image quality status whenever files or quality results change
   useEffect(() => {
@@ -31,18 +39,18 @@ export default function UploadPage() {
     
     const anyUnacceptable = Object.values(qualityResults).some(result => !result.isAcceptable);
     setHasUnacceptableImages(anyUnacceptable)
-  }, [qualityResults, uploadedFiles])
+  }, [qualityResults, selectedFiles])
 
   const handleFilesAdded = (files: File[], newQualityResults?: Record<string, ImageQualityResult>) => {
     // Combine with existing files, avoiding duplicates
     const newFiles = files.filter(file => 
-      !uploadedFiles.some(existing => 
+      !selectedFiles.some(existing => 
         existing.name === file.name && 
         existing.size === file.size
       )
     )
     
-    setUploadedFiles(prev => [...prev, ...newFiles])
+    setSelectedFiles(prev => [...prev, ...newFiles])
     
     // Update quality results
     if (newQualityResults) {
@@ -55,10 +63,10 @@ export default function UploadPage() {
 
   const handleRemoveFile = (index: number) => {
     // Get the file being removed
-    const fileToRemove = uploadedFiles[index];
+    const fileToRemove = selectedFiles[index];
     
     // Remove the file
-    setUploadedFiles(prev => prev.filter((_, i) => i !== index))
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index))
     
     // Remove its quality result
     if (fileToRemove && qualityResults[fileToRemove.name]) {
@@ -69,7 +77,7 @@ export default function UploadPage() {
   }
 
   const handleContinue = async () => {
-    if (uploadedFiles.length === 0) {
+    if (selectedFiles.length === 0) {
       toast({
         title: 'No files selected',
         description: 'Please upload at least one photo to continue.',
@@ -153,7 +161,7 @@ export default function UploadPage() {
           completed_stages: ['compositions'],
           stage_data: {
             upload: {
-              uploadedFiles: uploadedFiles.map(f => f.name),
+              uploadedFiles: selectedFiles.map(f => f.name),
               uploadProgress: 100,
               lastUploadAt: new Date().toISOString()
             }
@@ -165,6 +173,15 @@ export default function UploadPage() {
     }
   };
 
+  useEffect(() => {
+    const accepted = Object.values(qualityResults).filter(result => result.isAcceptable)
+    setAcceptedImages(accepted)
+    if (accepted.length > 0) {
+      const avgScore = accepted.reduce((sum, result) => sum + result.score, 0) / accepted.length
+      setAverageScore(avgScore)
+    }
+  }, [qualityResults])
+
   return (
     <div className="space-y-6">
       <div>
@@ -174,37 +191,118 @@ export default function UploadPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div className="space-y-6">
-          <FileUploader onFilesAdded={handleFilesAdded} />
-          <UploadRequirements />
-        </div>
-
-        <div>
-          <UploadedFilesList 
-            files={uploadedFiles}
-            onRemoveFile={handleRemoveFile}
-            isUploading={isUploading}
-            progress={progress}
-            qualityResults={qualityResults}
-          />
-        </div>
+      <div>
+        <UploadRequirements />
+      </div>
+    
+      <div className="space-y-6">
+        <FileUploader onFilesAdded={handleFilesAdded} />
       </div>
 
-      {hasUnacceptableImages && (
-        <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-md text-yellow-800">
-          <h3 className="font-medium mb-1">Quality issues detected</h3>
-          <p className="text-sm">
-            Some of your photos have quality issues that might affect the results. Expand each photo
-            to see details. You can either replace these images or continue with reduced quality.
-          </p>
+      {selectedFiles.length > 0 && (
+        <div className={cn(
+          "grid gap-6",
+          selectedFiles.some(file => !qualityResults[file.name]?.isAcceptable)
+            ? "grid-cols-1 md:grid-cols-2"
+            : "grid-cols-1"
+        )}>
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-medium">Accepted Images</h3>
+              <span className="text-sm text-muted-foreground">
+                {acceptedImages.length} images
+              </span>
+            </div>
+            <UploadedFilesList 
+              files={selectedFiles.filter(file => qualityResults[file.name]?.isAcceptable)}
+              onRemoveFile={handleRemoveFile}
+              isUploading={isUploading}
+              progress={progress}
+              qualityResults={qualityResults}
+              variant="accepted"
+            />
+          </div>
+
+          {selectedFiles.some(file => !qualityResults[file.name]?.isAcceptable) && (
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-medium">Rejected Images</h3>
+                <span className="text-sm text-muted-foreground">
+                  {selectedFiles.length - acceptedImages.length} images
+                </span>
+              </div>
+              <UploadedFilesList 
+                files={selectedFiles.filter(file => !qualityResults[file.name]?.isAcceptable)}
+                onRemoveFile={handleRemoveFile}
+                isUploading={isUploading}
+                progress={progress}
+                qualityResults={qualityResults}
+                variant="rejected"
+              />
+            </div>
+          )}
         </div>
       )}
 
-      <div className="flex justify-between pt-6">        
+      {acceptedImages.length > 0 && (
+        <div className="bg-card border rounded-md p-4">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="font-medium">Upload Status</h3>
+              <div className="text-sm text-muted-foreground">
+                {acceptedImages.length}/{MIN_IMAGES} required images
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between items-center text-sm">
+                <span>Average Quality Score</span>
+                <span className="font-medium">
+                  {Math.round(averageScore)}%
+                </span>
+              </div>
+              <Progress 
+                value={averageScore} 
+                className={cn(
+                  "h-2",
+                  averageScore >= 70 ? "bg-green-500" :
+                  averageScore >= 50 ? "bg-yellow-500" :
+                  "bg-red-500"
+                )}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex justify-between items-center text-sm">
+                <span>Upload Progress</span>
+                <span className="font-medium">
+                  {acceptedImages.length} of {MIN_IMAGES} required
+                </span>
+              </div>
+              <Progress 
+                value={(acceptedImages.length / MIN_IMAGES) * 100} 
+                className={cn(
+                  "h-2",
+                  acceptedImages.length >= MIN_IMAGES ? "bg-green-500" : "bg-blue-500"
+                )}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex justify-between items-center pt-6">
+        <p className="text-sm text-muted-foreground">
+          {acceptedImages.length < MIN_IMAGES 
+            ? `Please upload ${MIN_IMAGES - acceptedImages.length} more ${MIN_IMAGES - acceptedImages.length === 1 ? 'image' : 'images'} to continue`
+            : acceptedImages.length > MAX_IMAGES
+            ? `Please remove ${acceptedImages.length - MAX_IMAGES} ${acceptedImages.length - MAX_IMAGES === 1 ? 'image' : 'images'} to continue`
+            : `${acceptedImages.length} images selected`}
+        </p>
+        
         <Button 
           onClick={handleContinue}
-          disabled={uploadedFiles.length === 0 || isUploading}
+          disabled={acceptedImages.length < MIN_IMAGES || acceptedImages.length > MAX_IMAGES || isUploading}
         >
           {isUploading ? `Uploading (${progress}%)` : 'Continue'}
           {!isUploading && <ArrowRightIcon className="h-4 w-4 ml-2" />}
