@@ -10,59 +10,44 @@ import { PhotographyStyleSelector } from '@/components/composition/photography-s
 import { StylePreview } from '@/components/composition/style-preview'
 import { useCompositionStore } from '@/store/composition'
 import { saveComposition } from '@/lib/api/compositions'
+import { getOrCreateDraftOrder } from '@/lib/api/orders'
+import { ensureUserProgress } from '@/lib/api/progress'
 import { CompositionStatus } from '@/lib/types'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { useUserProgress } from '@/hooks/use-user-progress'
 
 export default function CompositionPage() {
   const router = useRouter()
   const { user } = useAuth()
   const { settings, reset } = useCompositionStore()
   const { toast } = useToast()
+  const { progress, isLoading: isProgressLoading } = useUserProgress()
   const [isSaving, setIsSaving] = useState(false)
   const [openDrawer, setOpenDrawer] = useState<'background' | 'outfit' | null>(null)
 
   // Check if user has already progressed beyond compositions stage
   useEffect(() => {
-    const checkUserProgress = async () => {
-      if (!user) return;
-      
-      try {
-        const supabase = createClient();
-        const { data: progress, error } = await supabase
-          .from('user_progress')
-          .select('current_stage')
-          .eq('user_id', user.id)
-          .single();
-          
-        if (error) throw error;
-        
-        // If user has already progressed to upload, payment, or later stage, redirect
-        if (progress && 
-            ['upload', 'payment', 'review', 'dashboard'].includes(progress.current_stage)) {
-          
-          // Show toast notification before redirecting
-          toast({
-            title: 'Access denied',
-            description: `You've already progressed to the ${progress.current_stage} stage. You cannot modify compositions now.`,
-            variant: 'destructive',
-          });
-          
-          // Short delay to ensure toast is visible before redirect
-          setTimeout(() => {
-            router.replace(`/app/${progress.current_stage}`);
-          }, 1500);
-        }
-      } catch (error) {
-        console.error('Error checking user progress:', error);
-      }
-    };
+    if (isProgressLoading || !progress || !user) return;
     
-    checkUserProgress();
-  }, [user, router, toast]);
+    // Check if user has already progressed to upload, payment, or later stage
+    if (['upload', 'payment', 'review', 'dashboard'].includes(progress.current_stage)) {
+      // Show toast notification before redirecting
+      toast({
+        title: 'Access denied',
+        description: `You've already progressed to the ${progress.current_stage} stage. You cannot modify compositions now.`,
+        variant: 'destructive',
+      });
+      
+      // Short delay to ensure toast is visible before redirect
+      setTimeout(() => {
+        router.replace(`/app/${progress.current_stage}`);
+      }, 1500);
+    }
+  }, [progress, isProgressLoading, user, router, toast]);
 
   const handleSave = async () => {
     if (!user) {
@@ -76,41 +61,10 @@ export default function CompositionPage() {
 
     try {
       setIsSaving(true)
-      const supabase = createClient()
 
-      // First try to find an existing draft order
-      const { data: existingOrders, error: orderQueryError } = await supabase
-        .from('orders')
-        .select()
-        .eq('user_id', user.id)
-        .eq('status', 'draft')
-        .order('created_at', { ascending: false })
-        .limit(1)
-
-      if (orderQueryError) throw orderQueryError
-
-      let orderId: string
-
-      if (existingOrders && existingOrders.length > 0) {
-        // Use existing draft order
-        orderId = existingOrders[0].id
-      } else {
-        // Create new draft order if none exists
-        // TODO: Change amount to a dynamic pricing once payment is implemented
-        const { data: newOrder, error: createOrderError } = await supabase
-          .from('orders')
-          .insert({
-            user_id: user.id,
-            status: 'draft',
-            amount: 2900,
-            currency: 'usd'
-          })
-          .select()
-          .single()
-
-        if (createOrderError) throw createOrderError
-        orderId = newOrder.id
-      }
+      // Use helper to get/create order
+      const order = await getOrCreateDraftOrder(user.id)
+      const orderId = order.id
 
       // Format the name based on selected settings
       const formattedName = `${settings.photographyStyle} ${settings.outfit} ${settings.background}`
@@ -134,27 +88,8 @@ export default function CompositionPage() {
 
       await saveComposition(composition)
       
-      // Update user progress to compositions stage if not already set
-      const { data: existingProgress, error: progressError } = await supabase
-        .from('user_progress')
-        .select()
-        .eq('user_id', user.id)
-        .single()
-
-      if (progressError && progressError.code !== 'PGRST116') throw progressError
-
-      if (!existingProgress) {
-        const { error: createProgressError } = await supabase
-          .from('user_progress')
-          .insert({
-            user_id: user.id,
-            current_stage: 'compositions',
-            completed_stages: [],
-            last_active_at: new Date().toISOString()
-          })
-
-        if (createProgressError) throw createProgressError
-      }
+      // Use helper to ensure user progress exists
+      await ensureUserProgress(user.id)
       
       toast({
         title: 'Success',

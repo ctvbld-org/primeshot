@@ -16,12 +16,6 @@ interface FileUploaderProps {
   onFilesAdded: (files: File[], qualityResults?: Record<string, ImageQualityResult>) => void
 }
 
-interface FilePreviewProps {
-  file: File;
-  qualityResult: ImageQualityResult;
-  onRemove: () => void;
-}
-
 // Constants for image limits
 const MIN_IMAGES = 12;
 const MAX_IMAGES = 30;
@@ -32,8 +26,6 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
   const { toast } = useToast()
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [modelsStatus, setModelsStatus] = useState<'loading' | 'loaded' | 'error'>('loading')
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
-  const [qualityResults, setQualityResults] = useState<Record<string, ImageQualityResult>>({})
 
   // Load face detection models on component mount
   useEffect(() => {
@@ -66,44 +58,6 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
       initModels()
     }
   }, [toast])
-
-  // File validation
-  const validateFiles = (files: File[]): File[] => {
-    const validFiles: File[] = []
-    const invalidFiles: { file: File; reason: string }[] = []
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
-    const maxSize = 10 * 1024 * 1024 // 10MB
-
-    Array.from(files).forEach((file) => {
-      if (!allowedTypes.includes(file.type)) {
-        invalidFiles.push({ file, reason: 'Invalid file type. Only JPEG, PNG, and WebP are supported.' })
-      } else if (file.size > maxSize) {
-        invalidFiles.push({ file, reason: `File size exceeds maximum limit of 10MB.` })
-      } else {
-        validFiles.push(file)
-      }
-    })
-
-    // Show error messages for invalid files
-    if (invalidFiles.length > 0) {
-      const errorMessages = invalidFiles.map(
-        ({ file, reason }) => `${file.name}: ${reason}`
-      )
-      toast({
-        title: `${invalidFiles.length} file(s) could not be added`,
-        description: (
-          <ul className="list-disc pl-4">
-            {errorMessages.map((message, i) => (
-              <li key={i} className="text-sm">{message}</li>
-            ))}
-          </ul>
-        ),
-        variant: 'destructive',
-      })
-    }
-
-    return validFiles
-  }
 
   // Analyze image quality
   const analyzeImages = async (files: File[]): Promise<[File[], Record<string, ImageQualityResult>]> => {
@@ -228,13 +182,8 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
 
       const { files } = e.dataTransfer
       if (files && files.length > 0) {
-        const validFiles = validateFiles(Array.from(files))
-        if (validFiles.length > 0) {
-          const [analyzedFiles, qualityResults] = await analyzeImages(validFiles)
-          setSelectedFiles(prev => [...prev, ...analyzedFiles])
-          setQualityResults(prev => ({ ...prev, ...qualityResults }))
-          onFilesAdded(analyzedFiles, qualityResults)
-        }
+        const [analyzedFiles, qualityResults] = await analyzeImages(Array.from(files))
+        onFilesAdded(analyzedFiles, qualityResults)
       }
     },
     [onFilesAdded]
@@ -244,13 +193,8 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const { files } = e.target
       if (files && files.length > 0) {
-        const validFiles = validateFiles(Array.from(files))
-        if (validFiles.length > 0) {
-          const [analyzedFiles, qualityResults] = await analyzeImages(validFiles)
-          setSelectedFiles(prev => [...prev, ...analyzedFiles])
-          setQualityResults(prev => ({ ...prev, ...qualityResults }))
-          onFilesAdded(analyzedFiles, qualityResults)
-        }
+        const [analyzedFiles, qualityResults] = await analyzeImages(Array.from(files))
+        onFilesAdded(analyzedFiles, qualityResults)
       }
       
       // Reset the file input value so the same file can be selected again
@@ -264,39 +208,6 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
   const handleButtonClick = useCallback(() => {
     fileInputRef.current?.click()
   }, [])
-
-  const handleRemoveFile = (fileToRemove: File) => {
-    setSelectedFiles(selectedFiles.filter(file => file !== fileToRemove));
-  };
-
-  // Calculate overall stats
-  const calculateStats = () => {
-    if (!qualityResults || Object.keys(qualityResults).length === 0) return null;
-
-    const totalScore = Object.values(qualityResults).reduce((sum, result) => sum + result.score, 0);
-    const avgScore = totalScore / Object.keys(qualityResults).length;
-    const acceptableCount = Object.values(qualityResults).filter(r => r.isAcceptable).length;
-    const bodyCount = Object.values(qualityResults).filter(r => r.hasBody).length;
-    const bodyPercentage = (bodyCount / Object.keys(qualityResults).length) * 100;
-
-    return {
-      averageScore: avgScore * 100,
-      acceptableImages: acceptableCount,
-      totalImages: Object.keys(qualityResults).length,
-      bodyPercentage
-    };
-  };
-
-  const stats = calculateStats();
-
-  // Filter files based on acceptability
-  const acceptableFiles = selectedFiles.filter((file) => 
-    qualityResults[file.name] && qualityResults[file.name].isAcceptable
-  );
-  
-  const unacceptableFiles = selectedFiles.filter((file) => 
-    qualityResults[file.name] && !qualityResults[file.name].isAcceptable
-  );
 
   return (
     <div className="w-full space-y-4">

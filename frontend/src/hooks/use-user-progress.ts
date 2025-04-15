@@ -56,9 +56,11 @@ export function useUserProgress() {
           setProgress(data)
           
           // Redirect to last active stage if not completed payment
-          if (!isPaymentCompleted(data)) {
-            router.push(`/app/${data.current_stage}`)
-          }
+          // REMOVED: This redirect was causing issues when intentionally navigating.
+          // Page-specific redirects should handle access control.
+          // if (!isPaymentCompleted(data)) {
+          //   router.push(`/app/${data.current_stage}`)
+          // }
         } else {
           // No progress exists yet, set to null
           setProgress(null)

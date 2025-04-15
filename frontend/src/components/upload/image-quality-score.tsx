@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { FileIcon } from 'lucide-react'
+import { formatFileSize } from '@/lib/utils'
 
 interface ImageQualityScoreProps {
   file: File
@@ -19,14 +20,6 @@ interface ImageQualityScoreProps {
   isUploading: boolean
   progress: number
   variant?: 'accepted' | 'rejected'
-}
-
-function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`
 }
 
 export function ImageQualityScore({
