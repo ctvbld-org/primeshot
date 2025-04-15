@@ -22,8 +22,9 @@ export async function middleware(request: NextRequest) {
   // Protect all routes under /app
   if (request.nextUrl.pathname.startsWith('/app')) {
     const { data: { user } } = await supabase.auth.getUser()
+    
     if (!user) {
-      return NextResponse.redirect(new URL('/auth', request.url))
+      return NextResponse.redirect(new URL('/auth/signin', request.url))
     }
 
     // Get user progress
@@ -33,32 +34,61 @@ export async function middleware(request: NextRequest) {
       .eq('user_id', user.id)
       .single()
 
-    // If user hasn't completed payment, enforce stage progression
-    if (progress && !progress.completed_stages.includes('payment')) {
-      // Allow access only to compositions and current stage
-      const isCompositionsRoute = request.nextUrl.pathname === '/app/compositions'
-      const isCurrentStageRoute = request.nextUrl.pathname.includes(progress.current_stage)
+    // Define the order of stages for progression enforcement
+    const stageOrder = ['compositions', 'payment', 'upload', 'review', 'dashboard'];
+    
+    // If progress exists (user has started the flow)
+    if (progress) {
+      const currentStageIndex = stageOrder.indexOf(progress.current_stage);
       
-      if (!isCompositionsRoute && !isCurrentStageRoute) {
-        // Redirect to their current stage
-        return NextResponse.redirect(
-          new URL(`/app/${progress.current_stage}`, request.url)
-        )
+      // Get the stage the user is trying to access from the URL
+      let targetStage = 'compositions'; // Default
+      for (const stage of stageOrder) {
+        if (request.nextUrl.pathname.includes(`/app/${stage}`)) {
+          targetStage = stage;
+          break;
+        }
       }
-    }
-
-    // If no progress exists and not on compositions page, redirect to compositions
-    if (
-      !progress &&
-      !request.nextUrl.pathname.startsWith('/app/composition')
-    ) {
-      return NextResponse.redirect(
-        new URL('/app/compositions', request.url)
-      )
+      
+      // Special case for composition creation/editing
+      const isCompositionRoute = request.nextUrl.pathname === '/app/composition' || 
+                                request.nextUrl.pathname.startsWith('/app/composition/');
+      
+      // If they're trying to access the composition page but already proceeded to upload or beyond
+      if (isCompositionRoute && currentStageIndex > 0) {
+        // Redirect them back to their current stage
+        return NextResponse.redirect(new URL(`/app/${progress.current_stage}`, request.url));
+      }
+      
+      // If trying to go to compositions page but already in a later stage
+      if (targetStage === 'compositions' && currentStageIndex > 0) {
+        // Redirect them back to their current stage
+        return NextResponse.redirect(new URL(`/app/${progress.current_stage}`, request.url));
+      }
+      
+      // Get target stage index
+      const targetStageIndex = stageOrder.indexOf(targetStage);
+      
+      // Allow access only to current stage or previous completed stages
+      // But prevent going beyond current stage
+      if (targetStageIndex > currentStageIndex) {
+        // They're trying to skip ahead
+        return NextResponse.redirect(new URL(`/app/${progress.current_stage}`, request.url));
+      }
+    } 
+    // If no progress exists, only allow access to compositions or composition creation
+    else {
+      const isCompositionsRoute = request.nextUrl.pathname === '/app/compositions';
+      const isCompositionRoute = request.nextUrl.pathname === '/app/composition' || 
+                                request.nextUrl.pathname.startsWith('/app/composition/');
+                                
+      if (!isCompositionsRoute && !isCompositionRoute) {
+        return NextResponse.redirect(new URL('/app/compositions', request.url));
+      }
     }
   }
 
-  return response
+  return response;
 }
 
 export const config = {

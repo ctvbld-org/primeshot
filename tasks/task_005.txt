@@ -1,6 +1,6 @@
 # Task ID: 5
 # Title: Develop Photo Upload System with Quality Checking
-# Status: pending
+# Status: in-progress
 # Dependencies: 3
 # Priority: high
 # Description: Create an intelligent photo upload system with real-time quality checking using OpenCV.js and feedback mechanisms.
@@ -9,3 +9,78 @@ Implement drag-and-drop and file selection UI for photo uploads. Integrate OpenC
 
 # Test Strategy:
 Test with various photo qualities to verify detection of issues. Validate face detection accuracy across different types of photos. Test upload performance with multiple simultaneous uploads. Verify that quality feedback is accurate and helpful. Ensure processed images maintain sufficient quality for AI processing.
+
+# Subtasks:
+## 1. Implement Photo Upload UI with Drag-and-Drop and File Selection [done]
+### Dependencies: None
+### Description: Create the user interface for photo uploads including drag-and-drop functionality, file selection dialog, and the initial upload handling structure.
+### Details:
+Implementation steps:
+1. Create a responsive drop zone component that supports both drag-and-drop and traditional file selection.
+2. Add visual feedback for when files are dragged over the drop zone (highlight effect).
+3. Implement client-side file type validation (accept only images: jpg, png, etc.).
+4. Add initial file size validation to prevent extremely large uploads.
+5. Develop a thumbnail preview system that shows selected images before upload.
+6. Implement a basic progress indicator structure that will be enhanced in later subtasks.
+7. Set up the event handlers for file selection and drop events.
+8. Create the initial upload queue management system.
+
+Testing approach:
+- Verify that both drag-and-drop and file selection buttons work correctly.
+- Test with various file types to ensure only images are accepted.
+- Confirm the UI provides appropriate feedback during different upload states.
+- Test across different browsers and devices to ensure compatibility.
+
+## 2. Integrate OpenCV.js for Photo Quality Analysis [done]
+### Dependencies: 5.1
+### Description: Implement the core image quality checking functionality using OpenCV.js, including face detection and quality metrics evaluation.
+### Details:
+Implementation steps:
+1. Set up OpenCV.js library integration in the project.
+2. Create a service for image analysis that will run before upload completion.
+3. Implement face detection algorithm using OpenCV.js Haar cascades or similar approach.
+4. Add quality metric calculations for:
+   - Image resolution verification (minimum acceptable dimensions)
+   - Brightness and contrast assessment
+   - Face visibility and positioning (centered, not too close to edges)
+   - Blur detection
+5. Develop a quality scoring system that combines multiple metrics.
+6. Create specific feedback messages for each type of quality issue.
+7. Implement real-time analysis so feedback appears as soon as images are selected.
+8. Add visual indicators on thumbnails showing quality status (good/needs improvement).
+
+Testing approach:
+- Test with various sample images of different qualities.
+- Verify face detection works correctly with different face positions and lighting conditions.
+- Confirm quality metrics provide accurate assessments.
+- Measure performance to ensure analysis doesn't significantly delay the user experience.
+- Test edge cases like images with multiple faces or unusual lighting conditions.
+
+## 3. Develop Image Processing Pipeline and S3 Storage Integration [pending]
+### Dependencies: 5.1, 5.2
+### Description: Implement the server-side image processing with Sharp.js, batch upload functionality with progress tracking, and storage in S3 with database references.
+### Details:
+Implementation steps:
+1. Set up Sharp.js for server-side image processing and optimization.
+2. Create processing pipeline that includes:
+   - Automatic image optimization based on quality analysis
+   - Resizing to standard dimensions if needed
+   - Format conversion if beneficial
+   - Metadata preservation/stripping as appropriate
+3. Implement batch upload functionality that processes multiple files sequentially.
+4. Add detailed progress tracking that shows status for each image in the batch.
+5. Set up S3 bucket connection and secure upload configuration.
+6. Create database schema for the Images table to store metadata and references.
+7. Implement server endpoints to handle upload requests and return S3 URLs.
+8. Add error handling and retry logic for failed uploads.
+9. Implement cleanup procedures for incomplete uploads.
+10. Add final success/failure notifications to the user.
+
+Testing approach:
+- Test the complete pipeline with various image types and qualities.
+- Verify batch uploads work correctly with progress reporting.
+- Confirm images are properly stored in S3 with correct metadata.
+- Test database entries are created correctly with proper references.
+- Verify error handling by simulating network issues and server errors.
+- Perform load testing with large batches of photos.
+

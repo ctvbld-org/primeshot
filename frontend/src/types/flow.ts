@@ -1,6 +1,6 @@
 export type FlowStage = 
   | 'compositions'
+  | 'payment'
   | 'upload'
   | 'review'
-  | 'payment'
   | 'dashboard' 

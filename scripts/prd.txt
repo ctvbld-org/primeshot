@@ -98,9 +98,10 @@ Key User Flows:
   2. Real-time quality check feedback
   3. Option to replace rejected photos
   4. Progress indicator for upload and processing
-- Confirmation screen before image generation process:
+- Confirmation/Review screen before image generation process:
   1. Selected compositions
-  2. Questionnaire details
+  2. Uploaded images details
+  3. Questionnaire details
 - View generation progress:
   1. Status dashboard for each composition
   2. Email notifications for completion
@@ -146,7 +147,7 @@ System Components:
 - Use 'ostris/flux-dev-lora-trainer' to train User's uploaded pictures
 - Use ComfyUI for inference using Flux-dev, trained LoRAs and upscalers
 - Deploy our own dedicated instance on Replicate for ComfyUI using 'fofr/any-comfyui-workflow' by either using a private deployment or a fork using Cog as explained in this readme: https://github.com/replicate/cog-comfyui?tab=readme-ov-file
-- OpenCV.js for image quality analysis
+- face-api.js for image quality analysis
 - Sharp.js for image processing
 
 Data Models:

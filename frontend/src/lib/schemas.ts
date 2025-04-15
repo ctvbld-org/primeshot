@@ -45,7 +45,6 @@ export const compositionSchema = z.object({
 // Enhanced image schema with metadata
 export const imageSchema = z.object({
   id: z.string().uuid('Invalid image ID'),
-  composition_id: z.string().uuid('Invalid composition ID'),
   user_id: z.string().uuid('Invalid user ID'),
   url: z.string().url('Invalid URL format'),
   file_name: z.string().min(1, 'Filename is required'),
