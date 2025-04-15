@@ -31,6 +31,9 @@ export type CompositionBackground =
 export type CompositionPhotographyStyle = 'studio' | 'natural' | 'dramatic'
 export type CompositionStatus = 'draft' | 'pending' | 'processing' | 'completed'
 
+// TODO: Define specific color options, e.g., using Tailwind color names or hex codes
+export type CompositionOutfitColor = string // Example: 'blue-500', '#ffffff', 'black'
+
 export type OrderStatus = 
   | 'draft'           // Initial state when creating compositions
   | 'pending_payment' // Ready for payment
@@ -56,6 +59,7 @@ export type CompositionSettings = {
   photographyStyle: CompositionPhotographyStyle
   outfit: CompositionOutfit
   background: CompositionBackground
+  outfitColor?: CompositionOutfitColor
   customSettings?: Record<string, any>
 }
 

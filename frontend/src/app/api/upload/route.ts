@@ -59,9 +59,14 @@ async function processImage(buffer: Buffer, originalMimeType: string) {
 }
 
 // --- Single File Processing Pipeline ---
-async function processAndUploadFile(file: File, userId: string, supabase: SupabaseClient) {
+async function processAndUploadFile(
+  file: File, 
+  userId: string, 
+  orderId: string,
+  supabase: SupabaseClient
+) {
   const originalName = file.name
-  console.log(`[${originalName}] Starting processing pipeline...`)
+  console.log(`[${originalName}] Starting processing pipeline for order ${orderId}...`)
   try {
     // 1. Process Image
     const buffer = Buffer.from(await file.arrayBuffer())
@@ -80,6 +85,8 @@ async function processAndUploadFile(file: File, userId: string, supabase: Supaba
     const imageData = {
       id: uuidv4(),
       user_id: userId,
+      order_id: orderId,
+      composition_id: null,
       url: url,
       file_name: `${cleanOriginalName}.webp`,
       file_size: processedBuffer.length,
@@ -92,7 +99,7 @@ async function processAndUploadFile(file: File, userId: string, supabase: Supaba
       .from('images')
       .insert(validatedData)
     if (dbError) throw new Error(`DB insert failed: ${dbError.message}`)
-    console.log(`[${originalName}] Saved to DB.`) 
+    console.log(`[${originalName}] Saved to DB with orderId ${orderId}.`) 
 
     // Return success result for this file
     return { originalName, url }
@@ -104,81 +111,95 @@ async function processAndUploadFile(file: File, userId: string, supabase: Supaba
   }
 }
 
-// --- API Route Handler (Parallel Processing & Streaming) --- 
+// --- POST Handler ---
 export async function POST(request: Request) {
   try {
-    // 1. Initialize Supabase Client and Authenticate User
-    const supabase = await createClient() // Await the client initialization
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
+    const supabase = await createClient()
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+    if (userError || !user) {
+      console.error('Unauthorized access attempt', userError)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    
-    // 2. Get Files
+    console.log('User authenticated:', user.id)
+
     const formData = await request.formData()
     const files = formData.getAll('files') as File[]
-    if (!files || files.length === 0) {
-      return NextResponse.json({ error: 'No files provided' }, { status: 400 })
-    }
-    console.log(`Received ${files.length} files for upload.`) 
+    const orderId = formData.get('orderId') as string // Get orderId from form data
 
-    // 3. Setup Streaming Response
+    if (!files || files.length === 0) {
+      return NextResponse.json({ error: 'No files uploaded' }, { status: 400 })
+    }
+    
+    // Validate orderId
+    if (!orderId || typeof orderId !== 'string') {
+      console.error('Missing or invalid orderId in form data')
+      return NextResponse.json({ error: 'Missing or invalid order ID' }, { status: 400 })
+    }
+    console.log(`Processing ${files.length} files for orderId: ${orderId}`)
+
+    // --- Corrected Streaming Logic --- 
     const encoder = new TextEncoder()
     const stream = new ReadableStream({
       async start(controller) {
-        console.log('Stream started. Beginning parallel processing...') 
-        
-        // Supabase client is available here due to closure
-        
-        // Function to process one file and enqueue its result
+        console.log('Stream started. Processing files...');
+
         const processFileAndEnqueue = async (file: File) => {
-           // Pass the initialized client to the processing function
-          const result = await processAndUploadFile(file, user.id, supabase)
+          // Pass the orderId to the processing function
+          const result = await processAndUploadFile(file, user.id, orderId, supabase);
           try {
-             controller.enqueue(encoder.encode(JSON.stringify(result) + '\n'))
-             console.log(`Enqueued result for ${result.originalName}`) 
+            const jsonData = JSON.stringify(result);
+            controller.enqueue(encoder.encode(jsonData + '\n')); // Send JSON line
+            console.log(`Enqueued result for ${result.originalName}:`, jsonData);
           } catch (e) {
-             console.error(`Error enqueuing result for ${result.originalName}:`, e)
+            console.error(`Error encoding or enqueuing result for ${file.name}:`, e);
+            // Optionally enqueue an error object for this file
+            try {
+              controller.enqueue(encoder.encode(JSON.stringify({ originalName: file.name, error: 'Serialization failed' }) + '\n'));
+            } catch (enqueueError) {
+               console.error('Failed to enqueue serialization error:', enqueueError);
+            }
           }
-        }
+        };
 
-        // 4. Start all processing concurrently
-        const processingPromises = files.map(file => processFileAndEnqueue(file))
+        // Create promises for all file processing tasks
+        const processingPromises = files.map(file => processFileAndEnqueue(file));
         
-        // 5. Wait for all to settle
-        await Promise.allSettled(processingPromises)
+        // Wait for all processing to complete
+        await Promise.allSettled(processingPromises);
 
-        // 6. Close the stream 
-        console.log('All file processing settled. Closing stream.') 
-        controller.close()
+        // All files processed (or failed), close the stream
+        console.log('All file processing settled. Closing stream.');
+        controller.close();
       }
-    })
+    });
 
-    // 7. Return the stream immediately
+    // Return the streaming response
     return new NextResponse(stream, {
       headers: {
-        'Content-Type': 'application/octet-stream',
+        'Content-Type': 'application/x-ndjson', // Use newline-delimited JSON
         'Cache-Control': 'no-cache',
+        'Transfer-Encoding': 'chunked',
       }
-    })
+    });
+    // --- End Corrected Streaming Logic --- 
 
   } catch (error) {
-    console.error('Upload request error:', error)
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to initiate upload' },
-      { status: 500 }
-    )
+    console.error('Upload API error:', error)
+    const message = error instanceof Error ? error.message : 'Internal server error during upload'
+    // Return a standard JSON error response if the whole request fails early
+    return NextResponse.json({ error: message, success: false }, { status: 500 })
   }
 }
 
-// Handle OPTIONS request for CORS
+// Handle OPTIONS request for CORS (if needed, often handled by framework middleware)
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 204,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST',
+      'Access-Control-Allow-Origin': '*', // Adjust for production!
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization'
     }
   })
-} 
+}

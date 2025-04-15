@@ -1,18 +1,14 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
 import { useAuth } from '@/contexts/auth-context'
-import { BackgroundSelector } from '@/components/composition/background-selector'
-import { OutfitSelector } from '@/components/composition/outfit-selector'
-import { PhotographyStyleSelector } from '@/components/composition/photography-style-selector'
 import { useCompositionStore } from '@/store/composition'
 import { createClient } from '@/lib/supabase/client'
-import { Composition, CompositionSettings } from '@/lib/types'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { Composition, CompositionSettings, CompositionPhotographyStyle } from '@/lib/types'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,11 +22,17 @@ import {
 import { deleteComposition } from '@/lib/api/compositions'
 import { TrashIcon } from '@heroicons/react/24/outline'
 
-export default function CompositionPage() {
+// Import the new selectors
+import { BackgroundImageSelector } from '@/components/composition/background-image-selector'
+import { OutfitImageSelector } from '@/components/composition/outfit-image-selector'
+import { OutfitColorSelector } from '@/components/composition/outfit-color-selector'
+
+// Use Suspense for potential future use with data fetching
+function EditCompositionContent() {
   const params = useParams()
   const router = useRouter()
   const { user } = useAuth()
-  const { settings, setBackground, setOutfit, setPhotographyStyle } = useCompositionStore()
+  const { settings, setBackground, setOutfit, setOutfitColor, reset } = useCompositionStore()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -38,91 +40,123 @@ export default function CompositionPage() {
   const [originalSettings, setOriginalSettings] = useState<CompositionSettings | null>(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [openDrawer, setOpenDrawer] = useState<'background' | 'outfit' | null>(null)
+  const [compositionName, setCompositionName] = useState('')
+  const [photographyStyle, setPhotographyStyle] = useState<CompositionPhotographyStyle | null>(null)
 
+  const compositionId = Array.isArray(params.id) ? params.id[0] : params.id;
+
+  // Calculate unsaved changes based on store state vs original loaded state
   const hasUnsavedChanges = originalSettings && (
     originalSettings.background !== settings.background ||
     originalSettings.outfit !== settings.outfit ||
-    originalSettings.photographyStyle !== settings.photographyStyle
+    originalSettings.outfitColor !== settings.outfitColor
+    // Note: photographyStyle is not editable here, so no need to compare
   )
 
   useEffect(() => {
     async function loadComposition() {
-      if (!user || !params.id) return
+      if (!user || !compositionId) {
+        setIsLoading(false);
+        toast({ title: 'Error', description: 'Missing user or composition ID.', variant: 'destructive' })
+        router.replace('/app/compositions');
+        return;
+      }
 
+      setIsLoading(true);
       try {
         const supabase = createClient()
         const { data, error } = await supabase
           .from('compositions')
           .select('*')
-          .eq('id', params.id)
+          .eq('id', compositionId)
           .eq('user_id', user.id)
           .single()
 
-        if (error) throw error
-        if (!data) {
-          toast({
-            title: 'Error',
-            description: 'Composition not found',
-            variant: 'destructive'
-          })
-          router.push('/app/compositions')
-          return
+        if (error || !data) {
+          throw error || new Error('Composition not found or access denied.');
         }
 
-        const composition = data as Composition
-        setBackground(composition.settings.background)
-        setOutfit(composition.settings.outfit)
-        setPhotographyStyle(composition.settings.photographyStyle)
-        setOriginalSettings(composition.settings)
+        const loadedComposition = data as Composition
+        const loadedSettings = loadedComposition.settings as CompositionSettings;
+
+        // Set the store state with loaded data
+        setBackground(loadedSettings.background)
+        setOutfit(loadedSettings.outfit)
+        // Handle potentially missing outfitColor from older compositions
+        setOutfitColor(loadedSettings.outfitColor || '#000000') 
+        // Set photography style locally as it's not editable
+        setPhotographyStyle(loadedSettings.photographyStyle)
+        setCompositionName(loadedComposition.name)
+        
+        // Store the initially loaded settings to compare for unsaved changes
+        setOriginalSettings(loadedSettings)
+
       } catch (error) {
         toast({
-          title: 'Error',
-          description: error instanceof Error ? error.message : 'Failed to load composition',
+          title: 'Error Loading Composition',
+          description: error instanceof Error ? error.message : 'Could not load the composition data.',
           variant: 'destructive'
         })
-        router.push('/app/compositions')
+        router.replace('/app/compositions')
       } finally {
         setIsLoading(false)
       }
     }
 
     loadComposition()
-  }, [user, params.id, router, toast, setBackground, setOutfit, setPhotographyStyle])
+
+    // Cleanup function to reset store when navigating away
+    return () => {
+      reset();
+    };
+  }, [user, compositionId, router, toast, setBackground, setOutfit, setOutfitColor, reset])
 
   const handleSave = async () => {
-    if (!user || !params.id) return
+    if (!user || !compositionId || !settings.background || !settings.outfit || !settings.outfitColor || !photographyStyle) {
+       toast({ title: 'Error', description: 'Missing required data to save.', variant: 'destructive' })
+       return
+    }
 
     try {
       setIsSaving(true)
       const supabase = createClient()
 
-      // Format the name based on selected settings
-      const formattedName = `${settings.photographyStyle} ${settings.outfit} ${settings.background}`
+      // Use the current store settings for the update
+      const updatedSettings = {
+        ...settings, // Includes background, outfit, outfitColor from store
+        photographyStyle: photographyStyle, // Keep original style
+      };
+      
+      // Regenerate name based on potentially updated settings
+      const formattedName = `${photographyStyle} ${settings.outfit} (${settings.outfitColor}) ${settings.background}`
         .split(' ')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ')
+        .join(' ');
 
       const { error } = await supabase
         .from('compositions')
         .update({ 
-          settings,
+          settings: updatedSettings,
           name: formattedName
         })
-        .eq('id', params.id)
+        .eq('id', compositionId)
         .eq('user_id', user.id)
 
       if (error) throw error
 
-      setOriginalSettings(settings)
+      // Update original settings to reflect the saved state
+      setOriginalSettings(updatedSettings)
+      setCompositionName(formattedName)
+      
       toast({
         title: 'Success',
         description: 'Your composition has been updated'
       })
-      router.push('/app/compositions')
+      // Optional: navigate back after save, or stay on page
+      // router.push('/app/compositions') 
     } catch (error) {
       toast({
-        title: 'Error',
+        title: 'Error Updating Composition',
         description: error instanceof Error ? error.message : 'Failed to update composition',
         variant: 'destructive'
       })
@@ -140,24 +174,31 @@ export default function CompositionPage() {
   }
 
   const handleConfirmDiscard = () => {
+    // Restore store state to original loaded settings before navigating
+    if (originalSettings) {
+      setBackground(originalSettings.background);
+      setOutfit(originalSettings.outfit);
+      setOutfitColor(originalSettings.outfitColor || '#000000');
+    }
     setShowDiscardDialog(false)
     router.push('/app/compositions')
   }
 
   const handleDelete = async () => {
-    if (!user || !params.id) return
+    if (!user || !compositionId) return
 
     try {
       setIsDeleting(true)
-      await deleteComposition(Array.isArray(params.id) ? params.id[0] : params.id, user.id)
+      await deleteComposition(compositionId, user.id)
       toast({
         title: 'Success',
         description: 'Composition deleted successfully'
       })
+      reset() // Clear store state after delete
       router.push('/app/compositions')
     } catch (error) {
       toast({
-        title: 'Error',
+        title: 'Error Deleting Composition',
         description: error instanceof Error ? error.message : 'Failed to delete composition',
         variant: 'destructive'
       })
@@ -167,161 +208,105 @@ export default function CompositionPage() {
     }
   }
 
-  const handleDrawerToggle = (drawer: 'background' | 'outfit') => {
-    // If the clicked drawer is already open, do nothing
-    if (openDrawer === drawer) return
-    // Otherwise, open the clicked drawer
-    setOpenDrawer(drawer)
-  }
-
   if (isLoading) {
     return <div className="text-center py-8">Loading composition...</div>
   }
 
+  if (!originalSettings || !photographyStyle) {
+     return <div className="text-center py-8">Failed to load composition data.</div>
+  }
+
+  // Main component structure aligned with new/page.tsx
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-8">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Style Composition</h2>
+          <h2 className="text-2xl font-bold tracking-tight">Edit Composition</h2>
           <p className="text-muted-foreground">
-            View or update your headshot style composition.
+            Style: <span className="font-semibold capitalize">{photographyStyle}</span> (Style cannot be changed after creation).
           </p>
         </div>
 
-        <div className="relative">
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Update Options</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <section>
+              <h3 className="text-lg font-medium mb-3">Background</h3>
+              <BackgroundImageSelector photographyStyle={photographyStyle} />
+            </section>
+
+            <section>
+              <h3 className="text-lg font-medium mb-3">Outfit</h3>
+              <OutfitImageSelector photographyStyle={photographyStyle} />
+            </section>
+
+            <section>
+              <h3 className="text-lg font-medium mb-3">Outfit Color</h3>
+              <OutfitColorSelector photographyStyle={photographyStyle} />
+            </section>
+          </CardContent>
+          <CardFooter className="flex flex-col sm:flex-row gap-4 justify-between">
             <Button 
-              variant="outline" 
-              size="lg"
-              className="w-48"
-              onClick={() => handleDrawerToggle('background')}
+              variant="destructive"
+              onClick={() => setShowDeleteDialog(true)}
+              disabled={isDeleting}
+              className="w-full sm:w-auto order-3 sm:order-1"
             >
-              Choose Background
+              <TrashIcon className="h-4 w-4 mr-2" />
+              {isDeleting ? 'Deleting...' : 'Delete Composition'}
             </Button>
-            <Button 
-              variant="outline" 
-              size="lg"
-              className="w-48"
-              onClick={() => handleDrawerToggle('outfit')}
-            >
-              Choose Outfit
-            </Button>
-          </div>
-
-          <div className="mx-auto max-w-2xl">
-            <Card>
-              <CardContent className="space-y-6">
-                <PhotographyStyleSelector />
-                <div className="aspect-[3/4] w-full bg-muted rounded-lg flex items-center justify-center">
-                  <p className="text-muted-foreground">Preview image will be shown here</p>
-                </div>
-              </CardContent>
-              <CardFooter className="flex gap-4">
-                <Button 
-                  variant="destructive"
-                  size="icon"
-                  onClick={() => setShowDeleteDialog(true)}
-                  disabled={isDeleting}
-                >
-                  <TrashIcon className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="flex-1"
-                  onClick={handleCancel}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  className="flex-1"
-                  onClick={handleSave}
-                  disabled={isSaving || !hasUnsavedChanges}
-                >
-                  {isSaving ? 'Saving...' : 'Save Changes'}
-                </Button>
-              </CardFooter>
-            </Card>
-          </div>
-        </div>
-
-        <Sheet 
-          open={openDrawer === 'background'} 
-          modal={false}
-          onOpenChange={(open) => !open && setOpenDrawer(null)}
-        >
-          <SheetContent 
-            side="right" 
-            className="w-[400px] sm:w-[540px]" 
-            onPointerDownOutside={(e) => e.preventDefault()}
-            onInteractOutside={(e) => e.preventDefault()}
-            onEscapeKeyDown={(e) => e.preventDefault()}
-            onCloseAutoFocus={(e) => e.preventDefault()}
-          >
-            <SheetHeader>
-              <SheetTitle>Choose Background</SheetTitle>
-            </SheetHeader>
-            <div className="mt-8 overflow-y-auto pr-6" style={{ maxHeight: 'calc(100vh - 8rem)' }}>
-              <div>
-                <BackgroundSelector />
-              </div>
+            <div className="flex gap-4 w-full sm:w-auto order-2">
+              <Button 
+                variant="outline"
+                className="flex-1"
+                onClick={handleCancel}
+              >
+                Cancel
+              </Button>
+              <Button 
+                className="flex-1"
+                onClick={handleSave}
+                disabled={isSaving || !hasUnsavedChanges}
+              >
+                {isSaving ? 'Saving...' : 'Save Changes'}
+              </Button>
             </div>
-          </SheetContent>
-        </Sheet>
-
-        <Sheet 
-          open={openDrawer === 'outfit'} 
-          modal={false}
-          onOpenChange={(open) => !open && setOpenDrawer(null)}
-        >
-          <SheetContent 
-            side="right" 
-            className="w-[400px] sm:w-[540px]" 
-            onPointerDownOutside={(e) => e.preventDefault()}
-            onInteractOutside={(e) => e.preventDefault()}
-            onEscapeKeyDown={(e) => e.preventDefault()}
-            onCloseAutoFocus={(e) => e.preventDefault()}
-          >
-            <SheetHeader>
-              <SheetTitle>Choose Outfit</SheetTitle>
-            </SheetHeader>
-            <div className="mt-8 overflow-y-auto pr-6" style={{ maxHeight: 'calc(100vh - 8rem)' }}>
-              <div>
-                <OutfitSelector />
-              </div>
-            </div>
-          </SheetContent>
-        </Sheet>
+          </CardFooter>
+        </Card>
       </div>
 
+      {/* Discard Changes Dialog */}
       <AlertDialog open={showDiscardDialog} onOpenChange={setShowDiscardDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Discard Changes?</AlertDialogTitle>
+            <AlertDialogTitle>Discard Unsaved Changes?</AlertDialogTitle>
             <AlertDialogDescription>
-              You have unsaved changes. Are you sure you want to discard them?
+              You have unsaved changes. Are you sure you want to discard them and leave the page?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Continue Editing</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDiscard}>
-              Discard Changes
-            </AlertDialogAction>
+            <AlertDialogCancel onClick={() => setShowDiscardDialog(false)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDiscard}>Discard Changes</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Composition</AlertDialogTitle>
+            <AlertDialogTitle>Delete Composition?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this composition? This action cannot be undone.
+              Are you sure you want to delete the composition "{compositionName}"? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setShowDeleteDialog(false)}>Cancel</AlertDialogCancel>
             <AlertDialogAction 
-              onClick={handleDelete}
+              onClick={handleDelete} 
+              disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {isDeleting ? 'Deleting...' : 'Delete'}
@@ -331,4 +316,13 @@ export default function CompositionPage() {
       </AlertDialog>
     </>
   )
+}
+
+// Wrap component in Suspense
+export default function EditCompositionPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <EditCompositionContent />
+    </Suspense>
+  );
 } 

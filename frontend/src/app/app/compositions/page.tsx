@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
@@ -11,6 +11,7 @@ import { CompositionCard } from '@/components/composition/composition-card'
 import { NewCompositionCard } from '@/components/composition/new-composition-card'
 import { ArrowRightIcon } from '@heroicons/react/24/outline'
 import { useUserProgress } from '@/hooks/use-user-progress'
+import { PhotographyStyleModal } from '@/components/composition/photography-style-modal'
 
 export default function CompositionsPage() {
   const router = useRouter()
@@ -19,6 +20,7 @@ export default function CompositionsPage() {
   const [compositions, setCompositions] = useState<Composition[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { updateProgress } = useUserProgress()
+  const [showStyleModal, setShowStyleModal] = useState(false)
 
   // Check if user has already progressed beyond compositions stage
   useEffect(() => {
@@ -49,7 +51,7 @@ export default function CompositionsPage() {
     checkUserProgress();
   }, [user, router]);
 
-  async function loadCompositions() {
+  const loadCompositions = useCallback(async () => {
     if (!user) return
 
     try {
@@ -72,7 +74,14 @@ export default function CompositionsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [user, toast]);
+
+  // Make loadCompositions run on mount and when user changes
+  useEffect(() => {
+    if (user) {
+      loadCompositions();
+    }
+  }, [user, loadCompositions]);
 
   async function deleteComposition(compositionId: string) {
     if (!user) return
@@ -108,9 +117,12 @@ export default function CompositionsPage() {
     loadCompositions()
   }
 
-  useEffect(() => {
-    loadCompositions()
-  }, [user, toast])
+  const handleSelectStyle = (style: string) => {
+    // Don't close the modal here
+    // setShowStyleModal(false) 
+    // Navigate directly
+    router.push(`/app/composition/new?style=${encodeURIComponent(style)}`);
+  }
 
   return (
     <div className="space-y-6">
@@ -124,20 +136,19 @@ export default function CompositionsPage() {
       {isLoading ? (
         <div className="text-center py-8">Loading compositions...</div>
       ) : compositions.length === 0 ? (
-        <div className="grid place-items-center">
-          <div className="max-w-sm w-full">
-            <NewCompositionCard onClick={() => {
-              console.log("Navigating to composition creation page...");
-              router.push('/app/composition');
-            }} />
+        <div className="text-center py-12">
+          <h3 className="text-xl font-semibold mb-2">No compositions yet</h3>
+          <p className="text-muted-foreground mb-6">Start by creating a new style composition.</p>
+          {/* Centralized New Composition Card */}
+          <div className="grid place-items-center">
+            <div className="max-w-sm w-full">
+             <NewCompositionCard onClick={() => setShowStyleModal(true)} />
+            </div>
           </div>
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          <NewCompositionCard onClick={() => {
-            console.log("Navigating to composition creation page...");
-            router.push('/app/composition');
-          }} />
+          <NewCompositionCard onClick={() => setShowStyleModal(true)} />
           {compositions.map((composition) => (
             <CompositionCard
               key={composition.id}
@@ -170,6 +181,12 @@ export default function CompositionsPage() {
           <ArrowRightIcon className="h-4 w-4 ml-2" />
         </Button>
       </div>
+
+      <PhotographyStyleModal
+        isOpen={showStyleModal}
+        onClose={() => setShowStyleModal(false)}
+        onSelectStyle={handleSelectStyle}
+      />
     </div>
   )
 } 

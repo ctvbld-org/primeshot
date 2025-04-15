@@ -46,6 +46,8 @@ export const compositionSchema = z.object({
 export const imageSchema = z.object({
   id: z.string().uuid('Invalid image ID'),
   user_id: z.string().uuid('Invalid user ID'),
+  order_id: z.string().uuid('Invalid order ID').optional().nullable(),
+  composition_id: z.string().uuid('Invalid composition ID').optional().nullable(),
   url: z.string().url('Invalid URL format'),
   file_name: z.string().min(1, 'Filename is required'),
   file_size: z.number().min(0, 'Invalid file size'),
