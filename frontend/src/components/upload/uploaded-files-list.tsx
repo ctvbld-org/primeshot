@@ -3,13 +3,14 @@
 import React, { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Trash2Icon, FileIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
 import { Progress } from '@/components/ui/progress'
 import { ImageQualityResult } from '@/lib/image-quality'
 import { ImageQualityScore } from './image-quality-score'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import Image from 'next/image'
-import { cn } from '@/lib/utils'
+import { cn, formatFileSize } from '@/lib/utils'
 
 interface UploadedFilesListProps {
   files: File[]
@@ -45,15 +46,6 @@ export function UploadedFilesList({
       Object.values(urls).forEach(url => URL.revokeObjectURL(url))
     }
   }, [files])
-
-  // Format file size
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes'
-    const k = 1024
-    const sizes = ['Bytes', 'KB', 'MB', 'GB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-  }
 
   // Get quality indicator
   const getQualityIndicator = (fileName: string) => {

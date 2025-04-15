@@ -15,6 +15,7 @@ import { ArrowRightIcon } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useUserProgress } from '@/hooks/use-user-progress'
+import { useFileUpload } from '@/hooks/use-file-upload'
 
 // Constants for image limits
 const MIN_IMAGES = 12
@@ -23,15 +24,25 @@ const MAX_IMAGES = 30
 export default function UploadPage() {
   const { user } = useAuth()
   const router = useRouter()
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
-  const [qualityResults, setQualityResults] = useState<Record<string, ImageQualityResult>>({})
-  const [isUploading, setIsUploading] = useState(false)
-  const [progress, setProgress] = useState(0)
+  const { toast } = useToast()
+  const { updateProgress } = useUserProgress()
+
+  // Use the hook for file state management
+  const {
+    files: selectedFiles,
+    qualityResults,
+    isUploading,
+    progress,
+    addFiles,
+    removeFile,
+    setIsUploading,
+    setProgress
+  } = useFileUpload({ maxFiles: MAX_IMAGES })
+
+  // State specific to this page
   const [order, setOrder] = useState<Order | null>(null)
   const [compositions, setCompositions] = useState<Composition[]>([])
-  const { toast } = useToast()
   const [uploadedCount, setUploadedCount] = useState(0)
-  const { updateProgress } = useUserProgress()
 
   // Load active order and its compositions
   useEffect(() => {
@@ -94,34 +105,9 @@ export default function UploadPage() {
     qualityResults[file.name]?.isAcceptable
   )
 
-  // Handle files added
-  const handleFilesAdded = (files: File[], results?: Record<string, ImageQualityResult>) => {
-    setSelectedFiles(prev => [...prev, ...files])
-    if (results) {
-      setQualityResults(prev => ({ ...prev, ...results }))
-    }
-  }
-
-  // Handle file removal
-  const handleRemoveFile = (index: number) => {
-    setSelectedFiles(prev => {
-      const fileName = prev[index]?.name
-      const updatedFiles = prev.filter((_, i) => i !== index)
-      
-      // Also remove from quality results
-      if (fileName && qualityResults[fileName]) {
-        const newResults = { ...qualityResults }
-        delete newResults[fileName]
-        setQualityResults(newResults)
-      }
-      
-      return updatedFiles
-    })
-  }
-
   // Handle upload with streaming response
-  const handleUpload = async (files: File[]) => {
-    if (!order || files.length === 0) {
+  const handleUpload = async (filesToUpload: File[]) => {
+    if (!order || filesToUpload.length === 0) {
       toast({
         title: 'No active order',
         description: 'Please complete payment before uploading photos.',
@@ -132,13 +118,13 @@ export default function UploadPage() {
 
     setIsUploading(true)
     setProgress(0)
-    setUploadedCount(0) // Reset count
-    const totalFiles = files.length
+    setUploadedCount(0)
+    const totalFiles = filesToUpload.length
     const results: { originalName: string; url?: string; error?: string }[] = []
 
     try {
       const formData = new FormData()
-      files.forEach(file => {
+      filesToUpload.forEach(file => {
         formData.append('files', file)
       })
 
@@ -186,7 +172,7 @@ export default function UploadPage() {
             setUploadedCount(prev => {
                 const newCount = prev + 1;
                 // Update progress bar (0-99% based on file count)
-                setProgress(Math.min((newCount / totalFiles) * 100, 99)); 
+                setProgress(Math.min((newCount / totalFiles) * 100, 99));
                 return newCount;
             });
 
@@ -198,7 +184,7 @@ export default function UploadPage() {
       }
       
       // Final processing after stream ends
-      setProgress(100) // Set to 100%
+      setProgress(100)
       
       const failedUploads = results.filter(r => r.error)
       const successfulUploads = results.filter(r => !r.error)
@@ -218,7 +204,19 @@ export default function UploadPage() {
       }
       
       const successfulFileNames = new Set(successfulUploads.map(r => r.originalName))
-      setSelectedFiles(prev => prev.filter(file => !successfulFileNames.has(file.name)))
+      //setSelectedFiles(prev => prev.filter(file => !successfulFileNames.has(file.name)))
+      
+      // Remove successfully uploaded files using the removeFile function from the hook
+      const indicesToRemove: number[] = []
+      selectedFiles.forEach((file, index) => {
+        if (successfulFileNames.has(file.name)) {
+          indicesToRemove.push(index)
+        }
+      })
+      // Remove starting from the highest index to avoid messing up indices
+      indicesToRemove.sort((a, b) => b - a).forEach(index => {
+        removeFile(index)
+      })
 
       // Save Progress and Navigate if fully successful
       if (failedUploads.length === 0 && successfulUploads.length > 0) {
@@ -284,7 +282,7 @@ export default function UploadPage() {
       </div>
     
       <div className="space-y-6">
-        <FileUploader onFilesAdded={handleFilesAdded} />
+        <FileUploader onFilesAdded={addFiles} />
       </div>
 
       {selectedFiles.length > 0 && (
@@ -303,7 +301,7 @@ export default function UploadPage() {
             </div>
             <UploadedFilesList 
               files={selectedFiles.filter(file => qualityResults[file.name]?.isAcceptable)}
-              onRemoveFile={handleRemoveFile}
+              onRemoveFile={removeFile}
               isUploading={isUploading}
               progress={progress}
               qualityResults={qualityResults}
@@ -321,7 +319,7 @@ export default function UploadPage() {
               </div>
               <UploadedFilesList 
                 files={selectedFiles.filter(file => !qualityResults[file.name]?.isAcceptable)}
-                onRemoveFile={handleRemoveFile}
+                onRemoveFile={removeFile}
                 isUploading={false}
                 progress={0}
                 qualityResults={qualityResults}

@@ -98,33 +98,6 @@ export const uploadToS3 = async (file: File, key: string) => {
   }
 };
 
-// Create presigned URL for upload
-export const createPresignedUploadUrl = async (key: string, contentType: string) => {
-  if (!ALLOWED_MIME_TYPES.includes(contentType)) {
-    throw new S3ValidationError('Invalid file type. Only JPEG, PNG, and WebP are supported.');
-  }
-
-  try {
-    const { url, fields } = await createPresignedPost(s3Client, {
-      Bucket: process.env.AWS_S3_BUCKET!,
-      Key: key,
-      Conditions: [
-        ['content-length-range', 0, MAX_FILE_SIZE],
-        ['starts-with', '$Content-Type', 'image/'],
-      ],
-      Fields: {
-        'Content-Type': contentType,
-      },
-      Expires: 600, // 10 minutes
-    });
-
-    return { url, fields };
-  } catch (error) {
-    console.error('Error creating presigned URL:', error);
-    throw new S3UploadError('Failed to create presigned URL', error as Error);
-  }
-};
-
 // Create presigned URL for reading/downloading
 export const createPresignedGetUrl = async (key: string) => {
   try {
