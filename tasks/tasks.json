@@ -44,13 +44,58 @@
       ],
       "priority": "high",
       "details": "Create UI components for style selection (backgrounds, outfits, colors, photographic styles). Implement composition creation flow with real-time preview using placeholder models. Develop composition management interface for creating, editing, and deleting compositions. Implement logic for calculating total headshots based on number of compositions according to the PRD specifications. Store composition data in the Compositions table with appropriate status tracking.",
-      "testStrategy": "Test the style selection UI with all available options. Verify that composition previews render correctly. Test the composition management interface for creating, editing, and deleting compositions. Validate that the headshot calculation logic works correctly for all tier scenarios."
+      "testStrategy": "Test the style selection UI with all available options. Verify that composition previews render correctly. Test the composition management interface for creating, editing, and deleting compositions. Validate that the headshot calculation logic works correctly for all tier scenarios.",
+      "subtasks": [
+        {
+          "id": 1,
+          "title": "Create Style Selection UI Components",
+          "description": "Develop UI components for selecting different style options including backgrounds, outfits, colors, and photographic styles.",
+          "dependencies": [],
+          "details": "Implementation details:\n1. Create a Style Selection panel with categorized tabs for backgrounds, outfits, colors, and photographic styles\n2. Design and implement thumbnail grid components for visual selection of each style option\n3. Add hover states and selection indicators for style options\n4. Implement color pickers for color customization options\n5. Create filter/search functionality to help users find specific styles\n6. Ensure all components are responsive and accessible\n7. Store selected options in local state initially\n\nTesting approach:\n- Test UI rendering across different screen sizes\n- Verify selection state changes correctly when options are clicked\n- Test filter/search functionality with various inputs\n- Ensure keyboard navigation and screen reader compatibility",
+          "status": "done",
+          "parentTaskId": 4
+        },
+        {
+          "id": 2,
+          "title": "Implement Composition Creation Flow with Preview",
+          "description": "Build the workflow for creating new style compositions with real-time preview using placeholder models.",
+          "dependencies": [
+            1
+          ],
+          "details": "Implementation details:\n1. Create a multi-step composition creation wizard interface\n2. Integrate the style selection components from subtask 1\n3. Implement a composition naming/metadata input form\n4. Develop a real-time preview component showing selected styles applied to placeholder model images\n5. Add composition validation to ensure all required style elements are selected\n6. Implement temporary state management to hold composition data during creation\n7. Create a composition summary view before final creation\n8. Add appropriate navigation controls between creation steps\n\nTesting approach:\n- Test the full creation flow from start to finish\n- Verify preview updates correctly when style selections change\n- Test validation logic with various incomplete selections\n- Ensure wizard state persists correctly between steps\n- Test responsive behavior of the preview component",
+          "status": "in-progress",
+          "parentTaskId": 4
+        },
+        {
+          "id": 3,
+          "title": "Develop Composition Management System with Database Integration",
+          "description": "Implement the interface and logic for managing compositions, including storage in the Compositions table and headshot calculation.",
+          "dependencies": [
+            2
+          ],
+          "details": "Implementation details:\n1. Create a compositions list view showing all user compositions with sort/filter options\n2. Implement CRUD operations for compositions (create, read, update, delete)\n3. Develop the database integration with the Compositions table, including proper status tracking\n4. Implement the logic for calculating total headshots based on number of compositions per PRD specifications\n5. Create detailed view for individual compositions with edit capabilities\n6. Add confirmation dialogs for destructive actions like deletion\n7. Implement pagination or infinite scrolling for large numbers of compositions\n8. Add error handling and loading states for database operations\n\nTesting approach:\n- Test composition creation, editing, and deletion with database persistence\n- Verify headshot calculation logic with various composition configurations\n- Test error handling with simulated network failures\n- Verify status tracking updates correctly throughout composition lifecycle\n- Test performance with large numbers of compositions",
+          "status": "pending",
+          "parentTaskId": 4
+        }
+      ]
     },
     {
       "id": 5,
+      "title": "Implement Payment System",
+      "description": "Integrate payment processing for the different pricing tiers with secure checkout and order confirmation.",
+      "status": "pending",
+      "dependencies": [
+        "3"
+      ],
+      "priority": "high",
+      "details": "Integrate Stripe for payment processing with secure API handling. Implement pricing tier selection UI based on number of compositions. Create checkout flow with order summary and payment form. Develop order confirmation system with receipts and email notifications. Set up webhook handlers for payment status updates. Implement subscription tracking in the user profile. Create admin dashboard for payment monitoring. Handle payment failures and retry scenarios.",
+      "testStrategy": "Test payment processing with Stripe test keys for all pricing tiers. Verify checkout flow with various payment methods. Test error handling for declined payments. Validate that order confirmations and receipts are correctly generated. Ensure subscription status is accurately reflected in the user profile."
+    },
+    {
+      "id": 6,
       "title": "Develop Photo Upload System with Quality Checking",
       "description": "Create an intelligent photo upload system with real-time quality checking using OpenCV.js and feedback mechanisms.",
-      "status": "in-progress",
+      "status": "done",
       "dependencies": [
         3
       ],
@@ -87,13 +132,13 @@
             2
           ],
           "details": "Implementation steps:\n1. Set up Sharp.js for server-side image processing and optimization.\n2. Create processing pipeline that includes:\n   - Automatic image optimization based on quality analysis\n   - Resizing to standard dimensions if needed\n   - Format conversion if beneficial\n   - Metadata preservation/stripping as appropriate\n3. Implement batch upload functionality that processes multiple files sequentially.\n4. Add detailed progress tracking that shows status for each image in the batch.\n5. Set up S3 bucket connection and secure upload configuration.\n6. Create database schema for the Images table to store metadata and references.\n7. Implement server endpoints to handle upload requests and return S3 URLs.\n8. Add error handling and retry logic for failed uploads.\n9. Implement cleanup procedures for incomplete uploads.\n10. Add final success/failure notifications to the user.\n\nTesting approach:\n- Test the complete pipeline with various image types and qualities.\n- Verify batch uploads work correctly with progress reporting.\n- Confirm images are properly stored in S3 with correct metadata.\n- Test database entries are created correctly with proper references.\n- Verify error handling by simulating network issues and server errors.\n- Perform load testing with large batches of photos.",
-          "status": "pending",
+          "status": "done",
           "parentTaskId": 5
         }
       ]
     },
     {
-      "id": 6,
+      "id": 7,
       "title": "Integrate AI Generation Pipeline",
       "description": "Implement the AI generation pipeline with Replicate API integration for headshot generation using the specified models and workflows.",
       "status": "pending",
@@ -106,7 +151,7 @@
       "testStrategy": "Test the AI pipeline with sample images to verify generation quality. Validate error handling and retry mechanisms. Test the queuing system with multiple simultaneous requests. Verify that progress tracking accurately reflects the generation status. Ensure generated images meet quality standards and match selected styles."
     },
     {
-      "id": 7,
+      "id": 8,
       "title": "Build User Dashboard",
       "description": "Create a comprehensive user dashboard for managing compositions, tracking generation progress, and viewing/downloading generated headshots.",
       "status": "pending",
@@ -116,18 +161,6 @@
       "priority": "medium",
       "details": "Design and implement dashboard UI with sections for active compositions, generation progress, and completed headshots. Create real-time status updates using Supabase subscriptions or polling. Implement image gallery view with filtering and sorting options. Develop image preview functionality with zoom and pan controls. Create batch download options for headshots. Implement favorite/tagging system for organizing headshots. Add email notification system for completion alerts.",
       "testStrategy": "Test dashboard rendering with various user scenarios (new user, returning user with in-progress generations, user with completed headshots). Verify real-time updates work correctly. Test image gallery with large numbers of images. Validate that download functionality works for single and batch operations. Test email notifications for reliability and content accuracy."
-    },
-    {
-      "id": 8,
-      "title": "Implement Payment System",
-      "description": "Integrate payment processing for the different pricing tiers with secure checkout and order confirmation.",
-      "status": "pending",
-      "dependencies": [
-        4
-      ],
-      "priority": "high",
-      "details": "Integrate Stripe for payment processing with secure API handling. Implement pricing tier selection UI based on number of compositions. Create checkout flow with order summary and payment form. Develop order confirmation system with receipts and email notifications. Set up webhook handlers for payment status updates. Implement subscription tracking in the user profile. Create admin dashboard for payment monitoring. Handle payment failures and retry scenarios.",
-      "testStrategy": "Test payment processing with Stripe test keys for all pricing tiers. Verify checkout flow with various payment methods. Test error handling for declined payments. Validate that order confirmations and receipts are correctly generated. Ensure subscription status is accurately reflected in the user profile."
     },
     {
       "id": 9,
