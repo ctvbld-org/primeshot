@@ -6,6 +6,7 @@ import { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies'
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
+  const origin = requestUrl.origin
 
   if (code) {
     const cookieStore = await cookies()
@@ -63,28 +64,39 @@ export async function GET(request: Request) {
           console.error('Error creating user in database:', dbError)
         }
 
-        // Check for user progress
+        // Check for user progress - select all needed fields
         const { data: progress, error: progressError } = await supabase
           .from('user_progress')
-          .select()
+          .select('*') // Select all fields needed for logic below
           .eq('user_id', user.id)
-          .single()
+          .maybeSingle()
 
-        // Create initial progress for new users
-        if (progressError?.code === 'PGRST116') {
-          // No progress exists yet, create initial progress
+        if (progressError) {
+             console.error('Error checking user progress on login:', progressError)
+             // Handle potential DB errors here
+        }
+
+        // Create initial progress using UPSERT if no progress exists
+        if (!progress) {
+          console.log(`No progress found for user ${user.id}, creating initial record...`)
           const { error: createError } = await supabase
             .from('user_progress')
-            .insert({
+            .upsert({
               user_id: user.id,
-              current_stage: 'compositions',
-              completed_stages: [],
+              current_stage: 'compositions', // Start at compositions
+              completed_stages: [], // No stages completed yet
               stage_data: {},
               last_active_at: new Date().toISOString()
-            })
+            }, { onConflict: 'user_id' }) // IMPORTANT: Use onConflict
+            
           if (createError) {
             console.error('Error creating initial user progress:', createError)
+            // Handle this failure - maybe user can't proceed?
+          } else {
+             console.log(`Initial progress created for user ${user.id}.`)
           }
+        } else {
+           console.log(`Existing progress found for user ${user.id}.`)
         }
 
         // Create a new response with the redirect
@@ -110,9 +122,9 @@ export async function GET(request: Request) {
       return NextResponse.redirect(new URL('/', requestUrl.origin))
     } catch (error) {
       console.error('Auth callback error:', error)
-      return NextResponse.redirect(new URL('/auth/auth-code-error', requestUrl.origin))
+      return NextResponse.redirect(`${origin}/auth/auth-code-error`)
     }
   }
 
-  return NextResponse.redirect(new URL('/', request.url))
+  return NextResponse.redirect(`${origin}/app`)
 } 

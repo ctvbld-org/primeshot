@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { useRouter } from 'next/navigation'
 import { FileUploader } from '@/components/upload/file-uploader'
@@ -14,9 +14,10 @@ import { Button } from '@/components/ui/button'
 import { ArrowRightIcon } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useUserProgress } from '@/hooks/use-user-progress'
 
 // Constants for image limits
-const MIN_IMAGES = 15
+const MIN_IMAGES = 12
 const MAX_IMAGES = 30
 
 export default function UploadPage() {
@@ -29,6 +30,8 @@ export default function UploadPage() {
   const [order, setOrder] = useState<Order | null>(null)
   const [compositions, setCompositions] = useState<Composition[]>([])
   const { toast } = useToast()
+  const [uploadedCount, setUploadedCount] = useState(0)
+  const { updateProgress } = useUserProgress()
 
   // Load active order and its compositions
   useEffect(() => {
@@ -43,7 +46,7 @@ export default function UploadPage() {
           .from('orders')
           .select()
           .eq('user_id', user.id)
-          .eq('status', 'paid')
+          .eq('status', 'draft')
           .order('created_at', { ascending: false })
           .limit(1)
           .single()
@@ -116,9 +119,9 @@ export default function UploadPage() {
     })
   }
 
-  // Handle upload
+  // Handle upload with streaming response
   const handleUpload = async (files: File[]) => {
-    if (!order) {
+    if (!order || files.length === 0) {
       toast({
         title: 'No active order',
         description: 'Please complete payment before uploading photos.',
@@ -129,74 +132,122 @@ export default function UploadPage() {
 
     setIsUploading(true)
     setProgress(0)
+    setUploadedCount(0) // Reset count
+    const totalFiles = files.length
+    const results: { originalName: string; url?: string; error?: string }[] = []
 
     try {
-      // Upload files for each composition
-      const results = []
-      const totalUploads = files.length * compositions.length
-      let completedUploads = 0
+      const formData = new FormData()
+      files.forEach(file => {
+        formData.append('files', file)
+      })
 
-      for (const composition of compositions) {
-        for (const file of files) {
-          // Create form data
-          const formData = new FormData()
-          formData.append('files', file)
-          formData.append('compositionId', composition.id)
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      })
 
-          // Upload file
-          const response = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData
-          })
-
-          if (!response.ok) {
-            const error = await response.json()
-            throw new Error(error.message || 'Upload failed')
-          }
-
-          const data = await response.json()
-          results.push(...data.results)
-
-          // Update progress
-          completedUploads++
-          setProgress((completedUploads / totalUploads) * 100)
-        }
+      if (!response.ok || !response.body) {
+        let errorMsg = 'Upload failed to start.'
+        try {
+           const errorData = await response.json()
+           errorMsg = errorData.error || errorMsg
+        } catch (e) { /* Ignore */ }
+        throw new Error(errorMsg)
       }
 
-      // Check for any failed uploads
-      const failedUploads = results.filter((result: any) => result.error)
+      // Read the stream
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) {
+            console.log('Stream finished.')
+            break
+        }
+
+        // Decode chunk and add to buffer
+        buffer += decoder.decode(value, { stream: true })
+        
+        // Process buffer line by line (newline-delimited JSON)
+        const lines = buffer.split('\n')
+        buffer = lines.pop() || '' // Keep incomplete line in buffer
+
+        for (const line of lines) {
+          if (line.trim() === '') continue
+          try {
+            const result = JSON.parse(line)
+            console.log('Parsed result from stream:', result)
+            results.push(result)
+            
+            // Update progress based on count
+            setUploadedCount(prev => {
+                const newCount = prev + 1;
+                // Update progress bar (0-99% based on file count)
+                setProgress(Math.min((newCount / totalFiles) * 100, 99)); 
+                return newCount;
+            });
+
+          } catch (e) {
+            console.error('Error parsing streamed JSON line:', line, e)
+            // Handle potential parsing errors if needed
+          }
+        }
+      }
+      
+      // Final processing after stream ends
+      setProgress(100) // Set to 100%
+      
+      const failedUploads = results.filter(r => r.error)
+      const successfulUploads = results.filter(r => !r.error)
+
       if (failedUploads.length > 0) {
-        toast({
+         toast({
           title: 'Some uploads failed',
           description: `${failedUploads.length} files failed to upload. Please try again.`,
           variant: 'destructive'
         })
       }
-
-      // Show success message for successful uploads
-      const successfulUploads = results.filter((result: any) => !result.error)
       if (successfulUploads.length > 0) {
-        toast({
+         toast({
           title: 'Upload complete',
-          description: `Successfully uploaded ${successfulUploads.length} files across ${compositions.length} compositions.`
+          description: `Successfully uploaded ${successfulUploads.length} images.`
         })
       }
-
-      // Clear files that were successfully uploaded
-      const successfulFileNames = new Set(successfulUploads.map((result: any) => result.originalName))
+      
+      const successfulFileNames = new Set(successfulUploads.map(r => r.originalName))
       setSelectedFiles(prev => prev.filter(file => !successfulFileNames.has(file.name)))
 
-      // If all uploads were successful, proceed to review
-      if (failedUploads.length === 0) {
-        router.push('/app/review')
+      // Save Progress and Navigate if fully successful
+      if (failedUploads.length === 0 && successfulUploads.length > 0) {
+         try {
+            await updateProgress('review', { 
+                uploadedFiles: successfulUploads.map(r => r.url).filter(Boolean),
+                lastUploadAt: new Date().toISOString()
+            })
+            router.push('/app/review') 
+          } catch (progressError) {
+            toast({
+               title: 'Error Saving Progress',
+               description: 'Upload complete, but failed to save progress. Please proceed manually if needed.',
+               variant: 'destructive' 
+            })
+            router.push('/app/review') // Still navigate? 
+          }
+      } else {
+          console.warn('Upload completed with errors or no successes, not navigating.')
       }
+
     } catch (error) {
-      console.error('Upload error:', error)
+      console.error('Upload process error:', error)
       toast({
-        title: 'Upload failed',
-        description: error instanceof Error ? error.message : 'Failed to upload files',
+        title: 'Upload Failed',
+        description: error instanceof Error ? error.message : 'An unexpected error occurred.',
         variant: 'destructive'
       })
+      setProgress(0)
     } finally {
       setIsUploading(false)
     }
@@ -281,6 +332,59 @@ export default function UploadPage() {
         </div>
       )}
 
+      {selectedFiles.length > 0 && (
+        <Card className="mt-6">
+          <CardContent className="pt-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-medium">Overall Quality Score</h3>
+                {acceptedFiles.length > 0 && (
+                  <span className={cn(
+                    "text-sm font-medium",
+                    acceptedFiles.length >= MIN_IMAGES ? "text-green-600" : "text-yellow-600"
+                  )}>
+                    {(acceptedFiles
+                      .reduce((sum, file) => sum + (qualityResults[file.name]?.score || 0), 0) / acceptedFiles.length)
+                      .toFixed(1)}%
+                  </span>
+                )}
+              </div>
+
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div 
+                    className={cn(
+                      "h-full transition-all",
+                      acceptedFiles.length >= MIN_IMAGES ? "bg-green-600" : "bg-yellow-600"
+                    )}
+                    style={{ 
+                      width: `${(acceptedFiles
+                        .reduce((sum, file) => sum + (qualityResults[file.name]?.score || 0), 0) / acceptedFiles.length)}%` 
+                    }}
+                  ></div>
+                </div>
+              
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Total Images</span>
+                  <span>{selectedFiles.length}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Accepted Images</span>
+                  <span className="text-green-600">{acceptedFiles.length}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Rejected Images</span>
+                  <span className="text-red-600">
+                    {selectedFiles.length - acceptedFiles.length}
+                  </span>
+                </div>
+                
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="flex justify-between items-center mt-8">
         <p className="text-sm text-muted-foreground">
           {acceptedFiles.length < MIN_IMAGES 
@@ -301,7 +405,7 @@ export default function UploadPage() {
           }
         >
           {isUploading 
-            ? `Uploading (${progress.toFixed(1)}%)`
+            ? `Processing ${uploadedCount}/${acceptedFiles.length} (${progress.toFixed(0)}%)...` 
             : `Upload for ${compositions.length} Composition${compositions.length !== 1 ? 's' : ''}`}
           {!isUploading && <ArrowRightIcon className="h-4 w-4 ml-2" />}
         </Button>

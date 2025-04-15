@@ -123,8 +123,11 @@ export default function CompositionPage() {
         order_id: orderId,
         name: formattedName,
         settings: {
-          ...settings,
-          style: settings.outfit, // Map outfit to style
+          photographyStyle: settings.photographyStyle,
+          outfit: settings.outfit,
+          background: settings.background,
+          style: settings.outfit,
+          lighting: settings.photographyStyle
         },
         status: 'draft' as CompositionStatus
       }

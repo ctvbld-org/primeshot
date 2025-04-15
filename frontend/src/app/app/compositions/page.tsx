@@ -10,6 +10,7 @@ import { Composition } from '@/lib/types'
 import { CompositionCard } from '@/components/composition/composition-card'
 import { NewCompositionCard } from '@/components/composition/new-composition-card'
 import { ArrowRightIcon } from '@heroicons/react/24/outline'
+import { useUserProgress } from '@/hooks/use-user-progress'
 
 export default function CompositionsPage() {
   const router = useRouter()
@@ -17,6 +18,7 @@ export default function CompositionsPage() {
   const { toast } = useToast()
   const [compositions, setCompositions] = useState<Composition[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const { updateProgress } = useUserProgress()
 
   // Check if user has already progressed beyond compositions stage
   useEffect(() => {
@@ -110,46 +112,6 @@ export default function CompositionsPage() {
     loadCompositions()
   }, [user, toast])
 
-  async function saveUserProgress(stage: string) {
-    if (!user) return
-    
-    try {
-      const supabase = createClient()
-      
-      // Get existing progress
-      const { data: existingProgress } = await supabase
-        .from('user_progress')
-        .select()
-        .eq('user_id', user.id)
-        .single()
-      
-      if (existingProgress) {
-        // Update existing progress
-        await supabase
-          .from('user_progress')
-          .update({
-            current_stage: stage,
-            completed_stages: [...existingProgress.completed_stages, 'compositions'],
-            last_active_at: new Date().toISOString()
-          })
-          .eq('user_id', user.id)
-      } else {
-        // Create new progress
-        await supabase
-          .from('user_progress')
-          .insert({
-            user_id: user.id,
-            current_stage: stage,
-            completed_stages: ['compositions'],
-            last_active_at: new Date().toISOString()
-          })
-      }
-    } catch (error) {
-      console.error('Failed to save progress:', error)
-      throw error
-    }
-  }
-
   return (
     <div className="space-y-6">
       <div>
@@ -191,20 +153,16 @@ export default function CompositionsPage() {
         <Button 
           size="lg"
           className="w-full sm:w-auto"
-          disabled={compositions.length === 0}
-          onClick={() => {
+          disabled={compositions.length === 0 || isLoading}
+          onClick={async () => {
             if (compositions.length > 0) {
-              // Save user progress to indicate they're in the upload stage
-              saveUserProgress('upload')
-                .then(() => {
-                  // After progress is saved, navigate to upload page
-                  router.push('/app/upload')
-                })
-                .catch(error => {
-                  console.error('Error saving progress:', error)
-                  // Navigate anyway even if progress saving fails
-                  router.push('/app/upload')
-                })
+              try {
+                await updateProgress('upload')
+                router.push('/app/upload')
+              } catch (error) {
+                console.error('Error saving progress before navigating to upload:', error)
+                toast({ title: 'Error', description: 'Could not save progress. Please try again.', variant: 'destructive' })
+              }
             }
           }}
         >

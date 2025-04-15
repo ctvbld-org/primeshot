@@ -23,7 +23,7 @@ interface FilePreviewProps {
 }
 
 // Constants for image limits
-const MIN_IMAGES = 15;
+const MIN_IMAGES = 12;
 const MAX_IMAGES = 30;
 
 export function FileUploader({ onFilesAdded }: FileUploaderProps) {

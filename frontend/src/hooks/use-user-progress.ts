@@ -73,36 +73,85 @@ export function useUserProgress() {
     loadProgress()
   }, [session?.user, supabase, router])
 
-  // Update progress
+  // Unified Update Progress Function
   async function updateProgress(
-    currentStage: FlowStage,
-    completedStages: FlowStage[] = [],
-    stageData: Partial<StageData> = {}
+    targetStage: FlowStage, // Use the FlowStage type
+    stageDataUpdate?: Record<string, any> // Optional data for the target stage
   ) {
-    if (!session?.user) return
+    if (!session?.user) {
+      console.warn('updateProgress called without user session.')
+      return
+    }
+    const userId = session.user.id
 
     try {
-      const updatedProgress = {
-        user_id: session.user.id,
-        current_stage: currentStage,
+      // Fetch existing progress first to ensure we have the latest
+      // Use maybeSingle() to handle cases where no progress exists yet
+      const { data: existingProgress, error: fetchError } = await supabase
+        .from('user_progress')
+        .select('completed_stages, stage_data')
+        .eq('user_id', userId)
+        .maybeSingle()
+
+      if (fetchError) {
+        console.error('Error fetching existing user progress before update:', fetchError)
+        // Depending on the error, we might want to stop or continue
+        // For now, we'll try to continue, upsert might create it
+      }
+
+      // Determine the new set of completed stages
+      const stageOrder: FlowStage[] = ['compositions', 'upload', 'review', 'payment', 'dashboard'];
+      const existingStages: FlowStage[] = existingProgress?.completed_stages || [];
+      let completedStages = Array.from(new Set(existingStages));
+      const targetIndex = stageOrder.indexOf(targetStage);
+      if (targetIndex > 0) {
+          const previousStage = stageOrder[targetIndex - 1];
+          if (!completedStages.includes(previousStage)) {
+               completedStages.push(previousStage); // Add the previous stage as completed
+          }
+      }
+      // Ensure the target stage itself isn't marked as completed yet
+      completedStages = completedStages.filter(s => s !== targetStage);
+
+      // Merge stage data correctly
+      const newStageData = {
+        ...(existingProgress?.stage_data as any || {}), // Use existing data as base
+        ...(stageDataUpdate ? { [targetStage]: stageDataUpdate } : {}) // Overwrite/add data for the target stage
+      }
+
+      // Prepare data for upsert
+      const upsertData = {
+        user_id: userId,
+        current_stage: targetStage,
         completed_stages: completedStages,
-        stage_data: {
-          ...(progress?.stage_data as any),
-          ...stageData
-        },
+        stage_data: newStageData,
         last_active_at: new Date().toISOString()
       }
 
-      const { error } = await supabase
+      // Perform the upsert operation
+      const { error: upsertError } = await supabase
         .from('user_progress')
-        .upsert(updatedProgress)
+        .upsert(upsertData, { onConflict: 'user_id' }) // Specify user_id for conflict resolution
 
-      if (error) throw error
+      if (upsertError) {
+        console.error('Error upserting user progress:', upsertError)
+        throw upsertError // Re-throw to be caught by calling function
+      }
 
-      setProgress(updatedProgress as UserProgress)
+      // Update local state optimistically or after refetching
+      // For simplicity, let's update optimistically based on upsertData
+      // Note: This assumes upsertData matches the UserProgress type structure
+      setProgress(prev => ({
+         ...(prev ?? { id: '', created_at: '', updated_at: '' }), // Provide defaults if prev is null
+         ...upsertData 
+      }) as UserProgress)
+
+      console.log(`User progress upserted. Current stage: ${targetStage}, Completed: ${completedStages.join(', ')}`)
+
     } catch (error) {
-      console.error('Error updating progress:', error)
-      throw error
+      console.error('Error in updateProgress function:', error)
+      // Let calling function handle UI feedback (e.g., toast)
+      throw error // Re-throw error
     }
   }
 

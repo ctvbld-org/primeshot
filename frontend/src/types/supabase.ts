@@ -63,6 +63,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          order_id: string | null
           settings: Json
           status: string
           updated_at: string
@@ -72,6 +73,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          order_id?: string | null
           settings?: Json
           status?: string
           updated_at?: string
@@ -81,12 +83,20 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          order_id?: string | null
           settings?: Json
           status?: string
           updated_at?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "compositions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "compositions_user_id_fkey"
             columns: ["user_id"]
@@ -146,6 +156,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      orders: {
+        Row: {
+          amount: number | null
+          created_at: string | null
+          currency: string | null
+          id: string
+          metadata: Json | null
+          payment_intent_id: string | null
+          payment_status: string | null
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_intent_id?: string | null
+          payment_status?: string | null
+          status: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_intent_id?: string | null
+          payment_status?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       sessions: {
         Row: {

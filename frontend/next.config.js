@@ -11,6 +11,9 @@ const nextConfig = {
     }
     return config
   },
+  images: {
+    domains: ['primeshot-uploads-01.s3.us-east-1.amazonaws.com'],
+  },
 }
 
 module.exports = nextConfig

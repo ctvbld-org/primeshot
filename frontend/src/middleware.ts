@@ -22,6 +22,7 @@ export async function middleware(request: NextRequest) {
   // Protect all routes under /app
   if (request.nextUrl.pathname.startsWith('/app')) {
     const { data: { user } } = await supabase.auth.getUser()
+    
     if (!user) {
       return NextResponse.redirect(new URL('/auth/signin', request.url))
     }
