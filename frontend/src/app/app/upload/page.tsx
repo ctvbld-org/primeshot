@@ -1,186 +1,206 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { useToast } from '@/components/ui/use-toast'
+import React, { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/auth-context'
-import { ArrowLeftIcon, ArrowRightIcon } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { FileUploader } from '@/components/upload/file-uploader'
 import { UploadedFilesList } from '@/components/upload/uploaded-files-list'
 import { UploadRequirements } from '@/components/upload/upload-requirements'
-import { ImageQualityResult } from '@/lib/image-quality'
-import { createClient } from '@/lib/supabase/client'
+import { useToast } from '@/components/ui/use-toast'
 import { cn } from '@/lib/utils'
-import { Progress } from '@/components/ui/progress'
+import type { ImageQualityResult } from '@/lib/image-quality'
+import type { Order, Composition } from '@/lib/types'
+import { Button } from '@/components/ui/button'
+import { ArrowRightIcon } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+
+// Constants for image limits
+const MIN_IMAGES = 15
+const MAX_IMAGES = 30
 
 export default function UploadPage() {
   const { user } = useAuth()
   const router = useRouter()
-  const { toast } = useToast()
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const [qualityResults, setQualityResults] = useState<Record<string, ImageQualityResult>>({})
   const [isUploading, setIsUploading] = useState(false)
   const [progress, setProgress] = useState(0)
-  const [qualityResults, setQualityResults] = useState<Record<string, ImageQualityResult>>({})
-  const [hasUnacceptableImages, setHasUnacceptableImages] = useState(false)
-  const [acceptedImages, setAcceptedImages] = useState<ImageQualityResult[]>([])
-  const [averageScore, setAverageScore] = useState(0)
-  
-  // Constants
-  const MIN_IMAGES = 15 // Minimum required images
-  const MAX_IMAGES = 30 // Maximum allowed images
+  const [order, setOrder] = useState<Order | null>(null)
+  const [compositions, setCompositions] = useState<Composition[]>([])
+  const { toast } = useToast()
 
-  // Check image quality status whenever files or quality results change
+  // Load active order and its compositions
   useEffect(() => {
-    if (Object.keys(qualityResults).length === 0) {
-      setHasUnacceptableImages(false)
-      return
-    }
-    
-    const anyUnacceptable = Object.values(qualityResults).some(result => !result.isAcceptable);
-    setHasUnacceptableImages(anyUnacceptable)
-  }, [qualityResults, selectedFiles])
+    async function loadOrderData() {
+      if (!user) return
 
-  const handleFilesAdded = (files: File[], newQualityResults?: Record<string, ImageQualityResult>) => {
-    // Combine with existing files, avoiding duplicates
-    const newFiles = files.filter(file => 
-      !selectedFiles.some(existing => 
-        existing.name === file.name && 
-        existing.size === file.size
-      )
-    )
-    
-    setSelectedFiles(prev => [...prev, ...newFiles])
-    
-    // Update quality results
-    if (newQualityResults) {
-      setQualityResults(prev => ({
-        ...prev,
-        ...newQualityResults
-      }))
+      const supabase = createClient()
+
+      try {
+        // Get the most recent paid order
+        const { data: orderData, error: orderError } = await supabase
+          .from('orders')
+          .select()
+          .eq('user_id', user.id)
+          .eq('status', 'paid')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single()
+
+        if (orderError) throw orderError
+
+        // TODO: Change toast to redirect to payment page once payment is implemented
+        if (!orderData) {
+          toast({
+            title: 'No active order found',
+            description: 'Please complete payment before uploading photos.',
+            variant: 'destructive'
+          })
+          router.push('/app/compositions')
+          return
+        }
+
+        setOrder(orderData)
+
+        // Get compositions for this order
+        const { data: compositionsData, error: compositionsError } = await supabase
+          .from('compositions')
+          .select()
+          .eq('order_id', orderData.id)
+          .order('created_at', { ascending: true })
+
+        if (compositionsError) throw compositionsError
+        setCompositions(compositionsData || [])
+
+      } catch (error) {
+        console.error('Error loading order data:', error)
+        toast({
+          title: 'Error',
+          description: 'Failed to load order data. Please try again.',
+          variant: 'destructive'
+        })
+      }
+    }
+
+    loadOrderData()
+  }, [user, router, toast])
+
+  // Filter accepted images
+  const acceptedFiles = selectedFiles.filter(file => 
+    qualityResults[file.name]?.isAcceptable
+  )
+
+  // Handle files added
+  const handleFilesAdded = (files: File[], results?: Record<string, ImageQualityResult>) => {
+    setSelectedFiles(prev => [...prev, ...files])
+    if (results) {
+      setQualityResults(prev => ({ ...prev, ...results }))
     }
   }
 
+  // Handle file removal
   const handleRemoveFile = (index: number) => {
-    // Get the file being removed
-    const fileToRemove = selectedFiles[index];
-    
-    // Remove the file
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index))
-    
-    // Remove its quality result
-    if (fileToRemove && qualityResults[fileToRemove.name]) {
-      const newQualityResults = { ...qualityResults };
-      delete newQualityResults[fileToRemove.name];
-      setQualityResults(newQualityResults);
-    }
+    setSelectedFiles(prev => {
+      const fileName = prev[index]?.name
+      const updatedFiles = prev.filter((_, i) => i !== index)
+      
+      // Also remove from quality results
+      if (fileName && qualityResults[fileName]) {
+        const newResults = { ...qualityResults }
+        delete newResults[fileName]
+        setQualityResults(newResults)
+      }
+      
+      return updatedFiles
+    })
   }
 
-  const handleContinue = async () => {
-    if (selectedFiles.length === 0) {
+  // Handle upload
+  const handleUpload = async (files: File[]) => {
+    if (!order) {
       toast({
-        title: 'No files selected',
-        description: 'Please upload at least one photo to continue.',
-        variant: 'destructive',
+        title: 'No active order',
+        description: 'Please complete payment before uploading photos.',
+        variant: 'destructive'
       })
       return
     }
 
-    if (hasUnacceptableImages) {
-      const confirmContinue = window.confirm(
-        'Some images have quality issues that may affect the results. Do you want to continue anyway?'
-      )
-      
-      if (!confirmContinue) {
-        return
-      }
-    }
-
-    // Track upload progress 
     setIsUploading(true)
     setProgress(0)
 
     try {
-      // Here we're just simulating progress for now
-      // In task 5.3, we'll implement the actual upload
-      await simulateProgress()
-      
-      // Save user progress to indicate they're in the review stage
-      if (user) {
-        await saveUserProgress('review');
+      // Upload files for each composition
+      const results = []
+      const totalUploads = files.length * compositions.length
+      let completedUploads = 0
+
+      for (const composition of compositions) {
+        for (const file of files) {
+          // Create form data
+          const formData = new FormData()
+          formData.append('files', file)
+          formData.append('compositionId', composition.id)
+
+          // Upload file
+          const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+          })
+
+          if (!response.ok) {
+            const error = await response.json()
+            throw new Error(error.message || 'Upload failed')
+          }
+
+          const data = await response.json()
+          results.push(...data.results)
+
+          // Update progress
+          completedUploads++
+          setProgress((completedUploads / totalUploads) * 100)
+        }
       }
-      
-      // Save quality results to session storage for the review page
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('qualityResults', JSON.stringify(qualityResults));
+
+      // Check for any failed uploads
+      const failedUploads = results.filter((result: any) => result.error)
+      if (failedUploads.length > 0) {
+        toast({
+          title: 'Some uploads failed',
+          description: `${failedUploads.length} files failed to upload. Please try again.`,
+          variant: 'destructive'
+        })
       }
-      
-      // Navigate to review page
-      router.push('/app/review')
+
+      // Show success message for successful uploads
+      const successfulUploads = results.filter((result: any) => !result.error)
+      if (successfulUploads.length > 0) {
+        toast({
+          title: 'Upload complete',
+          description: `Successfully uploaded ${successfulUploads.length} files across ${compositions.length} compositions.`
+        })
+      }
+
+      // Clear files that were successfully uploaded
+      const successfulFileNames = new Set(successfulUploads.map((result: any) => result.originalName))
+      setSelectedFiles(prev => prev.filter(file => !successfulFileNames.has(file.name)))
+
+      // If all uploads were successful, proceed to review
+      if (failedUploads.length === 0) {
+        router.push('/app/review')
+      }
     } catch (error) {
       console.error('Upload error:', error)
       toast({
         title: 'Upload failed',
-        description: 'There was a problem uploading your photos. Please try again.',
-        variant: 'destructive',
+        description: error instanceof Error ? error.message : 'Failed to upload files',
+        variant: 'destructive'
       })
     } finally {
       setIsUploading(false)
     }
   }
-
-  // Temporary function to simulate upload progress
-  const simulateProgress = async () => {
-    return new Promise<void>((resolve) => {
-      let currentProgress = 0
-      const interval = setInterval(() => {
-        currentProgress += 10
-        setProgress(currentProgress)
-        
-        if (currentProgress >= 100) {
-          clearInterval(interval)
-          resolve()
-        }
-      }, 300)
-    })
-  }
-  
-  // Save user progress to Supabase
-  const saveUserProgress = async (stage: string) => {
-    if (!user) return;
-    
-    try {
-      const supabase = createClient();
-      
-      await supabase
-        .from('user_progress')
-        .upsert({
-          user_id: user.id,
-          current_stage: stage,
-          last_active_at: new Date().toISOString(),
-          completed_stages: ['compositions'],
-          stage_data: {
-            upload: {
-              uploadedFiles: selectedFiles.map(f => f.name),
-              uploadProgress: 100,
-              lastUploadAt: new Date().toISOString()
-            }
-          }
-        });
-    } catch (error) {
-      console.error('Error saving user progress:', error);
-      // Non-critical error, so we don't show a toast
-    }
-  };
-
-  useEffect(() => {
-    const accepted = Object.values(qualityResults).filter(result => result.isAcceptable)
-    setAcceptedImages(accepted)
-    if (accepted.length > 0) {
-      const avgScore = accepted.reduce((sum, result) => sum + result.score, 0) / accepted.length
-      setAverageScore(avgScore)
-    }
-  }, [qualityResults])
 
   return (
     <div className="space-y-6">
@@ -190,6 +210,23 @@ export default function UploadPage() {
           Upload photos for your headshot compositions. We'll check them for quality.
         </p>
       </div>
+
+      {order && compositions.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Your Order</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <p>Order ID: {order.id}</p>
+              <p>Compositions: {compositions.length}</p>
+              <p className="text-sm text-muted-foreground">
+                Your photos will be processed for each composition style.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div>
         <UploadRequirements />
@@ -210,7 +247,7 @@ export default function UploadPage() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-medium">Accepted Images</h3>
               <span className="text-sm text-muted-foreground">
-                {acceptedImages.length} images
+                {acceptedFiles.length} images
               </span>
             </div>
             <UploadedFilesList 
@@ -226,16 +263,16 @@ export default function UploadPage() {
           {selectedFiles.some(file => !qualityResults[file.name]?.isAcceptable) && (
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-medium">Rejected Images</h3>
+                <h3 className="font-medium">Needs Improvement</h3>
                 <span className="text-sm text-muted-foreground">
-                  {selectedFiles.length - acceptedImages.length} images
+                  {selectedFiles.filter(file => !qualityResults[file.name]?.isAcceptable).length} images
                 </span>
               </div>
               <UploadedFilesList 
                 files={selectedFiles.filter(file => !qualityResults[file.name]?.isAcceptable)}
                 onRemoveFile={handleRemoveFile}
-                isUploading={isUploading}
-                progress={progress}
+                isUploading={false}
+                progress={0}
                 qualityResults={qualityResults}
                 variant="rejected"
               />
@@ -244,70 +281,31 @@ export default function UploadPage() {
         </div>
       )}
 
-      {acceptedImages.length > 0 && (
-        <div className="bg-card border rounded-md p-4">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="font-medium">Upload Status</h3>
-              <div className="text-sm text-muted-foreground">
-                {acceptedImages.length}/{MIN_IMAGES} required images
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between items-center text-sm">
-                <span>Average Quality Score</span>
-                <span className="font-medium">
-                  {Math.round(averageScore)}%
-                </span>
-              </div>
-              <Progress 
-                value={averageScore} 
-                className={cn(
-                  "h-2",
-                  averageScore >= 70 ? "bg-green-500" :
-                  averageScore >= 50 ? "bg-yellow-500" :
-                  "bg-red-500"
-                )}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between items-center text-sm">
-                <span>Upload Progress</span>
-                <span className="font-medium">
-                  {acceptedImages.length} of {MIN_IMAGES} required
-                </span>
-              </div>
-              <Progress 
-                value={(acceptedImages.length / MIN_IMAGES) * 100} 
-                className={cn(
-                  "h-2",
-                  acceptedImages.length >= MIN_IMAGES ? "bg-green-500" : "bg-blue-500"
-                )}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="flex justify-between items-center pt-6">
+      <div className="flex justify-between items-center mt-8">
         <p className="text-sm text-muted-foreground">
-          {acceptedImages.length < MIN_IMAGES 
-            ? `Please upload ${MIN_IMAGES - acceptedImages.length} more ${MIN_IMAGES - acceptedImages.length === 1 ? 'image' : 'images'} to continue`
-            : acceptedImages.length > MAX_IMAGES
-            ? `Please remove ${acceptedImages.length - MAX_IMAGES} ${acceptedImages.length - MAX_IMAGES === 1 ? 'image' : 'images'} to continue`
-            : `${acceptedImages.length} images selected`}
+          {acceptedFiles.length < MIN_IMAGES 
+            ? `Please upload ${MIN_IMAGES - acceptedFiles.length} more ${MIN_IMAGES - acceptedFiles.length === 1 ? 'image' : 'images'} to continue`
+            : acceptedFiles.length > MAX_IMAGES
+            ? `Please remove ${acceptedFiles.length - MAX_IMAGES} ${acceptedFiles.length - MAX_IMAGES === 1 ? 'image' : 'images'} to continue`
+            : `${acceptedFiles.length} images selected`}
         </p>
         
         <Button 
-          onClick={handleContinue}
-          disabled={acceptedImages.length < MIN_IMAGES || acceptedImages.length > MAX_IMAGES || isUploading}
+          onClick={() => handleUpload(acceptedFiles)}
+          disabled={
+            !order || 
+            compositions.length === 0 || 
+            acceptedFiles.length < MIN_IMAGES || 
+            acceptedFiles.length > MAX_IMAGES || 
+            isUploading
+          }
         >
-          {isUploading ? `Uploading (${progress}%)` : 'Continue'}
+          {isUploading 
+            ? `Uploading (${progress.toFixed(1)}%)`
+            : `Upload for ${compositions.length} Composition${compositions.length !== 1 ? 's' : ''}`}
           {!isUploading && <ArrowRightIcon className="h-4 w-4 ml-2" />}
         </Button>
       </div>
     </div>
   )
-} 
+}

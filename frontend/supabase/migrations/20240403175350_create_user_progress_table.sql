@@ -1,11 +1,15 @@
--- Create enum for flow stages
-CREATE TYPE public.flow_stage AS ENUM (
-  'compositions',
-  'upload',
-  'review',
-  'payment',
-  'dashboard'
-);
+-- Create enum for flow stages if it doesn't exist
+DO $$ BEGIN
+  CREATE TYPE public.flow_stage AS ENUM (
+    'compositions',
+    'upload',
+    'review',
+    'payment',
+    'dashboard'
+  );
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
 
 -- Create user_progress table
 CREATE TABLE public.user_progress (

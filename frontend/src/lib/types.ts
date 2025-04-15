@@ -31,6 +31,27 @@ export type CompositionBackground =
 export type CompositionPhotographyStyle = 'studio' | 'natural' | 'dramatic'
 export type CompositionStatus = 'draft' | 'pending' | 'processing' | 'completed'
 
+export type OrderStatus = 
+  | 'draft'           // Initial state when creating compositions
+  | 'pending_payment' // Ready for payment
+  | 'paid'           // Payment successful
+  | 'processing'     // Generating images
+  | 'completed'      // All images generated
+  | 'cancelled'      // Order cancelled
+
+export type Order = {
+  id: string
+  user_id: string
+  status: OrderStatus
+  amount: number
+  currency: string
+  payment_intent_id?: string
+  payment_status?: string
+  created_at: string
+  updated_at: string
+  metadata: Record<string, any>
+}
+
 export type CompositionSettings = {
   photographyStyle: CompositionPhotographyStyle
   outfit: CompositionOutfit
@@ -41,6 +62,7 @@ export type CompositionSettings = {
 export type Composition = {
   id: string
   user_id: string
+  order_id: string  // Reference to the order
   name: string
   settings: CompositionSettings
   status: CompositionStatus

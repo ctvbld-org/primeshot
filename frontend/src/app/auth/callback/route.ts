@@ -64,11 +64,28 @@ export async function GET(request: Request) {
         }
 
         // Check for user progress
-        const { data: progress } = await supabase
+        const { data: progress, error: progressError } = await supabase
           .from('user_progress')
           .select()
           .eq('user_id', user.id)
           .single()
+
+        // Create initial progress for new users
+        if (progressError?.code === 'PGRST116') {
+          // No progress exists yet, create initial progress
+          const { error: createError } = await supabase
+            .from('user_progress')
+            .insert({
+              user_id: user.id,
+              current_stage: 'compositions',
+              completed_stages: [],
+              stage_data: {},
+              last_active_at: new Date().toISOString()
+            })
+          if (createError) {
+            console.error('Error creating initial user progress:', createError)
+          }
+        }
 
         // Create a new response with the redirect
         const response = NextResponse.redirect(
@@ -92,6 +109,7 @@ export async function GET(request: Request) {
       // If no user, redirect to home
       return NextResponse.redirect(new URL('/', requestUrl.origin))
     } catch (error) {
+      console.error('Auth callback error:', error)
       return NextResponse.redirect(new URL('/auth/auth-code-error', requestUrl.origin))
     }
   }

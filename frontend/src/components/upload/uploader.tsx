@@ -281,7 +281,12 @@ function FilePreview({ file, qualityResult, onRemove }: FilePreviewProps) {
               </span>
               {qualityResult && (
                 <div className="flex-shrink-0">
-                  <ImageQualityScore result={qualityResult} fileName={file.name} />
+                  <ImageQualityScore 
+                    file={file}
+                    result={qualityResult}
+                    isUploading={false}
+                    progress={0}
+                  />
                 </div>
               )}
             </div>

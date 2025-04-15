@@ -49,13 +49,19 @@ export function useUserProgress() {
           .eq('user_id', session.user.id)
           .single()
 
-        if (error) throw error
+        // Only throw if it's not a "no rows returned" error
+        if (error && error.code !== 'PGRST116') throw error
 
-        setProgress(data)
-        
-        // Redirect to last active stage if not completed payment
-        if (data && !isPaymentCompleted(data)) {
-          router.push(`/app/${data.current_stage}`)
+        if (data) {
+          setProgress(data)
+          
+          // Redirect to last active stage if not completed payment
+          if (!isPaymentCompleted(data)) {
+            router.push(`/app/${data.current_stage}`)
+          }
+        } else {
+          // No progress exists yet, set to null
+          setProgress(null)
         }
       } catch (error) {
         console.error('Error loading progress:', error)

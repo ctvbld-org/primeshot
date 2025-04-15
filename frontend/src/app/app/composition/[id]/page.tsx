@@ -261,7 +261,9 @@ export default function CompositionPage() {
               <SheetTitle>Choose Background</SheetTitle>
             </SheetHeader>
             <div className="mt-8 overflow-y-auto pr-6" style={{ maxHeight: 'calc(100vh - 8rem)' }}>
-              <BackgroundSelector />
+              <div>
+                <BackgroundSelector />
+              </div>
             </div>
           </SheetContent>
         </Sheet>
@@ -283,7 +285,9 @@ export default function CompositionPage() {
               <SheetTitle>Choose Outfit</SheetTitle>
             </SheetHeader>
             <div className="mt-8 overflow-y-auto pr-6" style={{ maxHeight: 'calc(100vh - 8rem)' }}>
-              <OutfitSelector />
+              <div>
+                <OutfitSelector />
+              </div>
             </div>
           </SheetContent>
         </Sheet>
