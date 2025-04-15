@@ -6,9 +6,9 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
 import { useAuth } from '@/contexts/auth-context'
-import { useCompositionStore } from '@/store/composition'
+import { useStyleStore } from '@/store/style'
 import { createClient } from '@/lib/supabase/client'
-import { Composition, CompositionSettings, CompositionPhotographyStyle } from '@/lib/types'
+import { Style, StyleSettings, StylePhotographyStyle } from '@/lib/types'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,31 +19,31 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { deleteComposition } from '@/lib/api/compositions'
+import { deleteStyle } from '@/lib/api/styles'
 import { TrashIcon } from '@heroicons/react/24/outline'
 
 // Import the new selectors
-import { BackgroundImageSelector } from '@/components/composition/background-image-selector'
-import { OutfitImageSelector } from '@/components/composition/outfit-image-selector'
-import { OutfitColorSelector } from '@/components/composition/outfit-color-selector'
+import { BackgroundImageSelector } from '@/components/style/background-image-selector'
+import { OutfitImageSelector } from '@/components/style/outfit-image-selector'
+import { OutfitColorSelector } from '@/components/style/outfit-color-selector'
 
 // Use Suspense for potential future use with data fetching
-function EditCompositionContent() {
+function EditStyleContent() {
   const params = useParams()
   const router = useRouter()
   const { user } = useAuth()
-  const { settings, setBackground, setOutfit, setOutfitColor, reset } = useCompositionStore()
+  const { settings, setBackground, setOutfit, setOutfitColor, reset } = useStyleStore()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [showDiscardDialog, setShowDiscardDialog] = useState(false)
-  const [originalSettings, setOriginalSettings] = useState<CompositionSettings | null>(null)
+  const [originalSettings, setOriginalSettings] = useState<StyleSettings | null>(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [compositionName, setCompositionName] = useState('')
-  const [photographyStyle, setPhotographyStyle] = useState<CompositionPhotographyStyle | null>(null)
+  const [styleName, setStyleName] = useState('')
+  const [photographyStyle, setPhotographyStyle] = useState<StylePhotographyStyle | null>(null)
 
-  const compositionId = Array.isArray(params.id) ? params.id[0] : params.id;
+  const styleId = Array.isArray(params.id) ? params.id[0] : params.id;
 
   // Calculate unsaved changes based on store state vs original loaded state
   const hasUnsavedChanges = originalSettings && (
@@ -54,11 +54,11 @@ function EditCompositionContent() {
   )
 
   useEffect(() => {
-    async function loadComposition() {
-      if (!user || !compositionId) {
+    async function loadStyle() {
+      if (!user || !styleId) {
         setIsLoading(false);
-        toast({ title: 'Error', description: 'Missing user or composition ID.', variant: 'destructive' })
-        router.replace('/app/compositions');
+        toast({ title: 'Error', description: 'Missing user or style ID.', variant: 'destructive' })
+        router.replace('/app/shoot');
         return;
       }
 
@@ -66,53 +66,53 @@ function EditCompositionContent() {
       try {
         const supabase = createClient()
         const { data, error } = await supabase
-          .from('compositions')
+          .from('styles')
           .select('*')
-          .eq('id', compositionId)
+          .eq('id', styleId)
           .eq('user_id', user.id)
           .single()
 
         if (error || !data) {
-          throw error || new Error('Composition not found or access denied.');
+          throw error || new Error('Style not found or access denied.');
         }
 
-        const loadedComposition = data as Composition
-        const loadedSettings = loadedComposition.settings as CompositionSettings;
+        const loadedStyle = data as Style
+        const loadedSettings = loadedStyle.settings as StyleSettings;
 
         // Set the store state with loaded data
         setBackground(loadedSettings.background)
         setOutfit(loadedSettings.outfit)
-        // Handle potentially missing outfitColor from older compositions
+        // Handle potentially missing outfitColor from older styles
         setOutfitColor(loadedSettings.outfitColor || '#000000') 
         // Set photography style locally as it's not editable
         setPhotographyStyle(loadedSettings.photographyStyle)
-        setCompositionName(loadedComposition.name)
+        setStyleName(loadedStyle.name)
         
         // Store the initially loaded settings to compare for unsaved changes
         setOriginalSettings(loadedSettings)
 
       } catch (error) {
         toast({
-          title: 'Error Loading Composition',
-          description: error instanceof Error ? error.message : 'Could not load the composition data.',
+          title: 'Error Loading Style',
+          description: error instanceof Error ? error.message : 'Could not load the style data.',
           variant: 'destructive'
         })
-        router.replace('/app/compositions')
+        router.replace('/app/shoot')
       } finally {
         setIsLoading(false)
       }
     }
 
-    loadComposition()
+    loadStyle()
 
     // Cleanup function to reset store when navigating away
     return () => {
       reset();
     };
-  }, [user, compositionId, router, toast, setBackground, setOutfit, setOutfitColor, reset])
+  }, [user, styleId, router, toast, setBackground, setOutfit, setOutfitColor, reset])
 
   const handleSave = async () => {
-    if (!user || !compositionId || !settings.background || !settings.outfit || !settings.outfitColor || !photographyStyle) {
+    if (!user || !styleId || !settings.background || !settings.outfit || !settings.outfitColor || !photographyStyle) {
        toast({ title: 'Error', description: 'Missing required data to save.', variant: 'destructive' })
        return
     }
@@ -134,30 +134,30 @@ function EditCompositionContent() {
         .join(' ');
 
       const { error } = await supabase
-        .from('compositions')
+        .from('styles')
         .update({ 
           settings: updatedSettings,
           name: formattedName
         })
-        .eq('id', compositionId)
+        .eq('id', styleId)
         .eq('user_id', user.id)
 
       if (error) throw error
 
       // Update original settings to reflect the saved state
       setOriginalSettings(updatedSettings)
-      setCompositionName(formattedName)
+      setStyleName(formattedName)
       
       toast({
         title: 'Success',
-        description: 'Your composition has been updated'
+        description: 'Your style has been updated'
       })
       // Optional: navigate back after save, or stay on page
-      // router.push('/app/compositions') 
+      // router.push('/app/shoot') 
     } catch (error) {
       toast({
-        title: 'Error Updating Composition',
-        description: error instanceof Error ? error.message : 'Failed to update composition',
+        title: 'Error Updating Style',
+        description: error instanceof Error ? error.message : 'Failed to update style',
         variant: 'destructive'
       })
     } finally {
@@ -169,7 +169,7 @@ function EditCompositionContent() {
     if (hasUnsavedChanges) {
       setShowDiscardDialog(true)
     } else {
-      router.push('/app/compositions')
+      router.push('/app/shoot')
     }
   }
 
@@ -181,25 +181,25 @@ function EditCompositionContent() {
       setOutfitColor(originalSettings.outfitColor || '#000000');
     }
     setShowDiscardDialog(false)
-    router.push('/app/compositions')
+    router.push('/app/shoot')
   }
 
   const handleDelete = async () => {
-    if (!user || !compositionId) return
+    if (!user || !styleId) return
 
     try {
       setIsDeleting(true)
-      await deleteComposition(compositionId, user.id)
+      await deleteStyle(styleId, user.id)
       toast({
         title: 'Success',
-        description: 'Composition deleted successfully'
+        description: 'Style deleted successfully'
       })
       reset() // Clear store state after delete
-      router.push('/app/compositions')
+      router.push('/app/shoot')
     } catch (error) {
       toast({
-        title: 'Error Deleting Composition',
-        description: error instanceof Error ? error.message : 'Failed to delete composition',
+        title: 'Error Deleting Style',
+        description: error instanceof Error ? error.message : 'Failed to delete style',
         variant: 'destructive'
       })
     } finally {
@@ -209,11 +209,11 @@ function EditCompositionContent() {
   }
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading composition...</div>
+    return <div className="text-center py-8">Loading style...</div>
   }
 
   if (!originalSettings || !photographyStyle) {
-     return <div className="text-center py-8">Failed to load composition data.</div>
+     return <div className="text-center py-8">Failed to load style data.</div>
   }
 
   // Main component structure aligned with new/page.tsx
@@ -221,7 +221,7 @@ function EditCompositionContent() {
     <>
       <div className="space-y-8">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Edit Composition</h2>
+          <h2 className="text-2xl font-bold tracking-tight">Edit Style</h2>
           <p className="text-muted-foreground">
             Style: <span className="font-semibold capitalize">{photographyStyle}</span> (Style cannot be changed after creation).
           </p>
@@ -255,7 +255,7 @@ function EditCompositionContent() {
               className="w-full sm:w-auto order-3 sm:order-1"
             >
               <TrashIcon className="h-4 w-4 mr-2" />
-              {isDeleting ? 'Deleting...' : 'Delete Composition'}
+              {isDeleting ? 'Deleting...' : 'Delete Style'}
             </Button>
             <div className="flex gap-4 w-full sm:w-auto order-2">
               <Button 
@@ -297,9 +297,9 @@ function EditCompositionContent() {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Composition?</AlertDialogTitle>
+            <AlertDialogTitle>Delete Style?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete the composition "{compositionName}"? This action cannot be undone.
+              Are you sure you want to delete the style "{styleName}"? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -319,10 +319,15 @@ function EditCompositionContent() {
 }
 
 // Wrap component in Suspense
-export default function EditCompositionPage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <EditCompositionContent />
-    </Suspense>
-  );
+export default function EditStylePage() {
+  const router = useRouter()
+  const params = useParams()
+  const styleId = params.id as string
+  
+  // Redirect to the new style detail page
+  useEffect(() => {
+    router.replace(`/app/style/${styleId}`)
+  }, [router, styleId])
+  
+  return <div>Redirecting to style detail page...</div>
 } 

@@ -9,7 +9,7 @@ import { UploadRequirements } from '@/components/upload/upload-requirements'
 import { useToast } from '@/components/ui/use-toast'
 import { cn } from '@/lib/utils'
 import type { ImageQualityResult } from '@/lib/image-quality'
-import type { Order, Composition } from '@/lib/types'
+import type { Order, Style } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { ArrowRightIcon } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -41,10 +41,10 @@ export default function UploadPage() {
 
   // State specific to this page
   const [order, setOrder] = useState<Order | null>(null)
-  const [compositions, setCompositions] = useState<Composition[]>([])
+  const [styles, setStyles] = useState<Style[]>([])
   const [uploadedCount, setUploadedCount] = useState(0)
 
-  // Load active order and its compositions
+  // Load active order and its styles
   useEffect(() => {
     async function loadOrderData() {
       if (!user) return
@@ -71,21 +71,21 @@ export default function UploadPage() {
             description: 'Please complete payment before uploading photos.',
             variant: 'destructive'
           })
-          router.push('/app/compositions')
+          router.push('/app/shoot')
           return
         }
 
         setOrder(orderData)
 
-        // Get compositions for this order
-        const { data: compositionsData, error: compositionsError } = await supabase
-          .from('compositions')
+        // Get styles for this order
+        const { data: stylesData, error: stylesError } = await supabase
+          .from('styles')
           .select()
           .eq('order_id', orderData.id)
           .order('created_at', { ascending: true })
 
-        if (compositionsError) throw compositionsError
-        setCompositions(compositionsData || [])
+        if (stylesError) throw stylesError
+        setStyles(stylesData || [])
 
       } catch (error) {
         console.error('Error loading order data:', error)
@@ -127,6 +127,8 @@ export default function UploadPage() {
       filesToUpload.forEach(file => {
         formData.append('files', file)
       })
+      // Add the order ID to the form data
+      formData.append('orderId', order.id)
 
       const response = await fetch('/api/upload', {
         method: 'POST',
@@ -256,11 +258,11 @@ export default function UploadPage() {
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Upload Photos</h2>
         <p className="text-muted-foreground">
-          Upload photos for your headshot compositions. We'll check them for quality.
+          Upload photos for your headshot styles. We'll check them for quality.
         </p>
       </div>
 
-      {order && compositions.length > 0 && (
+      {order && styles.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Your Order</CardTitle>
@@ -268,9 +270,9 @@ export default function UploadPage() {
           <CardContent>
             <div className="space-y-2">
               <p>Order ID: {order.id}</p>
-              <p>Compositions: {compositions.length}</p>
+              <p>Styles: {styles.length}</p>
               <p className="text-sm text-muted-foreground">
-                Your photos will be processed for each composition style.
+                Your photos will be processed for each style.
               </p>
             </div>
           </CardContent>
@@ -396,7 +398,7 @@ export default function UploadPage() {
           onClick={() => handleUpload(acceptedFiles)}
           disabled={
             !order || 
-            compositions.length === 0 || 
+            styles.length === 0 || 
             acceptedFiles.length < MIN_IMAGES || 
             acceptedFiles.length > MAX_IMAGES || 
             isUploading
@@ -404,7 +406,7 @@ export default function UploadPage() {
         >
           {isUploading 
             ? `Processing ${uploadedCount}/${acceptedFiles.length} (${progress.toFixed(0)}%)...` 
-            : `Upload for ${compositions.length} Composition${compositions.length !== 1 ? 's' : ''}`}
+            : `Upload for ${styles.length} Style${styles.length !== 1 ? 's' : ''}`}
           {!isUploading && <ArrowRightIcon className="h-4 w-4 ml-2" />}
         </Button>
       </div>

@@ -4,15 +4,15 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
 import { useAuth } from '@/contexts/auth-context'
-import { BackgroundSelector } from '@/components/composition/background-selector'
-import { OutfitSelector } from '@/components/composition/outfit-selector'
-import { PhotographyStyleSelector } from '@/components/composition/photography-style-selector'
-import { StylePreview } from '@/components/composition/style-preview'
-import { useCompositionStore } from '@/store/composition'
-import { saveComposition } from '@/lib/api/compositions'
+import { BackgroundSelector } from '@/components/style/background-selector'
+import { OutfitSelector } from '@/components/style/outfit-selector'
+import { PhotographyStyleSelector } from '@/components/style/photography-style-selector'
+import { StylePreview } from '@/components/style/style-preview'
+import { useStyleStore } from '@/store/style'
+import { saveStyle } from '@/lib/api/styles'
 import { getOrCreateDraftOrder } from '@/lib/api/orders'
 import { ensureUserProgress } from '@/lib/api/progress'
-import { CompositionStatus } from '@/lib/types'
+import { StyleStatus } from '@/lib/types'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
@@ -20,16 +20,16 @@ import { X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useUserProgress } from '@/hooks/use-user-progress'
 
-export default function CompositionPage() {
+export default function StylePage() {
   const router = useRouter()
   const { user } = useAuth()
-  const { settings, reset } = useCompositionStore()
+  const { settings, reset } = useStyleStore()
   const { toast } = useToast()
   const { progress, isLoading: isProgressLoading } = useUserProgress()
   const [isSaving, setIsSaving] = useState(false)
   const [openDrawer, setOpenDrawer] = useState<'background' | 'outfit' | null>(null)
 
-  // Check if user has already progressed beyond compositions stage
+  // Check if user has already progressed beyond styles stage
   useEffect(() => {
     if (isProgressLoading || !progress || !user) return;
     
@@ -38,7 +38,7 @@ export default function CompositionPage() {
       // Show toast notification before redirecting
       toast({
         title: 'Access denied',
-        description: `You've already progressed to the ${progress.current_stage} stage. You cannot modify compositions now.`,
+        description: `You've already progressed to the ${progress.current_stage} stage. You cannot modify styles now.`,
         variant: 'destructive',
       });
       
@@ -53,7 +53,7 @@ export default function CompositionPage() {
     if (!user) {
       toast({
         title: 'Error',
-        description: 'You must be logged in to save a composition',
+        description: 'You must be logged in to save a style',
         variant: 'destructive'
       })
       return
@@ -72,7 +72,7 @@ export default function CompositionPage() {
         .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
         .join(' ')
 
-      const composition = {
+      const style = {
         user_id: user.id,
         order_id: orderId,
         name: formattedName,
@@ -83,25 +83,25 @@ export default function CompositionPage() {
           style: settings.outfit,
           lighting: settings.photographyStyle
         },
-        status: 'draft' as CompositionStatus
+        status: 'draft' as StyleStatus
       }
 
-      await saveComposition(composition)
+      await saveStyle(style)
       
       // Use helper to ensure user progress exists
       await ensureUserProgress(user.id)
       
       toast({
         title: 'Success',
-        description: 'Your composition has been saved as a draft'
+        description: 'Your style has been saved as a draft'
       })
       
       reset() // Reset the form after successful save
-      router.push('/app/compositions') // Redirect to compositions page
+      router.push('/app/shoot') // Redirect to shoot page
     } catch (error) {
       toast({
         title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to save composition',
+        description: error instanceof Error ? error.message : 'Failed to save style',
         variant: 'destructive'
       })
     } finally {
@@ -119,7 +119,7 @@ export default function CompositionPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Style Composition</h2>
+        <h2 className="text-2xl font-bold tracking-tight">Choose your style</h2>
         <p className="text-muted-foreground">
           Create your perfect headshot style by selecting your preferred options.
         </p>
@@ -159,7 +159,7 @@ export default function CompositionPage() {
                 onClick={handleSave}
                 disabled={isSaving}
               >
-                {isSaving ? 'Saving...' : 'Save Composition'}
+                {isSaving ? 'Saving...' : 'Save Style'}
               </Button>
             </CardFooter>
           </Card>

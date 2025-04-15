@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { useCompositionStore } from '@/store/composition'
-import { CompositionBackground, CompositionPhotographyStyle } from '@/lib/types'
+import { useStyleStore } from '@/store/style'
+import { StyleOutfit, StylePhotographyStyle } from '@/lib/types'
 import { Card, CardContent } from '@/components/ui/card'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
@@ -12,58 +12,55 @@ import { cn } from '@/lib/utils'
 import stylesConfig from '@/lib/config/styles.json' assert { type: "json" };
 import optionsConfig from '@/lib/config/options.json' assert { type: "json" };
 
-interface BackgroundImageSelectorProps {
-  photographyStyle: CompositionPhotographyStyle;
+interface OutfitImageSelectorProps {
+  photographyStyle: StylePhotographyStyle;
 }
 
-export function BackgroundImageSelector({ photographyStyle }: BackgroundImageSelectorProps) {
-  const { settings, setBackground } = useCompositionStore();
+export function OutfitImageSelector({ photographyStyle }: OutfitImageSelectorProps) {
+  const { settings, setOutfit } = useStyleStore();
 
   // Find the current style configuration
   const currentStyleConfig = stylesConfig.find(style => style.id === photographyStyle);
 
-  // Get the list of available background IDs for the current style
-  const availableBackgroundIds = currentStyleConfig?.availableBackgrounds || [];
+  // Get the list of available outfit IDs for the current style
+  const availableOutfitIds = currentStyleConfig?.availableOutfits || [];
 
-  // Filter the master list of backgrounds based on availability
-  const filteredBackgroundOptions = optionsConfig.backgrounds.filter(option => 
-    availableBackgroundIds.includes(option.id)
+  // Filter the master list of outfits based on availability
+  const filteredOutfitOptions = optionsConfig.outfits.filter(option => 
+    availableOutfitIds.includes(option.id)
   );
 
-  // Handle cases where the currently selected background in the store
-  // might not be available for the *newly selected* style.
-  // If the stored background isn't available, select the first available one.
+  // Effect to reset selection if current choice becomes invalid
   React.useEffect(() => {
-    if (filteredBackgroundOptions.length > 0 && 
-        !filteredBackgroundOptions.some(opt => opt.id === settings.background)) {
-      setBackground(filteredBackgroundOptions[0].id as CompositionBackground);
+    if (filteredOutfitOptions.length > 0 && 
+        !filteredOutfitOptions.some(opt => opt.id === settings.outfit)) {
+      setOutfit(filteredOutfitOptions[0].id as StyleOutfit);
     }
-    // Only run this effect if the available options change (i.e., photographyStyle changes)
-  }, [photographyStyle, settings.background, setBackground, filteredBackgroundOptions]); 
+  }, [photographyStyle, settings.outfit, setOutfit, filteredOutfitOptions]);
 
   if (!currentStyleConfig) {
-    return <div>Error: Invalid photography style selected.</div>; // Or some other error handling
+    return <div>Error: Invalid photography style selected.</div>;
   }
 
-  if (filteredBackgroundOptions.length === 0) {
-    return <div>No background options available for {photographyStyle} style.</div>;
+  if (filteredOutfitOptions.length === 0) {
+    return <div>No outfit options available for {photographyStyle} style.</div>;
   }
 
   return (
     <RadioGroup
-      value={settings.background}
-      onValueChange={(value) => setBackground(value as CompositionBackground)}
+      value={settings.outfit}
+      onValueChange={(value) => setOutfit(value as StyleOutfit)}
       className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
     >
-      {filteredBackgroundOptions.map((option) => (
+      {filteredOutfitOptions.map((option) => (
         <div key={option.id}>
           <RadioGroupItem
             value={option.id}
-            id={`bg-${option.id}`}
+            id={`outfit-${option.id}`}
             className="peer sr-only"
           />
           <Label
-            htmlFor={`bg-${option.id}`}
+            htmlFor={`outfit-${option.id}`}
             className={cn(
               "block rounded-lg border-2 border-muted bg-popover p-1 hover:bg-accent hover:text-accent-foreground cursor-pointer",
               "peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
@@ -71,7 +68,7 @@ export function BackgroundImageSelector({ photographyStyle }: BackgroundImageSel
           >
             <Card className="overflow-hidden border-none shadow-none">
               <CardContent className="p-0">
-                <div className="relative aspect-video w-full">
+                <div className="relative aspect-square w-full">
                   <Image
                     src={option.imageUrl} 
                     alt={option.label}

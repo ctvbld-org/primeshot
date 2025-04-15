@@ -33,14 +33,14 @@ CREATE POLICY "Users can update their own orders"
     FOR UPDATE
     USING (auth.uid() = user_id);
 
--- Add order_id to compositions table
-ALTER TABLE public.compositions
+-- Add order_id to styles table
+ALTER TABLE public.styles
     ADD COLUMN IF NOT EXISTS order_id UUID REFERENCES public.orders(id) ON DELETE CASCADE;
 
 -- Add index for faster lookups
 CREATE INDEX IF NOT EXISTS idx_orders_user_id ON public.orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_orders_status ON public.orders(status);
-CREATE INDEX IF NOT EXISTS idx_compositions_order_id ON public.compositions(order_id);
+CREATE INDEX IF NOT EXISTS idx_styles_order_id ON public.styles(order_id);
 
 -- Add updated_at trigger for orders
 CREATE OR REPLACE FUNCTION public.handle_updated_at()

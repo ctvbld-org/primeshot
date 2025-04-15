@@ -6,37 +6,37 @@ import { useAuth } from '@/contexts/auth-context'
 import { useToast } from '@/components/ui/use-toast'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { useCompositionStore } from '@/store/composition'
-import { saveComposition } from '@/lib/api/compositions'
+import { useStyleStore } from '@/store/style'
+import { saveStyle } from '@/lib/api/styles'
 import { getOrCreateDraftOrder } from '@/lib/api/orders'
 import { ensureUserProgress } from '@/lib/api/progress'
 import { 
-  CompositionStatus, 
-  CompositionPhotographyStyle, 
-  CompositionBackground,
-  CompositionOutfit,
-  CompositionOutfitColor 
+  StyleStatus, 
+  StylePhotographyStyle, 
+  StyleBackground,
+  StyleOutfit,
+  StyleOutfitColor 
 } from '@/lib/types'
 
 // Import the actual selector components
-import { BackgroundImageSelector } from '@/components/composition/background-image-selector'
-import { OutfitImageSelector } from '@/components/composition/outfit-image-selector'
-import { OutfitColorSelector } from '@/components/composition/outfit-color-selector'
+import { BackgroundImageSelector } from '@/components/style/background-image-selector'
+import { OutfitImageSelector } from '@/components/style/outfit-image-selector'
+import { OutfitColorSelector } from '@/components/style/outfit-color-selector'
 
 // Import configs needed for setting defaults
 import stylesConfig from '@/lib/config/styles.json' assert { type: "json" };
 
-function NewCompositionContent() {
+function NewStyleContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user } = useAuth()
   // Get all setters needed
-  const { settings, setBackground, setOutfit, setOutfitColor, reset } = useCompositionStore()
+  const { settings, setBackground, setOutfit, setOutfitColor, reset } = useStyleStore()
   const { toast } = useToast()
   const [isSaving, setIsSaving] = useState(false)
   
   // Read style directly from params. Suspense handles the initial null state.
-  const photographyStyle = searchParams.get('style') as CompositionPhotographyStyle | null;
+  const photographyStyle = searchParams.get('style') as StylePhotographyStyle | null;
   // Start as false, only set to true once validation passes
   const [isStyleValidated, setIsStyleValidated] = useState(false); 
 
@@ -68,7 +68,7 @@ function NewCompositionContent() {
         description: 'The selected photography style is not recognized.',
         variant: 'destructive'
       })
-      router.replace('/app/compositions');
+      router.replace('/app/shoot');
       setIsStyleValidated(false); // Mark as invalid
     }
   }, [photographyStyle, router, toast]); 
@@ -86,9 +86,9 @@ function NewCompositionContent() {
       }
 
       // Set defaults based on the *first available* option for this style
-      const defaultBg = styleConfig.availableBackgrounds?.[0] as CompositionBackground | undefined;
-      const defaultOutfit = styleConfig.availableOutfits?.[0] as CompositionOutfit | undefined;
-      const defaultColor = styleConfig.availableOutfitColors?.[0] as CompositionOutfitColor | undefined;
+      const defaultBg = styleConfig.availableBackgrounds?.[0] as StyleBackground | undefined;
+      const defaultOutfit = styleConfig.availableOutfits?.[0] as StyleOutfit | undefined;
+      const defaultColor = styleConfig.availableOutfitColors?.[0] as StyleOutfitColor | undefined;
 
       console.log("Defaults:", { defaultBg, defaultOutfit, defaultColor });
 
@@ -130,7 +130,7 @@ function NewCompositionContent() {
         .join(' ')
 
       // Ensure settings passed match the validated style
-      const compositionData = {
+      const styleData = {
         user_id: user.id,
         order_id: orderId,
         name: formattedName,
@@ -143,26 +143,26 @@ function NewCompositionContent() {
           style: settings.outfit,
           lighting: photographyStyle 
         },
-        status: 'draft' as CompositionStatus
+        status: 'draft' as StyleStatus
       }
 
-      console.log("Saving composition data:", compositionData);
-      await saveComposition(compositionData)
+      console.log("Saving style data:", styleData);
+      await saveStyle(styleData)
       await ensureUserProgress(user.id) 
       
       toast({
         title: 'Success',
-        description: 'Your composition has been saved as a draft'
+        description: 'Your style has been saved as a draft'
       })
       
       // Reset happens automatically on navigation due to cleanup in edit page,
       // but explicit reset before push ensures state is clean if user navigates back quickly.
       reset(); 
-      router.push('/app/compositions')
+      router.push('/app/shoot')
     } catch (error) {
-       const message = error instanceof Error ? error.message : 'Failed to save composition';
+       const message = error instanceof Error ? error.message : 'Failed to save style';
       toast({
-        title: 'Error Saving Composition',
+        title: 'Error Saving Style',
         description: message,
         variant: 'destructive'
       })
@@ -174,7 +174,7 @@ function NewCompositionContent() {
 
   const handleCancel = useCallback(() => {
     reset(); // Reset store state on cancel
-    router.push('/app/compositions')
+    router.push('/app/shoot')
   }, [router, reset]);
 
 
@@ -191,7 +191,7 @@ function NewCompositionContent() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Create New Composition</h2>
+        <h2 className="text-2xl font-bold tracking-tight">Create New Style</h2>
         <p className="text-muted-foreground">
           Selected Style: <span className="font-semibold capitalize">{photographyStyle!}</span>. Now choose your options.
         </p>
@@ -199,7 +199,7 @@ function NewCompositionContent() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Composition Options</CardTitle>
+          <CardTitle>Style Options</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <section>
@@ -232,7 +232,7 @@ function NewCompositionContent() {
             onClick={handleSave}
             disabled={isSaving}
           >
-            {isSaving ? 'Saving...' : 'Save Composition'}
+            {isSaving ? 'Saving...' : 'Save Style'}
           </Button>
         </CardFooter>
       </Card>
@@ -240,11 +240,11 @@ function NewCompositionContent() {
   )
 }
 
-// Keep the Suspense wrapper around the content
-export default function NewCompositionPage() {
+// Add default export
+export default function Page() {
   return (
-    <Suspense fallback={<div>Loading style selection...</div>}>
-      <NewCompositionContent />
+    <Suspense fallback={<div>Loading...</div>}>
+      <NewStyleContent />
     </Suspense>
   )
-} 
+}

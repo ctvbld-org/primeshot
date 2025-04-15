@@ -24,4 +24,4 @@ CREATE POLICY "Users can delete their own images" ON public.images
     USING (auth.uid() = user_id);
 
 -- Add comment to document the change
-COMMENT ON TABLE public.images IS 'Stores user uploaded images. Images are now associated only with users, not with specific compositions.'; 
+COMMENT ON TABLE public.images IS 'Stores user uploaded images. Images are now associated only with users, not with specific style.'; 

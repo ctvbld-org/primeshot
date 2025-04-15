@@ -1,5 +1,5 @@
 export type FlowStage = 
-  | 'compositions'
+  | 'shoot'
   | 'payment'
   | 'upload'
   | 'review'

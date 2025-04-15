@@ -83,7 +83,7 @@ export async function GET(request: Request) {
             .from('user_progress')
             .upsert({
               user_id: user.id,
-              current_stage: 'compositions', // Start at compositions
+              current_stage: 'shoot', // Start at shoot
               completed_stages: [], // No stages completed yet
               stage_data: {},
               last_active_at: new Date().toISOString()
@@ -104,7 +104,7 @@ export async function GET(request: Request) {
           new URL(
             progress && !progress.completed_stages.includes('payment')
               ? `/app/${progress.current_stage}`
-              : '/app/compositions',
+              : '/app/shoot',
             requestUrl.origin
           )
         )

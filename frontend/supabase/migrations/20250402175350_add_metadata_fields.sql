@@ -27,11 +27,11 @@ CHECK (
   AND (dimensions->>'height')::int > 0
 );
 
--- Update compositions settings constraints
-ALTER TABLE public.compositions
+-- Update styles settings constraints
+ALTER TABLE public.styles
 DROP CONSTRAINT IF EXISTS valid_settings;
 
-ALTER TABLE public.compositions
+ALTER TABLE public.styles
 ADD CONSTRAINT valid_settings CHECK (
   jsonb_typeof(settings->'style') = 'string'
   AND (settings->>'style') IN ('professional', 'casual', 'creative')

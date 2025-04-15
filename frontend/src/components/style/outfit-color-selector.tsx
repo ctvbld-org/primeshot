@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { useCompositionStore } from '@/store/composition'
-import { CompositionOutfitColor, CompositionPhotographyStyle } from '@/lib/types'
+import { useStyleStore } from '@/store/style'
+import { StyleOutfitColor, StylePhotographyStyle } from '@/lib/types'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
@@ -12,11 +12,11 @@ import stylesConfig from '@/lib/config/styles.json' assert { type: "json" };
 import optionsConfig from '@/lib/config/options.json' assert { type: "json" };
 
 interface OutfitColorSelectorProps {
-  photographyStyle: CompositionPhotographyStyle;
+  photographyStyle: StylePhotographyStyle;
 }
 
 export function OutfitColorSelector({ photographyStyle }: OutfitColorSelectorProps) {
-  const { settings, setOutfitColor } = useCompositionStore();
+  const { settings, setOutfitColor } = useStyleStore();
 
   // Find the current style configuration
   const currentStyleConfig = stylesConfig.find(style => style.id === photographyStyle);
@@ -33,7 +33,7 @@ export function OutfitColorSelector({ photographyStyle }: OutfitColorSelectorPro
   React.useEffect(() => {
     if (filteredColorOptions.length > 0 && 
         !filteredColorOptions.some(opt => opt.id === settings.outfitColor)) {
-      setOutfitColor(filteredColorOptions[0].id as CompositionOutfitColor);
+      setOutfitColor(filteredColorOptions[0].id as StyleOutfitColor);
     }
   }, [photographyStyle, settings.outfitColor, setOutfitColor, filteredColorOptions]);
 
@@ -49,7 +49,7 @@ export function OutfitColorSelector({ photographyStyle }: OutfitColorSelectorPro
     <TooltipProvider>
       <RadioGroup
         value={settings.outfitColor}
-        onValueChange={(value) => setOutfitColor(value as CompositionOutfitColor)}
+        onValueChange={(value) => setOutfitColor(value as StyleOutfitColor)}
         className="flex flex-wrap gap-3"
       >
         {filteredColorOptions.map((option) => (

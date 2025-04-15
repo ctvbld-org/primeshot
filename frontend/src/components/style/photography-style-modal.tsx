@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
 import Image from 'next/image'
-import { CompositionPhotographyStyle } from '@/lib/types'
+import { StylePhotographyStyle } from '@/lib/types'
 // Import the JSON configuration
 import stylesConfig from '@/lib/config/styles.json' assert { type: "json" };
 
@@ -25,7 +25,7 @@ const photographyStyleOptions: StyleConfig[] = stylesConfig;
 interface PhotographyStyleModalProps {
   isOpen: boolean
   onClose: () => void
-  onSelectStyle: (style: CompositionPhotographyStyle) => void
+  onSelectStyle: (style: StylePhotographyStyle) => void
 }
 
 export function PhotographyStyleModal({ isOpen, onClose, onSelectStyle }: PhotographyStyleModalProps) {
@@ -85,7 +85,7 @@ export function PhotographyStyleModal({ isOpen, onClose, onSelectStyle }: Photog
                   <p className="text-sm text-muted-foreground">{option.description}</p>
                 </CardContent>
                 <CardFooter className="p-4 pt-0 border-t mt-auto">
-                  <Button className="w-full" onClick={() => onSelectStyle(option.id as CompositionPhotographyStyle)}>
+                  <Button className="w-full" onClick={() => onSelectStyle(option.id as StylePhotographyStyle)}>
                     Select Style
                   </Button>
                 </CardFooter>
