@@ -104,7 +104,7 @@ export async function GET(request: Request) {
           new URL(
             progress && !progress.completed_stages.includes('payment')
               ? `/app/${progress.current_stage}`
-              : '/app/compositions',
+              : '/app/shoot',
             requestUrl.origin
           )
         )
