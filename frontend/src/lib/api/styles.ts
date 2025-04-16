@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/client'
 import { InsertStyle, Style, StyleStatus, UpdateStyle } from '@/lib/types'
 import { calculatePricing } from '@/lib/pricing'
+import { SupabaseClient } from '@supabase/supabase-js'
+import { logger } from '@/lib/logger'
 
 /**
  * Save a new style to the database
@@ -43,7 +45,7 @@ export async function saveStyle(style: InsertStyle): Promise<Style> {
   
   console.log('Style saved successfully, updating order amount')
   // Now update the order amount based on the new style count
-  await updateOrderAmount(style.user_id, style.order_id)
+  await updateOrderAmount(style.order_id, supabase)
   
   return data as Style
 }
@@ -83,7 +85,7 @@ export async function deleteStyle(id: string, userId: string): Promise<void> {
   console.log('Style deleted successfully, updating order amount')
   // Update the order amount after deletion
   if (style) {
-    await updateOrderAmount(userId, style.order_id)
+    await updateOrderAmount(style.order_id, supabase)
   }
 }
 
@@ -224,54 +226,99 @@ export async function calculateHeadshots(userId: string): Promise<{
 }
 
 /**
- * Update order amount based on style count
+ * Updates the order amount based on the number of styles.
+ * Uses direct database operations instead of Edge Functions to avoid CORS issues.
  */
-async function updateOrderAmount(userId: string, orderId: string): Promise<void> {
-  console.log('Updating order amount for user:', userId, 'orderId:', orderId)
-  
-  // Add a small delay to ensure database operations have settled
-  await new Promise(resolve => setTimeout(resolve, 500))
-  
-  // Query the database directly for the most current count instead of using the calculateHeadshots function
-  const supabase = createClient()
-  
-  // First get the current count directly from the database
-  const { count, error: countError } = await supabase
-    .from('styles')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', userId)
-    .eq('status', 'draft')
-  
-  if (countError) {
-    console.error('Error counting styles:', countError)
-    throw new Error(`Failed to count styles: ${countError.message}`)
+export const updateOrderAmount = async (
+  orderId: string,
+  supabase: SupabaseClient,
+  options?: { throwOnError?: boolean }
+): Promise<void> => {
+  const user = await supabase.auth.getUser();
+  const userId = user.data.user?.id;
+
+  if (!userId) {
+    const errorMsg = 'User ID not found when updating order amount';
+    logger.error(errorMsg);
+    if (options?.throwOnError) {
+      throw new Error(errorMsg);
+    }
+    return;
   }
-  
-  const styleCount = count || 0
-  console.log('Current style count from database:', styleCount)
-  
-  // Calculate pricing information based on the current style count
-  let price = 0
-  if (styleCount > 0) {
-    const pricingInfo = calculatePricing(styleCount)
-    price = pricingInfo.price
+
+  try {
+    // Verify the order exists and belongs to the user
+    const { data: order, error: orderError } = await supabase
+      .from('orders')
+      .select('id')
+      .eq('id', orderId)
+      .eq('user_id', userId)
+      .single();
+
+    if (orderError || !order) {
+      throw new Error('Order not found or does not belong to this user');
+    }
+
+    // Count styles for this order with status 'draft'
+    const { count: styleCount, error: countError } = await supabase
+      .from('styles')
+      .select('*', { count: 'exact', head: true })
+      .eq('order_id', orderId)
+      .eq('status', 'draft');
+
+    if (countError) {
+      throw new Error(`Failed to count styles: ${countError.message}`);
+    }
+
+    // Calculate the price based on style count
+    let price = 0;
+    if (styleCount) {
+      if (styleCount === 1) {
+        // Individual tier (1 style)
+        price = 2900;
+      } else if (styleCount <= 3) {
+        // Professional tier (2-3 styles)
+        price = 4900;
+      } else if (styleCount <= 6) {
+        // Studio tier (4-6 styles)
+        price = 7900;
+      } else {
+        // Studio tier + add-ons (7+ styles)
+        price = 7900 + (styleCount - 6) * 1500;
+      }
+    }
+
+    // Update the order with the calculated price
+    const { error: updateError } = await supabase
+      .from('orders')
+      .update({
+        amount: price,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', orderId)
+      .eq('user_id', userId);
+
+    if (updateError) {
+      throw new Error(`Failed to update order amount: ${updateError.message}`);
+    }
+
+    logger.info('Order amount updated successfully', {
+      orderId,
+      styleCount,
+      price
+    });
+  } catch (error) {
+    // Log the error and potentially rethrow
+    logger.error('Failed to update order amount', {
+      error: error instanceof Error ? error.message : String(error),
+      orderId
+    });
+    
+    if (options?.throwOnError) {
+      throw error;
+    }
   }
-  
-  console.log('Calculated price based on count:', price)
-  
-  // Update the order with the new amount
-  const { error } = await supabase
-    .from('orders')
-    .update({ amount: price })
-    .eq('id', orderId)
-    .eq('user_id', userId)
-  
-  if (error) {
-    throw new Error(`Failed to update order amount: ${error.message}`)
-  }
-  
-  console.log('Order amount updated to:', price)
-}
+};
 
 /**
  * Bulk update styles status

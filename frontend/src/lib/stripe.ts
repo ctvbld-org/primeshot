@@ -22,43 +22,98 @@ export const getStripe = () => {
 /**
  * Create a Stripe checkout session
  * @param data Checkout session data
- * @returns Checkout session ID
+ * @returns Checkout session info
  */
 export async function createCheckoutSession(data: {
   orderId: string;
   amount: number;
   metadata?: Record<string, string>;
-}) {
-  const response = await fetch('/api/payment/create-checkout-session', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
+  retryAttempt?: number;
+}): Promise<{
+  sessionId: string;
+  idempotencyKey: string;
+}> {
+  try {
+    const response = await fetch('/api/payment/create-checkout-session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...data,
+        retryAttempt: data.retryAttempt || 0,
+      }),
+    });
 
-  const { sessionId } = await response.json();
-  return sessionId;
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to create checkout session');
+    }
+
+    const { sessionId, idempotencyKey } = await response.json();
+    return { sessionId, idempotencyKey };
+  } catch (error) {
+    console.error('Failed to create checkout session:', error);
+    
+    // If this was already a retry attempt, don't retry again
+    if (data.retryAttempt && data.retryAttempt > 2) {
+      throw error;
+    }
+    
+    // Retry with incremented retry attempt
+    return createCheckoutSession({
+      ...data,
+      retryAttempt: (data.retryAttempt || 0) + 1
+    });
+  }
 }
 
 /**
  * Create a Stripe payment intent
  * @param data Payment intent data
- * @returns Payment intent client secret
+ * @returns Payment intent info
  */
 export async function createPaymentIntent(data: {
   orderId: string;
   amount: number;
   metadata?: Record<string, string>;
-}) {
-  const response = await fetch('/api/payment/create-payment-intent', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
+  retryAttempt?: number;
+}): Promise<{
+  clientSecret: string;
+  idempotencyKey: string;
+  paymentIntentId: string;
+}> {
+  try {
+    const response = await fetch('/api/payment/create-payment-intent', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...data,
+        retryAttempt: data.retryAttempt || 0,
+      }),
+    });
 
-  const { clientSecret } = await response.json();
-  return clientSecret;
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to create payment intent');
+    }
+
+    const { clientSecret, idempotencyKey, paymentIntentId } = await response.json();
+    return { clientSecret, idempotencyKey, paymentIntentId };
+  } catch (error) {
+    console.error('Failed to create payment intent:', error);
+    
+    // If this was already a retry attempt, don't retry again
+    if (data.retryAttempt && data.retryAttempt > 2) {
+      throw error;
+    }
+    
+    // Retry with incremented retry attempt
+    return createPaymentIntent({
+      ...data,
+      retryAttempt: (data.retryAttempt || 0) + 1
+    });
+  }
 } 

@@ -129,28 +129,6 @@ export default function StylesPage() {
         </p>
       </div>
       
-      {/* Payment Return Banner - shown when user returns from payment to modify styles */}
-      {progress?.current_stage === 'payment' && (
-        <Card className="bg-primary/10 border-primary/20">
-          <CardContent className="pt-6">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <div>
-                <h3 className="font-medium">Modifying your shoot styles</h3>
-                <p className="text-sm text-muted-foreground">
-                  Make any changes needed to your styles. When you're done, return to checkout to complete your payment.
-                </p>
-              </div>
-              <Button 
-                onClick={() => router.push('/app/payment')} 
-                className="whitespace-nowrap"
-              >
-                Return to Checkout
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-      
       {/* Pricing and headshot information card */}
       {headshotInfo.styleCount > 0 && (
         <Card className="bg-accent/20">

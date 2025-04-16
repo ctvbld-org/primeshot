@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
 import { useUserProgress } from '@/hooks/use-user-progress';
 import { createClient } from '@/lib/supabase/client';
@@ -17,12 +17,30 @@ import type { PricingInfo } from '@/lib/pricing';
 import type { Order, Style } from '@/lib/types';
 import { getOrCreateDraftOrder } from '@/lib/api/orders';
 
+// Define types for payment-related stage data
+interface PaymentStageData {
+  orderId?: string
+  attemptCount?: number
+  lastAttemptAt?: string
+  isRecovery?: boolean
+}
+
+// Define progress stage data structure
+interface StageData {
+  [key: string]: unknown
+  payment?: PaymentStageData
+}
+
 export default function PaymentPage() {
   const { user } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const { updateProgress, progress, canModifyStyles } = useUserProgress();
   const hasUpdatedProgress = useRef(false);
+  
+  // Get resume parameter from URL if present
+  const resumeOrderId = searchParams.get('resume');
   
   const [isLoading, setIsLoading] = useState(true);
   const [styles, setStyles] = useState<Style[]>([]);
@@ -31,6 +49,7 @@ export default function PaymentPage() {
   const [paymentStep, setPaymentStep] = useState<'summary' | 'payment'>('summary');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pricingInfo, setPricingInfo] = useState<PricingInfo | null>(null);
+  const [isRecoveringPayment, setIsRecoveringPayment] = useState(false);
 
   // Load styles and order data
   useEffect(() => {
@@ -39,10 +58,33 @@ export default function PaymentPage() {
       if (isLoading === false) return; // Prevent re-loading once data is loaded
       
       const supabase = createClient();
+      let currentOrder: Order;
       
       try {
-        // Get the single draft or pending_payment order for the user
-        const currentOrder = await getOrCreateDraftOrder(user.id);
+        // If resuming a payment, get that specific order
+        if (resumeOrderId) {
+          setIsRecoveringPayment(true);
+          console.log(`Attempting to recover payment for order: ${resumeOrderId}`);
+          
+          const { data, error } = await supabase
+            .from('orders')
+            .select('*')
+            .eq('id', resumeOrderId)
+            .eq('user_id', user.id) // Security: ensure the order belongs to this user
+            .eq('status', 'pending_payment')
+            .single();
+          
+          if (error || !data) {
+            throw new Error('Order not found or not in a recoverable state');
+          }
+          
+          currentOrder = data;
+          console.log(`Successfully found order ${currentOrder.id} for payment recovery`);
+        } else {
+          // Get the single draft or pending_payment order for the user
+          currentOrder = await getOrCreateDraftOrder(user.id);
+        }
+        
         setOrder(currentOrder);
 
         // Get styles associated with this specific order
@@ -92,11 +134,59 @@ export default function PaymentPage() {
 
         // Update progress once per session
         if (!hasUpdatedProgress.current) {
-          await updateProgress('payment');
+          // Cast the stage_data to our defined type
+          const stageData = progress?.stage_data as StageData | undefined;
+          const paymentData = stageData?.payment || {};
+          
+          await updateProgress('payment', {
+            orderId: currentOrder.id,
+            attemptCount: (paymentData.attemptCount || 0) + 1,
+            lastAttemptAt: new Date().toISOString(),
+            isRecovery: !!resumeOrderId
+          });
           hasUpdatedProgress.current = true;
+        }
+        
+        // If this is a payment recovery, proceed directly to payment step
+        // Also attempt to restore the payment intent
+        if (resumeOrderId && currentOrder.payment_intent_id) {
+          setPaymentStep('payment');
+          
+          try {
+            // For recovery, we need to get the client secret from the existing payment intent
+            const paymentInfo = await createPaymentIntent({
+              orderId: currentOrder.id,
+              amount: pricing.price,
+              metadata: {
+                isRecovery: 'true',
+                recoveryTimestamp: new Date().toISOString()
+              }
+            });
+            
+            if (paymentInfo && paymentInfo.clientSecret) {
+              setClientSecret(paymentInfo.clientSecret);
+              console.log(`Successfully recovered payment intent for order ${currentOrder.id}`);
+            }
+          } catch (paymentError) {
+            console.error('Error recovering payment intent:', paymentError);
+            // Even if recovery fails, stay on payment page so user can try again
+          }
         }
       } catch (error) {
         console.error('Error loading payment data:', error);
+        
+        // Handle payment recovery errors specifically
+        if (resumeOrderId && error instanceof Error) {
+          toast({ 
+            title: 'Payment Recovery Failed', 
+            description: 'We couldn\'t restore your previous payment. Starting a new payment process.',
+            variant: 'destructive'
+          });
+          // Redirect to regular payment flow
+          router.replace('/app/payment');
+          return;
+        }
+        
         // If error is about no styles, redirect slightly differently?
         if (error instanceof Error && error.message.includes('No styles found')) { 
            toast({ title: 'No Styles', description: 'Please add styles to your shoot first.', variant: 'destructive' });
@@ -110,7 +200,7 @@ export default function PaymentPage() {
     }
     
     loadData();
-  }, [user, router, toast, updateProgress, isLoading]); // Removed getOrCreateDraftOrder from deps
+  }, [user, router, toast, updateProgress, resumeOrderId, progress?.stage_data]);
 
   // Proceed to payment
   const handleContinueToPayment = async () => {
@@ -123,7 +213,7 @@ export default function PaymentPage() {
     
     try {
       // Call the backend endpoint which handles create/update logic
-      const secret = await createPaymentIntent({
+      const paymentInfo = await createPaymentIntent({
         orderId: order.id,
         amount: pricingInfo.price, // Pass the *current* calculated price
         metadata: {
@@ -133,11 +223,16 @@ export default function PaymentPage() {
         }
       });
       
-      if (!secret) {
+      if (!paymentInfo || !paymentInfo.clientSecret) {
         throw new Error('Failed to get payment client secret from server.');
       }
       
-      setClientSecret(secret);
+      // Save the entire response to allow access to idempotencyKey if needed
+      setClientSecret(paymentInfo.clientSecret);
+      
+      // Log the idempotency key for debugging
+      console.log(`Payment prepared with idempotency key: ${paymentInfo.idempotencyKey}`);
+      
       setPaymentStep('payment');
     } catch (error) {
       console.error('Error preparing payment:', error);
@@ -171,10 +266,14 @@ export default function PaymentPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Checkout</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          {isRecoveringPayment ? 'Resume Payment' : 'Checkout'}
+        </h1>
         <p className="text-muted-foreground">
-          Complete your purchase to generate your professional headshots.
-          {canModifyStyles() && (
+          {isRecoveringPayment 
+            ? 'Continue your payment to generate your professional headshots.'
+            : 'Complete your purchase to generate your professional headshots.'}
+          {canModifyStyles() && !isRecoveringPayment && (
             <span className="ml-1">You can still modify your styles before making payment.</span>
           )}
         </p>

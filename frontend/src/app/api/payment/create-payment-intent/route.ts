@@ -3,6 +3,12 @@ import Stripe from 'stripe';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { Order } from '@/lib/types'; // Import Order type
+import { verifyOrderPrice } from '@/lib/server/price-verification';
+import { 
+  getPaymentIntentIdempotencyKey, 
+  getPaymentIntentUpdateIdempotencyKey,
+  getRetryIdempotencyKey
+} from '@/lib/server/idempotency';
 
 // Initialize Stripe with latest API version
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
@@ -35,7 +41,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { orderId, amount, metadata = {} } = body;
+    const { orderId, amount, metadata = {}, retryAttempt = 0 } = body;
 
     if (!orderId || !amount) {
       return NextResponse.json(
@@ -64,7 +70,39 @@ export async function POST(request: Request) {
       );
     }
     
+    // IMPORTANT: Verify the requested amount matches the calculated price based on style count
+    const verification = await verifyOrderPrice(orderId, amount, supabase);
+    
+    if (!verification.isValid) {
+      console.warn(`Payment amount verification failed: ${verification.reason}. Order ID: ${orderId}, User ID: ${session.user.id}`);
+      return NextResponse.json(
+        { 
+          error: 'Invalid payment amount', 
+          details: verification.reason,
+          expectedAmount: verification.calculatedAmount
+        },
+        { status: 400 }
+      );
+    }
+    
+    // If verification passed, continue with the verified amount
+    const verifiedAmount = verification.calculatedAmount;
+    console.log(`✅ Payment amount verified for order ${orderId}: ${verifiedAmount}`);
+    
     const order = orderResult as Order; // Cast to Order type
+    
+    // Generate an appropriate idempotency key based on whether this is a retry
+    const baseIdempotencyKey = retryAttempt > 0
+      ? getRetryIdempotencyKey('payment_intent', orderId, session.user.id, verifiedAmount)
+      : getPaymentIntentIdempotencyKey(orderId, session.user.id, verifiedAmount);
+    
+    // Add request info to metadata for tracking/debugging
+    const enhancedMetadata = {
+      ...metadata,
+      idempotencyKey: baseIdempotencyKey,
+      requestId: crypto.randomUUID(), // Unique ID for this specific request
+      retryAttempt: retryAttempt.toString(),
+    };
 
     let paymentIntent: Stripe.PaymentIntent;
 
@@ -77,23 +115,41 @@ export async function POST(request: Request) {
 
         // Check if PI is in a state that allows updates (e.g., requires_payment_method)
         if (['requires_payment_method', 'requires_confirmation', 'requires_action'].includes(existingPI.status)) {
-          if (existingPI.amount === amount) {
+          if (existingPI.amount === verifiedAmount) {
             // Amount matches, reuse the existing PI
             console.log(`Reusing existing PI ${existingPI.id}, amount matches.`);
             paymentIntent = existingPI;
           } else {
             // Amount differs, update the existing PI
-            console.log(`Updating existing PI ${existingPI.id} amount from ${existingPI.amount} to ${amount}`);
-            paymentIntent = await stripe.paymentIntents.update(order.payment_intent_id, {
-              amount: amount, // Update amount
-              metadata: { 
-                ...existingPI.metadata, // Keep existing metadata
-                ...metadata, // Merge new metadata
-                orderId: order.id, // Ensure orderId is present
-                userId: session.user.id // Ensure userId is present
+            console.log(`Updating existing PI ${existingPI.id} amount from ${existingPI.amount} to ${verifiedAmount}`);
+            
+            // Generate update-specific idempotency key
+            const updateIdempotencyKey = getPaymentIntentUpdateIdempotencyKey(
+              existingPI.id,
+              orderId,
+              session.user.id,
+              verifiedAmount
+            );
+            
+            paymentIntent = await stripe.paymentIntents.update(
+              order.payment_intent_id,
+              {
+                amount: verifiedAmount, // Update amount with VERIFIED amount
+                metadata: { 
+                  ...existingPI.metadata, // Keep existing metadata
+                  ...enhancedMetadata, // Merge new metadata
+                  orderId: order.id, // Ensure orderId is present
+                  userId: session.user.id, // Ensure userId is present
+                  styleCount: verification.styleCount.toString(), // Add style count for reference
+                  verifiedAmount: 'true', // Flag to indicate the amount was verified
+                  lastUpdated: new Date().toISOString(),
+                },
               },
-            });
-            console.log(`PI ${paymentIntent.id} updated.`);
+              { 
+                idempotencyKey: updateIdempotencyKey // Use idempotency key for update
+              }
+            );
+            console.log(`PI ${paymentIntent.id} updated with idempotency key: ${updateIdempotencyKey}`);
           }
         } else {
           // PI is in a final state (succeeded, canceled, processing), cannot reuse/update
@@ -110,18 +166,28 @@ export async function POST(request: Request) {
 
     // If no usable PI was found/updated, create a new one
     if (!paymentIntent!) { // Use definite assignment assertion (!) as we handle creation below
-      console.log(`Creating new Payment Intent for order ${order.id}`);
-      paymentIntent = await stripe.paymentIntents.create({
-        amount, // amount in cents
-        currency: 'usd',
-        metadata: {
-          orderId: order.id,
-          userId: session.user.id,
-          ...metadata,
+      console.log(`Creating new Payment Intent for order ${order.id} with idempotency key: ${baseIdempotencyKey}`);
+      
+      paymentIntent = await stripe.paymentIntents.create(
+        {
+          amount: verifiedAmount, // Use VERIFIED amount
+          currency: 'usd',
+          metadata: {
+            orderId: order.id,
+            userId: session.user.id,
+            styleCount: verification.styleCount.toString(), // Add style count for reference
+            verifiedAmount: 'true', // Flag to indicate the amount was verified
+            ...enhancedMetadata, // Include all enhanced metadata
+            createdAt: new Date().toISOString(),
+          },
+          // Consider adding setup_future_usage if relevant
         },
-        // Consider adding setup_future_usage if relevant
-      });
-      console.log(`New PI ${paymentIntent.id} created.`);
+        {
+          idempotencyKey: baseIdempotencyKey // Using idempotency key for creation
+        }
+      );
+      
+      console.log(`New PI ${paymentIntent.id} created with idempotency key: ${baseIdempotencyKey}`);
 
       // Update order with the NEW payment intent ID and reset status
       await supabase
@@ -130,28 +196,34 @@ export async function POST(request: Request) {
           payment_intent_id: paymentIntent.id,
           payment_status: 'awaiting_payment',
           status: 'pending_payment',
-          amount: amount, // Ensure order amount matches PI amount
+          amount: verifiedAmount, // Ensure order amount matches verified amount
           updated_at: new Date().toISOString(),
+          idempotency_key: baseIdempotencyKey, // Store the idempotency key for reference
         })
         .eq('id', order.id);
       console.log(`Order ${order.id} updated with new PI ${paymentIntent.id}`);
     } else {
        // If we reused/updated an existing PI, ensure the order amount matches
-       if (order.amount !== amount || order.status !== 'pending_payment') {
+       if (order.amount !== verifiedAmount || order.status !== 'pending_payment') {
          await supabase
            .from('orders')
            .update({ 
-               amount: amount, 
+               amount: verifiedAmount, // Use VERIFIED amount
                status: 'pending_payment', 
                payment_status: 'awaiting_payment', // Reset payment status
-               updated_at: new Date().toISOString() 
+               updated_at: new Date().toISOString(),
+               idempotency_key: baseIdempotencyKey, // Store for reference
             })
            .eq('id', order.id);
          console.log(`Order ${order.id} amount/status updated to match reused/updated PI ${paymentIntent.id}`);
        }
     }
 
-    return NextResponse.json({ clientSecret: paymentIntent.client_secret });
+    return NextResponse.json({ 
+      clientSecret: paymentIntent.client_secret,
+      idempotencyKey: baseIdempotencyKey,
+      paymentIntentId: paymentIntent.id
+    });
 
   } catch (error) {
     console.error('Error creating/updating payment intent:', error);
