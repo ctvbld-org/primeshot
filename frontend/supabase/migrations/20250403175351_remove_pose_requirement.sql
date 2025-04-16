@@ -1,9 +1,9 @@
 -- Remove old constraint
-ALTER TABLE public.compositions
+ALTER TABLE public.styles
 DROP CONSTRAINT IF EXISTS valid_settings;
 
 -- Add updated constraint without pose requirement
-ALTER TABLE public.compositions
+ALTER TABLE public.styles
 ADD CONSTRAINT valid_settings CHECK (
   jsonb_typeof(settings->'style') = 'string'
   AND (settings->>'style') IN ('professional', 'casual', 'creative')
@@ -14,4 +14,4 @@ ADD CONSTRAINT valid_settings CHECK (
 );
 
 -- Add comment for documentation
-COMMENT ON CONSTRAINT valid_settings ON public.compositions IS 'Ensures composition settings contain valid style, background, and lighting values'; 
+COMMENT ON CONSTRAINT valid_settings ON public.styles IS 'Ensures style settings contain valid style, background, and lighting values'; 

@@ -1,7 +1,7 @@
 -- Create enum for flow stages if it doesn't exist
 DO $$ BEGIN
   CREATE TYPE public.flow_stage AS ENUM (
-    'compositions',
+    'shoot',
     'upload',
     'review',
     'payment',

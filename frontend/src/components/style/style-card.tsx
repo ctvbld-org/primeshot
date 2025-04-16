@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
@@ -11,17 +11,23 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { Composition } from '@/lib/types'
+import { Style } from '@/lib/types'
 import { formatDistanceToNow } from 'date-fns'
-import { TrashIcon } from '@heroicons/react/24/outline'
+import { TrashIcon, CameraIcon } from '@heroicons/react/24/outline'
 
-interface CompositionCardProps {
-  composition: Composition
+interface StyleCardProps {
+  style: Style
   onClick?: () => void
   onDelete?: () => void
+  headshotsPerStyle?: number
 }
 
-export function CompositionCard({ composition, onClick, onDelete }: CompositionCardProps) {
+export function StyleCard({ 
+  style, 
+  onClick, 
+  onDelete,
+  headshotsPerStyle 
+}: StyleCardProps) {
   return (
     <Card 
       className="hover:bg-accent/50 transition-colors cursor-pointer group relative"
@@ -42,9 +48,9 @@ export function CompositionCard({ composition, onClick, onDelete }: CompositionC
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Delete Composition</AlertDialogTitle>
+                <AlertDialogTitle>Delete Style</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to delete this composition? This action cannot be undone.
+                  Are you sure you want to delete this style? This action cannot be undone.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -65,27 +71,35 @@ export function CompositionCard({ composition, onClick, onDelete }: CompositionC
         </div>
       )}
       <CardHeader>
-        <CardTitle>{composition.name}</CardTitle>
+        <CardTitle>{style.name}</CardTitle>
         <CardDescription>
-          Created {formatDistanceToNow(new Date(composition.created_at))} ago
+          Created {formatDistanceToNow(new Date(style.created_at))} ago
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-2 text-sm">
           <div>
             <span className="font-medium">Photography Style:</span>{' '}
-            {composition.settings.photographyStyle}
+            {style.settings.photographyStyle}
           </div>
           <div>
             <span className="font-medium">Outfit:</span>{' '}
-            {composition.settings.outfit}
+            {style.settings.outfit}
           </div>
           <div>
             <span className="font-medium">Background:</span>{' '}
-            {composition.settings.background}
+            {style.settings.background}
           </div>
         </div>
       </CardContent>
+      {headshotsPerStyle ? (
+        <CardFooter className="pt-0">
+          <div className="flex items-center text-sm text-muted-foreground">
+            <CameraIcon className="h-4 w-4 mr-1" />
+            <span>{headshotsPerStyle} headshots</span>
+          </div>
+        </CardFooter>
+      ) : null}
     </Card>
   )
 } 

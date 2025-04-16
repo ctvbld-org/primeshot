@@ -1,5 +1,5 @@
 # Overview
-Primeshot is an AI-powered headshot generator that transforms user-provided photos into professional-quality headshots. The platform allows users to create multiple style compositions, combining different backgrounds, outfits, and photographic styles to generate a variety of professional headshots. By leveraging advanced AI technology, Primeshot solves the problem of expensive professional photoshoots while providing high-quality, customizable results at a fraction of the cost.
+Primeshot is an AI-powered headshot generator that transforms user-provided photos into professional-quality headshots. The platform allows users to create multiple style styles, combining different backgrounds, outfits, and photographic styles to generate a variety of professional headshots. By leveraging advanced AI technology, Primeshot solves the problem of expensive professional photoshoots while providing high-quality, customizable results at a fraction of the cost.
 
 Target Audience:
 - Professionals needing LinkedIn/corporate headshots
@@ -17,12 +17,12 @@ Value Proposition:
 
 # Core Features
 
-1. Multi-Style Composition System
-- What: Users can create multiple compositions combining background, outfit, and photographic styles
+1. Multi-Style Style System
+- What: Users can create multiple styles combining background, outfit, and photographic styles
 - Why: Provides variety and customization options for different professional contexts
 - How: Interface for selecting and combining style elements with live preview
 
-Composition Creation Flow:
+Style Creation Flow:
 a. Style Selection
    - Background styles (e.g., office, studio, outdoor, gradient)
    - Outfit styles (e.g., business formal, business casual, creative professional)
@@ -30,18 +30,18 @@ a. Style Selection
    - Photographic styles (e.g., natural light, studio lighting, dramatic, minimalist, B&W)
 
 b. Headshot Generation Logic:
-   - 1 composition: 20 headshots (Individual Tier Pricing)
-   - 2 compositions: 30 headshots each (60 total) (Professional Tier Pricing)
-   - 3 compositions: 20 headshots each (60 total) (Professional Tier Pricing)
-   - 4 compositions: 30 headshots each (120 total) (Studio Tier Pricing)
-   - 5 compositions: 24 headshots each (120 total) (Studio Tier Pricing)
-   - 6 compositions: 20 headshots each (120 total) (Studio Tier Pricing)
-   - 7+ compositions: 20 headshots each (Studio Tier Pricing + 20 shots add-on)
+   - 1 style: 20 headshots (Individual Tier Pricing)
+   - 2 styles: 30 headshots each (60 total) (Professional Tier Pricing)
+   - 3 styles: 20 headshots each (60 total) (Professional Tier Pricing)
+   - 4 styles: 30 headshots each (120 total) (Studio Tier Pricing)
+   - 5 styles: 24 headshots each (120 total) (Studio Tier Pricing)
+   - 6 styles: 20 headshots each (120 total) (Studio Tier Pricing)
+   - 7+ styles: 20 headshots each (Studio Tier Pricing + 20 shots add-on)
 
 c. Preview System:
    - Real-time style combination preview using placeholder models
    - Sample gallery for each style combination
-   - Style comparison view for multiple compositions
+   - Style comparison view for multiple styles
 
 2. Intelligent Photo Upload System
 - What: Advanced photo quality checking and processing system
@@ -57,7 +57,7 @@ c. Preview System:
 - How: Integration with Fal.ai and/or Replicate APIs with fallback mechanisms
 
 4. User Dashboard
-- What: Central hub for managing compositions and generated images
+- What: Central hub for managing styles and generated images
 - Why: Provides easy access to all user's content and generation progress
 - How: Real-time status updates, preview capabilities, and download options
 
@@ -79,17 +79,17 @@ Key User Flows:
 
 1. First-Time User Flow:
 - Sign up (Google/Email)
-- Compositions page:
+- styles page:
   1. Create a new composition
-  2. View draft compositions previously created
+  2. View draft styles previously created
 - Create composition page:
   1. Select background style from predefined options
   2. Choose outfit style and color
   3. Pick photographic style
   4. Preview combination
   5. Save composition
-  6. Option to create additional compositions
-  7. System displays total headshots to be generated based on number of compositions and total price
+  6. Option to create additional styles
+  7. System displays total headshots to be generated based on number of styles and total price
 - Complete payment page:
   1. Payment processing
   2. Order confirmation
@@ -99,7 +99,7 @@ Key User Flows:
   3. Option to replace rejected photos
   4. Progress indicator for upload and processing
 - Confirmation/Review screen before image generation process:
-  1. Selected compositions
+  1. Selected styles
   2. Uploaded images details
   3. Questionnaire details
 - View generation progress:
@@ -114,8 +114,8 @@ Key User Flows:
 
 2. Returning User Flow:
 - Resume incomplete session
-- View existing compositions
-- Create new compositions
+- View existing styles
+- Create new styles
 - Download/share images
 
 UI/UX Considerations:
@@ -162,7 +162,7 @@ Data Models:
 - Timestamp
 - User reference
 
-3. Compositions
+3. styles
 - Style selections:
   * background_style: string
   * outfit_style: string
@@ -303,12 +303,12 @@ Pricing Structure:
 
 2. Professional Tier - $49
 - 60 headshots
-- Up to 3 compositions
+- Up to 3 styles
 - Priority processing
 
 3. Studio Tier - $79
 - 120 headshots
-- Up to 6 compositions
+- Up to 6 styles
 - Priority processing
 - Advanced features
 

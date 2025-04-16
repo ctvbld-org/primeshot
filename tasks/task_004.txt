@@ -1,6 +1,6 @@
 # Task ID: 4
 # Title: Implement Multi-Style Composition System
-# Status: in-progress
+# Status: done
 # Dependencies: 3
 # Priority: high
 # Description: Develop the interface for creating and managing multiple style compositions with selection of background, outfit, and photographic styles.
@@ -30,7 +30,7 @@ Testing approach:
 - Test filter/search functionality with various inputs
 - Ensure keyboard navigation and screen reader compatibility
 
-## 2. Implement Composition Creation Flow with Preview [in-progress]
+## 2. Implement Composition Creation Flow with Preview [done]
 ### Dependencies: 4.1
 ### Description: Build the workflow for creating new style compositions with real-time preview using placeholder models.
 ### Details:
@@ -51,7 +51,7 @@ Testing approach:
 - Ensure wizard state persists correctly between steps
 - Test responsive behavior of the preview component
 
-## 3. Develop Composition Management System with Database Integration [pending]
+## 3. Develop Composition Management System with Database Integration [done]
 ### Dependencies: 4.2
 ### Description: Implement the interface and logic for managing compositions, including storage in the Compositions table and headshot calculation.
 ### Details:
