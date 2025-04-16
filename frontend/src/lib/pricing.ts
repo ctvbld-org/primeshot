@@ -102,6 +102,13 @@ export function calculatePricing(styleCount: number): PricingInfo {
 }
 
 /**
+ * Format price as currency string
+ */
+export function formatPrice(price: number): string {
+  return `$${(price / 100).toFixed(2)}`;
+}
+
+/**
  * Get display text for the pricing tier
  */
 export function getTierDisplayText(tier: PricingTier): string {
@@ -112,11 +119,4 @@ export function getTierDisplayText(tier: PricingTier): string {
   };
   
   return tierMap[tier];
-}
-
-/**
- * Format price as currency string
- */
-export function formatPrice(price: number): string {
-  return `$${(price / 100).toFixed(2)}`;
 } 

@@ -146,7 +146,7 @@ export default function ReviewPage() {
         description: 'Your demographic information has been saved.',
       });
         
-      router.push('/app/payment'); 
+      router.push('/app/dashboard'); 
 
     } catch (error: any) {
       console.error('Error submitting demographics:', error);
@@ -312,7 +312,7 @@ export default function ReviewPage() {
 
             <div className="flex justify-end pt-4">
               <Button type="submit" disabled={isSubmitting || isLoading || uploadedImages.length === 0}>
-                {isSubmitting ? 'Saving...' : 'Save and Continue to Payment'}
+                {isSubmitting ? 'Saving...' : 'Save and Continue to Dashboard'}
                 <ArrowRightIcon className="ml-2 h-4 w-4" />
               </Button>
             </div>

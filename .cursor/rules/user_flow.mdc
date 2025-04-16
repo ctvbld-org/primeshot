@@ -177,6 +177,10 @@ alwaysApply: true
         savedCount: number
         lastSavedAt?: string
       }
+      payment?: {
+        attemptCount: number
+        lastAttemptAt?: string
+      }
       upload?: {
         uploadedFiles: string[]
         uploadProgress: number
@@ -186,10 +190,6 @@ alwaysApply: true
         reviewedImages: string[]
         rejectedImages: string[]
         lastReviewAt?: string
-      }
-      payment?: {
-        attemptCount: number
-        lastAttemptAt?: string
       }
     }
   }

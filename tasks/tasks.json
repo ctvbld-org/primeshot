@@ -83,7 +83,7 @@
       "id": 5,
       "title": "Implement Payment System",
       "description": "Integrate payment processing for the different pricing tiers with secure checkout and order confirmation.",
-      "status": "pending",
+      "status": "in-progress",
       "dependencies": [
         "3"
       ],

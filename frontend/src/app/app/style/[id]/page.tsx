@@ -153,7 +153,7 @@ function EditStyleContent() {
         description: 'Your style has been updated'
       })
       // Optional: navigate back after save, or stay on page
-      // router.push('/app/shoot') 
+      router.push('/app/shoot') 
     } catch (error) {
       toast({
         title: 'Error Updating Style',
@@ -319,15 +319,10 @@ function EditStyleContent() {
 }
 
 // Wrap component in Suspense
-export default function EditStylePage() {
-  const router = useRouter()
-  const params = useParams()
-  const styleId = params.id as string
-  
-  // Redirect to the new style detail page
-  useEffect(() => {
-    router.replace(`/app/style/${styleId}`)
-  }, [router, styleId])
-  
-  return <div>Redirecting to style detail page...</div>
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <EditStyleContent />
+    </Suspense>
+  )
 } 

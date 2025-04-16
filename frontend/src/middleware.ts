@@ -2,6 +2,15 @@ import { updateSession } from '@/lib/supabase/middleware'
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// Type alias for FlowStage to use in middleware
+type FlowStage = 'shoot' | 'payment' | 'upload' | 'review' | 'dashboard';
+
+// Define a type for the progress data structure expected from the database
+type UserProgressData = {
+  current_stage: FlowStage | null; 
+  completed_stages: FlowStage[] | null;
+} | null;
+
 export async function middleware(request: NextRequest) {
   // Update session using our shared middleware function
   const response = await updateSession(request)
@@ -28,18 +37,34 @@ export async function middleware(request: NextRequest) {
     }
 
     // Get user progress
-    const { data: progress } = await supabase
+    const { data: progressData, error: progressError } = await supabase
       .from('user_progress')
-      .select()
+      .select('current_stage, completed_stages')
       .eq('user_id', user.id)
-      .single()
+      .limit(1)
+
+    if (progressError) {
+      console.error('Middleware: Error fetching user progress:', progressError);
+      return response; 
+    }
+    
+    const progress = progressData && progressData.length > 0 ? progressData[0] : null;
 
     // Define the order of stages for progression enforcement
-    const stageOrder = ['shoot', 'payment', 'upload', 'review', 'dashboard'];
+    const stageOrder: FlowStage[] = ['shoot', 'payment', 'upload', 'review', 'dashboard'];
+    
+    // Helper to check if payment is completed
+    const isPaymentCompleted = (progressRecord: typeof progress): boolean => {
+      const completed = progressRecord?.completed_stages ?? [];
+      // Check if 'payment' exists in the potentially mixed-type array
+      return completed.includes('payment' as any); 
+    }
     
     // If progress exists (user has started the flow)
     if (progress) {
-      const currentStageIndex = stageOrder.indexOf(progress.current_stage);
+      // Explicitly cast current_stage from the database (which might be text) to FlowStage
+      const currentActualStage = (progress.current_stage || 'shoot');
+      const currentStageIndex = stageOrder.indexOf(currentActualStage as FlowStage);
       
       // Get the stage the user is trying to access from the URL
       let targetStage = 'shoot'; // Default
@@ -50,30 +75,41 @@ export async function middleware(request: NextRequest) {
         }
       }
       
-      // Special case for style creation/editing
+      // Special handling for style routes (/app/style, /app/style/[id], /app/style/new)
       const isStyleRoute = request.nextUrl.pathname === '/app/style' || 
                                 request.nextUrl.pathname.startsWith('/app/style/');
-      
-      // If they're trying to access the style page but already proceeded to upload or beyond
-      if (isStyleRoute && currentStageIndex > 0) {
-        // Redirect them back to their current stage
-        return NextResponse.redirect(new URL(`/app/${progress.current_stage}`, request.url));
+                                
+      if (isStyleRoute) {
+        // Allow access to style routes if payment is NOT completed
+        if (!isPaymentCompleted(progress)) {
+          return response; // Allow access
+        } else {
+          // If payment IS completed, redirect away from style routes to dashboard
+          return NextResponse.redirect(new URL('/app/dashboard', request.url));
+        }
       }
       
-      // If trying to go to styles page but already in a later stage
-      if (targetStage === 'styles' && currentStageIndex > 0) {
-        // Redirect them back to their current stage
-        return NextResponse.redirect(new URL(`/app/${progress.current_stage}`, request.url));
-      }
+      // General stage access logic
+      const targetStageIndex = stageOrder.indexOf(targetStage as FlowStage);
       
-      // Get target stage index
-      const targetStageIndex = stageOrder.indexOf(targetStage);
-      
-      // Allow access only to current stage or previous completed stages
-      // But prevent going beyond current stage
-      if (targetStageIndex > currentStageIndex) {
-        // They're trying to skip ahead
-        return NextResponse.redirect(new URL(`/app/${progress.current_stage}`, request.url));
+      // If payment IS completed, enforce strict sequential access
+      if (isPaymentCompleted(progress)) {
+        const maxCompletedIndex = Math.max(
+          ...(progress.completed_stages || []).map((s: FlowStage) => stageOrder.indexOf(s)),
+          -1
+        );
+        if (targetStageIndex > maxCompletedIndex + 1) {
+          // Trying to skip ahead after payment
+          return NextResponse.redirect(new URL(`/app/${currentActualStage}`, request.url));
+        }
+      } 
+      // Before payment is completed, allow access to 'shoot' and 'payment'
+      else {
+        if (targetStage !== 'shoot' && targetStage !== 'payment') {
+          // Trying to access upload/review/dashboard before payment
+          return NextResponse.redirect(new URL('/app/payment', request.url));
+        }
+        // Allow access to shoot or payment freely
       }
     } 
     // If no progress exists, only allow access to styles or style creation

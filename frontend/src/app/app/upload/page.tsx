@@ -57,7 +57,7 @@ export default function UploadPage() {
           .from('orders')
           .select()
           .eq('user_id', user.id)
-          .eq('status', 'draft')
+          .eq('status', 'paid')
           .order('created_at', { ascending: false })
           .limit(1)
           .single()

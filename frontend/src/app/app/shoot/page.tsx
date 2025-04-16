@@ -22,7 +22,7 @@ export default function StylesPage() {
   const { toast } = useToast()
   const [styles, setStyles] = useState<Style[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const { updateProgress } = useUserProgress()
+  const { updateProgress, canModifyStyles, progress } = useUserProgress()
   const [showStyleModal, setShowStyleModal] = useState(false)
   
   // Headshot calculation state
@@ -40,34 +40,17 @@ export default function StylesPage() {
     price: 0
   })
 
-  // Check if user has already progressed beyond styles stage
+  // Check if user has already progressed beyond styles stage - REMOVED strict redirect
   useEffect(() => {
     const checkUserProgress = async () => {
+      // No redirection logic here anymore, validation happens in the hook
+      // We keep this effect minimal or remove if not needed for other purposes
       if (!user) return;
-      
-      try {
-        const supabase = createClient();
-        const { data: progress, error } = await supabase
-          .from('user_progress')
-          .select('current_stage')
-          .eq('user_id', user.id)
-          .single();
-          
-        if (error) throw error;
-        
-        // If user has already progressed to upload, payment, or later stage, redirect
-        if (progress && 
-            ['upload', 'payment', 'review', 'dashboard'].includes(progress.current_stage)) {
-          console.log('User already progressed to:', progress.current_stage);
-          router.replace(`/app/${progress.current_stage}`);
-        }
-      } catch (error) {
-        console.error('Error checking user progress:', error);
-      }
+      console.log('Checking user progress on shoot page...', progress?.current_stage)
     };
     
     checkUserProgress();
-  }, [user, router]);
+  }, [user, progress?.current_stage]);
 
   // Function to load styles
   const loadStyles = useCallback(async () => {
@@ -140,9 +123,33 @@ export default function StylesPage() {
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Your Shoot</h2>
         <p className="text-muted-foreground">
-          View and manage your shoot styles.
+          {progress?.current_stage === 'payment' ? 
+            'You can modify your styles before completing payment.' : 
+            'View and manage your shoot styles.'}
         </p>
       </div>
+      
+      {/* Payment Return Banner - shown when user returns from payment to modify styles */}
+      {progress?.current_stage === 'payment' && (
+        <Card className="bg-primary/10 border-primary/20">
+          <CardContent className="pt-6">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <div>
+                <h3 className="font-medium">Modifying your shoot styles</h3>
+                <p className="text-sm text-muted-foreground">
+                  Make any changes needed to your styles. When you're done, return to checkout to complete your payment.
+                </p>
+              </div>
+              <Button 
+                onClick={() => router.push('/app/payment')} 
+                className="whitespace-nowrap"
+              >
+                Return to Checkout
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
       
       {/* Pricing and headshot information card */}
       {headshotInfo.styleCount > 0 && (
@@ -211,16 +218,16 @@ export default function StylesPage() {
           onClick={async () => {
             if (headshotInfo.styleCount > 0) {
               try {
-                await updateProgress('upload')
-                router.push('/app/upload')
+                await updateProgress('payment')
+                router.push('/app/payment')
               } catch (error) {
-                console.error('Error saving progress before navigating to upload:', error)
+                console.error('Error saving progress before navigating to payment:', error)
                 toast({ title: 'Error', description: 'Could not save progress. Please try again.', variant: 'destructive' })
               }
             }
           }}
         >
-          Next: Upload Photos
+          Next: Payment
           <ArrowRightIcon className="h-4 w-4 ml-2" />
         </Button>
       </div>
