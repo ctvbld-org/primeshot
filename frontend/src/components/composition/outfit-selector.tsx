@@ -1,8 +1,8 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
-import { useStyleStore } from '@/store/style'
-import { StyleOutfit } from '@/lib/types'
+import { useCompositionStore } from '@/store/composition'
+import { CompositionOutfit } from '@/lib/types'
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 
@@ -46,7 +46,7 @@ const OutfitSelector = React.forwardRef<
     onValueChange?: (value: string) => void
   }
 >(({ className, value, onValueChange, ...props }, ref) => {
-  const { settings, setOutfit } = useStyleStore()
+  const { settings, setOutfit } = useCompositionStore()
 
   return (
     <div ref={ref} className={cn("space-y-4", className)} {...props}>
@@ -54,7 +54,7 @@ const OutfitSelector = React.forwardRef<
         value={value}
         onValueChange={(value: string) => {
           onValueChange?.(value)
-          setOutfit(value as StyleOutfit)
+          setOutfit(value as CompositionOutfit)
         }}
         className="grid grid-cols-2 gap-4"
       >

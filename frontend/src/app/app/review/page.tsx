@@ -1,11 +1,9 @@
 'use client'
 
-import React, { useState, useEffect, useCallback, ChangeEvent } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { getOrCreateDraftOrder } from '@/lib/api/orders'
-import { createPresignedGetUrl } from '@/lib/s3'
 import { useToast } from '@/components/ui/use-toast'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -16,8 +14,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import Image from 'next/image'
 import { useUserProgress } from '@/hooks/use-user-progress'
-import type { Database } from '@/types/supabase'
-import { ArrowRightIcon } from 'lucide-react'
+import type { Image as DbImage } from '@/lib/types'
 
 // --- Zod Schema for Validation ---
 const demographicsSchema = z.object({
@@ -37,17 +34,13 @@ const hairColorOptions = ['Black', 'Brown', 'Blonde', 'Red', 'Grey', 'White', 'D
 const hairLengthOptions = ['Bald/Shaved', 'Short', 'Medium', 'Long', 'Other']
 const bodyTypeOptions = ['Slim', 'Average', 'Athletic', 'Heavy-set', 'Prefer not to say']
 
-type ImageRecord = Database['public']['Tables']['images']['Row']
-
 export default function ReviewPage() {
   const { user } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
-  const { updateProgress } = useUserProgress()
-  const [uploadedImages, setUploadedImages] = useState<ImageRecord[]>([])
+  const [uploadedImages, setUploadedImages] = useState<DbImage[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [draftOrderId, setDraftOrderId] = useState<string | null>(null)
 
   const { control, handleSubmit, formState: { errors } } = useForm<DemographicsFormData>({
     resolver: zodResolver(demographicsSchema),
@@ -60,105 +53,74 @@ export default function ReviewPage() {
     },
   })
 
+  const { updateProgress } = useUserProgress()
+
+  // --- Fetch Uploaded Images ---
   useEffect(() => {
-    async function fetchData() {
+    async function fetchImages() {
       if (!user) return
-
-      setIsLoading(true);
+      setIsLoading(true)
       try {
-        const order = await getOrCreateDraftOrder(user.id);
-        if (!order) {
-          throw new Error("Could not find or create a draft order.");
-        }
-        const currentOrderId = order.id;
-        setDraftOrderId(currentOrderId);
-        console.log("Draft Order ID:", currentOrderId);
-
-        const response = await fetch(`/api/images?orderId=${currentOrderId}`);
-        
+        // Use the new API endpoint that provides presigned URLs
+        const response = await fetch('/api/images');
         if (!response.ok) {
-           const errorData = await response.json();
-           throw new Error(errorData.error || `API error! Status: ${response.status}`);
+          throw new Error(`HTTP error! Status: ${response.status}`);
         }
         
-        const imagesWithUrls = await response.json();
-        
-        if (!Array.isArray(imagesWithUrls)) {
-            throw new Error("Invalid image data received from API.");
-        }
-        
-        setUploadedImages(imagesWithUrls as ImageRecord[]); 
-        console.log("Images received from /api/images:", imagesWithUrls);
-
+        const data = await response.json();
+        setUploadedImages(data || [])
       } catch (error) {
-        console.error("Error fetching review data:", error);
+        console.error('Error fetching images:', error)
         toast({
-          title: 'Error Loading Review Data',
-          description: error instanceof Error ? error.message : 'Could not load review data.',
+          title: 'Error loading images',
+          description: 'Could not fetch your uploaded photos.',
           variant: 'destructive',
-        });
+        })
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
     }
+    fetchImages()
+  }, [user, toast])
 
-    fetchData();
-  }, [user, toast]);
-
+  // --- Handle Form Submission ---
   const onSubmit = async (data: DemographicsFormData) => {
-    if (!user) {
-      toast({ title: 'Error', description: 'User not logged in.', variant: 'destructive' });
-      return;
-    }
-    setIsSubmitting(true);
-    const supabase = createClient();
+    if (!user) return
+    setIsSubmitting(true)
+    const supabase = createClient()
 
     try {
-      if (draftOrderId) {
-          const { data: existingOrderData, error: fetchError } = await supabase
-            .from('orders')
-            .select('metadata')
-            .eq('id', draftOrderId)
-            .single();
-          if (fetchError) throw new Error(`Failed to fetch existing order metadata: ${fetchError.message}`);
-          const existingMetadata = existingOrderData?.metadata || {};
+      // 1. Save User Progress (using hook)
+      await updateProgress('payment', { demographics: data })
+      console.log("User progress updated to payment stage.")
 
-          const { error: updateError } = await supabase
-            .from('orders')
-            .update({ metadata: { ...existingMetadata, demographics: data } })
-            .eq('id', draftOrderId);
-          if (updateError) throw updateError;
-          console.log("Order metadata updated with demographics.");
-      } else {
-          console.warn("Draft Order ID not available, attempting to save to user metadata.");
-          const { error: updateUserError } = await supabase.auth.updateUser({
-            data: { demographics: data } 
-          });
-          if (updateUserError) throw updateUserError;
-          console.log("User auth metadata updated with demographics.");
-      }
-
-      await updateProgress('review');
-      console.log("User progress updated to review stage complete.");
+      // 2. Upsert Demographics Data (maybe redundant if stored in stage_data? Decide strategy)
+      // For now, let's keep it separate in auth metadata
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: { demographics: data }
+      })
+      if (updateError) throw updateError
+      console.log("User auth metadata updated with demographics.")
 
       toast({
         title: 'Information Saved',
         description: 'Your demographic information has been saved.',
-      });
-        
-      router.push('/app/payment'); 
+      })
+      
+      // 3. Navigate to the next step
+      router.push('/app/payment')
 
     } catch (error: any) {
-      console.error('Error submitting demographics:', error);
+      console.error('Error submitting demographics:', error)
       toast({
         title: 'Submission Failed',
         description: error.message || 'Could not save your information.',
         variant: 'destructive',
-      });
+      })
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   return (
     <div className="space-y-8">
@@ -169,16 +131,17 @@ export default function ReviewPage() {
         </p>
       </div>
 
+      {/* --- Uploaded Images Section --- */}
       <Card>
         <CardHeader>
           <CardTitle>Uploaded Photos</CardTitle>
-          <CardDescription>Here are the photos you uploaded for this order.</CardDescription>
+          <CardDescription>Here are the photos you uploaded.</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <p>Loading images...</p>
           ) : uploadedImages.length === 0 ? (
-            <p>No photos found for this order. Please go back and upload images.</p>
+            <p>You haven't uploaded any photos yet.</p>
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
               {uploadedImages.map((image) => (
@@ -189,7 +152,7 @@ export default function ReviewPage() {
                     fill 
                     sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, (max-width: 1024px) 16vw, 12.5vw"
                     className="object-cover"
-                    priority={uploadedImages.indexOf(image) < 8}
+                    priority={uploadedImages.indexOf(image) < 8} // Prioritize loading first few images
                   />
                 </div>
               ))}
@@ -198,6 +161,7 @@ export default function ReviewPage() {
         </CardContent>
       </Card>
 
+      {/* --- Demographics Questionnaire Section --- */}
       <Card>
         <CardHeader>
           <CardTitle>About You</CardTitle>
@@ -205,6 +169,7 @@ export default function ReviewPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {/* Ethnicity */}
             <div>
               <Label htmlFor="ethnicity">Ethnicity</Label>
               <Controller
@@ -226,6 +191,7 @@ export default function ReviewPage() {
               {errors.ethnicity && <p className="text-sm text-destructive mt-1">{errors.ethnicity.message}</p>}
             </div>
 
+            {/* Eye Color */}
             <div>
               <Label htmlFor="eyeColor">Eye Color</Label>
               <Controller
@@ -247,7 +213,8 @@ export default function ReviewPage() {
               {errors.eyeColor && <p className="text-sm text-destructive mt-1">{errors.eyeColor.message}</p>}
             </div>
 
-            <div>
+            {/* Hair Color */}
+             <div>
               <Label htmlFor="hairColor">Hair Color</Label>
               <Controller
                 name="hairColor"
@@ -268,6 +235,7 @@ export default function ReviewPage() {
               {errors.hairColor && <p className="text-sm text-destructive mt-1">{errors.hairColor.message}</p>}
             </div>
 
+            {/* Hair Length */}
             <div>
               <Label htmlFor="hairLength">Hair Length</Label>
               <Controller
@@ -289,6 +257,7 @@ export default function ReviewPage() {
               {errors.hairLength && <p className="text-sm text-destructive mt-1">{errors.hairLength.message}</p>}
             </div>
             
+            {/* Body Type */}
             <div>
               <Label htmlFor="bodyType">Body Type</Label>
               <Controller
@@ -311,9 +280,8 @@ export default function ReviewPage() {
             </div>
 
             <div className="flex justify-end pt-4">
-              <Button type="submit" disabled={isSubmitting || isLoading || uploadedImages.length === 0}>
-                {isSubmitting ? 'Saving...' : 'Save and Continue to Payment'}
-                <ArrowRightIcon className="ml-2 h-4 w-4" />
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Saving...' : 'Save and Continue'}
               </Button>
             </div>
           </form>

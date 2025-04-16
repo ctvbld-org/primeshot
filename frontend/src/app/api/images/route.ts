@@ -11,43 +11,34 @@ export async function GET(request: NextRequest) {
     // Parse query parameters
     const url = new URL(request.url)
     const imageId = url.searchParams.get('imageId')
-    const orderId = url.searchParams.get('orderId') // Get potential orderId param
-    // const userId = url.searchParams.get('userId') // userId param likely not needed as we use authenticated user
+    const userId = url.searchParams.get('userId')
 
     // Create Supabase client
     const supabase = await createClient()
 
     // Get current user for authorization
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
-    if (userError || !user) {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Set up query based on parameters
-    let query = supabase.from('images').select('*');
+    let query = supabase.from('images').select('*')
     
-    // Always filter by the authenticated user
-    query = query.eq('user_id', user.id);
-
     if (imageId) {
-      // If imageId is provided, filter by that specific image
-      query = query.eq('id', imageId);
-    } else if (orderId) {
-      // If orderId is provided, filter by that order
-      query = query.eq('order_id', orderId);
-    } 
-    // If neither imageId nor orderId is provided, it implicitly fetches all images for the user (due to the user_id filter)
-    // Consider if this fallback (fetching *all* user images) is desired or if an orderId should be required for listing.
-    // For now, keeping the fallback.
-
-    // Add sorting
-    query = query.order('created_at', { ascending: false });
+      // If imageId is provided, get just that image (but still check ownership)
+      query = query.eq('id', imageId).eq('user_id', user.id)
+    } else {
+      // Otherwise, get all images for the current user
+      query = query.eq('user_id', user.id)
+        .order('created_at', { ascending: false }) // Sort by most recent first
+    }
 
     // Execute query
     const { data: images, error } = await query
 
     if (error) {
-      console.error('Database error fetching images:', error)
+      console.error('Database error:', error)
       return NextResponse.json({ error: 'Failed to fetch images' }, { status: 500 })
     }
 
@@ -61,18 +52,28 @@ export async function GET(request: NextRequest) {
       (images || []).map(async (image: ImageRecord) => {
         try {
           // Extract the key from the URL - handle different possible formats
-          let key = image.url; // Use the stored URL which should be the S3 path/key
+          let key;
           try {
-            // Attempt to parse in case it's a full URL, extract path
-            const parsedUrl = new URL(image.url);
-            key = parsedUrl.pathname.substring(1); // Remove leading slash
-            const bucketName = process.env.AWS_S3_BUCKET_NAME; // Use correct env var if different
+            const url = new URL(image.url);
+            // Remove leading slash and potentially the bucket name part of the path
+            key = url.pathname.substring(1);
+            
+            // If the URL includes the bucket name in the path, extract just the key part
+            const bucketName = process.env.AWS_S3_BUCKET;
             if (bucketName && key.startsWith(bucketName + '/')) {
               key = key.substring(bucketName.length + 1);
             }
           } catch (urlError) {
-            // If parsing fails, assume it's already just the key
-             console.warn(`Image URL ${image.url} might not be a full URL, using as key.`);
+            // If URL parsing fails, try to extract key based on common S3 URL patterns
+            console.error(`Failed to parse URL: ${image.url}`, urlError);
+            // Example: https://bucket-name.s3.region.amazonaws.com/folder/file.jpg
+            const parts = image.url.split('.amazonaws.com/');
+            if (parts.length > 1) {
+              key = parts[1];
+            } else {
+              // Fall back to using the entire URL as the key
+              key = image.url;
+            }
           }
           
           const presignedUrl = await createPresignedGetUrl(key);
@@ -82,16 +83,14 @@ export async function GET(request: NextRequest) {
           };
         } catch (error) {
           console.error(`Failed to generate presigned URL for image ${image.id}:`, error);
-          // Return the original image record but with a placeholder/error URL
-          return { ...image, url: '/images/placeholder-error.png' }; 
+          return image; // Return original URL if presigned URL generation fails
         }
       })
     )
 
     return NextResponse.json(imagesWithPresignedUrls)
   } catch (error) {
-    console.error('API /api/images error:', error)
-    const message = error instanceof Error ? error.message : 'Internal server error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    console.error('Unhandled error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 } 

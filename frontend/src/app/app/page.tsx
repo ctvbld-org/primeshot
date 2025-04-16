@@ -41,7 +41,7 @@ export default function AppHome() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/app/shoot">
+            <Link href="/app/compositions">
               <Button className="w-full">Start Generating</Button>
             </Link>
           </CardContent>

@@ -1,10 +1,10 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useStyleStore } from '@/store/style'
-import { StylePhotographyStyle } from '@/lib/types'
+import { useCompositionStore } from '@/store/composition'
+import { CompositionPhotographyStyle } from '@/lib/types'
 import Image from 'next/image'
 
 const photographyStyleOptions: {
-  value: StylePhotographyStyle
+  value: CompositionPhotographyStyle
   label: string
   description: string
   image: string
@@ -29,20 +29,8 @@ const photographyStyleOptions: {
   }
 ]
 
-interface PhotographyStyleSelectorProps {
-  onChange?: (style: StylePhotographyStyle) => void;
-}
-
-export function PhotographyStyleSelector({ onChange }: PhotographyStyleSelectorProps) {
-  const { settings, setPhotographyStyle } = useStyleStore()
-
-  const handleChange = (value: string) => {
-    const selectedStyle = value as StylePhotographyStyle;
-    setPhotographyStyle(selectedStyle);
-    if (onChange) {
-      onChange(selectedStyle);
-    }
-  };
+export function PhotographyStyleSelector() {
+  const { settings, setPhotographyStyle } = useCompositionStore()
 
   return (
     <div className="space-y-4">
@@ -54,7 +42,7 @@ export function PhotographyStyleSelector({ onChange }: PhotographyStyleSelectorP
       </div>
       <Select
         value={settings.photographyStyle}
-        onValueChange={handleChange}
+        onValueChange={(value) => setPhotographyStyle(value as CompositionPhotographyStyle)}
       >
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Select a photography style" />

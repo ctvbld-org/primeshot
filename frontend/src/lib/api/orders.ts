@@ -2,7 +2,6 @@
 
 import { createClient } from '@/lib/supabase/client'
 import type { Order } from '@/lib/types'
-import { calculatePricing } from '@/lib/pricing'
 
 export async function getOrCreateDraftOrder(userId: string): Promise<Order> {
   const supabase = createClient()
@@ -25,34 +24,14 @@ export async function getOrCreateDraftOrder(userId: string): Promise<Order> {
     // Use existing draft order
     return existingOrders[0]
   } else {
-    // Check if user has any draft styles that would affect the price
-    const { count, error: countError } = await supabase
-      .from('styles')
-      .select('id', { count: 'exact' })
-      .eq('user_id', userId)
-      .eq('status', 'draft');
-    
-    if (countError) {
-      console.error('Error counting styles:', countError);
-      throw new Error('Could not count existing styles.');
-    }
-    
-    // Calculate price based on expected style count after creating a new one
-    const styleCount = (count || 0) + 1; // Count existing styles plus the new one to be created
-    let initialAmount = 2900; // Default to Individual Tier
-    
-    if (styleCount > 0) {
-      const pricing = calculatePricing(styleCount);
-      initialAmount = pricing.price;
-    }
-    
-    // Create new draft order
+    // Create new draft order if none exists
+    // TODO: Change amount to a dynamic pricing once payment is implemented
     const { data: newOrder, error: createOrderError } = await supabase
       .from('orders')
       .insert({
         user_id: userId,
         status: 'draft',
-        amount: initialAmount,
+        amount: 2900, // Example amount
         currency: 'usd'
       })
       .select()

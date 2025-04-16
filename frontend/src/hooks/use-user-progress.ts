@@ -9,7 +9,7 @@ import { Database } from '@/types/supabase'
 type Tables = Database['public']['Tables']
 type UserProgress = Tables['user_progress']['Row']
 type StageData = {
-  shoot?: {
+  compositions?: {
     savedCount: number
     lastSavedAt?: string
   }
@@ -102,7 +102,7 @@ export function useUserProgress() {
       }
 
       // Determine the new set of completed stages
-      const stageOrder: FlowStage[] = ['shoot', 'upload', 'review', 'payment', 'dashboard'];
+      const stageOrder: FlowStage[] = ['compositions', 'upload', 'review', 'payment', 'dashboard'];
       const existingStages: FlowStage[] = existingProgress?.completed_stages || [];
       let completedStages = Array.from(new Set(existingStages));
       const targetIndex = stageOrder.indexOf(targetStage);
@@ -185,10 +185,10 @@ export function useUserProgress() {
 
   // Validate stage access
   function validateStageAccess(stage: FlowStage): boolean {
-    if (!progress) return stage === 'shoot'
+    if (!progress) return stage === 'compositions'
 
     const stageOrder: FlowStage[] = [
-      'shoot',
+      'compositions',
       'upload',
       'review',
       'payment',

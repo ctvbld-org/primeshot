@@ -1,8 +1,8 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
-import { useStyleStore } from '@/store/style'
-import { StyleBackground } from '@/lib/types'
+import { useCompositionStore } from '@/store/composition'
+import { CompositionBackground } from '@/lib/types'
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 
@@ -81,15 +81,15 @@ const BackgroundSelector = React.forwardRef<
     onValueChange?: (value: string) => void
   }
 >(({ className, value, onValueChange, ...props }, ref) => {
-  const { settings, setBackground } = useStyleStore()
+  const { settings, setBackground } = useCompositionStore()
 
   return (
     <div ref={ref} className={cn("space-y-4", className)} {...props}>
       <RadioGroup
         value={value}
         onValueChange={(value: string) => {
-          onValueChange?.(value as StyleBackground)
-          setBackground(value as StyleBackground)
+          onValueChange?.(value as CompositionBackground)
+          setBackground(value as CompositionBackground)
         }}
         className="grid grid-cols-2 gap-4"
       >

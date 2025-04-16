@@ -35,14 +35,14 @@ export async function middleware(request: NextRequest) {
       .single()
 
     // Define the order of stages for progression enforcement
-    const stageOrder = ['shoot', 'payment', 'upload', 'review', 'dashboard'];
+    const stageOrder = ['compositions', 'payment', 'upload', 'review', 'dashboard'];
     
     // If progress exists (user has started the flow)
     if (progress) {
       const currentStageIndex = stageOrder.indexOf(progress.current_stage);
       
       // Get the stage the user is trying to access from the URL
-      let targetStage = 'shoot'; // Default
+      let targetStage = 'compositions'; // Default
       for (const stage of stageOrder) {
         if (request.nextUrl.pathname.includes(`/app/${stage}`)) {
           targetStage = stage;
@@ -50,18 +50,18 @@ export async function middleware(request: NextRequest) {
         }
       }
       
-      // Special case for style creation/editing
-      const isStyleRoute = request.nextUrl.pathname === '/app/style' || 
-                                request.nextUrl.pathname.startsWith('/app/style/');
+      // Special case for composition creation/editing
+      const isCompositionRoute = request.nextUrl.pathname === '/app/composition' || 
+                                request.nextUrl.pathname.startsWith('/app/composition/');
       
-      // If they're trying to access the style page but already proceeded to upload or beyond
-      if (isStyleRoute && currentStageIndex > 0) {
+      // If they're trying to access the composition page but already proceeded to upload or beyond
+      if (isCompositionRoute && currentStageIndex > 0) {
         // Redirect them back to their current stage
         return NextResponse.redirect(new URL(`/app/${progress.current_stage}`, request.url));
       }
       
-      // If trying to go to styles page but already in a later stage
-      if (targetStage === 'styles' && currentStageIndex > 0) {
+      // If trying to go to compositions page but already in a later stage
+      if (targetStage === 'compositions' && currentStageIndex > 0) {
         // Redirect them back to their current stage
         return NextResponse.redirect(new URL(`/app/${progress.current_stage}`, request.url));
       }
@@ -76,14 +76,14 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL(`/app/${progress.current_stage}`, request.url));
       }
     } 
-    // If no progress exists, only allow access to styles or style creation
+    // If no progress exists, only allow access to compositions or composition creation
     else {
-      const isShootRoute = request.nextUrl.pathname === '/app/shoot';
-      const isStyleRoute = request.nextUrl.pathname === '/app/style' || 
-                                request.nextUrl.pathname.startsWith('/app/style/');
+      const isCompositionsRoute = request.nextUrl.pathname === '/app/compositions';
+      const isCompositionRoute = request.nextUrl.pathname === '/app/composition' || 
+                                request.nextUrl.pathname.startsWith('/app/composition/');
                                 
-      if (!isShootRoute && !isStyleRoute) {
-        return NextResponse.redirect(new URL('/app/shoot', request.url));
+      if (!isCompositionsRoute && !isCompositionRoute) {
+        return NextResponse.redirect(new URL('/app/compositions', request.url));
       }
     }
   }

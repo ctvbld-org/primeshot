@@ -5,7 +5,7 @@ import type { FlowStage } from '@/types/flow'
 
 /**
  * Ensures that a user progress record exists for the given user ID.
- * If no record exists, it creates one starting at the 'shoot' stage.
+ * If no record exists, it creates one starting at the 'compositions' stage.
  * 
  * @param userId The ID of the user.
  * @returns The existing or newly created user progress record.
@@ -33,7 +33,7 @@ export async function ensureUserProgress(userId: string) {
       .from('user_progress')
       .insert({
         user_id: userId,
-        current_stage: 'shoot' as FlowStage, // Explicitly type cast
+        current_stage: 'compositions' as FlowStage, // Explicitly type cast
         completed_stages: [],
         last_active_at: new Date().toISOString()
       })

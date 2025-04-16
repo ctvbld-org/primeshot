@@ -16,8 +16,8 @@ export const sessionSchema = z.object({
   expires_at: z.string().datetime('Invalid expiration date'),
 });
 
-// Detailed style settings validation
-const styleSettingsSchema = z.object({
+// Detailed composition settings validation
+const compositionSettingsSchema = z.object({
   photographyStyle: z.enum(['studio', 'natural', 'dramatic'], {
     errorMap: () => ({ message: 'Invalid photography style selection' })
   }),
@@ -30,13 +30,13 @@ const styleSettingsSchema = z.object({
   customSettings: z.record(z.string(), z.any()).optional(),
 });
 
-export const styleSchema = z.object({
-  id: z.string().uuid('Invalid style ID'),
+export const compositionSchema = z.object({
+  id: z.string().uuid('Invalid composition ID'),
   user_id: z.string().uuid('Invalid user ID'),
   name: z.string().min(1, 'Name is required').max(100, 'Name is too long'),
-  settings: styleSettingsSchema,
+  settings: compositionSettingsSchema,
   status: z.enum(['draft', 'pending', 'processing', 'completed'], {
-    errorMap: () => ({ message: 'Invalid style status' })
+    errorMap: () => ({ message: 'Invalid composition status' })
   }),
   created_at: z.string().datetime('Invalid creation date'),
   updated_at: z.string().datetime('Invalid update date'),
@@ -46,8 +46,6 @@ export const styleSchema = z.object({
 export const imageSchema = z.object({
   id: z.string().uuid('Invalid image ID'),
   user_id: z.string().uuid('Invalid user ID'),
-  order_id: z.string().uuid('Invalid order ID').optional().nullable(),
-  style_id: z.string().uuid('Invalid style ID').optional().nullable(),
   url: z.string().url('Invalid URL format'),
   file_name: z.string().min(1, 'Filename is required'),
   file_size: z.number().min(0, 'Invalid file size'),
@@ -72,14 +70,14 @@ export const updateUserSchema = userSchema.omit({
   updated_at: true,
 }).partial();
 
-export const createStyleSchema = styleSchema.omit({
+export const createCompositionSchema = compositionSchema.omit({
   id: true,
   user_id: true,
   created_at: true,
   updated_at: true,
 });
 
-export const updateStyleSchema = styleSchema.omit({
+export const updateCompositionSchema = compositionSchema.omit({
   id: true,
   user_id: true,
   created_at: true,

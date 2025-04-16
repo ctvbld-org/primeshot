@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     }
     
     let query = supabase
-      .from('styles')
+      .from('compositions')
       .select('*')
       .eq('user_id', user.id)
     
@@ -47,16 +47,16 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query
     
     if (error) {
-      console.error('Error fetching styles:', error)
+      console.error('Error fetching compositions:', error)
       return NextResponse.json(
-        { error: 'Failed to fetch styles' },
+        { error: 'Failed to fetch compositions' },
         { status: 500 }
       )
     }
     
-    return NextResponse.json({ styles: data })
+    return NextResponse.json({ compositions: data })
   } catch (error) {
-    console.error('Error in styles API route:', error)
+    console.error('Error in compositions API route:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

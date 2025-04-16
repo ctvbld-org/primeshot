@@ -1,11 +1,10 @@
 import React from 'react'
 import Image from 'next/image'
-import { useStyleStore } from '@/store/style'
-import { StyleSettings } from '@/lib/types'
+import { useCompositionStore } from '@/store/composition'
 import { Card, CardContent } from '@/components/ui/card'
 
 export function StylePreview() {
-  const { settings } = useStyleStore()
+  const { settings } = useCompositionStore()
 
   // Map settings to preview images
   const getPreviewImage = () => {

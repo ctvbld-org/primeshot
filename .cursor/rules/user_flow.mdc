@@ -11,10 +11,11 @@ alwaysApply: true
   ```typescript
   // Stage status types
   type FlowStage = 
-    | 'shoot'         // Creating styles
-    | 'payment'       // Payment processing
+    | 'compositions'  // Creating style compositions
     | 'upload'        // Uploading user photos
     | 'review'        // Image quality review
+    | 'payment'       // Payment processing
+    | 'confirmation'  // Order confirmation
     | 'dashboard'     // Results viewing
   ```
 
@@ -30,19 +31,19 @@ alwaysApply: true
   if (!user) renderProtectedContent() // Wrong
   ```
 
-- **2. Styles Page (Route: /app/shoot)**
-  - Initial state shows empty grid with "New Style" button
-  - Lists all draft styles for the user
-  - "Next" button enabled only with at least one style
+- **2. Compositions Page (Route: /app/compositions)**
+  - Initial state shows empty grid with "New Composition" button
+  - Lists all draft compositions for the user
+  - "Next" button enabled only with at least one composition
   ```typescript
   // ✅ DO: Filter compositions by status
   .eq('status', 'draft')
   
   // ✅ DO: Enable next button conditionally
-  disabled={styles.length === 0}
+  disabled={compositions.length === 0}
   ```
 
-- **3. Style Creation (Route: /app/style)**
+- **3. Composition Creation (Route: /app/composition)**
   - Three main selectors:
     - Photography Style (studio, natural, dramatic)
     - Outfit (professional, casual, creative)
@@ -50,7 +51,7 @@ alwaysApply: true
   - Saves as draft status
   ```typescript
   // ✅ DO: Save with draft status
-  status: 'draft' as StyleStatus
+  status: 'draft' as CompositionStatus
   
   // ✅ DO: Format name consistently
   `${photographyStyle} ${outfit} ${background}`
@@ -89,7 +90,7 @@ alwaysApply: true
   - Updates composition status on success
   ```typescript
   // ✅ DO: Update all compositions on payment
-  styles.map(comp => updateStatus(comp.id, 'processing'))
+  compositions.map(comp => updateStatus(comp.id, 'processing'))
   
   // ✅ DO: Show clear payment feedback
   paymentStatus, paymentError

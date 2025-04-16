@@ -58,7 +58,7 @@ export type Database = {
         }
         Relationships: []
       }
-      styles: {
+      compositions: {
         Row: {
           created_at: string
           id: string
@@ -91,14 +91,14 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "styles_order_id_fkey"
+            foreignKeyName: "compositions_order_id_fkey"
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "styles_user_id_fkey"
+            foreignKeyName: "compositions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
@@ -108,7 +108,7 @@ export type Database = {
       }
       images: {
         Row: {
-          style_id: string
+          composition_id: string
           created_at: string
           dimensions: Json
           file_name: string
@@ -119,7 +119,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          style_id: string
+          composition_id: string
           created_at?: string
           dimensions?: Json
           file_name?: string
@@ -130,7 +130,7 @@ export type Database = {
           user_id: string
         }
         Update: {
-          style_id?: string
+          composition_id?: string
           created_at?: string
           dimensions?: Json
           file_name?: string
@@ -142,10 +142,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "images_style_id_fkey"
-            columns: ["style_id"]
+            foreignKeyName: "images_composition_id_fkey"
+            columns: ["composition_id"]
             isOneToOne: false
-            referencedRelation: "styles"
+            referencedRelation: "compositions"
             referencedColumns: ["id"]
           },
           {
@@ -293,7 +293,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      flow_stage: "shoot" | "upload" | "review" | "payment" | "dashboard"
+      flow_stage: "compositions" | "upload" | "review" | "payment" | "dashboard"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -412,7 +412,7 @@ export const Constants = {
   },
   public: {
     Enums: {
-      flow_stage: ["shoot", "upload", "review", "payment", "dashboard"],
+      flow_stage: ["compositions", "upload", "review", "payment", "dashboard"],
     },
   },
 } as const
