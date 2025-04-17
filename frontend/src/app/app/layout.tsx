@@ -4,7 +4,10 @@ import { Button } from '@/components/ui/button'
 import { Toaster } from '@/components/ui/toaster'
 import { useAuth } from '@/contexts/auth-context'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { usePaymentRecovery } from "@/hooks/use-payment-recovery"
+import { PaymentRecoveryDialog } from "@/components/ui/alert-dialog"
+import { usePathname } from 'next/navigation'
 
 export default function AppLayout({
   children,
@@ -13,6 +16,13 @@ export default function AppLayout({
 }) {
   const { isAuthenticated, isLoading, user, signOut } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
+  const { orderId, hasInterruptedPayment, resumePayment, dismissRecovery } = usePaymentRecovery()
+  const [showRecoveryDialog, setShowRecoveryDialog] = useState(hasInterruptedPayment)
+  
+  // Don't show recovery dialog on payment pages
+  const isPaymentPage = pathname.includes("/payment")
+  const shouldShowRecovery = hasInterruptedPayment && !isPaymentPage && showRecoveryDialog
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -49,6 +59,23 @@ export default function AppLayout({
         {children}
       </main>
       <Toaster />
+      
+      {/* Payment Recovery Dialog */}
+      {orderId && (
+        <PaymentRecoveryDialog
+          open={shouldShowRecovery}
+          onOpenChange={setShowRecoveryDialog}
+          orderId={orderId}
+          onResume={() => {
+            resumePayment()
+            setShowRecoveryDialog(false)
+          }}
+          onCancel={() => {
+            dismissRecovery()
+            setShowRecoveryDialog(false)
+          }}
+        />
+      )}
     </div>
   )
 } 

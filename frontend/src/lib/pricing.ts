@@ -2,7 +2,9 @@
  * Pricing and headshot calculation utility functions
  */
 
-export type PricingTier = 'individual' | 'professional' | 'studio';
+import { PRICING, PricingTier, calculateSimplePrice } from './constants/pricing';
+
+export type { PricingTier };
 
 export interface PricingInfo {
   tier: PricingTier;
@@ -11,32 +13,6 @@ export interface PricingInfo {
   price: number;
   isAddOn: boolean;
 }
-
-const PRICING = {
-  individual: {
-    price: 2900, // $29
-    minStyles: 1,
-    maxStyles: 1,
-    headshotsPerStyle: 20,
-    totalHeadshots: 20
-  },
-  professional: {
-    price: 4900, // $49
-    minStyles: 2,
-    maxStyles: 3,
-    totalHeadshots: 60
-  },
-  studio: {
-    price: 7900, // $79
-    minStyles: 4,
-    maxStyles: 6,
-    totalHeadshots: 120
-  },
-  addon: {
-    price: 1500, // $15 for additional 20 headshots
-    headshots: 20
-  }
-};
 
 /**
  * Calculate the pricing tier and headshot allocation based on number of styles
@@ -101,6 +77,16 @@ export function calculatePricing(styleCount: number): PricingInfo {
   };
 }
 
+// Re-export the simple price calculation for use in places that only need the price
+export { calculateSimplePrice };
+
+/**
+ * Format price as currency string
+ */
+export function formatPrice(price: number): string {
+  return `$${(price / 100).toFixed(2)}`;
+}
+
 /**
  * Get display text for the pricing tier
  */
@@ -112,11 +98,4 @@ export function getTierDisplayText(tier: PricingTier): string {
   };
   
   return tierMap[tier];
-}
-
-/**
- * Format price as currency string
- */
-export function formatPrice(price: number): string {
-  return `$${(price / 100).toFixed(2)}`;
 } 

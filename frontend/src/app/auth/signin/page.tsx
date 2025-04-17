@@ -4,15 +4,38 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
-  const { signIn, signInWithGoogle, isLoading, error } = useAuth();
+  const { signIn, signInWithGoogle, isLoading, error, isAuthenticated } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // Get return URL from query params
+  const returnUrlParam = searchParams.get('returnUrl') || '/app/shoot';
+  // Validate that returnUrl is a relative path to prevent open redirect vulnerabilities
+  const isValidUrl = returnUrlParam && !returnUrlParam.startsWith('http://') && !returnUrlParam.startsWith('https://');
+  const returnUrl = isValidUrl ? returnUrlParam : '/app/shoot';
+
+  // Redirect to return URL if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      const decodedReturnUrl = decodeURIComponent(returnUrl);
+      router.replace(decodedReturnUrl);
+    }
+  }, [isAuthenticated, returnUrl, router]);
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     await signIn(email);
+    // Router will handle redirect via the useEffect above
+  };
+
+  const handleGoogleSignIn = async () => {
+    await signInWithGoogle();
+    // Router will handle redirect via the useEffect above
   };
 
   return (
@@ -56,7 +79,7 @@ export default function SignIn() {
             type="button"
             variant="outline"
             className="w-full"
-            onClick={signInWithGoogle}
+            onClick={handleGoogleSignIn}
             disabled={isLoading}
           >
             Continue with Google

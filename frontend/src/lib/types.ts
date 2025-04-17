@@ -50,6 +50,7 @@ export type Order = {
   currency: string
   payment_intent_id?: string
   payment_status?: string
+  shoot_number?: number
   created_at: string
   updated_at: string
   metadata: Record<string, any>
