@@ -100,7 +100,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       // Save current path before logout to return after login
       const currentPath = window.location.pathname + window.location.search;
-      const returnUrl = encodeURIComponent(currentPath);
+      // Ensure the returnUrl is a relative path to prevent open redirect vulnerabilities
+      const isRelativePath = !currentPath.startsWith('http://') && !currentPath.startsWith('https://');
+      const safeCurrentPath = isRelativePath ? currentPath : '/app/shoot';
+      const returnUrl = encodeURIComponent(safeCurrentPath);
       
       const { error } = await supabase.auth.signOut()
       if (error) throw error

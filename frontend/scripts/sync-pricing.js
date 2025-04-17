@@ -79,13 +79,30 @@ const targetMatch = targetContent.match(/export const PRICING: PricingConstants 
 if (!sourceMatch || !targetMatch) {
   console.error('Could not extract PRICING constants for comparison');
 } else {
-  const sourcePricing = JSON.stringify(eval(`(${sourceMatch[1]})`));
-  const targetPricing = JSON.stringify(eval(`(${targetMatch[1]})`));
+  // Extract the pricing object content
+  const sourcePricingRaw = sourceMatch[1];
+  const targetPricingRaw = targetMatch[1];
   
-  if (sourcePricing === targetPricing) {
+  // Convert TypeScript objects to JSON-compatible format
+  // Replace comments and normalize whitespace for comparison
+  const normalizeObjectString = (str) => {
+    return str
+      .replace(/\/\/.*?$/gm, '') // Remove single-line comments
+      .replace(/\/\*[\s\S]*?\*\//g, '') // Remove multi-line comments
+      .replace(/\s+/g, ' ') // Normalize whitespace
+      .replace(/,\s*}/g, '}') // Remove trailing commas
+      .trim();
+  };
+  
+  const normalizedSourcePricing = normalizeObjectString(sourcePricingRaw);
+  const normalizedTargetPricing = normalizeObjectString(targetPricingRaw);
+  
+  if (normalizedSourcePricing === normalizedTargetPricing) {
     console.log('✅ Pricing constants are in sync!');
   } else {
     console.error('❌ Pricing constants differ between source and target!');
+    console.error('Source:', normalizedSourcePricing);
+    console.error('Target:', normalizedTargetPricing);
     process.exit(1);
   }
 }

@@ -4,7 +4,8 @@ import { loadStripe, Stripe } from '@stripe/stripe-js';
 const stripePublicKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 
 if (!stripePublicKey) {
-  console.error('Stripe publishable key is missing');
+  console.error('CRITICAL ERROR: Stripe publishable key is missing. Payment functionality will fail.');
+  throw new Error('Missing required environment variable: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY');
 }
 
 let stripePromise: Promise<Stripe | null> | null = null;
@@ -13,7 +14,12 @@ let stripePromise: Promise<Stripe | null> | null = null;
  * Get Stripe instance for the frontend
  */
 export const getStripe = () => {
-  if (!stripePromise && stripePublicKey) {
+  if (!stripePromise) {
+    // The key check at the top of the file will throw if missing,
+    // but this is an additional safeguard to prevent null returns
+    if (!stripePublicKey) {
+      throw new Error('Stripe publishable key is missing. Payment functionality will fail.');
+    }
     stripePromise = loadStripe(stripePublicKey);
   }
   return stripePromise;
@@ -39,6 +45,7 @@ export async function createCheckoutSession(data: {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify({
         ...data,
         retryAttempt: data.retryAttempt || 0,
@@ -82,11 +89,34 @@ export async function createCheckoutSession(data: {
       throw error;
     }
     
-    // Retry with incremented retry attempt
-    return createCheckoutSession({
-      ...data,
-      retryAttempt: (data.retryAttempt || 0) + 1
-    });
+    // Only retry on network errors or server errors (5xx)
+    // Don't retry on client errors (4xx) as they won't be resolved by retrying
+    const shouldRetry = 
+      // Handle non-Error objects (like DOMExceptions)
+      !(error instanceof Error) ||
+      // For Error objects, check message content
+      (error instanceof Error && 
+       !error.message.includes('status 4') && 
+       !error.message.match(/40[0-9]/) && 
+       // Check for common network error messages or server errors
+       (error.message.includes('network') || 
+        error.message.includes('timeout') || 
+        error.message.includes('connection') ||
+        error.message.includes('status 5') || 
+        error.message.match(/50[0-9]/)
+       )
+      );
+    
+    if (shouldRetry) {
+      // Retry with incremented retry attempt
+      return createCheckoutSession({
+        ...data,
+        retryAttempt: (data.retryAttempt || 0) + 1
+      });
+    } else {
+      // Don't retry client errors
+      throw error;
+    }
   }
 }
 
@@ -111,6 +141,7 @@ export async function createPaymentIntent(data: {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify({
         ...data,
         retryAttempt: data.retryAttempt || 0,
@@ -154,10 +185,33 @@ export async function createPaymentIntent(data: {
       throw error;
     }
     
-    // Retry with incremented retry attempt
-    return createPaymentIntent({
-      ...data,
-      retryAttempt: (data.retryAttempt || 0) + 1
-    });
+    // Only retry on network errors or server errors (5xx)
+    // Don't retry on client errors (4xx) as they won't be resolved by retrying
+    const shouldRetry = 
+      // Handle non-Error objects (like DOMExceptions)
+      !(error instanceof Error) ||
+      // For Error objects, check message content
+      (error instanceof Error && 
+       !error.message.includes('status 4') && 
+       !error.message.match(/40[0-9]/) && 
+       // Check for common network error messages or server errors
+       (error.message.includes('network') || 
+        error.message.includes('timeout') || 
+        error.message.includes('connection') ||
+        error.message.includes('status 5') || 
+        error.message.match(/50[0-9]/)
+       )
+      );
+    
+    if (shouldRetry) {
+      // Retry with incremented retry attempt
+      return createPaymentIntent({
+        ...data,
+        retryAttempt: (data.retryAttempt || 0) + 1
+      });
+    } else {
+      // Don't retry client errors
+      throw error;
+    }
   }
 } 

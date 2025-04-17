@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
+import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { verifyOrderPrice } from '@/lib/server/price-verification';
 import { getCheckoutSessionIdempotencyKey, getRetryIdempotencyKey } from '@/lib/server/idempotency';
@@ -12,6 +12,13 @@ if (!STRIPE_SECRET_KEY) {
   throw new Error('Missing required environment variable: STRIPE_SECRET_KEY');
 }
 
+// Check if NEXT_PUBLIC_APP_URL is set
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL;
+if (!APP_URL) {
+  console.error('CRITICAL ERROR: NEXT_PUBLIC_APP_URL is not set. Payment redirects will fail.');
+  throw new Error('Missing required environment variable: NEXT_PUBLIC_APP_URL');
+}
+
 // Initialize Stripe with latest API version
 const stripe = new Stripe(STRIPE_SECRET_KEY, {
   apiVersion: '2023-10-16' as any,
@@ -21,27 +28,28 @@ export async function POST(request: Request) {
   try {
     const cookieStore = cookies();
     
-    const supabase = createClient(
+    const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
-        auth: {
-          persistSession: false,
-          detectSessionInUrl: false
-        },
-        global: {
-          headers: {
-            'cookie': cookieStore.toString(),
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+            });
           },
         },
       }
     );
 
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized: You must be logged in to make a payment' },
         { status: 401 }
@@ -51,11 +59,18 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { orderId, amount, metadata = {}, retryAttempt = 0 } = body;
 
-    if (!orderId || !amount) {
+    if (!orderId || amount === undefined) {
       return NextResponse.json(
         { error: 'Missing required parameters: orderId and amount' },
         { status: 400 }
       );
+    }
+
+    if (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0) {  
+      return NextResponse.json(  
+        { error: 'Invalid amount supplied' },  
+        { status: 400 }  
+      );  
     }
 
     // Verify order exists and belongs to user
@@ -63,7 +78,7 @@ export async function POST(request: Request) {
       .from('orders')
       .select('*')
       .eq('id', orderId)
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .single();
 
     if (orderError || !order) {
@@ -77,7 +92,7 @@ export async function POST(request: Request) {
     const verification = await verifyOrderPrice(orderId, amount, supabase);
     
     if (!verification.isValid) {
-      console.warn(`Payment amount verification failed: ${verification.reason}. Order ID: ${orderId}, User ID: ${session.user.id}`);
+      console.warn(`Payment amount verification failed: ${verification.reason}. Order ID: ${orderId}, User ID: ${user.id}`);
       return NextResponse.json(
         { 
           error: 'Invalid payment amount', 
@@ -104,8 +119,8 @@ export async function POST(request: Request) {
 
     // Generate an appropriate idempotency key based on whether this is a retry
     const idempotencyKey = retryAttempt > 0
-      ? getRetryIdempotencyKey('checkout_session', orderId, session.user.id, verifiedAmount)
-      : getCheckoutSessionIdempotencyKey(orderId, session.user.id, verifiedAmount);
+      ? getRetryIdempotencyKey('checkout_session', orderId, user.id, verifiedAmount)
+      : getCheckoutSessionIdempotencyKey(orderId, user.id, verifiedAmount);
     
     console.log(`Creating checkout session with idempotency key: ${idempotencyKey}`);
 
@@ -146,14 +161,14 @@ export async function POST(request: Request) {
         ],
         metadata: {
           orderId,
-          userId: session.user.id,
+          userId: user.id,
           styleCount: verification.styleCount.toString(), // Add style count for reference
           verifiedAmount: 'true', // Flag to indicate the amount was verified
           createdAt: new Date().toISOString(),
           ...enhancedMetadata,
         },
-        success_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/payment`,
+        success_url: `${APP_URL}/app/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${APP_URL}/app/payment`,
       },
       {
         idempotencyKey, // Using idempotency key for creation

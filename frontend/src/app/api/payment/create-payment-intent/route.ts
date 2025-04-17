@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
+import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { Order } from '@/lib/types'; // Import Order type
 import { verifyOrderPrice } from '@/lib/server/price-verification';
@@ -26,32 +26,36 @@ export async function POST(request: Request) {
   try {
     const cookieStore = cookies();
     
-    const supabase = createClient(
+    const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
-        auth: {
-          persistSession: false,
-          detectSessionInUrl: false
-        },
-        global: {
-          headers: {
-            'cookie': cookieStore.toString(),
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+            });
           },
         },
       }
     );
     
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized: You must be logged in to make a payment' },
         { status: 401 }
       );
     }
+
+    // Get the session after confirming user exists
+    const { data: { session } } = await supabase.auth.getSession();
 
     const body = await request.json();
     const { orderId, amount, metadata = {}, retryAttempt = 0 } = body;
@@ -75,7 +79,7 @@ export async function POST(request: Request) {
       .from('orders')
       .select('id, user_id, payment_intent_id, amount, status')
       .eq('id', orderId)
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .single();
 
     if (orderError) {
@@ -94,7 +98,7 @@ export async function POST(request: Request) {
     const verification = await verifyOrderPrice(orderId, amount, supabase);
     
     if (!verification.isValid) {
-      console.warn(`Payment amount verification failed: ${verification.reason}. Order ID: ${orderId}, User ID: ${session.user.id}`);
+      console.warn(`Payment amount verification failed: ${verification.reason}. Order ID: ${orderId}, User ID: ${user.id}`);
       return NextResponse.json(
         { 
           error: 'Invalid payment amount', 
@@ -123,8 +127,8 @@ export async function POST(request: Request) {
     
     // Generate an appropriate idempotency key based on whether this is a retry
     const baseIdempotencyKey = retryAttempt > 0
-      ? getRetryIdempotencyKey('payment_intent', orderId, session.user.id, verifiedAmount)
-      : getPaymentIntentIdempotencyKey(orderId, session.user.id, verifiedAmount);
+      ? getRetryIdempotencyKey('payment_intent', orderId, user.id, verifiedAmount)
+      : getPaymentIntentIdempotencyKey(orderId, user.id, verifiedAmount);
     
     // Add request info to metadata for tracking/debugging
     const enhancedMetadata = {
@@ -157,7 +161,7 @@ export async function POST(request: Request) {
             const updateIdempotencyKey = getPaymentIntentUpdateIdempotencyKey(
               existingPI.id,
               orderId,
-              session.user.id,
+              user.id,
               verifiedAmount
             );
             
@@ -169,7 +173,7 @@ export async function POST(request: Request) {
                   ...existingPI.metadata, // Keep existing metadata
                   ...enhancedMetadata, // Merge new metadata
                   orderId: order.id, // Ensure orderId is present
-                  userId: session.user.id, // Ensure userId is present
+                  userId: user.id, // Ensure userId is present
                   styleCount: verification.styleCount.toString(), // Add style count for reference
                   verifiedAmount: 'true', // Flag to indicate the amount was verified
                   lastUpdated: new Date().toISOString(),
@@ -204,7 +208,7 @@ export async function POST(request: Request) {
           currency: 'usd',
           metadata: {
             orderId: order.id,
-            userId: session.user.id,
+            userId: user.id,
             styleCount: verification.styleCount.toString(), // Add style count for reference
             verifiedAmount: 'true', // Flag to indicate the amount was verified
             ...enhancedMetadata, // Include all enhanced metadata
@@ -218,19 +222,20 @@ export async function POST(request: Request) {
       );
       
       console.log(`New PI ${paymentIntent.id} created with idempotency key: ${baseIdempotencyKey}`);
-
-      // Update order with the NEW payment intent ID and reset status
+      
+      // Update the order with the new payment intent ID
       const { error: updateError } = await supabase
         .from('orders')
-        .update({
-          payment_intent_id: paymentIntent.id,
-          payment_status: 'awaiting_payment',
+        .update({ 
+          payment_intent_id: paymentIntent.id, 
+          amount: verifiedAmount, // Use VERIFIED amount
           status: 'pending_payment',
-          amount: verifiedAmount, // Ensure order amount matches verified amount
+          payment_status: 'awaiting_payment',
           updated_at: new Date().toISOString(),
-          idempotency_key: baseIdempotencyKey, // Store the idempotency key for reference
+          idempotency_key: baseIdempotencyKey, // Store for reference
         })
-        .eq('id', order.id);
+        .eq('id', order.id)
+        .eq('user_id', user.id); // Ensure we're only updating the user's own order
         
       // Handle database update failure
       if (updateError) {

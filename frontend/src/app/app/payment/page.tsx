@@ -117,19 +117,32 @@ export default function PaymentPage() {
         // If the order amount doesn't match the calculated price, update the order
         // This syncs the order amount if styles were changed on the shoot page
         if (currentOrder.amount !== pricing.price) {
-           console.log(`Order ${currentOrder.id} amount (${currentOrder.amount}) differs from calculated price (${pricing.price}). Updating order.`);
-           const { error: updateError } = await supabase
-             .from('orders')
-             .update({ amount: pricing.price, updated_at: new Date().toISOString() })
-             .eq('id', currentOrder.id);
-             
-           if (updateError) {
-             console.error("Failed to update order amount on payment page load:", updateError);
-             // Non-critical error, proceed but log it
-           } else {
-             // Update local order state optimistically
-             setOrder(prev => prev ? { ...prev, amount: pricing.price } : null);
-           }
+          console.log(`Order ${currentOrder.id} amount (${currentOrder.amount}) differs from calculated price (${pricing.price}). Updating order.`);
+          
+          try {
+            // Use the proxy endpoint instead of direct database updates
+            const response = await fetch('/api/proxy/update-order-amount', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                orderId: currentOrder.id,
+                newAmount: pricing.price,
+              }),
+            });
+            
+            if (!response.ok) {
+              const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+              throw new Error(errorData.error || `Failed with status ${response.status}`);
+            }
+            
+            // Update local order state optimistically on success
+            setOrder(prev => prev ? { ...prev, amount: pricing.price } : null);
+          } catch (error) {
+            console.error("Failed to update order amount via proxy:", error);
+            // Non-critical error, proceed but log it
+          }
         }
 
         // Update progress once per session

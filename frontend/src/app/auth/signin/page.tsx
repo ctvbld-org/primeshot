@@ -14,7 +14,10 @@ export default function SignIn() {
   const searchParams = useSearchParams();
   
   // Get return URL from query params
-  const returnUrl = searchParams.get('returnUrl') || '/app/shoot';
+  const returnUrlParam = searchParams.get('returnUrl') || '/app/shoot';
+  // Validate that returnUrl is a relative path to prevent open redirect vulnerabilities
+  const isValidUrl = returnUrlParam && !returnUrlParam.startsWith('http://') && !returnUrlParam.startsWith('https://');
+  const returnUrl = isValidUrl ? returnUrlParam : '/app/shoot';
 
   // Redirect to return URL if already authenticated
   useEffect(() => {
