@@ -97,6 +97,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }))
+      
+      // Save current path before logout to return after login
+      const currentPath = window.location.pathname + window.location.search;
+      const returnUrl = encodeURIComponent(currentPath);
+      
       const { error } = await supabase.auth.signOut()
       if (error) throw error
 
@@ -106,7 +111,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: false
       }))
 
-      window.location.href = '/auth/signin'
+      // Need to use window.location.href for auth redirects since we're changing auth state
+      // Router wouldn't work properly as auth state needs a full page load
+      window.location.href = `/auth/signin?returnUrl=${returnUrl}`
     } catch (error) {
       setState(prev => ({
         ...prev,

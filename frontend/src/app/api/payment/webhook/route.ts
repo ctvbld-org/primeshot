@@ -72,23 +72,26 @@ export async function POST(request: Request) {
     // Handle different event types
     try {
       switch (event.type) {
-        case 'payment_intent.succeeded':
+        case 'payment_intent.succeeded': {
           const paymentIntent = event.data.object as Stripe.PaymentIntent;
           await handlePaymentIntentSucceeded(paymentIntent, supabase);
           console.log(`✅ Successfully processed payment_intent.succeeded for intent: ${paymentIntent.id}`);
           break;
+        }
 
-        case 'payment_intent.payment_failed':
+        case 'payment_intent.payment_failed': {
           const failedPaymentIntent = event.data.object as Stripe.PaymentIntent;
           await handlePaymentIntentFailed(failedPaymentIntent, supabase);
           console.log(`✅ Successfully processed payment_intent.payment_failed for intent: ${failedPaymentIntent.id}`);
           break;
+        }
 
-        case 'checkout.session.completed':
+        case 'checkout.session.completed': {
           const session = event.data.object as Stripe.Checkout.Session;
           await handleCheckoutSessionCompleted(session, supabase);
           console.log(`✅ Successfully processed checkout.session.completed for session: ${session.id}`);
           break;
+        }
 
         default:
           console.log(`Ignored unhandled event type: ${event.type}`);

@@ -57,7 +57,6 @@ async function configureCORS() {
             AllowedMethods: ['GET', 'PUT', 'POST', 'DELETE', 'HEAD'],
             AllowedOrigins: [
               'http://localhost:3000',
-              'https://primeshot.app',
               process.env.NEXT_PUBLIC_APP_URL || '*'
             ],
             ExposeHeaders: ['ETag'],

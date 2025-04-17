@@ -506,26 +506,72 @@ function PaymentForm({
         variant: 'destructive',
       });
       setIsSubmitting(false);
-    } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-      // The payment has been processed!
-      toast({
-        title: 'Payment Successful',
-        description: 'Your payment has been processed successfully.',
-      });
-      
-      // Redirect to success page
-      router.push(`/app/payment/success?session_id=${paymentIntent.id}&order_id=${orderId}`);
-    } else {
-      // Not handled - possibly still processing or requires further action
-      toast({
-        title: 'Processing Payment',
-        description: 'Your payment is being processed. Please wait...',
-      });
-      
-      // Optional: poll for status or redirect to a 'pending' page
-      if (paymentIntent) {
-        router.push(`/app/payment/success?session_id=${paymentIntent.id}&order_id=${orderId}`);
+    } else if (paymentIntent) {
+      // Handle different payment intent statuses explicitly
+      switch (paymentIntent.status) {
+        case 'succeeded': 
+          // The payment has been processed successfully
+          toast({
+            title: 'Payment Successful',
+            description: 'Your payment has been processed successfully.',
+          });
+          
+          // Redirect to success page
+          router.push(`/app/payment/success?session_id=${paymentIntent.id}&order_id=${orderId}`);
+          break;
+          
+        case 'requires_action':
+          // Strong Customer Authentication (SCA) requires additional action (3DS)
+          toast({
+            title: 'Authentication Required',
+            description: 'Additional authentication is required to complete your payment.',
+            variant: 'default',
+          });
+          
+          // Don't reset isSubmitting as authentication is ongoing
+          // Let the Stripe redirect happen automatically
+          // StripeJS will handle the redirect for SCA when needed
+          break;
+          
+        case 'processing':
+          // Payment is being processed asynchronously
+          toast({
+            title: 'Payment Processing',
+            description: 'Your payment is being processed. We\'ll notify you when it completes.',
+          });
+          
+          // Redirect to a pending page or show processing UI
+          router.push(`/app/payment/processing?payment_intent=${paymentIntent.id}&order_id=${orderId}`);
+          break;
+          
+        case 'requires_payment_method':
+          // Payment failed, customer needs to try another payment method
+          toast({
+            title: 'Payment Failed',
+            description: 'Please try another payment method.',
+            variant: 'destructive',
+          });
+          setIsSubmitting(false);
+          break;
+          
+        default:
+          // Fallback for other statuses
+          toast({
+            title: 'Payment Update',
+            description: `Payment status: ${paymentIntent.status}. We'll update you when it completes.`,
+          });
+          
+          // Redirect to status tracking page
+          router.push(`/app/payment/status?payment_intent=${paymentIntent.id}&order_id=${orderId}&status=${paymentIntent.status}`);
       }
+    } else {
+      // No paymentIntent and no error - shouldn't happen but handle it
+      toast({
+        title: 'Unexpected Response',
+        description: 'Received an unexpected response. Please contact support.',
+        variant: 'destructive',
+      });
+      setIsSubmitting(false);
     }
   };
   

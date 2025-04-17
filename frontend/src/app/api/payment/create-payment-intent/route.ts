@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { createServerClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { Order } from '@/lib/types'; // Import Order type
 import { verifyOrderPrice } from '@/lib/server/price-verification';
@@ -10,21 +10,34 @@ import {
   getRetryIdempotencyKey
 } from '@/lib/server/idempotency';
 
+// Check if STRIPE_SECRET_KEY is set
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+if (!STRIPE_SECRET_KEY) {
+  console.error('CRITICAL ERROR: STRIPE_SECRET_KEY is not set. Payment functionality will fail.');
+  throw new Error('Missing required environment variable: STRIPE_SECRET_KEY');
+}
+
 // Initialize Stripe with latest API version
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+const stripe = new Stripe(STRIPE_SECRET_KEY, {
   apiVersion: '2023-10-16' as any,
 });
 
 export async function POST(request: Request) {
   try {
-    const supabase = createServerClient(
+    const cookieStore = cookies();
+    
+    const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
-        cookies: {
-          get: (name) => cookies().get(name)?.value,
-          set: () => {}, // We don't need to set cookies in this route handler
-          remove: () => {}, // We don't need to remove cookies in this route handler
+        auth: {
+          persistSession: false,
+          detectSessionInUrl: false
+        },
+        global: {
+          headers: {
+            'cookie': cookieStore.toString(),
+          },
         },
       }
     );
@@ -43,12 +56,19 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { orderId, amount, metadata = {}, retryAttempt = 0 } = body;
 
-    if (!orderId || !amount) {
+    if (!orderId || amount === undefined) {
       return NextResponse.json(
         { error: 'Missing required parameters: orderId and amount' },
         { status: 400 }
       );
     }
+
+    if (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0) {  
+      return NextResponse.json(  
+        { error: 'Invalid amount supplied' },  
+        { status: 400 }  
+      );  
+    } 
 
     // Verify order exists and belongs to user, select relevant fields
     const { data: orderResult, error: orderError } = await supabase
@@ -86,7 +106,17 @@ export async function POST(request: Request) {
     }
     
     // If verification passed, continue with the verified amount
-    const verifiedAmount = verification.calculatedAmount;
+    let verifiedAmount = verification.calculatedAmount;
+    
+    // Ensure amount is a non-negative integer (required by Stripe)
+    if (typeof verifiedAmount !== 'number' || !Number.isInteger(verifiedAmount) || verifiedAmount < 0) {
+      console.error(`Invalid verifiedAmount: ${verifiedAmount}. Must be a non-negative integer.`);
+      return NextResponse.json(
+        { error: 'Payment processing error: Invalid amount format' },
+        { status: 500 }
+      );
+    }
+    
     console.log(`✅ Payment amount verified for order ${orderId}: ${verifiedAmount}`);
     
     const order = orderResult as Order; // Cast to Order type
@@ -190,7 +220,7 @@ export async function POST(request: Request) {
       console.log(`New PI ${paymentIntent.id} created with idempotency key: ${baseIdempotencyKey}`);
 
       // Update order with the NEW payment intent ID and reset status
-      await supabase
+      const { error: updateError } = await supabase
         .from('orders')
         .update({
           payment_intent_id: paymentIntent.id,
@@ -201,11 +231,27 @@ export async function POST(request: Request) {
           idempotency_key: baseIdempotencyKey, // Store the idempotency key for reference
         })
         .eq('id', order.id);
+        
+      // Handle database update failure
+      if (updateError) {
+        console.error(`Failed to update order with new payment intent: ${updateError.message}`, updateError);
+        console.error(`Order context: id=${order.id}, paymentIntentId=${paymentIntent.id}`);
+        
+        return NextResponse.json(
+          { 
+            error: 'Failed to update order record',
+            code: 'DB_UPDATE_ERROR',
+            details: 'Payment intent created but order record update failed'
+          },
+          { status: 500 }
+        );
+      }
+      
       console.log(`Order ${order.id} updated with new PI ${paymentIntent.id}`);
     } else {
        // If we reused/updated an existing PI, ensure the order amount matches
        if (order.amount !== verifiedAmount || order.status !== 'pending_payment') {
-         await supabase
+         const { error: updateError } = await supabase
            .from('orders')
            .update({ 
                amount: verifiedAmount, // Use VERIFIED amount
@@ -215,6 +261,22 @@ export async function POST(request: Request) {
                idempotency_key: baseIdempotencyKey, // Store for reference
             })
            .eq('id', order.id);
+           
+         // Handle database update failure  
+         if (updateError) {
+           console.error(`Failed to update order for existing payment intent: ${updateError.message}`, updateError);
+           console.error(`Order context: id=${order.id}, paymentIntentId=${paymentIntent.id}`);
+           
+           return NextResponse.json(
+             { 
+               error: 'Failed to update order record',
+               code: 'DB_UPDATE_ERROR', 
+               details: 'Payment intent found but order record update failed'
+             },
+             { status: 500 }
+           );
+         }
+           
          console.log(`Order ${order.id} amount/status updated to match reused/updated PI ${paymentIntent.id}`);
        }
     }

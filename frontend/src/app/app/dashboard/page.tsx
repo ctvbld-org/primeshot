@@ -167,7 +167,9 @@ function ShootCard({
   const styleCount = order.styles?.length || 0
   
   // Format shoot number
-  const shootNumber = `Shoot ${order.shoot_number.toString().padStart(3, '0')}`
+  const shootNumber = order.shoot_number 
+    ? `Shoot ${order.shoot_number.toString().padStart(3, '0')}` 
+    : 'Shoot TBD'
   
   return (
     <Card>

@@ -270,22 +270,12 @@ export const updateOrderAmount = async (
       throw new Error(`Failed to count styles: ${countError.message}`);
     }
 
-    // Calculate the price based on style count
+    // Calculate the price using the central pricing function
     let price = 0;
     if (styleCount) {
-      if (styleCount === 1) {
-        // Individual tier (1 style)
-        price = 2900;
-      } else if (styleCount <= 3) {
-        // Professional tier (2-3 styles)
-        price = 4900;
-      } else if (styleCount <= 6) {
-        // Studio tier (4-6 styles)
-        price = 7900;
-      } else {
-        // Studio tier + add-ons (7+ styles)
-        price = 7900 + (styleCount - 6) * 1500;
-      }
+      // Use the shared pricing calculation function to ensure consistency
+      const pricingInfo = calculatePricing(styleCount);
+      price = pricingInfo.price;
     }
 
     // Update the order with the calculated price

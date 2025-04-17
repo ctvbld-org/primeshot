@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
 import { useUserProgress } from '@/hooks/use-user-progress';
@@ -22,17 +22,18 @@ export default function PaymentSuccessPage() {
   const [error, setError] = useState<string | null>(null);
   const [verificationAttempted, setVerificationAttempted] = useState(false);
   
+  // Use ref to prevent resetting on re-renders
+  const isVerifyingRef = useRef(false);
+  
   // Get session ID and order ID from URL
   const sessionId = searchParams.get('session_id');
   const orderId = searchParams.get('order_id');
   
   useEffect(() => {
-    // Add a flag to prevent duplicate verification calls
-    let isVerifying = false;
-    
     async function verifyPayment() {
-      if (isVerifying || verificationAttempted) return;
-      isVerifying = true;
+      // Check verification flag with ref
+      if (isVerifyingRef.current || verificationAttempted) return;
+      isVerifyingRef.current = true;
       
       if (!user) {
         setError('You must be logged in to view this page.');
@@ -82,7 +83,7 @@ export default function PaymentSuccessPage() {
         
         // Check if payment status is already set to 'succeeded' or 'paid'
         // This prevents updating the status multiple times on page reloads
-        if (order.status !== 'paid' && order.payment_status !== 'succeeded') {
+        if (order.status !== 'paid' || order.payment_status !== 'succeeded') {
           await supabase
             .from('orders')
             .update({
@@ -111,7 +112,7 @@ export default function PaymentSuccessPage() {
       } finally {
         setIsLoading(false);
         setVerificationAttempted(true);
-        isVerifying = false;
+        isVerifyingRef.current = false;
       }
     }
     
@@ -191,7 +192,9 @@ export default function PaymentSuccessPage() {
                 <div>
                   <p className="font-medium">Shoot Number</p>
                   <p className="text-muted-foreground">
-                    {orderDetails?.shoot_number ? `Shoot ${orderDetails.shoot_number.toString().padStart(3, '0')}` : 'N/A'}
+                    {orderDetails?.shoot_number 
+                      ? `Shoot ${orderDetails.shoot_number.toString().padStart(3, '0')}` 
+                      : 'Processing'}
                   </p>
                 </div>
                 <div>

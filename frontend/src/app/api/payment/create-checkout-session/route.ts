@@ -1,25 +1,38 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { createServerClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { verifyOrderPrice } from '@/lib/server/price-verification';
 import { getCheckoutSessionIdempotencyKey, getRetryIdempotencyKey } from '@/lib/server/idempotency';
 
+// Check if STRIPE_SECRET_KEY is set
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
+if (!STRIPE_SECRET_KEY) {
+  console.error('CRITICAL ERROR: STRIPE_SECRET_KEY is not set. Payment functionality will fail.');
+  throw new Error('Missing required environment variable: STRIPE_SECRET_KEY');
+}
+
 // Initialize Stripe with latest API version
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+const stripe = new Stripe(STRIPE_SECRET_KEY, {
   apiVersion: '2023-10-16' as any,
 });
 
 export async function POST(request: Request) {
   try {
-    const supabase = createServerClient(
+    const cookieStore = cookies();
+    
+    const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
-        cookies: {
-          get: (name) => cookies().get(name)?.value,
-          set: () => {}, // We don't need to set cookies in this route handler
-          remove: () => {}, // We don't need to remove cookies in this route handler
+        auth: {
+          persistSession: false,
+          detectSessionInUrl: false
+        },
+        global: {
+          headers: {
+            'cookie': cookieStore.toString(),
+          },
         },
       }
     );
@@ -76,7 +89,17 @@ export async function POST(request: Request) {
     }
     
     // If verification passed, continue with the verified amount
-    const verifiedAmount = verification.calculatedAmount;
+    let verifiedAmount = verification.calculatedAmount;
+    
+    // Ensure amount is a non-negative integer (required by Stripe)
+    if (typeof verifiedAmount !== 'number' || !Number.isInteger(verifiedAmount) || verifiedAmount < 0) {
+      console.error(`Invalid verifiedAmount: ${verifiedAmount}. Must be a non-negative integer.`);
+      return NextResponse.json(
+        { error: 'Payment processing error: Invalid amount format' },
+        { status: 500 }
+      );
+    }
+    
     console.log(`✅ Payment amount verified for order ${orderId}: ${verifiedAmount}`);
 
     // Generate an appropriate idempotency key based on whether this is a retry
@@ -140,7 +163,7 @@ export async function POST(request: Request) {
     console.log(`Checkout session created: ${checkoutSession.id} with idempotency key: ${idempotencyKey}`);
 
     // Update order with session ID and VERIFIED amount
-    await supabase
+    const { error: updateError } = await supabase
       .from('orders')
       .update({
         payment_intent_id: checkoutSession.payment_intent as string || null,
@@ -152,6 +175,24 @@ export async function POST(request: Request) {
         idempotency_key: idempotencyKey, // Store the idempotency key for reference
       })
       .eq('id', orderId);
+
+    // Handle database update failure
+    if (updateError) {
+      console.error(`Failed to update order record: ${updateError.message}`, updateError);
+      
+      // Log additional context for debugging
+      console.error(`Order context: id=${orderId}, session=${checkoutSession.id}`);
+      
+      // Return error to client so they can handle it properly
+      return NextResponse.json(
+        { 
+          error: 'Failed to update order record',
+          code: 'DB_UPDATE_ERROR',
+          details: 'Payment initiated but order record update failed'
+        },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ 
       sessionId: checkoutSession.id,

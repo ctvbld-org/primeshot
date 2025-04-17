@@ -2,6 +2,7 @@
 
 import { UserIcon } from 'lucide-react'
 import { useAuth } from '@/contexts/auth-context'
+import { useRouter } from 'next/navigation'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +21,7 @@ interface UserNavProps {
 
 export function UserNav({ user }: UserNavProps) {
   const { signOut } = useAuth()
+  const router = useRouter()
   
   const userEmail = user?.email || ''
   const userInitial = userEmail ? userEmail.charAt(0).toUpperCase() : ''
@@ -44,12 +46,12 @@ export function UserNav({ user }: UserNavProps) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem 
-          onSelect={() => window.location.href = '/app/dashboard'}
+          onSelect={() => router.push('/app/dashboard')}
         >
           Dashboard
         </DropdownMenuItem>
         <DropdownMenuItem 
-          onSelect={() => window.location.href = '/app/shoot'}
+          onSelect={() => router.push('/app/shoot')}
         >
           Create New Styles
         </DropdownMenuItem>

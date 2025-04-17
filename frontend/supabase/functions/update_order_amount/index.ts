@@ -2,6 +2,10 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
+import { calculatePrice, PRICING_VERSION } from '../_shared/pricing.ts'
+
+// Log pricing version on startup to verify correct version is being used
+console.log(`Using pricing module version: ${PRICING_VERSION}`)
 
 interface RequestParams {
   order_id: string;
@@ -24,13 +28,37 @@ serve(async (req) => {
     Deno.env.get('SUPABASE_ANON_KEY') ?? '',
     {
       global: {
-        headers: { Authorization: req.headers.get('Authorization')! },
+        headers: { 
+          // Safely handle missing Authorization header
+          ...(req.headers.get('Authorization') ? { Authorization: req.headers.get('Authorization') } : {})
+        },
       },
     }
   )
 
   // Get request body
-  const { order_id, user_id } = await req.json() as RequestParams
+  let order_id: string | undefined;
+  let user_id: string | undefined;
+  
+  try {
+    const requestBody = await req.json() as RequestParams;
+    order_id = requestBody.order_id;
+    user_id = requestBody.user_id;
+  } catch (jsonError) {
+    return new Response(
+      JSON.stringify({ 
+        error: 'Invalid JSON in request body',
+        details: jsonError instanceof Error ? jsonError.message : 'Unknown JSON parsing error'
+      }),
+      { 
+        status: 400, 
+        headers: { 
+          'Content-Type': 'application/json',
+          ...corsHeaders
+        } 
+      }
+    );
+  }
   
   if (!order_id || !user_id) {
     return new Response(
@@ -82,23 +110,8 @@ serve(async (req) => {
       throw new Error(`Failed to count styles: ${countError.message}`)
     }
 
-    // Calculate the price based on style count
-    let price = 0
-    if (styleCount) {
-      if (styleCount === 1) {
-        // Individual tier (1 style)
-        price = 2900
-      } else if (styleCount <= 3) {
-        // Professional tier (2-3 styles)
-        price = 4900
-      } else if (styleCount <= 6) {
-        // Studio tier (4-6 styles)
-        price = 7900
-      } else {
-        // Studio tier + add-ons (7+ styles)
-        price = 7900 + (styleCount - 6) * 1500
-      }
-    }
+    // Calculate the price using the shared pricing function
+    const price = calculatePrice(styleCount || 0)
 
     // Update the order with the calculated price
     const { error: updateError } = await supabaseClient

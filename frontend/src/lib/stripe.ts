@@ -46,11 +46,33 @@ export async function createCheckoutSession(data: {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to create checkout session');
+      let errorMessage = `Request failed with status ${response.status}`;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorMessage;
+      } catch (jsonError) {
+        // Handle non-JSON responses gracefully
+        console.warn('Failed to parse error response as JSON:', jsonError);
+        try {
+          // Try to get text content as fallback
+          errorMessage = await response.text() || errorMessage;
+        } catch (textError) {
+          console.warn('Failed to parse error response as text:', textError);
+        }
+      }
+      throw new Error(errorMessage);
     }
 
-    const { sessionId, idempotencyKey } = await response.json();
+    // Parse successful response safely
+    let sessionData;
+    try {
+      sessionData = await response.json();
+    } catch (jsonError) {
+      console.error('Failed to parse successful response as JSON:', jsonError);
+      throw new Error('Invalid response format from server');
+    }
+
+    const { sessionId, idempotencyKey } = sessionData;
     return { sessionId, idempotencyKey };
   } catch (error) {
     console.error('Failed to create checkout session:', error);
@@ -96,11 +118,33 @@ export async function createPaymentIntent(data: {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to create payment intent');
+      let errorMessage = `Request failed with status ${response.status}`;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorMessage;
+      } catch (jsonError) {
+        // Handle non-JSON responses gracefully
+        console.warn('Failed to parse error response as JSON:', jsonError);
+        try {
+          // Try to get text content as fallback
+          errorMessage = await response.text() || errorMessage;
+        } catch (textError) {
+          console.warn('Failed to parse error response as text:', textError);
+        }
+      }
+      throw new Error(errorMessage);
     }
 
-    const { clientSecret, idempotencyKey, paymentIntentId } = await response.json();
+    // Parse successful response safely
+    let responseData;
+    try {
+      responseData = await response.json();
+    } catch (jsonError) {
+      console.error('Failed to parse successful response as JSON:', jsonError);
+      throw new Error('Invalid response format from server');
+    }
+
+    const { clientSecret, idempotencyKey, paymentIntentId } = responseData;
     return { clientSecret, idempotencyKey, paymentIntentId };
   } catch (error) {
     console.error('Failed to create payment intent:', error);

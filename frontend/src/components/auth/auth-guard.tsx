@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/auth-context'
 
 interface AuthGuardProps {
@@ -11,12 +11,15 @@ interface AuthGuardProps {
 export function AuthGuard({ children }: AuthGuardProps) {
   const { isAuthenticated, isLoading } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.replace('/auth/signin')
+      // Save the current URL for redirect after authentication
+      const returnUrl = encodeURIComponent(pathname + window.location.search)
+      router.replace(`/auth/signin?returnUrl=${returnUrl}`)
     }
-  }, [isLoading, isAuthenticated, router])
+  }, [isLoading, isAuthenticated, router, pathname])
 
   if (isLoading) {
     return (
