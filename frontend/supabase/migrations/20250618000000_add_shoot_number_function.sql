@@ -5,9 +5,11 @@ DECLARE
   next_number INTEGER;
 BEGIN
   -- Find the highest shoot_number for this user and increment by 1
+  -- Use FOR UPDATE to lock rows for this user and prevent race conditions
   SELECT COALESCE(MAX(shoot_number), 0) + 1 INTO next_number
   FROM public.orders
-  WHERE user_id = NEW.user_id;
+  WHERE user_id = NEW.user_id
+  FOR UPDATE;
   
   -- Assign the next number to the new order
   NEW.shoot_number := next_number;

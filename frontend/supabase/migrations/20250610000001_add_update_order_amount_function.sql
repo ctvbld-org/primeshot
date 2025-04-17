@@ -19,10 +19,13 @@ BEGIN
   END IF;
 
   -- Count styles for this order with status 'draft'
+  -- Use FOR UPDATE to lock the style rows and prevent concurrent modifications during calculation
   SELECT COUNT(*)
   INTO v_style_count
   FROM public.styles
-  WHERE order_id = p_order_id AND status = 'draft';
+  WHERE order_id = p_order_id 
+    AND status = 'draft'
+  FOR UPDATE;  -- prevent concurrent modifications during calculation
 
   -- Calculate the price based on style count
   v_price := CASE
