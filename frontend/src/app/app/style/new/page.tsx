@@ -150,10 +150,6 @@ function NewStyleContent() {
           outfit: settings.outfit,
           background: settings.background,
           outfitColor: settings.outfitColor,
-          gender: settings.gender, // Include the gender
-          // Keep compatibility fields if needed, using validated style
-          style: settings.outfit,
-          lighting: photographyStyle 
         },
         status: 'draft' as StyleStatus
       }

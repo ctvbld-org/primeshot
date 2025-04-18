@@ -173,20 +173,35 @@ export const uploadStyleImageAllGenders = async (file: File, fileName: string) =
 // Create presigned URL for reading/downloading
 export const createPresignedGetUrl = async (key: string) => {
   try {
-    // Ensure we're looking in the correct folder
-    const finalKey = key.startsWith(SOURCE_IMAGES_FOLDER) 
-      ? key 
-      : `${SOURCE_IMAGES_FOLDER}${key}`;
-      
-    // First check if object exists
-    await s3Client.send(new HeadObjectCommand({
-      Bucket: process.env.AWS_S3_BUCKET!,
-      Key: finalKey,
-    }));
-
+    // Handle full URLs (extract just the path part)
+    if (key.startsWith('http')) {
+      try {
+        const url = new URL(key);
+        // Extract the path and remove leading slash
+        let path = url.pathname.substring(1);
+        
+        // If path contains bucket name, remove it
+        const bucketName = process.env.AWS_S3_BUCKET;
+        if (bucketName && path.startsWith(`${bucketName}/`)) {
+          path = path.substring(bucketName.length + 1);
+        }
+        
+        key = path;
+      } catch (e) {
+        console.warn('Failed to parse URL, using as-is:', key);
+      }
+    }
+    
+    // Make sure we have a valid key after potential URL parsing
+    if (!key) {
+      throw new Error('Invalid key provided for presigned URL');
+    }
+    
+    // We don't need to force the source-images prefix - just use whatever path is in the database
+    // This handles both source-images/ and app-images/ paths
     const command = new GetObjectCommand({
       Bucket: process.env.AWS_S3_BUCKET!,
-      Key: finalKey,
+      Key: key,
     });
 
     return await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // 1 hour

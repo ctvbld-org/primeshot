@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react'
+import React, { forwardRef, useMemo } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
@@ -39,6 +39,14 @@ export function PhotographyStyleModal({ isOpen, onClose, onSelectStyle }: Photog
   // Filter styles based on user gender
   const filteredStyles = useGenderFilter(photographyStyleOptions, gender);
   
+  // Memoize the calculation of gender-specific images for all filtered styles
+  const stylesWithImages = useMemo(() => {
+    return filteredStyles.map(style => ({
+      ...style,
+      genderSpecificImages: getStyleImages(style.previewImages, gender)
+    }));
+  }, [filteredStyles, gender]); // Re-calculate only when filteredStyles or gender changes
+  
   // Define the scrollable content as a component that forwards refs
   const ScrollableContent = forwardRef<HTMLDivElement, { children: React.ReactNode }>(({ children }, ref) => (
     <div ref={ref} className="flex-grow overflow-y-auto p-6">
@@ -66,7 +74,7 @@ export function PhotographyStyleModal({ isOpen, onClose, onSelectStyle }: Photog
         </DialogHeader>
         
         <ScrollableContent>
-          {filteredStyles.length === 0 && !isGenderLoading && (
+          {stylesWithImages.length === 0 && !isGenderLoading && (
             <div className="flex flex-col items-center justify-center py-12">
               <p className="text-lg text-muted-foreground text-center">
                 No styles available for your gender preference.
@@ -78,9 +86,9 @@ export function PhotographyStyleModal({ isOpen, onClose, onSelectStyle }: Photog
           )}
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredStyles.map((option) => {
-              // Get gender-specific images with proper paths
-              const genderSpecificImages = getStyleImages(option.previewImages, gender);
+            {stylesWithImages.map((option) => {
+              // Access the pre-calculated images
+              const genderSpecificImages = option.genderSpecificImages;
               
               return (
                 <Card key={option.id} className="flex flex-col bg-card border shadow-sm overflow-hidden">

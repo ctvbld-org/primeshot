@@ -66,30 +66,41 @@ export async function GET(request: NextRequest) {
     const imagesWithPresignedUrls = await Promise.all(
       (images || []).map(async (image: ImageRecord) => {
         try {
-          // Extract the key from the URL - handle different possible formats
-          let key = image.url; // Use the stored URL which should be the S3 path/key
-          try {
-            // Attempt to parse in case it's a full URL, extract path
-            const parsedUrl = new URL(image.url);
-            key = parsedUrl.pathname.substring(1); // Remove leading slash
-            const bucketName = process.env.AWS_S3_BUCKET_NAME; // Use correct env var if different
-            if (bucketName && key.startsWith(bucketName + '/')) {
-              key = key.substring(bucketName.length + 1);
-            }
-          } catch (urlError) {
-            // If parsing fails, assume it's already just the key
-             console.warn(`Image URL ${image.url} might not be a full URL, using as key.`);
-          }
+          console.log(`Processing image ${image.id}: Original URL = ${image.url}`);
           
-          const presignedUrl = await createPresignedGetUrl(key);
-          return {
-            ...image,
-            url: presignedUrl
-          };
+          // Try to create a presigned URL for the image
+          try {
+            const presignedUrl = await createPresignedGetUrl(image.url);
+            console.log(`Generated presigned URL for image ${image.id}`);
+            return {
+              ...image,
+              url: presignedUrl
+            };
+          } catch (presignError) {
+            console.error(`Error generating presigned URL for ${image.id}:`, presignError);
+            
+            // If this fails, try to use the original URL directly
+            // This handles cases where the URL is already public
+            if (image.url.startsWith('http')) {
+              console.log(`Falling back to original URL for image ${image.id}`);
+              return { ...image };
+            }
+            
+            // If that doesn't work either, return placeholder
+            return { 
+              ...image, 
+              url: '/images/placeholder-error.png',
+              error: presignError instanceof Error ? presignError.message : 'Unknown error' 
+            };
+          }
         } catch (error) {
-          console.error(`Failed to generate presigned URL for image ${image.id}:`, error);
+          console.error(`Failed to process image ${image.id}:`, error);
           // Return the original image record but with a placeholder/error URL
-          return { ...image, url: '/images/placeholder-error.png' }; 
+          return { 
+            ...image, 
+            url: '/images/placeholder-error.png',
+            error: error instanceof Error ? error.message : 'Unknown error'
+          }; 
         }
       })
     )
