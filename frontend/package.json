@@ -3,12 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "npm run generate-types && next dev",
+    "dev:no-types": "next dev",
+    "build": "npm run generate-types && next build",
+    "build:no-types": "next build",
     "start": "next start",
     "lint": "next lint",
     "sync-pricing": "node scripts/sync-pricing.js",
-    "configure-s3-cors": "npx tsx src/scripts/configure-s3-cors.ts"
+    "configure-s3-cors": "npx tsx src/scripts/configure-s3-cors.ts",
+    "generate-types": "npx tsx --tsconfig tsconfig.scripts.json src/scripts/generate-types.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.782.0",

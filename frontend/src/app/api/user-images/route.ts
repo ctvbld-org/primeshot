@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createPresignedGetUrl } from '@/lib/s3'
-import { Database } from '@/types/supabase'
+import { Image as ImageType } from '@/lib/types'
 
-type ImageRecord = Database['public']['Tables']['images']['Row']
+type ImageRecord = ImageType
 
-// GET handler to retrieve presigned URLs for images
+/**
+ * API Route: /api/user-images
+ * 
+ * Retrieves user-uploaded images from the database with presigned S3 URLs.
+ * Requires authentication and returns images filtered by user ID and optional
+ * image ID or order ID parameters.
+ */
 export async function GET(request: NextRequest) {
   try {
     // Parse query parameters
@@ -90,7 +96,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(imagesWithPresignedUrls)
   } catch (error) {
-    console.error('API /api/images error:', error)
+    console.error('API /api/user-images error:', error)
     const message = error instanceof Error ? error.message : 'Internal server error'
     return NextResponse.json({ error: message }, { status: 500 })
   }

@@ -2,9 +2,12 @@ export type User = {
   id: string
   email: string
   full_name: string | null
+  gender?: Gender
   created_at: string
   updated_at: string
 }
+
+export type Gender = 'male' | 'female' | 'other'
 
 export type Session = {
   id: string
@@ -13,7 +16,14 @@ export type Session = {
   expires_at: string
 }
 
-export type StyleOutfit = 'professional' | 'casual' | 'creative'
+export type StyleOutfit = 
+  | 'professional' 
+  | 'casual' 
+  | 'creative'
+  | 'business-casual'
+  | 'startup'
+  | 'formal'
+  | 'tech'
 export type StyleBackground = 
   | 'plain'
   | 'office'
@@ -28,7 +38,14 @@ export type StyleBackground =
   | 'nature'
   | 'tech'
   | 'custom'
-export type StylePhotographyStyle = 'studio' | 'natural' | 'dramatic'
+// IMPORTANT: This should match the IDs in lib/config/styles.json which is the source of truth
+export type StylePhotographyStyle = 
+  | 'studio' 
+  | 'studio-2'
+  | 'business-portrait'
+  | 'business-portrait-2'
+  | 'outdoor-fashion'
+  | 'outdoor-fashion-2'
 export type StyleStatus = 'draft' | 'pending' | 'processing' | 'completed'
 
 // TODO: Define specific color options, e.g., using Tailwind color names or hex codes
@@ -61,6 +78,7 @@ export type StyleSettings = {
   outfit: StyleOutfit
   background: StyleBackground
   outfitColor?: StyleOutfitColor
+  gender?: Gender
   customSettings?: Record<string, any>
 }
 

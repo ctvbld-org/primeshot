@@ -4,11 +4,12 @@ export interface User extends SupabaseUser {
   full_name?: string
   avatar_url?: string
   updated_at?: string
+  gender?: string
 }
 
-export interface AuthError {
+export type AuthError = {
+  code: string
   message: string
-  code?: string
 }
 
 export interface AuthState {

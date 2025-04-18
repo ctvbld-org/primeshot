@@ -15,6 +15,7 @@ import { useUserProgress } from '@/hooks/use-user-progress'
 import { PhotographyStyleModal } from '@/components/style/photography-style-modal'
 import { getStyles, deleteStyle, calculateHeadshots } from '@/lib/api/styles'
 import { formatPrice, getTierDisplayText } from '@/lib/pricing'
+import { ProfileCompletionModal } from '@/components/profile/profile-completion-modal'
 
 export default function StylesPage() {
   const router = useRouter()
@@ -24,6 +25,8 @@ export default function StylesPage() {
   const [isLoading, setIsLoading] = useState(true)
   const { updateProgress, canModifyStyles, progress } = useUserProgress()
   const [showStyleModal, setShowStyleModal] = useState(false)
+  const [showProfileModal, setShowProfileModal] = useState(false)
+  const supabase = createClient()
   
   // Headshot calculation state
   const [headshotInfo, setHeadshotInfo] = useState<{
@@ -39,6 +42,34 @@ export default function StylesPage() {
     tier: 'none',
     price: 0
   })
+
+  // Check if user profile is complete
+  useEffect(() => {
+    const checkUserProfile = async () => {
+      if (!user) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .select('full_name, gender')
+          .eq('id', user.id)
+          .single();
+          
+        if (error) throw error;
+        
+        // Show profile modal if name or gender is missing
+        if (!data.full_name || !data.gender) {
+          setShowProfileModal(true);
+        } else {
+          setShowProfileModal(false);
+        }
+      } catch (error) {
+        console.error('Error checking user profile:', error);
+      }
+    };
+    
+    checkUserProfile();
+  }, [user, supabase]);
 
   // Check if user has already progressed beyond styles stage - REMOVED strict redirect
   useEffect(() => {
@@ -116,6 +147,12 @@ export default function StylesPage() {
   const handleSelectStyle = (style: string) => {
     // Navigate directly
     router.push(`/app/style/new?style=${encodeURIComponent(style)}`);
+  }
+
+  const handleProfileComplete = () => {
+    setShowProfileModal(false);
+    // Refresh the page data
+    loadStyles();
   }
 
   return (
@@ -210,10 +247,17 @@ export default function StylesPage() {
         </Button>
       </div>
 
+      {/* Modals */}
       <PhotographyStyleModal
         isOpen={showStyleModal}
         onClose={() => setShowStyleModal(false)}
         onSelectStyle={handleSelectStyle}
+      />
+      
+      <ProfileCompletionModal
+        isOpen={showProfileModal}
+        onComplete={handleProfileComplete}
+        user={user}
       />
     </div>
   )

@@ -18,6 +18,7 @@ import Image from 'next/image'
 import { useUserProgress } from '@/hooks/use-user-progress'
 import type { Database } from '@/types/supabase'
 import { ArrowRightIcon } from 'lucide-react'
+import { Image as ImageType } from '@/lib/types'
 
 // --- Zod Schema for Validation ---
 const demographicsSchema = z.object({
@@ -37,7 +38,7 @@ const hairColorOptions = ['Black', 'Brown', 'Blonde', 'Red', 'Grey', 'White', 'D
 const hairLengthOptions = ['Bald/Shaved', 'Short', 'Medium', 'Long', 'Other']
 const bodyTypeOptions = ['Slim', 'Average', 'Athletic', 'Heavy-set', 'Prefer not to say']
 
-type ImageRecord = Database['public']['Tables']['images']['Row']
+type ImageRecord = ImageType
 
 export default function ReviewPage() {
   const { user } = useAuth()
@@ -74,7 +75,7 @@ export default function ReviewPage() {
         setDraftOrderId(currentOrderId);
         console.log("Draft Order ID:", currentOrderId);
 
-        const response = await fetch(`/api/images?orderId=${currentOrderId}`);
+        const response = await fetch(`/api/user-images?orderId=${currentOrderId}`);
         
         if (!response.ok) {
            const errorData = await response.json();
@@ -88,7 +89,7 @@ export default function ReviewPage() {
         }
         
         setUploadedImages(imagesWithUrls as ImageRecord[]); 
-        console.log("Images received from /api/images:", imagesWithUrls);
+        console.log("Images received from /api/user-images:", imagesWithUrls);
 
       } catch (error) {
         console.error("Error fetching review data:", error);

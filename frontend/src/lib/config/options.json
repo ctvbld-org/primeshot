@@ -1,26 +1,26 @@
 {
   "backgrounds": [
-    { "id": "plain", "label": "Plain", "imageUrl": "/images/placeholders/bg-plain.jpg" },
-    { "id": "office", "label": "Office", "imageUrl": "/images/placeholders/bg-office.jpg" },
-    { "id": "outdoor", "label": "Outdoor", "imageUrl": "/images/placeholders/placeholder.jpg" },
-    { "id": "bookshelf", "label": "Bookshelf", "imageUrl": "/images/placeholders/bg-bookshelf.jpg" },
-    { "id": "cafe", "label": "Cafe", "imageUrl": "/images/placeholders/bg-cafe.jpg" },
-    { "id": "studio", "label": "Studio", "imageUrl": "/images/placeholders/placeholder.jpg" },
-    { "id": "gradient", "label": "Gradient", "imageUrl": "/images/placeholders/placeholder.jpg" },
-    { "id": "cityscape", "label": "Cityscape", "imageUrl": "/images/placeholders/placeholder.jpg" },
-    { "id": "abstract", "label": "Abstract", "imageUrl": "/images/placeholders/placeholder.jpg" },
-    { "id": "brick", "label": "Brick Wall", "imageUrl": "/images/placeholders/placeholder.jpg" },
-    { "id": "nature", "label": "Nature", "imageUrl": "/images/placeholders/placeholder.jpg" },
-    { "id": "tech", "label": "Tech Space", "imageUrl": "/images/placeholders/placeholder.jpg" }
+    { "id": "plain", "label": "Plain", "imageUrl": "bg-plain.jpg" },
+    { "id": "office", "label": "Office", "imageUrl": "bg-office.jpg" },
+    { "id": "outdoor", "label": "Outdoor", "imageUrl": "placeholder.jpg" },
+    { "id": "bookshelf", "label": "Bookshelf", "imageUrl": "bg-bookshelf.jpg" },
+    { "id": "cafe", "label": "Cafe", "imageUrl": "bg-cafe.jpg" },
+    { "id": "studio", "label": "Studio", "imageUrl": "placeholder.jpg" },
+    { "id": "gradient", "label": "Gradient", "imageUrl": "placeholder.jpg" },
+    { "id": "cityscape", "label": "Cityscape", "imageUrl": "placeholder.jpg" },
+    { "id": "abstract", "label": "Abstract", "imageUrl": "placeholder.jpg" },
+    { "id": "brick", "label": "Brick Wall", "imageUrl": "placeholder.jpg" },
+    { "id": "nature", "label": "Nature", "imageUrl": "placeholder.jpg" },
+    { "id": "tech", "label": "Tech Space", "imageUrl": "placeholder.jpg" }
   ],
   "outfits": [
-    { "id": "professional", "label": "Professional Suit", "imageUrl": "/images/placeholders/placeholder.jpg" },
-    { "id": "business-casual", "label": "Business Casual", "imageUrl": "/images/placeholders/placeholder.jpg" },
-    { "id": "casual", "label": "Smart Casual", "imageUrl": "/images/placeholders/placeholder.jpg" },
-    { "id": "creative", "label": "Creative Blazer", "imageUrl": "/images/placeholders/placeholder.jpg" },
-    { "id": "tech", "label": "Tech Look", "imageUrl": "/images/placeholders/placeholder.jpg" },
-    { "id": "startup", "label": "Startup Casual", "imageUrl": "/images/placeholders/placeholder.jpg" },
-    { "id": "formal", "label": "Formal Attire", "imageUrl": "/images/placeholders/placeholder.jpg" }
+    { "id": "professional", "label": "Professional Suit", "imageUrl": "placeholder.jpg" },
+    { "id": "business-casual", "label": "Business Casual", "imageUrl": "placeholder.jpg" },
+    { "id": "casual", "label": "Smart Casual", "imageUrl": "placeholder.jpg" },
+    { "id": "creative", "label": "Creative Blazer", "imageUrl": "placeholder.jpg" },
+    { "id": "tech", "label": "Tech Look", "imageUrl": "placeholder.jpg" },
+    { "id": "startup", "label": "Startup Casual", "imageUrl": "placeholder.jpg" },
+    { "id": "formal", "label": "Formal Attire", "imageUrl": "placeholder.jpg" }
   ],
   "outfitColors": [
     { "id": "#000000", "label": "Black" },

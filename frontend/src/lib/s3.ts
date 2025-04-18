@@ -32,6 +32,10 @@ export const s3Client = new S3Client({
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
+// Folder paths
+const SOURCE_IMAGES_FOLDER = 'source-images/';
+const APP_IMAGES_FOLDER = 'app-images/';
+
 // Error classes
 export class S3UploadError extends Error {
   constructor(message: string, public originalError?: Error) {
@@ -75,11 +79,16 @@ const validateFile = async (file: File) => {
 export const uploadToS3 = async (file: File, key: string) => {
   await validateFile(file);
 
+  // Ensure the file is uploaded to the source-images folder
+  const finalKey = key.startsWith(SOURCE_IMAGES_FOLDER) 
+    ? key 
+    : `${SOURCE_IMAGES_FOLDER}${key}`;
+
   const upload = new Upload({
     client: s3Client,
     params: {
       Bucket: process.env.AWS_S3_BUCKET!,
-      Key: key,
+      Key: finalKey,
       Body: file,
       ContentType: file.type,
       Metadata: {
@@ -98,18 +107,86 @@ export const uploadToS3 = async (file: File, key: string) => {
   }
 };
 
+// Upload style image to S3
+export const uploadStyleImage = async (file: File, fileName: string, gender: 'default' | 'male' | 'female') => {
+  await validateFile(file);
+
+  // Ensure we're using webp format for style images (best practice)
+  const webpFileName = fileName.endsWith('.webp') 
+    ? fileName 
+    : `${fileName.replace(/\.[^/.]+$/, '')}.webp`;
+
+  // Create the key with the appropriate gender folder
+  const key = `${APP_IMAGES_FOLDER}${gender}/${webpFileName}`;
+
+  const upload = new Upload({
+    client: s3Client,
+    params: {
+      Bucket: process.env.AWS_S3_BUCKET!,
+      Key: key,
+      Body: file,
+      ContentType: 'image/webp', // Force WebP content type for style images
+      Metadata: {
+        originalName: file.name,
+        fileSize: file.size.toString(),
+        gender: gender,
+        type: 'style-image'
+      },
+    },
+  });
+
+  try {
+    const result = await upload.done();
+    // Construct the S3 URL using environment variables
+    const bucket = process.env.AWS_S3_BUCKET;
+    const region = process.env.AWS_REGION;
+    const s3Url = `https://${bucket}.s3.${region}.amazonaws.com/${key}`;
+    
+    return {
+      url: s3Url,
+      key: key,
+      filename: webpFileName
+    };
+  } catch (error) {
+    console.error(`Error uploading style image to S3 (${gender}):`, error);
+    throw new S3UploadError(`Failed to upload ${gender} style image to S3`, error as Error);
+  }
+};
+
+// Upload the same image to all gender folders
+export const uploadStyleImageAllGenders = async (file: File, fileName: string) => {
+  const genders = ['default', 'male', 'female'] as const;
+  const results = await Promise.all(
+    genders.map(gender => uploadStyleImage(file, fileName, gender))
+  );
+  
+  return {
+    filename: results[0].filename,
+    urls: {
+      default: results[0].url,
+      male: results[1].url,
+      female: results[2].url
+    }
+  };
+};
+
 // Create presigned URL for reading/downloading
 export const createPresignedGetUrl = async (key: string) => {
   try {
+    // Ensure we're looking in the correct folder
+    const finalKey = key.startsWith(SOURCE_IMAGES_FOLDER) 
+      ? key 
+      : `${SOURCE_IMAGES_FOLDER}${key}`;
+      
     // First check if object exists
     await s3Client.send(new HeadObjectCommand({
       Bucket: process.env.AWS_S3_BUCKET!,
-      Key: key,
+      Key: finalKey,
     }));
 
     const command = new GetObjectCommand({
       Bucket: process.env.AWS_S3_BUCKET!,
-      Key: key,
+      Key: finalKey,
     });
 
     return await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // 1 hour
@@ -122,15 +199,20 @@ export const createPresignedGetUrl = async (key: string) => {
 // Delete file from S3
 export const deleteFromS3 = async (key: string) => {
   try {
+    // Ensure we're looking in the correct folder
+    const finalKey = key.startsWith(SOURCE_IMAGES_FOLDER) 
+      ? key 
+      : `${SOURCE_IMAGES_FOLDER}${key}`;
+      
     // First check if object exists
     await s3Client.send(new HeadObjectCommand({
       Bucket: process.env.AWS_S3_BUCKET!,
-      Key: key,
+      Key: finalKey,
     }));
 
     await s3Client.send(new DeleteObjectCommand({
       Bucket: process.env.AWS_S3_BUCKET!,
-      Key: key,
+      Key: finalKey,
     }));
   } catch (error) {
     console.error('Error deleting from S3:', error);

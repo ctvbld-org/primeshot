@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
+import { getOptionsImage } from '@/lib/utils/get-options-image'
 // Import configuration files
 import stylesConfig from '@/lib/config/styles.json' assert { type: "json" };
 import optionsConfig from '@/lib/config/options.json' assert { type: "json" };
@@ -70,7 +71,7 @@ export function OutfitImageSelector({ photographyStyle }: OutfitImageSelectorPro
               <CardContent className="p-0">
                 <div className="relative aspect-square w-full">
                   <Image
-                    src={option.imageUrl} 
+                    src={getOptionsImage(option.imageUrl)} 
                     alt={option.label}
                     fill
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
