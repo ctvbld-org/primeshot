@@ -22,7 +22,7 @@ const defaultSettings: StyleSettings = {
   outfit: firstStyle.availableOutfits[0] as StyleOutfit,
   background: firstStyle.availableBackgrounds[0] as StyleBackground,
   outfitColor: firstStyle.availableOutfitColors[0] as StyleOutfitColor,
-  gender: 'other' // Default gender
+  gender: 'male' // Default gender
 }
 
 type StyleStore = StateCreator<StyleState>
