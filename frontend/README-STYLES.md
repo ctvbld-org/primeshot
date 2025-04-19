@@ -64,7 +64,7 @@ The application supports gender-specific styles and images:
 
 1. Each style has an `availableGenders` array that specifies which genders can use it:
    ```json
-   "availableGenders": ["male", "female", "other"]
+   "availableGenders": ["male", "female"]
    ```
 
 2. Styles can be restricted to specific genders:

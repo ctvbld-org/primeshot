@@ -8,23 +8,37 @@ import { StylePhotographyStyle, Gender } from '@/lib/types'
 // Import the JSON configuration
 import stylesConfig from '@/lib/config/styles.json' assert { type: "json" };
 import { getStyleImages } from '@/lib/utils/get-styles-images'
-import { useUserGender } from '@/hooks/use-user-gender'
+import { useUserGender } from '@/lib/hooks/use-user-gender'
 import { useGenderFilter } from '@/lib/hooks/use-gender-filter'
+import { z } from 'zod'
 
-// Type for the style configuration (optional but good practice)
-interface StyleConfig {
-  id: string;
-  name: string;
-  description: string;
-  previewImages: string[];
-  availableGenders?: Gender[];
-  availableBackgrounds: string[];
-  availableOutfits: string[];
-  availableOutfitColors: string[];
-}
+// Create a Zod enum from the Gender type
+const GenderEnum = z.enum(['male', 'female'] as const) satisfies z.ZodType<Gender>;
 
-// Use the imported JSON data with type assertion
-const photographyStyleOptions = stylesConfig as unknown as StyleConfig[];
+// Define the validation schema
+const StyleConfigSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  previewImages: z.array(z.string()),
+  availableGenders: z.array(GenderEnum).optional(),
+  availableBackgrounds: z.array(z.string()),
+  availableOutfits: z.array(z.string()),
+  availableOutfitColors: z.array(z.string())
+});
+
+const StyleConfigsSchema = z.array(StyleConfigSchema);
+
+// Validate at runtime with error handling
+const photographyStyleOptions = (() => {
+  try {
+    return StyleConfigsSchema.parse(stylesConfig);
+  } catch (error) {
+    console.error('Invalid style configuration:', error);
+    // Return empty array as fallback to prevent app crash
+    return [];
+  }
+})();
 
 interface PhotographyStyleModalProps {
   isOpen: boolean
@@ -36,14 +50,14 @@ export function PhotographyStyleModal({ isOpen, onClose, onSelectStyle }: Photog
   // Get user gender from hook
   const { gender, isLoading: isGenderLoading } = useUserGender();
   
-  // Filter styles based on user gender
-  const filteredStyles = useGenderFilter(photographyStyleOptions, gender);
+  // Filter styles based on user gender (convert null to undefined)
+  const filteredStyles = useGenderFilter(photographyStyleOptions, gender || undefined);
   
   // Memoize the calculation of gender-specific images for all filtered styles
   const stylesWithImages = useMemo(() => {
     return filteredStyles.map(style => ({
       ...style,
-      genderSpecificImages: getStyleImages(style.previewImages, gender)
+      genderSpecificImages: getStyleImages(style.previewImages, gender || undefined)
     }));
   }, [filteredStyles, gender]); // Re-calculate only when filteredStyles or gender changes
   
@@ -65,11 +79,6 @@ export function PhotographyStyleModal({ isOpen, onClose, onSelectStyle }: Photog
           <DialogTitle className="text-2xl">Choose Photography Style</DialogTitle>
           <DialogDescription>
             Select the overall look and feel for your headshots.
-            {gender && !isGenderLoading && (
-              <span className="block text-sm mt-1">
-                Showing styles available for {gender === 'other' ? 'all genders' : `${gender} users`}
-              </span>
-            )}
           </DialogDescription>
         </DialogHeader>
         

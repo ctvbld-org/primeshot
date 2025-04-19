@@ -27,7 +27,7 @@ import { OutfitColorSelector } from '@/components/style/outfit-color-selector'
 import stylesConfig from '@/lib/config/styles.json' assert { type: "json" };
 
 // Add this import
-import { useUserGender } from '@/hooks/use-user-gender';
+import { useUserGender } from '@/lib/hooks/use-user-gender';
 
 function NewStyleContent() {
   const router = useRouter()

@@ -41,12 +41,16 @@ export type StyleStatus = 'draft' | 'pending' | 'processing' | 'completed'
 // Colors are strings (hex values, etc.)
 export type StyleOutfitColor = string
 
+// Gender type for user profiles and style settings
+export type Gender = 'male' | 'female'
+
 export type StyleSettings = {
   photographyStyle: StylePhotographyStyle
   outfit: StyleOutfit
   background: StyleBackground
   outfitColor?: StyleOutfitColor
+  gender?: Gender
   customSettings?: Record<string, any>
 }
 
-// Generated on: 2025-04-18T21:49:51.321Z
+// Generated on: 2025-04-19T17:58:22.405Z

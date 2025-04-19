@@ -5,11 +5,11 @@ import { Gender } from '@/lib/types';
 
 /**
  * Hook to fetch and provide the user's gender
- * Falls back to 'other' if not specified
+ * Returns null if not specified
  */
 export function useUserGender() {
   const { user } = useAuth();
-  const [gender, setGender] = useState<Gender>('other'); 
+  const [gender, setGender] = useState<Gender | null>(null); 
   const [isLoading, setIsLoading] = useState(true); // Start true for initial load
   const [error, setError] = useState<Error | null>(null);
   const supabase = createClient();
@@ -19,7 +19,7 @@ export function useUserGender() {
   useEffect(() => {
     const userId = user?.id;
     if (!userId) {
-      if (gender !== 'other') setGender('other');
+      if (gender !== null) setGender(null);
       // Ensure loading is false if no user
       if (!initialLoadComplete) setIsLoading(false);
       setInitialLoadComplete(true); 
@@ -45,7 +45,7 @@ export function useUserGender() {
         
         if (error && error.code !== 'PGRST116') throw error;
         
-        const newGender: Gender = (data?.gender as Gender) || 'other';
+        const newGender = data?.gender as Gender | null;
         
         if (newGender !== gender) {
           setGender(newGender);
@@ -56,8 +56,8 @@ export function useUserGender() {
         if (!isMounted) return;
         console.error('Error fetching user gender:', err);
         setError(err instanceof Error ? err : new Error('Failed to fetch user gender'));
-        if (gender !== 'other') { 
-          setGender('other'); 
+        if (gender !== null) { 
+          setGender(null); 
         }
       } finally {
         if (isMounted) {

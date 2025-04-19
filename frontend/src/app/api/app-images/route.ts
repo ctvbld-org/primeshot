@@ -17,12 +17,17 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
  * This approach is compatible with Next.js Image component.
  */
  
-// S3 client configuration
-const s3Client = new S3Client({
+// Validate required environment variables
+if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+  throw new Error('AWS credentials are not properly configured. Please check your environment variables.');
+}
+
+// Initialize S3 client once for reuse across requests
+export const s3Client = new S3Client({
   region: process.env.NEXT_PUBLIC_AWS_REGION || 'us-east-1',
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
 });
 
@@ -110,6 +115,10 @@ export async function GET(request: Request) {
     
   } catch (error) {
     console.error('Error proxying image:', error);
-    return NextResponse.json({ error: 'Failed to proxy image' }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ 
+      error: 'Failed to proxy image', 
+      message: errorMessage 
+    }, { status: 500 });
   }
 } 

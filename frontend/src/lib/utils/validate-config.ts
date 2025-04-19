@@ -1,4 +1,5 @@
-import { StylePhotographyStyle, StyleBackground, StyleOutfit } from '@/lib/types';
+import { validStyleIds, validBackgrounds, validOutfits } from '@/lib/generated-validation';
+import type { StylePhotographyStyle, StyleBackground, StyleOutfit } from '@/lib/generated-types';
 import stylesConfig from '@/lib/config/styles.json' assert { type: "json" };
 import optionsConfig from '@/lib/config/options.json' assert { type: "json" };
 
@@ -9,23 +10,6 @@ import optionsConfig from '@/lib/config/options.json' assert { type: "json" };
 export function validateStylesConfig() {
   const errors: string[] = [];
   const warnings: string[] = [];
-
-  // Define valid values based on type definitions
-  // We need to define these manually because TypeScript types don't exist at runtime
-  const validStyleIds: StylePhotographyStyle[] = [
-    'studio', 'studio-2', 'business-portrait', 'business-portrait-2', 
-    'outdoor-fashion', 'outdoor-fashion-2'
-  ];
-  
-  const validBackgrounds: StyleBackground[] = [
-    'plain', 'office', 'outdoor', 'bookshelf', 'cafe', 'studio', 
-    'gradient', 'cityscape', 'abstract', 'brick', 'nature', 'tech', 'custom'
-  ];
-  
-  const validOutfits: StyleOutfit[] = [
-    'professional', 'casual', 'creative', 'business-casual', 
-    'startup', 'formal', 'tech'
-  ];
 
   // Check if all style IDs are valid StylePhotographyStyle types
   const configStyleIds = stylesConfig.map(style => style.id);

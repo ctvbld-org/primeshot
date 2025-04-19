@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/auth-context';
-import { useUserProgress } from '@/hooks/use-user-progress';
+import { useUserProgress } from '@/lib/hooks/use-user-progress';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 

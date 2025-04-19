@@ -11,12 +11,14 @@ import { Style, StyleStatus } from '@/lib/types'
 import { StyleCard } from '@/components/style/style-card'
 import { NewStyleCard } from '@/components/style/new-style-card'
 import { ArrowRightIcon } from '@heroicons/react/24/outline'
-import { useUserProgress } from '@/hooks/use-user-progress'
+import { useUserProgress } from '@/lib/hooks/use-user-progress'
 import { PhotographyStyleModal } from '@/components/style/photography-style-modal'
 import { getStyles, deleteStyle, calculateHeadshots } from '@/lib/api/styles'
 import { formatPrice, getTierDisplayText } from '@/lib/pricing'
 import { ProfileCompletionModal } from '@/components/profile/profile-completion-modal'
 import { getOrCreateDraftOrder } from '@/lib/api/orders'
+import { useUserProfile } from '@/lib/hooks/use-user-profile'
+import { usePaymentFlow } from '@/lib/hooks/use-payment-flow'
 
 export default function StylesPage() {
   const router = useRouter()
@@ -28,6 +30,7 @@ export default function StylesPage() {
   const [showStyleModal, setShowStyleModal] = useState(false)
   const [showProfileModal, setShowProfileModal] = useState(false)
   const supabase = createClient()
+  const { fetchProfile } = useUserProfile()
   
   // Headshot calculation state
   const [headshotInfo, setHeadshotInfo] = useState<{
@@ -44,33 +47,30 @@ export default function StylesPage() {
     price: 0
   })
 
+  // Add usePaymentFlow at component level
+  const { proceedToPayment, isLoading: isPaymentLoading } = usePaymentFlow({
+    styles,
+    headshotInfo
+  })
+  
   // Check if user profile is complete
   useEffect(() => {
-    const checkUserProfile = async () => {
-      if (!user) return;
-      
-      try {
-        const { data, error } = await supabase
-          .from('users')
-          .select('full_name, gender')
-          .eq('id', user.id)
-          .single();
-          
-        if (error) throw error;
-        
+    if (!user) return;
+
+    const loadProfile = async () => {
+      const profile = await fetchProfile(user.id);
+      if (profile) {
         // Show profile modal if name or gender is missing
-        if (!data.full_name || !data.gender) {
+        if (!profile.full_name || !profile.gender) {
           setShowProfileModal(true);
         } else {
           setShowProfileModal(false);
         }
-      } catch (error) {
-        console.error('Error checking user profile:', error);
       }
     };
-    
-    checkUserProfile();
-  }, [user, supabase]);
+
+    loadProfile();
+  }, [user, fetchProfile]);
 
   // Function to load styles
   const loadStyles = useCallback(async () => {
@@ -222,64 +222,18 @@ export default function StylesPage() {
         <Button 
           size="lg"
           className="w-full sm:w-auto"
-          disabled={headshotInfo.styleCount === 0 || isLoading}
+          disabled={headshotInfo.styleCount === 0 || isLoading || isPaymentLoading}
           onClick={async () => {
             if (!user) {
               toast({ title: 'Error', description: 'User not logged in.', variant: 'destructive' });
               return;
             }
             if (headshotInfo.styleCount > 0) {
-              setIsLoading(true); // Indicate loading state
-              try {
-                // 1. Get the draft order ID
-                const order = await getOrCreateDraftOrder(user.id);
-                if (!order) throw new Error('Could not retrieve draft order.');
-                const orderId = order.id;
-
-                // 2. Prepare style data for metadata
-                // Extract only the settings from the styles currently in state
-                const finalStyleSettings = styles.map(style => style.settings);
-                const newMetadata = {
-                  finalStyles: finalStyleSettings,
-                  // You could add other relevant info here, like tier, counts etc.
-                  tier: headshotInfo.tier,
-                  styleCount: headshotInfo.styleCount,
-                  totalHeadshots: headshotInfo.totalHeadshots,
-                };
-                
-                // 3. Update the order metadata in Supabase
-                const { error: updateError } = await supabase
-                  .from('orders')
-                  .update({ metadata: newMetadata })
-                  .eq('id', orderId);
-                  
-                if (updateError) {
-                  console.error('Error updating order metadata:', updateError);
-                  throw new Error('Failed to save style details to order.');
-                }
-                
-                console.log('Order metadata updated successfully for order:', orderId);
-
-                // 4. Update user progress state
-                await updateProgress('payment');
-                
-                // 5. Navigate to payment page
-                router.push('/app/payment');
-                
-              } catch (error) {
-                console.error('Error proceeding to payment:', error);
-                toast({ 
-                  title: 'Error', 
-                  description: error instanceof Error ? error.message : 'Could not proceed to payment. Please try again.', 
-                  variant: 'destructive' 
-                });
-              } finally {
-                 setIsLoading(false); // Stop loading indicator
-              }
+              await proceedToPayment();
             }
           }}
         >
-          {isLoading ? 'Processing...' : 'Next: Payment'} 
+          {isLoading || isPaymentLoading ? 'Processing...' : 'Next: Payment'} 
           <ArrowRightIcon className="h-4 w-4 ml-2" />
         </Button>
       </div>

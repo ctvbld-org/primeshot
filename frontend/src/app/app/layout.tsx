@@ -5,7 +5,7 @@ import { Toaster } from '@/components/ui/toaster'
 import { useAuth } from '@/contexts/auth-context'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { usePaymentRecovery } from "@/hooks/use-payment-recovery"
+import { usePaymentRecovery } from "@/lib/hooks/use-payment-recovery"
 import { PaymentRecoveryDialog } from "@/components/ui/alert-dialog"
 import { usePathname } from 'next/navigation'
 

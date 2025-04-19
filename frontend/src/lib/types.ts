@@ -7,7 +7,7 @@ export type User = {
   updated_at: string
 }
 
-export type Gender = 'male' | 'female' | 'other'
+export type Gender = 'male' | 'female'
 
 export type Session = {
   id: string
@@ -108,6 +108,14 @@ export type Image = {
   mime_type: 'image/jpeg' | 'image/png' | 'image/webp'
   dimensions: ImageDimensions
   created_at: string
+}
+
+export type HeadshotInfo = {
+  styleCount: number
+  totalHeadshots: number
+  headshotsPerStyle: number
+  tier: string
+  price: number
 }
 
 // Database insert types (omit generated fields)
