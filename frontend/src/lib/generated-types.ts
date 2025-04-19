@@ -53,4 +53,4 @@ export type StyleSettings = {
   customSettings?: Record<string, any>
 }
 
-// Generated on: 2025-04-19T22:05:15.603Z
+// Generated on: 2025-04-20T09:22:12.658Z

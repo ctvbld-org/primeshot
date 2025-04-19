@@ -129,6 +129,13 @@ alwaysApply: true
     D --> A
   ```
 
+- **In-Memory Cache Pattern**
+  - Cache client data first, fallback to API calls
+  - Generate deterministic cache keys based on function parameters
+  - Use TTL values appropriate for data volatility
+  - Always invalidate related caches when updating data
+  - Implement hierarchical cache patterns for interdependent data
+
 - **Error Handling**
   - Each stage should handle:
     - Network errors

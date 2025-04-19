@@ -110,12 +110,13 @@ export type Image = {
   created_at: string
 }
 
-export type HeadshotInfo = {
-  styleCount: number
-  totalHeadshots: number
-  headshotsPerStyle: number
-  tier: string
-  price: number
+// Add HeadshotInfo interface for caching and type safety
+export interface HeadshotInfo {
+  styleCount: number;
+  totalHeadshots: number;
+  headshotsPerStyle: number;
+  tier: string;
+  price: number;
 }
 
 // Database insert types (omit generated fields)

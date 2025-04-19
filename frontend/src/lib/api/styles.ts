@@ -1,8 +1,13 @@
 import { createClient } from '@/lib/supabase/client'
-import { InsertStyle, Style, StyleStatus, UpdateStyle } from '@/lib/types'
+import { InsertStyle, Style, StyleStatus, UpdateStyle, HeadshotInfo } from '@/lib/types'
 import { calculatePricing } from '@/lib/pricing'
 import { SupabaseClient } from '@supabase/supabase-js'
 import { logger } from '@/lib/logger'
+import { cacheData, getCachedData, generateCacheKey } from '@/lib/cache'
+
+// Cache TTLs
+const STYLES_CACHE_TTL = 60000 // 1 minute
+const HEADSHOTS_CACHE_TTL = 60000 // 1 minute
 
 /**
  * Save a new style to the database
@@ -47,6 +52,10 @@ export async function saveStyle(style: InsertStyle): Promise<Style> {
   // Now update the order amount based on the new style count
   await updateOrderAmount(style.order_id, supabase)
   
+  // Clear related caches
+  cacheData.clearCachesByPattern(`styles:*userId*${style.user_id}*`)
+  cacheData.clearCachesByPattern(`headshots:*userId*${style.user_id}*`)
+  
   return data as Style
 }
 
@@ -87,6 +96,10 @@ export async function deleteStyle(id: string, userId: string): Promise<void> {
   if (style) {
     await updateOrderAmount(style.order_id, supabase)
   }
+
+  // Clear related caches
+  cacheData.clearCachesByPattern(`styles:*userId*${userId}*`)
+  cacheData.clearCachesByPattern(`headshots:*userId*${userId}*`)
 }
 
 /**
@@ -94,43 +107,42 @@ export async function deleteStyle(id: string, userId: string): Promise<void> {
  */
 export async function getStyles(
   userId: string, 
-  options?: { 
-    status?: StyleStatus, 
-    orderId?: string,
-    limit?: number
-  }
+  options: { status?: StyleStatus } = {}
 ): Promise<Style[]> {
+  // Generate a cache key based on the function parameters
+  const cacheKey = generateCacheKey('styles', { userId, ...options })
+  
+  // Check if we have cached data
+  const cachedStyles = getCachedData<Style[]>(cacheKey)
+  if (cachedStyles) {
+    return cachedStyles
+  }
+
   const supabase = createClient()
   
+  // Start building the query
   let query = supabase
     .from('styles')
     .select('*')
     .eq('user_id', userId)
   
-  // Add filters if provided
-  if (options?.status) {
+  // Add status filter if provided
+  if (options.status) {
     query = query.eq('status', options.status)
   }
   
-  if (options?.orderId) {
-    query = query.eq('order_id', options.orderId)
-  }
-  
-  // Add pagination if limit is provided
-  if (options?.limit) {
-    query = query.limit(options.limit)
-  }
-  
-  // Order by creation date, newest first
-  query = query.order('created_at', { ascending: false })
-  
-  const { data, error } = await query
+  // Execute query
+  const { data, error } = await query.order('created_at', { ascending: false })
   
   if (error) {
-    throw new Error(`Failed to fetch styles: ${error.message}`)
+    console.error('Error fetching styles:', error)
+    throw new Error(error.message)
   }
   
-  return data as Style[]
+  // Cache the results
+  cacheData(cacheKey, data, STYLES_CACHE_TTL)
+  
+  return data || []
 }
 
 /**
@@ -179,50 +191,49 @@ export async function updateStyle(style: UpdateStyle): Promise<Style> {
 }
 
 /**
- * Calculate headshots based on style count
+ * Calculate headshots for a user's styles
  */
-export async function calculateHeadshots(userId: string): Promise<{
-  styleCount: number,
-  totalHeadshots: number,
-  headshotsPerStyle: number,
-  tier: string,
-  price: number
-}> {
-  // Get only draft styles for pricing calculations
+export async function calculateHeadshots(userId: string): Promise<HeadshotInfo> {
+  // Generate a cache key
+  const cacheKey = generateCacheKey('headshots', { userId })
+  
+  // Check if we have cached data
+  const cachedHeadshots = getCachedData<HeadshotInfo>(cacheKey)
+  if (cachedHeadshots) {
+    return cachedHeadshots
+  }
+
   const supabase = createClient()
-  const { data: styles, error } = await supabase
+  
+  // Count all draft styles for this user
+  const { count, error } = await supabase
     .from('styles')
-    .select('id')
+    .select('*', { count: 'exact', head: true })
     .eq('user_id', userId)
     .eq('status', 'draft')
-    
+  
   if (error) {
-    throw new Error(`Failed to fetch styles for headshot calculation: ${error.message}`)
+    console.error('Error calculating headshots:', error)
+    throw new Error(error.message)
   }
   
-  const styleCount = styles.length
-  
-  // If no styles, return default values
-  if (styleCount === 0) {
-    return {
-      styleCount: 0,
-      totalHeadshots: 0,
-      headshotsPerStyle: 0,
-      tier: 'none',
-      price: 0
-    }
-  }
+  const styleCount = count || 0
   
   // Calculate pricing information based on style count
   const pricingInfo = calculatePricing(styleCount)
   
-  return {
+  const result = {
     styleCount,
     totalHeadshots: pricingInfo.totalHeadshots,
     headshotsPerStyle: pricingInfo.headshotsPerStyle,
     tier: pricingInfo.tier,
     price: pricingInfo.price
   }
+  
+  // Cache the results
+  cacheData(cacheKey, result, HEADSHOTS_CACHE_TTL)
+  
+  return result
 }
 
 /**

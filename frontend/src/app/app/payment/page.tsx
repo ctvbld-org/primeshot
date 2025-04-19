@@ -16,6 +16,7 @@ import { formatPrice, calculatePricing } from '@/lib/pricing';
 import type { PricingInfo } from '@/lib/pricing';
 import type { Order, Style } from '@/lib/types';
 import { getOrCreateDraftOrder } from '@/lib/api/orders';
+import { generateCacheKey, getCachedData, cacheData } from '@/lib/cache';
 
 // Define types for payment-related stage data
 interface PaymentStageData {
@@ -55,114 +56,110 @@ export default function PaymentPage() {
   useEffect(() => {
     async function loadData() {
       if (!user) return;
-      if (isLoading === false) return; // Prevent re-loading once data is loaded
-      
-      const supabase = createClient();
-      let currentOrder: Order;
       
       try {
-        // If resuming a payment, get that specific order
-        if (resumeOrderId) {
-          setIsRecoveringPayment(true);
-          console.log(`Attempting to recover payment for order: ${resumeOrderId}`);
+        const supabase = createClient();
+        let currentOrder: Order | undefined;
+        let pricing: PricingInfo | undefined;
+        
+        // Check cache first
+        const orderCacheKey = generateCacheKey('draftOrder', { userId: user.id });
+        const cachedOrder = getCachedData<Order>(orderCacheKey);
+        
+        // If order is cached and no resumeOrderId is specified, use the cached order
+        if (cachedOrder && !resumeOrderId) {
+          setOrder(cachedOrder);
+          currentOrder = cachedOrder;
           
-          const { data, error } = await supabase
-            .from('orders')
-            .select('*')
-            .eq('id', resumeOrderId)
-            .eq('user_id', user.id) // Security: ensure the order belongs to this user
-            .eq('status', 'pending_payment')
-            .single();
+          // Try to get cached styles
+          const stylesCacheKey = generateCacheKey('styles', { 
+            userId: user.id, 
+            orderId: cachedOrder.id, 
+            status: 'draft' 
+          });
           
-          if (error || !data) {
-            throw new Error('Order not found or not in a recoverable state');
+          const cachedStyles = getCachedData<Style[]>(stylesCacheKey);
+          if (cachedStyles) {
+            setStyles(cachedStyles);
+            
+            // Calculate pricing info based on style count
+            const styleCount = cachedStyles.length;
+            if (styleCount > 0) {
+              pricing = calculatePricing(styleCount);
+              setPricingInfo(pricing);
+            }
+            setIsLoading(false);
+            
+            // Early return if everything is cached
+            return { order: cachedOrder, styles: cachedStyles, pricing };
           }
-          
-          currentOrder = data;
-          console.log(`Successfully found order ${currentOrder.id} for payment recovery`);
-        } else {
-          // Get the single draft or pending_payment order for the user
-          currentOrder = await getOrCreateDraftOrder(user.id);
         }
         
-        setOrder(currentOrder);
-
-        // Get styles associated with this specific order
-        const { data: stylesData, error: stylesError } = await supabase
+        // If we're here, we need to fetch at least some data
+        let fetchedOrder = cachedOrder;
+        
+        // Fetch the current order if not cached or if resuming a specific order
+        if (!fetchedOrder || resumeOrderId) {
+          // Check if resuming a specific order or get/create draft order
+          if (resumeOrderId) {
+            const { data: resumeOrder, error: resumeError } = await supabase
+              .from('orders')
+              .select('*')
+              .eq('id', resumeOrderId)
+              .eq('user_id', user.id)
+              .single();
+            
+            if (resumeError) {
+              throw new Error(`Could not find the specified order: ${resumeError.message}`);
+            }
+            
+            fetchedOrder = resumeOrder;
+            setIsRecoveringPayment(true);
+          } else {
+            fetchedOrder = await getOrCreateDraftOrder(user.id);
+          }
+          
+          if (!fetchedOrder) {
+            throw new Error('Could not find or create a draft order.');
+          }
+          
+          setOrder(fetchedOrder);
+          currentOrder = fetchedOrder;
+          
+          // Cache the order
+          cacheData(orderCacheKey, fetchedOrder, 5 * 60 * 1000); // 5 minutes
+        }
+        
+        // Fetch styles for this order
+        const { data: orderStyles } = await supabase
           .from('styles')
           .select('*')
           .eq('user_id', user.id)
-          .eq('order_id', currentOrder.id) // Fetch styles ONLY for the retrieved order
-          .order('created_at', { ascending: true });
-          
-        if (stylesError) throw stylesError;
+          .eq('order_id', fetchedOrder.id)
+          .eq('status', 'draft');
         
-        // It's possible the order exists but has no styles yet if user just created the order
-        // and immediately navigated here.
-        setStyles(stylesData || []); 
+        setStyles(orderStyles || []);
         
-        // Check if there are actually styles before proceeding
-        if (!stylesData || stylesData.length === 0) {
-          // Allow loading the payment page even with 0 styles if the order exists
-          // but maybe show a different state or disable payment button?
-          // For now, let's calculate price based on 0 styles if needed.
-          console.log('No styles found for order', currentOrder.id, 'calculating price for 0 styles.');
-        }
-        
-        // Calculate pricing based on the actual style count for the order
-        const styleCount = stylesData?.length || 0;
-        const pricing = calculatePricing(styleCount);
-        setPricingInfo(pricing);
-        
-        // If the order amount doesn't match the calculated price, update the order
-        // This syncs the order amount if styles were changed on the shoot page
-        if (currentOrder.amount !== pricing.price) {
-          console.log(`Order ${currentOrder.id} amount (${currentOrder.amount}) differs from calculated price (${pricing.price}). Updating order.`);
-          
-          try {
-            // Use the proxy endpoint instead of direct database updates
-            const response = await fetch('/api/proxy/update-order-amount', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                orderId: currentOrder.id,
-                newAmount: pricing.price,
-              }),
-            });
-            
-            if (!response.ok) {
-              const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-              throw new Error(errorData.error || `Failed with status ${response.status}`);
-            }
-            
-            // Update local order state optimistically on success
-            setOrder(prev => prev ? { ...prev, amount: pricing.price } : null);
-          } catch (error) {
-            console.error("Failed to update order amount via proxy:", error);
-            // Non-critical error, proceed but log it
-          }
-        }
-
-        // Update progress once per session
-        if (!hasUpdatedProgress.current) {
-          // Cast the stage_data to our defined type
-          const stageData = progress?.stage_data as StageData | undefined;
-          const paymentData = stageData?.payment || {};
-          
-          await updateProgress('payment', {
-            orderId: currentOrder.id,
-            attemptCount: (paymentData.attemptCount || 0) + 1,
-            lastAttemptAt: new Date().toISOString(),
-            isRecovery: !!resumeOrderId
+        // Cache the styles
+        if (orderStyles && orderStyles.length > 0) {
+          const stylesCacheKey = generateCacheKey('styles', { 
+            userId: user.id, 
+            orderId: fetchedOrder.id, 
+            status: 'draft' 
           });
-          hasUpdatedProgress.current = true;
+          cacheData(stylesCacheKey, orderStyles, 5 * 60 * 1000); // 5 minutes
+        }
+        
+        // Calculate pricing
+        if (orderStyles) {
+          const styleCount = orderStyles.length || 0;
+          pricing = calculatePricing(styleCount);
+          setPricingInfo(pricing);
         }
         
         // If this is a payment recovery, proceed directly to payment step
         // Also attempt to restore the payment intent
-        if (resumeOrderId && currentOrder.payment_intent_id) {
+        if (resumeOrderId && currentOrder && currentOrder.payment_intent_id && pricing) {
           setPaymentStep('payment');
           
           try {
@@ -187,33 +184,43 @@ export default function PaymentPage() {
         }
       } catch (error) {
         console.error('Error loading payment data:', error);
-        
-        // Handle payment recovery errors specifically
-        if (resumeOrderId && error instanceof Error) {
-          toast({ 
-            title: 'Payment Recovery Failed', 
-            description: 'We couldn\'t restore your previous payment. Starting a new payment process.',
-            variant: 'destructive'
-          });
-          // Redirect to regular payment flow
-          router.replace('/app/payment');
-          return;
-        }
-        
-        // If error is about no styles, redirect slightly differently?
-        if (error instanceof Error && error.message.includes('No styles found')) { 
-           toast({ title: 'No Styles', description: 'Please add styles to your shoot first.', variant: 'destructive' });
-           router.push('/app/shoot');
-        } else {
-          toast({ title: 'Error', description: 'Failed to load payment data.', variant: 'destructive' });
-        }
+        toast({
+          title: 'Error',
+          description: error instanceof Error ? error.message : 'Could not load payment information. Please try again.',
+          variant: 'destructive'
+        });
       } finally {
         setIsLoading(false);
       }
     }
     
     loadData();
-  }, [user, router, toast, updateProgress, resumeOrderId, progress?.stage_data]);
+  }, [user, router, toast, resumeOrderId]);
+
+  // Handle progress updates in a separate effect
+  useEffect(() => {
+    async function updatePaymentProgress() {
+      if (!user || !order || hasUpdatedProgress.current) return;
+      
+      try {
+        // Cast the stage_data to our defined type
+        const stageData = progress?.stage_data as StageData | undefined;
+        const paymentData = stageData?.payment || {};
+        
+        await updateProgress('payment', {
+          orderId: order.id,
+          attemptCount: (paymentData.attemptCount || 0) + 1,
+          lastAttemptAt: new Date().toISOString(),
+          isRecovery: !!resumeOrderId
+        });
+        hasUpdatedProgress.current = true;
+      } catch (error) {
+        console.error('Error updating payment progress:', error);
+      }
+    }
+    
+    updatePaymentProgress();
+  }, [user, order, updateProgress, resumeOrderId, progress?.stage_data]);
 
   // Proceed to payment
   const handleContinueToPayment = async () => {

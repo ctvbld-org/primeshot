@@ -12,7 +12,7 @@ self.onmessage = async function(e) {
   const { type, payload, id } = e.data;
   
   switch(type) {
-    case 'LOAD_MODELS':
+    case 'LOAD_MODELS': {
       await loadModels();
       self.postMessage({
         type: 'MODELS_LOADED',
@@ -21,8 +21,9 @@ self.onmessage = async function(e) {
         id
       });
       break;
+    }
       
-    case 'DETECT_FACE':
+    case 'DETECT_FACE': {
       if (!modelsLoaded) {
         await loadModels();
         if (!modelsLoaded) {
@@ -54,13 +55,15 @@ self.onmessage = async function(e) {
         });
       }
       break;
+    }
       
-    default:
+    default: {
       self.postMessage({
         type: 'ERROR',
         error: `Unknown command: ${type}`,
         id
       });
+    }
   }
 };
 
@@ -116,12 +119,38 @@ async function loadModels() {
 
 // Detect faces in an image
 async function detectFace(imageData, width, height) {
-  // Create an ImageData object
-  const image = new ImageData(new Uint8ClampedArray(imageData), width, height);
+  // Convert image data to tensor that face-api can process
+  const pixels = new Uint8ClampedArray(imageData);
+  let tensor = faceapi.tf.browser.fromPixels(
+    { data: pixels, width, height }, 3
+  );
   
   // Detect faces using TinyFaceDetector first (faster)
   const tinyFaceDetectorOptions = new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 });
-  const faceDetections = await faceapi.detectAllFaces(image, tinyFaceDetectorOptions).withFaceLandmarks();
+  const faceDetections = await faceapi.detectAllFaces(tensor, tinyFaceDetectorOptions).withFaceLandmarks();
+  
+  // Cleanup tensor
+  tensor.dispose();
+
+  // If no faces found with TinyFaceDetector, try SSD MobileNet
+  if (faceDetections.length === 0) {
+    console.log('[Worker] No faces detected with TinyFaceDetector, trying SSD MobileNet');
+    
+    // Create a new tensor for SSD detection
+    tensor = faceapi.tf.browser.fromPixels(
+      { data: pixels, width, height }, 3
+    );
+    
+    const ssdOptions = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.1 });
+    const ssdDetections = await faceapi.detectAllFaces(tensor, ssdOptions).withFaceLandmarks();
+    
+    // Cleanup tensor
+    tensor.dispose();
+    
+    if (ssdDetections.length > 0) {
+      return ssdDetections;
+    }
+  }
   
   // Initialize result
   const result = {
@@ -141,23 +170,6 @@ async function detectFace(imageData, width, height) {
     }));
     
     return result;
-  }
-  
-  // If no faces detected with TinyFaceDetector, try SSD MobileNet as fallback
-  console.log('[Worker] No faces detected with TinyFaceDetector, trying SSD MobileNet');
-  const ssdOptions = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.1 });
-  const ssdDetections = await faceapi.detectAllFaces(image, ssdOptions).withFaceLandmarks();
-  
-  if (ssdDetections.length > 0) {
-    result.faceCount = ssdDetections.length;
-    result.hasFace = true;
-    
-    // For each face, extract position and landmarks
-    result.faces = ssdDetections.map(detection => ({
-      box: detection.detection.box,
-      landmarks: detection.landmarks,
-      score: detection.detection.score
-    }));
   }
   
   return result;

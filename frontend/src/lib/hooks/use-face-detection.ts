@@ -54,15 +54,16 @@ export function useFaceDetection() {
           
           // Handle different message types
           switch (type) {
-            case 'MODELS_LOADED':
+            case 'MODELS_LOADED': {
               setIsReady(success)
               setIsLoading(false)
               if (!success && error) {
                 setError(error)
               }
               break
+            }
               
-            case 'FACE_DETECTION_RESULT':
+            case 'FACE_DETECTION_RESULT': {
               // Resolve or reject the corresponding promise
               const request = pendingRequests.current.get(id)
               if (request) {
@@ -74,6 +75,7 @@ export function useFaceDetection() {
                 pendingRequests.current.delete(id)
               }
               break
+            }
               
             case 'ERROR':
               console.error('Worker error:', error)

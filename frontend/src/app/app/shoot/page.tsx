@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from '@/components/ui/use-toast'
 import { useAuth } from '@/contexts/auth-context'
 import { createClient } from '@/lib/supabase/client'
-import { Style, StyleStatus } from '@/lib/types'
+import { Style, StyleStatus, HeadshotInfo } from '@/lib/types'
 import { StyleCard } from '@/components/style/style-card'
 import { NewStyleCard } from '@/components/style/new-style-card'
 import { ArrowRightIcon } from '@heroicons/react/24/outline'
@@ -19,12 +19,28 @@ import { ProfileCompletionModal } from '@/components/profile/profile-completion-
 import { getOrCreateDraftOrder } from '@/lib/api/orders'
 import { useUserProfile } from '@/lib/hooks/use-user-profile'
 import { usePaymentFlow } from '@/lib/hooks/use-payment-flow'
+import { getCachedData, cacheData, generateCacheKey, clearCache } from '@/lib/cache'
+import type { Style as StyleType } from '@/lib/types'
+
+// Cache TTLs
+const STYLES_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const HEADSHOTS_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+// Types
+interface Image {
+  id: string;
+  user_id: string;
+  url: string;
+  created_at: string;
+  order_id?: string;
+}
 
 export default function StylesPage() {
   const router = useRouter()
   const { user } = useAuth()
   const { toast } = useToast()
-  const [styles, setStyles] = useState<Style[]>([])
+  const [styles, setStyles] = useState<StyleType[]>([])
+  const [images, setImages] = useState<Image[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { updateProgress, canModifyStyles, progress } = useUserProgress()
   const [showStyleModal, setShowStyleModal] = useState(false)
@@ -33,13 +49,7 @@ export default function StylesPage() {
   const { fetchProfile } = useUserProfile()
   
   // Headshot calculation state
-  const [headshotInfo, setHeadshotInfo] = useState<{
-    styleCount: number,
-    totalHeadshots: number,
-    headshotsPerStyle: number,
-    tier: string,
-    price: number
-  }>({
+  const [headshotInfo, setHeadshotInfo] = useState<HeadshotInfo>({
     styleCount: 0,
     totalHeadshots: 0,
     headshotsPerStyle: 0,
@@ -52,6 +62,15 @@ export default function StylesPage() {
     styles,
     headshotInfo
   })
+  
+  // Generate cache keys based on user ID
+  const cacheKeys = useMemo(() => {
+    if (!user) return null;
+    return {
+      styles: generateCacheKey('styles', { userId: user.id, status: 'draft' }),
+      images: generateCacheKey('images', { userId: user.id })
+    };
+  }, [user]);
   
   // Check if user profile is complete
   useEffect(() => {
@@ -72,70 +91,116 @@ export default function StylesPage() {
     loadProfile();
   }, [user, fetchProfile]);
 
-  // Function to load styles
-  const loadStyles = useCallback(async () => {
-    if (!user) return;
-
-    try {
-      // Only set loading to true if styles aren't loaded yet
-      if (styles.length === 0) {
-        setIsLoading(true);
-      }
-      
-      // Fetch draft styles for this user
-      const draftStyles = await getStyles(user.id, { status: 'draft' });
-      setStyles(draftStyles);
-      
-      // Calculate headshots for draft styles
-      if (user) {
-        try {
-          const headshots = await calculateHeadshots(user.id);
-          setHeadshotInfo(headshots);
-        } catch (error) {
-          console.error('Error calculating headshots:', error);
-        }
-      }
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to load styles',
-        variant: 'destructive'
-      });
-    } finally {
-      // Always ensure loading is set to false after fetching
-      setIsLoading(false);
-    }
-  }, [user, toast]);
-
-  // Load styles on mount
+  // Load styles from cache or fetch them
   useEffect(() => {
-    if (user) {
-      loadStyles();
+    async function loadStyles() {
+      if (!user || !cacheKeys) return;
+      
+      try {
+        setIsLoading(true);
+        // Check cache first
+        const cachedStyles = getCachedData<StyleType[]>(cacheKeys.styles);
+        if (cachedStyles) {
+          setStyles(cachedStyles);
+          setIsLoading(false);
+          return;
+        }
+        
+        // Fetch from database if not in cache
+        const { data: dbStyles } = await supabase
+          .from('styles')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('status', 'draft');
+        
+        if (dbStyles) {
+          setStyles(dbStyles);
+          // Cache the fetched styles
+          cacheData(cacheKeys.styles, dbStyles, STYLES_CACHE_TTL);
+        }
+      } catch (error) {
+        console.error('Error loading styles:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load your styles. Please try refreshing the page.',
+          variant: 'destructive'
+        });
+      } finally {
+        setIsLoading(false);
+      }
     }
-  }, [user, loadStyles]);
+    
+    loadStyles();
+  }, [user, cacheKeys, supabase, toast]);
 
-  // Function to handle style deletion
-  const handleDeleteStyle = useCallback(async (styleId: string) => {
-    if (!user) return;
+  // Load images from cache or fetch them
+  useEffect(() => {
+    async function loadImages() {
+      if (!user || !cacheKeys) return;
+      
+      try {
+        // Check cache first
+        const cachedImages = getCachedData<Image[]>(cacheKeys.images);
+        if (cachedImages) {
+          setImages(cachedImages);
+          return;
+        }
+        
+        // Fetch from database if not in cache
+        const { data: dbImages } = await supabase
+          .from('images')
+          .select('*')
+          .eq('user_id', user.id);
+        
+        if (dbImages) {
+          setImages(dbImages);
+          // Cache the fetched images
+          cacheData(cacheKeys.images, dbImages, HEADSHOTS_CACHE_TTL);
+        }
+      } catch (error) {
+        console.error('Error loading images:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load your images. Please try refreshing the page.',
+          variant: 'destructive'
+        });
+      }
+    }
+    
+    loadImages();
+  }, [user, cacheKeys, supabase, toast]);
 
+  // Handle style deletion
+  const handleDeleteStyle = async (styleId: string) => {
     try {
-      await deleteStyle(styleId, user.id);
-      
-      // Refresh the styles list
-      loadStyles();
-      
+      const { error } = await supabase
+        .from('styles')
+        .delete()
+        .eq('id', styleId);
+
+      if (error) throw error;
+
+      // Update local state
+      setStyles(prevStyles => prevStyles.filter(style => style.id !== styleId));
+
+      // Clear all related style caches
+      if (user) {
+        clearCache.clearCachesByPattern(`styles:userId:${user.id}*`);
+      }
+
       toast({
-        title: 'Success',
-        description: 'Style deleted successfully',
+        title: 'Style Deleted',
+        description: 'The style has been removed from your order.',
       });
     } catch (error) {
+      console.error('Error deleting style:', error);
       toast({
         title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to delete style',
+        description: 'Failed to delete the style. Please try again.',
         variant: 'destructive'
       });
     }
-  }, [user, loadStyles, toast]);
+  };
 
   const handleSelectStyle = useCallback((style: string) => {
     // Navigate directly
@@ -144,9 +209,48 @@ export default function StylesPage() {
 
   const handleProfileComplete = useCallback(() => {
     setShowProfileModal(false);
-    // Refresh the page data
-    loadStyles();
-  }, [loadStyles]);
+  }, []);
+
+  // Handle style creation
+  const handleCreateStyle = async (style: string) => {
+    try {
+      const { data: newStyle, error } = await supabase
+        .from('styles')
+        .insert([
+          {
+            user_id: user?.id,
+            name: style,
+            status: 'draft'
+          }
+        ])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Update local state
+      if (newStyle) {
+        setStyles(prevStyles => [...prevStyles, newStyle]);
+      }
+
+      // Clear all related style caches
+      if (user) {
+        clearCache.clearCachesByPattern(`styles:userId:${user.id}*`);
+      }
+
+      toast({
+        title: 'Style Created',
+        description: 'New style has been added to your order.',
+      });
+    } catch (error) {
+      console.error('Error creating style:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to create the style. Please try again.',
+        variant: 'destructive'
+      });
+    }
+  };
 
   // Memoize the pricing card to prevent re-renders
   const PricingCard = useMemo(() => {
