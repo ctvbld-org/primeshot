@@ -26,14 +26,19 @@ import { OutfitColorSelector } from '@/components/style/outfit-color-selector'
 // Import configs needed for setting defaults
 import stylesConfig from '@/lib/config/styles.json' assert { type: "json" };
 
+// Add this import
+import { useUserGender } from '@/lib/hooks/use-user-gender';
+
 function NewStyleContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user } = useAuth()
   // Get all setters needed
-  const { settings, setBackground, setOutfit, setOutfitColor, reset } = useStyleStore()
+  const { settings, setBackground, setOutfit, setOutfitColor, setGender, reset } = useStyleStore()
   const { toast } = useToast()
   const [isSaving, setIsSaving] = useState(false)
+  // Get user gender
+  const { gender: userGender, isLoading: isGenderLoading } = useUserGender();
   
   // Read style directly from params. Suspense handles the initial null state.
   const photographyStyle = searchParams.get('style') as StylePhotographyStyle | null;
@@ -100,12 +105,18 @@ function NewStyleContent() {
       if (defaultBg) setBackground(defaultBg);
       if (defaultOutfit) setOutfit(defaultOutfit);
       if (defaultColor) setOutfitColor(defaultColor);
+      
+      // Set the gender if available
+      if (!isGenderLoading && userGender) {
+        setGender(userGender);
+        console.log("Set gender to:", userGender);
+      }
 
     } else {
       console.log("Skipping default setting, style not validated yet or invalid.");
     }
     // Depend on validation status and the style itself
-  }, [isStyleValidated, photographyStyle, setBackground, setOutfit, setOutfitColor, reset]);
+  }, [isStyleValidated, photographyStyle, userGender, isGenderLoading, setBackground, setOutfit, setOutfitColor, setGender, reset]);
 
   const handleSave = async () => {
     // Use the validated photographyStyle directly
@@ -139,9 +150,6 @@ function NewStyleContent() {
           outfit: settings.outfit,
           background: settings.background,
           outfitColor: settings.outfitColor,
-          // Keep compatibility fields if needed, using validated style
-          style: settings.outfit,
-          lighting: photographyStyle 
         },
         status: 'draft' as StyleStatus
       }

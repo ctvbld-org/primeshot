@@ -11,10 +11,14 @@ import { Style, StyleStatus } from '@/lib/types'
 import { StyleCard } from '@/components/style/style-card'
 import { NewStyleCard } from '@/components/style/new-style-card'
 import { ArrowRightIcon } from '@heroicons/react/24/outline'
-import { useUserProgress } from '@/hooks/use-user-progress'
+import { useUserProgress } from '@/lib/hooks/use-user-progress'
 import { PhotographyStyleModal } from '@/components/style/photography-style-modal'
 import { getStyles, deleteStyle, calculateHeadshots } from '@/lib/api/styles'
 import { formatPrice, getTierDisplayText } from '@/lib/pricing'
+import { ProfileCompletionModal } from '@/components/profile/profile-completion-modal'
+import { getOrCreateDraftOrder } from '@/lib/api/orders'
+import { useUserProfile } from '@/lib/hooks/use-user-profile'
+import { usePaymentFlow } from '@/lib/hooks/use-payment-flow'
 
 export default function StylesPage() {
   const router = useRouter()
@@ -24,6 +28,9 @@ export default function StylesPage() {
   const [isLoading, setIsLoading] = useState(true)
   const { updateProgress, canModifyStyles, progress } = useUserProgress()
   const [showStyleModal, setShowStyleModal] = useState(false)
+  const [showProfileModal, setShowProfileModal] = useState(false)
+  const supabase = createClient()
+  const { fetchProfile } = useUserProfile()
   
   // Headshot calculation state
   const [headshotInfo, setHeadshotInfo] = useState<{
@@ -40,24 +47,40 @@ export default function StylesPage() {
     price: 0
   })
 
-  // Check if user has already progressed beyond styles stage - REMOVED strict redirect
+  // Add usePaymentFlow at component level
+  const { proceedToPayment, isLoading: isPaymentLoading } = usePaymentFlow({
+    styles,
+    headshotInfo
+  })
+  
+  // Check if user profile is complete
   useEffect(() => {
-    const checkUserProgress = async () => {
-      // No redirection logic here anymore, validation happens in the hook
-      // We keep this effect minimal or remove if not needed for other purposes
-      if (!user) return;
-      console.log('Checking user progress on shoot page...', progress?.current_stage)
+    if (!user) return;
+
+    const loadProfile = async () => {
+      const profile = await fetchProfile(user.id);
+      if (profile) {
+        // Show profile modal if name or gender is missing
+        if (!profile.full_name || !profile.gender) {
+          setShowProfileModal(true);
+        } else {
+          setShowProfileModal(false);
+        }
+      }
     };
-    
-    checkUserProgress();
-  }, [user, progress?.current_stage]);
+
+    loadProfile();
+  }, [user, fetchProfile]);
 
   // Function to load styles
   const loadStyles = useCallback(async () => {
     if (!user) return;
 
     try {
-      setIsLoading(true);
+      // Only set loading to true if styles aren't loaded yet
+      if (styles.length === 0) {
+        setIsLoading(true);
+      }
       
       // Fetch draft styles for this user
       const draftStyles = await getStyles(user.id, { status: 'draft' });
@@ -79,9 +102,10 @@ export default function StylesPage() {
         variant: 'destructive'
       });
     } finally {
+      // Always ensure loading is set to false after fetching
       setIsLoading(false);
     }
-  }, [user, toast]);
+  }, [user, toast, styles.length]);
 
   // Load styles on mount
   useEffect(() => {
@@ -116,6 +140,12 @@ export default function StylesPage() {
   const handleSelectStyle = (style: string) => {
     // Navigate directly
     router.push(`/app/style/new?style=${encodeURIComponent(style)}`);
+  }
+
+  const handleProfileComplete = () => {
+    setShowProfileModal(false);
+    // Refresh the page data
+    loadStyles();
   }
 
   return (
@@ -192,28 +222,33 @@ export default function StylesPage() {
         <Button 
           size="lg"
           className="w-full sm:w-auto"
-          disabled={headshotInfo.styleCount === 0 || isLoading}
+          disabled={headshotInfo.styleCount === 0 || isLoading || isPaymentLoading}
           onClick={async () => {
+            if (!user) {
+              toast({ title: 'Error', description: 'User not logged in.', variant: 'destructive' });
+              return;
+            }
             if (headshotInfo.styleCount > 0) {
-              try {
-                await updateProgress('payment')
-                router.push('/app/payment')
-              } catch (error) {
-                console.error('Error saving progress before navigating to payment:', error)
-                toast({ title: 'Error', description: 'Could not save progress. Please try again.', variant: 'destructive' })
-              }
+              await proceedToPayment();
             }
           }}
         >
-          Next: Payment
+          {isLoading || isPaymentLoading ? 'Processing...' : 'Next: Payment'} 
           <ArrowRightIcon className="h-4 w-4 ml-2" />
         </Button>
       </div>
 
+      {/* Modals */}
       <PhotographyStyleModal
         isOpen={showStyleModal}
         onClose={() => setShowStyleModal(false)}
         onSelectStyle={handleSelectStyle}
+      />
+      
+      <ProfileCompletionModal
+        isOpen={showProfileModal}
+        onComplete={handleProfileComplete}
+        user={user}
       />
     </div>
   )

@@ -56,8 +56,20 @@ alwaysApply: true
   `${photographyStyle} ${outfit} ${background}`
   ```
 
-- **4. Photo Upload (Route: /app/upload)**
-  - Only accessible with at least one draft composition
+- **4. Payment (Route: /app/payment)**
+  - Shows order summary with selected styles
+  - Handles payment processing
+  - Updates style status on successful payment
+  ```typescript
+  // ✅ DO: Update all styles on payment
+  styles.map(style => updateStatus(style.id, 'processing'))
+  
+  // ✅ DO: Show clear payment feedback
+  paymentStatus, paymentError
+  ```
+
+- **5. Photo Upload (Route: /app/upload)**
+  - Only accessible after successful payment
   - Handles multiple photo uploads
   - Validates image requirements:
     - Minimum resolution
@@ -71,7 +83,7 @@ alwaysApply: true
   uploadProgress, uploadStatus
   ```
 
-- **5. Upload Review (Route: /app/review)**
+- **6. Upload Review (Route: /app/review)**
   - Shows upload results with quality ratings
   - Allows re-upload of rejected images
   - Requires all images to pass quality check
@@ -81,18 +93,6 @@ alwaysApply: true
   
   // ✅ DO: Enable continue only when all images valid
   disabled={hasRejectedImages}
-  ```
-
-- **6. Payment (Route: /app/payment)**
-  - Shows order summary
-  - Handles payment processing
-  - Updates composition status on success
-  ```typescript
-  // ✅ DO: Update all compositions on payment
-  styles.map(comp => updateStatus(comp.id, 'processing'))
-  
-  // ✅ DO: Show clear payment feedback
-  paymentStatus, paymentError
   ```
 
 - **7. Dashboard (Route: /app/dashboard)**
@@ -177,10 +177,6 @@ alwaysApply: true
         savedCount: number
         lastSavedAt?: string
       }
-      payment?: {
-        attemptCount: number
-        lastAttemptAt?: string
-      }
       upload?: {
         uploadedFiles: string[]
         uploadProgress: number
@@ -190,6 +186,10 @@ alwaysApply: true
         reviewedImages: string[]
         rejectedImages: string[]
         lastReviewAt?: string
+      }
+      payment?: {
+        attemptCount: number
+        lastAttemptAt?: string
       }
     }
   }
@@ -331,9 +331,9 @@ alwaysApply: true
   ) {
     const stageOrder = [
       'compositions',
+      'payment',
       'upload',
       'review',
-      'payment',
       'dashboard'
     ]
     

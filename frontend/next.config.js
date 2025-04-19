@@ -12,8 +12,41 @@ const nextConfig = {
     return config
   },
   images: {
-    domains: ['primeshot-uploads-01.s3.us-east-1.amazonaws.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'primeshot-uploads-01.s3.us-east-1.amazonaws.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'studio.primeshot.ai',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+    ],
   },
+}
+
+// Add dynamic hostname from environment variable if available
+if (process.env.NEXT_PUBLIC_APP_URL) {
+  try {
+    const appUrl = new URL(process.env.NEXT_PUBLIC_APP_URL);
+    // Check if the hostname isn't already in the patterns
+    const hostnameExists = nextConfig.images.remotePatterns.some(
+      pattern => pattern.hostname === appUrl.hostname
+    );
+    
+    if (!hostnameExists) {
+      nextConfig.images.remotePatterns.push({
+        protocol: appUrl.protocol.replace(':', ''),
+        hostname: appUrl.hostname,
+      });
+    }
+  } catch (error) {
+    console.warn('Invalid NEXT_PUBLIC_APP_URL format:', process.env.NEXT_PUBLIC_APP_URL);
+  }
 }
 
 module.exports = nextConfig

@@ -1,13 +1,14 @@
 [
   {
-    "id": "bw-studio",
-    "name": "B&W Studio",
+    "id": "studio",
+    "name": "Studio",
     "description": "Dramatic lighting, soft directional shadows, cinematic and elegant mood",
     "previewImages": [
-      "/images/placeholders/bw-studio-1.jpg",
-      "/images/placeholders/bw-studio-2.jpg",
-      "/images/placeholders/bw-studio-3.jpg"
+      "studio-1.webp",
+      "studio-2.webp",
+      "studio-3.webp"
     ],
+    "availableGenders": ["male", "female"],
     "availableBackgrounds": ["plain", "studio", "gradient", "brick"],
     "availableOutfits": ["professional", "business-casual"],
     "availableOutfitColors": ["#000000", "#FFFFFF", "#6B7280", "#3B82F6"] 
@@ -17,10 +18,11 @@
     "name": "Business Portrait",
     "description": "Soft natural light with soft cool tones, sharp focus on the subject.",
     "previewImages": [
-      "/images/placeholders/business-2.jpg",
-      "/images/placeholders/business-1.jpg",
-      "/images/placeholders/business-3.jpg"
+      "business-2.webp",
+      "business-1.webp",
+      "business-3.webp"
     ],
+    "availableGenders": ["male", "female"],
     "availableBackgrounds": ["outdoor", "office", "cafe", "bookshelf", "cityscape", "nature"],
     "availableOutfits": ["business-casual", "casual", "startup"],
     "availableOutfitColors": ["#FFFFFF", "#6B7280", "#3B82F6", "#10B981", "#F59E0B"] 
@@ -30,11 +32,12 @@
     "name": "Outdoor Fashion Portrait",
     "description": "Natural sunlight, low-angle upward perspective against a clear blue sky.",
     "previewImages": [
-      "/images/placeholders/outdoor-fashion-1.jpg",
-      "/images/placeholders/outdoor-fashion-2.jpg",
-      "/images/placeholders/outdoor-fashion-3.jpg",
-      "/images/placeholders/outdoor-fashion-4.jpg"
+      "outdoor-fashion-1.webp",
+      "outdoor-fashion-2.webp",
+      "outdoor-fashion-3.webp",
+      "outdoor-fashion-4.webp"
     ],
+    "availableGenders": ["male", "female"],
     "availableBackgrounds": ["studio", "abstract", "brick", "plain"],
     "availableOutfits": ["creative", "formal", "tech"],
     "availableOutfitColors": ["#000000", "#EF4444", "#4F46E5"] 
@@ -44,24 +47,26 @@
     "name": "Outdoor Fashion Portrait",
     "description": "Natural sunlight, low-angle upward perspective against a clear blue sky.",
     "previewImages": [
-      "/images/placeholders/outdoor-fashion-1.jpg",
-      "/images/placeholders/outdoor-fashion-2.jpg",
-      "/images/placeholders/outdoor-fashion-3.jpg",
-      "/images/placeholders/outdoor-fashion-4.jpg"
+      "outdoor-fashion-1.webp",
+      "outdoor-fashion-2.webp",
+      "outdoor-fashion-3.webp",
+      "outdoor-fashion-4.webp"
     ],
+    "availableGenders": ["male", "female"],
     "availableBackgrounds": ["studio", "abstract", "brick", "plain"],
     "availableOutfits": ["creative", "formal", "tech"],
     "availableOutfitColors": ["#000000", "#EF4444", "#4F46E5"] 
   },
   {
-    "id": "bw-studio-2",
-    "name": "B&W Studio",
+    "id": "studio-2",
+    "name": "Studio",
     "description": "Dramatic lighting, soft directional shadows, cinematic and elegant mood",
     "previewImages": [
-      "/images/placeholders/bw-studio-1.jpg",
-      "/images/placeholders/bw-studio-2.jpg",
-      "/images/placeholders/bw-studio-3.jpg"
+      "studio-1.webp",
+      "studio-2.webp",
+      "studio-3.webp"
     ],
+    "availableGenders": ["male", "female"],
     "availableBackgrounds": ["plain", "studio", "gradient", "brick"],
     "availableOutfits": ["professional", "business-casual"],
     "availableOutfitColors": ["#000000", "#FFFFFF", "#6B7280", "#3B82F6"] 
@@ -71,10 +76,11 @@
     "name": "Business Portrait",
     "description": "Soft natural light with soft cool tones, sharp focus on the subject.",
     "previewImages": [
-      "/images/placeholders/business-2.jpg",
-      "/images/placeholders/business-1.jpg",
-      "/images/placeholders/business-3.jpg"
+      "business-2.webp",
+      "business-1.webp",
+      "business-3.webp"
     ],
+    "availableGenders": ["male", "female"],
     "availableBackgrounds": ["outdoor", "office", "cafe", "bookshelf", "cityscape", "nature"],
     "availableOutfits": ["business-casual", "casual", "startup"],
     "availableOutfitColors": ["#FFFFFF", "#6B7280", "#3B82F6", "#10B981", "#F59E0B"] 

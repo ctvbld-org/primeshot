@@ -5,6 +5,9 @@ export const userSchema = z.object({
   id: z.string().uuid('Invalid user ID format'),
   email: z.string().email('Invalid email address'),
   full_name: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name is too long'),
+  gender: z.enum(['male', 'female'], {
+    errorMap: () => ({ message: 'Please select a valid option' })
+  }).optional().nullable(),
   created_at: z.string().datetime('Invalid creation date'),
   updated_at: z.string().datetime('Invalid update date'),
 });
@@ -18,13 +21,28 @@ export const sessionSchema = z.object({
 
 // Detailed style settings validation
 const styleSettingsSchema = z.object({
-  photographyStyle: z.enum(['studio', 'natural', 'dramatic'], {
+  photographyStyle: z.enum([
+    'studio', 
+    'studio-2',
+    'business-portrait',
+    'business-portrait-2',
+    'outdoor-fashion',
+    'outdoor-fashion-2'
+  ], {
     errorMap: () => ({ message: 'Invalid photography style selection' })
   }),
-  style: z.enum(['professional', 'casual', 'creative'], {
-    errorMap: () => ({ message: 'Invalid style selection' })
+  outfit: z.enum([
+    'professional',
+    'casual',
+    'creative',
+    'business-casual',
+    'startup',
+    'formal',
+    'tech'
+  ], {
+    errorMap: () => ({ message: 'Invalid outfit selection' })
   }),
-  background: z.enum(['plain', 'office', 'outdoor', 'custom'], {
+  background: z.enum(['plain', 'office', 'outdoor', 'bookshelf', 'cafe', 'studio', 'gradient', 'cityscape', 'abstract', 'brick', 'nature', 'tech'], {
     errorMap: () => ({ message: 'Invalid background selection' })
   }),
   customSettings: z.record(z.string(), z.any()).optional(),

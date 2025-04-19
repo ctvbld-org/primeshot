@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/auth-context'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/ui/use-toast'
-import { useUserProgress } from '@/hooks/use-user-progress'
+import { useUserProgress } from '@/lib/hooks/use-user-progress'
 
 interface PaymentRecoveryState {
   orderId: string | null

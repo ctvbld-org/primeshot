@@ -37,16 +37,16 @@ export function useUserProgress() {
 
   // Load progress on mount
   useEffect(() => {
-    if (!session?.user) return
-
     async function loadProgress() {
+      // Check for user ID inside the async function
+      const userId = session?.user?.id;
+      if (!userId) return
+      
       try {
-        if (!session || !session.user) return;
-        
         const { data, error } = await supabase
           .from('user_progress')
           .select()
-          .eq('user_id', session.user.id)
+          .eq('user_id', userId)
           .single()
 
         // Only throw if it's not a "no rows returned" error
@@ -73,7 +73,8 @@ export function useUserProgress() {
     }
 
     loadProgress()
-  }, [session?.user, supabase, router])
+    // Only depend on the user ID, not the whole session object
+  }, [session?.user?.id, supabase, router])
 
   // Update Progress: Only update current_stage if moving forward in the main sequence
   async function updateProgress(

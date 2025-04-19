@@ -14,8 +14,8 @@ import { Button } from '@/components/ui/button'
 import { ArrowRightIcon } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useUserProgress } from '@/hooks/use-user-progress'
-import { useFileUpload } from '@/hooks/use-file-upload'
+import { useUserProgress } from '@/lib/hooks/use-user-progress'
+import { useFileUpload } from '@/lib/hooks/use-file-upload'
 
 // Constants for image limits
 const MIN_IMAGES = 12

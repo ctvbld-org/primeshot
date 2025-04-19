@@ -19,32 +19,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const supabase = createClient()
 
   useEffect(() => {
+    // Function to update state only if user ID changes
+    const updateUserState = (session: any) => {
+      const newUser = session?.user as User | null;
+      setState(prev => {
+        // Only update if the user ID is actually different, or if loading state needs change
+        if (prev.user?.id !== newUser?.id || prev.isLoading) {
+          return {
+            ...prev,
+            user: newUser,
+            isAuthenticated: !!newUser,
+            isLoading: false
+          };
+        }
+        // Otherwise, return previous state to avoid unnecessary re-renders
+        return prev;
+      });
+    };
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setState(prev => ({
-        ...prev,
-        user: session?.user as User | null,
-        isAuthenticated: !!session?.user,
-        isLoading: false
-      }))
+      updateUserState(session);
     })
 
     // Listen for auth changes
     const {
       data: { subscription }
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setState(prev => ({
-        ...prev,
-        user: session?.user as User | null,
-        isAuthenticated: !!session?.user,
-        isLoading: false
-      }))
+      updateUserState(session);
     })
 
     return () => {
       subscription.unsubscribe()
     }
-  }, [])
+  }, [supabase]); // Depend on supabase client instance
 
   const signIn = async (email: string) => {
     try {
