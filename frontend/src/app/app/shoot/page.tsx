@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -105,7 +105,7 @@ export default function StylesPage() {
       // Always ensure loading is set to false after fetching
       setIsLoading(false);
     }
-  }, [user, toast, styles.length]);
+  }, [user, toast]);
 
   // Load styles on mount
   useEffect(() => {
@@ -115,7 +115,7 @@ export default function StylesPage() {
   }, [user, loadStyles]);
 
   // Function to handle style deletion
-  async function handleDeleteStyle(styleId: string) {
+  const handleDeleteStyle = useCallback(async (styleId: string) => {
     if (!user) return;
 
     try {
@@ -135,18 +135,52 @@ export default function StylesPage() {
         variant: 'destructive'
       });
     }
-  }
+  }, [user, loadStyles, toast]);
 
-  const handleSelectStyle = (style: string) => {
+  const handleSelectStyle = useCallback((style: string) => {
     // Navigate directly
     router.push(`/app/style/new?style=${encodeURIComponent(style)}`);
-  }
+  }, [router]);
 
-  const handleProfileComplete = () => {
+  const handleProfileComplete = useCallback(() => {
     setShowProfileModal(false);
     // Refresh the page data
     loadStyles();
-  }
+  }, [loadStyles]);
+
+  // Memoize the pricing card to prevent re-renders
+  const PricingCard = useMemo(() => {
+    if (headshotInfo.styleCount === 0) return null;
+    
+    return (
+      <Card className="bg-accent/20">
+        <CardHeader>
+          <CardTitle>Your Shoot Package</CardTitle>
+          <CardDescription>Based on your current style count</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <h4 className="text-sm font-medium">Styles</h4>
+              <p className="text-2xl font-bold">{headshotInfo.styleCount}</p>
+            </div>
+            <div>
+              <h4 className="text-sm font-medium">Pricing Tier</h4>
+              <p className="text-2xl font-bold">{getTierDisplayText(headshotInfo.tier as any)}</p>
+            </div>
+            <div>
+              <h4 className="text-sm font-medium">Total Shoots</h4>
+              <p className="text-2xl font-bold">{headshotInfo.totalHeadshots}</p>
+            </div>
+            <div>
+              <h4 className="text-sm font-medium">Price</h4>
+              <p className="text-2xl font-bold">{formatPrice(headshotInfo.price)}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }, [headshotInfo]);
 
   return (
     <div className="space-y-6">
@@ -160,34 +194,7 @@ export default function StylesPage() {
       </div>
       
       {/* Pricing and headshot information card */}
-      {headshotInfo.styleCount > 0 && (
-        <Card className="bg-accent/20">
-          <CardHeader>
-            <CardTitle>Your Shoot Package</CardTitle>
-            <CardDescription>Based on your current style count</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <h4 className="text-sm font-medium">Styles</h4>
-                <p className="text-2xl font-bold">{headshotInfo.styleCount}</p>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium">Pricing Tier</h4>
-                <p className="text-2xl font-bold">{getTierDisplayText(headshotInfo.tier as any)}</p>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium">Total Shoots</h4>
-                <p className="text-2xl font-bold">{headshotInfo.totalHeadshots}</p>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium">Price</h4>
-                <p className="text-2xl font-bold">{formatPrice(headshotInfo.price)}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {PricingCard}
       
       {isLoading ? (
         <div className="text-center py-8">Loading styles...</div>
