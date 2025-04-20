@@ -1,0 +1,56 @@
+/* Custom styles for ShootFooter component */
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0 32px;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(8px);
+}
+
+.footer-title {
+  color: rgba(255, 255, 255, 0.30);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.footer-separator {
+  overflow: hidden;
+  height: 64px;
+  padding: 0 24px;
+}
+
+
+.footer-content {
+  display: flex;
+  color: rgba(255, 255, 255, 0.60);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px;
+  gap: 20px;
+}
+
+/* You can also use nested selectors and pseudo-classes */
+.footer:hover .upgradeText {
+  text-decoration: underline;
+}
+
+/* Custom animations */
+.checkoutButton {
+  transition: transform 0.2s ease;
+}
+
+.checkoutButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+/* Media queries */
+@media (max-width: 768px) {
+  .footer {
+    /* --footer-height: 80px; */
+  }
+} 

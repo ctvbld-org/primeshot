@@ -8,6 +8,10 @@ import { useEffect, useState } from 'react'
 import { usePaymentRecovery } from "@/lib/hooks/use-payment-recovery"
 import { PaymentRecoveryDialog } from "@/components/ui/alert-dialog"
 import { usePathname } from 'next/navigation'
+import Image from 'next/image'
+import Link from 'next/link'
+import { UserNav } from '@/components/user-nav'
+import styles from './page.module.css'
 
 export default function AppLayout({
   children,
@@ -39,23 +43,20 @@ export default function AppLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b flex justify-center">
-        <div className="container flex h-16 items-center px-4">
-          <div className="flex flex-1 items-center justify-between">
-            <nav className="flex items-center space-x-4">
-              <h1 className="text-xl font-bold">Primeshot</h1>
-            </nav>
-            <Button 
-              variant="ghost"
-              onClick={() => signOut()}
-            >
-              Sign Out
-            </Button>
-          </div>
+    <div className="min-h-screen" style={{ backgroundColor: '#001514' }}>
+      <header>
+        <div className="mx-auto flex h-[56px] items-center justify-between px-4">
+          <Image 
+            src="/logo.svg" 
+            alt="Primeshot Logo" 
+            width={40} 
+            height={40}
+            priority
+          />
+          <UserNav user={user} />
         </div>
       </header>
-      <main className="container mx-auto py-6 px-4">
+      <main>
         {children}
       </main>
       <Toaster />

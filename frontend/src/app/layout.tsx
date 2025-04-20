@@ -9,6 +9,7 @@ import { AuthProvider } from '@/contexts/auth-context'
 import { Toaster } from '@/components/ui/toaster'
 import './globals.css'
 
+
 const inter = Inter({ subsets: ['latin'] })
 
 export default function RootLayout({
