@@ -35,12 +35,16 @@ export function BackgroundImageSelector({ photographyStyle }: BackgroundImageSel
   // might not be available for the *newly selected* style.
   // If the stored background isn't available, select the first available one.
   React.useEffect(() => {
-    if (filteredBackgroundOptions.length > 0 && 
-        !filteredBackgroundOptions.some(opt => opt.id === settings.background)) {
-      setBackground(filteredBackgroundOptions[0].id as StyleBackground);
+    const needsUpdate = filteredBackgroundOptions.length > 0 && 
+                       !filteredBackgroundOptions.some(opt => opt.id === settings.background);
+    
+    if (needsUpdate) {
+      const defaultOption = filteredBackgroundOptions[0].id as StyleBackground;
+      if (defaultOption !== settings.background) {
+        setBackground(defaultOption);
+      }
     }
-    // Only run this effect if the available options change (i.e., photographyStyle changes)
-  }, [photographyStyle, settings.background, setBackground, filteredBackgroundOptions]); 
+  }, [photographyStyle]); // Only run when photography style changes
 
   if (!currentStyleConfig) {
     return <div>Error: Invalid photography style selected.</div>; // Or some other error handling
@@ -54,10 +58,10 @@ export function BackgroundImageSelector({ photographyStyle }: BackgroundImageSel
     <RadioGroup
       value={settings.background}
       onValueChange={(value) => setBackground(value as StyleBackground)}
-      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
+      className="flex overflow-x-auto pb-4 -mx-2 px-2 gap-4 hide-scrollbar"
     >
       {filteredBackgroundOptions.map((option) => (
-        <div key={option.id}>
+        <div key={option.id} className="flex-none">
           <RadioGroupItem
             value={option.id}
             id={`bg-${option.id}`}
@@ -66,31 +70,27 @@ export function BackgroundImageSelector({ photographyStyle }: BackgroundImageSel
           <Label
             htmlFor={`bg-${option.id}`}
             className={cn(
-              "block rounded-lg border-2 border-muted bg-popover p-1 hover:bg-accent hover:text-accent-foreground cursor-pointer",
+              "block w-[200px] rounded-xl border-2 border-muted bg-popover hover:bg-accent/5 cursor-pointer transition-colors",
               "peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
             )}
           >
-            <Card className="overflow-hidden border-none shadow-none">
-              <CardContent className="p-0">
-                <div className="relative aspect-video w-full">
-                  <Image
-                    src={getOptionsImage(option.imageUrl)} 
-                    alt={option.label}
-                    fill
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/30 opacity-0 peer-data-[state=checked]:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-white">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="p-2 text-center">
-                  <p className="text-sm font-medium truncate">{option.label}</p>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg">
+              <Image
+                src={getOptionsImage(option.imageUrl)} 
+                alt={option.label}
+                fill
+                sizes="200px"
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-black/30 opacity-0 peer-data-[state=checked]:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-white">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+              </div>
+            </div>
+            <div className="p-2">
+              <p className="text-sm font-medium text-center">{option.label}</p>
+            </div>
           </Label>
         </div>
       ))}

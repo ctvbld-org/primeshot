@@ -11,13 +11,13 @@ import { Style, StyleStatus } from '@/lib/types'
 import { StyleCard } from '@/components/style/style-card'
 import { NewStyleCard } from '@/components/style/new-style-card'
 import { useUserProgress } from '@/lib/hooks/use-user-progress'
-import { PhotographyStyleModal } from '@/components/style/photography-style-modal'
 import { getStyles, deleteStyle, calculateHeadshots } from '@/lib/api/styles'
 import { useUserProfile } from '@/lib/hooks/use-user-profile'
 import { usePaymentFlow } from '@/lib/hooks/use-payment-flow'
 import { ProfileCompletionModal } from '@/components/profile/profile-completion-modal'
 import { ShootFooter } from '@/components/shoot/shoot-footer'
 import stylesCSS from './page.module.css'
+import { motion } from 'framer-motion'
 
 export default function StylesPage() {
   const router = useRouter()
@@ -26,7 +26,6 @@ export default function StylesPage() {
   const [styles, setStyles] = useState<Style[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { updateProgress, canModifyStyles, progress } = useUserProgress()
-  const [showStyleModal, setShowStyleModal] = useState(false)
   const [showProfileModal, setShowProfileModal] = useState(false)
   const supabase = createClient()
   const { fetchProfile } = useUserProfile()
@@ -136,11 +135,6 @@ export default function StylesPage() {
     }
   }
 
-  const handleSelectStyle = (style: string) => {
-    // Navigate directly
-    router.push(`/app/style/new?style=${encodeURIComponent(style)}`);
-  }
-
   const handleProfileComplete = () => {
     setShowProfileModal(false);
     // Refresh the page data
@@ -149,23 +143,27 @@ export default function StylesPage() {
 
   return (
     <>
-      <div>
-        
+      <motion.div 
+        className={`${stylesCSS['card-wrapper']} wrapper ${styles.length === 0 && stylesCSS['scrollable']}`}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
         {isLoading ? (
           <div className="text-center py-8">Loading styles...</div>
         ) : styles.length === 0 ? (
-          <div className={stylesCSS['card-wrapper']}>
+          <>
             <div className={stylesCSS['fake-card']}></div>
             <div className={stylesCSS['fake-card']}></div>
             <div className={stylesCSS['fake-card']}></div>
-            <NewStyleCard onClick={() => setShowStyleModal(true)} />
+            <NewStyleCard onClick={() => router.push('/app/styles')} />
             <div className={stylesCSS['fake-card']}></div>
             <div className={stylesCSS['fake-card']}></div>
             <div className={stylesCSS['fake-card']}></div>
-          </div>
+          </>
         ) : (
-          <div className={`${stylesCSS['card-wrapper']} ${stylesCSS['scrollable']}`}>
-            <NewStyleCard onClick={() => setShowStyleModal(true)} />
+          <>
+            <NewStyleCard onClick={() => router.push('/app/styles')} />
             
             {styles.map((style) => (
               <StyleCard
@@ -176,22 +174,15 @@ export default function StylesPage() {
                 headshotsPerStyle={headshotInfo.headshotsPerStyle}
               />
             ))}
-          </div>
+          </>
         )}
 
-        {/* Modals */}
-        <PhotographyStyleModal
-          isOpen={showStyleModal}
-          onClose={() => setShowStyleModal(false)}
-          onSelectStyle={handleSelectStyle}
-        />
-        
         <ProfileCompletionModal
           isOpen={showProfileModal}
           onComplete={handleProfileComplete}
           user={user}
         />
-      </div>
+      </motion.div>
 
       {/* Fixed Footer - Always show it */}
       <ShootFooter

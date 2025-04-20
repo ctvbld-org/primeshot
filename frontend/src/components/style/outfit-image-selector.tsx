@@ -33,11 +33,16 @@ export function OutfitImageSelector({ photographyStyle }: OutfitImageSelectorPro
 
   // Effect to reset selection if current choice becomes invalid
   React.useEffect(() => {
-    if (filteredOutfitOptions.length > 0 && 
-        !filteredOutfitOptions.some(opt => opt.id === settings.outfit)) {
-      setOutfit(filteredOutfitOptions[0].id as StyleOutfit);
+    const needsUpdate = filteredOutfitOptions.length > 0 && 
+                       !filteredOutfitOptions.some(opt => opt.id === settings.outfit);
+    
+    if (needsUpdate) {
+      const defaultOption = filteredOutfitOptions[0].id as StyleOutfit;
+      if (defaultOption !== settings.outfit) {
+        setOutfit(defaultOption);
+      }
     }
-  }, [photographyStyle, settings.outfit, setOutfit, filteredOutfitOptions]);
+  }, [photographyStyle]); // Only run when photography style changes
 
   if (!currentStyleConfig) {
     return <div>Error: Invalid photography style selected.</div>;
@@ -51,10 +56,10 @@ export function OutfitImageSelector({ photographyStyle }: OutfitImageSelectorPro
     <RadioGroup
       value={settings.outfit}
       onValueChange={(value) => setOutfit(value as StyleOutfit)}
-      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
+      className="flex overflow-x-auto pb-4 -mx-2 px-2 gap-4 hide-scrollbar"
     >
       {filteredOutfitOptions.map((option) => (
-        <div key={option.id}>
+        <div key={option.id} className="flex-none">
           <RadioGroupItem
             value={option.id}
             id={`outfit-${option.id}`}
@@ -63,31 +68,27 @@ export function OutfitImageSelector({ photographyStyle }: OutfitImageSelectorPro
           <Label
             htmlFor={`outfit-${option.id}`}
             className={cn(
-              "block rounded-lg border-2 border-muted bg-popover p-1 hover:bg-accent hover:text-accent-foreground cursor-pointer",
+              "block w-[160px] rounded-xl border-2 border-muted bg-popover hover:bg-accent/5 cursor-pointer transition-colors",
               "peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
             )}
           >
-            <Card className="overflow-hidden border-none shadow-none">
-              <CardContent className="p-0">
-                <div className="relative aspect-square w-full">
-                  <Image
-                    src={getOptionsImage(option.imageUrl)} 
-                    alt={option.label}
-                    fill
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/30 opacity-0 peer-data-[state=checked]:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-white">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="p-2 text-center">
-                  <p className="text-sm font-medium truncate">{option.label}</p>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="relative aspect-[3/4] w-full overflow-hidden rounded-lg">
+              <Image
+                src={getOptionsImage(option.imageUrl)} 
+                alt={option.label}
+                fill
+                sizes="160px"
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-black/30 opacity-0 peer-data-[state=checked]:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-white">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+              </div>
+            </div>
+            <div className="p-2">
+              <p className="text-sm font-medium text-center">{option.label}</p>
+            </div>
           </Label>
         </div>
       ))}

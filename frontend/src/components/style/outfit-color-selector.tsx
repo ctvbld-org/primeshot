@@ -31,11 +31,16 @@ export function OutfitColorSelector({ photographyStyle }: OutfitColorSelectorPro
 
   // Effect to reset selection if current choice becomes invalid
   React.useEffect(() => {
-    if (filteredColorOptions.length > 0 && 
-        !filteredColorOptions.some(opt => opt.id === settings.outfitColor)) {
-      setOutfitColor(filteredColorOptions[0].id as StyleOutfitColor);
+    const needsUpdate = filteredColorOptions.length > 0 && 
+                       !filteredColorOptions.some(opt => opt.id === settings.outfitColor);
+    
+    if (needsUpdate) {
+      const defaultOption = filteredColorOptions[0].id as StyleOutfitColor;
+      if (defaultOption !== settings.outfitColor) {
+        setOutfitColor(defaultOption);
+      }
     }
-  }, [photographyStyle, settings.outfitColor, setOutfitColor, filteredColorOptions]);
+  }, [photographyStyle]); // Only run when photography style changes
 
   if (!currentStyleConfig) {
     return <div>Error: Invalid photography style selected.</div>;
@@ -46,38 +51,30 @@ export function OutfitColorSelector({ photographyStyle }: OutfitColorSelectorPro
   }
 
   return (
-    <TooltipProvider>
-      <RadioGroup
-        value={settings.outfitColor}
-        onValueChange={(value) => setOutfitColor(value as StyleOutfitColor)}
-        className="flex flex-wrap gap-3"
-      >
-        {filteredColorOptions.map((option) => (
-          <Tooltip key={option.id} delayDuration={100}>
-            <TooltipTrigger asChild>
-              <div> 
-                <RadioGroupItem
-                  value={option.id}
-                  id={`color-${option.id.replace('#', '')}`}
-                  className="peer sr-only"
-                />
-                <Label
-                  htmlFor={`color-${option.id.replace('#', '')}`}
-                  className={cn(
-                    "block h-10 w-10 rounded-full border-2 border-muted cursor-pointer",
-                    "peer-data-[state=checked]:ring-2 peer-data-[state=checked]:ring-offset-2 peer-data-[state=checked]:ring-primary"
-                  )}
-                  style={{ backgroundColor: option.id }} // Use the ID (hex code) directly
-                  aria-label={option.label}
-                />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{option.label}</p>
-            </TooltipContent>
-          </Tooltip>
-        ))}
-      </RadioGroup>
-    </TooltipProvider>
+    <RadioGroup
+      value={settings.outfitColor}
+      onValueChange={(value) => setOutfitColor(value as StyleOutfitColor)}
+      className="flex gap-3"
+    >
+      {filteredColorOptions.map((option) => (
+        <div key={option.id}> 
+          <RadioGroupItem
+            value={option.id}
+            id={`color-${option.id.replace('#', '')}`}
+            className="peer sr-only"
+          />
+          <Label
+            htmlFor={`color-${option.id.replace('#', '')}`}
+            className={cn(
+              "block h-12 w-12 rounded-full border-2 border-muted cursor-pointer transition-all",
+              "hover:scale-110",
+              "peer-data-[state=checked]:ring-2 peer-data-[state=checked]:ring-offset-2 peer-data-[state=checked]:ring-primary"
+            )}
+            style={{ backgroundColor: option.id }}
+            aria-label={option.label}
+          />
+        </div>
+      ))}
+    </RadioGroup>
   );
 } 

@@ -11,7 +11,6 @@ import { usePathname } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { UserNav } from '@/components/user-nav'
-import styles from './page.module.css'
 
 export default function AppLayout({
   children,
