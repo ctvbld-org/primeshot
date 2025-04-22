@@ -30,9 +30,9 @@
     top: 50%;
     transform: translate(-50%, -50%);
     border: 6px solid #44E3C9;
-    width: 70%;
-    max-width: 1024px;
-    height: 576px;
+    width: calc(70% + 12px);
+    max-width: calc(1024px + 12px);
+    height: calc(576px + 12px);
     border-radius: 36px;
     box-shadow: 0 0 0 100vmax rgba(0, 21, 20, 0.9);
     clip-path: inset(0 -100vmax);
@@ -41,11 +41,13 @@
 }
 
 .slideCard {
+    display: flex;
+    flex-direction: column;
     max-width: 1068px;
     height: 576px;
     will-change: transform;
     transition: transform 0.3s ease-out;
-    border-radius: 36px;
+    border-radius: 30px;
 }
 
 .activeSlide {
@@ -58,4 +60,140 @@
 
 .sliding {
     border-radius: 0;
+}
+
+.tabs-container {
+  display: flex;
+  height: 100%;
+  background: white;
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.tabs-sidebar {
+  min-width: 248px;
+  border-right: 1px solid #eee;
+  padding: 24px 0;
+  gap: 4px;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 16px;
+  justify-content: start;
+}
+
+.tab-trigger {
+    color: #000;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 22px;
+    width: 100%;
+    gap: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    padding: 16px;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.tab-trigger[data-state="active"] {
+  background: rgba(68, 227, 201, 0.2);
+}
+
+.tab-trigger:hover:not([data-state="active"]) {
+  background: rgba(68, 227, 201, 0.1);
+}
+
+
+.tab-trigger svg {
+    opacity: 0.4;
+    transition: all 0.3s ease-in-out;
+}
+
+.tab-trigger[data-state="active"] svg {
+    opacity: 1;
+}
+
+.tab-trigger .tab-label {
+    color: #000;
+}
+
+.tab-content {
+  flex: 1;
+  padding: 32px;
+  overflow: hidden;
+}
+
+.tab-header {
+  margin-bottom: 24px;
+}
+
+.tab-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #000;
+  margin-bottom: 8px;
+}
+
+.tab-description {
+  color: #909594;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Footer icon buttons */
+.footer-icon-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease-in-out;
+    position: relative;
+}
+
+.footer-icon-button svg {
+    color: rgba(0, 0, 0, 0.4);
+}
+
+.footer-icon-button[data-state="active"] svg {
+    color: #000000;
+}
+
+.footer-icon-button[data-state="inactive"] {
+    background: transparent;
+}
+
+.footer-icon-button[data-state="inactive"]:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.footer-option-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+
+.footer-icon-button .footer-option-swatch {
+    transition: all 0.3s ease-in-out;
+}
+
+.footer-icon-button[data-state="active"] .footer-option-swatch {
+    border: 2px solid #FFF;
+    box-shadow: 0px 0px 0px 2px #44E3C9;
+}
+
+.footer-option-color {
+    position: absolute;
+    height: 40px;
+    width: 40px;
+    border-radius: 9999px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
 }

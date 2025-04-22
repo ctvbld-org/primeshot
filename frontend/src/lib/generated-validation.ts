@@ -9,14 +9,15 @@ import { StylePhotographyStyle, StyleBackground, StyleOutfit } from './generated
 export const validStyleIds: StylePhotographyStyle[] = [
   "studio",
   "corporate",
-  "editorial",
-  "editorial-2",
-  "studio-2",
-  "corporate-2"
+  "editorial"
 ] as const;
 
 export const validBackgrounds: StyleBackground[] = [
-  "plain",
+  "plain-light",
+  "plain-dark",
+  "plain-orange",
+  "plain-blue",
+  "plain-teal",
   "office",
   "outdoor",
   "bookshelf",
@@ -31,13 +32,13 @@ export const validBackgrounds: StyleBackground[] = [
 ] as const;
 
 export const validOutfits: StyleOutfit[] = [
-  "professional",
-  "business-casual",
-  "casual",
-  "creative",
-  "tech",
-  "startup",
-  "formal"
+  "hoodie",
+  "blazer-shirt",
+  "shirt",
+  "polo",
+  "henley",
+  "jacket",
+  "fishermans-jumper"
 ] as const;
 
-// Generated on: 2025-04-21T20:07:48.214Z
+// Generated on: 2025-04-22T20:12:14.109Z

@@ -91,18 +91,18 @@ function NewStyleContent() {
       }
 
       // Set defaults based on the *first available* option for this style
-      const defaultBg = styleConfig.availableBackgrounds?.[0] as StyleBackground | undefined;
-      const defaultOutfit = styleConfig.availableOutfits?.[0] as StyleOutfit | undefined;
-      const defaultColor = styleConfig.availableOutfitColors?.[0] as StyleOutfitColor | undefined;
+      const defaultBackground = styleConfig.availableBackgrounds?.[0] as StyleBackground | undefined;
+      const defaultOutfit = styleConfig.availableClothing?.[0] as StyleOutfit | undefined;
+      const defaultColor = styleConfig.availableClothingColor?.[0] as StyleOutfitColor | undefined;
 
-      console.log("Defaults:", { defaultBg, defaultOutfit, defaultColor });
+      console.log("Defaults:", { defaultBackground, defaultOutfit, defaultColor });
 
       // Reset store to ensure clean slate before setting defaults for this style
       // Only reset the selectable fields, keep photographyStyle implicit via param
       reset(); // Reset the entire store first
       
       // Now set the defaults based on the validated style
-      if (defaultBg) setBackground(defaultBg);
+      if (defaultBackground) setBackground(defaultBackground);
       if (defaultOutfit) setOutfit(defaultOutfit);
       if (defaultColor) setOutfitColor(defaultColor);
       

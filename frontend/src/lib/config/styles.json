@@ -12,9 +12,9 @@
       "studio-2.webp"
     ],
     "availableGenders": ["male", "female"],
-    "availableBackgrounds": ["plain", "studio", "gradient", "brick"],
-    "availableOutfits": ["professional", "business-casual"],
-    "availableOutfitColors": ["#000000", "#FFFFFF", "#6B7280", "#3B82F6"] 
+    "availableBackgrounds": ["plain-light", "plain-dark", "plain-orange", "plain-blue", "plain-teal", "studio", "gradient", "brick"],
+    "availableClothing": ["hoodie", "blazer-shirt", "shirt", "polo", "henley", "jacket", "fishermans-jumper"],
+    "availableClothingColor": ["#000000", "#FFFFFF", "#2A9D47", "#3B82F6", "#FF7F3", "#D22D2D", "#FC84E2", "#A28DF7", "#6B7280", "#4F46E5"] 
   },
   {
     "id": "corporate",
@@ -29,10 +29,10 @@
       "business-3.webp"
     ],
     "availableGenders": ["male", "female"],
-    "availableBackgrounds": ["outdoor", "office", "cafe", "bookshelf", "cityscape", "nature"],
-    "availableOutfits": ["business-casual", "casual", "startup"],
-    "availableOutfitColors": ["#FFFFFF", "#6B7280", "#3B82F6", "#10B981", "#F59E0B"] 
-  },
+    "availableBackgrounds": ["plain-light", "plain-dark", "plain-orange", "plain-blue", "plain-teal", "studio", "gradient", "brick"],
+    "availableClothing": ["blazer-shirt", "shirt", "polo", "henley", "jacket"],
+    "availableClothingColor": ["#000000", "#FFFFFF", "#2A9D47", "#3B82F6", "#FF7F3", "#D22D2D", "#FC84E2", "#A28DF7", "#6B7280", "#4F46E5"] 
+ },
   {
     "id": "editorial",
     "name": "Editorial",
@@ -46,59 +46,8 @@
       "outdoor-fashion-4.webp"
     ],
     "availableGenders": ["male", "female"],
-    "availableBackgrounds": ["studio", "abstract", "brick", "plain"],
-    "availableOutfits": ["creative", "formal", "tech"],
-    "availableOutfitColors": ["#000000", "#EF4444", "#4F46E5"] 
-  },
-  {
-    "id": "editorial-2",
-    "name": "Editorial",
-    "tagline": "Story-Driven. Stylised. Striking.",
-    "description": "A cinematic, magazine-worthy aesthetic. Expressive and fashion-forward — stand out with personality and mood.",
-    "previewImages": [
-      "outdoor-fashion-1.webp",
-      "outdoor-fashion-2.webp",
-      "outdoor-fashion-3.webp",
-      "outdoor-fashion-4.webp",
-      "outdoor-fashion-4.webp"
-    ],
-    "availableGenders": ["male", "female"],
-    "availableBackgrounds": ["studio", "abstract", "brick", "plain"],
-    "availableOutfits": ["creative", "formal", "tech"],
-    "availableOutfitColors": ["#000000", "#EF4444", "#4F46E5"] 
-  },
-  {
-    "id": "studio-2",
-    "name": "Studio",
-    "tagline": "Polished. Professional. Powerful.",
-    "description": "Step into the spotlight with Studio style — clean, high-impact headshots perfect for portfolios, castings, and personal branding.",
-    "previewImages": [
-      "studio-1.webp",
-      "studio-2.webp",
-      "studio-3.webp",
-      "studio-2.webp",
-      "studio-3.webp"
-    ],
-    "availableGenders": ["male", "female"],
-    "availableBackgrounds": ["plain", "studio", "gradient", "brick"],
-    "availableOutfits": ["professional", "business-casual"],
-    "availableOutfitColors": ["#000000", "#FFFFFF", "#6B7280", "#3B82F6"] 
-  },
-  {
-    "id": "corporate-2",
-    "name": "Corporate",
-    "tagline": "Professional. Approachable. Trusted.",
-    "description": "Professional and approachable, perfect for LinkedIn, team pages, and pitch decks — designed to make a confident first impression.",
-    "previewImages": [
-      "business-2.webp",
-      "business-1.webp",
-      "business-3.webp",
-      "business-1.webp",
-      "business-3.webp"
-    ],
-    "availableGenders": ["male", "female"],
-    "availableBackgrounds": ["outdoor", "office", "cafe", "bookshelf", "cityscape", "nature"],
-    "availableOutfits": ["business-casual", "casual", "startup"],
-    "availableOutfitColors": ["#FFFFFF", "#6B7280", "#3B82F6", "#10B981", "#F59E0B"] 
-  }
+    "availableBackgrounds": ["plain-light", "plain-dark", "plain-orange", "plain-blue", "plain-teal", "studio", "gradient", "brick"],
+    "availableClothing": ["hoodie", "shirt", "polo", "henley", "jacket", "fishermans-jumper"],
+    "availableClothingColor": ["#000000", "#FFFFFF", "#2A9D47", "#3B82F6", "#FF7F3", "#D22D2D", "#FC84E2", "#A28DF7", "#6B7280", "#4F46E5"] 
+ }
 ] 

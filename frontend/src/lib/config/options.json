@@ -1,35 +1,51 @@
 {
-  "backgrounds": [
-    { "id": "plain", "label": "Plain", "imageUrl": "bg-plain.jpg" },
-    { "id": "office", "label": "Office", "imageUrl": "bg-office.jpg" },
-    { "id": "outdoor", "label": "Outdoor", "imageUrl": "placeholder.jpg" },
-    { "id": "bookshelf", "label": "Bookshelf", "imageUrl": "bg-bookshelf.jpg" },
-    { "id": "cafe", "label": "Cafe", "imageUrl": "bg-cafe.jpg" },
-    { "id": "studio", "label": "Studio", "imageUrl": "placeholder.jpg" },
-    { "id": "gradient", "label": "Gradient", "imageUrl": "placeholder.jpg" },
-    { "id": "cityscape", "label": "Cityscape", "imageUrl": "placeholder.jpg" },
-    { "id": "abstract", "label": "Abstract", "imageUrl": "placeholder.jpg" },
-    { "id": "brick", "label": "Brick Wall", "imageUrl": "placeholder.jpg" },
-    { "id": "nature", "label": "Nature", "imageUrl": "placeholder.jpg" },
-    { "id": "tech", "label": "Tech Space", "imageUrl": "placeholder.jpg" }
-  ],
-  "outfits": [
-    { "id": "professional", "label": "Professional Suit", "imageUrl": "placeholder.jpg" },
-    { "id": "business-casual", "label": "Business Casual", "imageUrl": "placeholder.jpg" },
-    { "id": "casual", "label": "Smart Casual", "imageUrl": "placeholder.jpg" },
-    { "id": "creative", "label": "Creative Blazer", "imageUrl": "placeholder.jpg" },
-    { "id": "tech", "label": "Tech Look", "imageUrl": "placeholder.jpg" },
-    { "id": "startup", "label": "Startup Casual", "imageUrl": "placeholder.jpg" },
-    { "id": "formal", "label": "Formal Attire", "imageUrl": "placeholder.jpg" }
-  ],
-  "outfitColors": [
-    { "id": "#000000", "label": "Black" },
-    { "id": "#FFFFFF", "label": "White" },
-    { "id": "#3B82F6", "label": "Blue" },
-    { "id": "#6B7280", "label": "Gray" },
-    { "id": "#EF4444", "label": "Red" },
-    { "id": "#10B981", "label": "Green" },
-    { "id": "#F59E0B", "label": "Yellow/Gold" },
-    { "id": "#4F46E5", "label": "Indigo" }
-  ]
+  "background": {
+    "label": "Background",
+    "options": [
+      { "id": "plain-light", "label": "Plain Light", "imageUrl": "bg-plain-light.webp" },
+      { "id": "plain-dark", "label": "Plain Dark", "imageUrl": "bg-plain-dark.webp" },
+      { "id": "plain-orange", "label": "Plain Orange", "imageUrl": "bg-plain-orange.webp" },
+      { "id": "plain-blue", "label": "Plain Blue", "imageUrl": "bg-plain-blue.webp" },
+      { "id": "plain-teal", "label": "Plain Teal", "imageUrl": "bg-plain-teal.webp" },
+      { "id": "office", "label": "Office", "imageUrl": "bg-office.jpg" },
+      { "id": "outdoor", "label": "Outdoor", "imageUrl": "placeholder.jpg" },
+      { "id": "bookshelf", "label": "Bookshelf", "imageUrl": "bg-bookshelf.jpg" },
+      { "id": "cafe", "label": "Cafe", "imageUrl": "bg-cafe.jpg" },
+      { "id": "studio", "label": "Studio", "imageUrl": "placeholder.jpg" },
+      { "id": "gradient", "label": "Gradient", "imageUrl": "placeholder.jpg" },
+      { "id": "cityscape", "label": "Cityscape", "imageUrl": "placeholder.jpg" },
+      { "id": "abstract", "label": "Abstract", "imageUrl": "placeholder.jpg" },
+      { "id": "brick", "label": "Brick Wall", "imageUrl": "placeholder.jpg" },
+      { "id": "nature", "label": "Nature", "imageUrl": "placeholder.jpg" },
+      { "id": "tech", "label": "Tech Space", "imageUrl": "placeholder.jpg" }
+    ]
+  },
+  "clothing": {
+    "label": "Clothing Type",
+      "options": [
+      { "id": "hoodie", "label": "Hoodie", "imageUrl": "hoodie.webp" },
+      { "id": "suit-jacket-shirt", "label": "Suit Jacket/Shirt", "imageUrl": "blazer-shirt.webp" },
+      { "id": "shirt", "label": "Shirt", "imageUrl": "shirt.webp" },
+      { "id": "polo", "label": "Polo", "imageUrl": "polo.webp" },
+      { "id": "henley", "label": "Henley", "imageUrl": "henley.webp" },
+      { "id": "jacket", "label": "Jacket", "imageUrl": "jacket.webp" },
+      { "id": "fishermans-jumper", "label": "Fishermans Jumper", "imageUrl": "fishermans-jumper.webp" }
+      
+    ]
+  },
+  "clothingColor": {
+    "label": "Clothing Color",
+    "options": [
+      { "id": "#000000", "label": "Black" },
+      { "id": "#FFFFFF", "label": "White" },
+      { "id": "#2A9D47", "label": "Green" },
+      { "id": "#3B82F6", "label": "Blue" },
+      { "id": "#FF7F39", "label": "Orange" },
+      { "id": "#D22D2D", "label": "Red" },
+      { "id": "#FC84E2", "label": "Pink" },
+      { "id": "#A28DF7", "label": "Purple" },
+      { "id": "#6B7280", "label": "Gray" },
+      { "id": "#4F46E5", "label": "Indigo" }
+    ]
+  }
 } 

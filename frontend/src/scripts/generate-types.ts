@@ -23,28 +23,31 @@ interface StyleConfig {
   name: string;
   description: string;
   previewImages: string[];
+  availableGenders: string[];
   availableBackgrounds: string[];
-  availableOutfits: string[];
-  availableOutfitColors: string[];
-  availableGenders: Gender[];
+  availableClothing: string[];
+  availableClothingColor: string[];
 }
 
-interface BackgroundOption {
+interface Option {
   id: string;
   label: string;
-  imageUrl: string;
-}
-
-interface OutfitOption {
-  id: string;
-  label: string;
-  imageUrl: string;
+  imageUrl?: string;
 }
 
 interface OptionsConfig {
-  backgrounds: BackgroundOption[];
-  outfits: OutfitOption[];
-  outfitColors: { id: string; label: string }[];
+  background: {
+    label: string;
+    options: Option[];
+  };
+  clothing: {
+    label: string;
+    options: Option[];
+  };
+  clothingColor: {
+    label: string;
+    options: Option[];
+  };
 }
 
 // Read the configuration files
@@ -74,8 +77,8 @@ try {
 
 // Extract unique IDs from the configuration
 const styleIds = [...new Set(stylesConfig.map((style: StyleConfig) => style.id))];
-const backgroundIds = [...new Set(optionsConfig.backgrounds.map((bg: BackgroundOption) => bg.id))];
-const outfitIds = [...new Set(optionsConfig.outfits.map((outfit: OutfitOption) => outfit.id))];
+const backgroundIds = [...new Set(optionsConfig.background.options.map((bg: Option) => bg.id))];
+const outfitIds = [...new Set(optionsConfig.clothing.options.map((outfit: Option) => outfit.id))];
 
 // Generate the TypeScript code
 const generateTypeScript = () => {

@@ -62,7 +62,7 @@ export function ShootFooter({
                 </span>
               </div>
               <div className="flex items-center gap-x-1 bg-[#FFFFFF10] rounded-full px-3 py-2 text-[#FFFFFF60] text-xs">
-                <Icon variant="plus-fill" size={16} className="text-[#FFB45E]" />
+                <Icon variant="plusFill" size={16} className="text-[#FFB45E]" />
                 <span>Add {extraStylesCount} extra styles and get</span>
                 <span className="text-[#FFFFFF]">{totalPhotosWithExtra}</span>
                 <span>photos for only</span>
@@ -73,7 +73,7 @@ export function ShootFooter({
         ) : (
           <>
             <div className="flex items-center mr-10 flex-wrap flex-[1_1_80%]">
-              <Icon variant="face-dizzy" size={22} className="mr-2" />
+              <Icon variant="dizzyFace" size={22} className="mr-2" />
               <div className={styles['footer-content']}>
                 <span>Your style list is empty. Add a few looks to generate your perfect shoot.</span>
               </div>

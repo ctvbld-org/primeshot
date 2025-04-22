@@ -24,6 +24,9 @@ import { useStyleStore } from '@/store/style'
 import { motion, AnimatePresence } from 'framer-motion'
 import stylesCSS from './page.module.css'
 import { Icon } from '@/components/icons/icon'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import optionsConfig from '@/lib/config/options.json'
+import { getOptionsImage } from '@/lib/utils/get-options-image'
 
 // Create a Zod enum from the Gender type
 const GenderEnum = z.enum(['male', 'female'] as const) satisfies z.ZodType<Gender>;
@@ -37,8 +40,8 @@ const StyleConfigSchema = z.object({
   previewImages: z.array(z.string()),
   availableGenders: z.array(GenderEnum).optional(),
   availableBackgrounds: z.array(z.string()),
-  availableOutfits: z.array(z.string()),
-  availableOutfitColors: z.array(z.string())
+  availableClothing: z.array(z.string()),
+  availableClothingColor: z.array(z.string())
 });
 
 const StyleConfigsSchema = z.array(StyleConfigSchema);
@@ -55,24 +58,66 @@ const photographyStyleOptions = (() => {
 
 // Modify the fadeAnimation object to include variants for the options section
 const fadeAnimation = {
-  initial: { scale: 1 },
-  animate: { scale: 1 },
-  exit: { scale: 1 },
-  transition: { duration: 0.3 }
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 },
+  transition: { duration: 0.4, ease: [0.23, 1, 0.32, 1] }
 }
 
-const optionsAnimation = {
-  initial: { opacity: 0, y: 10 },
+// Add new animation variants for the content sections
+const contentAnimation = {
+  initial: { opacity: 0, y: 15 },
   animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -10 },
-  transition: { duration: 0.2, ease: "easeOut" }
+  transition: { 
+    duration: 0.5,
+    ease: [0.21, 1, 0.32, 1],
+    staggerChildren: 0.08 
+  }
+}
+
+const childAnimation = {
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.3, ease: [0.21, 1, 0.32, 1] }
+}
+
+// Map category IDs to icon variants
+const categoryIconMap: Record<keyof typeof optionsConfig, React.ComponentProps<typeof Icon>['variant']> = {
+  background: 'background',
+  clothing: 'clothing',
+  clothingColor: 'clothingColor'
+};
+
+// Map category IDs to components
+const categoryComponentMap: Record<string, React.ComponentType<{ photographyStyle: StylePhotographyStyle }>> = {
+  background: BackgroundImageSelector,
+  clothingColor: OutfitColorSelector,
+  clothing: OutfitImageSelector
+};
+
+// Update the type definitions to match the actual data structure
+type BaseOption = {
+  id: string;
+  label: string;
+};
+
+type ImageOption = BaseOption & {
+  imageUrl: string;
+};
+
+type ColorOption = BaseOption;
+
+type CategoryOption = ImageOption | ColorOption;
+
+function isImageOption(option: any): option is ImageOption {
+  return option && typeof option === 'object' && 'imageUrl' in option && typeof option.imageUrl === 'string';
 }
 
 export default function Page() {
   const router = useRouter()
   const { user } = useAuth()
   const { toast } = useToast()
-  const { settings } = useStyleStore()
+  const { settings, reset } = useStyleStore()
   const [isSaving, setIsSaving] = useState(false)
   const { gender, isLoading: isGenderLoading } = useUserGender();
   const filteredStyles = useGenderFilter(photographyStyleOptions, gender || undefined);
@@ -85,9 +130,38 @@ export default function Page() {
     startIndex: 0,
     align: 'center',
     containScroll: false,
-    duration: 30,
+    duration: 30
   })
+  const [activeTab, setActiveTab] = useState(Object.keys(optionsConfig)[0])
+  const [isTransitioning, setIsTransitioning] = useState(false)
+  const [visitedTabs, setVisitedTabs] = useState<Set<string>>(new Set([Object.keys(optionsConfig)[0]]))
   
+  // Reset style store and visited tabs when options section is hidden
+  useEffect(() => {
+    if (showingCustomizeFor === null) {
+      reset();
+      setActiveTab(Object.keys(optionsConfig)[0]);
+      setVisitedTabs(new Set([Object.keys(optionsConfig)[0]])); // Reset visited tabs
+    }
+  }, [showingCustomizeFor, reset]);
+  
+  useEffect(() => {
+    if (emblaApi) {
+      if (showingCustomizeFor !== null) {
+        setIsTransitioning(true)
+        emblaApi.reInit({ 
+          dragFree: false,
+          watchDrag: false
+        })
+      } else {
+        emblaApi.reInit({ 
+          dragFree: false,
+          watchDrag: true
+        })
+      }
+    }
+  }, [emblaApi, showingCustomizeFor])
+
   useEffect(() => {
     if (emblaApi) {
       let lastSelectedIndex = emblaApi.selectedScrollSnap();
@@ -168,8 +242,8 @@ export default function Page() {
     previewImages: string[];
     availableGenders?: Gender[];
     availableBackgrounds: string[];
-    availableOutfits: string[];
-    availableOutfitColors: string[];
+    availableClothing: string[];
+    availableClothingColor: string[];
     genderSpecificImages: string[];
   }) => {
     if (!user) {
@@ -226,6 +300,22 @@ export default function Page() {
     }
   }
 
+  const handleTransitionEnd = useCallback(() => {
+    if (showingCustomizeFor === null) {
+      setIsTransitioning(false)
+    }
+  }, [showingCustomizeFor])
+
+  const containerStyle = useMemo(() => ({
+    transition: isTransitioning ? 'transform 1000ms cubic-bezier(.34,.08,0,1.01)' : 'none'
+  }), [isTransitioning])
+
+  // Track tab visits
+  const handleTabChange = useCallback((value: string) => {
+    setActiveTab(value);
+    setVisitedTabs(prev => new Set([...prev, value]));
+  }, []);
+
   if (isGenderLoading || stylesWithImages.length === 0) {
     return null;
   }
@@ -244,7 +334,11 @@ export default function Page() {
           
           {/* Carousel container */}
           <div className="w-full relative" ref={emblaRef}>
-            <div className="flex touch-pan-y">
+            <div 
+              className="flex touch-pan-y"
+              style={containerStyle}
+              onTransitionEnd={handleTransitionEnd}
+            >
               {stylesWithImages.map((style, index) => (
                 <div 
                   key={style.id} 
@@ -264,67 +358,140 @@ export default function Page() {
                         )}
                         {...fadeAnimation}
                       >
-                        {/* Customization Options Content */}
-                        <div className="h-full">
-                          <div className="flex items-center justify-between p-6 border-b text-black">
-                            <div className="flex items-center gap-4">
-                              <button
-                                onClick={() => {
-                                  setIsNavigating(false);
-                                  setShowingCustomizeFor(null);
-                                }}
-                                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                              >
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                  <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                              </button>
-                              <h2 className="text-2xl font-semibold">{style.name}</h2>
-                            </div>
-                            <Button 
-                              onClick={() => handleAddToShoot(style)}
-                              className="rounded-full px-6"
-                              disabled={isSaving}
-                            >
-                              {isSaving ? 'Adding...' : 'Add to Shoot'}
-                            </Button>
-                          </div>
+                        {/* Close Button */}
+                        <button
+                          onClick={() => setShowingCustomizeFor(null)}
+                          className="absolute top-8 right-8 z-50 w-10 h-10 rounded-full bg-[#00000015] flex items-center justify-center hover:bg-accent/15 cursor-pointer transition-colors text-black"
+                        >
+                          <Icon variant="cross" size={16} />
+                        </button>
 
-                          {/* Options Sections */}
-                          <div className="p-6 space-y-8">
-                            <motion.section
+                        {/* Tabs Container */}
+                        <div className={stylesCSS['tabs-container']}>
+                          <Tabs 
+                            value={activeTab}
+                            onValueChange={handleTabChange}
+                            orientation="vertical" 
+                            className="h-full"
+                          >
+                            <motion.div
                               initial="initial"
                               animate="animate"
-                              exit="exit"
-                              variants={optionsAnimation}
+                              variants={contentAnimation}
+                               className="flex flex-1 flex-row h-full"
                             >
-                              <h3 className="text-gray-500 mb-4">Background</h3>
-                              <BackgroundImageSelector photographyStyle={style.id as StylePhotographyStyle} />
-                            </motion.section>
+                              <motion.div variants={childAnimation}>
+                                <TabsList className={stylesCSS['tabs-sidebar']}>
+                                  <h4 className="w-full text-sm font-medium text-[#00000040] mb-4 p-4">Customise</h4>
+                                  {Object.entries(optionsConfig).map(([categoryId, category]) => (
+                                    <TabsTrigger 
+                                      key={categoryId}
+                                      value={categoryId} 
+                                      className={stylesCSS['tab-trigger']}
+                                    >
+                                      <Icon variant={categoryIconMap[categoryId as keyof typeof optionsConfig]} size={20} />
+                                      <h5 className={stylesCSS['tab-label']}>{category.label}</h5>
+                                    </TabsTrigger>
+                                  ))}
+                                </TabsList>
+                              </motion.div>
 
-                            <motion.section
-                              initial="initial"
-                              animate="animate"
-                              exit="exit"
-                              variants={optionsAnimation}
-                              transition={{ delay: 0.1 }}
-                            >
-                              <h3 className="text-gray-500 mb-4">Clothing Color</h3>
-                              <OutfitColorSelector photographyStyle={style.id as StylePhotographyStyle} />
-                            </motion.section>
-
-                            <motion.section
-                              initial="initial"
-                              animate="animate"
-                              exit="exit"
-                              variants={optionsAnimation}
-                              transition={{ delay: 0.2 }}
-                            >
-                              <h3 className="text-gray-500 mb-4">Clothing</h3>
-                              <OutfitImageSelector photographyStyle={style.id as StylePhotographyStyle} />
-                            </motion.section>
-                          </div>
+                              {Object.entries(optionsConfig).map(([categoryId, category]) => {
+                                const Component = categoryComponentMap[categoryId as keyof typeof optionsConfig];
+                                return (
+                                  <TabsContent key={categoryId} value={categoryId} className={stylesCSS['tab-content']}>
+                                    <motion.div variants={childAnimation}>
+                                      <div className={stylesCSS['tab-header']}>
+                                        <h3 className={stylesCSS['tab-title']}>{category.label}</h3>
+                                        <p className={stylesCSS['tab-description']}>
+                                          Choose {category.label.toLowerCase()} that matches your professional style and brand.
+                                        </p>
+                                      </div>
+                                      {visitedTabs.has(categoryId) && activeTab === categoryId && (
+                                        <Component photographyStyle={style.id as StylePhotographyStyle} />
+                                      )}
+                                    </motion.div>
+                                  </TabsContent>
+                                );
+                              })}
+                            </motion.div>
+                          </Tabs>
                         </div>
+
+                        {/* Footer with selected options and add button */}
+                        <motion.div 
+                          className="flex items-center justify-between p-6 border-t bg-white"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ 
+                            duration: 0.4, 
+                            ease: [0.23, 1, 0.32, 1],
+                            delay: 0.3 
+                          }}
+                        >
+                          <div className="flex items-center gap-3">
+                            {Object.entries(optionsConfig).map(([categoryId, category]) => {
+                              const isActive = activeTab === categoryId;
+                              const selectedOption = (() => {
+                                switch (categoryId) {
+                                  case 'background':
+                                    return settings.background;
+                                  case 'clothing':
+                                    return settings.outfit;
+                                  case 'clothingColor':
+                                    return settings.outfitColor;
+                                  default:
+                                    return undefined;
+                                }
+                              })();
+                              const selectedOptionData = category.options.find(opt => opt.id === selectedOption) as CategoryOption | undefined;
+                              
+                              return (
+                                <button 
+                                  key={categoryId}
+                                  onClick={() => setActiveTab(categoryId)}
+                                  data-state={isActive ? 'active' : 'inactive'}
+                                  className={stylesCSS['footer-icon-button']}
+                                >
+                                   {selectedOptionData && visitedTabs.has(categoryId) ? (
+                                     categoryId === 'clothingColor' ? (
+                                       <div 
+                                         className={`${stylesCSS['footer-option-color']} ${stylesCSS['footer-option-swatch']}`} 
+                                         style={{ backgroundColor: selectedOptionData.id }}
+                                       />
+                                     ) : isImageOption(selectedOptionData) ? (
+                                        <Image
+                                          src={getOptionsImage(selectedOptionData.imageUrl)}
+                                          alt={selectedOptionData.label}
+                                          fill
+                                          className={`${stylesCSS['footer-option-image']} ${stylesCSS['footer-option-swatch']}`}
+                                        />
+                                     ) : (
+                                       <Icon 
+                                         variant={categoryIconMap[categoryId as keyof typeof optionsConfig]} 
+                                         size={30} 
+                                         className="text-gray-600" 
+                                       />
+                                     )
+                                   ) : (
+                                     <Icon 
+                                       variant={categoryIconMap[categoryId as keyof typeof optionsConfig]} 
+                                       size={30} 
+                                       className="text-gray-600" 
+                                     />
+                                   )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <Button 
+                            onClick={() => handleAddToShoot(style)}
+                            className="rounded-full px-6"
+                            disabled={isSaving}
+                          >
+                            {isSaving ? 'Adding...' : 'Next'}
+                          </Button>
+                        </motion.div>
                       </motion.div>
                     ) : (
                       <motion.div 
@@ -392,7 +559,7 @@ export default function Page() {
                                 className="p-2 box-content"
                               />
                               <Icon
-                                variant="style"
+                                variant="clothingColor"
                                 size={28}
                                 className="p-2 box-content"
                               />
@@ -421,7 +588,7 @@ export default function Page() {
           disabled={!canScrollPrev}
           className="flex items-center gap-2 text-white/50 hover:text-white transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-white/50"
         >
-          <Icon variant="arrow-left" size={20} className="text-[#44E3C9]" />
+          <Icon variant="arrowLeft" size={20} className="text-[#44E3C9]" />
           Prev
         </button>
         <button
@@ -430,7 +597,7 @@ export default function Page() {
           className="flex items-center gap-2 text-white/50 hover:text-white transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-white/50"
         >
           Next
-          <Icon variant="arrow-right" size={20} className="text-[#44E3C9]" />
+          <Icon variant="arrowRight" size={20} className="text-[#44E3C9]" />
         </button>
       </div>
     </div>

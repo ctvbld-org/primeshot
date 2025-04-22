@@ -8,12 +8,13 @@ export type StylePhotographyStyle =
   | 'studio'
   | 'corporate'
   | 'editorial'
-  | 'editorial-2'
-  | 'studio-2'
-  | 'corporate-2'
 
 export type StyleBackground = 
-  | 'plain'
+  | 'plain-light'
+  | 'plain-dark'
+  | 'plain-orange'
+  | 'plain-blue'
+  | 'plain-teal'
   | 'office'
   | 'outdoor'
   | 'bookshelf'
@@ -27,13 +28,13 @@ export type StyleBackground =
   | 'tech'
 
 export type StyleOutfit = 
-  | 'professional'
-  | 'business-casual'
-  | 'casual'
-  | 'creative'
-  | 'tech'
-  | 'startup'
-  | 'formal'
+  | 'hoodie'
+  | 'blazer-shirt'
+  | 'shirt'
+  | 'polo'
+  | 'henley'
+  | 'jacket'
+  | 'fishermans-jumper'
 
 // Common types - manually maintained
 export type StyleStatus = 'draft' | 'pending' | 'processing' | 'completed'
@@ -53,4 +54,4 @@ export type StyleSettings = {
   customSettings?: Record<string, any>
 }
 
-// Generated on: 2025-04-21T20:07:48.214Z
+// Generated on: 2025-04-22T20:12:14.108Z

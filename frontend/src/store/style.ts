@@ -19,9 +19,9 @@ const firstStyle = stylesConfig[0];
 // Create safe default settings based on the first available style in config
 const defaultSettings: StyleSettings = {
   photographyStyle: firstStyle.id as StylePhotographyStyle,
-  outfit: firstStyle.availableOutfits[0] as StyleOutfit,
+  outfit: firstStyle.availableClothing[0] as StyleOutfit,
   background: firstStyle.availableBackgrounds[0] as StyleBackground,
-  outfitColor: firstStyle.availableOutfitColors[0] as StyleOutfitColor,
+  outfitColor: firstStyle.availableClothingColor[0] as StyleOutfitColor,
   gender: 'other' // Default gender
 }
 
