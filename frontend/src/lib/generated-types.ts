@@ -6,11 +6,11 @@
 
 export type StylePhotographyStyle = 
   | 'studio'
-  | 'business-portrait'
-  | 'outdoor-fashion'
-  | 'outdoor-fashion-2'
+  | 'corporate'
+  | 'editorial'
+  | 'editorial-2'
   | 'studio-2'
-  | 'business-portrait-2'
+  | 'corporate-2'
 
 export type StyleBackground = 
   | 'plain'
@@ -53,4 +53,4 @@ export type StyleSettings = {
   customSettings?: Record<string, any>
 }
 
-// Generated on: 2025-04-20T15:01:40.995Z
+// Generated on: 2025-04-21T20:07:48.214Z

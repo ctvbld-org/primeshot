@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import styles from './shoot-footer.module.css'
+import { Icon } from "../icons/icon"
 
 interface ShootFooterProps {
   stylesCount: number
@@ -48,12 +49,7 @@ export function ShootFooter({
                 </div>
                 <div className="flex items-center">
                   <span className="mr-2">
-                    <Image 
-                      src="/camera-icon.svg"
-                      alt="Plus Icon"
-                      width={14}
-                      height={11}
-                    />
+                    <Icon variant="camera" size={14} className={styles.icon} />
                   </span>
                   <span className="text-[#FFB45E] mr-1">{totalPhotos}</span>
                   <span className="font-light mx-1">×</span>
@@ -65,13 +61,8 @@ export function ShootFooter({
                   {basePrice / 100} USD
                 </span>
               </div>
-              <div className="flex items-center gap-x-2 bg-[#FFFFFF10] rounded-full px-3 py-2 text-[#FFFFFF60] text-xs">
-                <Image 
-                  src="/plus-icon.svg"
-                  alt="Plus Icon"
-                  width={16}
-                  height={16}
-                />
+              <div className="flex items-center gap-x-1 bg-[#FFFFFF10] rounded-full px-3 py-2 text-[#FFFFFF60] text-xs">
+                <Icon variant="plus-fill" size={16} className="text-[#FFB45E]" />
                 <span>Add {extraStylesCount} extra styles and get</span>
                 <span className="text-[#FFFFFF]">{totalPhotosWithExtra}</span>
                 <span>photos for only</span>
@@ -82,13 +73,7 @@ export function ShootFooter({
         ) : (
           <>
             <div className="flex items-center mr-10 flex-wrap flex-[1_1_80%]">
-              <Image 
-                src="/face-dizzy.svg"
-                alt="Face Dizzy Emoji"
-                width={22}
-                height={22}
-                className="mr-2"
-              />
+              <Icon variant="face-dizzy" size={22} className="mr-2" />
               <div className={styles['footer-content']}>
                 <span>Your style list is empty. Add a few looks to generate your perfect shoot.</span>
               </div>

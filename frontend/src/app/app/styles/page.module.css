@@ -1,0 +1,61 @@
+.image-strip {
+    display: flex;
+    width: 100%;
+    flex: 0 0 326px;
+}
+
+.navigation-buttons {
+    display: flex;
+    padding: 12px 20px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 88px;
+    background: rgba(0, 21, 20, 0.80);
+    backdrop-filter: blur(10px);
+    gap: 32px;
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0px 1px 1px 0px rgba(68, 227, 201, 0.30) inset;
+}
+
+.carousel-container {
+    position: relative;
+    width: 100%;
+}
+.highlight-overlay {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border: 6px solid #44E3C9;
+    width: 70%;
+    max-width: 1024px;
+    height: 576px;
+    border-radius: 36px;
+    box-shadow: 0 0 0 100vmax rgba(0, 21, 20, 0.9);
+    clip-path: inset(0 -100vmax);
+    z-index: 10;
+    pointer-events: none;
+}
+
+.slideCard {
+    max-width: 1068px;
+    height: 576px;
+    will-change: transform;
+    transition: transform 0.3s ease-out;
+    border-radius: 36px;
+}
+
+.activeSlide {
+    z-index: 2;
+}
+
+.inactiveSlide {
+    z-index: 1;
+}
+
+.sliding {
+    border-radius: 0;
+}

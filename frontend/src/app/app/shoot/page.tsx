@@ -2,8 +2,6 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { useToast } from '@/components/ui/use-toast'
 import { useAuth } from '@/contexts/auth-context'
 import { createClient } from '@/lib/supabase/client'
@@ -16,6 +14,7 @@ import { useUserProfile } from '@/lib/hooks/use-user-profile'
 import { usePaymentFlow } from '@/lib/hooks/use-payment-flow'
 import { ProfileCompletionModal } from '@/components/profile/profile-completion-modal'
 import { ShootFooter } from '@/components/shoot/shoot-footer'
+import { PRICING } from '@/lib/constants/pricing'
 import stylesCSS from './page.module.css'
 import { motion } from 'framer-motion'
 
@@ -189,9 +188,21 @@ export default function StylesPage() {
         stylesCount={headshotInfo.styleCount}
         photosPerStyle={headshotInfo.headshotsPerStyle}
         basePrice={headshotInfo.price}
-        extraStylesCount={2}
-        totalPhotosWithExtra={120}
-        upgradedPrice={79}
+        extraStylesCount={
+          headshotInfo.styleCount === 1 ? 2 :  // Individual -> Professional (2 extra)
+          headshotInfo.styleCount <= 3 ? 3 :   // Professional -> Studio (3 extra)
+          1                                     // Studio -> Studio + 1
+        }
+        totalPhotosWithExtra={
+          headshotInfo.styleCount === 1 ? PRICING.professional.totalHeadshots :  // Individual -> Professional
+          headshotInfo.styleCount <= 3 ? PRICING.studio.totalHeadshots :         // Professional -> Studio
+          headshotInfo.totalHeadshots + PRICING.addon.headshots                  // Studio -> Studio + addon
+        }
+        upgradedPrice={
+          headshotInfo.styleCount === 1 ? PRICING.professional.price / 100 :  // Individual -> Professional
+          headshotInfo.styleCount <= 3 ? PRICING.studio.price / 100 :         // Professional -> Studio
+          headshotInfo.price / 100 + PRICING.addon.price / 100               // Studio -> Studio + addon
+        }
         onCheckout={async () => {
           if (!user) {
             toast({ title: 'Error', description: 'User not logged in.', variant: 'destructive' });

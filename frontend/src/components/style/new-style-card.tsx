@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import styles from './new-style-card.module.css'
+import { Icon } from '@/components/icons/icon'
 
 interface NewStyleCardProps {
   onClick: () => void
@@ -20,25 +21,19 @@ export function NewStyleCard({ onClick }: NewStyleCardProps) {
       </div>
       <div className={styles['bottom-card']}>
         <div className={styles['icon-group']}>
-          <Image
-            src="/background-icon.svg"
-            alt="Background"
-            width={20}
-            height={20}
+          <Icon
+            variant="background"
+            size={20}
             className={styles.icon}
           />
-          <Image
-            src="/style-icon.svg"
-            alt="Photography style"
-            width={20}
-            height={20}
+          <Icon
+            variant="style"
+            size={20}
             className={styles.icon}
           />
-          <Image
-            src="/clothing-icon.svg"
-            alt="Clothing"
-            width={20}
-            height={20}
+          <Icon
+            variant="clothing"
+            size={20}
             className={styles.icon}
           />
         </div>

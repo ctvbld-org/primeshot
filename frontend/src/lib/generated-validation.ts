@@ -8,11 +8,11 @@ import { StylePhotographyStyle, StyleBackground, StyleOutfit } from './generated
 
 export const validStyleIds: StylePhotographyStyle[] = [
   "studio",
-  "business-portrait",
-  "outdoor-fashion",
-  "outdoor-fashion-2",
+  "corporate",
+  "editorial",
+  "editorial-2",
   "studio-2",
-  "business-portrait-2"
+  "corporate-2"
 ] as const;
 
 export const validBackgrounds: StyleBackground[] = [
@@ -40,4 +40,4 @@ export const validOutfits: StyleOutfit[] = [
   "formal"
 ] as const;
 
-// Generated on: 2025-04-20T15:01:40.995Z
+// Generated on: 2025-04-21T20:07:48.214Z
