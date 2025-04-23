@@ -2,8 +2,6 @@
 
 import { useEffect, useMemo, useCallback, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
-import { Button } from '@/components/ui/button'
 import { StylePhotographyStyle, Gender, StyleStatus } from '@/lib/types'
 import stylesConfig from '@/lib/config/styles.json'
 import { getStyleImages } from '@/lib/utils/get-styles-images'
@@ -24,9 +22,7 @@ import { useStyleStore } from '@/store/style'
 import { motion, AnimatePresence } from 'framer-motion'
 import stylesCSS from './page.module.css'
 import { Icon } from '@/components/icons/icon'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import optionsConfig from '@/lib/config/options.json'
-import { getOptionsImage } from '@/lib/utils/get-options-image'
 import { StyleTabsOptions } from '@/components/style/style-tabs-options'
 import { StyleDetails } from '@/components/style/style-details'
 
