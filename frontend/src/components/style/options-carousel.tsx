@@ -141,33 +141,31 @@ export function OptionsCarousel({
           onClick={scrollPrev}
           disabled={!canScrollPrev}
           className={cn(
-            "absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center",
-            "bg-white rounded-full shadow-lg border transition-opacity",
-            "disabled:opacity-0 enabled:opacity-100",
-            "-translate-x-1/2"
+            "absolute top-full right-[48px] translate-y-4 z-50 w-10 h-10 flex items-center justify-center",
+            "bg-[#00000015] text-black rounded-full transition-all cursor-pointer",
+            "disabled:opacity-40 disabled:cursor-not-allowed enabled:opacity-100 hover:not-disabled:bg-accent/15"
           )}
         >
-          <Icon variant="arrowLeft" size={20} />
+          <Icon variant="arrowLeft" size={16} />
         </button>
 
         <button
           onClick={scrollNext}
           disabled={!canScrollNext}
           className={cn(
-            "absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center",
-            "bg-white rounded-full shadow-lg border transition-opacity",
-            "disabled:opacity-0 enabled:opacity-100",
-            "translate-x-1/2"
+            "absolute top-full right-0 translate-y-4 z-50 w-10 h-10 flex items-center justify-center",
+            "bg-[#00000015] text-black rounded-full transition-all cursor-pointer",
+            "disabled:opacity-40 enabled:opacity-100 hover:bg-accent/15"
           )}
         >
-          <Icon variant="arrowRight" size={20} />
+          <Icon variant="arrowRight" size={16} />
         </button>
       </div>
 
       {/* Selected Option Label */}
       {selectedOption && (
-        <div className="text-center mt-4">
-          <p className="text-sm font-medium">
+        <div className="flex justify-center items-center max-w-[232px] h-10">
+          <p className="text-center text-[12px] bg-[#00000015] px-3 py-1 text-black rounded-full">
             {options.find(opt => opt.id === selectedOption)?.label}
           </p>
         </div>

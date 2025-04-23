@@ -16,8 +16,8 @@
 }
 
 .base:disabled {
-  background-color: var(--muted);
-  color: var(--muted-foreground);
+  background-color: #00000030;
+  color: #00000060;
   cursor: not-allowed;
 }
 
@@ -79,15 +79,13 @@
   ring: 3px var(--destructive-rgb / 0.4);
 }
 
-.outline {
-  border: 1px solid var(--border);
-  background-color: var(--background);
-  box-shadow: var(--shadow-xs);
+.secondary {
+  background-color: #000000;
+  color: #FFFFFF;
 }
 
-.outline:hover {
-  background-color: var(--accent);
-  color: var(--accent-foreground);
+.secondary:hover {
+  background-color: #001514;
 }
 
 :global(.dark) .outline {
@@ -99,13 +97,13 @@
   background-color: var(--input-rgb / 0.5);
 }
 
-.secondary {
+.outline {
   background-color: var(--secondary);
   color: var(--secondary-foreground);
   box-shadow: inset 0px 0.5px rgba(255, 180, 94, .4);
 }
 
-.secondary:hover {
+.outline:hover {
     box-shadow: inset 0.5px 0.5px rgba(255, 180, 94, .4);
 }
 
@@ -126,6 +124,7 @@
 .link:hover {
   text-decoration: underline;
 }
+
 
 /* Sizes */
 .size-md {
@@ -162,4 +161,46 @@
 .size-icon {
   width: 2.25rem;
   height: 2.25rem;
+}
+
+/* Loading state */
+.loading {
+  position: relative;
+  cursor: not-allowed;
+}
+
+.spinner {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  animation: spin 1s linear infinite;
+}
+
+.spinnerCircle {
+  stroke: currentColor;
+  stroke-dasharray: 80;
+  stroke-dashoffset: 60;
+  animation: dash 1.5s ease-in-out infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dash {
+  0% {
+    stroke-dashoffset: 60;
+  }
+  50% {
+    stroke-dashoffset: 20;
+  }
+  100% {
+    stroke-dashoffset: 60;
+  }
 }

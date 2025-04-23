@@ -27,7 +27,7 @@ export function NewStyleCard({ onClick }: NewStyleCardProps) {
             className={styles.icon}
           />
           <Icon
-            variant="style"
+            variant="clothingColor"
             size={20}
             className={styles.icon}
           />
@@ -43,7 +43,7 @@ export function NewStyleCard({ onClick }: NewStyleCardProps) {
           background and clothing.
         </p>
 
-        <Button variant="secondary" className={styles['add-style']}>
+        <Button variant="outline" className={styles['add-style']}>
           Add Style
         </Button>
       </div>

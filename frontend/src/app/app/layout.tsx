@@ -42,7 +42,7 @@ export default function AppLayout({
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#001514' }}>
+    <div className="min-h-screen overflow-hidden" style={{ backgroundColor: '#001514' }}>
       <header>
         <div className="mx-auto flex h-[56px] items-center justify-between px-4">
           <Image 

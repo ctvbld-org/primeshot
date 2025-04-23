@@ -4,11 +4,10 @@
     gap: 24px;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
 }
 
 .scrollable {
-    overflow-x: auto;
+    /* overflow-x: auto; */
 }
 
 .fake-card {

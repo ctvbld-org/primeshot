@@ -24,6 +24,7 @@
     position: relative;
     width: 100%;
 }
+
 .highlight-overlay {
     position: absolute;
     left: 50%;
@@ -79,6 +80,8 @@
   flex-direction: column;
   padding: 32px 16px;
   justify-content: start;
+  height: 100%;
+  border-radius: 0;
 }
 
 .tab-trigger {
@@ -116,7 +119,15 @@
 }
 
 .tab-trigger .tab-label {
+    flex: 1;
+    text-align: left;
     color: #000;
+}
+
+.tab-trigger .tab-category-count {
+    color: #00000030;
+    font-size: 14px;
+    font-weight: 500;
 }
 
 .tab-content {
@@ -140,6 +151,7 @@
   color: #909594;
   font-size: 14px;
   line-height: 1.5;
+  max-width: 360px;
 }
 
 /* Footer icon buttons */
@@ -148,7 +160,6 @@
     height: 40px;
     border-radius: 4px;
     display: flex;
-    cursor: pointer;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease-in-out;
@@ -159,15 +170,15 @@
     color: rgba(0, 0, 0, 0.4);
 }
 
-.footer-icon-button[data-state="active"] svg {
+button[data-state="active"] .footer-icon-button svg {
     color: #000000;
 }
 
-.footer-icon-button[data-state="inactive"] {
+button[data-state="inactive"] .footer-icon-button {
     background: transparent;
 }
 
-.footer-icon-button[data-state="inactive"]:hover {
+button[data-state="inactive"]:hover .footer-icon-button {
     background: rgba(0, 0, 0, 0.05);
 }
 
@@ -185,9 +196,13 @@
     transition: all 0.3s ease-in-out;
 }
 
-.footer-icon-button[data-state="active"] .footer-option-swatch {
+[data-state="active"] .footer-icon-button .footer-option-swatch {
     border: 2px solid #FFF;
     box-shadow: 0px 0px 0px 2px #44E3C9;
+}
+
+.footer-option-icon {
+    border-radius: 4px;
 }
 
 .footer-option-color {
@@ -196,4 +211,21 @@
     width: 40px;
     border-radius: 9999px;
     border: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.footer-option-check {
+    background-color: #FFFFFF;
+    height: 14px;
+    width: 14px;
+    position: absolute;
+    right: -4px;
+    bottom: -4px;
+    color: rgba(0, 189, 88, 1) !important;
+    border-radius: 9999px;
+    z-index: 2;
+}
+
+.footer-option-color-check {
+    right: -1px;
+    bottom: -1px;
 }

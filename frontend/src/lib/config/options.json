@@ -1,6 +1,7 @@
 {
   "background": {
     "label": "Background",
+    "description": "Pick a background style. The examples give a general feel, actual results may differ slightly.",
     "options": [
       { "id": "plain-light", "label": "Plain Light", "imageUrl": "bg-plain-light.webp" },
       { "id": "plain-dark", "label": "Plain Dark", "imageUrl": "bg-plain-dark.webp" },
@@ -22,19 +23,20 @@
   },
   "clothing": {
     "label": "Clothing Type",
-      "options": [
+    "description": "Choose a clothing style for your headshot. The samples are representative, but the final look may vary.",
+    "options": [
       { "id": "hoodie", "label": "Hoodie", "imageUrl": "hoodie.webp" },
       { "id": "suit-jacket-shirt", "label": "Suit Jacket/Shirt", "imageUrl": "blazer-shirt.webp" },
       { "id": "shirt", "label": "Shirt", "imageUrl": "shirt.webp" },
       { "id": "polo", "label": "Polo", "imageUrl": "polo.webp" },
       { "id": "henley", "label": "Henley", "imageUrl": "henley.webp" },
       { "id": "jacket", "label": "Jacket", "imageUrl": "jacket.webp" },
-      { "id": "fishermans-jumper", "label": "Fishermans Jumper", "imageUrl": "fishermans-jumper.webp" }
-      
+      { "id": "fishermans-jumper", "label": "Fishermans Jumper", "imageUrl": "fishermans-jumper.webp" } 
     ]
   },
   "clothingColor": {
     "label": "Clothing Color",
+    "description": "Select a clothing colour you prefer. The shade shown is a guide, results may have subtle differences.",
     "options": [
       { "id": "#000000", "label": "Black" },
       { "id": "#FFFFFF", "label": "White" },

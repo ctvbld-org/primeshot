@@ -1,5 +1,6 @@
 /* Custom styles for ShootFooter component */
 .footer {
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.03) 100%);
   position: fixed;
   bottom: 0;
   left: 0;
