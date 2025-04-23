@@ -1,46 +1,69 @@
 import { create } from 'zustand'
-import { StyleSettings, StylePhotographyStyle, StyleOutfit, StyleBackground, StyleOutfitColor, Gender } from '@/lib/types'
 import { StateCreator } from 'zustand'
-import stylesConfig from '@/lib/config/styles.json' assert { type: "json" };
+import type { StyleSettings, StylePhotographyStyle, StyleBackground, StyleClothing, StyleClothingColor, Gender } from '@/lib/types'
+import { validateStyleSettings } from '@/lib/utils/style-validation'
 
 interface StyleState {
   settings: StyleSettings
-  setBackground: (background: StyleBackground) => void
-  setOutfit: (outfit: StyleOutfit) => void
-  setPhotographyStyle: (style: StylePhotographyStyle) => void
-  setOutfitColor: (color: StyleOutfitColor) => void
+  setBackground: (background: StyleBackground) => Promise<void>
+  setClothing: (clothing: StyleClothing) => Promise<void>
+  setPhotographyStyle: (style: StylePhotographyStyle) => Promise<void>
+  setClothingColor: (color: StyleClothingColor) => Promise<void>
   setGender: (gender: Gender) => void
   reset: () => void
 }
 
-// Get the first style from config to use as default
-const firstStyle = stylesConfig[0];
-
-// Create safe default settings based on the first available style in config
+// Default settings will be updated when data is loaded
 const defaultSettings: StyleSettings = {
-  photographyStyle: firstStyle.id as StylePhotographyStyle,
-  outfit: firstStyle.availableClothing[0] as StyleOutfit,
-  background: firstStyle.availableBackgrounds[0] as StyleBackground,
-  outfitColor: firstStyle.availableClothingColor[0] as StyleOutfitColor,
-  gender: 'other' // Default gender
+  photographyStyle: 'studio',
+  background: 'plain-light',
+  clothing: 'shirt',
+  gender: 'male',
+  clothingColor: '#FFFFFF',
 }
 
 type StyleStore = StateCreator<StyleState>
 
 export const useStyleStore = create<StyleState>((set: Parameters<StyleStore>[0]) => ({
   settings: defaultSettings,
-  setBackground: (background) => set((state) => ({
-    settings: { ...state.settings, background }
-  })),
-  setOutfit: (outfit) => set((state) => ({
-    settings: { ...state.settings, outfit }
-  })),
-  setPhotographyStyle: (photographyStyle) => set((state) => ({
-    settings: { ...state.settings, photographyStyle }
-  })),
-  setOutfitColor: (outfitColor) => set((state) => ({
-    settings: { ...state.settings, outfitColor }
-  })),
+  setBackground: async (background) => {
+    const newSettings = { ...defaultSettings, background }
+    const { isValid, errors } = await validateStyleSettings(newSettings)
+    if (!isValid) {
+      console.error('Invalid style settings:', errors)
+      throw new Error(errors.join(', '))
+    }
+    set((state) => ({
+      settings: { ...state.settings, background }
+    }))
+  },
+  setClothing: async (clothing) => {
+    const newSettings = { ...defaultSettings, clothing }
+    const { isValid, errors } = await validateStyleSettings(newSettings)
+    if (!isValid) {
+      console.error('Invalid style settings:', errors)
+      throw new Error(errors.join(', '))
+    }
+    set((state) => ({
+      settings: { ...state.settings, clothing }
+    }))
+  },
+  setPhotographyStyle: async (photographyStyle) => {
+    const newSettings = { ...defaultSettings, photographyStyle }
+    const { isValid, errors } = await validateStyleSettings(newSettings)
+    if (!isValid) {
+      console.error('Invalid style settings:', errors)
+      throw new Error(errors.join(', '))
+    }
+    set((state) => ({
+      settings: { ...state.settings, photographyStyle }
+    }))
+  },
+  setClothingColor: async (clothingColor) => {
+    set((state) => ({
+      settings: { ...state.settings, clothingColor }
+    }))
+  },
   setGender: (gender) => set((state) => ({
     settings: { ...state.settings, gender }
   })),

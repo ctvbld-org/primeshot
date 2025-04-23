@@ -4,9 +4,9 @@ import { Icon } from '@/components/icons/icon'
 import { Style } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { StyleDetails } from './style-details'
-import stylesConfig from '@/lib/config/styles.json'
 import { getStyleImages } from '@/lib/utils/get-styles-images'
 import { useUserGender } from '@/lib/hooks/use-user-gender'
+import { useStyleConfigs } from '@/hooks/useConfig'
 
 interface StyleCardProps {
   style: Style
@@ -24,9 +24,10 @@ export function StyleCard({
   className
 }: StyleCardProps) {
   const { gender } = useUserGender();
+  const { data: styleConfigs } = useStyleConfigs();
   
   // Find the corresponding style configuration
-  const styleConfig = stylesConfig.find(
+  const styleConfig = styleConfigs?.find(
     config => config.id === style.settings.photographyStyle
   );
 
@@ -37,9 +38,9 @@ export function StyleCard({
   // Merge saved style with style configuration
   const mergedStyle = {
     ...style,
-    tagline: styleConfig.tagline,
-    description: styleConfig.description,
-    genderSpecificImages: getStyleImages(styleConfig.previewImages, gender || undefined)
+    tagline: styleConfig.tagline || undefined,
+    description: styleConfig.description || '',
+    genderSpecificImages: getStyleImages(styleConfig.preview_images || [], gender || undefined)
   };
 
   return (

@@ -9,6 +9,13 @@ export function createClient() {
         headers: {
           'Accept': 'application/json'
         }
+      },
+      auth: {
+        flowType: 'pkce',
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        persistSession: true,
+        storage: typeof window !== 'undefined' ? window.localStorage : undefined
       }
     }
   )

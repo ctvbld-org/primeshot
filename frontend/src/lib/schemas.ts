@@ -31,7 +31,7 @@ const styleSettingsSchema = z.object({
   ], {
     errorMap: () => ({ message: 'Invalid photography style selection' })
   }),
-  outfit: z.enum([
+  clothing: z.enum([
     'professional',
     'casual',
     'creative',
@@ -40,7 +40,7 @@ const styleSettingsSchema = z.object({
     'formal',
     'tech'
   ], {
-    errorMap: () => ({ message: 'Invalid outfit selection' })
+    errorMap: () => ({ message: 'Invalid clothing selection' })
   }),
   background: z.enum(['plain', 'office', 'outdoor', 'bookshelf', 'cafe', 'studio', 'gradient', 'cityscape', 'abstract', 'brick', 'nature', 'tech'], {
     errorMap: () => ({ message: 'Invalid background selection' })

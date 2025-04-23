@@ -24,15 +24,17 @@ import { TrashIcon } from '@heroicons/react/24/outline'
 
 // Import the new selectors
 import { BackgroundImageSelector } from '@/components/style/background-image-selector'
-import { OutfitImageSelector } from '@/components/style/outfit-image-selector'
-import { OutfitColorSelector } from '@/components/style/outfit-color-selector'
+import { OutfitImageSelector } from '@/components/style/clothing-image-selector'
+import { OutfitColorSelector } from '@/components/style/clothing-color-selector'
+import { ClothingImageSelector } from '@/components/style/clothing-image-selector'
+import { ClothingColorSelector } from '@/components/style/clothing-color-selector'
 
 // Use Suspense for potential future use with data fetching
 function EditStyleContent() {
   const params = useParams()
   const router = useRouter()
   const { user } = useAuth()
-  const { settings, setBackground, setOutfit, setOutfitColor, reset } = useStyleStore()
+  const { settings, setBackground, setClothing, setClothingColor, reset } = useStyleStore()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -48,8 +50,8 @@ function EditStyleContent() {
   // Calculate unsaved changes based on store state vs original loaded state
   const hasUnsavedChanges = originalSettings && (
     originalSettings.background !== settings.background ||
-    originalSettings.outfit !== settings.outfit ||
-    originalSettings.outfitColor !== settings.outfitColor
+    originalSettings.clothing !== settings.clothing ||
+    originalSettings.clothingColor !== settings.clothingColor
     // Note: photographyStyle is not editable here, so no need to compare
   )
 
@@ -81,9 +83,9 @@ function EditStyleContent() {
 
         // Set the store state with loaded data
         setBackground(loadedSettings.background)
-        setOutfit(loadedSettings.outfit)
-        // Handle potentially missing outfitColor from older styles
-        setOutfitColor(loadedSettings.outfitColor || '#000000') 
+        setClothing(loadedSettings.clothing)
+        // Handle potentially missing clothingColor from older styles
+        setClothingColor(loadedSettings.clothingColor || '#000000') 
         // Set photography style locally as it's not editable
         setPhotographyStyle(loadedSettings.photographyStyle)
         setStyleName(loadedStyle.name)
@@ -109,10 +111,10 @@ function EditStyleContent() {
     return () => {
       reset();
     };
-  }, [user, styleId, router, toast, setBackground, setOutfit, setOutfitColor, reset])
+  }, [user, styleId, router, toast, setBackground, setClothing, setClothingColor, reset])
 
   const handleSave = async () => {
-    if (!user || !styleId || !settings.background || !settings.outfit || !settings.outfitColor || !photographyStyle) {
+    if (!user || !styleId || !settings.background || !settings.clothing || !settings.clothingColor || !photographyStyle) {
        toast({ title: 'Error', description: 'Missing required data to save.', variant: 'destructive' })
        return
     }
@@ -123,12 +125,12 @@ function EditStyleContent() {
 
       // Use the current store settings for the update
       const updatedSettings = {
-        ...settings, // Includes background, outfit, outfitColor from store
+        ...settings, // Includes background, clothing, clothingColor from store
         photographyStyle: photographyStyle, // Keep original style
       };
       
       // Regenerate name based on potentially updated settings
-      const formattedName = `${photographyStyle} ${settings.outfit} (${settings.outfitColor}) ${settings.background}`
+      const formattedName = `${photographyStyle} ${settings.clothing} (${settings.clothingColor}) ${settings.background}`
         .split(' ')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
         .join(' ');
@@ -177,8 +179,8 @@ function EditStyleContent() {
     // Restore store state to original loaded settings before navigating
     if (originalSettings) {
       setBackground(originalSettings.background);
-      setOutfit(originalSettings.outfit);
-      setOutfitColor(originalSettings.outfitColor || '#000000');
+      setClothing(originalSettings.clothing);
+      setClothingColor(originalSettings.clothingColor || '#000000');
     }
     setShowDiscardDialog(false)
     router.push('/app/shoot')
@@ -238,13 +240,13 @@ function EditStyleContent() {
             </section>
 
             <section>
-              <h3 className="text-lg font-medium mb-3">Outfit</h3>
-              <OutfitImageSelector photographyStyle={photographyStyle} />
+              <h3 className="text-lg font-medium mb-3">Clothing</h3>
+              <ClothingImageSelector photographyStyle={photographyStyle} />
             </section>
 
             <section>
-              <h3 className="text-lg font-medium mb-3">Outfit Color</h3>
-              <OutfitColorSelector photographyStyle={photographyStyle} />
+              <h3 className="text-lg font-medium mb-3">Clothing Color</h3>
+              <ClothingColorSelector photographyStyle={photographyStyle} />
             </section>
           </CardContent>
           <CardFooter className="flex flex-col sm:flex-row gap-4 justify-between">

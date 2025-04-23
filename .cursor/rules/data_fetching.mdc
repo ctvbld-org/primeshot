@@ -1,0 +1,177 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+ - **Custom Hook Usage**
+  - Use centralized hooks from `@/hooks/useConfig` for data fetching
+  ```typescript
+  // ✅ DO: Use custom hooks for data fetching
+  const { data: styles } = useStyleConfigs();
+  const { data: options } = useOption('background');
+
+  // ❌ DON'T: Implement React Query directly in components
+  const { data } = useQuery({
+    queryKey: ['styles'],
+    queryFn: getAllStyleConfigs
+  });
+  ```
+
+- **Available Hooks**
+  - **useStyleConfigs**
+    ```typescript
+    // Fetches all style configurations
+    const { data: styles, isLoading, error } = useStyleConfigs();
+    // Returns array of Style objects with photography styles
+    ```
+
+  - **useStyleConfig**
+    ```typescript
+    // Fetches single style configuration by ID
+    const { data: style } = useStyleConfig(id);
+    // Returns single Style object
+    ```
+
+  - **useOptions**
+    ```typescript
+    // Fetches all style options
+    const { data: allOptions } = useOptions();
+    // Returns array of all Option objects
+    ```
+
+  - **useOption**
+    ```typescript
+    // Fetches options for specific category
+    const { data: options } = useOption('background');
+    // Categories: 'background' | 'clothing' | 'clothingColor'
+    ```
+
+- **Loading States**
+  ```typescript
+  // ✅ DO: Handle loading states consistently
+  const { isLoading, error } = useStyleConfigs();
+  
+  if (isLoading) {
+    return <div className="p-4">Loading...</div>;
+  }
+
+  // ❌ DON'T: Skip loading states
+  const { data } = useStyleConfigs();
+  // Immediately using data could cause undefined errors
+  ```
+
+- **Error Handling**
+  ```typescript
+  // ✅ DO: Handle errors with user-friendly messages
+  if (error) {
+    return (
+      <div className="p-4 text-red-500">
+        Error: {error instanceof Error ? error.message : 'Failed to load'}
+      </div>
+    );
+  }
+
+  // ❌ DON'T: Ignore error states
+  const { data } = useStyleConfigs();
+  // Missing error handling
+  ```
+
+- **Multiple Queries**
+  ```typescript
+  // ✅ DO: Combine loading/error states when using multiple queries
+  const { data: styles, isLoading: isLoadingStyles, error: stylesError } = useStyleConfigs();
+  const { data: options, isLoading: isLoadingOptions, error: optionsError } = useOption('background');
+
+  const isLoading = isLoadingStyles || isLoadingOptions;
+  const error = stylesError || optionsError;
+
+  if (isLoading) return <LoadingState />;
+  if (error) return <ErrorState error={error} />;
+  ```
+
+- **Caching Configuration**
+  - Data is cached for 1 week by default
+  - Cache is automatically invalidated on admin updates
+  - Background refetches still occur but less frequently
+  ```typescript
+  // Cache duration is configured in useConfig.ts
+  staleTime: 1000 * 60 * 60 * 24 * 7, // 1 week
+  ```
+
+- **Type Safety**
+  ```typescript
+  // ✅ DO: Use type inference from hooks
+  const { data: styles } = useStyleConfigs();
+  // styles is typed as Style[] | undefined
+
+  // ❌ DON'T: Use any or ignore types
+  const { data } = useStyleConfigs() as any;
+  ```
+
+- **Default Values**
+  ```typescript
+  // ✅ DO: Provide fallbacks for undefined data
+  const options = data?.options || [];
+  const config = data?.config || defaultConfig;
+
+  // ❌ DON'T: Assume data exists
+  const options = data.options; // Could throw error
+  ```
+
+- **Component Integration**
+  ```typescript
+  // ✅ DO: Destructure needed fields
+  function BackgroundSelector() {
+    const { data: styles } = useStyleConfigs();
+    const { data: options } = useOption('background');
+    return <Selector styles={styles} options={options} />;
+  }
+
+  // ❌ DON'T: Pass entire query result
+  function BackgroundSelector() {
+    const query = useStyleConfigs();
+    return <Selector query={query} />; // Exposes internal query details
+  }
+  ```
+
+- **Related Rules**
+  - See [auth.mdc](mdc:.cursor/rules/auth.mdc) for authentication data patterns
+  - See [project_structure.mdc](mdc:.cursor/rules/project_structure.mdc) for API organization
+  - See [cursor_rules.mdc](mdc:.cursor/rules/cursor_rules.mdc) for rule formatting
+
+
+- **Hook Organization**
+  - Place hooks in the appropriate directory based on their scope:
+  ```
+  frontend/src/hooks/        # Application-wide, general-purpose hooks
+  ├── useConfig.ts          # Global configuration and styles
+  └── other global hooks...
+  
+  frontend/src/lib/hooks/   # Feature-specific, specialized hooks
+  ├── use-payment-flow.ts   # Payment feature logic
+  ├── use-user-profile.ts   # User profile management
+  ├── use-file-upload.ts    # File upload handling
+  └── other feature hooks...
+  ```
+
+  ```typescript
+  // ✅ DO: Import from correct location based on hook type
+  // Global hooks
+  import { useConfig } from '@/hooks/useConfig';
+  
+  // Feature-specific hooks
+  import { usePaymentFlow } from '@/lib/hooks/use-payment-flow';
+  ```
+
+  - **Global Hooks** (`@/hooks/`)
+    - Used across multiple features
+    - Handle application-wide concerns
+    - Provide shared functionality
+    - Example: Configuration, theming, authentication
+
+  - **Feature Hooks** (`@/lib/hooks/`)
+    - Specific to a single feature
+    - Encapsulate complex feature logic
+    - Handle specific workflows
+    - Example: Payment flow, user profile, file upload
+    

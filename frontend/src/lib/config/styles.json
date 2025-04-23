@@ -13,7 +13,7 @@
     ],
     "availableGenders": ["male", "female"],
     "availableBackgrounds": ["plain-light", "plain-dark", "plain-orange", "plain-blue", "plain-teal", "studio", "gradient", "brick"],
-    "availableClothing": ["hoodie", "blazer-shirt", "shirt", "polo", "henley", "jacket", "fishermans-jumper"],
+    "availableClothing": ["hoodie", "suit-jacket-shirt", "shirt", "polo", "henley", "jacket", "fishermans-jumper"],
     "availableClothingColor": ["#000000", "#FFFFFF", "#2A9D47", "#3B82F6", "#FF7F3", "#D22D2D", "#FC84E2", "#A28DF7", "#6B7280", "#4F46E5"] 
   },
   {
@@ -30,7 +30,7 @@
     ],
     "availableGenders": ["male", "female"],
     "availableBackgrounds": ["plain-light", "plain-dark", "plain-orange", "plain-blue", "plain-teal", "studio", "gradient", "brick"],
-    "availableClothing": ["blazer-shirt", "shirt", "polo", "henley", "jacket"],
+    "availableClothing": ["suit-jacket-shirt", "shirt", "polo", "henley", "jacket"],
     "availableClothingColor": ["#000000", "#FFFFFF", "#2A9D47", "#3B82F6", "#FF7F3", "#D22D2D", "#FC84E2", "#A28DF7", "#6B7280", "#4F46E5"] 
  },
   {

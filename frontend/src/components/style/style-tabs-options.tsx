@@ -2,14 +2,13 @@ import { motion } from 'framer-motion'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@/components/icons/icon'
-import { cn } from '@/lib/utils'
 import { StylePhotographyStyle, StyleStatus } from '@/lib/types'
 import { getOptionsImage } from '@/lib/utils/get-options-image'
 import Image from 'next/image'
 import styles from './style-tabs-options.module.css'
 import { BackgroundImageSelector } from './background-image-selector'
-import { OutfitImageSelector } from './outfit-image-selector'
-import { OutfitColorSelector } from './outfit-color-selector'
+import { ClothingImageSelector } from './clothing-image-selector'
+import { ClothingColorSelector } from './clothing-color-selector'
 import optionsConfig from '@/lib/config/options.json'
 
 // Map category IDs to icon variants
@@ -22,8 +21,8 @@ const categoryIconMap: Record<keyof typeof optionsConfig, React.ComponentProps<t
 // Map category IDs to components
 const categoryComponentMap: Record<string, React.ComponentType<{ photographyStyle: StylePhotographyStyle }>> = {
   background: BackgroundImageSelector,
-  clothingColor: OutfitColorSelector,
-  clothing: OutfitImageSelector
+  clothingColor: ClothingColorSelector,
+  clothing: ClothingImageSelector
 };
 
 type BaseOption = {
@@ -50,8 +49,8 @@ interface StyleTabsOptionsProps {
   };
   settings: {
     background?: string;
-    outfit?: string;
-    outfitColor?: string;
+    clothing?: string;
+    clothingColor?: string;
   };
   isSaving: boolean;
   activeTab: string;
@@ -168,9 +167,9 @@ export function StyleTabsOptions({
                 case 'background':
                   return settings.background;
                 case 'clothing':
-                  return settings.outfit;
+                  return settings.clothing;
                 case 'clothingColor':
-                  return settings.outfitColor;
+                  return settings.clothingColor;
                 default:
                   return undefined;
               }
@@ -253,9 +252,9 @@ export function StyleTabsOptions({
                   case 'background':
                     return settings.background;
                   case 'clothing':
-                    return settings.outfit;
+                    return settings.clothing;
                   case 'clothingColor':
-                    return settings.outfitColor;
+                    return settings.clothingColor;
                   default:
                     return undefined;
                 }
@@ -277,9 +276,9 @@ export function StyleTabsOptions({
                 case 'background':
                   return settings.background;
                 case 'clothing':
-                  return settings.outfit;
+                  return settings.clothing;
                 case 'clothingColor':
-                  return settings.outfitColor;
+                  return settings.clothingColor;
                 default:
                   return undefined;
               }
@@ -295,9 +294,9 @@ export function StyleTabsOptions({
                   case 'background':
                     return settings.background;
                   case 'clothing':
-                    return settings.outfit;
+                    return settings.clothing;
                   case 'clothingColor':
-                    return settings.outfitColor;
+                    return settings.clothingColor;
                   default:
                     return undefined;
                 }

@@ -11,8 +11,8 @@ import { z } from 'zod'
 import { cn } from '@/lib/utils'
 import useEmblaCarousel from 'embla-carousel-react'
 import { BackgroundImageSelector } from '@/components/style/background-image-selector'
-import { OutfitImageSelector } from '@/components/style/outfit-image-selector'
-import { OutfitColorSelector } from '@/components/style/outfit-color-selector'
+import { ClothingImageSelector } from '@/components/style/clothing-image-selector'
+import { ClothingColorSelector } from '@/components/style/clothing-color-selector'
 import { useAuth } from '@/contexts/auth-context'
 import { useToast } from '@/components/ui/use-toast'
 import { saveStyle } from '@/lib/api/styles'
@@ -92,8 +92,8 @@ const categoryIconMap: Record<keyof typeof optionsConfig, React.ComponentProps<t
 // Map category IDs to components
 const categoryComponentMap: Record<string, React.ComponentType<{ photographyStyle: StylePhotographyStyle }>> = {
   background: BackgroundImageSelector,
-  clothingColor: OutfitColorSelector,
-  clothing: OutfitImageSelector
+  clothingColor: ClothingColorSelector,
+  clothing: ClothingImageSelector
 };
 
 // Update the type definitions to match the actual data structure
@@ -261,20 +261,15 @@ export default function Page() {
       const order = await getOrCreateDraftOrder(user.id)
       const orderId = order.id
 
-      const formattedName = `${style.id} ${settings.outfit} (${settings.outfitColor}) ${settings.background}`
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ')
-
       const styleData = {
         user_id: user.id,
         order_id: orderId,
-        name: formattedName,
+        name: style.name,
         settings: {
           photographyStyle: style.id as StylePhotographyStyle,
-          outfit: settings.outfit,
           background: settings.background,
-          outfitColor: settings.outfitColor,
+          clothing: settings.clothing,
+          clothingColor: settings.clothingColor,
         },
         status: 'draft' as StyleStatus
       }

@@ -3,6 +3,7 @@ import { InsertStyle, Style, StyleStatus, UpdateStyle } from '@/lib/types'
 import { calculatePricing } from '@/lib/pricing'
 import { SupabaseClient } from '@supabase/supabase-js'
 import { logger } from '@/lib/logger'
+import type { Option, StyleId, OptionCategory } from '@/types/styles'
 
 /**
  * Save a new style to the database
@@ -330,4 +331,48 @@ export async function updateStylesStatus(
   if (error) {
     throw new Error(`Failed to update styles status: ${error.message}`)
   }
-} 
+}
+
+const supabase = createClient();
+
+export async function getAllStyles(): Promise<Style[]> {
+  const { data, error } = await supabase
+    .from('styles')
+    .select('*')
+    .order('name');
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getStyleById(id: StyleId): Promise<Style | null> {
+  const { data, error } = await supabase
+    .from('styles')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getAllOptions(): Promise<Option[]> {
+  const { data, error } = await supabase
+    .from('options')
+    .select('*')
+    .order('category');
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getOptionByCategory(category: OptionCategory): Promise<Option | null> {
+  const { data, error } = await supabase
+    .from('options')
+    .select('*')
+    .eq('category', category)
+    .single();
+
+  if (error) throw error;
+  return data;
+}

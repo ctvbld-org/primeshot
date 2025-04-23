@@ -37,57 +37,361 @@ export type Database = {
       completed_user_journeys: {
         Row: {
           completed_at: string
-          created_at: string
+          created_at: string | null
           id: string
           journey_data: Json
-          user_id: string
+          updated_at: string | null
+          user_id: string | null
         }
         Insert: {
-          completed_at?: string
-          created_at?: string
+          completed_at: string
+          created_at?: string | null
           id?: string
           journey_data: Json
-          user_id: string
+          updated_at?: string | null
+          user_id?: string | null
         }
         Update: {
           completed_at?: string
-          created_at?: string
+          created_at?: string | null
           id?: string
           journey_data?: Json
-          user_id?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "completed_user_journeys_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      images: {
+        Row: {
+          created_at: string | null
+          dimensions: Json | null
+          file_name: string | null
+          file_size: number | null
+          id: string
+          mime_type: string | null
+          order_id: string | null
+          url: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          dimensions?: Json | null
+          file_name?: string | null
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          order_id?: string | null
+          url: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          dimensions?: Json | null
+          file_name?: string | null
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          order_id?: string | null
+          url?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "images_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "images_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          amount: number | null
+          checkout_session_id: string | null
+          created_at: string | null
+          currency: string | null
+          id: string
+          idempotency_key: string | null
+          metadata: Json | null
+          payment_intent_id: string | null
+          payment_status: string | null
+          shoot_number: number
+          status: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          checkout_session_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          idempotency_key?: string | null
+          metadata?: Json | null
+          payment_intent_id?: string | null
+          payment_status?: string | null
+          shoot_number: number
+          status: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          checkout_session_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          idempotency_key?: string | null
+          metadata?: Json | null
+          payment_intent_id?: string | null
+          payment_status?: string | null
+          shoot_number?: number
+          status?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sessions: {
+        Row: {
+          created_at: string | null
+          expires_at: string
+          id: string
+          last_accessed_at: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          last_accessed_at?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          last_accessed_at?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      style_configs: {
+        Row: {
+          available_backgrounds: string[]
+          available_clothing: string[]
+          available_clothing_colors: string[]
+          available_genders: string[]
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          preview_images: Json
+          tagline: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          available_backgrounds?: string[]
+          available_clothing?: string[]
+          available_clothing_colors?: string[]
+          available_genders?: string[]
+          created_at?: string | null
+          description?: string | null
+          id: string
+          name: string
+          preview_images?: Json
+          tagline?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          available_backgrounds?: string[]
+          available_clothing?: string[]
+          available_clothing_colors?: string[]
+          available_genders?: string[]
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          preview_images?: Json
+          tagline?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
-      user_progress: {
+      style_options: {
         Row: {
-          completed_stages: Database["public"]["Enums"]["flow_stage"][]
-          created_at: string
-          current_stage: Database["public"]["Enums"]["flow_stage"]
+          category: string
+          created_at: string | null
+          description: string | null
           id: string
-          last_active_at: string
-          stage_data: Json
-          updated_at: string
-          user_id: string
+          label: string
+          options: Json
+          updated_at: string | null
         }
         Insert: {
-          completed_stages?: Database["public"]["Enums"]["flow_stage"][]
-          created_at?: string
-          current_stage: Database["public"]["Enums"]["flow_stage"]
+          category: string
+          created_at?: string | null
+          description?: string | null
           id?: string
-          last_active_at?: string
-          stage_data?: Json
-          updated_at?: string
-          user_id: string
+          label: string
+          options?: Json
+          updated_at?: string | null
         }
         Update: {
-          completed_stages?: Database["public"]["Enums"]["flow_stage"][]
-          created_at?: string
-          current_stage?: Database["public"]["Enums"]["flow_stage"]
+          category?: string
+          created_at?: string | null
+          description?: string | null
           id?: string
-          last_active_at?: string
-          stage_data?: Json
-          updated_at?: string
-          user_id?: string
+          label?: string
+          options?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      styles: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          order_id: string | null
+          settings: Json
+          status: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          name: string
+          order_id?: string | null
+          settings: Json
+          status: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          order_id?: string | null
+          settings?: Json
+          status?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "styles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_progress: {
+        Row: {
+          completed_stages: string[]
+          created_at: string | null
+          current_stage: string
+          id: string
+          last_active_at: string | null
+          stage_data: Json | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          completed_stages?: string[]
+          created_at?: string | null
+          current_stage: string
+          id?: string
+          last_active_at?: string | null
+          stage_data?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          completed_stages?: string[]
+          created_at?: string | null
+          current_stage?: string
+          id?: string
+          last_active_at?: string | null
+          stage_data?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          gender: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          gender?: string | null
+          id: string
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          gender?: string | null
+          id?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -99,7 +403,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      flow_stage: "shoot" | "upload" | "review" | "payment" | "dashboard"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
@@ -217,9 +521,7 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {
-      flow_stage: ["shoot", "upload", "review", "payment", "dashboard"],
-    },
+    Enums: {},
   },
 } as const
 

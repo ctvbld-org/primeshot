@@ -14,14 +14,14 @@ import {
   StyleStatus, 
   StylePhotographyStyle, 
   StyleBackground,
-  StyleOutfit,
-  StyleOutfitColor 
+  StyleClothing,
+  StyleClothingColor
 } from '@/lib/types'
 
 // Import the actual selector components
 import { BackgroundImageSelector } from '@/components/style/background-image-selector'
-import { OutfitImageSelector } from '@/components/style/outfit-image-selector'
-import { OutfitColorSelector } from '@/components/style/outfit-color-selector'
+import { ClothingImageSelector } from '@/components/style/clothing-image-selector'
+import { ClothingColorSelector } from '@/components/style/clothing-color-selector'
 
 // Import configs needed for setting defaults
 import stylesConfig from '@/lib/config/styles.json' assert { type: "json" };
@@ -34,7 +34,7 @@ function NewStyleContent() {
   const searchParams = useSearchParams()
   const { user } = useAuth()
   // Get all setters needed
-  const { settings, setBackground, setOutfit, setOutfitColor, setGender, reset } = useStyleStore()
+  const { settings, setBackground, setClothing, setClothingColor, setGender, reset } = useStyleStore()
   const { toast } = useToast()
   const [isSaving, setIsSaving] = useState(false)
   // Get user gender
@@ -92,10 +92,10 @@ function NewStyleContent() {
 
       // Set defaults based on the *first available* option for this style
       const defaultBackground = styleConfig.availableBackgrounds?.[0] as StyleBackground | undefined;
-      const defaultOutfit = styleConfig.availableClothing?.[0] as StyleOutfit | undefined;
-      const defaultColor = styleConfig.availableClothingColor?.[0] as StyleOutfitColor | undefined;
+      const defaultClothing = styleConfig.availableClothing?.[0] as StyleClothing | undefined;
+      const defaultColor = styleConfig.availableClothingColor?.[0] as StyleClothingColor | undefined;
 
-      console.log("Defaults:", { defaultBackground, defaultOutfit, defaultColor });
+      console.log("Defaults:", { defaultBackground, defaultClothing, defaultColor });
 
       // Reset store to ensure clean slate before setting defaults for this style
       // Only reset the selectable fields, keep photographyStyle implicit via param
@@ -103,8 +103,8 @@ function NewStyleContent() {
       
       // Now set the defaults based on the validated style
       if (defaultBackground) setBackground(defaultBackground);
-      if (defaultOutfit) setOutfit(defaultOutfit);
-      if (defaultColor) setOutfitColor(defaultColor);
+      if (defaultClothing) setClothing(defaultClothing);
+      if (defaultColor) setClothingColor(defaultColor);
       
       // Set the gender if available
       if (!isGenderLoading && userGender) {
@@ -116,11 +116,11 @@ function NewStyleContent() {
       console.log("Skipping default setting, style not validated yet or invalid.");
     }
     // Depend on validation status and the style itself
-  }, [isStyleValidated, photographyStyle, userGender, isGenderLoading, setBackground, setOutfit, setOutfitColor, setGender, reset]);
+  }, [isStyleValidated, photographyStyle, userGender, isGenderLoading, setBackground, setClothing, setClothingColor, setGender, reset]);
 
   const handleSave = async () => {
     // Use the validated photographyStyle directly
-    if (!user || !photographyStyle || !isStyleValidated || !settings.background || !settings.outfit || !settings.outfitColor) {
+    if (!user || !photographyStyle || !isStyleValidated || !settings.background || !settings.clothing || !settings.clothingColor) {
       toast({
         title: 'Incomplete Selection',
         description: 'Could not save. Ensure user is logged in and all options are selected.',
@@ -135,21 +135,22 @@ function NewStyleContent() {
       const order = await getOrCreateDraftOrder(user.id)
       const orderId = order.id
 
-      const formattedName = `${photographyStyle} ${settings.outfit} (${settings.outfitColor}) ${settings.background}`
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ')
+      // Get the style name from the configuration
+      const styleConfig = stylesConfig.find(s => s.id === photographyStyle);
+      if (!styleConfig) {
+        throw new Error('Style configuration not found');
+      }
 
       // Ensure settings passed match the validated style
       const styleData = {
         user_id: user.id,
         order_id: orderId,
-        name: formattedName,
+        name: styleConfig.name,
         settings: {
           photographyStyle: photographyStyle, // Use the validated style
-          outfit: settings.outfit,
+          clothing: settings.clothing,
           background: settings.background,
-          outfitColor: settings.outfitColor,
+          clothingColor: settings.clothingColor,
         },
         status: 'draft' as StyleStatus
       }
@@ -216,13 +217,13 @@ function NewStyleContent() {
           </section>
 
           <section>
-            <h3 className="text-lg font-medium mb-3">Outfit</h3>
-            <OutfitImageSelector photographyStyle={photographyStyle!} />
+            <h3 className="text-lg font-medium mb-3">Clothing</h3>
+            <ClothingImageSelector photographyStyle={photographyStyle!} />
           </section>
 
           <section>
-            <h3 className="text-lg font-medium mb-3">Outfit Color</h3>
-            <OutfitColorSelector photographyStyle={photographyStyle!} />
+            <h3 className="text-lg font-medium mb-3">Clothing Color</h3>
+            <ClothingColorSelector photographyStyle={photographyStyle!} />
           </section>
 
         </CardContent>
