@@ -113,7 +113,7 @@ export function StyleTabsOptions({
           variants={contentAnimation}
           className="flex flex-1 flex-row h-full"
         >
-          <motion.div variants={childAnimation}>
+          <motion.div variants={childAnimation} className={styles['tabs-sidebar-container']}>
             <TabsList className={styles['tabs-sidebar']}>
               <h4 className="w-full text-sm font-medium text-[#00000040] mb-4 p-4">Customise</h4>
               {Object.entries(optionsConfig).map(([categoryId, category]) => (
@@ -137,9 +137,7 @@ export function StyleTabsOptions({
                 <motion.div variants={childAnimation}>
                   <div className={styles['tab-header']}>
                     <h3 className={styles['tab-title']}>{category.label}</h3>
-                    <p className={styles['tab-description']}>
-                      Choose {category.label.toLowerCase()} that matches your professional style and brand.
-                    </p>
+                    <p className={styles['tab-description']}>{category.description}</p>
                   </div>
                   {activeTab === categoryId && (
                     <Component photographyStyle={style.id as StylePhotographyStyle} />
@@ -153,11 +151,11 @@ export function StyleTabsOptions({
 
       {/* Footer with selected options and add button */}
       <motion.div 
-        className="flex items-center justify-between p-6 border-t bg-white"
+        className={styles['footer-container']}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ 
-          duration: 0.4, 
+          duration: 0.8, 
           ease: [0.21, 1, 0.32, 1],
           delay: 0.3 
         }}
@@ -234,7 +232,7 @@ export function StyleTabsOptions({
                     />
                   )}
                 </div>
-                <div className="flex flex-col items-start text-[12px]">
+                <div className={styles['footer-option-icon-label-container']}>
                   <span className="text-[#00000060] font-light">{category.label}</span>
                   <span className="text-[#000000]">
                     {selectedOptionData && visitedTabs.has(categoryId) 

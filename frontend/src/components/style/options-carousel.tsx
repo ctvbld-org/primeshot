@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 import { getOptionsImage } from '@/lib/utils/get-options-image'
 import { Icon } from '@/components/icons/icon'
 import useEmblaCarousel from 'embla-carousel-react'
+import styles from './options-carousel.module.css'
 
 interface Option {
   id: string
@@ -26,13 +27,28 @@ export function OptionsCarousel({
   value,
   onChange
 }: OptionsCarouselProps) {
+  const initialIndex = options.findIndex(opt => opt.id === value);
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 960);
+    };
+    
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
-    align: 'start', // Always align to the start
+    align: isMobile ? 'center' : 'start',
     dragFree: false,
     skipSnaps: true,
     containScroll: false,
-    duration: 15
+    duration: 15,
+    startIndex: initialIndex > -1 ? initialIndex : 0
   });
+
   const [canScrollPrev, setCanScrollPrev] = React.useState(false);
   const [canScrollNext, setCanScrollNext] = React.useState(true);
   const [selectedOption, setSelectedOption] = React.useState<string | null>(value);
@@ -45,13 +61,22 @@ export function OptionsCarousel({
       onChange(newValue);
       setSelectedOption(newValue);
       
-      // Find the index of the selected option
       const selectedIndex = options.findIndex(opt => opt.id === newValue);
       if (selectedIndex !== -1 && emblaApi) {
-        emblaApi.scrollTo(selectedIndex);
+        //emblaApi.scrollTo(selectedIndex);
       }
     }
   }, [value, onChange, options, emblaApi]);
+
+  const handleOptionClick = (optionId: string) => {
+    const radioGroup = document.querySelector('[role="radiogroup"]') as HTMLElement;
+    if (radioGroup) {
+      // radioGroup.style.transition = 'transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1)';
+      // radioGroup.addEventListener('transitionend', () => {
+      //   radioGroup.style.transition = '';
+      // }, { once: true });
+    }
+  };
 
   const onSelect = React.useCallback(() => {
     if (!emblaApi) return;
@@ -65,20 +90,28 @@ export function OptionsCarousel({
     const selectedIndex = emblaApi.selectedScrollSnap();
     const visibleSlides = emblaApi.slidesInView();
     
-    // If we're at the start, select the first slide, otherwise select the second visible slide
-    if (selectedIndex === 0) {
-      const option = options[0];
+    if (isMobile) {
+      // On mobile, select the centered slide
+      const option = options[selectedIndex];
       if (option && option.id !== value) {
         handleOptionChange(option.id);
       }
-    } else if (visibleSlides.length > 1) {
-      const secondVisibleSlide = visibleSlides[1];
-      const option = options[secondVisibleSlide];
-      if (option && option.id !== value) {
-        handleOptionChange(option.id);
+    } else {
+      // On desktop, keep the original logic
+      if (selectedIndex === 0) {
+        const option = options[0];
+        if (option && option.id !== value) {
+          handleOptionChange(option.id);
+        }
+      } else if (visibleSlides.length > 1) {
+        const secondVisibleSlide = visibleSlides[1];
+        const option = options[secondVisibleSlide];
+        if (option && option.id !== value) {
+          handleOptionChange(option.id);
+        }
       }
     }
-  }, [emblaApi, options, handleOptionChange, value]);
+  }, [emblaApi, options, handleOptionChange, value, isMobile]);
 
   React.useEffect(() => {
     if (!emblaApi) return;
@@ -93,22 +126,35 @@ export function OptionsCarousel({
     };
   }, [emblaApi, onSelect, updateSelection]);
 
+  // Update carousel configuration when screen size changes
+  React.useEffect(() => {
+    if (emblaApi) {
+      emblaApi.reInit({ 
+        align: isMobile ? 'center' : 'start',
+        dragFree: false,
+        skipSnaps: true,
+        containScroll: false,
+        duration: 15
+      });
+    }
+  }, [emblaApi, isMobile]);
+
   if (options.length === 0) {
     return <div>No options available.</div>;
   }
 
   return (
-    <div className="space-y-4">      
-      <div className="relative">
-        <div className="absolute z-10 left-0 top-0 w-[232px] h-[232px] rounded-sm border-2 border-white shadow-[0_0_0_4px_#FFB45E] pointer-events-none"></div>
+    <div className={styles.container}>      
+      <div className={styles['carousel-container']}>
+        <div className={styles['selection-highlight']} />
         <div ref={emblaRef}>
           <RadioGroup
             value={value}
             onValueChange={handleOptionChange}
-            className="flex [&>*]:flex-[0_0_232px] gap-[0px]"
+            className={styles['options-group']}
           >
             {options.map((option) => (
-              <div key={option.id}>
+              <div key={option.id} className={styles['option-item']}>
                 <RadioGroupItem
                   value={option.id}
                   id={`option-${option.id}`}
@@ -116,12 +162,10 @@ export function OptionsCarousel({
                 />
                 <Label
                   htmlFor={`option-${option.id}`}
-                  className={cn(
-                    "block bg-popover hover:bg-accent/5 cursor-pointer transition-colors",
-                    "peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-                  )}
+                  className={styles['option-label']}
+                  onClick={() => handleOptionClick(option.id)}
                 >
-                  <div className="relative aspect-square w-full overflow-hidden">
+                  <div className={styles['image-container']}>
                     <Image
                       src={getOptionsImage(option.imageUrl)} 
                       alt={option.label}
@@ -140,11 +184,7 @@ export function OptionsCarousel({
         <button
           onClick={scrollPrev}
           disabled={!canScrollPrev}
-          className={cn(
-            "absolute top-full right-[48px] translate-y-4 z-50 w-10 h-10 flex items-center justify-center",
-            "bg-[#00000015] text-black rounded-full transition-all cursor-pointer",
-            "disabled:opacity-40 disabled:cursor-not-allowed enabled:opacity-100 hover:not-disabled:bg-accent/15"
-          )}
+          className={cn(styles['nav-button'], styles['prev-button'])}
         >
           <Icon variant="arrowLeft" size={16} />
         </button>
@@ -152,11 +192,7 @@ export function OptionsCarousel({
         <button
           onClick={scrollNext}
           disabled={!canScrollNext}
-          className={cn(
-            "absolute top-full right-0 translate-y-4 z-50 w-10 h-10 flex items-center justify-center",
-            "bg-[#00000015] text-black rounded-full transition-all cursor-pointer",
-            "disabled:opacity-40 enabled:opacity-100 hover:bg-accent/15"
-          )}
+          className={cn(styles['nav-button'], styles['next-button'])}
         >
           <Icon variant="arrowRight" size={16} />
         </button>
@@ -164,8 +200,8 @@ export function OptionsCarousel({
 
       {/* Selected Option Label */}
       {selectedOption && (
-        <div className="flex justify-center items-center max-w-[232px] h-10">
-          <p className="text-center text-[12px] bg-[#00000015] px-3 py-1 text-black rounded-full">
+        <div className={styles['selected-label-container']}>
+          <p className={styles['selected-label']}>
             {options.find(opt => opt.id === selectedOption)?.label}
           </p>
         </div>

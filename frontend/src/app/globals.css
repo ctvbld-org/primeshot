@@ -46,19 +46,19 @@
 
 :root {
   --radius: 0.625rem;
-  --background: rgba(0, 21, 20, 1);
-  --foreground: rgba(255, 255, 255, 0.6);
+  --background: #001514;
+  --foreground: #ffffff99;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: rgba(255, 180, 94, 1);
-  --primary-foreground: rgba(0, 0, 0, 1);
-  --secondary: rgba(255, 180, 94, 0.05);
-  --secondary-foreground: rgba(255, 180, 94, 1);
-  --muted: rgba(255, 255, 255, 0.1);
-  --muted-foreground: rgba(13, 28, 27, 1);
-  --accent: rgba(68, 227, 201, 1);
+  --primary: #ffb45e;
+  --primary-foreground: #000000;
+  --secondary: #ffb45e0d;
+  --secondary-foreground: #ffb45e;
+  --muted: #ffffff1a;
+  --muted-foreground: #0d1c1b;
+  --accent: #44e3c9;
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
@@ -78,10 +78,24 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   --radius-3xl: 2.25rem;
+
+  --image-style-card-height: 576px;
+
+  @media (max-height: 712px) {
+    --image-style-card-height: 460px;
+  }
+
+  @media (max-width: 500px) {
+    --image-style-card-height: 720px;
+  }
+
+  @media (max-height: 712px) and (max-width: 500px) {
+    --image-style-card-height: 560px;
+  }
 }
 
 .dark {
-  --background:rgba(0, 21, 20, 1) ;
+  --background:hsl(177, 100%, 4%) ;
   --foreground: rgba(255, 255, 255, 0.6);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
@@ -93,7 +107,7 @@
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
-  --accent: rgba(68, 227, 201, 1);
+  --accent: #44e3c9;
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);

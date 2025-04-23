@@ -331,7 +331,7 @@ export default function Page() {
   }
 
   return (
-    <div className="wrapper flex flex-col overflow-hidden">
+    <div className="wrapper flex flex-col">
       <motion.div 
         className="flex-1 flex items-center justify-center"
         initial={{ opacity: 0 }}
@@ -352,20 +352,20 @@ export default function Page() {
               {stylesWithImages.map((style, index) => (
                 <div 
                   key={style.id} 
-                  className="flex-[0_0_70%] max-w-[1024px] bg-[#F0F9F7] overflow-hidden relative transition-all duration-300"
+                  className={stylesCSS['slide-card-container']}
                 >
-                  <div className="relative h-full">
+                  <div className="relative h-full bg-[#F0F9F7]">
                     {/* Toggle between style overview and customization options */}
                     <AnimatePresence mode="wait">
                       {showingCustomizeFor === index ? (
                         <motion.div
                           key="customization-options"
                           className={cn(
-                            stylesCSS.slideCard,
+                            stylesCSS['slide-card'],
                             "absolute inset-0 bg-white overflow-hidden transition-all duration-500 select-none",
                             selectedIndex === index 
-                              ? stylesCSS.activeSlide
-                              : stylesCSS.inactiveSlide
+                              ? stylesCSS['active-slide']
+                              : stylesCSS['inactive-slide']
                           )}
                           {...fadeAnimation}
                         >
@@ -384,11 +384,11 @@ export default function Page() {
                         <motion.div 
                           key="style-overview"
                           className={cn(
-                            stylesCSS.slideCard,
+                            stylesCSS['slide-card'],
                             "flex flex-col overflow-hidden transition-all duration-500 select-none h-full bg-[#F0F9F7]",
                             selectedIndex === index 
-                              ? stylesCSS.activeSlide
-                              : stylesCSS.inactiveSlide,
+                              ? stylesCSS['active-slide']
+                              : stylesCSS['inactive-slide'],
                             isNavigating && stylesCSS.sliding
                           )}
                           {...(isNavigating ? {} : fadeAnimation)}

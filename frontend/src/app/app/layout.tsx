@@ -42,8 +42,8 @@ export default function AppLayout({
   }
 
   return (
-    <div className="min-h-screen overflow-hidden" style={{ backgroundColor: '#001514' }}>
-      <header>
+    <div className="flex flex-col flex-1 justify-center py-[80px] min-h-screen overflow-hidden" style={{ backgroundColor: '#001514' }}>
+      <header className="fixed top-0 left-0 right-0 z-50">
         <div className="mx-auto flex h-[56px] items-center justify-between px-4">
           <Image 
             src="/logo.svg" 
@@ -55,7 +55,7 @@ export default function AppLayout({
           <UserNav user={user} />
         </div>
       </header>
-      <main>
+      <main className="h-full">
         {children}
       </main>
       <Toaster />
