@@ -1,0 +1,7 @@
+.image-strip {
+  display: flex;
+  width: 100%;
+  height: 320px;
+  overflow: hidden;
+  background: #000000;
+}

@@ -27,6 +27,8 @@ import { Icon } from '@/components/icons/icon'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import optionsConfig from '@/lib/config/options.json'
 import { getOptionsImage } from '@/lib/utils/get-options-image'
+import { StyleTabsOptions } from '@/components/style/style-tabs-options'
+import { StyleDetails } from '@/components/style/style-details'
 
 // Create a Zod enum from the Gender type
 const GenderEnum = z.enum(['male', 'female'] as const) satisfies z.ZodType<Gender>;
@@ -60,8 +62,11 @@ const photographyStyleOptions = (() => {
 const fadeAnimation = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 },
-  transition: { duration: 0.4, ease: [0.23, 1, 0.32, 1] }
+  exit: { opacity: 0, y: 20 },
+  transition: { 
+    duration: 0.5,
+    ease: [0.32, 0.72, 0, 1] // Custom easing for smoother motion
+  }
 }
 
 // Add new animation variants for the content sections
@@ -70,7 +75,7 @@ const contentAnimation = {
   animate: { opacity: 1, y: 0 },
   transition: { 
     duration: 0.5,
-    ease: [0.21, 1, 0.32, 1],
+    ease: [0.32, 0.72, 0, 1],
     staggerChildren: 0.08 
   }
 }
@@ -347,322 +352,56 @@ export default function Page() {
               {stylesWithImages.map((style, index) => (
                 <div 
                   key={style.id} 
-                  className="flex-[0_0_70%] max-w-[1024px] relative transition-all duration-300"
+                  className="flex-[0_0_70%] max-w-[1024px] bg-[#F0F9F7] overflow-hidden relative transition-all duration-300"
                 >
                   <div className="relative h-full">
                     {/* Toggle between style overview and customization options */}
-                    {showingCustomizeFor === index ? (
-                      <motion.div
-                        key="customization-options"
-                        className={cn(
-                          stylesCSS.slideCard,
-                          "absolute inset-0 bg-white overflow-hidden transition-all duration-500 select-none",
-                          selectedIndex === index 
-                            ? stylesCSS.activeSlide
-                            : stylesCSS.inactiveSlide
-                        )}
-                        {...fadeAnimation}
-                      >
-                        {/* Close Button */}
-                        <button
-                          onClick={() => setShowingCustomizeFor(null)}
-                          className="absolute top-8 right-8 z-50 w-10 h-10 rounded-full bg-[#00000015] flex items-center justify-center hover:bg-accent/15 cursor-pointer transition-all text-black"
+                    <AnimatePresence mode="wait">
+                      {showingCustomizeFor === index ? (
+                        <motion.div
+                          key="customization-options"
+                          className={cn(
+                            stylesCSS.slideCard,
+                            "absolute inset-0 bg-white overflow-hidden transition-all duration-500 select-none",
+                            selectedIndex === index 
+                              ? stylesCSS.activeSlide
+                              : stylesCSS.inactiveSlide
+                          )}
+                          {...fadeAnimation}
                         >
-                          <Icon variant="cross" size={16} />
-                        </button>
-
-                        {/* Tabs Container */}
-                        <div className={stylesCSS['tabs-container']}>
-                          <Tabs 
-                            value={activeTab}
-                            onValueChange={handleTabChange}
-                            orientation="vertical" 
-                            className="h-full"
-                          >
-                            <motion.div
-                              initial="initial"
-                              animate="animate"
-                              variants={contentAnimation}
-                               className="flex flex-1 flex-row h-full"
-                            >
-                              <motion.div variants={childAnimation}>
-                                <TabsList className={stylesCSS['tabs-sidebar']}>
-                                  <h4 className="w-full text-sm font-medium text-[#00000040] mb-4 p-4">Customise</h4>
-                                  {Object.entries(optionsConfig).map(([categoryId, category]) => (
-                                    <TabsTrigger 
-                                      key={categoryId}
-                                      value={categoryId} 
-                                      className={stylesCSS['tab-trigger']}
-                                    >
-                                      <Icon variant={categoryIconMap[categoryId as keyof typeof optionsConfig]} size={20} />
-                                      <h5 className={stylesCSS['tab-label']}>{category.label}</h5>
-                                      <span className={stylesCSS['tab-category-count']}>{category.options.length}</span>
-                                    </TabsTrigger>
-                                  ))}
-                                </TabsList>
-                              </motion.div>
-
-                              {Object.entries(optionsConfig).map(([categoryId, category]) => {
-                                const Component = categoryComponentMap[categoryId as keyof typeof optionsConfig];
-                                return (
-                                  <TabsContent key={categoryId} value={categoryId} className={stylesCSS['tab-content']}>
-                                    <motion.div variants={childAnimation}>
-                                      <div className={stylesCSS['tab-header']}>
-                                        <h3 className={stylesCSS['tab-title']}>{category.label}</h3>
-                                        <p className={stylesCSS['tab-description']}>
-                                          Choose {category.label.toLowerCase()} that matches your professional style and brand.
-                                        </p>
-                                      </div>
-                                      {activeTab === categoryId && (
-                                        <Component photographyStyle={style.id as StylePhotographyStyle} />
-                                      )}
-                                    </motion.div>
-                                  </TabsContent>
-                                );
-                              })}
-                            </motion.div>
-                          </Tabs>
-                        </div>
-
-                        {/* Footer with selected options and add button */}
-                        <motion.div 
-                          className="flex items-center justify-between p-6 border-t bg-white"
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ 
-                            duration: 0.4, 
-                            ease: [0.21, 1, 0.32, 1],
-                            delay: 0.3 
-                          }}
-                        >
-                          <div className="flex items-center gap-6">
-                            {Object.entries(optionsConfig).map(([categoryId, category]) => {
-                              const isActive = activeTab === categoryId;
-                              const selectedOption = (() => {
-                                switch (categoryId) {
-                                  case 'background':
-                                    return settings.background;
-                                  case 'clothing':
-                                    return settings.outfit;
-                                  case 'clothingColor':
-                                    return settings.outfitColor;
-                                  default:
-                                    return undefined;
-                                }
-                              })();
-                              const selectedOptionData = category.options.find(opt => opt.id === selectedOption) as CategoryOption | undefined;
-                              
-                              return (
-                                <button 
-                                  key={categoryId}
-                                  onClick={() => handleFooterButtonClick(categoryId)}
-                                  data-state={isActive ? 'active' : 'inactive'}
-                                  className="flex items-center gap-2 cursor-pointer"
-                                >
-                                  <div className={stylesCSS['footer-icon-button']}>
-                                    {selectedOptionData && visitedTabs.has(categoryId) ? (
-                                      categoryId === 'clothingColor' ? (
-                                        <>
-                                          <div 
-                                            className={`${stylesCSS['footer-option-color']} ${stylesCSS['footer-option-swatch']}`} 
-                                              style={{ 
-                                                background: selectedOptionData.id === '#FFFFFF' 
-                                                  ? 'linear-gradient(153deg, rgba(0, 0, 0, 0.10) 0%, rgba(0, 0, 0, 0.00) 83.33%), linear-gradient(0deg, #FFF 0%, #FFF 100%), linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, rgba(0, 0, 0, 0.10) 100%)' 
-                                                  : selectedOptionData.id 
-                                              }}
-                                            />
-                                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[30px] h-[30px] rounded-full border-1 border-[#00000030] border-dashed mix-blend-multiply"></div>
-                                            <Icon 
-                                              variant="check" 
-                                              size={16} 
-                                              className={`${stylesCSS['footer-option-check']} ${stylesCSS['footer-option-color-check']}`}
-                                            />
-                                          </>
-                                      ) : isImageOption(selectedOptionData) ? (
-                                        <>
-                                          <Image
-                                            src={getOptionsImage(selectedOptionData.imageUrl)}
-                                            alt={selectedOptionData.label}
-                                            fill
-                                            className={`${stylesCSS['footer-option-image']} ${stylesCSS['footer-option-swatch']}`}
-                                          />
-                                          <Icon 
-                                            variant="check" 
-                                            size={16} 
-                                            className={stylesCSS['footer-option-check']} 
-                                          />
-                                        </>
-                                      ) : (
-                                        <Icon 
-                                          variant={categoryIconMap[categoryId as keyof typeof optionsConfig]} 
-                                          size={30} 
-                                          className={`${stylesCSS['footer-option-icon']} ${stylesCSS['footer-option-swatch']}`}
-                                        />
-                                      )
-                                    ) : (
-                                      <Icon 
-                                        variant={categoryIconMap[categoryId as keyof typeof optionsConfig]} 
-                                        size={30} 
-                                        className={`${stylesCSS['footer-option-icon']} ${stylesCSS['footer-option-swatch']}`}
-                                      />
-                                    )}
-                                  </div>
-                                  <div className="flex flex-col items-start text-[12px]">
-                                    <span className="text-[#00000060] font-light">{category.label}</span>
-                                    <span className="text-[#000000]">
-                                      {selectedOptionData && visitedTabs.has(categoryId) 
-                                        ? selectedOptionData.label 
-                                        : "Not selected"}
-                                    </span>
-                                  </div>
-                                </button>
-                              );
-                            })}
-                          </div>
-                          <Button 
-                            onClick={() => {
-                              // Find first unselected option
-                              const unselectedOption = Object.entries(optionsConfig).find(([categoryId]) => {
-                                const selectedOption = (() => {
-                                  switch (categoryId) {
-                                    case 'background':
-                                      return settings.background;
-                                    case 'clothing':
-                                      return settings.outfit;
-                                    case 'clothingColor':
-                                      return settings.outfitColor;
-                                    default:
-                                      return undefined;
-                                  }
-                                })();
-                                return !selectedOption || !visitedTabs.has(categoryId);
-                              });
-
-                              if (unselectedOption) {
-                                // Navigate to first unselected option
-                                handleTabChange(unselectedOption[0]);
-                              } else {
-                                // All options selected, add to shoot
-                                handleAddToShoot(style);
-                              }
-                            }}
-                            variant={Object.entries(optionsConfig).some(([categoryId]) => {
-                              const selectedOption = (() => {
-                                switch (categoryId) {
-                                  case 'background':
-                                    return settings.background;
-                                  case 'clothing':
-                                    return settings.outfit;
-                                  case 'clothingColor':
-                                    return settings.outfitColor;
-                                  default:
-                                    return undefined;
-                                }
-                              })();
-                              return !selectedOption || !visitedTabs.has(categoryId);
-                            }) ? 'secondary' : 'primary'}
-                            loading={isSaving}
-                          >
-                            {isSaving ? 'Adding to Shoot...' : (
-                              Object.entries(optionsConfig).some(([categoryId]) => {
-                                const selectedOption = (() => {
-                                  switch (categoryId) {
-                                    case 'background':
-                                      return settings.background;
-                                    case 'clothing':
-                                      return settings.outfit;
-                                    case 'clothingColor':
-                                      return settings.outfitColor;
-                                    default:
-                                      return undefined;
-                                  }
-                                })();
-                                return !selectedOption || !visitedTabs.has(categoryId);
-                              }) ? 'Next' : 'Add to Shoot'
-                            )}
-                          </Button>
+                          <StyleTabsOptions
+                            style={style}
+                            settings={settings}
+                            isSaving={isSaving}
+                            activeTab={activeTab}
+                            visitedTabs={visitedTabs}
+                            onClose={() => setShowingCustomizeFor(null)}
+                            onTabChange={handleTabChange}
+                            onAddToShoot={handleAddToShoot}
+                          />
                         </motion.div>
-                      </motion.div>
-                    ) : (
-                      <motion.div 
-                        key="style-overview"
-                        className={cn(
-                          stylesCSS.slideCard,
-                          "flex flex-col overflow-hidden transition-all duration-500 select-none h-full bg-[#F0F9F7]",
-                          selectedIndex === index 
-                            ? stylesCSS.activeSlide
-                            : stylesCSS.inactiveSlide,
-                          isNavigating && stylesCSS.sliding
-                        )}
-                        {...(isNavigating ? {} : fadeAnimation)}
-                      >
-                        {/* Image Strip */}
-                        <div className={stylesCSS['image-strip']}>
-                          {style.genderSpecificImages.slice(0, 5).map((imgSrc, idx) => (
-                            <div key={idx} className="flex-1 relative">
-                              <Image
-                                src={imgSrc}
-                                alt={`${style.name} Example ${idx + 1}`}
-                                fill
-                                className="object-cover"
-                                priority={idx === 0}
-                              />
-                            </div>
-                          ))}
-                        </div>
-
-                        {/* Content Section */}
-                        <div className="p-8">
-                          {/* Style Name and Customize Button */}
-                          <div className="flex justify-start items-center mb-[56px]">
-                            <h2 className="text-[2rem] font-light text-[#C0C7C6] flex-1 max-w-[180px]">Style</h2>
-                            <h3 className="text-[2rem] font-bold text-black flex-1 tracking-tight">{style.name}</h3>
-                            <Button 
-                              variant="primary"
-                              onClick={() => {
-                                setIsNavigating(false);
-                                setShowingCustomizeFor(index);
-                              }}
-                            >
-                              Customise
-                            </Button>
-                          </div>
-
-                          {/* Description */}
-                          <div className="flex justify-start items-end mb-4">
-                            <div className="flex flex-1 justify-start items-start">
-                              <div className="flex-1 max-w-[180px]">
-                                <p className="text-[15px] font-semibold text-black leading-[18px] max-w-[100px]">
-                                  {style.tagline}
-                                </p>
-                              </div>
-                              <div className="flex-1">
-                                <p className="text-[#909594] text-[15px] leading-[22px] max-w-[360px]">
-                                  {style.description}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex gap-2 text-[#00000060]">
-                              <Icon
-                                variant="background"
-                                size={28}
-                                className="p-2 box-content"
-                              />
-                              <Icon
-                                variant="clothingColor"
-                                size={28}
-                                className="p-2 box-content"
-                              />
-                              <Icon
-                                variant="clothing"
-                                size={28}
-                                className="p-2 box-content"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
+                      ) : (
+                        <motion.div 
+                          key="style-overview"
+                          className={cn(
+                            stylesCSS.slideCard,
+                            "flex flex-col overflow-hidden transition-all duration-500 select-none h-full bg-[#F0F9F7]",
+                            selectedIndex === index 
+                              ? stylesCSS.activeSlide
+                              : stylesCSS.inactiveSlide,
+                            isNavigating && stylesCSS.sliding
+                          )}
+                          {...(isNavigating ? {} : fadeAnimation)}
+                        >
+                          <StyleDetails
+                            style={style}
+                            index={index}
+                            onCustomize={setShowingCustomizeFor}
+                            setIsNavigating={setIsNavigating}
+                          />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </div>
               ))}
