@@ -4,6 +4,8 @@ import { Icon } from '@/components/icons/icon'
 import styles from './style-details.module.css'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { getOptionsImage } from '@/lib/utils/get-options-image'
+import optionsConfig from '@/lib/config/options.json'
 
 interface StyleDetailsProps {
   style: {
@@ -11,6 +13,11 @@ interface StyleDetailsProps {
     tagline?: string;
     description: string;
     genderSpecificImages?: string[];
+    settings?: {
+      background?: string;
+      clothing?: string;
+      clothingColor?: string;
+    };
   };
   index: number;
   onCustomize: (index: number) => void;
@@ -53,76 +60,18 @@ export function StyleDetails({
   headshotsPerStyle
 }: StyleDetailsProps) {
   const images = style.genderSpecificImages || [];
-  
-  if (isCard) {
-    return (
-      <>
-        {/* Image Strip */}
-        <motion.div 
-          className="flex h-[200px] w-full"
-          variants={stripVariants}
-          initial="hidden"
-          animate="show"
-        >
-          {images.slice(0, 3).map((imgSrc, idx) => (
-            <motion.div 
-              key={idx} 
-              className="flex-1 relative overflow-hidden"
-              variants={imageVariants}
-            >
-              <Image
-                src={imgSrc}
-                alt={`${style.name} Example ${idx + 1}`}
-                fill
-                className="object-cover"
-                priority={idx === 0}
-              />
-            </motion.div>
-          ))}
-        </motion.div>
-
-        <div className="p-6">
-          {/* Header with Style Name and Photo Count */}
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-2xl font-semibold">{style.name}</h3>
-            </div>
-            {headshotsPerStyle && (
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Icon variant="camera" size={16} />
-                <span>{headshotsPerStyle}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Tagline */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            {style.tagline && (
-              <span className="text-lg font-medium">
-                {style.tagline}
-              </span>
-            )}
-          </div>
-
-          {/* Description */}
-          <p className="text-muted-foreground">
-            {style.description}
-          </p>
-        </div>
-      </>
-    );
-  }
+  const imgNb = isCard ? 3 : 5;
 
   return (
     <>
       {/* Image Strip */}
       <motion.div 
-        className={styles['image-strip']}
+        className={`${styles['image-strip']} ${isCard ? styles['card-styling'] : ''}`}
         variants={stripVariants}
         initial="hidden"
         animate="show"
       >
-        {images.slice(0, 5).map((imgSrc, idx) => (
+        {images.slice(0, imgNb).map((imgSrc, idx) => (
           <motion.div 
             key={idx} 
             className="flex-1 relative overflow-hidden"
@@ -141,7 +90,7 @@ export function StyleDetails({
 
       {/* Content Section */}
       <motion.div 
-        className={styles['content-container']}
+        className={`${styles['content-container']} ${isCard ? styles['card-styling'] : ''}`}
         initial={{ y: 20 }}
         animate={{ y: 0 }}
         transition={{ 
@@ -153,7 +102,16 @@ export function StyleDetails({
         <div className={styles.content}>
           {/* Style Name and Customize Button */}
           <div className={styles.header}>
-            <h2 className={styles['style-label']}>Style</h2>
+            {isCard ? (
+              headshotsPerStyle && (
+                <div className={styles['style-headshots']}>
+                  <Icon variant="camera" size={24} />
+                  <span>{headshotsPerStyle}</span>
+                </div>
+              )
+            ) : (
+              <h2 className={styles['style-label']}>Style</h2>
+            )}
             <h3 className={styles['style-name']}>{style.name}</h3>
           </div>
 
@@ -176,32 +134,77 @@ export function StyleDetails({
 
         {/* Action Buttons */}
         <div className={styles['button-container']}>
-          <Button 
-            variant="primary"
-            onClick={() => {
-              setIsNavigating(false);
-              onCustomize(index);
-            }}
-          >
-            Customise
-          </Button>
-          <div className={styles['icons-container']}>
-            <Icon
-              variant="background"
-              size={28}
-              className={styles.icon}
-            />
-            <Icon
-              variant="clothingColor"
-              size={28}
-              className={styles.icon}
-            />
-            <Icon
-              variant="clothing"
-              size={28}
-              className={styles.icon}
-            />
-          </div>
+          {isCard ? (
+            <>
+              <div className={styles['icons-container']}>
+                {style.settings?.background && (
+                  <div className="relative w-12 h-12">
+                    <Image 
+                      src={getOptionsImage(optionsConfig.background.options.find(opt => opt.id === style.settings?.background)?.imageUrl || '')}
+                      alt="Selected background"
+                      fill
+                      className="object-cover rounded-full"
+                    />
+                  </div>
+                )}
+                {style.settings?.clothing && (
+                  <div className="relative w-12 h-12">
+                    <Image 
+                      src={getOptionsImage(optionsConfig.clothing.options.find(opt => opt.id === style.settings?.clothing)?.imageUrl || '')}
+                      alt="Selected clothing"
+                      fill
+                      className="object-cover rounded-full"
+                    />
+                  </div>
+                )}
+                {style.settings?.clothingColor && (
+                  <div className={`${styles['clothing-color']} w-12 h-12 rounded-full`} style={{ 
+                    background: style.settings.clothingColor === '#FFFFFF' 
+                      ? 'linear-gradient(153deg, rgba(0, 0, 0, 0.10) 0%, rgba(0, 0, 0, 0.00) 83.33%), linear-gradient(0deg, #FFF 0%, #FFF 100%), linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, rgba(0, 0, 0, 0.10) 100%)' 
+                      : style.settings.clothingColor 
+                  }} />
+                )}
+              </div>
+              <Button 
+                variant="ghost"
+                className="text-black bg-[#00000010]"
+                onClick={() => {
+                  onCustomize(index);
+                }}
+              >
+                Edit
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button 
+                variant="primary"
+                onClick={() => {
+                  setIsNavigating(false);
+                  onCustomize(index);
+                }}
+              >
+                Customise
+              </Button>
+              <div className={styles['icons-container']}>
+                <Icon
+                  variant="background"
+                  size={28}
+                  className={styles.icon}
+                />
+                <Icon
+                  variant="clothingColor"
+                  size={28}
+                  className={styles.icon}
+                />
+                <Icon
+                  variant="clothing"
+                  size={28}
+                  className={styles.icon}
+                />
+              </div>
+            </>
+          )}
         </div>
       </motion.div>
     </>

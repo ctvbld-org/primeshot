@@ -23,7 +23,7 @@ export const FlipCard = forwardRef<HTMLDivElement, FlipCardProps>(({
     <div
       ref={ref}
       className={cn(
-        "relative w-full h-[600px] preserve-3d cursor-pointer",
+        "relative w-full w-[384px] h-[626px] preserve-3d rounded-[36px]",
         className
       )}
       onClick={onClick}

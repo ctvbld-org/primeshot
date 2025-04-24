@@ -167,9 +167,8 @@ export default function StylesPage() {
             {styles.map((style) => (
               <StyleCard
                 key={style.id}
-                style={style}
+                savedStyle={style}
                 onClick={() => router.push(`/app/style/${style.id}`)}
-                onDelete={() => handleDeleteStyle(style.id)}
                 headshotsPerStyle={headshotInfo.headshotsPerStyle}
               />
             ))}

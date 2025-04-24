@@ -105,6 +105,24 @@
   border-radius: 9999px;
 }
 
+.mobile-styling .selection-highlight {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.mobile-styling .carousel-container {
+  display: flex;
+  justify-content: center;
+}
+
+.mobile-styling .nav-button {
+  display: none;
+}
+
+.mobile-styling .selected-label-container {
+  max-width: 100%;
+}
+
 @media (max-height: 712px) {
   .selection-highlight {
     width: 160px;
@@ -138,5 +156,4 @@
     .selected-label-container {
         max-width: 100%;
     }
-
 }

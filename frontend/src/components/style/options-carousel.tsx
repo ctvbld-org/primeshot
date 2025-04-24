@@ -20,25 +20,27 @@ interface OptionsCarouselProps {
   options: Option[]
   value: string
   onChange: (value: string) => void
+  forceMobile?: boolean
 }
 
 export function OptionsCarousel({ 
   options,
   value,
-  onChange
+  onChange,
+  forceMobile = false
 }: OptionsCarouselProps) {
   const initialIndex = options.findIndex(opt => opt.id === value);
-  const [isMobile, setIsMobile] = React.useState(false);
+  const [isMobile, setIsMobile] = React.useState(forceMobile);
 
   React.useEffect(() => {
     const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 960);
+      setIsMobile(forceMobile || window.innerWidth < 960);
     };
     
     checkScreenSize();
     window.addEventListener('resize', checkScreenSize);
     return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
+  }, [forceMobile]);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     align: isMobile ? 'center' : 'start',
@@ -144,7 +146,7 @@ export function OptionsCarousel({
   }
 
   return (
-    <div className={styles.container}>      
+    <div className={`${styles.container} ${forceMobile ? styles['mobile-styling'] : ''}`}>      
       <div className={styles['carousel-container']}>
         <div className={styles['selection-highlight']} />
         <div ref={emblaRef}>

@@ -9,6 +9,7 @@ import { useStyleConfigs, useOption } from '@/hooks/useConfig'
 
 interface BackgroundImageSelectorProps {
   photographyStyle: StylePhotographyStyle;
+  isCard?: boolean;
 }
 
 // Type for the OptionsCarousel component
@@ -18,7 +19,7 @@ interface CarouselOption {
   imageUrl: string;
 }
 
-export function BackgroundImageSelector({ photographyStyle }: BackgroundImageSelectorProps) {
+export function BackgroundImageSelector({ photographyStyle, isCard }: BackgroundImageSelectorProps) {
   const { settings, setBackground } = useStyleStore();
 
   // Query for styles and background options using custom hooks
@@ -77,6 +78,7 @@ export function BackgroundImageSelector({ photographyStyle }: BackgroundImageSel
       options={filteredBackgroundOptions}
       value={settings.background}
       onChange={(value) => setBackground(value as StyleBackground)}
+      forceMobile={isCard}
     />
   );
 } 

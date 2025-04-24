@@ -7,28 +7,33 @@ import { StyleDetails } from './style-details'
 import { getStyleImages } from '@/lib/utils/get-styles-images'
 import { useUserGender } from '@/lib/hooks/use-user-gender'
 import { useStyleConfigs } from '@/hooks/useConfig'
+import { FlipCard } from './flip-card'
+import { useState } from 'react'
+import { StyleTabsOptions } from './style-tabs-options'
 
 interface StyleCardProps {
-  style: Style
+  savedStyle: Style
   onClick?: () => void
-  onClose?: () => void
   headshotsPerStyle?: number
   className?: string
 }
 
 export function StyleCard({ 
-  style, 
+  savedStyle, 
   onClick, 
-  onClose,
   headshotsPerStyle = 20,
   className
 }: StyleCardProps) {
   const { gender } = useUserGender();
   const { data: styleConfigs } = useStyleConfigs();
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [activeTab, setActiveTab] = useState('background');
+  const [visitedTabs] = useState(new Set(['background']));
+  const [isSaving, setIsSaving] = useState(false);
   
   // Find the corresponding style configuration
   const styleConfig = styleConfigs?.find(
-    config => config.id === style.settings.photographyStyle
+    config => config.id === savedStyle.settings.photographyStyle
   );
 
   if (!styleConfig) {
@@ -37,45 +42,59 @@ export function StyleCard({
 
   // Merge saved style with style configuration
   const mergedStyle = {
-    ...style,
+    ...savedStyle,
     tagline: styleConfig.tagline || undefined,
     description: styleConfig.description || '',
     genderSpecificImages: getStyleImages(styleConfig.preview_images || [], gender || undefined)
   };
 
+  const handleAddToShoot = async (style: Style) => {
+    setIsSaving(true);
+    // Add your shoot logic here
+    setIsSaving(false);
+    setIsFlipped(false);
+    if (onClick) onClick();
+  };
+
   return (
-    <Card 
+    <FlipCard
       className={cn(
-        "group relative overflow-hidden bg-[#F0F9F7] hover:bg-accent/50 transition-colors cursor-pointer",
+        "group relative",
         className
       )}
-      onClick={onClick}
-    >
-      {/* Close Button */}
-      {onClose && (
-        <div className="absolute top-4 right-4 z-10">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 rounded-full bg-white/80 hover:bg-white"
-            onClick={(e) => {
-              e.stopPropagation()
-              onClose()
-            }}
-          >
-            <Icon variant="cross" size={16} />
-          </Button>
+      isFlipped={isFlipped}
+      frontContent={
+        <div className="flex flex-col overflow-hidden transition-all duration-500 select-none h-full bg-[#F0F9F7] rounded-[36px]">
+          <div className="absolute top-4 right-4 z-10">
+            <button
+              className="flex items-center justify-center cursor-pointer h-12 w-12 rounded-full text-white bg-[#FFFFFF25] hover:bg-[#FF000080] transition-all duration-300 backdrop-blur-sm"
+              >
+                <Icon variant="bin" size={22} />
+              </button>
+            </div>
+          <StyleDetails
+            style={mergedStyle}
+            index={0}
+            onCustomize={() => setIsFlipped(true)}
+            setIsNavigating={() => {}}
+            headshotsPerStyle={headshotsPerStyle}
+            isCard
+          />
         </div>
-      )}
-
-      <StyleDetails
-        style={mergedStyle}
-        index={0}
-        onCustomize={() => {}}
-        setIsNavigating={() => {}}
-        headshotsPerStyle={headshotsPerStyle}
-        isCard
-      />
-    </Card>
-  )
+      }
+      backContent={
+        <StyleTabsOptions
+          style={styleConfig}
+          settings={savedStyle.settings}
+          isSaving={isSaving}
+          activeTab={activeTab}
+          visitedTabs={visitedTabs}
+          onClose={() => setIsFlipped(false)}
+          onTabChange={setActiveTab}
+          onAddToShoot={handleAddToShoot}
+          isCard
+        />
+      }
+    />
+  );
 } 

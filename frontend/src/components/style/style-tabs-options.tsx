@@ -19,7 +19,7 @@ const categoryIconMap: Record<keyof typeof optionsConfig, React.ComponentProps<t
 };
 
 // Map category IDs to components
-const categoryComponentMap: Record<string, React.ComponentType<{ photographyStyle: StylePhotographyStyle }>> = {
+const categoryComponentMap: Record<string, React.ComponentType<{ photographyStyle: StylePhotographyStyle; isCard?: boolean }>> = {
   background: BackgroundImageSelector,
   clothingColor: ClothingColorSelector,
   clothing: ClothingImageSelector
@@ -55,6 +55,7 @@ interface StyleTabsOptionsProps {
   isSaving: boolean;
   activeTab: string;
   visitedTabs: Set<string>;
+  isCard?: boolean;
   onClose: () => void;
   onTabChange: (value: string) => void;
   onAddToShoot: (style: any) => Promise<void>;
@@ -82,6 +83,7 @@ export function StyleTabsOptions({
   isSaving,
   activeTab,
   visitedTabs,
+  isCard,
   onClose,
   onTabChange,
   onAddToShoot
@@ -92,13 +94,15 @@ export function StyleTabsOptions({
   };
 
   return (
-    <div className={styles['tabs-container']}>
-      <button
-        onClick={onClose}
+    <div className={`${styles['tabs-container']} ${isCard ? styles['card-styling'] : ''}`}>
+      {!isCard && (
+        <button
+          onClick={onClose}
         className="absolute top-8 right-8 z-50 w-10 h-10 rounded-full bg-[#00000015] flex items-center justify-center hover:bg-accent/15 cursor-pointer transition-all text-black"
       >
-        <Icon variant="cross" size={16} />
-      </button>
+          <Icon variant="cross" size={16} />
+        </button>
+      )}
 
       <Tabs 
         value={activeTab}
@@ -135,11 +139,22 @@ export function StyleTabsOptions({
               <TabsContent key={categoryId} value={categoryId} className={styles['tab-content']}>
                 <motion.div variants={childAnimation}>
                   <div className={styles['tab-header']}>
-                    <h3 className={styles['tab-title']}>{category.label}</h3>
+                    <div className={`${isCard ? 'flex items-center gap-4 mb-4' : ''}`}>
+                      {isCard && (
+                        <Button
+                          onClick={onClose}
+                          variant="ghost"
+                          className="w-10 h-10 rounded-full bg-[#00000015] flex flex-0 items-center justify-center hover:bg-accent/15 cursor-pointer transition-all text-black"
+                        >
+                          <Icon variant="arrowLeft" size={16} />
+                        </Button>
+                      )}
+                      <h3 className={styles['tab-title']}>{category.label}</h3>
+                    </div>
                     <p className={styles['tab-description']}>{category.description}</p>
                   </div>
                   {activeTab === categoryId && (
-                    <Component photographyStyle={style.id as StylePhotographyStyle} />
+                    <Component photographyStyle={style.id as StylePhotographyStyle} isCard={isCard} />
                   )}
                 </motion.div>
               </TabsContent>

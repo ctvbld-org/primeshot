@@ -1,7 +1,7 @@
 interface IconProps extends React.SVGProps<SVGSVGElement> {
   size?: number
   className?: string
-  variant: 'background' | 'clothing' | 'camera' | 'dizzyFace' | 'plusFill' | 'arrowLeft' | 'arrowRight' | 'clothingColor' | 'cross' | 'check'
+  variant: 'background' | 'clothing' | 'camera' | 'dizzyFace' | 'plusFill' | 'arrowLeft' | 'arrowRight' | 'clothingColor' | 'cross' | 'check' | 'bin'
   backgroundColor?: string
 }
 
@@ -16,7 +16,8 @@ export function Icon({ size = 28, className, variant, ...props }: IconProps) {
     arrowLeft: "0 0 21 20",
     arrowRight: "0 0 21 20",
     cross: "0 0 16 16",
-    check: "0 0 16 16"
+    check: "0 0 16 16",
+    bin: "0 0 22 22"
   }
 
   const icons = {
@@ -113,6 +114,14 @@ export function Icon({ size = 28, className, variant, ...props }: IconProps) {
     ),
     check: (
       <path d="M8.00061 1C9.85685 1.00009 11.6372 1.73733 12.9498 3.0498C14.2626 4.36256 15.0006 6.14348 15.0006 8C15.0006 9.38431 14.5899 10.7376 13.8209 11.8887C13.0518 13.0397 11.9583 13.937 10.6793 14.4668C9.40024 14.9966 7.99226 15.1353 6.6344 14.8652C5.27672 14.5951 4.02929 13.929 3.05041 12.9502C2.07144 11.9712 1.40449 10.7231 1.1344 9.36523C0.864433 8.00757 1.00314 6.60019 1.53283 5.32129C2.06261 4.04229 2.95992 2.94885 4.11096 2.17969C5.2621 1.41052 6.61614 1 8.00061 1ZM7.00061 9.20508L5.29553 7.5L4.50061 8.29492L7.00061 10.7949L11.5035 6.29297L10.7057 5.5L7.00061 9.20508Z" fill="currentColor"/>  
+    ),
+    bin: (
+      <>
+        <path d="M9.625 8.25H8.25V16.5H9.625V8.25Z" fill="currentColor"/>
+        <path d="M13.75 8.25H12.375V16.5H13.75V8.25Z" fill="currentColor"/>
+        <path d="M2.75 4.125V5.5H4.125V19.25C4.125 19.6147 4.26987 19.9644 4.52773 20.2223C4.78559 20.4801 5.13533 20.625 5.5 20.625H16.5C16.8647 20.625 17.2144 20.4801 17.4723 20.2223C17.7301 19.9644 17.875 19.6147 17.875 19.25V5.5H19.25V4.125H2.75ZM5.5 19.25V5.5H16.5V19.25H5.5Z" fill="currentColor"/>
+        <path d="M13.75 1.375H8.25V2.75H13.75V1.375Z" fill="currentColor"/>
+      </>
     )
   }
 

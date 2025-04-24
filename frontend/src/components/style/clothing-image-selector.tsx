@@ -9,6 +9,7 @@ import { useStyleConfigs, useOption } from '@/hooks/useConfig'
 
 interface ClothingImageSelectorProps {
   photographyStyle: StylePhotographyStyle;
+  isCard?: boolean;
 }
 
 // Type for the OptionsCarousel component
@@ -18,7 +19,7 @@ interface CarouselOption {
   imageUrl: string;
 }
 
-export function ClothingImageSelector({ photographyStyle }: ClothingImageSelectorProps) {
+export function ClothingImageSelector({ photographyStyle, isCard }: ClothingImageSelectorProps) {
   const { settings, setClothing } = useStyleStore();
 
   // Query for styles and clothing options using custom hooks
@@ -77,6 +78,7 @@ export function ClothingImageSelector({ photographyStyle }: ClothingImageSelecto
       options={filteredClothingOptions}
       value={settings.clothing}
       onChange={(value) => setClothing(value as StyleClothing)}
+      forceMobile={isCard}
     />
   );
 } 
