@@ -70,9 +70,11 @@
 
 .description-container {
   flex: 1;
+  display: flex;
 }
 
 .description {
+  flex: 1;
   color: #909594;
   font-size: 15px;
   line-height: 22px;
@@ -212,6 +214,11 @@
         width: 24px;
         height: 24px;
     }
+    
+    .card-styling .style-name,
+    .card-styling .style-headshots {
+      font-size: 20px !important;
+      }
 }
 
 @media (max-width: 1070px) {
@@ -292,10 +299,25 @@
     .tagline-container {
         display: none;
     }
+    
+    .card-styling .tagline-container {
+        display: block;
+    }
 
     .style-label,
     .style-name {
         font-size: 1.4rem;
     }
     
+}
+
+
+@media (max-width: 440px) {
+  .tagline-container {
+    display: none !important;
+  }
+
+  .card-styling .style-headshots {
+    max-width: 90px;
+  }
 }

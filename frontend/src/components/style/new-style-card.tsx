@@ -4,12 +4,16 @@ import styles from './new-style-card.module.css'
 import { Icon } from '@/components/icons/icon'
 
 interface NewStyleCardProps {
-  onClick: () => void
+  onClick: () => void,
+  className?: string
 }
 
-export function NewStyleCard({ onClick }: NewStyleCardProps) {
+export function NewStyleCard({ 
+  onClick,
+  className
+}: NewStyleCardProps) {
   return (
-    <div className={styles['empty-state-card']} onClick={onClick}>
+    <div className={`${styles['empty-state-card']} ${className}`} onClick={onClick}>
       <div className={styles['top-card']}>
         <Image
           src="/add-new-style.png"

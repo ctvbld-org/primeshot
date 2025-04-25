@@ -1,8 +1,6 @@
 'use client'
 
 import React from 'react'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Label } from '@/components/ui/label'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { getOptionsImage } from '@/lib/utils/get-options-image'
@@ -54,31 +52,33 @@ export function OptionsCarousel({
   const [canScrollPrev, setCanScrollPrev] = React.useState(false);
   const [canScrollNext, setCanScrollNext] = React.useState(true);
   const [selectedOption, setSelectedOption] = React.useState<string | null>(value);
-
+ 
   const scrollPrev = React.useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
   const scrollNext = React.useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
 
   const handleOptionChange = React.useCallback((newValue: string) => {
     if (newValue !== value) {
+      value = newValue; 
       onChange(newValue);
       setSelectedOption(newValue);
       
       const selectedIndex = options.findIndex(opt => opt.id === newValue);
       if (selectedIndex !== -1 && emblaApi) {
-        //emblaApi.scrollTo(selectedIndex);
+        emblaApi.scrollTo(selectedIndex);
       }
     }
   }, [value, onChange, options, emblaApi]);
 
-  const handleOptionClick = (optionId: string) => {
-    const radioGroup = document.querySelector('[role="radiogroup"]') as HTMLElement;
-    if (radioGroup) {
-      // radioGroup.style.transition = 'transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1)';
-      // radioGroup.addEventListener('transitionend', () => {
-      //   radioGroup.style.transition = '';
-      // }, { once: true });
+  const handleOptionClick = React.useCallback((newValue: string) => {
+    const selectedIndex = options.findIndex(opt => opt.id === newValue);
+ 
+    if (selectedIndex !== -1 && emblaApi) {
+      emblaApi.scrollTo(selectedIndex);
+      setTimeout(() => {
+        onChange(newValue);
+      }, 300);
     }
-  };
+    }, [emblaApi]);
 
   const onSelect = React.useCallback(() => {
     if (!emblaApi) return;
@@ -113,7 +113,7 @@ export function OptionsCarousel({
         }
       }
     }
-  }, [emblaApi, options, handleOptionChange, value, isMobile]);
+  }, [emblaApi, options, value, isMobile]);
 
   React.useEffect(() => {
     if (!emblaApi) return;
@@ -126,7 +126,7 @@ export function OptionsCarousel({
       emblaApi.off('settle', updateSelection);
       emblaApi.off('reInit', onSelect);
     };
-  }, [emblaApi, onSelect, updateSelection]);
+  }, [emblaApi]);
 
   // Update carousel configuration when screen size changes
   React.useEffect(() => {
@@ -150,36 +150,38 @@ export function OptionsCarousel({
       <div className={styles['carousel-container']}>
         <div className={styles['selection-highlight']} />
         <div ref={emblaRef}>
-          <RadioGroup
-            value={value}
-            onValueChange={handleOptionChange}
-            className={styles['options-group']}
-          >
+          <div className={styles['options-group']}>
             {options.map((option) => (
-              <div key={option.id} className={styles['option-item']}>
-                <RadioGroupItem
-                  value={option.id}
-                  id={`option-${option.id}`}
-                  className="peer sr-only"
-                />
-                <Label
-                  htmlFor={`option-${option.id}`}
-                  className={styles['option-label']}
-                  onClick={() => handleOptionClick(option.id)}
-                >
-                  <div className={styles['image-container']}>
-                    <Image
-                      src={getOptionsImage(option.imageUrl)} 
-                      alt={option.label}
-                      fill
-                      sizes="232px"
-                      className="object-cover"
-                    />
-                  </div>
-                </Label>
+              <div 
+                key={option.id} 
+                className={cn(
+                  styles['option-item'],
+                  value === option.id && styles['selected']
+                )}
+                onClick={() => handleOptionClick(option.id)}
+                data-option-id={option.id}
+                data-option-label={option.label}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleOptionChange(option.id);
+                  }
+                }}
+              >
+                <div className={styles['image-container']}>
+                  <Image
+                    src={getOptionsImage(option.imageUrl)} 
+                    alt={option.label}
+                    fill
+                    sizes="232px"
+                    className="object-cover"
+                  />
+                </div>
               </div>
             ))}
-          </RadioGroup>
+          </div>
         </div>
 
         {/* Navigation Buttons */}

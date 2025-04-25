@@ -10,9 +10,6 @@ import { useGenderFilter } from '@/lib/hooks/use-gender-filter'
 import { z } from 'zod'
 import { cn } from '@/lib/utils'
 import useEmblaCarousel from 'embla-carousel-react'
-import { BackgroundImageSelector } from '@/components/style/background-image-selector'
-import { ClothingImageSelector } from '@/components/style/clothing-image-selector'
-import { ClothingColorSelector } from '@/components/style/clothing-color-selector'
 import { useAuth } from '@/contexts/auth-context'
 import { useToast } from '@/components/ui/use-toast'
 import { saveStyle } from '@/lib/api/styles'
@@ -22,7 +19,6 @@ import { useStyleStore } from '@/store/style'
 import { motion, AnimatePresence } from 'framer-motion'
 import stylesCSS from './page.module.css'
 import { Icon } from '@/components/icons/icon'
-import optionsConfig from '@/lib/config/options.json'
 import { StyleTabsOptions } from '@/components/style/style-tabs-options'
 import { StyleDetails } from '@/components/style/style-details'
 
@@ -65,37 +61,6 @@ const fadeAnimation = {
   }
 }
 
-// Add new animation variants for the content sections
-const contentAnimation = {
-  initial: { opacity: 0, y: 15 },
-  animate: { opacity: 1, y: 0 },
-  transition: { 
-    duration: 0.5,
-    ease: [0.32, 0.72, 0, 1],
-    staggerChildren: 0.08 
-  }
-}
-
-const childAnimation = {
-  initial: { opacity: 0, y: 8 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.3, ease: [0.21, 1, 0.32, 1] }
-}
-
-// Map category IDs to icon variants
-const categoryIconMap: Record<keyof typeof optionsConfig, React.ComponentProps<typeof Icon>['variant']> = {
-  background: 'background',
-  clothing: 'clothing',
-  clothingColor: 'clothingColor'
-};
-
-// Map category IDs to components
-const categoryComponentMap: Record<string, React.ComponentType<{ photographyStyle: StylePhotographyStyle }>> = {
-  background: BackgroundImageSelector,
-  clothingColor: ClothingColorSelector,
-  clothing: ClothingImageSelector
-};
-
 // Update the type definitions to match the actual data structure
 type BaseOption = {
   id: string;
@@ -118,11 +83,17 @@ export default function Page() {
   const router = useRouter()
   const { user } = useAuth()
   const { toast } = useToast()
-  const { settings, reset } = useStyleStore()
   const [isSaving, setIsSaving] = useState(false)
   const { gender, isLoading: isGenderLoading } = useUserGender();
-  const filteredStyles = useGenderFilter(photographyStyleOptions, gender || undefined);
   const [selectedIndex, setSelectedIndex] = useState(0)
+  const filteredStyles = useGenderFilter(photographyStyleOptions, gender || undefined)
+  // Get the current style ID based on the selected index
+  const currentStyleId = selectedIndex >= 0 && filteredStyles.length > 0 
+    ? filteredStyles[selectedIndex].id as StylePhotographyStyle 
+    : 'studio'
+  const store = useStyleStore(currentStyleId)
+  const settings = store((state) => state.settings)
+  const reset = store((state) => state.reset)
   const [showingCustomizeFor, setShowingCustomizeFor] = useState<number | null>(null)
   const [isNavigating, setIsNavigating] = useState(false)
   const [canScrollPrev, setCanScrollPrev] = useState(false)
@@ -133,18 +104,8 @@ export default function Page() {
     containScroll: false,
     duration: 30
   })
-  const [activeTab, setActiveTab] = useState(Object.keys(optionsConfig)[0])
   const [isTransitioning, setIsTransitioning] = useState(false)
-  const [visitedTabs, setVisitedTabs] = useState<Set<string>>(new Set([Object.keys(optionsConfig)[0]]))
-  
-  // Reset style store and visited tabs when options section is hidden
-  useEffect(() => {
-    if (showingCustomizeFor === null) {
-      reset();
-      setActiveTab(Object.keys(optionsConfig)[0]);
-      setVisitedTabs(new Set([Object.keys(optionsConfig)[0]])); // Reset visited tabs
-    }
-  }, [showingCustomizeFor, reset]);
+  const [previousIndex, setPreviousIndex] = useState(selectedIndex)
   
   useEffect(() => {
     if (emblaApi) {
@@ -162,6 +123,24 @@ export default function Page() {
       }
     }
   }, [emblaApi, showingCustomizeFor])
+
+  // Reset settings when selectedIndex changes
+  useEffect(() => {
+    if (selectedIndex !== previousIndex) {
+      // Reset settings for the previous style
+      if (previousIndex >= 0 && filteredStyles.length > 0) {
+        const previousStyleId = filteredStyles[previousIndex].id as StylePhotographyStyle
+        const previousStore = useStyleStore(previousStyleId)
+        previousStore.getState().reset()
+      }
+      
+      // Reset settings for the new style
+      reset()
+      
+      // Update previousIndex
+      setPreviousIndex(selectedIndex)
+    }
+  }, [selectedIndex, previousIndex, filteredStyles, reset])
 
   useEffect(() => {
     if (emblaApi) {
@@ -261,15 +240,19 @@ export default function Page() {
       const order = await getOrCreateDraftOrder(user.id)
       const orderId = order.id
 
+      // Get current store for this style
+      const styleStore = useStyleStore(style.id as StylePhotographyStyle)
+      const currentSettings = styleStore.getState().settings
+      
       const styleData = {
         user_id: user.id,
         order_id: orderId,
         name: style.name,
         settings: {
           photographyStyle: style.id as StylePhotographyStyle,
-          background: settings.background,
-          clothing: settings.clothing,
-          clothingColor: settings.clothingColor,
+          background: currentSettings.background,
+          clothing: currentSettings.clothing,
+          clothingColor: currentSettings.clothingColor,
         },
         status: 'draft' as StyleStatus
       }
@@ -306,16 +289,6 @@ export default function Page() {
     transition: isTransitioning ? 'transform 1000ms cubic-bezier(.34,.08,0,1.01)' : 'none'
   }), [isTransitioning])
 
-  // Track tab visits
-  const handleTabChange = useCallback((value: string) => {
-    setActiveTab(value);
-    setVisitedTabs(prev => new Set([...prev, value]));
-  }, []);
-
-  // Handle footer button clicks
-  const handleFooterButtonClick = useCallback((categoryId: string) => {
-    handleTabChange(categoryId);
-  }, [handleTabChange]);
 
   if (isGenderLoading || stylesWithImages.length === 0) {
     return null;
@@ -361,13 +334,12 @@ export default function Page() {
                           {...fadeAnimation}
                         >
                           <StyleTabsOptions
-                            style={style}
-                            settings={settings}
+                            style={{
+                              ...style,
+                              styleId: 'new'
+                            }}
                             isSaving={isSaving}
-                            activeTab={activeTab}
-                            visitedTabs={visitedTabs}
                             onClose={() => setShowingCustomizeFor(null)}
-                            onTabChange={handleTabChange}
                             onAddToShoot={handleAddToShoot}
                           />
                         </motion.div>

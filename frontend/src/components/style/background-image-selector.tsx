@@ -20,7 +20,9 @@ interface CarouselOption {
 }
 
 export function BackgroundImageSelector({ photographyStyle, isCard }: BackgroundImageSelectorProps) {
-  const { settings, setBackground } = useStyleStore();
+  const store = useStyleStore(photographyStyle)
+  const settings = store((state) => state.settings)
+  const setBackground = store((state) => state.setBackground)
 
   // Query for styles and background options using custom hooks
   const { data: styles, isLoading: isLoadingStyles, error: stylesError } = useStyleConfigs();
@@ -72,7 +74,7 @@ export function BackgroundImageSelector({ photographyStyle, isCard }: Background
   if (filteredBackgroundOptions.length === 0) {
     return <div className="p-4">No background options available for {photographyStyle} style.</div>;
   }
-
+  
   return (
     <OptionsCarousel
       options={filteredBackgroundOptions}

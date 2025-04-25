@@ -160,11 +160,22 @@ export async function getStyle(id: string, userId: string): Promise<Style> {
 export async function updateStyle(style: UpdateStyle): Promise<Style> {
   const supabase = createClient()
   
+  if (!style.settings) {
+    throw new Error('Style settings are required for update')
+  }
+
+  const updatedSettings = {
+    background: style.settings.background,
+    clothing: style.settings.clothing,
+    clothingColor: style.settings.clothingColor,
+    photographyStyle: style.settings.photographyStyle
+  }
+
   const { data, error } = await supabase
     .from('styles')
     .update({
       name: style.name,
-      settings: style.settings,
+      settings: updatedSettings,
       status: style.status
     })
     .eq('id', style.id)
@@ -375,4 +386,28 @@ export async function getOptionByCategory(category: OptionCategory): Promise<Opt
 
   if (error) throw error;
   return data;
+}
+
+/**
+ * Delete a style and handle notifications
+ */
+export async function handleStyleDeletion(
+  styleId: string, 
+  userId: string,
+  onSuccess: () => void,
+  toast: { success: (opts: { title: string; description: string }) => void; error: (opts: { title: string; description: string }) => void }
+): Promise<void> {
+  try {
+    await deleteStyle(styleId, userId);
+    onSuccess();
+    toast.success({
+      title: 'Success',
+      description: 'Style deleted successfully'
+    });
+  } catch (error) {
+    toast.error({
+      title: 'Error Deleting Style',
+      description: error instanceof Error ? error.message : 'Failed to delete style'
+    });
+  }
 }

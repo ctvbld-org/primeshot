@@ -20,7 +20,9 @@ interface CarouselOption {
 }
 
 export function ClothingImageSelector({ photographyStyle, isCard }: ClothingImageSelectorProps) {
-  const { settings, setClothing } = useStyleStore();
+  const store = useStyleStore(photographyStyle)
+  const settings = store((state) => state.settings)
+  const setClothing = store((state) => state.setClothing)
 
   // Query for styles and clothing options using custom hooks
   const { data: styles, isLoading: isLoadingStyles, error: stylesError } = useStyleConfigs();
@@ -72,7 +74,7 @@ export function ClothingImageSelector({ photographyStyle, isCard }: ClothingImag
   if (filteredClothingOptions.length === 0) {
     return <div className="p-4">No clothing options available for {photographyStyle} style.</div>;
   }
-
+  
   return (
     <OptionsCarousel
       options={filteredClothingOptions}

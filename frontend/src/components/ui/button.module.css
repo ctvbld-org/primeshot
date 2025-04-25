@@ -64,7 +64,8 @@
 }
 
 .destructive:hover {
-  background-color: var(--destructive-rgb / 0.9);
+  background-color: rgba(221, 0, 0, 0.1);
+  color: var(--destructive);
 }
 
 .destructive:focus-visible {
@@ -107,9 +108,14 @@
     box-shadow: inset 0.5px 0.5px rgba(255, 180, 94, .4);
 }
 
+.ghost {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: #000000;
+}
+
 .ghost:hover {
-  background-color: var(--secondary);
-  color: var(--secondary-foreground);
+  background-color: rgba(0, 0, 0, 1);
+  color: #ffffff;
 }
 
 :global(.dark) .ghost:hover {

@@ -27,7 +27,7 @@ export function ShootFooter({
   return (
     <div className={styles.footer}>
       <div className="mx-auto flex items-center">
-        <div className="flex items-center flex-[0_0_auto]">
+        <div className={styles['footer-title-container']}>
           <span className={styles['footer-title']}>My Shoot</span>
           <span className={styles['footer-separator']}>
             <Image 
@@ -42,9 +42,9 @@ export function ShootFooter({
           <>
             <div className="flex items-center mr-10 justify-between flex-wrap flex-[1_1_80%]">
               <div className={styles['footer-content']}>
-                <div className="flex items-center">
+                <div className={`flex items-center ${styles['footer-styles']}`}>
                   <span className="text-[#FFB45E] mr-1">{stylesCount}</span>
-                  <span className="font-light mx-1">×</span>
+                  <span className={styles['footer-multiplier']}>×</span>
                   <span className="text-[#ffffff]"> Styles</span>
                 </div>
                 <div className="flex items-center">
@@ -52,16 +52,16 @@ export function ShootFooter({
                     <Icon variant="camera" size={14} className={styles.icon} />
                   </span>
                   <span className="text-[#FFB45E] mr-1">{totalPhotos}</span>
-                  <span className="font-light mx-1">×</span>
+                  <span className={styles['footer-multiplier']}>×</span>
                   <span className="text-[#ffffff]"> Photos</span>
-                  <span className="mx-1">({photosPerStyle} per style)</span>
+                  <span className={styles['footer-photos-per-style']}>({photosPerStyle} per style)</span>
                 </div>
 
                 <span className="bg-[#44E3C910] rounded-full px-3 py-2 text-[#44E3C9]">
                   {basePrice / 100} USD
                 </span>
               </div>
-              <div className="flex items-center gap-x-1 bg-[#FFFFFF10] rounded-full px-3 py-2 text-[#FFFFFF60] text-xs">
+              <div className={styles['footer-upgrade-container']}>
                 <Icon variant="plusFill" size={16} className="text-[#FFB45E]" />
                 <span>Add {extraStylesCount} extra styles and get</span>
                 <span className="text-[#FFFFFF]">{totalPhotosWithExtra}</span>

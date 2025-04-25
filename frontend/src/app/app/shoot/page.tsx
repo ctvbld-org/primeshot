@@ -9,7 +9,7 @@ import { Style, StyleStatus } from '@/lib/types'
 import { StyleCard } from '@/components/style/style-card'
 import { NewStyleCard } from '@/components/style/new-style-card'
 import { useUserProgress } from '@/lib/hooks/use-user-progress'
-import { getStyles, deleteStyle, calculateHeadshots } from '@/lib/api/styles'
+import { getStyles, deleteStyle, calculateHeadshots, handleStyleDeletion } from '@/lib/api/styles'
 import { useUserProfile } from '@/lib/hooks/use-user-profile'
 import { usePaymentFlow } from '@/lib/hooks/use-payment-flow'
 import { ProfileCompletionModal } from '@/components/profile/profile-completion-modal'
@@ -17,6 +17,9 @@ import { ShootFooter } from '@/components/shoot/shoot-footer'
 import { PRICING } from '@/lib/constants/pricing'
 import stylesCSS from './page.module.css'
 import { motion } from 'framer-motion'
+import { type CarouselApi } from "@/components/ui/carousel"
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
+import React from 'react'
 
 export default function StylesPage() {
   const router = useRouter()
@@ -29,6 +32,11 @@ export default function StylesPage() {
   const supabase = createClient()
   const { fetchProfile } = useUserProfile()
   
+  // Add carousel API state
+  const [api, setApi] = React.useState<CarouselApi>()
+  const [current, setCurrent] = React.useState(0)
+  const [count, setCount] = React.useState(0)
+
   // Headshot calculation state
   const [headshotInfo, setHeadshotInfo] = useState<{
     styleCount: number,
@@ -112,33 +120,42 @@ export default function StylesPage() {
   }, [user, loadStyles]);
 
   // Function to handle style deletion
-  async function handleDeleteStyle(styleId: string) {
+  const handleDeleteStyle = async (styleId: string) => {
     if (!user) return;
 
-    try {
-      await deleteStyle(styleId, user.id);
-      
-      // Refresh the styles list
-      loadStyles();
-      
-      toast({
-        title: 'Success',
-        description: 'Style deleted successfully',
-      });
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to delete style',
-        variant: 'destructive'
-      });
-    }
-  }
+    await handleStyleDeletion(
+      styleId,
+      user.id,
+      () => setStyles((prevStyles) => prevStyles.filter((style) => style.id !== styleId)),
+      {
+        success: toast,
+        error: (opts: { title: string; description: string }) => toast({ ...opts, variant: 'destructive' })
+      }
+    );
+  };
 
   const handleProfileComplete = () => {
     setShowProfileModal(false);
     // Refresh the page data
     loadStyles();
   }
+
+  // Add carousel effect
+  React.useEffect(() => {
+    if (!api) {
+      return
+    }
+
+    setCount(api.scrollSnapList().length)
+    setCurrent(api.selectedScrollSnap() + 1)
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap() + 1)
+    })
+  }, [api])
+
+  const [showOverlay, setShowOverlay] = useState(false)
+  const [isDraggingEnabled, setIsDraggingEnabled] = useState(true)
 
   return (
     <>
@@ -155,24 +172,60 @@ export default function StylesPage() {
             <div className={stylesCSS['fake-card']}></div>
             <div className={stylesCSS['fake-card']}></div>
             <div className={stylesCSS['fake-card']}></div>
-            <NewStyleCard onClick={() => router.push('/app/styles')} />
+            <NewStyleCard className="h-[608px] max-h-[calc(100% - 120px)]" onClick={() => router.push('/app/styles')} />
             <div className={stylesCSS['fake-card']}></div>
             <div className={stylesCSS['fake-card']}></div>
             <div className={stylesCSS['fake-card']}></div>
           </>
         ) : (
-          <>
-            <NewStyleCard onClick={() => router.push('/app/styles')} />
-            
-            {styles.map((style) => (
-              <StyleCard
-                key={style.id}
-                savedStyle={style}
-                onClick={() => router.push(`/app/style/${style.id}`)}
-                headshotsPerStyle={headshotInfo.headshotsPerStyle}
-              />
-            ))}
-          </>
+          <Carousel
+            setApi={setApi}
+            opts={{
+              align: "start",
+              containScroll: false,
+              dragFree: true,
+              loop: false,
+              watchDrag: isDraggingEnabled,
+              breakpoints: {
+                '(max-width: 600px)': {
+                  dragFree: false,
+                  align: "start",
+                  slidesToScroll: 1
+                }
+              }
+            }}
+            className={stylesCSS['carousel']}
+          >
+            <CarouselContent>
+              <CarouselItem className="basis-[386px] pl-6">
+                <NewStyleCard className="h-[98%] max-h-none" onClick={() => router.push('/app/styles')} />
+              </CarouselItem>
+
+              <div className={`${stylesCSS['card-overlay']} card-overlay ${showOverlay ? 'show' : ''}`}></div>
+              
+              {styles.map((style) => (
+                <CarouselItem key={style.id} className="basis-[386px] pl-6">
+                  <StyleCard
+                    savedStyle={style}
+                    headshotsPerStyle={headshotInfo.headshotsPerStyle}
+                    onDelete={handleDeleteStyle}
+                    onEdit={() => {
+                      setShowOverlay(true);
+                      setIsDraggingEnabled(false);
+                    }}
+                    onCloseEdit={() => {
+                      setShowOverlay(false);
+                      setIsDraggingEnabled(true);
+                      // Refresh styles after closing edit mode
+                      loadStyles();
+                    }}
+                  />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className={`${stylesCSS['carousel-previous']}`} />
+            <CarouselNext className={`${stylesCSS['carousel-next']}`} />
+          </Carousel>
         )}
 
         <ProfileCompletionModal

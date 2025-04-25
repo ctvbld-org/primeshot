@@ -3,9 +3,11 @@ import { Button } from '@/components/ui/button'
 import { Icon } from '@/components/icons/icon'
 import styles from './style-details.module.css'
 import { motion } from 'framer-motion'
-import { cn } from '@/lib/utils'
 import { getOptionsImage } from '@/lib/utils/get-options-image'
-import optionsConfig from '@/lib/config/options.json'
+import { useOptions } from '@/hooks/useConfig'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import type { Option, OptionItem } from '@/types/styles'
+
 
 interface StyleDetailsProps {
   style: {
@@ -61,9 +63,23 @@ export function StyleDetails({
 }: StyleDetailsProps) {
   const images = style.genderSpecificImages || [];
   const imgNb = isCard ? 3 : 5;
+  const { data: options } = useOptions();
+
+  // Find the full option objects for the selected options
+  const selectedBackground = options?.find((opt: Option) => 
+    opt.category === 'background'
+  )?.options.find((item: OptionItem) => item.id === style.settings?.background);
+  
+  const selectedClothing = options?.find((opt: Option) => 
+    opt.category === 'clothing'
+  )?.options.find((item: OptionItem) => item.id === style.settings?.clothing);
+  
+  const selectedClothingColor = options?.find((opt: Option) => 
+    opt.category === 'clothingColor'
+  )?.options.find((item: OptionItem) => item.id === style.settings?.clothingColor);
 
   return (
-    <>
+    <TooltipProvider>
       {/* Image Strip */}
       <motion.div 
         className={`${styles['image-strip']} ${isCard ? styles['card-styling'] : ''}`}
@@ -138,31 +154,55 @@ export function StyleDetails({
             <>
               <div className={styles['icons-container']}>
                 {style.settings?.background && (
-                  <div className="relative w-12 h-12">
-                    <Image 
-                      src={getOptionsImage(optionsConfig.background.options.find(opt => opt.id === style.settings?.background)?.imageUrl || '')}
-                      alt="Selected background"
-                      fill
-                      className="object-cover rounded-full"
-                    />
-                  </div>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="relative w-12 h-12 cursor-help">
+                        <Image 
+                          src={getOptionsImage(selectedBackground?.imageUrl || '')}
+                          alt="Selected background"
+                          fill
+                          className="object-cover rounded-full"
+                        />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Background: {selectedBackground?.label || 'Custom'}</p>
+                    </TooltipContent>
+                  </Tooltip>
                 )}
                 {style.settings?.clothing && (
-                  <div className="relative w-12 h-12">
-                    <Image 
-                      src={getOptionsImage(optionsConfig.clothing.options.find(opt => opt.id === style.settings?.clothing)?.imageUrl || '')}
-                      alt="Selected clothing"
-                      fill
-                      className="object-cover rounded-full"
-                    />
-                  </div>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="relative w-12 h-12 cursor-help">
+                        <Image 
+                          src={getOptionsImage(selectedClothing?.imageUrl || '')}
+                          alt="Selected clothing"
+                          fill
+                          className="object-cover rounded-full"
+                        />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Clothing: {selectedClothing?.label || 'Custom'}</p>
+                    </TooltipContent>
+                  </Tooltip>
                 )}
                 {style.settings?.clothingColor && (
-                  <div className={`${styles['clothing-color']} w-12 h-12 rounded-full`} style={{ 
-                    background: style.settings.clothingColor === '#FFFFFF' 
-                      ? 'linear-gradient(153deg, rgba(0, 0, 0, 0.10) 0%, rgba(0, 0, 0, 0.00) 83.33%), linear-gradient(0deg, #FFF 0%, #FFF 100%), linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, rgba(0, 0, 0, 0.10) 100%)' 
-                      : style.settings.clothingColor 
-                  }} />
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div 
+                        className={`${styles['clothing-color']} w-12 h-12 rounded-full cursor-help`} 
+                        style={{ 
+                          background: style.settings.clothingColor === '#FFFFFF' 
+                            ? 'linear-gradient(153deg, rgba(0, 0, 0, 0.10) 0%, rgba(0, 0, 0, 0.00) 83.33%), linear-gradient(0deg, #FFF 0%, #FFF 100%), linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, rgba(0, 0, 0, 0.10) 100%)' 
+                            : style.settings.clothingColor 
+                        }} 
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Color: {selectedClothingColor?.label || 'Custom'}</p>
+                    </TooltipContent>
+                  </Tooltip>
                 )}
               </div>
               <Button 
@@ -207,6 +247,6 @@ export function StyleDetails({
           )}
         </div>
       </motion.div>
-    </>
+    </TooltipProvider>
   );
 } 

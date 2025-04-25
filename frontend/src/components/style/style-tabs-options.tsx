@@ -9,17 +9,25 @@ import styles from './style-tabs-options.module.css'
 import { BackgroundImageSelector } from './background-image-selector'
 import { ClothingImageSelector } from './clothing-image-selector'
 import { ClothingColorSelector } from './clothing-color-selector'
-import optionsConfig from '@/lib/config/options.json'
+import { useCallback, useEffect, useState, useRef, forwardRef, useImperativeHandle, useMemo } from 'react'
+import { useStyleStore } from '@/store/style'
+import { useStyleConfigs, useOption, useOptions } from '@/hooks/useConfig'
+import { cn } from '@/lib/utils'
+import type { Option, OptionItem } from '@/types/styles'
+import { createClient } from '@/lib/supabase/client'
+import { useToast } from '@/components/ui/use-toast'
+import { useAuth } from '@/contexts/auth-context'
+import { updateStyle } from '@/lib/api/styles'
 
 // Map category IDs to icon variants
-const categoryIconMap: Record<keyof typeof optionsConfig, React.ComponentProps<typeof Icon>['variant']> = {
+const categoryIconMap: Record<string, React.ComponentProps<typeof Icon>['variant']> = {
   background: 'background',
   clothing: 'clothing',
   clothingColor: 'clothingColor'
 };
 
 // Map category IDs to components
-const categoryComponentMap: Record<string, React.ComponentType<{ photographyStyle: StylePhotographyStyle; isCard?: boolean }>> = {
+const categoryComponentMap: Record<string, React.ComponentType<{ photographyStyle: StylePhotographyStyle; isCard?: boolean; onSelect?: (id: string) => void }>> = {
   background: BackgroundImageSelector,
   clothingColor: ClothingColorSelector,
   clothing: ClothingImageSelector
@@ -44,21 +52,25 @@ function isImageOption(option: any): option is ImageOption {
 
 interface StyleTabsOptionsProps {
   style: {
-    id: string;
+    id: string;  // photography style name
     name: string;
+    styleId: string;  // database row ID
   };
-  settings: {
+  settings?: {
     background?: string;
     clothing?: string;
     clothingColor?: string;
   };
   isSaving: boolean;
-  activeTab: string;
-  visitedTabs: Set<string>;
   isCard?: boolean;
   onClose: () => void;
-  onTabChange: (value: string) => void;
   onAddToShoot: (style: any) => Promise<void>;
+  onUpdate?: (style: { settings: { background: string; clothing: string; clothingColor: string; photographyStyle: StylePhotographyStyle } }) => void;
+}
+
+// Define a ref type for the component
+export interface StyleTabsOptionsRef {
+  applyPropSettings: () => void;
 }
 
 const contentAnimation = {
@@ -77,36 +89,240 @@ const childAnimation = {
   transition: { duration: 0.3, ease: [0.21, 1, 0.32, 1] }
 }
 
-export function StyleTabsOptions({
+export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptionsProps>(({
   style,
-  settings,
+  settings: propSettings,
   isSaving,
-  activeTab,
-  visitedTabs,
   isCard,
   onClose,
-  onTabChange,
-  onAddToShoot
-}: StyleTabsOptionsProps) {
-  // Handle footer button clicks
-  const handleFooterButtonClick = (categoryId: string) => {
-    onTabChange(categoryId);
+  onAddToShoot,
+  onUpdate
+}, ref) => {
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const [isUpdating, setIsUpdating] = useState(false);
+  const { data: options } = useOptions();
+  
+  // Get the categories and their options
+  const categories = options?.map(opt => ({
+    id: opt.category,
+    label: opt.label,
+    description: opt.description,
+    options: opt.options
+  })) || [];
+
+  // Connect to store with current style.id
+  const store = useStyleStore(style.id as StylePhotographyStyle)
+  const settings = store((state) => state.settings)
+  const reset = store((state) => state.reset)
+  const setBackground = store((state) => state.setBackground)
+  const setClothing = store((state) => state.setClothing)
+  const setClothingColor = store((state) => state.setClothingColor)
+  
+  // Flag to track if prop settings have been applied
+  const hasAppliedSettings = useRef(false);
+  
+  // Function to apply prop settings
+  const getPropSettings = useCallback(() => {
+    console.log("Applying prop settings:", propSettings);
+    if (propSettings) {
+      if (propSettings.background) {
+        setBackground(propSettings.background).catch(console.error);
+      }
+      if (propSettings.clothing) {
+        setClothing(propSettings.clothing).catch(console.error);
+      }
+      if (propSettings.clothingColor) {
+        setClothingColor(propSettings.clothingColor).catch(console.error);
+      }
+      hasAppliedSettings.current = true;
+    }
+  }, [propSettings, setBackground, setClothing, setClothingColor]);
+  
+  // Expose the getPropSettings method via ref
+  useImperativeHandle(ref, () => ({
+    applyPropSettings: getPropSettings
+  }));
+  
+  // Apply prop settings whenever the component renders in card mode
+  // This is important because we need to set the values immediately when
+  // the flip animation starts (before the component is fully visible)
+  useEffect(() => {
+    if (isCard && !hasAppliedSettings.current) {
+      console.log("Card mode detected, applying prop settings immediately");
+      getPropSettings();
+    }
+  }, [isCard, getPropSettings]);
+  
+  // Fetch available options for the current photography style
+  const { data: styleConfigs } = useStyleConfigs();
+  
+  // Find the current style configuration
+  const currentStyleConfig = styleConfigs?.find(config => config.id === style.id);
+  
+  // Get counts of available options for each category
+  const availableCounts = {
+    background: currentStyleConfig?.available_backgrounds?.length || 0,
+    clothing: currentStyleConfig?.available_clothing?.length || 0,
+    clothingColor: currentStyleConfig?.available_clothing_colors?.length || 0
+  };
+  
+  // Track active tab
+  const [activeTab, setActiveTab] = useState<string>('background');
+  // Track visited tabs
+  const [visitedTabs, setVisitedTabs] = useState<Set<string>>(new Set(['background']));
+  
+  // Update active tab and mark as visited
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    setVisitedTabs(prev => new Set(prev).add(tabId));
   };
 
+  // Handle setting specific property based on category
+  const handleOptionSelect = useCallback((categoryId: string, optionId: string) => {
+    switch (categoryId) {
+      case 'background':
+        setBackground(optionId).catch(console.error);
+        break;
+      case 'clothing':
+        setClothing(optionId).catch(console.error);
+        break;
+      case 'clothingColor':
+        setClothingColor(optionId).catch(console.error);
+        break;
+    }
+  }, [setBackground, setClothing, setClothingColor]);
+
+  // Handle footer button clicks
+  const handleFooterButtonClick = useCallback((categoryId: string) => {
+    handleTabChange(categoryId);
+  }, [handleTabChange]);
+
+  // Handle close with reset
+  const handleClose = useCallback(() => {
+    // Reset settings to defaults
+    if (!isCard) {
+      reset();
+    } else {
+      getPropSettings();
+    }
+    // Call the provided onClose function
+    onClose();
+  }, [reset, onClose, isCard, getPropSettings]);
+
+  // Track initial settings for comparison
+  const [initialSettings, setInitialSettings] = useState({
+    background: settings.background,
+    clothing: settings.clothing,
+    clothingColor: settings.clothingColor
+  });
+
+  // Check if settings have changed
+  const hasSettingsChanged = useMemo(() => {
+    return initialSettings.background !== settings.background ||
+           initialSettings.clothing !== settings.clothing ||
+           initialSettings.clothingColor !== settings.clothingColor;
+  }, [initialSettings, settings]);
+
+  // Reset initial settings when prop settings change
+  useEffect(() => {
+    if (propSettings) {
+      setInitialSettings({
+        background: propSettings.background || '',
+        clothing: propSettings.clothing || '',
+        clothingColor: propSettings.clothingColor || ''
+      });
+    }
+  }, [propSettings]);
+
+  // Handle style update
+  const handleUpdate = async () => {
+    if (!user || !style.styleId || !settings.background || !settings.clothing || !settings.clothingColor) {
+      toast({ title: 'Error', description: 'Missing required data to save.', variant: 'destructive' });
+      return;
+    }
+
+    try {
+      setIsUpdating(true);
+
+      const updatedStyle = {
+        id: style.styleId,
+        user_id: user.id,
+        name: style.name,
+        settings: {
+          background: settings.background,
+          clothing: settings.clothing,
+          clothingColor: settings.clothingColor,
+          photographyStyle: style.id as StylePhotographyStyle
+        }
+      };
+
+      await updateStyle(updatedStyle);
+
+      toast({
+        title: 'Success',
+        description: 'Your style has been updated'
+      });
+      
+      // Call onUpdate with the updated style
+      onUpdate?.(updatedStyle);
+      onClose();
+    } catch (error) {
+      toast({
+        title: 'Error Updating Style',
+        description: error instanceof Error ? error.message : 'Failed to update style',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  // Check if a category has been selected and visited
+  const isCategoryComplete = useCallback((category: { id: string }) => {
+    const selectedOption = (() => {
+      switch (category.id) {
+        case 'background':
+          return settings.background;
+        case 'clothing':
+          return settings.clothing;
+        case 'clothingColor':
+          return settings.clothingColor;
+        default:
+          return undefined;
+      }
+    })();
+    return selectedOption && visitedTabs.has(category.id);
+  }, [settings, visitedTabs]);
+
+  // Find first incomplete category
+  const findFirstIncompleteCategory = useCallback(() => {
+    return categories.find(category => !isCategoryComplete(category));
+  }, [categories, isCategoryComplete]);
+
+  // Check if all categories are complete
+  const areAllCategoriesComplete = useCallback(() => {
+    return !categories.some(category => !isCategoryComplete(category));
+  }, [categories, isCategoryComplete]);
+
   return (
-    <div className={`${styles['tabs-container']} ${isCard ? styles['card-styling'] : ''}`}>
+    <div 
+      className={`${styles['tabs-container']} ${isCard ? styles['card-styling'] + ' card-styling' : ''}`}
+      data-testid="style-tabs-options"
+    >
       {!isCard && (
         <button
-          onClick={onClose}
-        className="absolute top-8 right-8 z-50 w-10 h-10 rounded-full bg-[#00000015] flex items-center justify-center hover:bg-accent/15 cursor-pointer transition-all text-black"
-      >
+          onClick={handleClose}
+          className="absolute top-8 right-8 z-50 w-10 h-10 rounded-full bg-[#00000015] flex items-center justify-center hover:bg-accent/15 cursor-pointer transition-all text-black"
+        >
           <Icon variant="cross" size={16} />
         </button>
       )}
 
       <Tabs 
+        defaultValue="background"
         value={activeTab}
-        onValueChange={onTabChange}
+        onValueChange={handleTabChange}
         orientation="vertical" 
         className="h-full"
       >
@@ -119,30 +335,32 @@ export function StyleTabsOptions({
           <motion.div variants={childAnimation} className={styles['tabs-sidebar-container']}>
             <TabsList className={styles['tabs-sidebar']}>
               <h4 className="w-full text-sm font-medium text-[#00000040] mb-4 p-4">Customise</h4>
-              {Object.entries(optionsConfig).map(([categoryId, category]) => (
+              {categories.map((category) => (
                 <TabsTrigger 
-                  key={categoryId}
-                  value={categoryId} 
+                  key={category.id}
+                  value={category.id} 
                   className={styles['tab-trigger']}
                 >
-                  <Icon variant={categoryIconMap[categoryId as keyof typeof optionsConfig]} size={20} />
+                  <Icon variant={categoryIconMap[category.id]} size={20} />
                   <h5 className={styles['tab-label']}>{category.label}</h5>
-                  <span className={styles['tab-category-count']}>{category.options.length}</span>
+                  <span className={styles['tab-category-count']}>
+                    {availableCounts[category.id as keyof typeof availableCounts] || 0}
+                  </span>
                 </TabsTrigger>
               ))}
             </TabsList>
           </motion.div>
 
-          {Object.entries(optionsConfig).map(([categoryId, category]) => {
-            const Component = categoryComponentMap[categoryId as keyof typeof optionsConfig];
+          {categories.map((category) => {
+            const Component = categoryComponentMap[category.id];
             return (
-              <TabsContent key={categoryId} value={categoryId} className={styles['tab-content']}>
-                <motion.div variants={childAnimation}>
+              <TabsContent key={category.id} value={category.id} className={styles['tab-content']}>
+                <motion.div variants={childAnimation} className="flex flex-1 flex-col">
                   <div className={styles['tab-header']}>
                     <div className={`${isCard ? 'flex items-center gap-4 mb-4' : ''}`}>
                       {isCard && (
                         <Button
-                          onClick={onClose}
+                          onClick={handleClose}
                           variant="ghost"
                           className="w-10 h-10 rounded-full bg-[#00000015] flex flex-0 items-center justify-center hover:bg-accent/15 cursor-pointer transition-all text-black"
                         >
@@ -153,8 +371,12 @@ export function StyleTabsOptions({
                     </div>
                     <p className={styles['tab-description']}>{category.description}</p>
                   </div>
-                  {activeTab === categoryId && (
-                    <Component photographyStyle={style.id as StylePhotographyStyle} isCard={isCard} />
+                  {category.id && (
+                    <Component 
+                      photographyStyle={style.id as StylePhotographyStyle} 
+                      isCard={isCard} 
+                      onSelect={(optionId) => handleOptionSelect(category.id, optionId)} 
+                    />
                   )}
                 </motion.div>
               </TabsContent>
@@ -162,8 +384,8 @@ export function StyleTabsOptions({
           })}
         </motion.div>
       </Tabs>
-
-      {/* Footer with selected options and add button */}
+      
+      {/* Footer with selected options and button */}
       <motion.div 
         className={styles['footer-container']}
         initial={{ opacity: 0, y: 20 }}
@@ -175,10 +397,10 @@ export function StyleTabsOptions({
         }}
       >
         <div className="flex items-center gap-6">
-          {Object.entries(optionsConfig).map(([categoryId, category]) => {
-            const isActive = activeTab === categoryId;
+          {categories.map((category) => {
+            const isActive = activeTab === category.id;
             const selectedOption = (() => {
-              switch (categoryId) {
+              switch (category.id) {
                 case 'background':
                   return settings.background;
                 case 'clothing':
@@ -189,18 +411,18 @@ export function StyleTabsOptions({
                   return undefined;
               }
             })();
-            const selectedOptionData = category.options.find(opt => opt.id === selectedOption) as CategoryOption | undefined;
-            
+            const selectedOptionData = category.options.find(opt => opt.id === selectedOption);
+        
             return (
               <button 
-                key={categoryId}
-                onClick={() => handleFooterButtonClick(categoryId)}
+                key={category.id}
+                onClick={() => handleFooterButtonClick(category.id)}
                 data-state={isActive ? 'active' : 'inactive'}
                 className="flex items-center gap-2 cursor-pointer"
               >
                 <div className={styles['footer-icon-button']}>
-                  {selectedOptionData && visitedTabs.has(categoryId) ? (
-                    categoryId === 'clothingColor' ? (
+                  {selectedOptionData && (visitedTabs.has(category.id) && !isCard) || (selectedOptionData && isCard) ? (
+                    category.id === 'clothingColor' ? (
                       <>
                         <div 
                           className={`${styles['footer-option-color']} ${styles['footer-option-swatch']}`} 
@@ -211,11 +433,13 @@ export function StyleTabsOptions({
                           }}
                         />
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[30px] h-[30px] rounded-full border-1 border-[#00000030] border-dashed mix-blend-multiply"></div>
-                        <Icon 
-                          variant="check" 
-                          size={16} 
-                          className={`${styles['footer-option-check']} ${styles['footer-option-color-check']}`}
-                        />
+                        {!isCard && (
+                          <Icon 
+                            variant="check" 
+                            size={16} 
+                            className={`${styles['footer-option-check']} ${styles['footer-option-color-check']}`}
+                          />
+                        )}
                       </>
                     ) : isImageOption(selectedOptionData) ? (
                       <>
@@ -225,22 +449,24 @@ export function StyleTabsOptions({
                           fill
                           className={`${styles['footer-option-image']} ${styles['footer-option-swatch']}`}
                         />
-                        <Icon 
-                          variant="check" 
-                          size={16} 
-                          className={styles['footer-option-check']} 
-                        />
+                        {!isCard && (
+                          <Icon 
+                            variant="check" 
+                            size={16} 
+                            className={styles['footer-option-check']} 
+                          />
+                        )}
                       </>
                     ) : (
                       <Icon 
-                        variant={categoryIconMap[categoryId as keyof typeof optionsConfig]} 
+                        variant={categoryIconMap[category.id]} 
                         size={30} 
                         className={`${styles['footer-option-icon']} ${styles['footer-option-swatch']}`}
                       />
                     )
                   ) : (
                     <Icon 
-                      variant={categoryIconMap[categoryId as keyof typeof optionsConfig]} 
+                      variant={categoryIconMap[category.id]} 
                       size={30} 
                       className={`${styles['footer-option-icon']} ${styles['footer-option-swatch']}`}
                     />
@@ -249,7 +475,7 @@ export function StyleTabsOptions({
                 <div className={styles['footer-option-icon-label-container']}>
                   <span className="text-[#00000060] font-light">{category.label}</span>
                   <span className="text-[#000000]">
-                    {selectedOptionData && visitedTabs.has(categoryId) 
+                    {selectedOptionData && visitedTabs.has(category.id) 
                       ? selectedOptionData.label 
                       : "Not selected"}
                   </span>
@@ -258,69 +484,35 @@ export function StyleTabsOptions({
             );
           })}
         </div>
-        <Button 
-          onClick={() => {
-            // Find first unselected option
-            const unselectedOption = Object.entries(optionsConfig).find(([categoryId]) => {
-              const selectedOption = (() => {
-                switch (categoryId) {
-                  case 'background':
-                    return settings.background;
-                  case 'clothing':
-                    return settings.clothing;
-                  case 'clothingColor':
-                    return settings.clothingColor;
-                  default:
-                    return undefined;
-                }
-              })();
-              return !selectedOption || !visitedTabs.has(categoryId);
-            });
-
-            if (unselectedOption) {
-              // Navigate to first unselected option
-              onTabChange(unselectedOption[0]);
-            } else {
-              // All options selected, add to shoot
-              onAddToShoot(style);
-            }
-          }}
-          variant={Object.entries(optionsConfig).some(([categoryId]) => {
-            const selectedOption = (() => {
-              switch (categoryId) {
-                case 'background':
-                  return settings.background;
-                case 'clothing':
-                  return settings.clothing;
-                case 'clothingColor':
-                  return settings.clothingColor;
-                default:
-                  return undefined;
+        {isCard ? (
+          <Button 
+            onClick={handleUpdate}
+            variant="primary"
+            className={styles.button}
+            disabled={isUpdating || !hasSettingsChanged}
+            loading={isUpdating}
+          >
+            Confirm changes
+          </Button>
+        ) : (
+          <Button 
+            onClick={() => {
+              const unselectedOption = findFirstIncompleteCategory();
+              if (unselectedOption) {
+                handleTabChange(unselectedOption.id);
+              } else {
+                onAddToShoot(style);
               }
-            })();
-            return !selectedOption || !visitedTabs.has(categoryId);
-          }) ? 'secondary' : 'primary'}
-          loading={isSaving}
-        >
-          {isSaving ? 'Adding to Shoot...' : (
-            Object.entries(optionsConfig).some(([categoryId]) => {
-              const selectedOption = (() => {
-                switch (categoryId) {
-                  case 'background':
-                    return settings.background;
-                  case 'clothing':
-                    return settings.clothing;
-                  case 'clothingColor':
-                    return settings.clothingColor;
-                  default:
-                    return undefined;
-                }
-              })();
-              return !selectedOption || !visitedTabs.has(categoryId);
-            }) ? 'Next' : 'Add to Shoot'
-          )}
-        </Button>
+            }}
+            variant={areAllCategoriesComplete() ? "primary" : "secondary"}
+            className={styles.button}
+            disabled={isSaving}
+            loading={isSaving}
+          >
+            {areAllCategoriesComplete() ? 'Add to Shoot' : 'Next'}
+          </Button>
+        )}
       </motion.div>
     </div>
   );
-} 
+}); 

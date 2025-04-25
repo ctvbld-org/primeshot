@@ -44,6 +44,14 @@
     transition: all 0.3s ease-out;
 }
 
+.slide-card-container:first-child {
+    border-radius: 30px 0 0 30px;
+}
+
+.slide-card-container:last-child {
+    border-radius: 0 30px 30px 0;
+}
+
 .slide-card {
     display: flex;
     flex-direction: column;
