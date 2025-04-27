@@ -21,7 +21,7 @@ interface OptionsCarouselProps {
   forceMobile?: boolean
 }
 
-export function OptionsCarousel({ 
+export const OptionsCarousel = React.memo(function OptionsCarouselComponent({
   options,
   value,
   onChange,
@@ -56,29 +56,36 @@ export function OptionsCarousel({
   const scrollPrev = React.useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
   const scrollNext = React.useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
 
+  // Wrap onChange in useCallback to stabilize the reference if passed from parent
+  const memoizedOnChange = React.useCallback(onChange, [onChange]);
+
   const handleOptionChange = React.useCallback((newValue: string) => {
-    if (newValue !== value) {
-      value = newValue; 
-      onChange(newValue);
-      setSelectedOption(newValue);
+    // Compare with selectedOption state, not the potentially stale value prop
+    if (newValue !== selectedOption) {
+      memoizedOnChange(newValue);
+      setSelectedOption(newValue); // Update local state immediately
       
       const selectedIndex = options.findIndex(opt => opt.id === newValue);
       if (selectedIndex !== -1 && emblaApi) {
-        emblaApi.scrollTo(selectedIndex);
+        // Scroll without triggering another change
+         if (emblaApi.selectedScrollSnap() !== selectedIndex) {
+           emblaApi.scrollTo(selectedIndex);
+         }
       }
     }
-  }, [value, onChange, options, emblaApi]);
+  }, [selectedOption, memoizedOnChange, options, emblaApi]);
 
   const handleOptionClick = React.useCallback((newValue: string) => {
     const selectedIndex = options.findIndex(opt => opt.id === newValue);
  
     if (selectedIndex !== -1 && emblaApi) {
-      emblaApi.scrollTo(selectedIndex);
-      setTimeout(() => {
-        onChange(newValue);
-      }, 300);
+      // Scroll first, then trigger change after settle
+      if (emblaApi.selectedScrollSnap() !== selectedIndex) {
+         emblaApi.scrollTo(selectedIndex);
+      }
+      // Let the 'settle' event handle the state update via updateSelection
     }
-    }, [emblaApi]);
+    }, [emblaApi, options]);
 
   const onSelect = React.useCallback(() => {
     if (!emblaApi) return;
@@ -90,43 +97,38 @@ export function OptionsCarousel({
     if (!emblaApi) return;
     
     const selectedIndex = emblaApi.selectedScrollSnap();
-    const visibleSlides = emblaApi.slidesInView();
+    const option = options[selectedIndex];
     
-    if (isMobile) {
-      // On mobile, select the centered slide
-      const option = options[selectedIndex];
-      if (option && option.id !== value) {
-        handleOptionChange(option.id);
-      }
-    } else {
-      // On desktop, keep the original logic
-      if (selectedIndex === 0) {
-        const option = options[0];
-        if (option && option.id !== value) {
-          handleOptionChange(option.id);
-        }
-      } else if (visibleSlides.length > 1) {
-        const secondVisibleSlide = visibleSlides[1];
-        const option = options[secondVisibleSlide];
-        if (option && option.id !== value) {
-          handleOptionChange(option.id);
-        }
-      }
+    // Always update based on the settled slide index
+    if (option && option.id !== selectedOption) {
+      handleOptionChange(option.id); 
     }
-  }, [emblaApi, options, value, isMobile]);
+   
+  }, [emblaApi, options, selectedOption, handleOptionChange]);
 
   React.useEffect(() => {
     if (!emblaApi) return;
     onSelect();
     emblaApi.on('select', onSelect);
-    emblaApi.on('settle', updateSelection);
+    emblaApi.on('settle', updateSelection); // Use settle for reliable state update
     emblaApi.on('reInit', onSelect);
     return () => {
       emblaApi.off('select', onSelect);
       emblaApi.off('settle', updateSelection);
       emblaApi.off('reInit', onSelect);
     };
-  }, [emblaApi]);
+  }, [emblaApi, onSelect, updateSelection]);
+
+  // Sync local state if the external value prop changes
+  React.useEffect(() => {
+    if (value !== selectedOption) {
+      setSelectedOption(value);
+      const selectedIndex = options.findIndex(opt => opt.id === value);
+      if (selectedIndex !== -1 && emblaApi && emblaApi.selectedScrollSnap() !== selectedIndex) {
+        emblaApi.scrollTo(selectedIndex); 
+      }
+    }
+  }, [value, selectedOption, options, emblaApi]);
 
   // Update carousel configuration when screen size changes
   React.useEffect(() => {
@@ -156,12 +158,13 @@ export function OptionsCarousel({
                 key={option.id} 
                 className={cn(
                   styles['option-item'],
-                  value === option.id && styles['selected']
+                  selectedOption === option.id && styles['selected']
                 )}
                 onClick={() => handleOptionClick(option.id)}
                 data-option-id={option.id}
                 data-option-label={option.label}
                 role="button"
+                aria-selected={selectedOption === option.id}
                 tabIndex={0}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
@@ -189,6 +192,7 @@ export function OptionsCarousel({
           onClick={scrollPrev}
           disabled={!canScrollPrev}
           className={cn(styles['nav-button'], styles['prev-button'])}
+          aria-label="Previous option"
         >
           <Icon variant="arrowLeft" size={16} />
         </button>
@@ -197,6 +201,7 @@ export function OptionsCarousel({
           onClick={scrollNext}
           disabled={!canScrollNext}
           className={cn(styles['nav-button'], styles['next-button'])}
+          aria-label="Next option"
         >
           <Icon variant="arrowRight" size={16} />
         </button>
@@ -204,7 +209,7 @@ export function OptionsCarousel({
 
       {/* Selected Option Label */}
       {selectedOption && (
-        <div className={styles['selected-label-container']}>
+        <div className={styles['selected-label-container']} aria-live="polite">
           <p className={styles['selected-label']}>
             {options.find(opt => opt.id === selectedOption)?.label}
           </p>
@@ -212,4 +217,4 @@ export function OptionsCarousel({
       )}
     </div>
   );
-} 
+}); 

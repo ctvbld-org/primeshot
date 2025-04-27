@@ -15,7 +15,7 @@ export async function saveStyle(style: InsertStyle): Promise<Style> {
   // Generate a sequential name (Style 001, Style 002, etc.)
   const { count, error: countError } = await supabase
     .from('styles')
-    .select('*', { count: 'exact', head: true })
+    .select('id', { count: 'exact', head: true })
     .eq('user_id', style.user_id)
   
   if (countError) {
@@ -37,7 +37,7 @@ export async function saveStyle(style: InsertStyle): Promise<Style> {
   const { data, error } = await supabase
     .from('styles')
     .insert(styleWithSequentialName)
-    .select()
+    .select('id, user_id, order_id, name, settings, status, created_at, updated_at')
     .single()
     
   if (error) {
@@ -105,9 +105,10 @@ export async function getStyles(
   
   let query = supabase
     .from('styles')
-    .select('*')
+    .select('id, name, status, created_at, updated_at, settings, order_id, user_id') 
     .eq('user_id', userId)
   
+  // Restore optional filters and ordering
   // Add filters if provided
   if (options?.status) {
     query = query.eq('status', options.status)
@@ -128,10 +129,13 @@ export async function getStyles(
   const { data, error } = await query
   
   if (error) {
+    // Log the specific Supabase error
+    console.error("Supabase error in getStyles:", error);
     throw new Error(`Failed to fetch styles: ${error.message}`)
   }
   
-  return data as Style[]
+  // Revert cast back to Style[]
+  return data as Style[] 
 }
 
 /**
@@ -142,7 +146,7 @@ export async function getStyle(id: string, userId: string): Promise<Style> {
   
   const { data, error } = await supabase
     .from('styles')
-    .select('*')
+    .select('id, name, status, created_at, updated_at, settings, order_id, user_id')
     .eq('id', id)
     .eq('user_id', userId)
     .single()
@@ -180,7 +184,7 @@ export async function updateStyle(style: UpdateStyle): Promise<Style> {
     })
     .eq('id', style.id)
     .eq('user_id', style.user_id)
-    .select()
+    .select('id, user_id, order_id, name, settings, status, created_at, updated_at')
     .single()
     
   if (error) {
@@ -359,9 +363,9 @@ export async function getAllStyles(): Promise<Style[]> {
 export async function getStyleById(id: StyleId): Promise<Style | null> {
   const { data, error } = await supabase
     .from('styles')
-    .select('*')
+    .select('id, name, status, created_at, updated_at, settings, order_id, user_id')
     .eq('id', id)
-    .single();
+    .single()
 
   if (error) throw error;
   return data;

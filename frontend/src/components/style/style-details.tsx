@@ -7,6 +7,7 @@ import { getOptionsImage } from '@/lib/utils/get-options-image'
 import { useOptions } from '@/hooks/useConfig'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import type { Option, OptionItem } from '@/types/styles'
+import { useState } from 'react'
 
 
 interface StyleDetailsProps {
@@ -42,12 +43,12 @@ const stripVariants = {
 // Animation variants for each image
 const imageVariants = {
   hidden: { 
-    opacity: 0.4,
+    opacity: 0,
   },
   show: { 
     opacity: 1,
     transition: {  
-      duration: 2,
+      duration: 0.5,
       ease: [0.25, 0.1, 0.25, 1]
     }
   }
@@ -64,6 +65,11 @@ export function StyleDetails({
   const images = style.genderSpecificImages || [];
   const imgNb = isCard ? 3 : 5;
   const { data: options } = useOptions();
+  const [loadedImages, setLoadedImages] = useState<Record<number, boolean>>({});
+
+  const handleImageLoad = (idx: number) => {
+    setLoadedImages(prev => ({ ...prev, [idx]: true }));
+  };
 
   // Find the full option objects for the selected options
   const selectedBackground = options?.find((opt: Option) => 
@@ -92,13 +98,16 @@ export function StyleDetails({
             key={idx} 
             className="flex-1 relative overflow-hidden"
             variants={imageVariants}
+            initial="hidden"
+            animate={loadedImages[idx] ? "show" : "hidden"}
           >
             <Image
               src={imgSrc}
-              alt={`${style.name} Example ${idx + 1}`}
+              alt={`${style.name} preview image ${idx + 1}`}
               fill
               className="object-cover"
               priority={idx === 0}
+              onLoad={() => handleImageLoad(idx)}
             />
           </motion.div>
         ))}
@@ -159,7 +168,7 @@ export function StyleDetails({
                       <div className="relative w-12 h-12 cursor-help">
                         <Image 
                           src={getOptionsImage(selectedBackground?.imageUrl || '')}
-                          alt="Selected background"
+                          alt="Selected background preview"
                           fill
                           className="object-cover rounded-full"
                         />
@@ -176,7 +185,7 @@ export function StyleDetails({
                       <div className="relative w-12 h-12 cursor-help">
                         <Image 
                           src={getOptionsImage(selectedClothing?.imageUrl || '')}
-                          alt="Selected clothing"
+                          alt="Selected clothing preview"
                           fill
                           className="object-cover rounded-full"
                         />
@@ -197,6 +206,8 @@ export function StyleDetails({
                             ? 'linear-gradient(153deg, rgba(0, 0, 0, 0.10) 0%, rgba(0, 0, 0, 0.00) 83.33%), linear-gradient(0deg, #FFF 0%, #FFF 100%), linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, rgba(0, 0, 0, 0.10) 100%)' 
                             : style.settings.clothingColor 
                         }} 
+                        role="img"
+                        aria-label={`Selected clothing color: ${selectedClothingColor?.label || style.settings.clothingColor}`}
                       />
                     </TooltipTrigger>
                     <TooltipContent>
