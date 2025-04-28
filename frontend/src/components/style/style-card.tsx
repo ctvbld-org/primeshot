@@ -116,8 +116,7 @@ export function StyleCard({
       <FlipCard
         className={cn(
           styles.card,
-          className,
-          isFlipped && 'editing-card'
+          className
         )}
         isFlipped={isFlipped}
         frontContent={

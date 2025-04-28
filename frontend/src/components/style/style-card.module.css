@@ -37,6 +37,7 @@
   color: white;
   background-color: rgba(255, 255, 255, 0.145);
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   transition-property: all;
   transition-duration: 300ms;
 }
@@ -62,6 +63,7 @@
   border-radius: 36px;
   background-color: rgba(255, 205, 205, 0.376);
   backdrop-filter: blur(90px);
+  -webkit-backdrop-filter: blur(90px);
   pointer-events: none;
   transition: opacity 500ms cubic-bezier(0.075, 0.82, 0.165, 1);
 }

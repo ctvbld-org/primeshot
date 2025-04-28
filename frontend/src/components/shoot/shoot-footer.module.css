@@ -8,6 +8,7 @@
   padding: 0 32px;
   box-shadow: inset 0 1px rgba(255, 255, 255, 0.10);
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 10;
 }
 

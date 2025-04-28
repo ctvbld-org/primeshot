@@ -1,6 +1,7 @@
 .empty-state-card {
   background: linear-gradient(180deg, rgba(68, 227, 201, 0.10) 0%, rgba(68, 227, 201, 0.04) 100%);
   backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
   border: 0.5px solid rgba(0, 255, 208, 0.05);
   width: 386px;
   min-width: 386px;
