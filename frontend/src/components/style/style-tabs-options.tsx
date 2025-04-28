@@ -18,6 +18,8 @@ import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/ui/use-toast'
 import { useAuth } from '@/contexts/auth-context'
 import { updateStyle } from '@/lib/api/styles'
+import React, { Suspense } from 'react'
+import { useValidStyleOptions } from '@/lib/utils/style-validation'
 
 // Map category IDs to icon variants
 const categoryIconMap: Record<string, React.ComponentProps<typeof Icon>['variant']> = {
@@ -102,6 +104,7 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
   const { user } = useAuth();
   const [isUpdating, setIsUpdating] = useState(false);
   const { data: options } = useOptions();
+  const { data: validOptions, isLoading: isLoadingValidOptions } = useValidStyleOptions();
   
   // Get the categories and their options
   const categories = options?.map(opt => ({
@@ -124,20 +127,21 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
   
   // Function to apply prop settings
   const getPropSettings = useCallback(() => {
+    if (!validOptions) return;
     console.log("Applying prop settings:", propSettings);
     if (propSettings) {
       if (propSettings.background) {
-        setBackground(propSettings.background).catch(console.error);
+        setBackground(propSettings.background, validOptions).catch(console.error);
       }
       if (propSettings.clothing) {
-        setClothing(propSettings.clothing).catch(console.error);
+        setClothing(propSettings.clothing, validOptions).catch(console.error);
       }
       if (propSettings.clothingColor) {
-        setClothingColor(propSettings.clothingColor).catch(console.error);
+        setClothingColor(propSettings.clothingColor, validOptions).catch(console.error);
       }
       hasAppliedSettings.current = true;
     }
-  }, [propSettings, setBackground, setClothing, setClothingColor]);
+  }, [propSettings, setBackground, setClothing, setClothingColor, validOptions]);
   
   // Expose the getPropSettings method via ref
   useImperativeHandle(ref, () => ({
@@ -180,18 +184,19 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
 
   // Handle setting specific property based on category
   const handleOptionSelect = useCallback((categoryId: string, optionId: string) => {
+    if (!validOptions) return;
     switch (categoryId) {
       case 'background':
-        setBackground(optionId).catch(console.error);
+        setBackground(optionId, validOptions).catch(console.error);
         break;
       case 'clothing':
-        setClothing(optionId).catch(console.error);
+        setClothing(optionId, validOptions).catch(console.error);
         break;
       case 'clothingColor':
-        setClothingColor(optionId).catch(console.error);
+        setClothingColor(optionId, validOptions).catch(console.error);
         break;
     }
-  }, [setBackground, setClothing, setClothingColor]);
+  }, [setBackground, setClothing, setClothingColor, validOptions]);
 
   // Handle footer button clicks
   const handleFooterButtonClick = useCallback((categoryId: string) => {
@@ -267,6 +272,13 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
       // Call onUpdate with the updated style
       onUpdate?.(updatedStyle);
       onClose();
+
+      // Update initialSettings to reflect the new persisted state
+      setInitialSettings({
+        background: settings.background,
+        clothing: settings.clothing,
+        clothingColor: settings.clothingColor
+      });
     } catch (error) {
       toast({
         title: 'Error Updating Style',
@@ -304,6 +316,10 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
   const areAllCategoriesComplete = useCallback(() => {
     return !categories.some(category => !isCategoryComplete(category));
   }, [categories, isCategoryComplete]);
+
+  if (isLoadingValidOptions) {
+    return <div className="p-4">Loading style options...</div>;
+  }
 
   return (
     <div 
@@ -372,11 +388,13 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
                     <p className={styles['tab-description']}>{category.description}</p>
                   </div>
                   {category.id && (
-                    <Component 
-                      photographyStyle={style.id as StylePhotographyStyle} 
-                      isCard={isCard} 
-                      onSelect={(optionId) => handleOptionSelect(category.id, optionId)} 
-                    />
+                    <Suspense fallback={<div className="p-4">Loading {category.label} options...</div>}>
+                      <Component 
+                        photographyStyle={style.id as StylePhotographyStyle} 
+                        isCard={isCard} 
+                        onSelect={(optionId) => handleOptionSelect(category.id, optionId)} 
+                      />
+                    </Suspense>
                   )}
                 </motion.div>
               </TabsContent>

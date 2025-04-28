@@ -6,6 +6,7 @@ import { StyleClothing, StylePhotographyStyle } from '@/lib/types'
 import { OptionsCarousel } from './options-carousel'
 import { getOptionsImage } from '@/lib/utils/get-options-image'
 import { useStyleConfigs, useOption } from '@/hooks/useConfig'
+import { useValidStyleOptions } from '@/lib/utils/style-validation'
 
 interface ClothingImageSelectorProps {
   photographyStyle: StylePhotographyStyle;
@@ -23,6 +24,7 @@ export function ClothingImageSelector({ photographyStyle, isCard }: ClothingImag
   const store = useStyleStore(photographyStyle)
   const settings = store((state) => state.settings)
   const setClothing = store((state) => state.setClothing)
+  const { data: validOptions, isLoading: isLoadingValidOptions } = useValidStyleOptions();
 
   // Query for styles and clothing options using custom hooks
   const { data: styles, isLoading: isLoadingStyles, error: stylesError } = useStyleConfigs();
@@ -43,21 +45,22 @@ export function ClothingImageSelector({ photographyStyle, isCard }: ClothingImag
       imageUrl: option.imageUrl ? getOptionsImage(option.imageUrl) : ''
     }));
 
-  const isLoading = isLoadingStyles || isLoadingClothing;
+  const isLoading = isLoadingStyles || isLoadingClothing || isLoadingValidOptions;
   const error = stylesError || clothingError;
 
   // Effect to reset selection if current choice becomes invalid
   useEffect(() => {
+    if (!validOptions) return;
     const needsUpdate = filteredClothingOptions.length > 0 && 
                        !filteredClothingOptions.some(opt => opt.id === settings.clothing);
     
     if (needsUpdate) {
       const defaultOption = filteredClothingOptions[0].id as StyleClothing;
       if (defaultOption !== settings.clothing) {
-        setClothing(defaultOption);
+        setClothing(defaultOption, validOptions);
       }
     }
-  }, [photographyStyle, filteredClothingOptions, settings.clothing, setClothing]);
+  }, [photographyStyle, filteredClothingOptions, settings.clothing, setClothing, validOptions]);
 
   if (isLoading) {
     return <div className="p-4">Loading clothing options...</div>;
@@ -79,7 +82,7 @@ export function ClothingImageSelector({ photographyStyle, isCard }: ClothingImag
     <OptionsCarousel
       options={filteredClothingOptions}
       value={settings.clothing}
-      onChange={(value) => setClothing(value as StyleClothing)}
+      onChange={(value) => validOptions && setClothing(value as StyleClothing, validOptions)}
       forceMobile={isCard}
     />
   );

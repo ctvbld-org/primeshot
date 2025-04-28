@@ -2,7 +2,6 @@ interface IconProps extends React.SVGProps<SVGSVGElement> {
   size?: number
   className?: string
   variant: 'background' | 'clothing' | 'camera' | 'dizzyFace' | 'plusFill' | 'arrowLeft' | 'arrowRight' | 'clothingColor' | 'cross' | 'check' | 'bin'
-  backgroundColor?: string
 }
 
 export function Icon({ size = 28, className, variant, ...props }: IconProps) {

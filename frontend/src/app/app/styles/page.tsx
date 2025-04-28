@@ -1,9 +1,8 @@
 'use client'
 
-import { useEffect, useMemo, useCallback, useState } from 'react'
+import { useEffect, useMemo, useCallback, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { StylePhotographyStyle, Gender, StyleStatus } from '@/lib/types'
-import stylesConfig from '@/lib/config/styles.json'
 import { getStyleImages } from '@/lib/utils/get-styles-images'
 import { useUserGender } from '@/lib/hooks/use-user-gender'
 import { useGenderFilter } from '@/lib/hooks/use-gender-filter'
@@ -21,6 +20,7 @@ import stylesCSS from './page.module.css'
 import { Icon } from '@/components/icons/icon'
 import { StyleTabsOptions } from '@/components/style/style-tabs-options'
 import { StyleDetails } from '@/components/style/style-details'
+import { useStyleConfigs } from '@/hooks/useConfig'
 
 // Create a Zod enum from the Gender type
 const GenderEnum = z.enum(['male', 'female'] as const) satisfies z.ZodType<Gender>;
@@ -31,24 +31,14 @@ const StyleConfigSchema = z.object({
   name: z.string(),
   tagline: z.string().optional(),
   description: z.string(),
-  previewImages: z.array(z.string()),
-  availableGenders: z.array(GenderEnum).optional(),
-  availableBackgrounds: z.array(z.string()),
-  availableClothing: z.array(z.string()),
-  availableClothingColor: z.array(z.string())
+  preview_images: z.array(z.string()),
+  available_genders: z.array(GenderEnum).optional(),
+  available_backgrounds: z.array(z.string()),
+  available_clothing: z.array(z.string()),
+  available_clothing_colors: z.array(z.string())
 });
 
 const StyleConfigsSchema = z.array(StyleConfigSchema);
-
-// Validate at runtime with error handling
-const photographyStyleOptions = (() => {
-  try {
-    return StyleConfigsSchema.parse(stylesConfig);
-  } catch (error) {
-    console.error('Invalid style configuration:', error);
-    return [];
-  }
-})();
 
 // Modify the fadeAnimation object to include variants for the options section
 const fadeAnimation = {
@@ -61,24 +51,6 @@ const fadeAnimation = {
   }
 }
 
-// Update the type definitions to match the actual data structure
-type BaseOption = {
-  id: string;
-  label: string;
-};
-
-type ImageOption = BaseOption & {
-  imageUrl: string;
-};
-
-type ColorOption = BaseOption;
-
-type CategoryOption = ImageOption | ColorOption;
-
-function isImageOption(option: any): option is ImageOption {
-  return option && typeof option === 'object' && 'imageUrl' in option && typeof option.imageUrl === 'string';
-}
-
 export default function Page() {
   const router = useRouter()
   const { user } = useAuth()
@@ -86,6 +58,29 @@ export default function Page() {
   const [isSaving, setIsSaving] = useState(false)
   const { gender, isLoading: isGenderLoading } = useUserGender();
   const [selectedIndex, setSelectedIndex] = useState(0)
+  const { data: styleConfigs = [], isLoading: isLoadingStyles } = useStyleConfigs();
+  
+  // Validate style configs at runtime and transform to expected format
+  const photographyStyleOptions = useMemo(() => {
+    try {
+      const validatedConfigs = StyleConfigsSchema.parse(styleConfigs);
+      return validatedConfigs.map(config => ({
+        id: config.id,
+        name: config.name,
+        tagline: config.tagline,
+        description: config.description,
+        previewImages: config.preview_images,
+        availableGenders: config.available_genders,
+        availableBackgrounds: config.available_backgrounds,
+        availableClothing: config.available_clothing,
+        availableClothingColor: config.available_clothing_colors
+      }));
+    } catch (error) {
+      console.error('Invalid style configuration:', error);
+      return [];
+    }
+  }, [styleConfigs]);
+
   const filteredStyles = useGenderFilter(photographyStyleOptions, gender || undefined)
   // Get the current style ID based on the selected index
   const currentStyleId = selectedIndex >= 0 && filteredStyles.length > 0 
@@ -107,6 +102,53 @@ export default function Page() {
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [previousIndex, setPreviousIndex] = useState(selectedIndex)
   
+  // Create refs to store style stores at component level
+  const styleStoresRef = useRef<Record<string, ReturnType<typeof useStyleStore>>>({});
+
+  // Initialize stores for all styles
+  useEffect(() => {
+    // Create stores for new styles
+    filteredStyles.forEach(style => {
+      const styleId = style.id as StylePhotographyStyle;
+      if (!styleStoresRef.current[styleId]) {
+        styleStoresRef.current[styleId] = useStyleStore(styleId);
+      }
+    });
+
+    // Cleanup stores for removed styles
+    Object.keys(styleStoresRef.current).forEach(styleId => {
+      if (!filteredStyles.find(style => style.id === styleId)) {
+        delete styleStoresRef.current[styleId];
+      }
+    });
+  }, [filteredStyles]);
+
+  // Reset settings when selectedIndex changes
+  useEffect(() => {
+    if (selectedIndex !== previousIndex) {
+      // Reset settings for the previous style using stored ref
+      if (previousIndex >= 0 && filteredStyles.length > 0) {
+        const previousStyleId = filteredStyles[previousIndex].id as StylePhotographyStyle;
+        const store = styleStoresRef.current[previousStyleId];
+        if (store) {
+          store.getState().reset();
+        }
+      }
+      
+      // Reset settings for the new style
+      if (selectedIndex >= 0 && filteredStyles.length > 0) {
+        const currentStyleId = filteredStyles[selectedIndex].id as StylePhotographyStyle;
+        const store = styleStoresRef.current[currentStyleId];
+        if (store) {
+          store.getState().reset();
+        }
+      }
+      
+      // Update previousIndex
+      setPreviousIndex(selectedIndex);
+    }
+  }, [selectedIndex, previousIndex, filteredStyles]);
+
   useEffect(() => {
     if (emblaApi) {
       if (showingCustomizeFor !== null) {
@@ -123,24 +165,6 @@ export default function Page() {
       }
     }
   }, [emblaApi, showingCustomizeFor])
-
-  // Reset settings when selectedIndex changes
-  useEffect(() => {
-    if (selectedIndex !== previousIndex) {
-      // Reset settings for the previous style
-      if (previousIndex >= 0 && filteredStyles.length > 0) {
-        const previousStyleId = filteredStyles[previousIndex].id as StylePhotographyStyle
-        const previousStore = useStyleStore(previousStyleId)
-        previousStore.getState().reset()
-      }
-      
-      // Reset settings for the new style
-      reset()
-      
-      // Update previousIndex
-      setPreviousIndex(selectedIndex)
-    }
-  }, [selectedIndex, previousIndex, filteredStyles, reset])
 
   useEffect(() => {
     if (emblaApi) {
@@ -215,7 +239,7 @@ export default function Page() {
     }
   }, [isGenderLoading, stylesWithImages.length, router])
 
-  const handleAddToShoot = async (style: {
+  const handleAddToShoot = useCallback(async (style: {
     id: string;
     name: string;
     description: string;
@@ -240,8 +264,8 @@ export default function Page() {
       const order = await getOrCreateDraftOrder(user.id)
       const orderId = order.id
 
-      // Get current store for this style
-      const styleStore = useStyleStore(style.id as StylePhotographyStyle)
+      // Access store from ref instead of calling hook
+      const styleStore = styleStoresRef.current[style.id as StylePhotographyStyle]
       const currentSettings = styleStore.getState().settings
       
       const styleData = {
@@ -277,7 +301,7 @@ export default function Page() {
     } finally {
       setIsSaving(false)
     }
-  }
+  }, [user, styleStoresRef, router, toast])
 
   const handleTransitionEnd = useCallback(() => {
     if (showingCustomizeFor === null) {

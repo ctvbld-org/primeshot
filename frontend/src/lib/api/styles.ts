@@ -175,13 +175,18 @@ export async function updateStyle(style: UpdateStyle): Promise<Style> {
     photographyStyle: style.settings.photographyStyle
   }
 
+  const updatePayload: Record<string, unknown> = {
+    settings: updatedSettings,
+    status: style.status,
+  };
+
+  if (typeof style.name === 'string') {
+    updatePayload.name = style.name;
+  }
+
   const { data, error } = await supabase
     .from('styles')
-    .update({
-      name: style.name,
-      settings: updatedSettings,
-      status: style.status
-    })
+    .update(updatePayload)
     .eq('id', style.id)
     .eq('user_id', style.user_id)
     .select('id, user_id, order_id, name, settings, status, created_at, updated_at')
@@ -348,30 +353,32 @@ export async function updateStylesStatus(
   }
 }
 
-const supabase = createClient();
-
 export async function getAllStyles(): Promise<Style[]> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('styles')
     .select('*')
     .order('name');
-
   if (error) throw error;
   return data;
 }
 
 export async function getStyleById(id: StyleId): Promise<Style | null> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('styles')
     .select('id, name, status, created_at, updated_at, settings, order_id, user_id')
     .eq('id', id)
     .single()
 
-  if (error) throw error;
+    if (error) {  
+      throw new Error(`Failed to fetch all styles: ${error.message}`);  
+    }  
   return data;
 }
 
 export async function getAllOptions(): Promise<Option[]> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('options')
     .select('*')
@@ -382,6 +389,7 @@ export async function getAllOptions(): Promise<Option[]> {
 }
 
 export async function getOptionByCategory(category: OptionCategory): Promise<Option | null> {
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('options')
     .select('*')

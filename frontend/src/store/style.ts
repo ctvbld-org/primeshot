@@ -7,10 +7,10 @@ import { getAllStyleConfigs } from '@/lib/api/config'
 
 interface StyleState {
   settings: StyleSettings
-  setBackground: (background: StyleBackground) => Promise<void>
-  setClothing: (clothing: StyleClothing) => Promise<void>
-  setPhotographyStyle: (style: StylePhotographyStyle) => Promise<void>
-  setClothingColor: (color: StyleClothingColor) => Promise<void>
+  setBackground: (background: StyleBackground, validOptions: any) => Promise<void>
+  setClothing: (clothing: StyleClothing, validOptions: any) => Promise<void>
+  setPhotographyStyle: (style: StylePhotographyStyle, validOptions: any) => Promise<void>
+  setClothingColor: (color: StyleClothingColor, validOptions: any) => Promise<void>
   setGender: (gender: Gender) => void
   reset: () => void
 }
@@ -43,14 +43,16 @@ type StyleStore = UseBoundStore<StoreApi<StyleState>>
 // Store instances cache
 const stores: Record<StylePhotographyStyle, StyleStore> = {} as Record<StylePhotographyStyle, StyleStore>
 
+// NOTE: All actions now require validOptions as an argument for validation.
+// Pass validOptions from useValidStyleOptions() in your component.
 export const useStyleStore = (photographyStyle: StylePhotographyStyle = 'studio') => {
   if (!stores[photographyStyle]) {
     const createStore: StateCreator<StyleState> = (set) => ({
       settings: initialSettings, // Start with initial settings, will be updated after DB fetch
-      setBackground: async (background) => {
+      setBackground: async (background, validOptions) => {
         const settings = stores[photographyStyle].getState().settings
         const newSettings = { ...settings, background }
-        const { isValid, errors } = await validateStyleSettings(newSettings)
+        const { isValid, errors } = validateStyleSettings(validOptions, newSettings)
         if (!isValid) {
           console.error('Invalid style settings:', errors)
           throw new Error(errors.join(', '))
@@ -59,10 +61,10 @@ export const useStyleStore = (photographyStyle: StylePhotographyStyle = 'studio'
           settings: { ...state.settings, background }
         }))
       },
-      setClothing: async (clothing) => {
+      setClothing: async (clothing, validOptions) => {
         const settings = stores[photographyStyle].getState().settings
         const newSettings = { ...settings, clothing }
-        const { isValid, errors } = await validateStyleSettings(newSettings)
+        const { isValid, errors } = validateStyleSettings(validOptions, newSettings)
         if (!isValid) {
           console.error('Invalid style settings:', errors)
           throw new Error(errors.join(', '))
@@ -71,10 +73,10 @@ export const useStyleStore = (photographyStyle: StylePhotographyStyle = 'studio'
           settings: { ...state.settings, clothing }
         }))
       },
-      setPhotographyStyle: async (style) => {
+      setPhotographyStyle: async (style, validOptions) => {
         const settings = stores[photographyStyle].getState().settings
         const newSettings = { ...settings, photographyStyle: style }
-        const { isValid, errors } = await validateStyleSettings(newSettings)
+        const { isValid, errors } = validateStyleSettings(validOptions, newSettings)
         if (!isValid) {
           console.error('Invalid style settings:', errors)
           throw new Error(errors.join(', '))
@@ -83,7 +85,14 @@ export const useStyleStore = (photographyStyle: StylePhotographyStyle = 'studio'
           settings: { ...state.settings, photographyStyle: style }
         }))
       },
-      setClothingColor: async (clothingColor) => {
+      setClothingColor: async (clothingColor, validOptions) => {
+        const settings = stores[photographyStyle].getState().settings
+        const newSettings = { ...settings, clothingColor }
+        const { isValid, errors } = validateStyleSettings(validOptions, newSettings)
+        if (!isValid) {
+          console.error('Invalid style settings:', errors)
+          throw new Error(errors.join(', '))
+        }
         set((state) => ({
           settings: { ...state.settings, clothingColor }
         }))
@@ -91,15 +100,15 @@ export const useStyleStore = (photographyStyle: StylePhotographyStyle = 'studio'
       setGender: (gender) => set((state) => ({
         settings: { ...state.settings, gender }
       })),
-      reset: () => {
-        // Get fresh defaults when resetting
-        getDefaultSettings(photographyStyle).then(defaultSettings => {
-          set({ settings: defaultSettings })
-        }).catch(error => {
-          console.error('Error getting default settings:', error)
-          // Fallback to initial settings if there's an error
-          set({ settings: { ...initialSettings, photographyStyle } })
-        })
+      reset: async () => {
+        try {
+          const defaultSettings = await getDefaultSettings(photographyStyle);
+          set({ settings: defaultSettings });
+        } catch (error) {
+          console.error('Error getting default settings:', error);
+          set({ settings: { ...initialSettings, photographyStyle } });
+          throw error;
+        }
       }
     })
 

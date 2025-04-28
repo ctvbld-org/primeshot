@@ -13,7 +13,7 @@ export function NewStyleCard({
   className
 }: NewStyleCardProps) {
   return (
-    <div className={`${styles['empty-state-card']} ${className}`} onClick={onClick}>
+    <div className={`${styles['empty-state-card']} ${className}`} onClick={onClick} role="region" aria-label="Add new style card" >
       <div className={styles['top-card']}>
         <Image
           src="/add-new-style.png"
@@ -21,6 +21,7 @@ export function NewStyleCard({
           width={156}
           height={156}
           className={styles['tshirt-image']}
+          priority
         />
       </div>
       <div className={styles['bottom-card']}>
@@ -29,16 +30,19 @@ export function NewStyleCard({
             variant="background"
             size={20}
             className={styles.icon}
+            aria-hidden="true"
           />
           <Icon
             variant="clothingColor"
             size={20}
             className={styles.icon}
+            aria-hidden="true"
           />
           <Icon
             variant="clothing"
             size={20}
             className={styles.icon}
+            aria-hidden="true"
           />
         </div>
 
@@ -47,7 +51,7 @@ export function NewStyleCard({
           background and clothing.
         </p>
 
-        <Button variant="outline" className={styles['add-style']}>
+        <Button variant="outline" className={`${styles['add-style']} pointer-events-none`} aria-label="Add a new photography style">
           Add Style
         </Button>
       </div>

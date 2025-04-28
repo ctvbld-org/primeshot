@@ -20,6 +20,7 @@ import { motion } from 'framer-motion'
 import { type CarouselApi } from "@/components/ui/carousel"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
 import React from 'react'
+import { cn } from '@/lib/utils'
 
 export default function StylesPage() {
   const router = useRouter()
@@ -36,6 +37,11 @@ export default function StylesPage() {
   const [api, setApi] = React.useState<CarouselApi>()
   const [current, setCurrent] = React.useState(0)
   const [count, setCount] = React.useState(0)
+
+  // Replace showOverlay with activeEditId
+  const [activeEditId, setActiveEditId] = useState<string | null>(null)
+  const [isDraggingEnabled, setIsDraggingEnabled] = useState(true)
+
 
   // Headshot calculation state
   const [headshotInfo, setHeadshotInfo] = useState<{
@@ -154,9 +160,6 @@ export default function StylesPage() {
     })
   }, [api])
 
-  const [showOverlay, setShowOverlay] = useState(false)
-  const [isDraggingEnabled, setIsDraggingEnabled] = useState(true)
-
   return (
     <>
       <motion.div 
@@ -195,26 +198,36 @@ export default function StylesPage() {
               }
             }}
             className={stylesCSS['carousel']}
+            aria-label="Photography style options"  
+            aria-roledescription="carousel" 
           >
             <CarouselContent>
-              <CarouselItem className="basis-[386px] pl-6">
+              <CarouselItem className={cn(
+                "basis-[386px] pl-6",
+                activeEditId && "disabled-card"
+              )} aria-label="Create new style" >
                 <NewStyleCard className="h-[98%] max-h-none" onClick={() => router.push('/app/styles')} />
               </CarouselItem>
-
-              <div className={`${stylesCSS['card-overlay']} card-overlay ${showOverlay ? 'show' : ''}`}></div>
               
               {styles.map((style) => (
-                <CarouselItem key={style.id} className="basis-[386px] pl-6">
+                <CarouselItem 
+                  key={style.id}
+                  className={cn(
+                    "basis-[386px] pl-6",
+                    activeEditId === style.id ? "editing-card" : activeEditId ? "disabled-card" : ""
+                  )}
+                  aria-label="Edit style"
+                >
                   <StyleCard
                     savedStyle={style}
                     headshotsPerStyle={headshotInfo.headshotsPerStyle}
                     onDelete={handleDeleteStyle}
                     onEdit={() => {
-                      setShowOverlay(true);
+                      setActiveEditId(style.id);
                       setIsDraggingEnabled(false);
                     }}
                     onCloseEdit={() => {
-                      setShowOverlay(false);
+                      setActiveEditId(null);
                       setIsDraggingEnabled(true);
                       // Refresh styles after closing edit mode
                       loadStyles();

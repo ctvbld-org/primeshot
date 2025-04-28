@@ -232,7 +232,7 @@ export type Database = {
           available_genders?: string[]
           created_at?: string | null
           description?: string | null
-          id: string
+          id?: string
           name: string
           preview_images?: Json
           tagline?: string | null
@@ -296,7 +296,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
-          id: string
+          id?: string
           name: string
           order_id?: string | null
           settings: Json

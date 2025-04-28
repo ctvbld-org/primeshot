@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import { useStyleConfigs, useOption } from '@/hooks/useConfig'
 import cssStyles from './clothing-color-selector.module.css'
+import { useValidStyleOptions } from '@/lib/utils/style-validation'
 
 interface ClothingColorSelectorProps {
   photographyStyle: StylePhotographyStyle;
@@ -27,13 +28,14 @@ export function ClothingColorSelector({ photographyStyle }: ClothingColorSelecto
   const store = useStyleStore(photographyStyle)
   const settings = store((state) => state.settings)
   const setClothingColor = store((state) => state.setClothingColor)
+  const { data: validOptions, isLoading: isLoadingValidOptions } = useValidStyleOptions();
 
   // Query for styles and color options using custom hooks
   const { data: styleConfigs, isLoading: isLoadingStyles, error: stylesError } = useStyleConfigs();
   const { data: colorOptions, isLoading: isLoadingColors, error: colorsError } = useOption('clothingColor');
 
   const styleConfig = styleConfigs?.find((style: StyleConfig) => style.id === photographyStyle) || null;
-  const isLoading = isLoadingStyles || isLoadingColors;
+  const isLoading = isLoadingStyles || isLoadingColors || isLoadingValidOptions;
   const error = stylesError || colorsError;
 
   // Get the list of available outfit color IDs for the current style
@@ -45,16 +47,17 @@ export function ClothingColorSelector({ photographyStyle }: ClothingColorSelecto
 
   // Effect to reset selection if current choice becomes invalid
   useEffect(() => {
+    if (!validOptions) return;
     const needsUpdate = filteredClothingColorOptions.length > 0 && 
                        !filteredClothingColorOptions.some(opt => opt.id === settings.clothingColor);
     
     if (needsUpdate) {
       const defaultOption = filteredClothingColorOptions[0].id as StyleClothingColor;
       if (defaultOption !== settings.clothingColor) {
-        setClothingColor(defaultOption);
+        setClothingColor(defaultOption, validOptions);
       }
     }
-  }, [photographyStyle, filteredClothingColorOptions, settings.clothingColor, setClothingColor]);
+  }, [photographyStyle, filteredClothingColorOptions, settings.clothingColor, setClothingColor, validOptions]);
 
   if (isLoading) return <div className={cssStyles.loading}>Loading color options...</div>;
   if (error) return <div className={cssStyles.error}>Error: {error instanceof Error ? error.message : 'Failed to load options'}</div>;
@@ -68,7 +71,7 @@ export function ClothingColorSelector({ photographyStyle }: ClothingColorSelecto
     <div className={cssStyles.clothingColorSection}>
       <RadioGroup
         value={settings.clothingColor}
-        onValueChange={(value) => setClothingColor(value as StyleClothingColor)}
+        onValueChange={(value) => validOptions && setClothingColor(value as StyleClothingColor, validOptions)}
         className={cssStyles.colorOptionContainer}
       >
         {filteredClothingColorOptions.map((option) => (

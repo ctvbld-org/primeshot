@@ -14,11 +14,14 @@ const CACHE_KEYS = {
   optionByCategory: (category: OptionCategory) => ['option', category],
 } as const;
 
+// Define constants for cache configuration
+const ONE_WEEK_IN_MS = 1000 * 60 * 60 * 24 * 7; // 1 week
+
 export function useStyleConfigs() {
   return useQuery({
     queryKey: [CACHE_KEYS.styles],
     queryFn: getAllStyleConfigs,
-    staleTime: 1000 * 60 * 60 * 24 * 7, // 1 week
+    staleTime: ONE_WEEK_IN_MS,
   });
 }
 
@@ -26,7 +29,7 @@ export function useStyleConfig(id: StyleId) {
   return useQuery({
     queryKey: CACHE_KEYS.styleById(id),
     queryFn: () => getStyleConfigById(id),
-    staleTime: 1000 * 60 * 60 * 24 * 7, // 1 week
+    staleTime: ONE_WEEK_IN_MS,
   });
 }
 
@@ -34,7 +37,7 @@ export function useOptions() {
   return useQuery({
     queryKey: [CACHE_KEYS.options],
     queryFn: getAllOptions,
-    staleTime: 1000 * 60 * 60 * 24 * 7, // 1 week
+    staleTime: ONE_WEEK_IN_MS,
   });
 }
 
@@ -42,6 +45,6 @@ export function useOption(category: OptionCategory) {
   return useQuery({
     queryKey: CACHE_KEYS.optionByCategory(category),
     queryFn: () => getOptionByCategory(category),
-    staleTime: 1000 * 60 * 60 * 24 * 7, // 1 week
+    staleTime: ONE_WEEK_IN_MS,
   });
-} 
+}

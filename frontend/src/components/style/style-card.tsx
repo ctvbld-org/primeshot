@@ -12,6 +12,7 @@ import { useState, useCallback, useRef } from 'react'
 import { StyleTabsOptions, StyleTabsOptionsRef } from './style-tabs-options'
 import styles from './style-card.module.css'
 import { motion, AnimatePresence } from 'framer-motion'
+import { toast } from '@/components/ui/use-toast'
 
 interface StyleCardProps {
   savedStyle: Style
@@ -21,6 +22,7 @@ interface StyleCardProps {
   onDelete?: (styleId: string) => Promise<void>
   onEdit?: () => void
   onCloseEdit?: () => void
+  onUpdate?: (updatedStyle: Style) => void
 }
 
 export function StyleCard({ 
@@ -30,7 +32,8 @@ export function StyleCard({
   className,
   onDelete,
   onEdit,
-  onCloseEdit
+  onCloseEdit,
+  onUpdate
 }: StyleCardProps) {
   // All hooks declarations first
   const { gender } = useUserGender();
@@ -80,14 +83,29 @@ export function StyleCard({
   const handleRemoveClick = useCallback(async (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsExiting(true);
+    
     // Wait for animation to complete before actually deleting
     setTimeout(async () => {
-      if (onDelete) {
-        await onDelete(savedStyle.id);
+      try {
+        if (onDelete) {
+          await onDelete(savedStyle.id);
+        }
+        setIsDeleteOverlayActive(false);
+      } catch (error) {
+        console.error('Failed to delete style:', error);
+        // Revert animation if deletion fails
+        setIsExiting(false);
+        // Keep delete overlay visible
+        setIsDeleteOverlayActive(true);
+        // Show error toast to user
+        toast({
+          title: 'Error',
+          description: 'Failed to delete style. Please try again.',
+          variant: 'destructive'
+        });
       }
-      setIsDeleteOverlayActive(false);
     }, 500); // Match this with animation duration
-  }, [onDelete, savedStyle.id]);
+  }, [onDelete, savedStyle.id, toast]);
   
   // Find the corresponding style configuration
   const styleConfig = styleConfigs?.find(
@@ -95,8 +113,8 @@ export function StyleCard({
   );
 
   // Conditional rendering after all hooks
-  if (!styleConfig) {
-    return null; // Or some fallback UI
+  if (!styleConfigs || !styleConfig) {
+    return <Card className={className}><div className={styles.loadingState}>Loading...</div></Card>;
   }
 
   // Merge saved style with style configuration
@@ -169,8 +187,10 @@ export function StyleCard({
             }}
             onAddToShoot={handleAddToShoot}
             onUpdate={(updatedStyle) => {
-              // Update the local savedStyle with new settings
-              savedStyle.settings = updatedStyle.settings;
+              onUpdate?.({
+                ...savedStyle,
+                settings: updatedStyle.settings
+              });
               setIsFlipped(false);
               onCloseEdit?.();
             }}

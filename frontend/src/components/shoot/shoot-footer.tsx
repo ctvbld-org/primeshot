@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import styles from './shoot-footer.module.css'
 import { Icon } from "../icons/icon"
+import { useState } from "react"
 
 interface ShootFooterProps {
   stylesCount: number
@@ -10,7 +11,7 @@ interface ShootFooterProps {
   extraStylesCount: number
   totalPhotosWithExtra: number
   upgradedPrice: number
-  onCheckout: () => void
+  onCheckout: () => Promise<void> | void
 }
 
 export function ShootFooter({
@@ -23,6 +24,17 @@ export function ShootFooter({
   onCheckout
 }: ShootFooterProps) {
   const totalPhotos = stylesCount * photosPerStyle
+  const [loading, setLoading] = useState(false)
+
+  const handleCheckout = async () => {
+    if (loading) return;
+    setLoading(true)
+    try {
+      await onCheckout?.()
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className={styles.footer}>
@@ -81,10 +93,11 @@ export function ShootFooter({
           </>
         )}
         <Button 
-          onClick={onCheckout}
+          onClick={handleCheckout}
           variant="primary"
           className={styles.checkoutButton}
-          disabled={stylesCount === 0}
+          disabled={stylesCount === 0 || loading}
+          loading={loading}
         >
           Checkout
         </Button>

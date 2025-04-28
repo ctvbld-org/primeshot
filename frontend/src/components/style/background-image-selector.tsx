@@ -6,6 +6,7 @@ import { StyleBackground, StylePhotographyStyle } from '@/lib/types'
 import { OptionsCarousel } from './options-carousel'
 import { getOptionsImage } from '@/lib/utils/get-options-image'
 import { useStyleConfigs, useOption } from '@/hooks/useConfig'
+import { useValidStyleOptions } from '@/lib/utils/style-validation'
 
 interface BackgroundImageSelectorProps {
   photographyStyle: StylePhotographyStyle;
@@ -23,6 +24,7 @@ export function BackgroundImageSelector({ photographyStyle, isCard }: Background
   const store = useStyleStore(photographyStyle)
   const settings = store((state) => state.settings)
   const setBackground = store((state) => state.setBackground)
+  const { data: validOptions, isLoading: isLoadingValidOptions } = useValidStyleOptions();
 
   // Query for styles and background options using custom hooks
   const { data: styles, isLoading: isLoadingStyles, error: stylesError } = useStyleConfigs();
@@ -43,21 +45,22 @@ export function BackgroundImageSelector({ photographyStyle, isCard }: Background
       imageUrl: option.imageUrl ? getOptionsImage(option.imageUrl) : ''
     }));
 
-  const isLoading = isLoadingStyles || isLoadingBackground;
+  const isLoading = isLoadingStyles || isLoadingBackground || isLoadingValidOptions;
   const error = stylesError || backgroundError;
 
   // Effect to reset selection if current choice becomes invalid
   useEffect(() => {
+    if (!validOptions) return;
     const needsUpdate = filteredBackgroundOptions.length > 0 && 
                        !filteredBackgroundOptions.some(opt => opt.id === settings.background);
     
     if (needsUpdate) {
       const defaultOption = filteredBackgroundOptions[0].id as StyleBackground;
       if (defaultOption !== settings.background) {
-        setBackground(defaultOption);
+        setBackground(defaultOption, validOptions);
       }
     }
-  }, [photographyStyle, filteredBackgroundOptions, settings.background, setBackground]);
+  }, [photographyStyle, filteredBackgroundOptions, settings.background, setBackground, validOptions]);
 
   if (isLoading) {
     return <div className="p-4">Loading background options...</div>;
@@ -79,7 +82,7 @@ export function BackgroundImageSelector({ photographyStyle, isCard }: Background
     <OptionsCarousel
       options={filteredBackgroundOptions}
       value={settings.background}
-      onChange={(value) => setBackground(value as StyleBackground)}
+      onChange={(value) => validOptions && setBackground(value as StyleBackground, validOptions)}
       forceMobile={isCard}
     />
   );

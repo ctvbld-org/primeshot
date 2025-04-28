@@ -1,6 +1,5 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
-import { type VariantProps } from "class-variance-authority"
 import styles from './button.module.css'
 import { cn } from "@/lib/utils"
 
@@ -51,6 +50,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             className={styles.spinner}
             viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg"
+            role="img"  
+            aria-label="Loading"  
+            aria-hidden="true" 
           >
             <circle
               className={styles.spinnerCircle}
