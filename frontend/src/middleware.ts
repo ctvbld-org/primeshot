@@ -75,9 +75,9 @@ export async function middleware(request: NextRequest) {
         }
       }
       
-      // Special handling for style routes (/app/style, /app/style/[id], /app/style/new)
-      const isStyleRoute = request.nextUrl.pathname === '/app/style' || 
-                                request.nextUrl.pathname.startsWith('/app/style/');
+      // Special handling for style routes (/app/styles)
+      const isStyleRoute = request.nextUrl.pathname === '/app/styles' || 
+                                request.nextUrl.pathname.startsWith('/app/styles/');
                                 
       if (isStyleRoute) {
         // Allow access to style routes if payment is NOT completed

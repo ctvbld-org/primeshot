@@ -1,8 +1,7 @@
 /**
  * Utility function to convert option image filenames to S3 URLs using our app-images API proxy
- * This is used for background and outfit images in the options.json file
  * 
- * @param filename The image filename from options.json
+ * @param filename The image filename
  * @returns A full URL to the image via our app-images API proxy
  */
 export function getOptionsImage(filename: string): string {

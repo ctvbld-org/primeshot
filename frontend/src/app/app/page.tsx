@@ -24,7 +24,7 @@ export default function AppHome() {
   }
 
   return (
-    <div className="space-y-6 mt-[80px]">
+    <div>
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Welcome back{user?.full_name ? `, ${user.full_name}` : ''}!</h2>
         <p className="text-muted-foreground">

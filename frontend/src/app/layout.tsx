@@ -4,10 +4,12 @@ import { Inter } from 'next/font/google'
 import { createBrowserClient } from '@supabase/ssr'
 import { useEffect, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
+import { Toaster } from 'react-hot-toast'
+import './globals.css'
+
 import { SupabaseProvider } from '@/components/providers/supabase-provider'
 import { AuthProvider } from '@/contexts/auth-context'
-import { Toaster } from '@/components/ui/toaster'
-import './globals.css'
+import { QueryProvider } from '@/components/providers/query-provider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -17,9 +19,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   const [session, setSession] = useState<Session | null>(null)
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  const [supabase] = useState(() =>
+    createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
   )
 
   useEffect(() => {
@@ -37,8 +41,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <SupabaseProvider session={session}>
           <AuthProvider>
-            {children}
-            <Toaster />
+            <QueryProvider>
+              {children}
+              <Toaster />
+            </QueryProvider>
           </AuthProvider>
         </SupabaseProvider>
       </body>

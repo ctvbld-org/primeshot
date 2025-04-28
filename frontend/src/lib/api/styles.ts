@@ -3,6 +3,7 @@ import { InsertStyle, Style, StyleStatus, UpdateStyle } from '@/lib/types'
 import { calculatePricing } from '@/lib/pricing'
 import { SupabaseClient } from '@supabase/supabase-js'
 import { logger } from '@/lib/logger'
+import type { Option, StyleId, OptionCategory } from '@/types/styles'
 
 /**
  * Save a new style to the database
@@ -14,7 +15,7 @@ export async function saveStyle(style: InsertStyle): Promise<Style> {
   // Generate a sequential name (Style 001, Style 002, etc.)
   const { count, error: countError } = await supabase
     .from('styles')
-    .select('*', { count: 'exact', head: true })
+    .select('id', { count: 'exact', head: true })
     .eq('user_id', style.user_id)
   
   if (countError) {
@@ -36,7 +37,7 @@ export async function saveStyle(style: InsertStyle): Promise<Style> {
   const { data, error } = await supabase
     .from('styles')
     .insert(styleWithSequentialName)
-    .select()
+    .select('id, user_id, order_id, name, settings, status, created_at, updated_at')
     .single()
     
   if (error) {
@@ -104,9 +105,10 @@ export async function getStyles(
   
   let query = supabase
     .from('styles')
-    .select('*')
+    .select('id, name, status, created_at, updated_at, settings, order_id, user_id') 
     .eq('user_id', userId)
   
+  // Restore optional filters and ordering
   // Add filters if provided
   if (options?.status) {
     query = query.eq('status', options.status)
@@ -127,10 +129,13 @@ export async function getStyles(
   const { data, error } = await query
   
   if (error) {
+    // Log the specific Supabase error
+    console.error("Supabase error in getStyles:", error);
     throw new Error(`Failed to fetch styles: ${error.message}`)
   }
   
-  return data as Style[]
+  // Revert cast back to Style[]
+  return data as Style[] 
 }
 
 /**
@@ -141,7 +146,7 @@ export async function getStyle(id: string, userId: string): Promise<Style> {
   
   const { data, error } = await supabase
     .from('styles')
-    .select('*')
+    .select('id, name, status, created_at, updated_at, settings, order_id, user_id')
     .eq('id', id)
     .eq('user_id', userId)
     .single()
@@ -159,16 +164,32 @@ export async function getStyle(id: string, userId: string): Promise<Style> {
 export async function updateStyle(style: UpdateStyle): Promise<Style> {
   const supabase = createClient()
   
+  if (!style.settings) {
+    throw new Error('Style settings are required for update')
+  }
+
+  const updatedSettings = {
+    background: style.settings.background,
+    clothing: style.settings.clothing,
+    clothingColor: style.settings.clothingColor,
+    photographyStyle: style.settings.photographyStyle
+  }
+
+  const updatePayload: Record<string, unknown> = {
+    settings: updatedSettings,
+    status: style.status,
+  };
+
+  if (typeof style.name === 'string') {
+    updatePayload.name = style.name;
+  }
+
   const { data, error } = await supabase
     .from('styles')
-    .update({
-      name: style.name,
-      settings: style.settings,
-      status: style.status
-    })
+    .update(updatePayload)
     .eq('id', style.id)
     .eq('user_id', style.user_id)
-    .select()
+    .select('id, user_id, order_id, name, settings, status, created_at, updated_at')
     .single()
     
   if (error) {
@@ -330,4 +351,75 @@ export async function updateStylesStatus(
   if (error) {
     throw new Error(`Failed to update styles status: ${error.message}`)
   }
-} 
+}
+
+export async function getAllStyles(): Promise<Style[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('styles')
+    .select('*')
+    .order('name');
+  if (error) throw error;
+  return data;
+}
+
+export async function getStyleById(id: StyleId): Promise<Style | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('styles')
+    .select('id, name, status, created_at, updated_at, settings, order_id, user_id')
+    .eq('id', id)
+    .single()
+
+    if (error) {  
+      throw new Error(`Failed to fetch all styles: ${error.message}`);  
+    }  
+  return data;
+}
+
+export async function getAllOptions(): Promise<Option[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('options')
+    .select('*')
+    .order('category');
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getOptionByCategory(category: OptionCategory): Promise<Option | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('options')
+    .select('*')
+    .eq('category', category)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Delete a style and handle notifications
+ */
+export async function handleStyleDeletion(
+  styleId: string, 
+  userId: string,
+  onSuccess: () => void,
+  toast: { success: (opts: { title: string; description: string }) => void; error: (opts: { title: string; description: string }) => void }
+): Promise<void> {
+  try {
+    await deleteStyle(styleId, userId);
+    onSuccess();
+    toast.success({
+      title: 'Success',
+      description: 'Style deleted successfully'
+    });
+  } catch (error) {
+    toast.error({
+      title: 'Error Deleting Style',
+      description: error instanceof Error ? error.message : 'Failed to delete style'
+    });
+  }
+}

@@ -2,23 +2,25 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/components/ui/use-toast'
 import { useAuth } from '@/contexts/auth-context'
 import { createClient } from '@/lib/supabase/client'
 import { Style, StyleStatus } from '@/lib/types'
 import { StyleCard } from '@/components/style/style-card'
 import { NewStyleCard } from '@/components/style/new-style-card'
-import { ArrowRightIcon } from '@heroicons/react/24/outline'
 import { useUserProgress } from '@/lib/hooks/use-user-progress'
-import { PhotographyStyleModal } from '@/components/style/photography-style-modal'
-import { getStyles, deleteStyle, calculateHeadshots } from '@/lib/api/styles'
-import { formatPrice, getTierDisplayText } from '@/lib/pricing'
-import { ProfileCompletionModal } from '@/components/profile/profile-completion-modal'
-import { getOrCreateDraftOrder } from '@/lib/api/orders'
+import { getStyles, deleteStyle, calculateHeadshots, handleStyleDeletion } from '@/lib/api/styles'
 import { useUserProfile } from '@/lib/hooks/use-user-profile'
 import { usePaymentFlow } from '@/lib/hooks/use-payment-flow'
+import { ProfileCompletionModal } from '@/components/profile/profile-completion-modal'
+import { ShootFooter } from '@/components/shoot/shoot-footer'
+import { PRICING } from '@/lib/constants/pricing'
+import stylesCSS from './page.module.css'
+import { motion } from 'framer-motion'
+import { type CarouselApi } from "@/components/ui/carousel"
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
+import React from 'react'
+import { cn } from '@/lib/utils'
 
 export default function StylesPage() {
   const router = useRouter()
@@ -27,11 +29,20 @@ export default function StylesPage() {
   const [styles, setStyles] = useState<Style[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { updateProgress, canModifyStyles, progress } = useUserProgress()
-  const [showStyleModal, setShowStyleModal] = useState(false)
   const [showProfileModal, setShowProfileModal] = useState(false)
   const supabase = createClient()
   const { fetchProfile } = useUserProfile()
   
+  // Add carousel API state
+  const [api, setApi] = React.useState<CarouselApi>()
+  const [current, setCurrent] = React.useState(0)
+  const [count, setCount] = React.useState(0)
+
+  // Replace showOverlay with activeEditId
+  const [activeEditId, setActiveEditId] = useState<string | null>(null)
+  const [isDraggingEnabled, setIsDraggingEnabled] = useState(true)
+
+
   // Headshot calculation state
   const [headshotInfo, setHeadshotInfo] = useState<{
     styleCount: number,
@@ -52,7 +63,7 @@ export default function StylesPage() {
     styles,
     headshotInfo
   })
-  
+
   // Check if user profile is complete
   useEffect(() => {
     if (!user) return;
@@ -115,32 +126,19 @@ export default function StylesPage() {
   }, [user, loadStyles]);
 
   // Function to handle style deletion
-  async function handleDeleteStyle(styleId: string) {
+  const handleDeleteStyle = async (styleId: string) => {
     if (!user) return;
 
-    try {
-      await deleteStyle(styleId, user.id);
-      
-      // Refresh the styles list
-      loadStyles();
-      
-      toast({
-        title: 'Success',
-        description: 'Style deleted successfully',
-      });
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to delete style',
-        variant: 'destructive'
-      });
-    }
-  }
-
-  const handleSelectStyle = (style: string) => {
-    // Navigate directly
-    router.push(`/app/style/new?style=${encodeURIComponent(style)}`);
-  }
+    await handleStyleDeletion(
+      styleId,
+      user.id,
+      () => setStyles((prevStyles) => prevStyles.filter((style) => style.id !== styleId)),
+      {
+        success: toast,
+        error: (opts: { title: string; description: string }) => toast({ ...opts, variant: 'destructive' })
+      }
+    );
+  };
 
   const handleProfileComplete = () => {
     setShowProfileModal(false);
@@ -148,108 +146,138 @@ export default function StylesPage() {
     loadStyles();
   }
 
+  // Add carousel effect
+  React.useEffect(() => {
+    if (!api) {
+      return
+    }
+
+    setCount(api.scrollSnapList().length)
+    setCurrent(api.selectedScrollSnap() + 1)
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap() + 1)
+    })
+  }, [api])
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight">Your Shoot</h2>
-        <p className="text-muted-foreground">
-          {progress?.current_stage === 'payment' ? 
-            'You can modify your styles before completing payment.' : 
-            'View and manage your shoot styles.'}
-        </p>
-      </div>
-      
-      {/* Pricing and headshot information card */}
-      {headshotInfo.styleCount > 0 && (
-        <Card className="bg-accent/20">
-          <CardHeader>
-            <CardTitle>Your Shoot Package</CardTitle>
-            <CardDescription>Based on your current style count</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <h4 className="text-sm font-medium">Styles</h4>
-                <p className="text-2xl font-bold">{headshotInfo.styleCount}</p>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium">Pricing Tier</h4>
-                <p className="text-2xl font-bold">{getTierDisplayText(headshotInfo.tier as any)}</p>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium">Total Shoots</h4>
-                <p className="text-2xl font-bold">{headshotInfo.totalHeadshots}</p>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium">Price</h4>
-                <p className="text-2xl font-bold">{formatPrice(headshotInfo.price)}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-      
-      {isLoading ? (
-        <div className="text-center py-8">Loading styles...</div>
-      ) : styles.length === 0 ? (
-        <div className="text-center py-12">
-          <h3 className="text-xl font-semibold mb-2">No styles yet</h3>
-          <p className="text-muted-foreground mb-6">Start by creating a new style.</p>
-          <div className="grid place-items-center">
-            <div className="max-w-sm w-full">
-              <NewStyleCard onClick={() => setShowStyleModal(true)} />
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          <NewStyleCard onClick={() => setShowStyleModal(true)} />
-          
-          {styles.map((style) => (
-            <StyleCard
-              key={style.id}
-              style={style}
-              onClick={() => router.push(`/app/style/${style.id}`)}
-              onDelete={() => handleDeleteStyle(style.id)}
-              headshotsPerStyle={headshotInfo.headshotsPerStyle}
-            />
-          ))}
-        </div>
-      )}
+    <>
+      <motion.div 
+        className={`${stylesCSS['card-wrapper']} wrapper ${styles.length === 0 && stylesCSS['scrollable']}`}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
+        {isLoading ? (
+          <div className="text-center py-8">Loading styles...</div>
+        ) : styles.length === 0 ? (
+          <>
+            <div className={stylesCSS['fake-card']}></div>
+            <div className={stylesCSS['fake-card']}></div>
+            <div className={stylesCSS['fake-card']}></div>
+            <NewStyleCard className="h-[608px] max-h-[calc(100% - 120px)]" onClick={() => router.push('/app/styles')} />
+            <div className={stylesCSS['fake-card']}></div>
+            <div className={stylesCSS['fake-card']}></div>
+            <div className={stylesCSS['fake-card']}></div>
+          </>
+        ) : (
+          <Carousel
+            setApi={setApi}
+            opts={{
+              align: "start",
+              containScroll: false,
+              dragFree: true,
+              loop: false,
+              watchDrag: isDraggingEnabled,
+              breakpoints: {
+                '(max-width: 600px)': {
+                  dragFree: false,
+                  align: "start",
+                  slidesToScroll: 1
+                }
+              }
+            }}
+            className={stylesCSS['carousel']}
+            aria-label="Photography style options"  
+            aria-roledescription="carousel" 
+          >
+            <CarouselContent>
+              <CarouselItem className={cn(
+                "basis-[386px] pl-6",
+                activeEditId && "disabled-card"
+              )} aria-label="Create new style" >
+                <NewStyleCard className="h-[98%] max-h-none" onClick={() => router.push('/app/styles')} />
+              </CarouselItem>
+              
+              {styles.map((style) => (
+                <CarouselItem 
+                  key={style.id}
+                  className={cn(
+                    "basis-[386px] pl-6",
+                    activeEditId === style.id ? "editing-card" : activeEditId ? "disabled-card" : ""
+                  )}
+                  aria-label="Edit style"
+                >
+                  <StyleCard
+                    savedStyle={style}
+                    headshotsPerStyle={headshotInfo.headshotsPerStyle}
+                    onDelete={handleDeleteStyle}
+                    onEdit={() => {
+                      setActiveEditId(style.id);
+                      setIsDraggingEnabled(false);
+                    }}
+                    onCloseEdit={() => {
+                      setActiveEditId(null);
+                      setIsDraggingEnabled(true);
+                      // Refresh styles after closing edit mode
+                      loadStyles();
+                    }}
+                  />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className={`${stylesCSS['carousel-previous']}`} />
+            <CarouselNext className={`${stylesCSS['carousel-next']}`} />
+          </Carousel>
+        )}
 
-      {/* Action buttons */}
-      <div className="flex justify-end pt-6">
-        <Button 
-          size="lg"
-          className="w-full sm:w-auto"
-          disabled={headshotInfo.styleCount === 0 || isLoading || isPaymentLoading}
-          onClick={async () => {
-            if (!user) {
-              toast({ title: 'Error', description: 'User not logged in.', variant: 'destructive' });
-              return;
-            }
-            if (headshotInfo.styleCount > 0) {
-              await proceedToPayment();
-            }
-          }}
-        >
-          {isLoading || isPaymentLoading ? 'Processing...' : 'Next: Payment'} 
-          <ArrowRightIcon className="h-4 w-4 ml-2" />
-        </Button>
-      </div>
+        <ProfileCompletionModal
+          isOpen={showProfileModal}
+          onComplete={handleProfileComplete}
+          user={user}
+        />
+      </motion.div>
 
-      {/* Modals */}
-      <PhotographyStyleModal
-        isOpen={showStyleModal}
-        onClose={() => setShowStyleModal(false)}
-        onSelectStyle={handleSelectStyle}
+      {/* Fixed Footer - Always show it */}
+      <ShootFooter
+        stylesCount={headshotInfo.styleCount}
+        photosPerStyle={headshotInfo.headshotsPerStyle}
+        basePrice={headshotInfo.price}
+        extraStylesCount={
+          headshotInfo.styleCount === 1 ? 2 :  // Individual -> Professional (2 extra)
+          headshotInfo.styleCount <= 3 ? 3 :   // Professional -> Studio (3 extra)
+          1                                     // Studio -> Studio + 1
+        }
+        totalPhotosWithExtra={
+          headshotInfo.styleCount === 1 ? PRICING.professional.totalHeadshots :  // Individual -> Professional
+          headshotInfo.styleCount <= 3 ? PRICING.studio.totalHeadshots :         // Professional -> Studio
+          headshotInfo.totalHeadshots + PRICING.addon.headshots                  // Studio -> Studio + addon
+        }
+        upgradedPrice={
+          headshotInfo.styleCount === 1 ? PRICING.professional.price / 100 :  // Individual -> Professional
+          headshotInfo.styleCount <= 3 ? PRICING.studio.price / 100 :         // Professional -> Studio
+          headshotInfo.price / 100 + PRICING.addon.price / 100               // Studio -> Studio + addon
+        }
+        onCheckout={async () => {
+          if (!user) {
+            toast({ title: 'Error', description: 'User not logged in.', variant: 'destructive' });
+            return;
+          }
+          if (headshotInfo.styleCount > 0) {
+            await proceedToPayment();
+          }
+        }}
       />
-      
-      <ProfileCompletionModal
-        isOpen={showProfileModal}
-        onComplete={handleProfileComplete}
-        user={user}
-      />
-    </div>
+    </>
   )
 } 

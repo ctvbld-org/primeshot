@@ -1,22 +1,60 @@
-import { Card, CardContent } from '@/components/ui/card'
-import { PlusIcon } from '@heroicons/react/24/outline'
+import Image from 'next/image'
+import { Button } from '@/components/ui/button'
+import styles from './new-style-card.module.css'
+import { Icon } from '@/components/icons/icon'
 
 interface NewStyleCardProps {
-  onClick?: () => void
+  onClick: () => void,
+  className?: string
 }
 
-export function NewStyleCard({ onClick }: NewStyleCardProps) {
+export function NewStyleCard({ 
+  onClick,
+  className
+}: NewStyleCardProps) {
   return (
-    <Card 
-      className="flex items-center justify-center h-full min-h-[240px] hover:bg-accent/50 transition-colors cursor-pointer border-dashed"
-      onClick={onClick}
-    >
-      <CardContent className="flex flex-col items-center justify-center p-6">
-        <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-          <PlusIcon className="h-6 w-6" />
+    <div className={`${styles['empty-state-card']} ${className}`} onClick={onClick} role="region" aria-label="Add new style card" >
+      <div className={styles['top-card']}>
+        <Image
+          src="/add-new-style.png"
+          alt="Add new style"
+          width={156}
+          height={156}
+          className={styles['tshirt-image']}
+          priority
+        />
+      </div>
+      <div className={styles['bottom-card']}>
+        <div className={styles['icon-group']}>
+          <Icon
+            variant="background"
+            size={20}
+            className={styles.icon}
+            aria-hidden="true"
+          />
+          <Icon
+            variant="clothingColor"
+            size={20}
+            className={styles.icon}
+            aria-hidden="true"
+          />
+          <Icon
+            variant="clothing"
+            size={20}
+            className={styles.icon}
+            aria-hidden="true"
+          />
         </div>
-        <p className="mt-2 font-medium">New Style</p>
-      </CardContent>
-    </Card>
+
+        <p className={styles.text}>
+          Choose your photographic style,<br />
+          background and clothing.
+        </p>
+
+        <Button variant="outline" className={`${styles['add-style']} pointer-events-none`} aria-label="Add a new photography style">
+          Add Style
+        </Button>
+      </div>
+    </div>
   )
 } 

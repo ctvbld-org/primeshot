@@ -1,0 +1,66 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+- **Image URL Handling**
+  - Always use `getOptionsImage` utility for option images from `options.json`
+  ```typescript
+  // ✅ DO: Use getOptionsImage for option image URLs
+  import { getOptionsImage } from '@/lib/utils/get-options-image'
+  
+  <Image
+    src={getOptionsImage(optionData.imageUrl)}
+    alt={optionData.label}
+  />
+  
+  // ❌ DON'T: Use raw image paths from options.json
+  <Image
+    src={optionData.imageUrl}  // This will fail for relative paths
+    alt={optionData.label}
+  />
+  ```
+
+- **URL Processing Rules**
+  - All image paths in `options.json` should be either:
+    - Relative paths from `app-images/placeholders/options/`
+    - Full URLs (starting with http:// or https://)
+  ```json
+  // ✅ DO: Use relative paths or full URLs
+  {
+    "imageUrl": "bg-plain.jpg",           // Relative to options folder
+    "imageUrl": "https://example.com/img" // Full URL
+  }
+  
+  // ❌ DON'T: Use absolute paths or other formats
+  {
+    "imageUrl": "/images/bg-plain.jpg",   // Wrong path format
+    "imageUrl": "public/images/bg.jpg"    // Wrong path format
+  }
+  ```
+
+- **Implementation Details**
+  - `getOptionsImage` handles:
+    - Converting relative paths to full URLs via app-images API proxy
+    - Preserving existing full URLs
+    - Adding proper base URL from environment
+    - URL encoding for special characters
+  ```typescript
+  // Example implementation
+  getOptionsImage('bg-plain.jpg')
+  // → '/api/app-images?path=app-images%2Fplaceholders%2Foptions%2Fbg-plain.jpg'
+  
+  getOptionsImage('https://example.com/img')
+  // → 'https://example.com/img'
+  ```
+
+- **Common Issues**
+  - Next.js Image component requires:
+    - Absolute URLs (http:// or https://)
+    - Paths starting with forward slash (/)
+  - Raw paths from `options.json` will fail validation
+  - Missing `getOptionsImage` will cause build/runtime errors
+
+- **Related Rules**
+  - See [project_structure.mdc](mdc:.cursor/rules/project_structure.mdc) for file organization
+  - See [cursor_rules.mdc](mdc:.cursor/rules/cursor_rules.mdc) for rule formatting 

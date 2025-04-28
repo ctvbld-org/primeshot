@@ -1,105 +1,203 @@
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
+import { Icon } from '@/components/icons/icon'
 import { Style } from '@/lib/types'
-import { formatDistanceToNow } from 'date-fns'
-import { TrashIcon, CameraIcon } from '@heroicons/react/24/outline'
+import { cn } from '@/lib/utils'
+import { StyleDetails } from './style-details'
+import { getStyleImages } from '@/lib/utils/get-styles-images'
+import { useUserGender } from '@/lib/hooks/use-user-gender'
+import { useStyleConfigs } from '@/hooks/useConfig'
+import { FlipCard } from './flip-card'
+import { useState, useCallback, useRef } from 'react'
+import { StyleTabsOptions, StyleTabsOptionsRef } from './style-tabs-options'
+import styles from './style-card.module.css'
+import { motion, AnimatePresence } from 'framer-motion'
+import { toast } from '@/components/ui/use-toast'
 
 interface StyleCardProps {
-  style: Style
+  savedStyle: Style
   onClick?: () => void
-  onDelete?: () => void
   headshotsPerStyle?: number
+  className?: string
+  onDelete?: (styleId: string) => Promise<void>
+  onEdit?: () => void
+  onCloseEdit?: () => void
+  onUpdate?: (updatedStyle: Style) => void
 }
 
 export function StyleCard({ 
-  style, 
+  savedStyle, 
   onClick, 
+  headshotsPerStyle = 20,
+  className,
   onDelete,
-  headshotsPerStyle 
+  onEdit,
+  onCloseEdit,
+  onUpdate
 }: StyleCardProps) {
+  // All hooks declarations first
+  const { gender } = useUserGender();
+  const { data: styleConfigs } = useStyleConfigs();
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleteOverlayActive, setIsDeleteOverlayActive] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
+  const styleTabsRef = useRef<StyleTabsOptionsRef>(null);
+  
+  // Handle flip - apply settings when card starts flipping to back
+  const handleFlip = useCallback(() => {
+    if (!isFlipped) {
+      // Card is flipping to back (about to show backContent)
+      // Apply the prop settings immediately
+      console.log("Card is flipping to back, applying settings");
+      styleTabsRef.current?.applyPropSettings();
+      onEdit?.();
+    } else {
+      onCloseEdit?.();
+    }
+    setIsFlipped(!isFlipped);
+  }, [isFlipped, onEdit, onCloseEdit]);
+  
+  // Handle add to shoot
+  const handleAddToShoot = useCallback(async (style: Style) => {
+    setIsSaving(true);
+    // Add your shoot logic here
+    setIsSaving(false);
+    setIsFlipped(false);
+    if (onClick) onClick();
+  }, [onClick]);
+
+  // Handle delete button click
+  const handleDeleteClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsDeleteOverlayActive(true);
+  }, []);
+
+  // Handle keep button click
+  const handleKeepClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsDeleteOverlayActive(false);
+  }, []);
+
+  // Handle remove button click
+  const handleRemoveClick = useCallback(async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsExiting(true);
+    
+    // Wait for animation to complete before actually deleting
+    setTimeout(async () => {
+      try {
+        if (onDelete) {
+          await onDelete(savedStyle.id);
+        }
+        setIsDeleteOverlayActive(false);
+      } catch (error) {
+        console.error('Failed to delete style:', error);
+        // Revert animation if deletion fails
+        setIsExiting(false);
+        // Keep delete overlay visible
+        setIsDeleteOverlayActive(true);
+        // Show error toast to user
+        toast({
+          title: 'Error',
+          description: 'Failed to delete style. Please try again.',
+          variant: 'destructive'
+        });
+      }
+    }, 500); // Match this with animation duration
+  }, [onDelete, savedStyle.id, toast]);
+  
+  // Find the corresponding style configuration
+  const styleConfig = styleConfigs?.find(
+    config => config.id === savedStyle.settings.photographyStyle
+  );
+
+  // Conditional rendering after all hooks
+  if (!styleConfigs || !styleConfig) {
+    return <Card className={className}><div className={styles.loadingState}>Loading...</div></Card>;
+  }
+
+  // Merge saved style with style configuration
+  const mergedStyle = {
+    ...savedStyle,
+    tagline: styleConfig.tagline || undefined,
+    description: styleConfig.description || '',
+    genderSpecificImages: getStyleImages(styleConfig.preview_images || [], gender || undefined)
+  };
+
   return (
-    <Card 
-      className="hover:bg-accent/50 transition-colors cursor-pointer group relative"
-      onClick={onClick}
+    <motion.div
+      initial={{ opacity: 1, y: 0 }}
+      animate={{ opacity: isExiting ? 0 : 1, y: isExiting ? -600 : 0 }}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
     >
-      {onDelete && (
-        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="destructive"
-                size="icon"
-                className="h-8 w-8"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <TrashIcon className="h-4 w-4" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete Style</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to delete this style? This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel onClick={(e) => e.stopPropagation()}>
-                  Cancel
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onDelete()
-                  }}
-                >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      )}
-      <CardHeader>
-        <CardTitle>{style.name}</CardTitle>
-        <CardDescription>
-          Created {formatDistanceToNow(new Date(style.created_at))} ago
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2 text-sm">
-          <div>
-            <span className="font-medium">Photography Style:</span>{' '}
-            {style.settings.photographyStyle}
+      <FlipCard
+        className={cn(
+          styles.card,
+          className
+        )}
+        isFlipped={isFlipped}
+        frontContent={
+          <div className={styles.frontContent}>
+            <div className={styles.deleteButton}>
+              <button className={styles.deleteButtonInner} onClick={handleDeleteClick}>
+                <Icon variant="bin" size={22} />
+              </button>
+            </div>
+            <StyleDetails
+              style={mergedStyle}
+              index={0}
+              onCustomize={handleFlip}
+              setIsNavigating={() => {}}
+              headshotsPerStyle={headshotsPerStyle}
+              isCard
+            />
+            <div className={cn(styles.deleteOverlay, isDeleteOverlayActive && styles.active)}>
+              <div className={styles.deleteOverlayInner}>
+                <span className={styles.deleteIcon}>
+                  <Icon variant="bin" size={32} />
+                </span>
+                <p className={styles.deleteText}>
+                  Are you sure you want to remove this style from your shoot?
+                </p>
+                <div className={styles.deleteActions}>
+                  <Button variant="ghost" size="md" className={styles.keepButton} onClick={handleKeepClick}>
+                    Keep it
+                  </Button>
+                  <Button variant="destructive" size="md" className={styles.removeButton} onClick={handleRemoveClick}>
+                    Remove
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <span className="font-medium">Outfit:</span>{' '}
-            {style.settings.outfit}
-          </div>
-          <div>
-            <span className="font-medium">Background:</span>{' '}
-            {style.settings.background}
-          </div>
-        </div>
-      </CardContent>
-      {headshotsPerStyle ? (
-        <CardFooter className="pt-0">
-          <div className="flex items-center text-sm text-muted-foreground">
-            <CameraIcon className="h-4 w-4 mr-1" />
-            <span>{headshotsPerStyle} headshots</span>
-          </div>
-        </CardFooter>
-      ) : null}
-    </Card>
-  )
+        }
+        backContent={
+          <StyleTabsOptions
+            ref={styleTabsRef}
+            style={{
+              ...styleConfig,
+              styleId: savedStyle.id
+            }}
+            settings={savedStyle.settings}
+            isSaving={isSaving}
+            onClose={() => {
+              setIsFlipped(false);
+              onCloseEdit?.();
+            }}
+            onAddToShoot={handleAddToShoot}
+            onUpdate={(updatedStyle) => {
+              onUpdate?.({
+                ...savedStyle,
+                settings: updatedStyle.settings
+              });
+              setIsFlipped(false);
+              onCloseEdit?.();
+            }}
+            isCard
+          />
+        }
+      />
+    </motion.div>
+  );
 } 

@@ -23,9 +23,7 @@ export function getStyleImages(
   }
   
   // Determine which gender folder to use
-  const genderFolder = gender && gender !== 'other' 
-    ? gender 
-    : 'default';
+  const genderFolder = gender ? gender : 'male';
   
   // Map each image to its gender-specific path
   return images.map(img => {

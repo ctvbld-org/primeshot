@@ -1,3 +1,21 @@
+// Style-related types
+export type StylePhotographyStyle = string
+export type StyleBackground = string
+export type StyleClothing = string
+export type StyleClothingColor = string
+export type Gender = 'male' | 'female'
+export type StyleStatus = 'draft' | 'pending' | 'processing' | 'completed'
+
+export interface StyleSettings {
+  photographyStyle: StylePhotographyStyle
+  background: StyleBackground
+  clothing: StyleClothing
+  clothingColor?: StyleClothingColor
+  gender?: Gender
+  customSettings?: Record<string, any>
+}
+
+// Database entity types
 export type User = {
   id: string
   email: string
@@ -7,49 +25,12 @@ export type User = {
   updated_at: string
 }
 
-export type Gender = 'male' | 'female'
-
 export type Session = {
   id: string
   user_id: string
   created_at: string
   expires_at: string
 }
-
-export type StyleOutfit = 
-  | 'professional' 
-  | 'casual' 
-  | 'creative'
-  | 'business-casual'
-  | 'startup'
-  | 'formal'
-  | 'tech'
-export type StyleBackground = 
-  | 'plain'
-  | 'office'
-  | 'outdoor'
-  | 'bookshelf'
-  | 'cafe'
-  | 'studio'
-  | 'gradient'
-  | 'cityscape'
-  | 'abstract'
-  | 'brick'
-  | 'nature'
-  | 'tech'
-  | 'custom'
-// IMPORTANT: This should match the IDs in lib/config/styles.json which is the source of truth
-export type StylePhotographyStyle = 
-  | 'studio' 
-  | 'studio-2'
-  | 'business-portrait'
-  | 'business-portrait-2'
-  | 'outdoor-fashion'
-  | 'outdoor-fashion-2'
-export type StyleStatus = 'draft' | 'pending' | 'processing' | 'completed'
-
-// TODO: Define specific color options, e.g., using Tailwind color names or hex codes
-export type StyleOutfitColor = string // Example: 'blue-500', '#ffffff', 'black'
 
 export type OrderStatus = 
   | 'draft'           // Initial state when creating styles
@@ -71,15 +52,6 @@ export type Order = {
   created_at: string
   updated_at: string
   metadata: Record<string, any>
-}
-
-export type StyleSettings = {
-  photographyStyle: StylePhotographyStyle
-  outfit: StyleOutfit
-  background: StyleBackground
-  outfitColor?: StyleOutfitColor
-  gender?: Gender
-  customSettings?: Record<string, any>
 }
 
 export type Style = {

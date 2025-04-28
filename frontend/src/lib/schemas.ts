@@ -21,29 +21,17 @@ export const sessionSchema = z.object({
 
 // Detailed style settings validation
 const styleSettingsSchema = z.object({
-  photographyStyle: z.enum([
-    'studio', 
-    'studio-2',
-    'business-portrait',
-    'business-portrait-2',
-    'outdoor-fashion',
-    'outdoor-fashion-2'
-  ], {
-    errorMap: () => ({ message: 'Invalid photography style selection' })
+  photographyStyle: z.string({
+    required_error: "Photography style is required",
+    invalid_type_error: "Photography style must be a string"
   }),
-  outfit: z.enum([
-    'professional',
-    'casual',
-    'creative',
-    'business-casual',
-    'startup',
-    'formal',
-    'tech'
-  ], {
-    errorMap: () => ({ message: 'Invalid outfit selection' })
+  clothing: z.string({
+    required_error: "Clothing option is required",
+    invalid_type_error: "Clothing option must be a string"
   }),
-  background: z.enum(['plain', 'office', 'outdoor', 'bookshelf', 'cafe', 'studio', 'gradient', 'cityscape', 'abstract', 'brick', 'nature', 'tech'], {
-    errorMap: () => ({ message: 'Invalid background selection' })
+  background: z.string({
+    required_error: "Background option is required",
+    invalid_type_error: "Background option must be a string"
   }),
   customSettings: z.record(z.string(), z.any()).optional(),
 });

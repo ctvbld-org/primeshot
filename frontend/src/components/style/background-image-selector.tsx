@@ -1,99 +1,89 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useStyleStore } from '@/store/style'
 import { StyleBackground, StylePhotographyStyle } from '@/lib/types'
-import { Card, CardContent } from '@/components/ui/card'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Label } from '@/components/ui/label'
-import Image from 'next/image'
-import { cn } from '@/lib/utils'
+import { OptionsCarousel } from './options-carousel'
 import { getOptionsImage } from '@/lib/utils/get-options-image'
-// Import configuration files
-import stylesConfig from '@/lib/config/styles.json' assert { type: "json" };
-import optionsConfig from '@/lib/config/options.json' assert { type: "json" };
+import { useStyleConfigs, useOption } from '@/hooks/useConfig'
+import { useValidStyleOptions } from '@/lib/utils/style-validation'
 
 interface BackgroundImageSelectorProps {
   photographyStyle: StylePhotographyStyle;
+  isCard?: boolean;
 }
 
-export function BackgroundImageSelector({ photographyStyle }: BackgroundImageSelectorProps) {
-  const { settings, setBackground } = useStyleStore();
+// Type for the OptionsCarousel component
+interface CarouselOption {
+  id: string;
+  label: string;
+  imageUrl: string;
+}
+
+export function BackgroundImageSelector({ photographyStyle, isCard }: BackgroundImageSelectorProps) {
+  const store = useStyleStore(photographyStyle)
+  const settings = store((state) => state.settings)
+  const setBackground = store((state) => state.setBackground)
+  const { data: validOptions, isLoading: isLoadingValidOptions } = useValidStyleOptions();
+
+  // Query for styles and background options using custom hooks
+  const { data: styles, isLoading: isLoadingStyles, error: stylesError } = useStyleConfigs();
+  const { data: backgroundOptions, isLoading: isLoadingBackground, error: backgroundError } = useOption('background');
 
   // Find the current style configuration
-  const currentStyleConfig = stylesConfig.find(style => style.id === photographyStyle);
+  const currentStyleConfig = styles?.find(style => style.id === photographyStyle);
 
   // Get the list of available background IDs for the current style
-  const availableBackgroundIds = currentStyleConfig?.availableBackgrounds || [];
+  const availableBackgroundIds = currentStyleConfig?.available_backgrounds || [];
 
-  // Filter the master list of backgrounds based on availability
-  const filteredBackgroundOptions = optionsConfig.backgrounds.filter(option => 
-    availableBackgroundIds.includes(option.id)
-  );
+  // Filter and transform the background options based on availability
+  const filteredBackgroundOptions: CarouselOption[] = (backgroundOptions?.options || [])
+    .filter(option => availableBackgroundIds.includes(option.id))
+    .map(option => ({
+      id: option.id,
+      label: option.label,
+      imageUrl: option.imageUrl ? getOptionsImage(option.imageUrl) : ''
+    }));
 
-  // Handle cases where the currently selected background in the store
-  // might not be available for the *newly selected* style.
-  // If the stored background isn't available, select the first available one.
-  React.useEffect(() => {
-    if (filteredBackgroundOptions.length > 0 && 
-        !filteredBackgroundOptions.some(opt => opt.id === settings.background)) {
-      setBackground(filteredBackgroundOptions[0].id as StyleBackground);
+  const isLoading = isLoadingStyles || isLoadingBackground || isLoadingValidOptions;
+  const error = stylesError || backgroundError;
+
+  // Effect to reset selection if current choice becomes invalid
+  useEffect(() => {
+    if (!validOptions) return;
+    const needsUpdate = filteredBackgroundOptions.length > 0 && 
+                       !filteredBackgroundOptions.some(opt => opt.id === settings.background);
+    
+    if (needsUpdate) {
+      const defaultOption = filteredBackgroundOptions[0].id as StyleBackground;
+      if (defaultOption !== settings.background) {
+        setBackground(defaultOption, validOptions);
+      }
     }
-    // Only run this effect if the available options change (i.e., photographyStyle changes)
-  }, [photographyStyle, settings.background, setBackground, filteredBackgroundOptions]); 
+  }, [photographyStyle, filteredBackgroundOptions, settings.background, setBackground, validOptions]);
+
+  if (isLoading) {
+    return <div className="p-4">Loading background options...</div>;
+  }
+
+  if (error) {
+    return <div className="p-4 text-red-500">Error: {error instanceof Error ? error.message : 'Failed to load options'}</div>;
+  }
 
   if (!currentStyleConfig) {
-    return <div>Error: Invalid photography style selected.</div>; // Or some other error handling
+    return <div className="p-4 text-red-500">Error: Invalid photography style selected.</div>;
   }
 
   if (filteredBackgroundOptions.length === 0) {
-    return <div>No background options available for {photographyStyle} style.</div>;
+    return <div className="p-4">No background options available for {photographyStyle} style.</div>;
   }
-
+  
   return (
-    <RadioGroup
+    <OptionsCarousel
+      options={filteredBackgroundOptions}
       value={settings.background}
-      onValueChange={(value) => setBackground(value as StyleBackground)}
-      className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
-    >
-      {filteredBackgroundOptions.map((option) => (
-        <div key={option.id}>
-          <RadioGroupItem
-            value={option.id}
-            id={`bg-${option.id}`}
-            className="peer sr-only"
-          />
-          <Label
-            htmlFor={`bg-${option.id}`}
-            className={cn(
-              "block rounded-lg border-2 border-muted bg-popover p-1 hover:bg-accent hover:text-accent-foreground cursor-pointer",
-              "peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-            )}
-          >
-            <Card className="overflow-hidden border-none shadow-none">
-              <CardContent className="p-0">
-                <div className="relative aspect-video w-full">
-                  <Image
-                    src={getOptionsImage(option.imageUrl)} 
-                    alt={option.label}
-                    fill
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/30 opacity-0 peer-data-[state=checked]:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-white">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="p-2 text-center">
-                  <p className="text-sm font-medium truncate">{option.label}</p>
-                </div>
-              </CardContent>
-            </Card>
-          </Label>
-        </div>
-      ))}
-    </RadioGroup>
+      onChange={(value) => validOptions && setBackground(value as StyleBackground, validOptions)}
+      forceMobile={isCard}
+    />
   );
 } 

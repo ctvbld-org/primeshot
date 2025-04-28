@@ -3,18 +3,11 @@ import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 /**
- * API Route: /api/app-images
- * 
- * Generic proxy for accessing images from the app-images folder in S3.
- * Takes a path parameter for the S3 object and returns the image data directly.
- * Does not require authentication but validates paths for security.
- * Used for all application images including:
- * - Style preview images
- * - Background option thumbnails
- * - Outfit option thumbnails
- * - Other application assets
- * 
- * This approach is compatible with Next.js Image component.
+ * API route for proxying S3 image requests through our server
+ * This is used for:
+ * - Background thumbnails
+ * - Clothing option thumbnails
+ * - Generated headshots
  */
  
 // Validate required environment variables

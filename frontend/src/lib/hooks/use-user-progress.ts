@@ -100,8 +100,8 @@ export function useUserProgress() {
       }
 
       const stageOrder: FlowStage[] = ['shoot', 'payment', 'upload', 'review', 'dashboard'];
-      const existingStages: FlowStage[] = existingProgress?.completed_stages || [];
-      const currentActualStage = existingProgress?.current_stage || 'shoot';
+      const existingStages: (FlowStage[] | string[]) = existingProgress?.completed_stages || [];
+      const currentActualStage = (existingProgress?.current_stage || 'shoot') as FlowStage;
 
       // Determine the new set of completed stages
       let completedStages = Array.from(new Set(existingStages));
@@ -173,7 +173,8 @@ export function useUserProgress() {
         .from('completed_user_journeys')
         .insert({
           user_id: session.user.id,
-          journey_data: progress
+          journey_data: progress,
+          completed_at: new Date().toISOString()
         })
 
       // Delete progress
@@ -196,7 +197,7 @@ export function useUserProgress() {
     const stageOrder: FlowStage[] = ['shoot', 'payment', 'upload', 'review', 'dashboard']
     const currentPageIndex = stageOrder.indexOf(pageStage)
     const maxCompletedIndex = Math.max(
-      ...progress.completed_stages.map((s: FlowStage) => stageOrder.indexOf(s)),
+      ...((progress.completed_stages as FlowStage[]) || []).map(s => stageOrder.indexOf(s)),
       -1 // Start at -1 if nothing is completed
     )
 

@@ -2,12 +2,12 @@
 
 ## Overview
 
-This application uses a single source of truth for all photography styles, outfits, backgrounds, and color options. The configuration files in `src/lib/config/` define all available options, and the TypeScript types are generated from these configurations.
+This application uses a single source of truth for all photography styles, clothing, backgrounds, and color options. The configuration files in `src/lib/config/` define all available options, and the TypeScript types are generated from these configurations.
 
 ## Key Files
 
 - **`src/lib/config/styles.json`**: The primary source of truth for photography styles and their available options
-- **`src/lib/config/options.json`**: Contains the full set of options for backgrounds, outfits, and colors
+- **`src/lib/config/options.json`**: Contains the full set of options for backgrounds, clothing, and colors
 - **`src/lib/generated-types.ts`**: Auto-generated TypeScript types based on the configuration files
 - **`src/scripts/generate-types.ts`**: Script that generates the types
 - **`src/lib/utils/get-styles-images.ts`**: Utility to handle gender-specific image paths
@@ -32,8 +32,8 @@ The `styles.json` file defines photography styles with this structure:
     ],
     "availableGenders": ["male", "female"],
     "availableBackgrounds": ["plain", "studio", "gradient", "brick"],
-    "availableOutfits": ["professional", "business-casual"],
-    "availableOutfitColors": ["#000000", "#FFFFFF", "#6B7280", "#3B82F6"]
+    "availableClothing": ["professional", "business-casual"],
+    "availableClothingColor": ["#000000", "#FFFFFF", "#6B7280", "#3B82F6"]
   },
   ...
 ]
@@ -47,11 +47,11 @@ The `options.json` file defines all available options:
     { "id": "plain", "label": "Plain", "imageUrl": "..." },
     ...
   ],
-  "outfits": [
+  "availableClothing": [
     { "id": "professional", "label": "Professional Suit", "imageUrl": "..." },
     ...
   ],
-  "outfitColors": [
+  "availableClothingColor": [
     { "id": "#000000", "label": "Black" },
     ...
   ]
@@ -164,8 +164,8 @@ The generated types ensure type safety across the application while allowing the
      "previewImages": ["image1.jpg", "image2.jpg"],
      "availableGenders": ["male", "female"],
      "availableBackgrounds": ["background1", "background2"],
-     "availableOutfits": ["outfit1", "outfit2"],
-     "availableOutfitColors": ["#color1", "#color2"]
+     "availableClothing": ["outfit1", "outfit2"],
+     "availableClothingColor": ["#color1", "#color2"]
    }
    ```
 
@@ -176,7 +176,7 @@ The generated types ensure type safety across the application while allowing the
 
 3. Run `npm run generate-types` to update the TypeScript types
 
-### Adding a New Background, Outfit, or Color
+### Adding a New Background, Clothing, or Color
 
 1. Add a new entry to the appropriate array in `options.json`
 2. Add the ID to the relevant style's available options in `styles.json`
@@ -187,7 +187,7 @@ The generated types ensure type safety across the application while allowing the
 The application validates the configuration at runtime during development to ensure:
 
 1. All style IDs in `styles.json` match the generated TypeScript types
-2. All background, outfit, and color options referenced in styles exist in `options.json`
+2. All background, clothing, and color options referenced in styles exist in `options.json`
 3. No invalid options are used
 4. Styles are filtered based on user's gender to only show applicable options
 
@@ -199,8 +199,8 @@ The following components use the configuration:
 
 - `PhotographyStyleModal`: Displays style selection in a grid layout
 - `BackgroundImageSelector`: Shows available backgrounds for the selected style
-- `OutfitImageSelector`: Shows available outfits for the selected style
-- `OutfitColorSelector`: Shows available colors for the selected style
+- `ClothingImageSelector`: Shows available clothing for the selected style
+- `ClothingColorSelector`: Shows available colors for the selected style
 
 These components automatically filter options based on the selected photography style and user gender.
 
