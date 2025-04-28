@@ -1,0 +1,46 @@
+{
+  "common": {
+    "title": "Subir Fotos",
+    "description": "Sube tus fotos para la generación de retratos.",
+    "order": {
+      "title": "Detalles del Pedido",
+      "description": "Por favor, sube las fotos según las especificaciones de tu pedido."
+    }
+  },
+  "fields": {
+    "orderId": "ID del Pedido",
+    "styles": "Estilos Seleccionados",
+    "acceptedImages": "Imágenes Aceptadas",
+    "needsImprovement": "Necesita Mejoras",
+    "overallQualityScore": "Puntuación de Calidad General",
+    "totalImages": "Total de Imágenes",
+    "acceptedImagesCount": "Imágenes Aceptadas",
+    "rejectedImagesCount": "Imágenes Rechazadas"
+  },
+  "buttons": {
+    "upload": "Subir {{count}} Estilo",
+    "upload_plural": "Subir {{count}} Estilos"
+  },
+  "status": {
+    "error": "Error",
+    "failed": "Fallido",
+    "successful": "Exitoso",
+    "image": "{{count}} Imagen",
+    "image_plural": "{{count}} Imágenes",
+    "uploadMore": "Por favor, sube {{count}} {{image}} más",
+    "removeImages": "Por favor, elimina {{count}} {{image}}",
+    "imagesSelected": "{{count}} imágenes seleccionadas",
+    "processing": "Procesando... {{uploaded}}/{{total}} ({{progress}}%)"
+  },
+  "errors": {
+    "noActiveOrder": "Sin Pedido Activo",
+    "paymentRequired": "Por favor, completa el pago antes de subir fotos.",
+    "loadOrderData": "Error al cargar los datos del pedido. Por favor, intenta de nuevo.",
+    "uploadFailed": "Error al subir las imágenes. Por favor, intenta de nuevo.",
+    "someUploadsFailed": "{{count}} subidas fallaron. Por favor, intenta de nuevo.",
+    "savingProgress": "Error al guardar el progreso. Continuando a revisión."
+  },
+  "success": {
+    "uploadComplete": "Se subieron {{count}} imágenes exitosamente."
+  }
+} 

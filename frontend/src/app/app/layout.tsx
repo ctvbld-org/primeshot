@@ -11,6 +11,7 @@ import { usePathname } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { UserNav } from '@/components/user-nav'
+import { LanguageSwitcher } from '@/components/language-switcher'
 
 export default function AppLayout({
   children,
@@ -52,30 +53,16 @@ export default function AppLayout({
             height={40}
             priority
           />
-          <UserNav user={user} />
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher />
+            <UserNav user={user} />
+          </div>
         </div>
       </header>
       <main className="h-full">
         {children}
       </main>
       <Toaster />
-      
-      {/* Payment Recovery Dialog */}
-      {orderId && (
-        <PaymentRecoveryDialog
-          open={shouldShowRecovery}
-          onOpenChange={setShowRecoveryDialog}
-          orderId={orderId}
-          onResume={() => {
-            resumePayment()
-            setShowRecoveryDialog(false)
-          }}
-          onCancel={() => {
-            dismissRecovery()
-            setShowRecoveryDialog(false)
-          }}
-        />
-      )}
     </div>
   )
 } 

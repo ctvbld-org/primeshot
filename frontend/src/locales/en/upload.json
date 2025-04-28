@@ -1,0 +1,46 @@
+{
+  "common": {
+    "title": "Upload Photos",
+    "description": "Upload your photos for headshot generation.",
+    "order": {
+      "title": "Order Details",
+      "description": "Please upload photos according to your order specifications."
+    }
+  },
+  "fields": {
+    "orderId": "Order ID",
+    "styles": "Selected Styles",
+    "acceptedImages": "Accepted Images",
+    "needsImprovement": "Needs Improvement",
+    "overallQualityScore": "Overall Quality Score",
+    "totalImages": "Total Images",
+    "acceptedImagesCount": "Accepted Images",
+    "rejectedImagesCount": "Rejected Images"
+  },
+  "status": {
+    "error": "Error",
+    "failed": "Failed",
+    "successful": "Successful",
+    "image": "{{count}} Image",
+    "image_plural": "{{count}} Images",
+    "uploadMore": "Please upload {{count}} more {{image}}",
+    "removeImages": "Please remove {{count}} {{image}}",
+    "imagesSelected": "{{count}} images selected",
+    "processing": "Processing... {{uploaded}}/{{total}} ({{progress}}%)"
+  },
+  "errors": {
+    "noActiveOrder": "No Active Order",
+    "paymentRequired": "Please complete payment before uploading photos.",
+    "loadOrderData": "Failed to load order data. Please try again.",
+    "uploadFailed": "Failed to upload images. Please try again.",
+    "someUploadsFailed": "{{count}} uploads failed. Please try again.",
+    "savingProgress": "Failed to save progress. Continuing to review."
+  },
+  "success": {
+    "uploadComplete": "Successfully uploaded {{count}} images."
+  },
+  "buttons": {
+    "upload": "Upload {{count}} Style",
+    "upload_plural": "Upload {{count}} Styles"
+  }
+} 

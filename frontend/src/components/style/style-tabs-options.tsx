@@ -12,14 +12,13 @@ import { ClothingColorSelector } from './clothing-color-selector'
 import { useCallback, useEffect, useState, useRef, forwardRef, useImperativeHandle, useMemo } from 'react'
 import { useStyleStore } from '@/store/style'
 import { useStyleConfigs, useOption, useOptions } from '@/hooks/useConfig'
-import { cn } from '@/lib/utils'
-import type { Option, OptionItem } from '@/types/styles'
-import { createClient } from '@/lib/supabase/client'
+import { useTranslatedOptions } from '@/hooks/useTranslatedOption'
 import { useToast } from '@/components/ui/use-toast'
 import { useAuth } from '@/contexts/auth-context'
 import { updateStyle } from '@/lib/api/styles'
 import React, { Suspense } from 'react'
 import { useValidStyleOptions } from '@/lib/utils/style-validation'
+import { useTranslation } from 'react-i18next'
 
 // Map category IDs to icon variants
 const categoryIconMap: Record<string, React.ComponentProps<typeof Icon>['variant']> = {
@@ -103,11 +102,13 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
   const { toast } = useToast();
   const { user } = useAuth();
   const [isUpdating, setIsUpdating] = useState(false);
-  const { data: options } = useOptions();
+  const { data: rawOptions } = useOptions();
+  const translatedOptions = useTranslatedOptions(rawOptions);
   const { data: validOptions, isLoading: isLoadingValidOptions } = useValidStyleOptions();
+  const { t } = useTranslation(['styles']);
   
   // Get the categories and their options
-  const categories = options?.map(opt => ({
+  const categories = translatedOptions?.map(opt => ({
     id: opt.category,
     label: opt.label,
     description: opt.description,
@@ -243,7 +244,7 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
   // Handle style update
   const handleUpdate = async () => {
     if (!user || !style.styleId || !settings.background || !settings.clothing || !settings.clothingColor) {
-      toast({ title: 'Error', description: 'Missing required data to save.', variant: 'destructive' });
+      toast({ title: t('toast.errorMissingData.title', { ns: 'styles' }), description: t('toast.errorMissingData.description', { ns: 'styles' }), variant: 'destructive' });
       return;
     }
 
@@ -265,8 +266,8 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
       await updateStyle(updatedStyle);
 
       toast({
-        title: 'Success',
-        description: 'Your style has been updated'
+        title: t('toast.successUpdatedStyle.title', { ns: 'styles' }),
+        description: t('toast.successUpdatedStyle.description', { ns: 'styles' })
       });
       
       // Call onUpdate with the updated style
@@ -281,8 +282,8 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
       });
     } catch (error) {
       toast({
-        title: 'Error Updating Style',
-        description: error instanceof Error ? error.message : 'Failed to update style',
+        title: t('toast.errorUpdatedStyle.title', { ns: 'styles' }),
+        description: error instanceof Error ? error.message : t('toast.errorUpdatedStyle.description', { ns: 'styles' }),
         variant: 'destructive'
       });
     } finally {
@@ -495,7 +496,7 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
                   <span className="text-[#000000]">
                     {selectedOptionData && visitedTabs.has(category.id) 
                       ? selectedOptionData.label 
-                      : "Not selected"}
+                      : t('footer.notSelected')}
                   </span>
                 </div>
               </button>
@@ -510,7 +511,7 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
             disabled={isUpdating || !hasSettingsChanged}
             loading={isUpdating}
           >
-            Confirm changes
+            {t('buttons.confirmChanges', { ns: 'common' })}
           </Button>
         ) : (
           <Button 
@@ -527,7 +528,7 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
             disabled={isSaving}
             loading={isSaving}
           >
-            {areAllCategoriesComplete() ? 'Add to Shoot' : 'Next'}
+            {areAllCategoriesComplete() ? t('buttons.addToShoot', { ns: 'common' }) : t('buttons.next', { ns: 'common' })}
           </Button>
         )}
       </motion.div>

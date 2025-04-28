@@ -1,0 +1,25 @@
+{
+  "welcome": "Bienvenido",
+  "error": {
+    "title": "Error",
+    "description": "Ocurrió un error"
+  },
+  "loading": "Cargando...",
+  "buttons": {
+    "customize": "Personalizar",
+    "confirmChanges": "Confirmar cambios",
+    "addToShoot": "Agregar a Sesión",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "keep": "Mantener",
+    "discard": "Descartar",
+    "confirm": "Confirmar",
+    "remove": "Eliminar",
+    "add": "Agregar"
+  }
+} 

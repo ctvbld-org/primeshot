@@ -7,6 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import { useStyleConfigs, useOption } from '@/hooks/useConfig'
+import { useTranslatedOption } from '@/hooks/useTranslatedOption'
 import cssStyles from './clothing-color-selector.module.css'
 import { useValidStyleOptions } from '@/lib/utils/style-validation'
 
@@ -32,7 +33,8 @@ export function ClothingColorSelector({ photographyStyle }: ClothingColorSelecto
 
   // Query for styles and color options using custom hooks
   const { data: styleConfigs, isLoading: isLoadingStyles, error: stylesError } = useStyleConfigs();
-  const { data: colorOptions, isLoading: isLoadingColors, error: colorsError } = useOption('clothingColor');
+  const { data: rawColorOptions, isLoading: isLoadingColors, error: colorsError } = useOption('clothingColor');
+  const colorOptions = useTranslatedOption(rawColorOptions);
 
   const styleConfig = styleConfigs?.find((style: StyleConfig) => style.id === photographyStyle) || null;
   const isLoading = isLoadingStyles || isLoadingColors || isLoadingValidOptions;

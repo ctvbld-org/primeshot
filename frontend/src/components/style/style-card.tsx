@@ -13,6 +13,7 @@ import { StyleTabsOptions, StyleTabsOptionsRef } from './style-tabs-options'
 import styles from './style-card.module.css'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from '@/components/ui/use-toast'
+import { useTranslation } from 'react-i18next'
 
 interface StyleCardProps {
   savedStyle: Style
@@ -36,6 +37,7 @@ export function StyleCard({
   onUpdate
 }: StyleCardProps) {
   // All hooks declarations first
+  const { t } = useTranslation('styles')
   const { gender } = useUserGender();
   const { data: styleConfigs } = useStyleConfigs();
   const [isFlipped, setIsFlipped] = useState(false);
@@ -99,13 +101,13 @@ export function StyleCard({
         setIsDeleteOverlayActive(true);
         // Show error toast to user
         toast({
-          title: 'Error',
-          description: 'Failed to delete style. Please try again.',
+          title: t('styleCard.toast.error.title'),
+          description: t('styleCard.toast.error.description'),
           variant: 'destructive'
         });
       }
     }, 500); // Match this with animation duration
-  }, [onDelete, savedStyle.id, toast]);
+  }, [onDelete, savedStyle.id, t]);
   
   // Find the corresponding style configuration
   const styleConfig = styleConfigs?.find(
@@ -114,7 +116,7 @@ export function StyleCard({
 
   // Conditional rendering after all hooks
   if (!styleConfigs || !styleConfig) {
-    return <Card className={className}><div className={styles.loadingState}>Loading...</div></Card>;
+    return <Card className={className}><div className={styles.loadingState}>{t('styleCard.loading')}</div></Card>;
   }
 
   // Merge saved style with style configuration
@@ -122,6 +124,7 @@ export function StyleCard({
     ...savedStyle,
     tagline: styleConfig.tagline || undefined,
     description: styleConfig.description || '',
+    translations: styleConfig.translations,
     genderSpecificImages: getStyleImages(styleConfig.preview_images || [], gender || undefined)
   };
 
@@ -158,14 +161,14 @@ export function StyleCard({
                   <Icon variant="bin" size={32} />
                 </span>
                 <p className={styles.deleteText}>
-                  Are you sure you want to remove this style from your shoot?
+                  {t('styleCard.confirmDelete.description')}
                 </p>
                 <div className={styles.deleteActions}>
                   <Button variant="ghost" size="md" className={styles.keepButton} onClick={handleKeepClick}>
-                    Keep it
+                    {t('styleCard.confirmDelete.cancel')}
                   </Button>
                   <Button variant="destructive" size="md" className={styles.removeButton} onClick={handleRemoveClick}>
-                    Remove
+                    {t('styleCard.confirmDelete.confirm')}
                   </Button>
                 </div>
               </div>

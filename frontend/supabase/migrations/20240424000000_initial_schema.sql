@@ -43,6 +43,7 @@ CREATE TABLE style_configs (
   available_backgrounds TEXT[] NOT NULL DEFAULT '{}',
   available_clothing TEXT[] NOT NULL DEFAULT '{}',
   available_clothing_colors TEXT[] NOT NULL DEFAULT '{}',
+  translations jsonb DEFAULT '{}'::jsonb NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
 );
@@ -53,6 +54,7 @@ CREATE TABLE style_options (
   label TEXT NOT NULL,
   description TEXT,
   options JSONB NOT NULL DEFAULT '[]',
+  translations jsonb DEFAULT '{}'::jsonb NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
 );
@@ -68,7 +70,6 @@ CREATE TABLE orders (
   metadata jsonb,
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()),
   updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()),
-  shoot_number integer NOT NULL,
   idempotency_key text,
   checkout_session_id text
 );
@@ -303,6 +304,7 @@ COMMENT ON COLUMN style_configs.available_genders IS 'Array of supported gender 
 COMMENT ON COLUMN style_configs.available_backgrounds IS 'Array of available background options';
 COMMENT ON COLUMN style_configs.available_clothing IS 'Array of available clothing options';
 COMMENT ON COLUMN style_configs.available_clothing_colors IS 'Array of available clothing color options';
+COMMENT ON COLUMN style_configs.translations IS 'JSON object containing localized strings for name, tagline, and description keyed by language code';
 COMMENT ON COLUMN style_configs.created_at IS 'Timestamp when the config was created';
 COMMENT ON COLUMN style_configs.updated_at IS 'Timestamp when the config was last updated';
 
@@ -313,6 +315,7 @@ COMMENT ON COLUMN style_options.category IS 'Category of the style option (e.g.,
 COMMENT ON COLUMN style_options.label IS 'Display label for the option';
 COMMENT ON COLUMN style_options.description IS 'Detailed description of the option';
 COMMENT ON COLUMN style_options.options IS 'JSON array of specific options within this category';
+COMMENT ON COLUMN style_options.translations IS 'JSON object containing localized strings for label and description keyed by language code';
 COMMENT ON COLUMN style_options.created_at IS 'Timestamp when the option was created';
 COMMENT ON COLUMN style_options.updated_at IS 'Timestamp when the option was last updated';
 
@@ -348,7 +351,6 @@ COMMENT ON COLUMN orders.payment_status IS 'Current status of the payment (pendi
 COMMENT ON COLUMN orders.metadata IS 'Additional order metadata stored as JSON';
 COMMENT ON COLUMN orders.created_at IS 'Timestamp when the order was created';
 COMMENT ON COLUMN orders.updated_at IS 'Timestamp when the order was last updated';
-COMMENT ON COLUMN orders.shoot_number IS 'Sequential number for each user''s shoots, starting from 1';
 COMMENT ON COLUMN orders.idempotency_key IS 'Stripe idempotency key used for the most recent payment attempt';
 COMMENT ON COLUMN orders.checkout_session_id IS 'Stripe checkout session ID for checkout-based payments';
 
@@ -363,28 +365,6 @@ COMMENT ON COLUMN images.file_size IS 'Size of the image file in bytes';
 COMMENT ON COLUMN images.mime_type IS 'MIME type of the image (e.g., image/jpeg)';
 COMMENT ON COLUMN images.dimensions IS 'Image dimensions stored as JSON {width: number, height: number}';
 COMMENT ON COLUMN images.order_id IS 'Reference to the order this image belongs to'; 
-
--- Create trigger function for setting shoot_number
-CREATE OR REPLACE FUNCTION set_shoot_number()
-RETURNS TRIGGER AS $$
-BEGIN
-  SELECT COALESCE(MAX(shoot_number), 0) + 1
-  INTO NEW.shoot_number
-  FROM orders
-  WHERE user_id = NEW.user_id;
-  
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- Create trigger for orders table
-CREATE TRIGGER set_order_shoot_number
-  BEFORE INSERT ON orders
-  FOR EACH ROW
-  EXECUTE FUNCTION set_shoot_number();
-
--- Add comment for the trigger
-COMMENT ON FUNCTION set_shoot_number IS 'Automatically sets the shoot_number for new orders based on user''s previous orders';
 
 -- Create function to generate unique style ID
 CREATE OR REPLACE FUNCTION generate_style_id()

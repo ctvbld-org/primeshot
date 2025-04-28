@@ -1,0 +1,38 @@
+{
+  "title": "Tu Panel",
+  "description": "Visualiza y gestiona tus sesiones de fotos.",
+  "noShoots": "Aún no has creado ninguna sesión.",
+  "createShoot": "Crear Nueva Sesión",
+  "loading": {
+    "error": "Error al cargar tus sesiones. Por favor, inténtalo de nuevo."
+  },
+  "emptyState": {
+    "title": "Aún no hay sesiones",
+    "description": "Todavía no has completado ninguna sesión. Comienza creando un estilo y completando el proceso de pago.",
+    "button": "Crea Tu Primera Sesión"
+  },
+  "tabs": {
+    "all": "Todas las Sesiones",
+    "processing": "En Proceso",
+    "completed": "Completadas"
+  },
+  "shootCard": {
+    "shootNumber": "Sesión {{number}}",
+    "shootTBD": "Sesión por Determinar",
+    "status": {
+      "paid": "Pagada",
+      "processing": "En Proceso",
+      "completed": "Completada"
+    },
+    "details": {
+      "styles": "Estilos",
+      "styleCount": "Cantidad de Estilos",
+      "totalAmount": "Monto Total",
+      "orderId": "ID de Orden"
+    },
+    "actions": {
+      "viewDetails": "Ver Detalles",
+      "viewResults": "Ver Resultados"
+    }
+  }
+} 

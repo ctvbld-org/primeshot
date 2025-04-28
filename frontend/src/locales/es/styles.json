@@ -1,0 +1,83 @@
+{
+  "loading": "Cargando estilos...",
+  "newStyle": {
+    "title": "Crear nuevo estilo",
+    "card": {
+      "alt": "Agregar nuevo estilo",
+      "ariaLabel": "Agregar nuevo estilo",
+      "description": "Elige tu estilo fotográfico,\nbackground y ropa.",
+      "button": "Agregar Estilo",
+      "buttonAriaLabel": "Agregar un nuevo estilo fotográfico"
+    }
+  },
+  "carousel": {
+    "label": "Opciones de estilo fotográfico"
+  },
+  "styleCard": {
+    "loading": "Cargando...",
+    "background": "Fondo",
+    "clothing": "Ropa",
+    "clothingColor": "Color de Ropa",
+    "confirmDelete": {
+      "title": "Eliminar Estilo",
+      "description": "¿Estás seguro de querer eliminar este estilo de tu sesión?",
+      "confirm": "Eliminar",
+      "cancel": "Mantener"
+    },
+    "toast": {
+      "error": {
+        "title": "Error",
+        "description": "Error al eliminar el estilo. Por favor, inténtelo de nuevo."
+      }
+    }
+  },
+  "errors": {
+    "loadStyles": "Error al cargar los estilos"
+  },
+  "footer": {
+    "title": "Mi Sesión",
+    "separator": {
+      "alt": "Separador del Pie de Página"
+    },
+    "styles": {
+      "count": "{{count}}",
+      "label": "Estilos",
+      "multiplier": "×"
+    },
+    "photos": {
+      "count": "{{count}}",
+      "label": "Fotos",
+      "perStyle": "({{count}} por estilo)",
+      "multiplier": "×"
+    },
+    "upgrade": {
+      "text": "Agrega {{count}} estilos adicionales y obtén",
+      "photosText": "fotos por solo",
+      "price": "{{amount}} USD"
+    },
+    "emptyState": "Tu lista de estilos está vacía. Agrega un par de looks para generar tu sesión perfecta.",
+    "price": {
+      "amount": "{{amount}} USD"
+    },
+    "checkout": "Pagar",
+    "headshots": {
+      "perStyle": "{{count}} headshots por estilo",
+      "total": "{{count}} headshots totales"
+    },
+    "perHeadshot": "${{amount}} por foto",
+    "notSelected": "No seleccionado"
+  },
+  "toast": {
+    "success": {
+      "title": "Éxito",
+      "description": "El estilo ha sido agregado a tu sesión"
+    },
+    "error": {
+      "title": "Error al guardar el estilo",
+      "description": "Error al guardar el estilo"
+    }
+  },
+  "titles": {
+    "styleLabel": "Estilo"
+  }
+} 

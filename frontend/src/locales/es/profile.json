@@ -1,0 +1,41 @@
+{
+  "completionModal": {
+    "title": "Completa tu Perfil",
+    "description": "Por favor, proporciona la siguiente información para continuar. Esto nos ayuda a generar fotos más precisas para ti.",
+    "form": {
+      "fullName": {
+        "label": "Nombre Completo",
+        "placeholder": "Ingresa tu nombre completo",
+        "errors": {
+          "tooShort": "El nombre debe tener al menos 2 caracteres",
+          "tooLong": "El nombre es demasiado largo"
+        }
+      },
+      "gender": {
+        "label": "Género",
+        "placeholder": "Selecciona tu género",
+        "options": {
+          "male": "Masculino",
+          "female": "Femenino"
+        },
+        "error": "Por favor selecciona una opción",
+        "help": "Esta información nos ayuda a generar fotos más precisas para ti."
+      }
+    },
+    "submit": {
+      "saving": "Guardando...",
+      "continue": "Continuar"
+    },
+    "toast": {
+      "error": {
+        "title": "Error",
+        "notLoggedIn": "Debes iniciar sesión para actualizar tu perfil.",
+        "updateFailed": "No se pudo actualizar tu perfil. Por favor, inténtalo de nuevo."
+      },
+      "success": {
+        "title": "Perfil actualizado",
+        "description": "Tu perfil ha sido actualizado exitosamente."
+      }
+    }
+  }
+} 
