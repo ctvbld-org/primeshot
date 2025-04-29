@@ -1,12 +1,11 @@
 {
-  "loading": "Cargando estilos...",
   "newStyle": {
     "title": "Crear nuevo estilo",
     "card": {
       "alt": "Agregar nuevo estilo",
-      "ariaLabel": "Agregar nuevo estilo",
-      "description": "Elige tu estilo fotográfico,\nbackground y ropa.",
-      "button": "Agregar Estilo",
+      "ariaLabel": "Agregar tarjeta de nuevo estilo",
+      "description": "Elige tu estilo fotográfico,\nfondo y vestimenta.",
+      "button": "Agregar estilo",
       "buttonAriaLabel": "Agregar un nuevo estilo fotográfico"
     }
   },
@@ -14,30 +13,30 @@
     "label": "Opciones de estilo fotográfico"
   },
   "styleCard": {
-    "loading": "Cargando...",
+    "customize": "Personalizar",
     "background": "Fondo",
-    "clothing": "Ropa",
-    "clothingColor": "Color de Ropa",
+    "clothing": "Vestimenta",
+    "clothingColor": "Color de vestimenta",
     "confirmDelete": {
-      "title": "Eliminar Estilo",
-      "description": "¿Estás seguro de querer eliminar este estilo de tu sesión?",
+      "title": "Eliminar estilo",
+      "description": "¿Estás seguro de que deseas eliminar este estilo de tu sesión?",
       "confirm": "Eliminar",
-      "cancel": "Mantener"
+      "cancel": "Conservar"
     },
     "toast": {
       "error": {
         "title": "Error",
-        "description": "Error al eliminar el estilo. Por favor, inténtelo de nuevo."
+        "description": "No se pudo eliminar el estilo. Por favor, inténtalo de nuevo."
       }
     }
   },
   "errors": {
-    "loadStyles": "Error al cargar los estilos"
+    "loadStyles": "No se pudieron cargar los estilos"
   },
   "footer": {
-    "title": "Mi Sesión",
+    "title": "Mi sesión",
     "separator": {
-      "alt": "Separador del Pie de Página"
+      "alt": "Separador de pie de página"
     },
     "styles": {
       "count": "{{count}}",
@@ -51,30 +50,42 @@
       "multiplier": "×"
     },
     "upgrade": {
-      "text": "Agrega {{count}} estilos adicionales y obtén",
+      "text": "Agrega {{count}} estilos extra y obtén",
       "photosText": "fotos por solo",
       "price": "{{amount}} USD"
     },
-    "emptyState": "Tu lista de estilos está vacía. Agrega un par de looks para generar tu sesión perfecta.",
+    "emptyState": "Tu lista de estilos está vacía. Agrega algunos looks para generar tu sesión perfecta.",
     "price": {
       "amount": "{{amount}} USD"
     },
-    "checkout": "Pagar",
+    "checkout": "Finalizar compra",
     "headshots": {
-      "perStyle": "{{count}} headshots por estilo",
-      "total": "{{count}} headshots totales"
+      "perStyle": "{{count}} retratos por estilo",
+      "total": "{{count}} retratos en total"
     },
-    "perHeadshot": "${{amount}} por foto",
+    "perHeadshot": "${{amount}} por retrato",
     "notSelected": "No seleccionado"
   },
   "toast": {
-    "success": {
-      "title": "Éxito",
-      "description": "El estilo ha sido agregado a tu sesión"
+    "successAddedStyle": {
+      "title": "Agregado a la sesión",
+      "description": "El estilo se ha agregado a tu sesión"
     },
-    "error": {
+    "successUpdatedStyle": {
+      "title": "Estilo actualizado",
+      "description": "Tu estilo ha sido actualizado"
+    },
+    "errorUpdatedStyle": {
+      "title": "Error al actualizar",
+      "description": "No se pudo actualizar el estilo"
+    },
+    "errorSavingStyle": {
       "title": "Error al guardar el estilo",
-      "description": "Error al guardar el estilo"
+      "description": "No se pudo guardar el estilo"
+    },
+    "errorMissingData": {
+      "title": "Error",
+      "description": "Faltan datos requeridos para guardar."
     }
   },
   "titles": {

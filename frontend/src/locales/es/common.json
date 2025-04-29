@@ -2,13 +2,14 @@
   "welcome": "Bienvenido",
   "error": {
     "title": "Error",
-    "description": "Ocurrió un error"
+    "description": "Se ha producido un error"
   },
+  "language": "Idioma",
   "loading": "Cargando...",
   "buttons": {
     "customize": "Personalizar",
     "confirmChanges": "Confirmar cambios",
-    "addToShoot": "Agregar a Sesión",
+    "addToShoot": "Añadir a la sesión",
     "edit": "Editar",
     "delete": "Eliminar",
     "save": "Guardar",
@@ -20,6 +21,6 @@
     "discard": "Descartar",
     "confirm": "Confirmar",
     "remove": "Eliminar",
-    "add": "Agregar"
+    "add": "Añadir"
   }
 } 

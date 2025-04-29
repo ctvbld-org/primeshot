@@ -1,0 +1,39 @@
+{
+  "page": {
+    "title": "Configurações",
+    "description": "Gerencie suas configurações e preferências de conta."
+  },
+  "form": {
+    "profile": {
+      "title": "Perfil",
+      "description": "Atualize suas informações de perfil.",
+      "fullName": {
+        "label": "Nome Completo",
+        "placeholder": "Digite seu nome completo"
+      },
+      "submit": {
+        "saving": "Salvando...",
+        "default": "Salvar Alterações"
+      },
+      "toast": {
+        "success": {
+          "title": "Perfil atualizado",
+          "description": "Seu perfil foi atualizado com sucesso."
+        },
+        "error": {
+          "title": "Erro",
+          "description": "Falha ao atualizar o perfil. Por favor, tente novamente.",
+          "notAuthenticated": "Não autenticado"
+        }
+      }
+    }
+  },
+  "language": "Idioma",
+  "theme": "Tema",
+  "notifications": "Notificações",
+  "privacy": "Privacidade",
+  "save": "Salvar",
+  "cancel": "Cancelar",
+  "success": "Configurações salvas com sucesso",
+  "error": "Erro ao salvar as configurações"
+} 

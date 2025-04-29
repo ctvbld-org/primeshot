@@ -1,0 +1,36 @@
+{
+  "title": "Jouw Dashboard",
+  "description": "Bekijk en beheer je fotosessies.",
+  "loading": {
+    "error": "Je sessies konden niet worden geladen. Probeer het opnieuw."
+  },
+  "emptyState": {
+    "title": "Nog geen sessies",
+    "description": "Je hebt nog geen sessies voltooid. Begin met het aanmaken van een stijl en het afronden van de betaling.",
+    "button": "Maak je eerste sessie aan"
+  },
+  "tabs": {
+    "all": "Alle sessies",
+    "processing": "Bezig",
+    "completed": "Voltooid"
+  },
+  "shootCard": {
+    "shootNumber": "Sessie {{number}}",
+    "shootTBD": "Sessie nog te bepalen",
+    "status": {
+      "paid": "Betaald",
+      "processing": "Bezig",
+      "completed": "Voltooid"
+    },
+    "details": {
+      "styles": "Stijlen",
+      "styleCount": "Aantal stijlen",
+      "totalAmount": "Totaalbedrag",
+      "orderId": "Bestel-ID"
+    },
+    "actions": {
+      "viewDetails": "Bekijk details",
+      "viewResults": "Bekijk resultaten"
+    }
+  }
+} 

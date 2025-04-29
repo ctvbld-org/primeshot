@@ -1,0 +1,46 @@
+{
+  "common": {
+    "title": "写真をアップロード",
+    "description": "ヘッドショット生成用の写真をアップロードしてください。",
+    "order": {
+      "title": "注文詳細",
+      "description": "注文仕様に従って写真をアップロードしてください。"
+    }
+  },
+  "fields": {
+    "orderId": "注文ID",
+    "styles": "選択したスタイル",
+    "acceptedImages": "承認された画像",
+    "needsImprovement": "改善が必要",
+    "overallQualityScore": "総合品質スコア",
+    "totalImages": "画像の合計",
+    "acceptedImagesCount": "承認された画像",
+    "rejectedImagesCount": "拒否された画像"
+  },
+  "status": {
+    "error": "エラー",
+    "failed": "失敗",
+    "successful": "成功",
+    "image": "{{count}}枚の画像",
+    "image_plural": "{{count}}枚の画像",
+    "uploadMore": "あと{{count}}枚の{{image}}をアップロードしてください",
+    "removeImages": "{{count}}枚の{{image}}を削除してください",
+    "imagesSelected": "{{count}}枚の画像が選択されました",
+    "processing": "処理中... {{uploaded}}/{{total}} ({{progress}}%)"
+  },
+  "errors": {
+    "noActiveOrder": "アクティブな注文がありません",
+    "paymentRequired": "写真をアップロードする前に支払いを完了してください。",
+    "loadOrderData": "注文データの読み込みに失敗しました。もう一度お試しください。",
+    "uploadFailed": "画像のアップロードに失敗しました。もう一度お試しください。",
+    "someUploadsFailed": "{{count}}件のアップロードが失敗しました。もう一度お試しください。",
+    "savingProgress": "進行状況の保存に失敗しました。レビューを続行します。"
+  },
+  "success": {
+    "uploadComplete": "{{count}}枚の画像が正常にアップロードされました。"
+  },
+  "buttons": {
+    "upload": "{{count}}スタイルをアップロード",
+    "upload_plural": "{{count}}スタイルをアップロード"
+  }
+} 

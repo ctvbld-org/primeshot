@@ -1,0 +1,101 @@
+{
+  "title": "Rivedi i tuoi caricamenti",
+  "description": "Per favore, rivedi le foto caricate e fornisci alcuni dettagli per aiutarci a generare i migliori ritratti.",
+  "uploadedPhotos": {
+    "title": "Foto caricate",
+    "description": "Ecco le foto che hai caricato per questo ordine.",
+    "loading": "Caricamento immagini...",
+    "noPhotos": "Nessuna foto trovata per questo ordine. Torna indietro e carica delle immagini."
+  },
+  "aboutYou": {
+    "title": "Su di te",
+    "description": "Queste informazioni aiutano a personalizzare la generazione dei ritratti.",
+    "fields": {
+      "ethnicity": {
+        "label": "Etnia",
+        "placeholder": "Seleziona la tua etnia",
+        "error": "L'etnia è obbligatoria",
+        "options": {
+          "asian": "Asiatico",
+          "black": "Nero/Discendenza africana",
+          "hispanic": "Ispanico/Latino",
+          "middleEastern": "Medio Oriente",
+          "nativeAmerican": "Nativo americano",
+          "pacificIslander": "Isolano del Pacifico",
+          "white": "Bianco/Caucasico",
+          "mixed": "Misto",
+          "preferNotToSay": "Preferisco non dirlo"
+        }
+      },
+      "eyeColor": {
+        "label": "Colore degli occhi",
+        "placeholder": "Seleziona il colore dei tuoi occhi",
+        "error": "Il colore degli occhi è obbligatorio",
+        "options": {
+          "brown": "Marrone",
+          "blue": "Blu",
+          "green": "Verde",
+          "hazel": "Nocciola",
+          "grey": "Grigio",
+          "amber": "Ambra",
+          "other": "Altro"
+        }
+      },
+      "hairColor": {
+        "label": "Colore dei capelli",
+        "placeholder": "Seleziona il colore dei tuoi capelli",
+        "error": "Il colore dei capelli è obbligatorio",
+        "options": {
+          "black": "Nero",
+          "brown": "Marrone",
+          "blonde": "Biondo",
+          "red": "Rosso",
+          "grey": "Grigio",
+          "white": "Bianco",
+          "dyed": "Tinti/Altro"
+        }
+      },
+      "hairLength": {
+        "label": "Lunghezza dei capelli",
+        "placeholder": "Seleziona la lunghezza dei tuoi capelli",
+        "error": "La lunghezza dei capelli è obbligatoria",
+        "options": {
+          "bald": "Calvo/Rasato",
+          "short": "Corti",
+          "medium": "Medi",
+          "long": "Lunghi",
+          "other": "Altro"
+        }
+      },
+      "bodyType": {
+        "label": "Tipo di corporatura",
+        "placeholder": "Seleziona il tuo tipo di corporatura",
+        "error": "Il tipo di corporatura è obbligatorio",
+        "options": {
+          "slim": "Snello",
+          "average": "Normale",
+          "athletic": "Atletico",
+          "heavySet": "Robusto",
+          "preferNotToSay": "Preferisco non dirlo"
+        }
+      }
+    }
+  },
+  "submit": {
+    "button": {
+      "saving": "Salvataggio...",
+      "default": "Salva e continua alla dashboard"
+    },
+    "toast": {
+      "success": {
+        "title": "Informazioni salvate",
+        "description": "Le tue informazioni demografiche sono state salvate."
+      },
+      "error": {
+        "title": "Invio non riuscito",
+        "description": "Impossibile salvare le tue informazioni.",
+        "userNotLoggedIn": "Utente non loggato."
+      }
+    }
+  }
+} 

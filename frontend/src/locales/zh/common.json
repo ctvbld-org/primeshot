@@ -1,0 +1,26 @@
+{
+  "welcome": "欢迎",
+  "error": {
+    "title": "错误",
+    "description": "发生错误"
+  },
+  "language": "语言",
+  "loading": "加载中...",
+  "buttons": {
+    "customize": "自定义",
+    "confirmChanges": "确认更改",
+    "addToShoot": "添加到拍摄",
+    "edit": "编辑",
+    "delete": "删除",
+    "save": "保存",
+    "cancel": "取消",
+    "close": "关闭",
+    "next": "下一步",
+    "previous": "上一步",
+    "keep": "保留",
+    "discard": "放弃",
+    "confirm": "确认",
+    "remove": "移除",
+    "add": "添加"
+  }
+} 

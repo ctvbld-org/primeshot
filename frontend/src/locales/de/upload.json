@@ -1,0 +1,46 @@
+{
+  "common": {
+    "title": "Fotos hochladen",
+    "description": "Laden Sie Ihre Fotos für die Porträterstellung hoch.",
+    "order": {
+      "title": "Bestelldetails",
+      "description": "Bitte laden Sie Fotos entsprechend Ihren Bestellspezifikationen hoch."
+    }
+  },
+  "fields": {
+    "orderId": "Bestell-ID",
+    "styles": "Ausgewählte Stile",
+    "acceptedImages": "Akzeptierte Bilder",
+    "needsImprovement": "Verbesserung nötig",
+    "overallQualityScore": "Gesamtqualitätsbewertung",
+    "totalImages": "Gesamtanzahl Bilder",
+    "acceptedImagesCount": "Akzeptierte Bilder",
+    "rejectedImagesCount": "Abgelehnte Bilder"
+  },
+  "status": {
+    "error": "Fehler",
+    "failed": "Fehlgeschlagen",
+    "successful": "Erfolgreich",
+    "image": "{{count}} Bild",
+    "image_plural": "{{count}} Bilder",
+    "uploadMore": "Bitte laden Sie noch {{count}} weitere {{image}} hoch",
+    "removeImages": "Bitte entfernen Sie {{count}} {{image}}",
+    "imagesSelected": "{{count}} Bilder ausgewählt",
+    "processing": "Verarbeitung... {{uploaded}}/{{total}} ({{progress}}%)"
+  },
+  "errors": {
+    "noActiveOrder": "Keine aktive Bestellung",
+    "paymentRequired": "Bitte schließen Sie die Zahlung ab, bevor Sie Fotos hochladen.",
+    "loadOrderData": "Bestelldaten konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
+    "uploadFailed": "Bilder konnten nicht hochgeladen werden. Bitte versuchen Sie es erneut.",
+    "someUploadsFailed": "{{count}} Uploads fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "savingProgress": "Fortschritt konnte nicht gespeichert werden. Weiter zur Überprüfung."
+  },
+  "success": {
+    "uploadComplete": "{{count}} Bilder erfolgreich hochgeladen."
+  },
+  "buttons": {
+    "upload": "{{count}} Stil hochladen",
+    "upload_plural": "{{count}} Stile hochladen"
+  }
+} 

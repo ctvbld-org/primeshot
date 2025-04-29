@@ -1,0 +1,26 @@
+{
+  "welcome": "Willkommen",
+  "error": {
+    "title": "Fehler",
+    "description": "Ein Fehler ist aufgetreten"
+  },
+  "language": "Sprache",
+  "loading": "Lädt...",
+  "buttons": {
+    "customize": "Anpassen",
+    "confirmChanges": "Änderungen bestätigen",
+    "addToShoot": "Zum Shooting hinzufügen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "close": "Schließen",
+    "next": "Weiter",
+    "previous": "Zurück",
+    "keep": "Behalten",
+    "discard": "Verwerfen",
+    "confirm": "Bestätigen",
+    "remove": "Entfernen",
+    "add": "Hinzufügen"
+  }
+} 

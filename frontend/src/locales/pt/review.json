@@ -1,0 +1,101 @@
+{
+  "title": "Revisão do upload",
+  "description": "Revise as fotos enviadas e preencha algumas informações para obter os melhores retratos.",
+  "uploadedPhotos": {
+    "title": "Fotos enviadas",
+    "description": "Estas são as fotos que você enviou para este pedido.",
+    "loading": "Carregando imagens...",
+    "noPhotos": "Nenhuma foto encontrada para este pedido. Volte e faça o upload das imagens."
+  },
+  "aboutYou": {
+    "title": "Sobre você",
+    "description": "Essas informações ajudam a personalizar seus retratos.",
+    "fields": {
+      "ethnicity": {
+        "label": "Etnia",
+        "placeholder": "Selecione a etnia",
+        "error": "Etnia é obrigatória",
+        "options": {
+          "asian": "Asiático(a)",
+          "black": "Negro(a)/Africano(a)",
+          "hispanic": "Hispânico(a)/Latino(a)",
+          "middleEastern": "Oriente Médio",
+          "nativeAmerican": "Nativo Americano",
+          "pacificIslander": "Ilhas do Pacífico",
+          "white": "Branco(a)/Caucasiano(a)",
+          "mixed": "Misto(a)",
+          "preferNotToSay": "Prefiro não dizer"
+        }
+      },
+      "eyeColor": {
+        "label": "Cor dos olhos",
+        "placeholder": "Selecione a cor dos olhos",
+        "error": "Cor dos olhos é obrigatória",
+        "options": {
+          "brown": "Castanho",
+          "blue": "Azul",
+          "green": "Verde",
+          "hazel": "Avelã",
+          "grey": "Cinza",
+          "amber": "Âmbar",
+          "other": "Outro"
+        }
+      },
+      "hairColor": {
+        "label": "Cor do cabelo",
+        "placeholder": "Selecione a cor do cabelo",
+        "error": "Cor do cabelo é obrigatória",
+        "options": {
+          "black": "Preto",
+          "brown": "Castanho",
+          "blonde": "Loiro",
+          "red": "Ruivo",
+          "grey": "Cinza",
+          "white": "Branco",
+          "dyed": "Tingido/Outro"
+        }
+      },
+      "hairLength": {
+        "label": "Comprimento do cabelo",
+        "placeholder": "Selecione o comprimento do cabelo",
+        "error": "Comprimento do cabelo é obrigatório",
+        "options": {
+          "bald": "Careca/Raspado",
+          "short": "Curto",
+          "medium": "Médio",
+          "long": "Longo",
+          "other": "Outro"
+        }
+      },
+      "bodyType": {
+        "label": "Tipo de corpo",
+        "placeholder": "Selecione o tipo de corpo",
+        "error": "Tipo de corpo é obrigatório",
+        "options": {
+          "slim": "Magro",
+          "average": "Médio",
+          "athletic": "Atlético",
+          "heavySet": "Robusto",
+          "preferNotToSay": "Prefiro não dizer"
+        }
+      }
+    }
+  },
+  "submit": {
+    "button": {
+      "saving": "Salvando...",
+      "default": "Salvar e ir para o painel"
+    },
+    "toast": {
+      "success": {
+        "title": "Informações salvas",
+        "description": "Suas informações foram salvas."
+      },
+      "error": {
+        "title": "Falha no envio",
+        "description": "Não foi possível salvar suas informações.",
+        "userNotLoggedIn": "Usuário não está logado."
+      }
+    }
+  }
+} 

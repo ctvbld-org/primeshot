@@ -13,6 +13,8 @@ import type styles from '../locales/en/styles.json';
 import type auth from '../locales/en/auth.json';
 import type profile from '../locales/en/profile.json';
 import type upload from '../locales/en/upload.json';
+import type review from '../locales/en/review.json';
+import type settings from '../locales/en/settings.json';
 
 declare module 'i18next' {
   interface CustomTypeOptions {
@@ -25,6 +27,8 @@ declare module 'i18next' {
       auth: typeof auth;
       profile: typeof profile;
       upload: typeof upload;
+      review: typeof review;
+      settings: typeof settings;
     }
   }
 } 

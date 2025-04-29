@@ -1,0 +1,26 @@
+{
+  "welcome": "Benvenuto",
+  "error": {
+    "title": "Errore",
+    "description": "Si è verificato un errore"
+  },
+  "language": "Lingua",
+  "loading": "Caricamento...",
+  "buttons": {
+    "customize": "Personalizza",
+    "confirmChanges": "Conferma modifiche",
+    "addToShoot": "Aggiungi al servizio",
+    "edit": "Modifica",
+    "delete": "Elimina",
+    "save": "Salva",
+    "cancel": "Annulla",
+    "close": "Chiudi",
+    "next": "Avanti",
+    "previous": "Indietro",
+    "keep": "Mantieni",
+    "discard": "Scarta",
+    "confirm": "Conferma",
+    "remove": "Rimuovi",
+    "add": "Aggiungi"
+  }
+} 

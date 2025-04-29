@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Check, ChevronsUpDown } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import {
   Popover,
   PopoverContent,
@@ -10,11 +8,34 @@ import {
 } from '@/components/ui/popover';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/contexts/auth-context';
+import i18n from '@/i18n';
+import { t } from 'i18next';
 
-const languages = [
-  { label: 'English', value: 'en' },
-  { label: 'Español', value: 'es' },
-] as const;
+// Language name mapping
+const languageLabels: Record<string, string> = {
+  en: 'English',
+  es: 'Español',
+  de: 'Deutsch',
+  fr: 'Français',
+  it: 'Italiano',
+  nl: 'Nederlands',
+  pt: 'Português',
+  ja: '日本語',
+  zh: '中文'
+};
+
+type Language = {
+  label: string;
+  value: string;
+};
+
+// Get languages dynamically from i18n config
+const languages: Language[] = (i18n.options.supportedLngs || [])
+  .filter((lng: string) => lng !== 'cimode') // Filter out i18next's internal language
+  .map((lng: string) => ({
+    label: languageLabels[lng] || lng,
+    value: lng
+  }));
 
 export function LanguageSwitcher() {
   const { i18n } = useTranslation();
@@ -93,7 +114,7 @@ export function LanguageSwitcher() {
         >
           {value
             ? languages.find((language) => language.value === value)?.label
-            : "Language"}
+            : t('language')}
           <ChevronsUpDown className="ml-1 h-4 w-4 shrink-0 opacity-50" />
         </button>
       </PopoverTrigger>

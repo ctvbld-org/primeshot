@@ -351,7 +351,7 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
         >
           <motion.div variants={childAnimation} className={styles['tabs-sidebar-container']}>
             <TabsList className={styles['tabs-sidebar']}>
-              <h4 className="w-full text-sm font-medium text-[#00000040] mb-4 p-4">Customise</h4>
+              <h4 className="w-full text-sm font-medium text-[#00000040] mb-4 p-4">{t('styleCard.customize', { ns: 'styles' })}</h4>
               {categories.map((category) => (
                 <TabsTrigger 
                   key={category.id}

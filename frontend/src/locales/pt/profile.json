@@ -1,0 +1,41 @@
+{
+  "completionModal": {
+    "title": "Complete seu perfil",
+    "description": "Preencha as informações abaixo para continuar. Isso nos ajuda a gerar retratos mais precisos.",
+    "form": {
+      "fullName": {
+        "label": "Nome completo",
+        "placeholder": "Digite seu nome",
+        "errors": {
+          "tooShort": "O nome deve ter pelo menos 2 caracteres",
+          "tooLong": "O nome é muito longo"
+        }
+      },
+      "gender": {
+        "label": "Gênero",
+        "placeholder": "Selecione o gênero",
+        "options": {
+          "male": "Masculino",
+          "female": "Feminino"
+        },
+        "error": "Selecione uma opção",
+        "help": "Esta informação ajuda a gerar retratos mais precisos."
+      }
+    },
+    "submit": {
+      "saving": "Salvando...",
+      "continue": "Continuar"
+    },
+    "toast": {
+      "error": {
+        "title": "Erro",
+        "notLoggedIn": "Você precisa estar logado para atualizar o perfil.",
+        "updateFailed": "Falha ao atualizar o perfil. Tente novamente."
+      },
+      "success": {
+        "title": "Perfil atualizado",
+        "description": "Seu perfil foi atualizado com sucesso."
+      }
+    }
+  }
+} 

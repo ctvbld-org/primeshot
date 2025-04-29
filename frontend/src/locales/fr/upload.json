@@ -1,0 +1,46 @@
+{
+  "common": {
+    "title": "Télécharger des photos",
+    "description": "Téléchargez vos photos pour la génération de portraits.",
+    "order": {
+      "title": "Détails de la commande",
+      "description": "Veuillez télécharger des photos selon les spécifications de votre commande."
+    }
+  },
+  "fields": {
+    "orderId": "ID de commande",
+    "styles": "Styles sélectionnés",
+    "acceptedImages": "Images acceptées",
+    "needsImprovement": "Nécessite des améliorations",
+    "overallQualityScore": "Score de qualité global",
+    "totalImages": "Total des images",
+    "acceptedImagesCount": "Images acceptées",
+    "rejectedImagesCount": "Images rejetées"
+  },
+  "status": {
+    "error": "Erreur",
+    "failed": "Échec",
+    "successful": "Réussi",
+    "image": "{{count}} Image",
+    "image_plural": "{{count}} Images",
+    "uploadMore": "Veuillez télécharger {{count}} {{image}} supplémentaires",
+    "removeImages": "Veuillez supprimer {{count}} {{image}}",
+    "imagesSelected": "{{count}} images sélectionnées",
+    "processing": "Traitement... {{uploaded}}/{{total}} ({{progress}}%)"
+  },
+  "errors": {
+    "noActiveOrder": "Aucune commande active",
+    "paymentRequired": "Veuillez compléter le paiement avant de télécharger des photos.",
+    "loadOrderData": "Échec du chargement des données de commande. Veuillez réessayer.",
+    "uploadFailed": "Échec du téléchargement des images. Veuillez réessayer.",
+    "someUploadsFailed": "{{count}} téléchargements ont échoué. Veuillez réessayer.",
+    "savingProgress": "Échec de l'enregistrement de la progression. Continuation vers l'examen."
+  },
+  "success": {
+    "uploadComplete": "{{count}} images téléchargées avec succès."
+  },
+  "buttons": {
+    "upload": "Télécharger {{count}} Style",
+    "upload_plural": "Télécharger {{count}} Styles"
+  }
+} 

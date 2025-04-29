@@ -1,0 +1,147 @@
+{
+  "common": {
+    "title": "Pagamento",
+    "description": "Conclua o pagamento para continuar com o upload das fotos.",
+    "order": {
+      "title": "Resumo do pedido",
+      "description": "Confira os detalhes do seu pedido antes de pagar."
+    },
+    "resumePayment": {
+      "title": "Retomar pagamento",
+      "description": "Continue o pagamento para gerar seus retratos profissionais."
+    },
+    "checkout": {
+      "title": "Finalizar compra",
+      "description": "Conclua a compra para gerar seus retratos profissionais.",
+      "canModifyNote": "Você pode modificar os estilos antes de pagar."
+    }
+  },
+  "fields": {
+    "cardNumber": "Número do cartão",
+    "expiryDate": "Data de validade",
+    "cvv": "CVV",
+    "name": "Nome no cartão",
+    "email": "E-mail",
+    "orderId": "ID do pedido",
+    "amount": "Valor",
+    "currency": "Moeda",
+    "styles": "Estilos selecionados",
+    "quantity": "Quantidade",
+    "date": "Data",
+    "status": "Status",
+    "shootNumber": "Número da sessão",
+    "package": {
+      "title": "Seu pacote de retratos",
+      "description": "Baseado na seleção de {{count}} {{style}}",
+      "includes": "O pacote {{tier}} inclui:",
+      "features": {
+        "totalHeadshots": "Total de {{count}} retratos profissionais",
+        "variations": "{{count}} variações por estilo",
+        "fullRights": "Direitos completos sobre todas as imagens",
+        "webFormat": "Download em formato web",
+        "additionalCapacity": "Capacidade adicional (+{{count}} retratos)"
+      }
+    }
+  },
+  "buttons": {
+    "pay": "Pagar agora",
+    "cancel": "Cancelar",
+    "retry": "Tentar novamente",
+    "continueToUpload": "Continuar para upload",
+    "backToHome": "Voltar para início",
+    "continueToPayment": "Continuar para pagamento",
+    "modifyStyles": "Modificar estilos",
+    "returnToPayment": "Voltar ao pagamento",
+    "returnToStyles": "Voltar aos estilos",
+    "backToSummary": "Voltar ao resumo"
+  },
+  "status": {
+    "processing": "Processando pagamento",
+    "verifying": "Verificando pagamento",
+    "completed": "Pagamento concluído",
+    "error": "Erro no pagamento",
+    "failed": "Pagamento falhou",
+    "pending": "Pagamento pendente",
+    "confirming": "Confirmando seu pagamento...",
+    "loadingPayment": "Carregando opções de pagamento...",
+    "processingWithCount": "Processando... ({{count}}/{{total}} - {{progress}}%)"
+  },
+  "errors": {
+    "loginRequired": "Faça login para continuar.",
+    "missingInfo": "Informações de pagamento ausentes.",
+    "invalidCard": "Dados do cartão inválidos.",
+    "declinedCard": "Cartão recusado.",
+    "insufficientFunds": "Saldo insuficiente.",
+    "verificationFailed": "Falha na verificação do pagamento.",
+    "networkError": "Erro de rede. Tente novamente.",
+    "unexpectedError": "Ocorreu um erro inesperado.",
+    "orderNotFound": "Pedido não encontrado.",
+    "invalidAmount": "Valor de pagamento inválido.",
+    "loadPaymentData": "Falha ao carregar dados de pagamento.",
+    "paymentClientSecret": "Falha ao preparar o pagamento. Tente novamente.",
+    "paymentRecovery": {
+      "title": "Falha ao recuperar pagamento",
+      "description": "Não foi possível recuperar seu pagamento anterior. Um novo processo será iniciado."
+    },
+    "noStyles": {
+      "title": "Nenhum estilo encontrado",
+      "description": "Adicione estilos à sua sessão primeiro."
+    }
+  },
+  "notifications": {
+    "processingPayment": "Processando seu pagamento...",
+    "verifyingPayment": "Verificando seu pagamento...",
+    "paymentReceived": "Pagamento recebido!",
+    "redirecting": "Redirecionando para a página de upload...",
+    "doNotClose": "Não feche esta página durante o processamento do pagamento.",
+    "authRequired": {
+      "title": "Autenticação necessária",
+      "description": "Autenticação extra é necessária para concluir o pagamento."
+    },
+    "paymentProcessing": {
+      "title": "Processando pagamento",
+      "description": "Seu pagamento está sendo processado. Avisaremos quando estiver concluído."
+    },
+    "paymentFailed": {
+      "title": "Pagamento falhou",
+      "description": "Tente outro método de pagamento."
+    },
+    "unexpectedResponse": {
+      "title": "Resposta inesperada",
+      "description": "Recebida resposta inesperada. Entre em contato com o suporte."
+    }
+  },
+  "success": {
+    "title": "Pagamento bem-sucedido",
+    "description": "Seu pagamento foi processado com sucesso.",
+    "subtitle": "Seus retratos estão sendo gerados!",
+    "orderSummary": {
+      "title": "Resumo do pedido",
+      "description": "Seu pedido foi confirmado e está sendo processado.",
+      "amount": "Valor pago",
+      "orderId": "ID do pedido",
+      "styles": "Estilos selecionados",
+      "stylesTitle": "Seus estilos de retrato"
+    },
+    "nextSteps": {
+      "title": "Próximos passos",
+      "description": "Agora você pode fazer upload das suas fotos para processamento.",
+      "instructions": "Siga as diretrizes de upload para obter o melhor resultado."
+    }
+  },
+  "pricing": {
+    "total": "Total",
+    "package": {
+      "title": "Pacote {{tier}}",
+      "description": "{{count}} {{style}} no seu pedido"
+    }
+  },
+  "security": {
+    "noCharge": "Você só será cobrado após a confirmação do pagamento",
+    "securePayment": "Insira seus dados de pagamento com segurança"
+  },
+  "_": {
+    "style": "estilo",
+    "style_plural": "estilos"
+  }
+} 

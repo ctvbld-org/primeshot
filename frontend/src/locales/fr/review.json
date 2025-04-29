@@ -1,0 +1,101 @@
+{
+  "title": "Examinez vos téléchargements",
+  "description": "Veuillez examiner vos photos téléchargées et fournir quelques détails pour nous aider à générer les meilleurs portraits.",
+  "uploadedPhotos": {
+    "title": "Photos téléchargées",
+    "description": "Voici les photos que vous avez téléchargées pour cette commande.",
+    "loading": "Chargement des images...",
+    "noPhotos": "Aucune photo trouvée pour cette commande. Veuillez revenir en arrière et télécharger des images."
+  },
+  "aboutYou": {
+    "title": "À propos de vous",
+    "description": "Ces informations aident à personnaliser la génération de portraits.",
+    "fields": {
+      "ethnicity": {
+        "label": "Ethnicité",
+        "placeholder": "Sélectionnez votre ethnicité",
+        "error": "L'ethnicité est requise",
+        "options": {
+          "asian": "Asiatique",
+          "black": "Noir/Descendance africaine",
+          "hispanic": "Hispanique/Latino",
+          "middleEastern": "Moyen-Oriental",
+          "nativeAmerican": "Amérindien",
+          "pacificIslander": "Insulaire du Pacifique",
+          "white": "Blanc/Caucasien",
+          "mixed": "Métis",
+          "preferNotToSay": "Préfère ne pas dire"
+        }
+      },
+      "eyeColor": {
+        "label": "Couleur des yeux",
+        "placeholder": "Sélectionnez la couleur de vos yeux",
+        "error": "La couleur des yeux est requise",
+        "options": {
+          "brown": "Marron",
+          "blue": "Bleu",
+          "green": "Vert",
+          "hazel": "Noisette",
+          "grey": "Gris",
+          "amber": "Ambre",
+          "other": "Autre"
+        }
+      },
+      "hairColor": {
+        "label": "Couleur des cheveux",
+        "placeholder": "Sélectionnez la couleur de vos cheveux",
+        "error": "La couleur des cheveux est requise",
+        "options": {
+          "black": "Noir",
+          "brown": "Marron",
+          "blonde": "Blond",
+          "red": "Rouge",
+          "grey": "Gris",
+          "white": "Blanc",
+          "dyed": "Teint/Autre"
+        }
+      },
+      "hairLength": {
+        "label": "Longueur des cheveux",
+        "placeholder": "Sélectionnez la longueur de vos cheveux",
+        "error": "La longueur des cheveux est requise",
+        "options": {
+          "bald": "Chauve/Rasé",
+          "short": "Court",
+          "medium": "Moyen",
+          "long": "Long",
+          "other": "Autre"
+        }
+      },
+      "bodyType": {
+        "label": "Type de corps",
+        "placeholder": "Sélectionnez votre type de corps",
+        "error": "Le type de corps est requis",
+        "options": {
+          "slim": "Mince",
+          "average": "Moyen",
+          "athletic": "Athlétique",
+          "heavySet": "Corpulent",
+          "preferNotToSay": "Préfère ne pas dire"
+        }
+      }
+    }
+  },
+  "submit": {
+    "button": {
+      "saving": "Enregistrement...",
+      "default": "Enregistrer et continuer vers le tableau de bord"
+    },
+    "toast": {
+      "success": {
+        "title": "Informations enregistrées",
+        "description": "Vos informations démographiques ont été enregistrées."
+      },
+      "error": {
+        "title": "Échec de la soumission",
+        "description": "Impossible d'enregistrer vos informations.",
+        "userNotLoggedIn": "Utilisateur non connecté."
+      }
+    }
+  }
+} 

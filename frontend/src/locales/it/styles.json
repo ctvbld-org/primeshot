@@ -1,0 +1,94 @@
+{
+  "newStyle": {
+    "title": "Crea nuovo stile",
+    "card": {
+      "alt": "Aggiungi nuovo stile",
+      "ariaLabel": "Aggiungi scheda nuovo stile",
+      "description": "Scegli il tuo stile fotografico,\nsfondo e abbigliamento.",
+      "button": "Aggiungi stile",
+      "buttonAriaLabel": "Aggiungi un nuovo stile fotografico"
+    }
+  },
+  "carousel": {
+    "label": "Opzioni stile fotografico"
+  },
+  "styleCard": {
+    "customize": "Personalizza",
+    "background": "Sfondo",
+    "clothing": "Abbigliamento",
+    "clothingColor": "Colore abbigliamento",
+    "confirmDelete": {
+      "title": "Elimina stile",
+      "description": "Sei sicuro di voler rimuovere questo stile dalla tua sessione?",
+      "confirm": "Rimuovi",
+      "cancel": "Mantieni"
+    },
+    "toast": {
+      "error": {
+        "title": "Errore",
+        "description": "Impossibile eliminare lo stile. Riprova."
+      }
+    }
+  },
+  "errors": {
+    "loadStyles": "Impossibile caricare gli stili"
+  },
+  "footer": {
+    "title": "La mia sessione",
+    "separator": {
+      "alt": "Separatore piè di pagina"
+    },
+    "styles": {
+      "count": "{{count}}",
+      "label": "Stili",
+      "multiplier": "×"
+    },
+    "photos": {
+      "count": "{{count}}",
+      "label": "Foto",
+      "perStyle": "({{count}} per stile)",
+      "multiplier": "×"
+    },
+    "upgrade": {
+      "text": "Aggiungi {{count}} stili extra e ottieni",
+      "photosText": "foto per solo",
+      "price": "{{amount}} USD"
+    },
+    "emptyState": "La tua lista di stili è vuota. Aggiungi qualche look per generare la sessione perfetta.",
+    "price": {
+      "amount": "{{amount}} USD"
+    },
+    "checkout": "Cassa",
+    "headshots": {
+      "perStyle": "{{count}} ritratti per stile",
+      "total": "{{count}} ritratti totali"
+    },
+    "perHeadshot": "${{amount}} per ritratto",
+    "notSelected": "Non selezionato"
+  },
+  "toast": {
+    "successAddedStyle": {
+      "title": "Aggiunto alla sessione",
+      "description": "Lo stile è stato aggiunto alla tua sessione"
+    },
+    "successUpdatedStyle": {
+      "title": "Stile aggiornato",
+      "description": "Il tuo stile è stato aggiornato"
+    },
+    "errorUpdatedStyle": {
+      "title": "Errore aggiornamento",
+      "description": "Impossibile aggiornare lo stile"
+    },
+    "errorSavingStyle": {
+      "title": "Errore salvataggio stile",
+      "description": "Impossibile salvare lo stile"
+    },
+    "errorMissingData": {
+      "title": "Errore",
+      "description": "Dati richiesti mancanti per il salvataggio."
+    }
+  },
+  "titles": {
+    "styleLabel": "Stile"
+  }
+} 

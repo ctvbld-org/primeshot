@@ -1,7 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { SettingsForm } from './settings-form'
+import { useTranslation } from 'react-i18next'
 
 export default async function SettingsPage() {
+  const { t } = useTranslation('settings')
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -16,9 +18,9 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
+        <h2 className="text-2xl font-bold tracking-tight">{t('page.title')}</h2>
         <p className="text-muted-foreground">
-          Manage your account settings and preferences.
+          {t('page.description')}
         </p>
       </div>
 

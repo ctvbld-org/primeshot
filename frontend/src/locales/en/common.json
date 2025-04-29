@@ -4,6 +4,7 @@
     "title": "Error",
     "description": "An error occurred"
   },
+  "language": "Language",
   "loading": "Loading...",
   "buttons": {
     "customize": "Customize",

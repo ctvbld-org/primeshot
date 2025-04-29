@@ -1,8 +1,6 @@
 {
   "title": "Tu Panel",
-  "description": "Visualiza y gestiona tus sesiones de fotos.",
-  "noShoots": "Aún no has creado ninguna sesión.",
-  "createShoot": "Crear Nueva Sesión",
+  "description": "Ver y gestionar tus sesiones de fotos.",
   "loading": {
     "error": "Error al cargar tus sesiones. Por favor, inténtalo de nuevo."
   },
@@ -18,21 +16,21 @@
   },
   "shootCard": {
     "shootNumber": "Sesión {{number}}",
-    "shootTBD": "Sesión por Determinar",
+    "shootTBD": "Sesión por determinar",
     "status": {
-      "paid": "Pagada",
-      "processing": "En Proceso",
-      "completed": "Completada"
+      "paid": "Pagado",
+      "processing": "En proceso",
+      "completed": "Completado"
     },
     "details": {
       "styles": "Estilos",
       "styleCount": "Cantidad de Estilos",
-      "totalAmount": "Monto Total",
-      "orderId": "ID de Orden"
+      "totalAmount": "Importe Total",
+      "orderId": "ID de Pedido"
     },
     "actions": {
       "viewDetails": "Ver Detalles",
       "viewResults": "Ver Resultados"
     }
   }
-} 
+}

@@ -1,0 +1,36 @@
+{
+  "title": "Votre Tableau de Bord",
+  "description": "Visualisez et gérez vos séances photo.",
+  "loading": {
+    "error": "Échec du chargement de vos séances. Veuillez réessayer."
+  },
+  "emptyState": {
+    "title": "Aucune séance pour le moment",
+    "description": "Vous n'avez pas encore complété de séance. Commencez par créer un style et compléter le processus de paiement.",
+    "button": "Créez votre première séance"
+  },
+  "tabs": {
+    "all": "Toutes les séances",
+    "processing": "En cours",
+    "completed": "Complétées"
+  },
+  "shootCard": {
+    "shootNumber": "Séance {{number}}",
+    "shootTBD": "Séance à déterminer",
+    "status": {
+      "paid": "Payée",
+      "processing": "En cours",
+      "completed": "Complétée"
+    },
+    "details": {
+      "styles": "Styles",
+      "styleCount": "Nombre de styles",
+      "totalAmount": "Montant total",
+      "orderId": "ID de commande"
+    },
+    "actions": {
+      "viewDetails": "Voir les détails",
+      "viewResults": "Voir les résultats"
+    }
+  }
+} 

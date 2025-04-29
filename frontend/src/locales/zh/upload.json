@@ -1,0 +1,46 @@
+{
+  "common": {
+    "title": "上传照片",
+    "description": "上传照片以生成证件照。",
+    "order": {
+      "title": "订单详情",
+      "description": "请按照订单规格上传照片。"
+    }
+  },
+  "fields": {
+    "orderId": "订单ID",
+    "styles": "已选风格",
+    "acceptedImages": "已接受的图片",
+    "needsImprovement": "需要改进",
+    "overallQualityScore": "整体质量评分",
+    "totalImages": "图片总数",
+    "acceptedImagesCount": "已接受的图片",
+    "rejectedImagesCount": "已拒绝的图片"
+  },
+  "status": {
+    "error": "错误",
+    "failed": "失败",
+    "successful": "成功",
+    "image": "{{count}}张图片",
+    "image_plural": "{{count}}张图片",
+    "uploadMore": "请再上传{{count}}张{{image}}",
+    "removeImages": "请删除{{count}}张{{image}}",
+    "imagesSelected": "已选择{{count}}张图片",
+    "processing": "处理中... {{uploaded}}/{{total}} ({{progress}}%)"
+  },
+  "errors": {
+    "noActiveOrder": "没有活动订单",
+    "paymentRequired": "请在上传照片前完成支付。",
+    "loadOrderData": "加载订单数据失败。请重试。",
+    "uploadFailed": "上传图片失败。请重试。",
+    "someUploadsFailed": "{{count}}个上传失败。请重试。",
+    "savingProgress": "保存进度失败。继续审核。"
+  },
+  "success": {
+    "uploadComplete": "成功上传{{count}}张图片。"
+  },
+  "buttons": {
+    "upload": "上传{{count}}个风格",
+    "upload_plural": "上传{{count}}个风格"
+  }
+} 

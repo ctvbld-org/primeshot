@@ -1,0 +1,41 @@
+{
+  "completionModal": {
+    "title": "Complétez votre profil",
+    "description": "Veuillez fournir les informations suivantes pour continuer. Cela nous aide à générer des portraits plus précis pour vous.",
+    "form": {
+      "fullName": {
+        "label": "Nom complet",
+        "placeholder": "Entrez votre nom complet",
+        "errors": {
+          "tooShort": "Le nom doit comporter au moins 2 caractères",
+          "tooLong": "Le nom est trop long"
+        }
+      },
+      "gender": {
+        "label": "Genre",
+        "placeholder": "Sélectionnez votre genre",
+        "options": {
+          "male": "Homme",
+          "female": "Femme"
+        },
+        "error": "Veuillez sélectionner une option",
+        "help": "Cette information nous aide à générer des portraits plus précis pour vous."
+      }
+    },
+    "submit": {
+      "saving": "Enregistrement...",
+      "continue": "Continuer"
+    },
+    "toast": {
+      "error": {
+        "title": "Erreur",
+        "notLoggedIn": "Vous devez être connecté pour mettre à jour votre profil.",
+        "updateFailed": "Échec de la mise à jour de votre profil. Veuillez réessayer."
+      },
+      "success": {
+        "title": "Profil mis à jour",
+        "description": "Votre profil a été mis à jour avec succès."
+      }
+    }
+  }
+} 

@@ -1,0 +1,41 @@
+{
+  "completionModal": {
+    "title": "プロフィールを完成させましょう",
+    "description": "続行するには以下の情報を入力してください。これにより、より正確なポートレートを生成できます。",
+    "form": {
+      "fullName": {
+        "label": "氏名",
+        "placeholder": "氏名を入力",
+        "errors": {
+          "tooShort": "名前は2文字以上で入力してください",
+          "tooLong": "名前が長すぎます"
+        }
+      },
+      "gender": {
+        "label": "性別",
+        "placeholder": "性別を選択",
+        "options": {
+          "male": "男性",
+          "female": "女性"
+        },
+        "error": "オプションを選択してください",
+        "help": "この情報は、より正確なポートレート生成に役立ちます。"
+      }
+    },
+    "submit": {
+      "saving": "保存中...",
+      "continue": "続行"
+    },
+    "toast": {
+      "error": {
+        "title": "エラー",
+        "notLoggedIn": "プロフィールを更新するにはログインが必要です。",
+        "updateFailed": "プロフィールの更新に失敗しました。再度お試しください。"
+      },
+      "success": {
+        "title": "プロフィールが更新されました",
+        "description": "プロフィールが正常に更新されました。"
+      }
+    }
+  }
+} 

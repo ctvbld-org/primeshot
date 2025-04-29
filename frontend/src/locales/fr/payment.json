@@ -1,0 +1,147 @@
+{
+  "common": {
+    "title": "Paiement",
+    "description": "Complétez votre paiement pour procéder au téléchargement des photos.",
+    "order": {
+      "title": "Résumé de la commande",
+      "description": "Vérifiez les détails de votre commande avant le paiement."
+    },
+    "resumePayment": {
+      "title": "Reprendre le paiement",
+      "description": "Continuez votre paiement pour générer vos portraits professionnels."
+    },
+    "checkout": {
+      "title": "Paiement",
+      "description": "Complétez votre achat pour générer vos portraits professionnels.",
+      "canModifyNote": "Vous pouvez encore modifier vos styles avant de procéder au paiement."
+    }
+  },
+  "fields": {
+    "cardNumber": "Numéro de carte",
+    "expiryDate": "Date d'expiration",
+    "cvv": "CVV",
+    "name": "Nom sur la carte",
+    "email": "Email",
+    "orderId": "ID de commande",
+    "amount": "Montant",
+    "currency": "Devise",
+    "styles": "Styles sélectionnés",
+    "quantity": "Quantité",
+    "date": "Date",
+    "status": "Statut",
+    "shootNumber": "Numéro de séance",
+    "package": {
+      "title": "Votre forfait portrait",
+      "description": "Basé sur votre sélection de {{count}} {{style}}",
+      "includes": "Le forfait {{tier}} comprend :",
+      "features": {
+        "totalHeadshots": "{{count}} portraits professionnels au total",
+        "variations": "{{count}} variations par style",
+        "fullRights": "Droits complets sur toutes les images",
+        "webFormat": "Téléchargement au format web",
+        "additionalCapacity": "Capacité supplémentaire (+{{count}} portraits)"
+      }
+    }
+  },
+  "buttons": {
+    "pay": "Payer maintenant",
+    "cancel": "Annuler",
+    "retry": "Réessayer le paiement",
+    "continueToUpload": "Continuer vers le téléchargement",
+    "backToHome": "Retour à l'accueil",
+    "continueToPayment": "Continuer vers le paiement",
+    "modifyStyles": "Modifier les styles",
+    "returnToPayment": "Retour au paiement",
+    "returnToStyles": "Retour aux styles",
+    "backToSummary": "Retour au résumé de la commande"
+  },
+  "status": {
+    "processing": "Traitement du paiement",
+    "verifying": "Vérification du paiement",
+    "completed": "Paiement complété",
+    "error": "Erreur de paiement",
+    "failed": "Paiement échoué",
+    "pending": "Paiement en attente",
+    "confirming": "Confirmation de votre paiement...",
+    "loadingPayment": "Chargement des options de paiement...",
+    "processingWithCount": "Traitement... ({{count}}/{{total}} - {{progress}}%)"
+  },
+  "errors": {
+    "loginRequired": "Veuillez vous connecter pour continuer.",
+    "missingInfo": "Informations de paiement manquantes.",
+    "invalidCard": "Détails de la carte invalides.",
+    "declinedCard": "Carte refusée.",
+    "insufficientFunds": "Fonds insuffisants.",
+    "verificationFailed": "Échec de la vérification du paiement.",
+    "networkError": "Erreur réseau. Veuillez réessayer.",
+    "unexpectedError": "Une erreur inattendue s'est produite.",
+    "orderNotFound": "Commande introuvable.",
+    "invalidAmount": "Montant de paiement invalide.",
+    "loadPaymentData": "Échec du chargement des données de paiement.",
+    "paymentClientSecret": "Échec de la préparation du paiement. Veuillez réessayer.",
+    "paymentRecovery": {
+      "title": "Échec de la récupération du paiement",
+      "description": "Nous n'avons pas pu restaurer votre paiement précédent. Démarrage d'un nouveau processus de paiement."
+    },
+    "noStyles": {
+      "title": "Aucun style trouvé",
+      "description": "Veuillez d'abord ajouter des styles à votre séance."
+    }
+  },
+  "notifications": {
+    "processingPayment": "Traitement de votre paiement...",
+    "verifyingPayment": "Vérification de votre paiement...",
+    "paymentReceived": "Paiement reçu !",
+    "redirecting": "Redirection vers la page de téléchargement...",
+    "doNotClose": "Veuillez ne pas fermer cette page pendant le traitement de votre paiement.",
+    "authRequired": {
+      "title": "Authentification requise",
+      "description": "Une authentification supplémentaire est requise pour compléter votre paiement."
+    },
+    "paymentProcessing": {
+      "title": "Traitement du paiement",
+      "description": "Votre paiement est en cours de traitement. Nous vous informerons lorsqu'il sera terminé."
+    },
+    "paymentFailed": {
+      "title": "Paiement échoué",
+      "description": "Veuillez essayer une autre méthode de paiement."
+    },
+    "unexpectedResponse": {
+      "title": "Réponse inattendue",
+      "description": "Réponse inattendue reçue. Veuillez contacter le support."
+    }
+  },
+  "success": {
+    "title": "Paiement réussi",
+    "description": "Votre paiement a été traité avec succès.",
+    "subtitle": "Vos portraits sont maintenant en cours de génération !",
+    "orderSummary": {
+      "title": "Résumé de la commande",
+      "description": "Votre commande a été confirmée et est en cours de traitement.",
+      "amount": "Montant payé",
+      "orderId": "ID de commande",
+      "styles": "Styles sélectionnés",
+      "stylesTitle": "Vos styles de portrait"
+    },
+    "nextSteps": {
+      "title": "Prochaines étapes",
+      "description": "Vous pouvez maintenant procéder au téléchargement de vos photos pour le traitement.",
+      "instructions": "Veuillez suivre les directives de téléchargement pour garantir les meilleurs résultats."
+    }
+  },
+  "pricing": {
+    "total": "Total",
+    "package": {
+      "title": "Forfait {{tier}}",
+      "description": "{{count}} {{style}} dans votre commande"
+    }
+  },
+  "security": {
+    "noCharge": "Vous ne serez pas facturé tant que le paiement n'est pas confirmé",
+    "securePayment": "Entrez vos informations de paiement en toute sécurité"
+  },
+  "_": {
+    "style": "style",
+    "style_plural": "styles"
+  }
+} 

@@ -167,7 +167,7 @@ export default function StylesPage() {
         transition={{ duration: 0.6, delay: 0.2 }}
       >
         {isLoading ? (
-          <div className="text-center py-8">{t('loading')}</div>
+          <div className="text-center py-8">{t('loading', { ns: 'common' })}</div>
         ) : styles.length === 0 ? (
           <>
             <div className={stylesCSS['fake-card']}></div>

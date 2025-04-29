@@ -116,7 +116,7 @@ export function StyleCard({
 
   // Conditional rendering after all hooks
   if (!styleConfigs || !styleConfig) {
-    return <Card className={className}><div className={styles.loadingState}>{t('styleCard.loading')}</div></Card>;
+    return <Card className={className}><div className={styles.loadingState}>{t('loading', { ns: 'common' })}</div></Card>;
   }
 
   // Merge saved style with style configuration

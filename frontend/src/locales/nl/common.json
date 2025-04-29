@@ -1,0 +1,28 @@
+{
+  "welcome": "Welkom",
+  "uploadSuccess": "Je foto's zijn succesvol geüpload",
+  "greeting": "Hallo, {{name}}!",
+  "language": "Taal",
+  "error": {
+    "title": "Fout",
+    "description": "Er is een fout opgetreden"
+  },
+  "loading": "Laden...",
+  "buttons": {
+    "customize": "Aanpassen",
+    "confirmChanges": "Wijzigingen bevestigen",
+    "addToShoot": "Toevoegen aan fotoshoot",
+    "edit": "Bewerken",
+    "delete": "Verwijderen",
+    "save": "Opslaan",
+    "cancel": "Annuleren",
+    "close": "Sluiten",
+    "next": "Volgende",
+    "previous": "Vorige",
+    "keep": "Behouden",
+    "discard": "Weggooien",
+    "confirm": "Bevestigen",
+    "remove": "Verwijderen",
+    "add": "Toevoegen"
+  }
+} 

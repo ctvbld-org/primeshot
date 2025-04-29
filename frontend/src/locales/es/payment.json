@@ -1,29 +1,29 @@
 {
   "common": {
     "title": "Pago",
-    "description": "Complete su pago para continuar con la carga de fotos.",
+    "description": "Completa tu pago para proceder con la subida de fotos.",
     "order": {
       "title": "Resumen del Pedido",
-      "description": "Revise los detalles de su pedido antes del pago."
+      "description": "Revisa los detalles de tu pedido antes del pago."
     },
     "resumePayment": {
       "title": "Reanudar Pago",
-      "description": "Continúe con su pago para generar sus fotos profesionales."
+      "description": "Continúa con tu pago para generar tus fotos profesionales."
     },
     "checkout": {
       "title": "Pagar",
-      "description": "Complete su compra para generar sus fotos profesionales.",
-      "canModifyNote": "Aún puede modificar sus estilos antes de realizar el pago."
+      "description": "Completa tu compra para generar tus fotos profesionales.",
+      "canModifyNote": "Aún puedes modificar tus estilos antes de realizar el pago."
     }
   },
   "fields": {
     "cardNumber": "Número de Tarjeta",
-    "expiryDate": "Fecha de Vencimiento",
+    "expiryDate": "Fecha de Caducidad",
     "cvv": "CVV",
     "name": "Nombre en la Tarjeta",
     "email": "Correo Electrónico",
-    "orderId": "ID del Pedido",
-    "amount": "Monto",
+    "orderId": "ID de Pedido",
+    "amount": "Importe",
     "currency": "Moneda",
     "styles": "Estilos Seleccionados",
     "quantity": "Cantidad",
@@ -31,8 +31,8 @@
     "status": "Estado",
     "shootNumber": "Número de Sesión",
     "package": {
-      "title": "Su Paquete de Fotos",
-      "description": "Basado en su selección de {{count}} {{style}}",
+      "title": "Tu Paquete de Fotos",
+      "description": "Basado en tu selección de {{count}} {{style}}",
       "includes": "El Paquete {{tier}} Incluye:",
       "features": {
         "totalHeadshots": "{{count}} fotos profesionales en total",
@@ -47,7 +47,7 @@
     "pay": "Pagar Ahora",
     "cancel": "Cancelar",
     "retry": "Reintentar Pago",
-    "continueToUpload": "Continuar a Carga",
+    "continueToUpload": "Continuar a Subida",
     "backToHome": "Volver al Inicio",
     "continueToPayment": "Continuar al Pago",
     "modifyStyles": "Modificar Estilos",
@@ -62,83 +62,83 @@
     "error": "Error en el Pago",
     "failed": "Pago Fallido",
     "pending": "Pago Pendiente",
-    "confirming": "Confirmando su pago...",
+    "confirming": "Confirmando tu pago...",
     "loadingPayment": "Cargando opciones de pago...",
     "processingWithCount": "Procesando... ({{count}}/{{total}} - {{progress}}%)"
   },
   "errors": {
-    "loginRequired": "Por favor, inicie sesión para continuar.",
+    "loginRequired": "Por favor, inicia sesión para continuar.",
     "missingInfo": "Falta información de pago.",
-    "invalidCard": "Detalles de tarjeta inválidos.",
+    "invalidCard": "Datos de tarjeta inválidos.",
     "declinedCard": "Tarjeta rechazada.",
     "insufficientFunds": "Fondos insuficientes.",
     "verificationFailed": "Verificación de pago fallida.",
-    "networkError": "Error de red. Por favor, intente de nuevo.",
+    "networkError": "Error de red. Por favor, inténtalo de nuevo.",
     "unexpectedError": "Ocurrió un error inesperado.",
     "orderNotFound": "Pedido no encontrado.",
-    "invalidAmount": "Monto de pago inválido.",
+    "invalidAmount": "Importe de pago inválido.",
     "loadPaymentData": "Error al cargar datos de pago.",
-    "paymentClientSecret": "Error al preparar el pago. Por favor, intente de nuevo.",
+    "paymentClientSecret": "Error al preparar el pago. Por favor, inténtalo de nuevo.",
     "paymentRecovery": {
-      "title": "Recuperación de Pago Fallida",
-      "description": "No pudimos restaurar su pago anterior. Iniciando un nuevo proceso de pago."
+      "title": "Error en la Recuperación del Pago",
+      "description": "No pudimos restaurar tu pago anterior. Iniciando un nuevo proceso de pago."
     },
     "noStyles": {
-      "title": "No Se Encontraron Estilos",
-      "description": "Por favor, agregue estilos a su sesión primero."
+      "title": "No se Encontraron Estilos",
+      "description": "Por favor, añade estilos a tu sesión primero."
     }
   },
   "notifications": {
-    "processingPayment": "Procesando su pago...",
-    "verifyingPayment": "Verificando su pago...",
+    "processingPayment": "Procesando tu pago...",
+    "verifyingPayment": "Verificando tu pago...",
     "paymentReceived": "¡Pago recibido!",
-    "redirecting": "Redirigiendo a la página de carga...",
-    "doNotClose": "Por favor, no cierre esta página mientras se procesa su pago.",
+    "redirecting": "Redirigiendo a la página de subida...",
+    "doNotClose": "Por favor, no cierres esta página mientras se procesa tu pago.",
     "authRequired": {
       "title": "Autenticación Requerida",
-      "description": "Se requiere autenticación adicional para completar su pago."
+      "description": "Se requiere autenticación adicional para completar tu pago."
     },
     "paymentProcessing": {
       "title": "Procesando Pago",
-      "description": "Su pago está siendo procesado. Le notificaremos cuando se complete."
+      "description": "Tu pago está siendo procesado. Te notificaremos cuando se complete."
     },
     "paymentFailed": {
       "title": "Pago Fallido",
-      "description": "Por favor, intente con otro método de pago."
+      "description": "Por favor, intenta con otro método de pago."
     },
     "unexpectedResponse": {
       "title": "Respuesta Inesperada",
-      "description": "Se recibió una respuesta inesperada. Por favor, contacte a soporte."
+      "description": "Se recibió una respuesta inesperada. Por favor, contacta con soporte."
     }
   },
   "success": {
     "title": "Pago Exitoso",
-    "description": "Su pago ha sido procesado exitosamente.",
-    "subtitle": "¡Sus fotos están siendo generadas!",
+    "description": "Tu pago ha sido procesado con éxito.",
+    "subtitle": "¡Tus fotos están siendo generadas!",
     "orderSummary": {
       "title": "Resumen del Pedido",
-      "description": "Su pedido ha sido confirmado y está siendo procesado.",
-      "amount": "Monto Pagado",
-      "orderId": "ID del Pedido",
+      "description": "Tu pedido ha sido confirmado y está siendo procesado.",
+      "amount": "Importe Pagado",
+      "orderId": "ID de Pedido",
       "styles": "Estilos Seleccionados",
-      "stylesTitle": "Sus Estilos de Foto"
+      "stylesTitle": "Tus Estilos de Foto"
     },
     "nextSteps": {
       "title": "Siguientes Pasos",
-      "description": "Ahora puede proceder a cargar sus fotos para procesamiento.",
-      "instructions": "Por favor, siga las pautas de carga para asegurar los mejores resultados."
+      "description": "Ahora puedes proceder a subir tus fotos para su procesamiento.",
+      "instructions": "Por favor, sigue las pautas de subida para asegurar los mejores resultados."
     }
   },
   "pricing": {
     "total": "Total",
     "package": {
       "title": "Paquete {{tier}}",
-      "description": "{{count}} {{style}} en su pedido"
+      "description": "{{count}} {{style}} en tu pedido"
     }
   },
   "security": {
-    "noCharge": "No se le cobrará hasta que se confirme el pago",
-    "securePayment": "Ingrese su información de pago de forma segura"
+    "noCharge": "No se te cobrará hasta que se confirme el pago",
+    "securePayment": "Ingresa tu información de pago de forma segura"
   },
   "_": {
     "style": "estilo",

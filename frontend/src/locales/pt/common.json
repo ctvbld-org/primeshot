@@ -1,0 +1,28 @@
+{
+  "welcome": "Bem-vindo",
+  "uploadSuccess": "Suas fotos foram enviadas com sucesso",
+  "greeting": "Olá, {{name}}!",
+  "language": "Idioma",
+  "error": {
+    "title": "Erro",
+    "description": "Ocorreu um erro"
+  },
+  "loading": "Carregando...",
+  "buttons": {
+    "customize": "Personalizar",
+    "confirmChanges": "Confirmar alterações",
+    "addToShoot": "Adicionar à sessão",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "close": "Fechar",
+    "next": "Próximo",
+    "previous": "Anterior",
+    "keep": "Manter",
+    "discard": "Descartar",
+    "confirm": "Confirmar",
+    "remove": "Remover",
+    "add": "Adicionar"
+  }
+} 

@@ -54,8 +54,8 @@ export function ShootFooter({
         </div>
         {stylesCount > 0 ? (
           <>
-            <div className="flex items-center mr-10 justify-between flex-wrap flex-[1_1_80%]">
-              <div className={styles['footer-content']}>
+            <div className="flex items-center justify-between flex-nowrap flex-[1_1_80%] mr-10 overflow-x-auto hide-scrollbar">
+              <div className={`${styles['footer-content']} flex flex-nowrap flex-[1_0_auto]`}>
                 <div className={`flex items-center ${styles['footer-styles']}`}>
                   <span className="text-[#FFB45E] mr-1">{t('footer.styles.count', { count: stylesCount })}</span>
                   <span className={styles['footer-multiplier']}>{t('footer.styles.multiplier')}</span>
@@ -71,16 +71,16 @@ export function ShootFooter({
                   <span className={styles['footer-photos-per-style']}>{t('footer.photos.perStyle', { count: photosPerStyle })}</span>
                 </div>
 
-                <span className="bg-[#44E3C910] rounded-full px-3 py-2 text-[#44E3C9]">
+                <span className="flex flex-nowrap flex-[0_0_auto] bg-[#44E3C910] rounded-full px-3 py-2 mr-4 text-[#44E3C9]">
                   {t('footer.price.amount', { amount: basePrice / 100 })}
                 </span>
               </div>
-              <div className={styles['footer-upgrade-container']}>
-                <Icon variant="plusFill" size={16} className="text-[#FFB45E]" />
-                <span>{t('footer.upgrade.text', { count: extraStylesCount })}</span>
+              <div className={`${styles['footer-upgrade-container']} flex flex-nowrap flex-[0_0_auto]`}>
+                <Icon variant="plusFill" size={16} className="flex-[1_0_auto] text-[#FFB45E]" />
+                <span className="flex flex-nowrap flex-[1_0_auto]">{t('footer.upgrade.text', { count: extraStylesCount })}</span>
                 <span className="text-[#FFFFFF]">{totalPhotosWithExtra}</span>
-                <span>{t('footer.upgrade.photosText')}</span>
-                <span className="text-[#FFFFFF]">{t('footer.upgrade.price', { amount: upgradedPrice })}</span>
+                <span className="flex flex-nowrap flex-[1_0_auto]">{t('footer.upgrade.photosText')}</span>
+                <span className="text-[#FFFFFF] flex flex-nowrap flex-[1_0_auto]">{t('footer.upgrade.price', { amount: upgradedPrice })}</span>
               </div>
             </div>
           </>

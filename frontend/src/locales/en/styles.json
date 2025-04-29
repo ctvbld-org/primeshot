@@ -1,5 +1,4 @@
 {
-  "loading": "Loading styles...",
   "newStyle": {
     "title": "Create new style",
     "card": {
@@ -14,7 +13,7 @@
     "label": "Photography style options"
   },
   "styleCard": {
-    "loading": "Loading...",
+    "customize": "Customize",
     "background": "Background",
     "clothing": "Clothing",
     "clothingColor": "Clothing Color",

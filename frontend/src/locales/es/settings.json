@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Configuración",
+    "description": "Administra la configuración y preferencias de tu cuenta."
+  },
+  "form": {
+    "profile": {
+      "title": "Perfil",
+      "description": "Actualiza la información de tu perfil.",
+      "fullName": {
+        "label": "Nombre completo",
+        "placeholder": "Introduce tu nombre completo"
+      },
+      "submit": {
+        "saving": "Guardando...",
+        "default": "Guardar cambios"
+      },
+      "toast": {
+        "success": {
+          "title": "Perfil actualizado",
+          "description": "Tu perfil se ha actualizado correctamente."
+        },
+        "error": {
+          "title": "Error",
+          "description": "No se pudo actualizar el perfil. Por favor, inténtalo de nuevo.",
+          "notAuthenticated": "No autenticado"
+        }
+      }
+    }
+  }
+} 

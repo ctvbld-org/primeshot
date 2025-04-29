@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Einstellungen",
+    "description": "Verwalten Sie Ihre Kontoeinstellungen und Präferenzen."
+  },
+  "form": {
+    "profile": {
+      "title": "Profil",
+      "description": "Aktualisieren Sie Ihre Profilinformationen.",
+      "fullName": {
+        "label": "Vollständiger Name",
+        "placeholder": "Geben Sie Ihren vollständigen Namen ein"
+      },
+      "submit": {
+        "saving": "Speichern...",
+        "default": "Änderungen speichern"
+      },
+      "toast": {
+        "success": {
+          "title": "Profil aktualisiert",
+          "description": "Ihr Profil wurde erfolgreich aktualisiert."
+        },
+        "error": {
+          "title": "Fehler",
+          "description": "Profilaktualisierung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+          "notAuthenticated": "Nicht authentifiziert"
+        }
+      }
+    }
+  }
+} 
