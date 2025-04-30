@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
+import { AnimatedBackground } from "@/components/auth/animated-background";
 
 export default function SignIn() {
   const [mounted, setMounted] = useState(false);
@@ -64,53 +65,56 @@ export default function SignIn() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-24">
-      <Card className="w-[350px]">
-        <CardHeader>
-          <CardTitle>{t('signin.title')}</CardTitle>
-          <CardDescription>{t('signin.description')}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleEmailSignIn} className="space-y-4">
-            <div className="space-y-2">
-              <Input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={t('signin.email.placeholder')}
-                required
-              />
-              {error && (
-                <p className="text-sm text-red-500">{error.message || t('errors.generic')}</p>
-              )}
+    <>
+      <AnimatedBackground />
+      <div className="relative flex min-h-screen flex-col items-center justify-center p-24 z-20">
+        <Card className="w-[350px] bg-background/80 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle>{t('signin.title')}</CardTitle>
+            <CardDescription>{t('signin.description')}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleEmailSignIn} className="space-y-4">
+              <div className="space-y-2">
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={t('signin.email.placeholder')}
+                  required
+                />
+                {error && (
+                  <p className="text-sm text-red-500">{error.message || t('errors.generic')}</p>
+                )}
+              </div>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? t('signin.email.loading') : t('signin.email.button')}
+              </Button>
+            </form>
+
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  {t('signin.divider.text')}
+                </span>
+              </div>
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? t('signin.email.loading') : t('signin.email.button')}
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={handleGoogleSignIn}
+              disabled={isLoading}
+            >
+              {t('signin.google.button')}
             </Button>
-          </form>
-
-          <div className="relative my-4">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                {t('signin.divider.text')}
-              </span>
-            </div>
-          </div>
-
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={handleGoogleSignIn}
-            disabled={isLoading}
-          >
-            {t('signin.google.button')}
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   );
 } 

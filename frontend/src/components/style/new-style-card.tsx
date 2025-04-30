@@ -24,7 +24,7 @@ export function NewStyleCard({
     >
       <div className={styles['top-card']}>
         <Image
-          src="/t-shirt.svg"
+          src="/t-shirt.png"
           alt={t('newStyle.card.alt')}
           width={156}
           height={156}

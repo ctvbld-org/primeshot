@@ -43,7 +43,7 @@ export default function AppLayout({
   }
 
   return (
-    <div className="flex flex-col flex-1 justify-center py-[80px] min-h-screen overflow-hidden" style={{ backgroundColor: '#001514' }}>
+    <div className="flex flex-col flex-1 justify-center pt-[56px] pb-[64px] min-h-screen overflow-hidden" style={{ backgroundColor: '#001514' }}>
       <header className="fixed top-0 left-0 right-0 z-50">
         <div className="mx-auto flex h-[56px] items-center justify-between px-4">
           <Image 
