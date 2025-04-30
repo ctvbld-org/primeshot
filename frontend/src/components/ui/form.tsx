@@ -7,11 +7,13 @@ import {
   Controller,
   FormProvider,
   useFormContext,
-  useFormState,
   type ControllerProps,
   type FieldPath,
   type FieldValues,
 } from "react-hook-form"
+import {
+  useFormStatus,
+} from "react-dom"
 
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
@@ -45,8 +47,8 @@ const FormField = <
 const useFormField = () => {
   const fieldContext = React.useContext(FormFieldContext)
   const itemContext = React.useContext(FormItemContext)
-  const { getFieldState } = useFormContext()
-  const formState = useFormState({ name: fieldContext.name })
+  const { getFieldState, formState } = useFormContext()
+
   const fieldState = getFieldState(fieldContext.name, formState)
 
   if (!fieldContext) {

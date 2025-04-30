@@ -24,11 +24,12 @@ export function NewStyleCard({
     >
       <div className={styles['top-card']}>
         <Image
-          src="/add-new-style.png"
+          src="/t-shirt.svg"
           alt={t('newStyle.card.alt')}
           width={156}
           height={156}
           className={styles['tshirt-image']}
+          style={{ height: 'auto' }}
           priority
         />
       </div>

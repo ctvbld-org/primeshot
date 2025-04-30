@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.text();
-    const headersList = headers();
+    const headersList = await headers();
     const sig = headersList.get('stripe-signature');
 
     if (!sig) {
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
-          get: (name) => cookies().get(name)?.value,
+          get: async name => (await cookies()).get(name)?.value,
           set: () => {}, // We don't need to set cookies in this route handler
           remove: () => {}, // We don't need to remove cookies in this route handler
         },

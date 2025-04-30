@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   const origin = requestUrl.origin
 
   if (code) {
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -23,7 +23,7 @@ export async function GET(request: Request) {
             }))
           },
           async setAll(cookiesToSet) {
-            const cookieStore = cookies()
+            const cookieStore = await cookies()
             for (const cookie of cookiesToSet) {
               cookieStore.set(cookie.name, cookie.value, cookie.options)
             }

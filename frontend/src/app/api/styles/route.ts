@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const status = searchParams.get('status')
   
   try {
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
