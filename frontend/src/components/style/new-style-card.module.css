@@ -47,7 +47,6 @@
 .tshirt-image {
   width: 156px;
   height: 156px;
-  width: 100%;
   box-sizing: content-box;
   object-fit: contain;
 }

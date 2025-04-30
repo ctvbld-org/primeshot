@@ -119,6 +119,7 @@ export function StyleDetails({
               src={imgSrc}
               alt={`${style.name} preview image ${idx + 1}`}
               fill
+              sizes="(max-width: 248px) 496px, 248px"
               className="object-cover"
               priority={idx === 0}
               onLoad={() => handleImageLoad(idx)}
@@ -182,12 +183,18 @@ export function StyleDetails({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="relative w-12 h-12 cursor-help">
-                        <Image 
-                          src={getOptionsImage(selectedBackground?.imageUrl || '')}
-                          alt="Selected background preview"
-                          fill
-                          className="object-cover rounded-full"
-                        />
+                        {(() => {
+                          const imageUrl = selectedBackground?.imageUrl ? getOptionsImage(selectedBackground.imageUrl) : undefined;
+                          return imageUrl ? (
+                            <Image 
+                              src={imageUrl}
+                              alt="Selected background preview"
+                              fill
+                              className="object-cover rounded-full"
+                              sizes="96px, 48px"
+                            />
+                          ) : null;
+                        })()}
                       </div>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -199,12 +206,18 @@ export function StyleDetails({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="relative w-12 h-12 cursor-help">
-                        <Image 
-                          src={getOptionsImage(selectedClothing?.imageUrl || '')}
-                          alt="Selected clothing preview"
-                          fill
-                          className="object-cover rounded-full"
-                        />
+                        {(() => {
+                          const imageUrl = selectedClothing?.imageUrl ? getOptionsImage(selectedClothing.imageUrl) : undefined;
+                          return imageUrl ? (
+                            <Image 
+                              src={imageUrl}
+                              alt="Selected clothing preview"
+                              fill
+                              className="object-cover rounded-full"
+                              sizes="96px, 48px"
+                            />
+                          ) : null;
+                        })()}
                       </div>
                     </TooltipTrigger>
                     <TooltipContent>

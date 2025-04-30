@@ -49,6 +49,7 @@ export function ShootFooter({
               alt={t('footer.separator.alt')}
               width={13}
               height={64}
+              style={{ width: 'auto', height: '64px' }}
             />
           </span>
         </div>
@@ -86,7 +87,7 @@ export function ShootFooter({
           </>
         ) : (
           <>
-            <div className="flex items-center mr-10 flex-wrap flex-[1_1_80%]">
+            <div className="flex items-center mr-10 flex-nowrap flex-[1_1_80%]">
               <Icon variant="dizzyFace" size={22} className="mr-2" />
               <div className={styles['footer-content']}>
                 <span>{t('footer.emptyState')}</span>
