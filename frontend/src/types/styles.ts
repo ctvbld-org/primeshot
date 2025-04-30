@@ -10,12 +10,24 @@ export interface Style {
   available_clothing_colors: string[];
   created_at: string;
   updated_at: string;
+  translations: {
+    [lang: string]: {
+      name: string;
+      tagline: string;
+      description: string;
+    }
+  };
 }
 
 export interface OptionItem {
   id: string;
   label: string;
   imageUrl?: string;
+  translations: {
+    [lang: string]: {
+      label: string;
+    }
+  };
 }
 
 export interface Option {
@@ -25,6 +37,12 @@ export interface Option {
   options: OptionItem[];
   created_at: string;
   updated_at: string;
+  translations: {
+    [lang: string]: {
+      label: string;
+      description: string;
+    }
+  };
 }
 
 export type StyleId = Style['id'];

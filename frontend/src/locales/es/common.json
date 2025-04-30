@@ -1,0 +1,26 @@
+{
+  "welcome": "Bienvenido",
+  "error": {
+    "title": "Error",
+    "description": "Se ha producido un error"
+  },
+  "language": "Idioma",
+  "loading": "Cargando...",
+  "buttons": {
+    "customize": "Personalizar",
+    "confirmChanges": "Confirmar cambios",
+    "addToShoot": "Añadir a la sesión",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "keep": "Mantener",
+    "discard": "Descartar",
+    "confirm": "Confirmar",
+    "remove": "Eliminar",
+    "add": "Añadir"
+  }
+} 

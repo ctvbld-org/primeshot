@@ -1,0 +1,46 @@
+{
+  "common": {
+    "title": "Carica foto",
+    "description": "Carica le tue foto per la generazione dei ritratti.",
+    "order": {
+      "title": "Dettagli ordine",
+      "description": "Carica le foto secondo le specifiche del tuo ordine."
+    }
+  },
+  "fields": {
+    "orderId": "ID ordine",
+    "styles": "Stili selezionati",
+    "acceptedImages": "Immagini accettate",
+    "needsImprovement": "Necessita miglioramento",
+    "overallQualityScore": "Punteggio qualità complessiva",
+    "totalImages": "Totale immagini",
+    "acceptedImagesCount": "Immagini accettate",
+    "rejectedImagesCount": "Immagini rifiutate"
+  },
+  "status": {
+    "error": "Errore",
+    "failed": "Fallito",
+    "successful": "Riuscito",
+    "image": "{{count}} immagine",
+    "image_plural": "{{count}} immagini",
+    "uploadMore": "Carica altre {{count}} {{image}}",
+    "removeImages": "Rimuovi {{count}} {{image}}",
+    "imagesSelected": "{{count}} immagini selezionate",
+    "processing": "Elaborazione... {{uploaded}}/{{total}} ({{progress}}%)"
+  },
+  "errors": {
+    "noActiveOrder": "Nessun ordine attivo",
+    "paymentRequired": "Completa il pagamento prima di caricare le foto.",
+    "loadOrderData": "Impossibile caricare i dati dell'ordine. Riprova.",
+    "uploadFailed": "Impossibile caricare le immagini. Riprova.",
+    "someUploadsFailed": "{{count}} caricamenti falliti. Riprova.",
+    "savingProgress": "Impossibile salvare i progressi. Continuando alla revisione."
+  },
+  "success": {
+    "uploadComplete": "{{count}} immagini caricate con successo."
+  },
+  "buttons": {
+    "upload": "Carica {{count}} stile",
+    "upload_plural": "Carica {{count}} stili"
+  }
+} 

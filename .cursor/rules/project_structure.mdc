@@ -1,96 +1,216 @@
 ---
-description: Guidelines for managing Supabase migrations and database schema changes
-globs: frontend/supabase/migrations/*.sql
+description: Guidelines for understanding the structure of the project and the role of each directory and important files
+globs: 
 alwaysApply: true
 ---
+# Project Structure
 
-- **Working Directory**
-  - ⚠️ IMPORTANT: All Supabase commands MUST be run from the `frontend` directory
-  ```bash
-  # ✅ DO: Run commands from frontend directory
-  cd frontend
-  supabase db push
+## Root Directory Structure
+```
+/
+├── .cursor/          # Cursor IDE configuration and rules
+├── .git/            # Git repository data
+├── frontend/        # Next.js frontend application
+├── scripts/         # Development and utility scripts
+├── tasks/           # Task management files
+├── node_modules/    # Root-level dependencies
+├── package.json     # Root-level package configuration
+├── .env            # Environment variables (gitignored)
+└── README.md       # Project documentation
+```
 
-  # ❌ DON'T: Run from repository root
-  supabase db push  # This will fail
-  ```
+## Frontend Directory Structure
+```
+frontend/
+├── .next/           # Next.js build output
+├── public/          # Static assets
+├── src/            # Application source code
+├── supabase/        # Supabase client configuration
+├── docs/           # Project documentation
+├── scripts/        # Frontend-specific scripts
+├── .env.local      # Local environment variables
+└── package.json    # Frontend dependencies
+```
 
-- **Migration File Naming**
-  - Use timestamp-based naming to ensure uniqueness
-  ```bash
-  # ✅ DO: Use timestamp-based names
-  YYYYMMDDHHMMSS_descriptive_name.sql
-  20240403143022_add_user_profile_fields.sql
-  
-  # ❌ DON'T: Use date-only names (can cause conflicts)
-  20240403_add_user_profile_fields.sql
-  ```
+## Source Code Structure (src/)
+```
+src/
+├── app/            # Next.js 13+ app directory
+│   ├── (auth)/     # Authentication routes
+│   ├── (dashboard) # Dashboard routes
+│   ├── api/        # API routes
+│   └── layout.tsx  # Root layout
+├── components/     # React components
+│   ├── ui/         # Shadcn/UI components
+│   ├── forms/      # Form components
+│   └── shared/     # Shared components
+├── contexts/       # React context providers
+├── hooks/          # Custom React hooks
+├── lib/           # Utility functions and configs
+├── locales/       # i18n translation files
+├── store/         # Global state management
+├── types/         # TypeScript type definitions
+└── middleware.ts  # Next.js middleware
+```
 
-- **Migration Commands**
-  - Use `supabase db push` to apply migrations (from frontend directory)
-  ```bash
-  # ✅ DO: Use db push
-  cd frontend && supabase db push
-  
-  # ❌ DON'T: Use migration up (deprecated)
-  supabase migration up
-  ```
+## Key Directories and Their Roles
 
-- **Migration File Structure**
-  ```sql
-  -- ✅ DO: Include clear section comments
-  -- Add new columns
-  ALTER TABLE public.users
-  ADD COLUMN IF NOT EXISTS new_column TEXT;
-  
-  -- Update policies
-  DROP POLICY IF EXISTS "Policy name" ON public.table_name;
-  CREATE POLICY "Policy name" ON public.table_name
-    FOR operation USING (condition);
-  ```
+### Root Level
 
-- **Best Practices**
-  - Always use `IF NOT EXISTS` / `IF EXISTS` in DDL statements
-  - Drop policies before recreating them
-  - Include rollback statements as comments
-  - Test migrations locally before pushing
-  - Keep migrations atomic and focused
-  - Add descriptive comments for each change
+- **`.cursor/`**: Contains Cursor IDE configuration and rules
+  - `rules/` - Project-specific coding rules and guidelines
+  - `settings/` - IDE settings and configurations
 
-- **Common Issues**
-  - **Duplicate Migration Error**
-    ```bash
-    # If you get: "duplicate key value violates unique constraint"
-    # Delete the migration and create a new one with current timestamp
-    cd frontend
-    rm supabase/migrations/old_migration.sql
-    # Create new migration with current timestamp
-    touch supabase/migrations/$(date +%Y%m%d%H%M%S)_description.sql
-    ```
+- **`frontend/`**: Main Next.js application
+  - Contains all frontend-related code and configurations
+  - Follows Next.js 13+ app directory structure
 
-- **Type Generation**
-  - Always regenerate types after migrations (from frontend directory)
-  ```bash
-  # Update TypeScript types
-  cd frontend
-  supabase gen types typescript --local > src/types/supabase.ts
-  ```
+- **`scripts/`**: Development utility scripts
+  - Task management scripts
+  - Development workflow tools
+  - Automation utilities
 
-- **Migration Workflow**
-  1. Ensure you're in the frontend directory (`cd frontend`)
-  2. Create new migration with timestamp name
-  3. Write migration SQL with proper guards
-  4. Test locally with `supabase db push`
-  5. Generate updated types
-  6. Commit both migration and type files
+- **`tasks/`**: Task management
+  - `tasks.json` - Task definitions
+  - Individual task files
 
-- **Security Considerations**
-  - Always include RLS policies for new tables
-  - Review and update existing policies when modifying tables
-  - Test policy effectiveness after migration
-  - Consider data privacy implications
+### Frontend Source (src/)
 
-- **Related Rules**
-  - See [auth.mdc](mdc:.cursor/rules/auth.mdc) for authentication-related policies
-  - See [cursor_rules.mdc](mdc:.cursor/rules/cursor_rules.mdc) for rule formatting
-  - See [project_structure.mdc](mdc:.cursor/rules/project_structure.mdc) for directory organization
+- **`app/`**: Next.js application routes
+  - `(auth)/` - Authentication-related pages
+  - `(dashboard)/` - Dashboard and user interface
+  - `api/` - API route handlers
+  - `layout.tsx` - Root layout component
+
+- **`components/`**: React components
+  - `ui/` - Shadcn/UI components
+  - `forms/` - Form-related components
+  - `shared/` - Reusable components
+  - `[feature]/` - Feature-specific components
+
+- **`contexts/`**: React Context providers
+  - `AuthContext.tsx` - Authentication state
+  - `UserContext.tsx` - User data and preferences
+  - Other global state contexts
+
+- **`hooks/`**: Custom React hooks
+  - `useAuth.ts` - Authentication hooks
+  - `useUser.ts` - User data hooks
+  - Feature-specific hooks
+
+- **`lib/`**: Utility functions and configurations
+  - `supabase/` - Supabase client setup
+  - `utils/` - Helper functions
+  - `constants/` - Application constants
+
+- **`locales/`**: Internationalization
+  - Translation files for different languages
+  - i18n configuration
+
+- **`store/`**: Global state management
+  - State stores (e.g., Zustand stores)
+  - State management utilities
+
+- **`types/`**: TypeScript types
+  - `supabase.ts` - Generated Supabase types
+  - `app.ts` - Application-wide types
+  - Feature-specific type definitions
+
+## Important Files
+
+### Root Level
+- `package.json` - Project dependencies and scripts
+- `.env` - Environment variables template
+- `README.md` - Project documentation
+
+### Frontend
+- `next.config.js` - Next.js configuration
+- `tsconfig.json` - TypeScript configuration
+- `.env.local` - Local environment variables
+- `components.json` - Shadcn/UI configuration
+
+## File Organization Guidelines
+
+1. **Component Structure**
+   ```typescript
+   // components/[Feature]/[Component].tsx
+   import { type FC } from 'react'
+   import styles from './[Component].module.css'
+   
+   interface Props {
+     // Props interface
+   }
+   
+   export const Component: FC<Props> = () => {
+     return (
+       // JSX
+     )
+   }
+   ```
+
+2. **Hook Structure**
+   ```typescript
+   // hooks/use[Feature].ts
+   export function useFeature() {
+     // Hook implementation
+     return {
+       // Hook return values
+     }
+   }
+   ```
+
+3. **Context Structure**
+   ```typescript
+   // contexts/[Feature]Context.tsx
+   import { createContext, useContext } from 'react'
+   
+   interface ContextValue {
+     // Context value interface
+   }
+   
+   export const FeatureContext = createContext<ContextValue>(null!)
+   
+   export function useFeature() {
+     return useContext(FeatureContext)
+   }
+   ```
+
+## Best Practices
+
+1. **File Naming**
+   - Use PascalCase for components: `UserProfile.tsx`
+   - Use camelCase for utilities: `formatDate.ts`
+   - Use kebab-case for CSS modules: `user-profile.module.css`
+
+2. **Directory Organization**
+   - Group related components in feature directories
+   - Keep shared components in `shared/`
+   - Place types close to their usage
+
+3. **Import Organization**
+   ```typescript
+   // External imports
+   import { useState } from 'react'
+   import { motion } from 'framer-motion'
+   
+   // Internal imports
+   import { useAuth } from '@/hooks/useAuth'
+   import { Button } from '@/components/ui/button'
+   
+   // Types
+   import type { User } from '@/types'
+   
+   // Styles
+   import styles from './Component.module.css'
+   ```
+
+4. **Component Organization**
+   - Place small, related components in the same file
+   - Extract large components into separate files
+   - Use index.ts files for cleaner imports
+
+## Related Rules
+- See [auth.mdc](mdc:.cursor/rules/auth.mdc) for authentication patterns
+- See [supabase_migrations.mdc](mdc:.cursor/rules/supabase_migrations.mdc) for database management
+- See [middleware_auth.mdc](mdc:.cursor/rules/middleware_auth.mdc) for middleware management
+- See [user_flow.mdc](mdc:.cursor/rules/user_flow.mdc) for user flow organization

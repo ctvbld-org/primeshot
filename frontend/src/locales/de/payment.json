@@ -1,0 +1,147 @@
+{
+  "common": {
+    "title": "Zahlung",
+    "description": "Schließen Sie Ihre Zahlung ab, um mit dem Hochladen der Fotos fortzufahren.",
+    "order": {
+      "title": "Bestellübersicht",
+      "description": "Überprüfen Sie Ihre Bestelldetails vor der Zahlung."
+    },
+    "resumePayment": {
+      "title": "Zahlung fortsetzen",
+      "description": "Fahren Sie mit Ihrer Zahlung fort, um Ihre professionellen Porträts zu erstellen."
+    },
+    "checkout": {
+      "title": "Kasse",
+      "description": "Schließen Sie Ihren Kauf ab, um Ihre professionellen Porträts zu erstellen.",
+      "canModifyNote": "Sie können Ihre Stile vor der Zahlung noch ändern."
+    }
+  },
+  "fields": {
+    "cardNumber": "Kartennummer",
+    "expiryDate": "Ablaufdatum",
+    "cvv": "CVV",
+    "name": "Name auf der Karte",
+    "email": "E-Mail",
+    "orderId": "Bestell-ID",
+    "amount": "Betrag",
+    "currency": "Währung",
+    "styles": "Ausgewählte Stile",
+    "quantity": "Menge",
+    "date": "Datum",
+    "status": "Status",
+    "shootNumber": "Shooting-Nummer",
+    "package": {
+      "title": "Ihr Porträtpaket",
+      "description": "Basierend auf Ihrer Auswahl von {{count}} {{style}}",
+      "includes": "Das {{tier}}-Paket beinhaltet:",
+      "features": {
+        "totalHeadshots": "Insgesamt {{count}} professionelle Porträts",
+        "variations": "{{count}} Variationen pro Stil",
+        "fullRights": "Volle Rechte an allen Bildern",
+        "webFormat": "Download im webfähigen Format",
+        "additionalCapacity": "Zusätzliche Kapazität (+{{count}} Porträts)"
+      }
+    }
+  },
+  "buttons": {
+    "pay": "Jetzt bezahlen",
+    "cancel": "Abbrechen",
+    "retry": "Zahlung erneut versuchen",
+    "continueToUpload": "Weiter zum Hochladen",
+    "backToHome": "Zurück zur Startseite",
+    "continueToPayment": "Weiter zur Zahlung",
+    "modifyStyles": "Stile ändern",
+    "returnToPayment": "Zurück zur Zahlung",
+    "returnToStyles": "Zurück zu den Stilen",
+    "backToSummary": "Zurück zur Bestellübersicht"
+  },
+  "status": {
+    "processing": "Zahlung wird bearbeitet",
+    "verifying": "Zahlung wird überprüft",
+    "completed": "Zahlung abgeschlossen",
+    "error": "Zahlungsfehler",
+    "failed": "Zahlung fehlgeschlagen",
+    "pending": "Zahlung ausstehend",
+    "confirming": "Ihre Zahlung wird bestätigt...",
+    "loadingPayment": "Zahlungsoptionen werden geladen...",
+    "processingWithCount": "Wird bearbeitet... ({{count}}/{{total}} - {{progress}}%)"
+  },
+  "errors": {
+    "loginRequired": "Bitte melden Sie sich an, um fortzufahren.",
+    "missingInfo": "Fehlende Zahlungsinformationen.",
+    "invalidCard": "Ungültige Kartendetails.",
+    "declinedCard": "Karte wurde abgelehnt.",
+    "insufficientFunds": "Unzureichende Mittel.",
+    "verificationFailed": "Zahlungsverifizierung fehlgeschlagen.",
+    "networkError": "Netzwerkfehler. Bitte versuchen Sie es erneut.",
+    "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten.",
+    "orderNotFound": "Bestellung nicht gefunden.",
+    "invalidAmount": "Ungültiger Zahlungsbetrag.",
+    "loadPaymentData": "Fehler beim Laden der Zahlungsdaten.",
+    "paymentClientSecret": "Fehler bei der Vorbereitung der Zahlung. Bitte versuchen Sie es erneut.",
+    "paymentRecovery": {
+      "title": "Zahlungswiederherstellung fehlgeschlagen",
+      "description": "Wir konnten Ihre vorherige Zahlung nicht wiederherstellen. Ein neuer Zahlungsvorgang wird gestartet."
+    },
+    "noStyles": {
+      "title": "Keine Stile gefunden",
+      "description": "Bitte fügen Sie zuerst Stile zu Ihrem Shooting hinzu."
+    }
+  },
+  "notifications": {
+    "processingPayment": "Ihre Zahlung wird bearbeitet...",
+    "verifyingPayment": "Ihre Zahlung wird überprüft...",
+    "paymentReceived": "Zahlung erhalten!",
+    "redirecting": "Weiterleitung zur Upload-Seite...",
+    "doNotClose": "Bitte schließen Sie diese Seite nicht, während Ihre Zahlung bearbeitet wird.",
+    "authRequired": {
+      "title": "Authentifizierung erforderlich",
+      "description": "Eine zusätzliche Authentifizierung ist erforderlich, um Ihre Zahlung abzuschließen."
+    },
+    "paymentProcessing": {
+      "title": "Zahlung wird bearbeitet",
+      "description": "Ihre Zahlung wird bearbeitet. Wir benachrichtigen Sie, wenn sie abgeschlossen ist."
+    },
+    "paymentFailed": {
+      "title": "Zahlung fehlgeschlagen",
+      "description": "Bitte versuchen Sie eine andere Zahlungsmethode."
+    },
+    "unexpectedResponse": {
+      "title": "Unerwartete Antwort",
+      "description": "Unerwartete Antwort erhalten. Bitte kontaktieren Sie den Support."
+    }
+  },
+  "success": {
+    "title": "Zahlung erfolgreich",
+    "description": "Ihre Zahlung wurde erfolgreich bearbeitet.",
+    "subtitle": "Ihre Porträts werden jetzt generiert!",
+    "orderSummary": {
+      "title": "Bestellübersicht",
+      "description": "Ihre Bestellung wurde bestätigt und wird bearbeitet.",
+      "amount": "Bezahlter Betrag",
+      "orderId": "Bestell-ID",
+      "styles": "Ausgewählte Stile",
+      "stylesTitle": "Ihre Porträtstile"
+    },
+    "nextSteps": {
+      "title": "Nächste Schritte",
+      "description": "Sie können jetzt mit dem Hochladen Ihrer Fotos zur Bearbeitung fortfahren.",
+      "instructions": "Bitte folgen Sie den Upload-Richtlinien, um die besten Ergebnisse zu gewährleisten."
+    }
+  },
+  "pricing": {
+    "total": "Gesamt",
+    "package": {
+      "title": "{{tier}}-Paket",
+      "description": "{{count}} {{style}} in Ihrer Bestellung"
+    }
+  },
+  "security": {
+    "noCharge": "Sie werden nicht belastet, bis die Zahlung bestätigt ist",
+    "securePayment": "Geben Sie Ihre Zahlungsinformationen sicher ein"
+  },
+  "_": {
+    "style": "Stil",
+    "style_plural": "Stile"
+  }
+} 

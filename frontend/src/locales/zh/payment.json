@@ -1,0 +1,147 @@
+{
+  "common": {
+    "title": "支付",
+    "description": "完成支付以继续上传照片。",
+    "order": {
+      "title": "订单摘要",
+      "description": "请在支付前检查您的订单详情。"
+    },
+    "resumePayment": {
+      "title": "继续支付",
+      "description": "继续支付以生成您的专业证件照。"
+    },
+    "checkout": {
+      "title": "结账",
+      "description": "完成购买以生成您的专业证件照。",
+      "canModifyNote": "在支付前您仍可修改风格。"
+    }
+  },
+  "fields": {
+    "cardNumber": "卡号",
+    "expiryDate": "到期日期",
+    "cvv": "CVV",
+    "name": "持卡人姓名",
+    "email": "邮箱",
+    "orderId": "订单号",
+    "amount": "金额",
+    "currency": "货币",
+    "styles": "已选风格",
+    "quantity": "数量",
+    "date": "日期",
+    "status": "状态",
+    "shootNumber": "拍摄编号",
+    "package": {
+      "title": "您的证件照套餐",
+      "description": "基于您选择的{{count}}个{{style}}",
+      "includes": "{{tier}}套餐包含：",
+      "features": {
+        "totalHeadshots": "共{{count}}张专业证件照",
+        "variations": "每种风格{{count}}种变体",
+        "fullRights": "所有图片的完整使用权",
+        "webFormat": "可下载的网页格式",
+        "additionalCapacity": "额外容量（+{{count}}张证件照）"
+      }
+    }
+  },
+  "buttons": {
+    "pay": "立即支付",
+    "cancel": "取消",
+    "retry": "重试支付",
+    "continueToUpload": "继续上传",
+    "backToHome": "返回首页",
+    "continueToPayment": "继续支付",
+    "modifyStyles": "修改风格",
+    "returnToPayment": "返回支付",
+    "returnToStyles": "返回风格",
+    "backToSummary": "返回订单摘要"
+  },
+  "status": {
+    "processing": "支付处理中",
+    "verifying": "支付验证中",
+    "completed": "支付完成",
+    "error": "支付错误",
+    "failed": "支付失败",
+    "pending": "支付待处理",
+    "confirming": "正在确认您的支付...",
+    "loadingPayment": "正在加载支付选项...",
+    "processingWithCount": "处理中... ({{count}}/{{total}} - {{progress}}%)"
+  },
+  "errors": {
+    "loginRequired": "请登录以继续。",
+    "missingInfo": "缺少支付信息。",
+    "invalidCard": "卡信息无效。",
+    "declinedCard": "卡被拒绝。",
+    "insufficientFunds": "余额不足。",
+    "verificationFailed": "支付验证失败。",
+    "networkError": "网络错误，请重试。",
+    "unexpectedError": "发生意外错误。",
+    "orderNotFound": "未找到订单。",
+    "invalidAmount": "无效的支付金额。",
+    "loadPaymentData": "加载支付数据失败。",
+    "paymentClientSecret": "准备支付失败，请重试。",
+    "paymentRecovery": {
+      "title": "支付恢复失败",
+      "description": "无法恢复您的上一次支付。正在启动新的支付流程。"
+    },
+    "noStyles": {
+      "title": "未找到风格",
+      "description": "请先为您的拍摄添加风格。"
+    }
+  },
+  "notifications": {
+    "processingPayment": "正在处理您的支付...",
+    "verifyingPayment": "正在验证您的支付...",
+    "paymentReceived": "支付已收到！",
+    "redirecting": "正在跳转到上传页面...",
+    "doNotClose": "支付处理中请勿关闭此页面。",
+    "authRequired": {
+      "title": "需要身份验证",
+      "description": "完成支付需要额外身份验证。"
+    },
+    "paymentProcessing": {
+      "title": "支付处理中",
+      "description": "您的支付正在处理中，完成后会通知您。"
+    },
+    "paymentFailed": {
+      "title": "支付失败",
+      "description": "请尝试其他支付方式。"
+    },
+    "unexpectedResponse": {
+      "title": "意外响应",
+      "description": "收到意外响应，请联系客服。"
+    }
+  },
+  "success": {
+    "title": "支付成功",
+    "description": "您的支付已成功处理。",
+    "subtitle": "您的证件照正在生成！",
+    "orderSummary": {
+      "title": "订单摘要",
+      "description": "您的订单已确认并正在处理中。",
+      "amount": "已支付金额",
+      "orderId": "订单号",
+      "styles": "已选风格",
+      "stylesTitle": "您的证件照风格"
+    },
+    "nextSteps": {
+      "title": "下一步",
+      "description": "您现在可以上传照片进行处理。",
+      "instructions": "请按照上传指南操作以获得最佳效果。"
+    }
+  },
+  "pricing": {
+    "total": "总计",
+    "package": {
+      "title": "{{tier}}套餐",
+      "description": "订单中包含{{count}}个{{style}}"
+    }
+  },
+  "security": {
+    "noCharge": "支付确认前不会扣款",
+    "securePayment": "请安全输入您的支付信息"
+  },
+  "_": {
+    "style": "风格",
+    "style_plural": "风格"
+  }
+} 

@@ -6,13 +6,21 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslation } from "react-i18next";
 
 export default function SignIn() {
+  const [mounted, setMounted] = useState(false);
   const [email, setEmail] = useState("");
   const { signIn, signInWithGoogle, isLoading, error, isAuthenticated } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useTranslation('auth');
   
+  // Handle client-side only rendering
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Get return URL from query params
   const returnUrlParam = searchParams.get('returnUrl') || '/app/shoot';
   // Validate that returnUrl is a relative path to prevent open redirect vulnerabilities
@@ -38,12 +46,29 @@ export default function SignIn() {
     // Router will handle redirect via the useEffect above
   };
 
+  // Show nothing until client-side rendering is ready
+  if (!mounted) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center p-24">
+        <Card className="w-[350px]">
+          <CardHeader>
+            <CardTitle>&nbsp;</CardTitle>
+            <CardDescription>&nbsp;</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[200px]" />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-24">
       <Card className="w-[350px]">
         <CardHeader>
-          <CardTitle>Welcome to Primeshot</CardTitle>
-          <CardDescription>Sign in to continue</CardDescription>
+          <CardTitle>{t('signin.title')}</CardTitle>
+          <CardDescription>{t('signin.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleEmailSignIn} className="space-y-4">
@@ -52,15 +77,15 @@ export default function SignIn() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
+                placeholder={t('signin.email.placeholder')}
                 required
               />
               {error && (
-                <p className="text-sm text-red-500">{error.message}</p>
+                <p className="text-sm text-red-500">{error.message || t('errors.generic')}</p>
               )}
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Loading..." : "Continue with Email"}
+              {isLoading ? t('signin.email.loading') : t('signin.email.button')}
             </Button>
           </form>
 
@@ -70,7 +95,7 @@ export default function SignIn() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                Or continue with
+                {t('signin.divider.text')}
               </span>
             </div>
           </div>
@@ -82,7 +107,7 @@ export default function SignIn() {
             onClick={handleGoogleSignIn}
             disabled={isLoading}
           >
-            Continue with Google
+            {t('signin.google.button')}
           </Button>
         </CardContent>
       </Card>

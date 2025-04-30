@@ -11,6 +11,8 @@
 .carousel {
     width: 100%;
     position: relative;
+    display: flex;
+    align-items: center;
 }
 
 .carousel [data-slot="carousel-content"] {
@@ -101,6 +103,8 @@
 }  
 
 .carousel-next {
+    left: auto !important;
+    right: 0 !important;
     cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none'><path d='M11.75 16.25L10.8688 15.3687L15.6063 10.625H3V9.375H15.6063L10.8688 4.63125L11.75 3.75L18 10L11.75 16.25Z' fill='white' /></svg>") 12 12, auto;
 }
 

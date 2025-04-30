@@ -1,0 +1,112 @@
+{
+  "title": "スタイルを選択",
+  "description": "あなたのプロフェッショナルなニーズに合った写真スタイルを選択してください。",
+  "options": {
+    "studio": "スタジオ",
+    "natural": "ナチュラル",
+    "dramatic": "ドラマチック",
+    "outdoor": "屋外",
+    "office": "オフィス",
+    "plain": "無地の背景",
+    "custom": "カスタム"
+  },
+  "buttons": {
+    "select": "選択",
+    "next": "次へ",
+    "back": "戻る"
+  },
+  "selected": "選択済み",
+  "notSelected": "未選択",
+  "newStyle": {
+    "title": "新しいスタイルを作成",
+    "card": {
+      "alt": "新しいスタイルを追加",
+      "ariaLabel": "新しいスタイルカード",
+      "description": "写真のスタイル、背景、\n服装を選択してください。",
+      "button": "スタイルを追加",
+      "buttonAriaLabel": "新しい写真スタイルを追加"
+    }
+  },
+  "carousel": {
+    "label": "写真スタイルのオプション"
+  },
+  "styleCard": {
+    "customize": "カスタマイズ",
+    "background": "背景",
+    "clothing": "服装",
+    "clothingColor": "服の色",
+    "confirmDelete": {
+      "title": "スタイルを削除",
+      "description": "このスタイルを撮影から削除してもよろしいですか？",
+      "confirm": "削除",
+      "cancel": "キャンセル"
+    },
+    "toast": {
+      "error": {
+        "title": "エラー",
+        "description": "スタイルの削除に失敗しました。もう一度お試しください。"
+      }
+    }
+  },
+  "errors": {
+    "loadStyles": "スタイルの読み込みに失敗しました"
+  },
+  "footer": {
+    "title": "マイ撮影",
+    "separator": {
+      "alt": "フッター区切り"
+    },
+    "styles": {
+      "count": "{{count}}",
+      "label": "スタイル",
+      "multiplier": "×"
+    },
+    "photos": {
+      "count": "{{count}}",
+      "label": "写真",
+      "perStyle": "（スタイルごとに{{count}}枚）",
+      "multiplier": "×"
+    },
+    "upgrade": {
+      "text": "{{count}}スタイルを追加して",
+      "photosText": "枚の写真を追加料金",
+      "price": "{{amount}}円"
+    },
+    "emptyState": "スタイルリストが空です。完璧な撮影のために、いくつかのスタイルを追加してください。",
+    "price": {
+      "amount": "{{amount}}円"
+    },
+    "checkout": "チェックアウト",
+    "headshots": {
+      "perStyle": "スタイルごとに{{count}}枚のヘッドショット",
+      "total": "合計{{count}}枚のヘッドショット"
+    },
+    "perHeadshot": "1枚あたり{{amount}}円",
+    "notSelected": "未選択"
+  },
+  "toast": {
+    "successAddedStyle": {
+      "title": "撮影に追加しました",
+      "description": "スタイルが撮影に追加されました"
+    },
+    "successUpdatedStyle": {
+      "title": "スタイルを更新しました",
+      "description": "スタイルが更新されました"
+    },
+    "errorUpdatedStyle": {
+      "title": "更新に失敗しました",
+      "description": "スタイルの更新に失敗しました"
+    },
+    "errorSavingStyle": {
+      "title": "スタイルの保存エラー",
+      "description": "スタイルの保存に失敗しました"
+    },
+    "errorMissingData": {
+      "title": "エラー",
+      "description": "保存に必要なデータが不足しています。"
+    }
+  },
+  "titles": {
+    "styleLabel": "スタイル"
+  }
+} 

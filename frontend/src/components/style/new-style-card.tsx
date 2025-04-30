@@ -2,6 +2,7 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import styles from './new-style-card.module.css'
 import { Icon } from '@/components/icons/icon'
+import { useTranslation } from 'react-i18next'
 
 interface NewStyleCardProps {
   onClick: () => void,
@@ -12,12 +13,19 @@ export function NewStyleCard({
   onClick,
   className
 }: NewStyleCardProps) {
+  const { t } = useTranslation('styles')
+
   return (
-    <div className={`${styles['empty-state-card']} ${className}`} onClick={onClick} role="region" aria-label="Add new style card" >
+    <div 
+      className={`${styles['empty-state-card']} ${className}`} 
+      onClick={onClick} 
+      role="region" 
+      aria-label={t('newStyle.card.ariaLabel')}
+    >
       <div className={styles['top-card']}>
         <Image
           src="/add-new-style.png"
-          alt="Add new style"
+          alt={t('newStyle.card.alt')}
           width={156}
           height={156}
           className={styles['tshirt-image']}
@@ -47,12 +55,15 @@ export function NewStyleCard({
         </div>
 
         <p className={styles.text}>
-          Choose your photographic style,<br />
-          background and clothing.
+          {t('newStyle.card.description')}
         </p>
 
-        <Button variant="outline" className={`${styles['add-style']} pointer-events-none`} aria-label="Add a new photography style">
-          Add Style
+        <Button 
+          variant="outline" 
+          className={`${styles['add-style']} pointer-events-none`} 
+          aria-label={t('newStyle.card.buttonAriaLabel')}
+        >
+          {t('newStyle.card.button')}
         </Button>
       </div>
     </div>

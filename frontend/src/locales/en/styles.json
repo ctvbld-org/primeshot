@@ -1,0 +1,94 @@
+{
+  "newStyle": {
+    "title": "Create new style",
+    "card": {
+      "alt": "Add new style",
+      "ariaLabel": "Add new style card",
+      "description": "Choose your photographic style,\nbackground and clothing.",
+      "button": "Add Style",
+      "buttonAriaLabel": "Add a new photography style"
+    }
+  },
+  "carousel": {
+    "label": "Photography style options"
+  },
+  "styleCard": {
+    "customize": "Customize",
+    "background": "Background",
+    "clothing": "Clothing",
+    "clothingColor": "Clothing Color",
+    "confirmDelete": {
+      "title": "Delete Style",
+      "description": "Are you sure you want to remove this style from your shoot?",
+      "confirm": "Remove",
+      "cancel": "Keep it"
+    },
+    "toast": {
+      "error": {
+        "title": "Error",
+        "description": "Failed to delete style. Please try again."
+      }
+    }
+  },
+  "errors": {
+    "loadStyles": "Failed to load styles"
+  },
+  "footer": {
+    "title": "My Shoot",
+    "separator": {
+      "alt": "Footer Separator"
+    },
+    "styles": {
+      "count": "{{count}}",
+      "label": "Styles",
+      "multiplier": "×"
+    },
+    "photos": {
+      "count": "{{count}}",
+      "label": "Photos",
+      "perStyle": "({{count}} per style)",
+      "multiplier": "×"
+    },
+    "upgrade": {
+      "text": "Add {{count}} extra styles and get",
+      "photosText": "photos for only",
+      "price": "{{amount}} USD"
+    },
+    "emptyState": "Your style list is empty. Add a few looks to generate your perfect shoot.",
+    "price": {
+      "amount": "{{amount}} USD"
+    },
+    "checkout": "Checkout",
+    "headshots": {
+      "perStyle": "{{count}} headshots per style",
+      "total": "{{count}} total headshots"
+    },
+    "perHeadshot": "${{amount}} per headshot",
+    "notSelected": "Not selected"
+  },
+  "toast": {
+    "successAddedStyle": {
+      "title": "Added to Shoot",
+      "description": "Style has been added to your shoot"
+    },
+    "successUpdatedStyle": {
+      "title": "Style updated",
+      "description": "Your style has been updated"
+    },
+    "errorUpdatedStyle": {
+      "title": "Update failed",
+      "description": "Failed to update style"
+    },
+    "errorSavingStyle": {
+      "title": "Error Saving Style",
+      "description": "Failed to save style"
+    },
+    "errorMissingData": {
+      "title": "Error",
+      "description": "Missing required data to save."
+    }
+  },
+  "titles": {
+    "styleLabel": "Style"
+  }
+} 

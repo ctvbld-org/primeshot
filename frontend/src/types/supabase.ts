@@ -232,7 +232,7 @@ export type Database = {
           available_genders?: string[]
           created_at?: string | null
           description?: string | null
-          id?: string
+          id: string
           name: string
           preview_images?: Json
           tagline?: string | null
@@ -296,7 +296,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
-          id?: string
+          id: string
           name: string
           order_id?: string | null
           settings: Json
@@ -326,9 +326,9 @@ export type Database = {
       }
       user_progress: {
         Row: {
-          completed_stages: string[]
+          completed_stages: Database["public"]["Enums"]["flow_stage"][]
           created_at: string | null
-          current_stage: string
+          current_stage: Database["public"]["Enums"]["flow_stage"]
           id: string
           last_active_at: string | null
           stage_data: Json | null
@@ -336,9 +336,9 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
-          completed_stages?: string[]
+          completed_stages?: Database["public"]["Enums"]["flow_stage"][]
           created_at?: string | null
-          current_stage: string
+          current_stage: Database["public"]["Enums"]["flow_stage"]
           id?: string
           last_active_at?: string | null
           stage_data?: Json | null
@@ -346,9 +346,9 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
-          completed_stages?: string[]
+          completed_stages?: Database["public"]["Enums"]["flow_stage"][]
           created_at?: string | null
-          current_stage?: string
+          current_stage?: Database["public"]["Enums"]["flow_stage"]
           id?: string
           last_active_at?: string | null
           stage_data?: Json | null
@@ -403,7 +403,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      flow_stage: "shoot" | "payment" | "upload" | "review" | "dashboard"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -521,7 +521,9 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      flow_stage: ["shoot", "payment", "upload", "review", "dashboard"],
+    },
   },
 } as const
 

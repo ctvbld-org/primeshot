@@ -21,6 +21,9 @@ import { Icon } from '@/components/icons/icon'
 import { StyleTabsOptions } from '@/components/style/style-tabs-options'
 import { StyleDetails } from '@/components/style/style-details'
 import { useStyleConfigs } from '@/hooks/useConfig'
+import { useTranslation } from 'react-i18next'
+import { Button } from '@/components/ui/button'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 // Create a Zod enum from the Gender type
 const GenderEnum = z.enum(['male', 'female'] as const) satisfies z.ZodType<Gender>;
@@ -35,7 +38,12 @@ const StyleConfigSchema = z.object({
   available_genders: z.array(GenderEnum).optional(),
   available_backgrounds: z.array(z.string()),
   available_clothing: z.array(z.string()),
-  available_clothing_colors: z.array(z.string())
+  available_clothing_colors: z.array(z.string()),
+  translations: z.record(z.object({
+    name: z.string(),
+    tagline: z.string(),
+    description: z.string()
+  }))
 });
 
 const StyleConfigsSchema = z.array(StyleConfigSchema);
@@ -55,6 +63,7 @@ export default function Page() {
   const router = useRouter()
   const { user } = useAuth()
   const { toast } = useToast()
+  const { t } = useTranslation(['common', 'styles'])
   const [isSaving, setIsSaving] = useState(false)
   const { gender, isLoading: isGenderLoading } = useUserGender();
   const [selectedIndex, setSelectedIndex] = useState(0)
@@ -73,7 +82,8 @@ export default function Page() {
         availableGenders: config.available_genders,
         availableBackgrounds: config.available_backgrounds,
         availableClothing: config.available_clothing,
-        availableClothingColor: config.available_clothing_colors
+        availableClothingColor: config.available_clothing_colors,
+        translations: config.translations
       }));
     } catch (error) {
       console.error('Invalid style configuration:', error);
@@ -228,16 +238,10 @@ export default function Page() {
   const stylesWithImages = useMemo(() => {
     return filteredStyles.map(style => ({
       ...style,
-      genderSpecificImages: getStyleImages(style.previewImages, gender || undefined)
+      genderSpecificImages: getStyleImages(style.previewImages, gender || undefined),
+      translations: style.translations
     }));
   }, [filteredStyles, gender]);
-
-  // Redirect if no styles available
-  useEffect(() => {
-    if (!isGenderLoading && stylesWithImages.length === 0) {
-      router.push('/app/profile')
-    }
-  }, [isGenderLoading, stylesWithImages.length, router])
 
   const handleAddToShoot = useCallback(async (style: {
     id: string;
@@ -249,22 +253,23 @@ export default function Page() {
     availableClothing: string[];
     availableClothingColor: string[];
     genderSpecificImages: string[];
+    translations: {
+      [lang: string]: {
+        name: string;
+        tagline: string;
+        description: string;
+      }
+    };
   }) => {
-    if (!user) {
-      toast({
-        title: 'Sign in Required',
-        description: 'Please sign in to save styles.',
-        variant: 'destructive'
-      })
-      return
-    }
-
     try {
+      if (!user) {
+        throw new Error('User not found')
+      }
+
       setIsSaving(true)
       const order = await getOrCreateDraftOrder(user.id)
       const orderId = order.id
 
-      // Access store from ref instead of calling hook
       const styleStore = styleStoresRef.current[style.id as StylePhotographyStyle]
       const currentSettings = styleStore.getState().settings
       
@@ -285,23 +290,22 @@ export default function Page() {
       await ensureUserProgress(user.id)
 
       toast({
-        title: 'Success',
-        description: 'Style has been added to your shoot'
+        title: t('toast.successAddedStyle.title', { ns: 'styles' }),
+        description: t('toast.successAddedStyle.description', { ns: 'styles' }),
       })
 
       router.push('/app/shoot')
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to save style'
+      console.error(error)
       toast({
-        title: 'Error Saving Style',
-        description: message,
-        variant: 'destructive'
+        variant: 'destructive',
+        description: t('toast.errorSavingStyle.description', { ns: 'styles' }),
+        title: t('toast.errorSavingStyle.title', { ns: 'styles' }),
       })
-      console.error("Save Error:", error)
     } finally {
       setIsSaving(false)
     }
-  }, [user, styleStoresRef, router, toast])
+  }, [user, styleStoresRef, router, toast, t])
 
   const handleTransitionEnd = useCallback(() => {
     if (showingCustomizeFor === null) {
@@ -405,14 +409,14 @@ export default function Page() {
           className="flex items-center gap-2 text-white/50 hover:text-white transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-white/50"
         >
           <Icon variant="arrowLeft" size={20} className="text-[#44E3C9]" />
-          Prev
+          {t('buttons.previous', { ns: 'common' })}
         </button>
         <button
           onClick={scrollNext}
           disabled={!canScrollNext}
           className="flex items-center gap-2 text-white/50 hover:text-white transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-white/50"
         >
-          Next
+          {t('buttons.next', { ns: 'common' })}
           <Icon variant="arrowRight" size={20} className="text-[#44E3C9]" />
         </button>
       </div>

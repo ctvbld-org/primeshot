@@ -21,11 +21,13 @@ import { type CarouselApi } from "@/components/ui/carousel"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
 import React from 'react'
 import { cn } from '@/lib/utils'
+import { useTranslation } from 'react-i18next'
 
 export default function StylesPage() {
   const router = useRouter()
   const { user } = useAuth()
   const { toast } = useToast()
+  const { t } = useTranslation(['styles', 'common'])
   const [styles, setStyles] = useState<Style[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { updateProgress, canModifyStyles, progress } = useUserProgress()
@@ -88,16 +90,13 @@ export default function StylesPage() {
     if (!user) return;
 
     try {
-      // Only set loading to true if styles aren't loaded yet
       if (styles.length === 0) {
         setIsLoading(true);
       }
       
-      // Fetch draft styles for this user
       const draftStyles = await getStyles(user.id, { status: 'draft' });
       setStyles(draftStyles);
       
-      // Calculate headshots for draft styles
       if (user) {
         try {
           const headshots = await calculateHeadshots(user.id);
@@ -109,14 +108,13 @@ export default function StylesPage() {
     } catch (error) {
       toast({
         title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to load styles',
+        description: error instanceof Error ? error.message : t('errors.loadStyles'),
         variant: 'destructive'
       });
     } finally {
-      // Always ensure loading is set to false after fetching
       setIsLoading(false);
     }
-  }, [user, toast, styles.length]);
+  }, [user, toast, styles.length, t]);
 
   // Load styles on mount
   useEffect(() => {
@@ -169,13 +167,16 @@ export default function StylesPage() {
         transition={{ duration: 0.6, delay: 0.2 }}
       >
         {isLoading ? (
-          <div className="text-center py-8">Loading styles...</div>
+          <div className="text-center py-8">{t('loading', { ns: 'common' })}</div>
         ) : styles.length === 0 ? (
           <>
             <div className={stylesCSS['fake-card']}></div>
             <div className={stylesCSS['fake-card']}></div>
             <div className={stylesCSS['fake-card']}></div>
-            <NewStyleCard className="h-[608px] max-h-[calc(100% - 120px)]" onClick={() => router.push('/app/styles')} />
+            <NewStyleCard 
+              className="h-[608px] max-h-[calc(100% - 120px)]" 
+              onClick={() => router.push('/app/styles')}
+            />
             <div className={stylesCSS['fake-card']}></div>
             <div className={stylesCSS['fake-card']}></div>
             <div className={stylesCSS['fake-card']}></div>
@@ -198,15 +199,21 @@ export default function StylesPage() {
               }
             }}
             className={stylesCSS['carousel']}
-            aria-label="Photography style options"  
+            aria-label={t('carousel.label')}
             aria-roledescription="carousel" 
           >
             <CarouselContent>
-              <CarouselItem className={cn(
-                "basis-[386px] pl-6",
-                activeEditId && "disabled-card"
-              )} aria-label="Create new style" >
-                <NewStyleCard className="h-[98%] max-h-none" onClick={() => router.push('/app/styles')} />
+              <CarouselItem 
+                className={cn(
+                  "basis-[386px] pl-6",
+                  activeEditId && "disabled-card"
+                )} 
+                aria-label={t('newStyle.title')}
+              >
+                <NewStyleCard 
+                  className="h-[98%] max-h-none" 
+                  onClick={() => router.push('/app/styles')}
+                />
               </CarouselItem>
               
               {styles.map((style) => (
@@ -216,7 +223,7 @@ export default function StylesPage() {
                     "basis-[386px] pl-6",
                     activeEditId === style.id ? "editing-card" : activeEditId ? "disabled-card" : ""
                   )}
-                  aria-label="Edit style"
+                  aria-label={t('buttons.edit', { ns: 'common' })}
                 >
                   <StyleCard
                     savedStyle={style}
@@ -229,15 +236,20 @@ export default function StylesPage() {
                     onCloseEdit={() => {
                       setActiveEditId(null);
                       setIsDraggingEnabled(true);
-                      // Refresh styles after closing edit mode
                       loadStyles();
                     }}
                   />
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className={`${stylesCSS['carousel-previous']}`} />
-            <CarouselNext className={`${stylesCSS['carousel-next']}`} />
+            <CarouselPrevious 
+              className={`${stylesCSS['carousel-previous']}`}
+              aria-label={t('buttons.previous', { ns: 'common' })}
+            />
+            <CarouselNext 
+              className={`${stylesCSS['carousel-next']}`}
+              aria-label={t('buttons.next', { ns: 'common' })}
+            />
           </Carousel>
         )}
 
@@ -247,8 +259,6 @@ export default function StylesPage() {
           user={user}
         />
       </motion.div>
-
-      {/* Fixed Footer - Always show it */}
       <ShootFooter
         stylesCount={headshotInfo.styleCount}
         photosPerStyle={headshotInfo.headshotsPerStyle}

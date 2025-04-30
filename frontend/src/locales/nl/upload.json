@@ -1,0 +1,46 @@
+{
+  "common": {
+    "title": "Foto's Uploaden",
+    "description": "Upload uw foto's voor headshot generatie.",
+    "order": {
+      "title": "Bestelgegevens",
+      "description": "Upload foto's volgens uw bestelspecificaties."
+    }
+  },
+  "fields": {
+    "orderId": "Bestelnummer",
+    "styles": "Geselecteerde Stijlen",
+    "acceptedImages": "Geaccepteerde Afbeeldingen",
+    "needsImprovement": "Verbetering Nodig",
+    "overallQualityScore": "Algemene Kwaliteitsscore",
+    "totalImages": "Totaal Aantal Afbeeldingen",
+    "acceptedImagesCount": "Geaccepteerde Afbeeldingen",
+    "rejectedImagesCount": "Geweigerde Afbeeldingen"
+  },
+  "status": {
+    "error": "Fout",
+    "failed": "Mislukt",
+    "successful": "Succesvol",
+    "image": "{{count}} Afbeelding",
+    "image_plural": "{{count}} Afbeeldingen",
+    "uploadMore": "Upload nog {{count}} {{image}}",
+    "removeImages": "Verwijder {{count}} {{image}}",
+    "imagesSelected": "{{count}} afbeeldingen geselecteerd",
+    "processing": "Verwerken... {{uploaded}}/{{total}} ({{progress}}%)"
+  },
+  "errors": {
+    "noActiveOrder": "Geen Actieve Bestelling",
+    "paymentRequired": "Voltooi de betaling voordat u foto's uploadt.",
+    "loadOrderData": "Laden van bestelgegevens mislukt. Probeer het opnieuw.",
+    "uploadFailed": "Uploaden van afbeeldingen mislukt. Probeer het opnieuw.",
+    "someUploadsFailed": "{{count}} uploads mislukt. Probeer het opnieuw.",
+    "savingProgress": "Voortgang opslaan mislukt. Doorgaan met beoordeling."
+  },
+  "success": {
+    "uploadComplete": "{{count}} afbeeldingen succesvol geüpload."
+  },
+  "buttons": {
+    "upload": "{{count}} Stijl Uploaden",
+    "upload_plural": "{{count}} Stijlen Uploaden"
+  }
+} 

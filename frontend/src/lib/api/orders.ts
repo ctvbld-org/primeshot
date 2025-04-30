@@ -40,6 +40,7 @@ export async function getOrCreateDraftOrder(userId: string): Promise<Order> {
         .in('status', ['draft', 'pending_payment']) // Look for either status
         .order('created_at', { ascending: false })
         .limit(1)
+        .select()
 
       if (orderQueryError) {
         console.error('Error querying draft/pending orders:', orderQueryError)
@@ -70,7 +71,7 @@ export async function getOrCreateDraftOrder(userId: string): Promise<Order> {
           currency: 'usd',
           metadata: { initialCreation: true }
         })
-        .select('*') 
+        .select()
         .single()
 
       if (createOrderError || !newOrder) {

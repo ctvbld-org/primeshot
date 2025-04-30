@@ -9,8 +9,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { CheckCircle, Loader2, AlertTriangle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function PaymentSuccessPage() {
+  const { t } = useTranslation('payment');
   const { user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -31,26 +33,24 @@ export default function PaymentSuccessPage() {
   
   useEffect(() => {
     async function verifyPayment() {
-      // Check verification flag with ref
       if (isVerifyingRef.current || verificationAttempted) return;
       isVerifyingRef.current = true;
       
       if (!user) {
-        setError('You must be logged in to view this page.');
+        setError(t('errors.loginRequired'));
         setIsLoading(false);
         setVerificationAttempted(true);
         return;
       }
       
       if (!sessionId && !orderId) {
-        setError('Missing payment or order information.');
+        setError(t('errors.missingInfo'));
         setIsLoading(false);
         setVerificationAttempted(true);
         return;
       }
       
       try {
-        // Fetch order information
         const supabase = createClient();
         
         let query = supabase
@@ -58,11 +58,9 @@ export default function PaymentSuccessPage() {
           .select('*, styles(*)')
           .eq('user_id', user.id);
           
-        // If we have a payment intent ID (session ID), use that first
         if (sessionId) {
           query = query.eq('payment_intent_id', sessionId);
         } 
-        // Otherwise use the order ID
         else if (orderId) {
           query = query.eq('id', orderId);
         }
@@ -72,7 +70,7 @@ export default function PaymentSuccessPage() {
         if (orderError) throw orderError;
         
         if (!orders || orders.length === 0) {
-          setError('Order not found.');
+          setError(t('errors.orderNotFound'));
           setIsLoading(false);
           setVerificationAttempted(true);
           return;
@@ -81,8 +79,6 @@ export default function PaymentSuccessPage() {
         const order = orders[0];
         setOrderDetails(order);
         
-        // Check if payment status is already set to 'succeeded' or 'paid'
-        // This prevents updating the status multiple times on page reloads
         if (order.status !== 'paid' || order.payment_status !== 'succeeded') {
           await supabase
             .from('orders')
@@ -95,20 +91,15 @@ export default function PaymentSuccessPage() {
             
           console.log(`Updated order ${order.id} status to paid`);
           
-          // Update user progress and mark payment as completed
           await updateProgress('payment');
-          
-          // Update to clear progress after payment completion
           await clearProgress();
-          
-          // Update progress to next stage
           await updateProgress('upload');
         } else {
           console.log(`Order ${order.id} already marked as paid, skipping status update`);
         }
       } catch (error) {
         console.error('Error verifying payment:', error);
-        setError('Failed to verify payment status.');
+        setError(t('errors.verificationFailed'));
       } finally {
         setIsLoading(false);
         setVerificationAttempted(true);
@@ -117,7 +108,7 @@ export default function PaymentSuccessPage() {
     }
     
     verifyPayment();
-  }, [user, sessionId, orderId, updateProgress, clearProgress, verificationAttempted]);
+  }, [user, sessionId, orderId, updateProgress, clearProgress, verificationAttempted, t]);
   
   const handleContinue = () => {
     router.push('/app/upload');
@@ -131,7 +122,7 @@ export default function PaymentSuccessPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="text-xl">Confirming your payment...</p>
+        <p className="text-xl">{t('status.confirming')}</p>
       </div>
     );
   }
@@ -143,24 +134,24 @@ export default function PaymentSuccessPage() {
           <CardHeader>
             <div className="flex items-center space-x-2">
               <AlertTriangle className="h-6 w-6 text-destructive" />
-              <CardTitle className="text-destructive">Payment Error</CardTitle>
+              <CardTitle className="text-destructive">{t('status.error')}</CardTitle>
             </div>
             <CardDescription>
-              There was a problem confirming your payment.
+              {t('errors.verificationFailed')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <p>{error}</p>
             <p className="mt-2 text-sm text-muted-foreground">
-              You have not been charged. If you believe this is an error, please try again or contact support.
+              {t('security.noCharge')}
             </p>
           </CardContent>
           <CardFooter className="flex flex-col space-y-2">
             <Button onClick={handleRetry} className="w-full">
-              Return to Payment
+              {t('buttons.returnToPayment')}
             </Button>
             <Button variant="outline" onClick={() => router.push('/app/shoot')} className="w-full">
-              Return to Styles
+              {t('buttons.returnToStyles')}
             </Button>
           </CardFooter>
         </Card>
@@ -172,17 +163,17 @@ export default function PaymentSuccessPage() {
     <div className="space-y-8">
       <div className="text-center">
         <CheckCircle className="mx-auto h-16 w-16 text-green-500 mb-4" />
-        <h1 className="text-3xl font-bold tracking-tight">Payment Successful!</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('success.title')}</h1>
         <p className="text-muted-foreground mt-2">
-          Your headshots are now being generated!
+          {t('success.subtitle')}
         </p>
       </div>
       
       <Card className="mx-auto max-w-2xl">
         <CardHeader>
-          <CardTitle>Order Summary</CardTitle>
+          <CardTitle>{t('success.orderSummary.title')}</CardTitle>
           <CardDescription>
-            Your order has been confirmed and is being processed.
+            {t('success.orderSummary.description')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -190,29 +181,29 @@ export default function PaymentSuccessPage() {
             <>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="font-medium">Shoot Number</p>
+                  <p className="font-medium">{t('fields.shootNumber')}</p>
                   <p className="text-muted-foreground">
                     {orderDetails?.shoot_number 
                       ? `Shoot ${orderDetails.shoot_number.toString().padStart(3, '0')}` 
-                      : 'Processing'}
+                      : t('status.processing')}
                   </p>
                 </div>
                 <div>
-                  <p className="font-medium">Order ID</p>
+                  <p className="font-medium">{t('fields.orderId')}</p>
                   <p className="text-muted-foreground">{orderDetails?.id ? orderDetails.id.substring(0, 8) : 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="font-medium">Date</p>
+                  <p className="font-medium">{t('fields.date')}</p>
                   <p className="text-muted-foreground">
                     {orderDetails?.updated_at ? new Date(orderDetails.updated_at).toLocaleDateString() : 'N/A'}
                   </p>
                 </div>
                 <div>
-                  <p className="font-medium">Status</p>
+                  <p className="font-medium">{t('fields.status')}</p>
                   <p className="text-muted-foreground capitalize">{orderDetails?.status || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="font-medium">Amount</p>
+                  <p className="font-medium">{t('success.orderSummary.amount')}</p>
                   <p className="text-muted-foreground">
                     ${((orderDetails?.amount || 0) / 100).toFixed(2)} USD
                   </p>
@@ -220,24 +211,23 @@ export default function PaymentSuccessPage() {
               </div>
               
               <div className="pt-4 border-t">
-                <h3 className="font-medium mb-2">Your Headshot Styles</h3>
+                <h3 className="font-medium mb-2">{t('success.orderSummary.stylesTitle')}</h3>
                 <ul className="space-y-1 text-sm">
                   {orderDetails?.styles && Array.isArray(orderDetails.styles) && orderDetails.styles.length > 0 ? orderDetails.styles.map((style: any) => (
                     <li key={style?.id || `style-${Math.random()}`} className="flex items-center">
                       <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                      {style?.name || 'Unknown Style'}
+                      {style?.name || t('fields.styles')}
                     </li>
                   )) : (
-                    <li className="text-muted-foreground">No styles selected</li>
+                    <li className="text-muted-foreground">{t('errors.noStyles.description')}</li>
                   )}
                 </ul>
               </div>
               
               <div className="pt-4 border-t">
-                <h3 className="font-medium mb-2">Next Steps</h3>
+                <h3 className="font-medium mb-2">{t('success.nextSteps.title')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Now that your payment is complete, you need to upload your photos so we can generate your professional headshots.
-                  Click the button below to proceed to the photo upload step.
+                  {t('success.nextSteps.description')}
                 </p>
               </div>
             </>
@@ -245,7 +235,7 @@ export default function PaymentSuccessPage() {
         </CardContent>
         <CardFooter>
           <Button onClick={handleContinue} className="w-full">
-            Continue to Photo Upload
+            {t('buttons.continueToUpload')}
           </Button>
         </CardFooter>
       </Card>

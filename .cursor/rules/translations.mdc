@@ -1,0 +1,180 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Translation and i18n Guidelines
+
+## Project Structure
+```
+frontend/src/
+├── i18n.ts                    # i18n configuration and setup
+├── types/
+│   └── i18next.d.ts          # TypeScript declarations for i18n
+├── components/
+│   └── language-switcher.tsx  # Language selection component
+└── locales/                   # Translation files
+    ├── en/                    # English translations
+    │   ├── common.json
+    │   ├── auth.json
+    │   ├── dashboard.json
+    │   └── ...
+    └── es/                    # Spanish translations
+        ├── common.json
+        ├── auth.json
+        ├── dashboard.json
+        └── ...
+```
+
+## Professional Translation Guidelines
+
+- Follow the [Professional Translation Quality Guidelines](mdc:.cursor/rules/professional-translation-guidelines.md) for all translation tasks to ensure high-quality and culturally appropriate translations.
+
+## Core Translation Principles
+
+
+### 1. Accuracy and Meaning Preservation
+```typescript
+// ✅ DO: Preserve meaning while adapting to target language
+{
+  "welcome": "Welcome to our platform",
+  "welcomeEs": "Bienvenido a nuestra plataforma"
+}
+
+// ❌ DON'T: Use literal translations that lose meaning
+{
+  "welcome": "Welcome to our platform",
+  "welcomeEs": "Bienvenido a nuestro platform" // Incorrect
+}
+```
+
+### 2. Natural Language Flow
+```typescript
+// ✅ DO: Use natural expressions in target language
+{
+  "uploadSuccess": "Your photos have been uploaded successfully",
+  "uploadSuccessEs": "Tus fotos se han subido correctamente"
+}
+
+// ❌ DON'T: Translate word-by-word
+{
+  "uploadSuccess": "Your photos have been uploaded successfully",
+  "uploadSuccessEs": "Tus fotos han sido subidas exitosamente" // Unnatural
+}
+```
+
+### 3. Technical Considerations
+
+- **Variable Handling**
+```typescript
+// ✅ DO: Maintain variable placeholders
+{
+  "greeting": "Hello, {{name}}!",
+  "greetingEs": "¡Hola, {{name}}!"
+}
+
+// ❌ DON'T: Modify variable syntax
+{
+  "greeting": "Hello, {{name}}!",
+  "greetingEs": "¡Hola, {nombre}!" // Wrong variable format
+}
+```
+
+- **Namespace Organization**
+```typescript
+// ✅ DO: Group related translations in namespaces
+// auth.json
+{
+  "login": { ... },
+  "register": { ... }
+}
+
+// ❌ DON'T: Mix unrelated translations
+// common.json
+{
+  "login": { ... },
+  "productDetails": { ... } // Should be in product namespace
+}
+```
+
+### 4. Implementation Guidelines
+
+- **Adding New Languages**
+```typescript
+// i18n.ts
+// ✅ DO: Add new language with all required namespaces
+export const resources = {
+  en: {
+    common: commonEn,
+    payment: paymentEn,
+    // ... all namespaces
+  },
+  es: {
+    common: commonEs,
+    payment: paymentEs,
+    // ... all namespaces
+  }
+}
+
+// ❌ DON'T: Add incomplete language support
+export const resources = {
+  en: { /* complete */ },
+  es: {
+    common: commonEs
+    // Missing other namespaces
+  }
+}
+```
+
+- **Type Safety**
+```typescript
+// types/i18next.d.ts
+// ✅ DO: Maintain type definitions for all namespaces
+declare module 'i18next' {
+  interface CustomTypeOptions {
+    defaultNS: 'common';
+    resources: {
+      common: typeof common;
+      payment: typeof payment;
+      // ... all namespaces
+    }
+  }
+}
+```
+
+### 5. Quality Assurance Checklist
+
+Before committing translations:
+- [ ] Verify all variables/placeholders are preserved
+- [ ] Check for consistent terminology across namespaces
+- [ ] Ensure proper cultural adaptation
+- [ ] Test UI for text overflow/wrapping
+- [ ] Verify all required namespaces are present
+- [ ] Run type checks for i18next integration
+
+### 6. Language Switcher Implementation
+
+- Use the `LanguageSwitcher` component for consistent language selection
+- Persist language preference in user settings
+- Handle fallback language gracefully
+- Support RTL languages when needed
+
+```typescript
+// ✅ DO: Implement proper language switching
+const handleLanguageChange = async (newValue: string) => {
+  i18n.changeLanguage(newValue);
+  // Persist preference if user is logged in
+  if (user) {
+    await updateUserLanguagePreference(newValue);
+  }
+};
+
+// ❌ DON'T: Change language without persistence
+const handleLanguageChange = (newValue: string) => {
+  i18n.changeLanguage(newValue); // Missing persistence
+};
+```
+
+## Related Rules
+- See @auth.mdc for authentication-related text
+- See @project_structure.mdc for file organization 

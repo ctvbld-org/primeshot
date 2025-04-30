@@ -8,6 +8,7 @@ import { useOptions } from '@/hooks/useConfig'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import type { Option, OptionItem } from '@/types/styles'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 
 interface StyleDetailsProps {
@@ -20,6 +21,9 @@ interface StyleDetailsProps {
       background?: string;
       clothing?: string;
       clothingColor?: string;
+    };
+    translations: {
+      [lang: string]: Record<'name' | 'tagline' | 'description', string>;
     };
   };
   index: number;
@@ -62,6 +66,9 @@ export function StyleDetails({
   isCard,
   headshotsPerStyle
 }: StyleDetailsProps) {
+  const { t, i18n } = useTranslation(['styles', 'common']);
+  const currentLang = i18n.language;
+
   const images = style.genderSpecificImages || [];
   const imgNb = isCard ? 3 : 5;
   const { data: options } = useOptions();
@@ -83,6 +90,13 @@ export function StyleDetails({
   const selectedClothingColor = options?.find((opt: Option) => 
     opt.category === 'clothingColor'
   )?.options.find((item: OptionItem) => item.id === style.settings?.clothingColor);
+
+  const getTranslatedField = (field: keyof typeof style.translations[string]): string => {
+    if (style.translations?.[currentLang]?.[field]) {
+      return style.translations[currentLang][field];
+    }
+    return style[field] || '';
+  };
 
   return (
     <TooltipProvider>
@@ -135,22 +149,24 @@ export function StyleDetails({
                 </div>
               )
             ) : (
-              <h2 className={styles['style-label']}>Style</h2>
+              <h2 className={styles['style-label']}>{t('titles.styleLabel', { ns: 'styles' })}</h2>
             )}
-            <h3 className={styles['style-name']}>{style.name}</h3>
+            <h3 className={styles['style-name']}>{getTranslatedField('name')}</h3>
           </div>
 
           {/* Description */}
           <div className={styles['description-section']}>
             <div className={styles['description-content']}>
               <div className={styles['tagline-container']}>
-                <p className={styles.tagline}>
-                  {style.tagline || style.name}
-                </p>
+                {style.tagline && (
+                  <p className={styles.tagline}>
+                    {getTranslatedField('tagline')}
+                  </p>
+                )}
               </div>
               <div className={styles['description-container']}>
                 <p className={styles.description}>
-                  {style.description}
+                  {getTranslatedField('description')}
                 </p>
               </div>
             </div>
@@ -175,7 +191,7 @@ export function StyleDetails({
                       </div>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Background: {selectedBackground?.label || 'Custom'}</p>
+                      <p>{t('styleCard.background', { ns: 'styles' })}: {selectedBackground?.label || 'Custom'}</p>
                     </TooltipContent>
                   </Tooltip>
                 )}
@@ -192,7 +208,7 @@ export function StyleDetails({
                       </div>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Clothing: {selectedClothing?.label || 'Custom'}</p>
+                      <p>{t('styleCard.clothing', { ns: 'styles' })}: {selectedClothing?.label || 'Custom'}</p>
                     </TooltipContent>
                   </Tooltip>
                 )}
@@ -211,7 +227,7 @@ export function StyleDetails({
                       />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Color: {selectedClothingColor?.label || 'Custom'}</p>
+                      <p>{t('styleCard.clothingColor', { ns: 'styles' })}: {selectedClothingColor?.label || 'Custom'}</p>
                     </TooltipContent>
                   </Tooltip>
                 )}
@@ -223,7 +239,7 @@ export function StyleDetails({
                   onCustomize(index);
                 }}
               >
-                Edit
+                {t('buttons.edit', { ns: 'common' })}
               </Button>
             </>
           ) : (
@@ -235,7 +251,7 @@ export function StyleDetails({
                   onCustomize(index);
                 }}
               >
-                Customise
+                {t('buttons.customize', { ns: 'common' })}
               </Button>
               <div className={styles['icons-container']}>
                 <Icon

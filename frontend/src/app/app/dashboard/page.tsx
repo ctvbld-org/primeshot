@@ -12,11 +12,13 @@ import { Separator } from '@/components/ui/separator'
 import { formatPrice } from '@/lib/pricing'
 import { CameraIcon, ImageIcon, Loader2Icon } from 'lucide-react'
 import type { Order, Style } from '@/lib/types'
+import { useTranslation } from 'react-i18next'
 
 export default function DashboardPage() {
   const { user } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
+  const { t } = useTranslation('dashboard')
   const [isLoading, setIsLoading] = useState(true)
   const [orders, setOrders] = useState<(Order & { styles: Style[] })[]>([])
   
@@ -42,22 +44,21 @@ export default function DashboardPage() {
         setIsLoading(true)
         const supabase = createClient()
         
-        // Get all paid/completed orders with their styles
-        const { data, error } = await supabase
+        // Get all orders for the user
+        const { data: orders, error } = await supabase
           .from('orders')
           .select('*, styles(*)')
           .eq('user_id', user.id)
-          .in('status', ['paid', 'processing', 'completed'])
-          .order('shoot_number', { ascending: false })
+          .order('created_at', { ascending: false })
         
         if (error) throw error
         
-        setOrders(data || [])
+        setOrders(orders || [])
       } catch (error) {
         console.error('Error loading dashboard data:', error)
         toast({
           title: 'Error',
-          description: 'Failed to load your shoots. Please try again.',
+          description: t('loading.error'),
           variant: 'destructive'
         })
       } finally {
@@ -66,7 +67,7 @@ export default function DashboardPage() {
     }
     
     loadData()
-  }, [user, toast])
+  }, [user, toast, t])
   
   if (isLoading) {
     return (
@@ -80,9 +81,9 @@ export default function DashboardPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Your Dashboard</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
           <p className="text-muted-foreground">
-            View and manage your headshot shoots.
+            {t('description')}
           </p>
         </div>
         
@@ -90,15 +91,15 @@ export default function DashboardPage() {
           <CardContent>
             <div className="flex flex-col items-center space-y-4">
               <CameraIcon className="h-12 w-12 text-muted-foreground opacity-50" />
-              <h3 className="text-xl font-semibold">No shoots yet</h3>
+              <h3 className="text-xl font-semibold">{t('emptyState.title')}</h3>
               <p className="text-muted-foreground max-w-md mx-auto">
-                You haven't completed any shoots yet. Start by creating a style and completing the payment process.
+                {t('emptyState.description')}
               </p>
               <Button 
                 onClick={() => router.push('/app/shoot')}
                 className="mt-4"
               >
-                Create Your First Shoot
+                {t('emptyState.button')}
               </Button>
             </div>
           </CardContent>
@@ -110,17 +111,17 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Your Dashboard</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
         <p className="text-muted-foreground">
-          View and manage your headshot shoots.
+          {t('description')}
         </p>
       </div>
       
       <Tabs defaultValue="all" className="space-y-6">
         <TabsList>
-          <TabsTrigger value="all">All Shoots</TabsTrigger>
-          <TabsTrigger value="processing">Processing</TabsTrigger>
-          <TabsTrigger value="completed">Completed</TabsTrigger>
+          <TabsTrigger value="all">{t('tabs.all')}</TabsTrigger>
+          <TabsTrigger value="processing">{t('tabs.processing')}</TabsTrigger>
+          <TabsTrigger value="completed">{t('tabs.completed')}</TabsTrigger>
         </TabsList>
         
         <TabsContent value="all" className="space-y-4">
@@ -155,6 +156,7 @@ function ShootCard({
   getStatusClass: (status: string) => string 
 }) {
   const router = useRouter()
+  const { t } = useTranslation('dashboard')
   
   // Format shoot date
   const shootDate = new Date(order.created_at).toLocaleDateString('en-US', {
@@ -166,28 +168,40 @@ function ShootCard({
   // Get style count
   const styleCount = order.styles?.length || 0
   
-  // Format shoot number
-  const shootNumber = order.shoot_number 
-    ? `Shoot ${order.shoot_number.toString().padStart(3, '0')}` 
-    : 'Shoot TBD'
+  // Format order ID for display
+  const displayId = order.id.substring(0, 8).toUpperCase()
   
+  // Get status text
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'paid':
+        return t('shootCard.status.paid')
+      case 'processing':
+        return t('shootCard.status.processing')
+      case 'completed':
+        return t('shootCard.status.completed')
+      default:
+        return status.charAt(0).toUpperCase() + status.slice(1)
+    }
+  }
+
   return (
     <Card>
       <CardHeader className="pb-3">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
           <div>
-            <CardTitle className="text-xl font-bold">{shootNumber}</CardTitle>
+            <CardTitle className="text-xl font-bold">Order #{displayId}</CardTitle>
             <CardDescription>{shootDate}</CardDescription>
           </div>
           <div className={`px-3 py-1 rounded-full text-xs font-medium mt-2 sm:mt-0 ${getStatusClass(order.status)}`}>
-            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+            {getStatusText(order.status)}
           </div>
         </div>
       </CardHeader>
       <CardContent>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <h3 className="text-sm font-medium mb-2">Styles</h3>
+            <h3 className="text-sm font-medium mb-2">{t('shootCard.details.styles')}</h3>
             <ul className="space-y-1 text-sm">
               {order.styles?.map(style => (
                 <li key={style.id} className="flex items-center">
@@ -199,15 +213,15 @@ function ShootCard({
           </div>
           <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-sm font-medium">Style Count</span>
+              <span className="text-sm font-medium">{t('shootCard.details.styleCount')}</span>
               <span className="text-sm">{styleCount}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm font-medium">Total Amount</span>
+              <span className="text-sm font-medium">{t('shootCard.details.totalAmount')}</span>
               <span className="text-sm">{formatPrice(order.amount)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm font-medium">Order ID</span>
+              <span className="text-sm font-medium">{t('shootCard.details.orderId')}</span>
               <span className="text-sm text-muted-foreground">{order.id.substring(0, 8)}</span>
             </div>
           </div>
@@ -220,11 +234,11 @@ function ShootCard({
           className="sm:mr-2"
           onClick={() => router.push(`/app/shoot/${order.id}`)}
         >
-          View Details
+          {t('shootCard.actions.viewDetails')}
         </Button>
         {order.status === 'completed' && (
           <Button onClick={() => router.push(`/app/results/${order.id}`)}>
-            View Results <ImageIcon className="h-4 w-4 ml-2" />
+            {t('shootCard.actions.viewResults')} <ImageIcon className="h-4 w-4 ml-2" />
           </Button>
         )}
       </CardFooter>

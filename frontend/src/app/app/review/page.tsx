@@ -19,6 +19,7 @@ import { useUserProgress } from '@/lib/hooks/use-user-progress'
 import type { Database } from '@/types/supabase'
 import { ArrowRightIcon } from 'lucide-react'
 import { Image as ImageType } from '@/lib/types'
+import { useTranslation } from 'react-i18next'
 
 // --- Zod Schema for Validation ---
 const demographicsSchema = z.object({
@@ -41,6 +42,7 @@ const bodyTypeOptions = ['Slim', 'Average', 'Athletic', 'Heavy-set', 'Prefer not
 type ImageRecord = ImageType
 
 export default function ReviewPage() {
+  const { t } = useTranslation('review')
   const { user } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
@@ -94,8 +96,8 @@ export default function ReviewPage() {
       } catch (error) {
         console.error("Error fetching review data:", error);
         toast({
-          title: 'Error Loading Review Data',
-          description: error instanceof Error ? error.message : 'Could not load review data.',
+          title: t('submit.toast.error.title'),
+          description: error instanceof Error ? error.message : t('submit.toast.error.description'),
           variant: 'destructive',
         });
       } finally {
@@ -104,11 +106,15 @@ export default function ReviewPage() {
     }
 
     fetchData();
-  }, [user, toast]);
+  }, [user, toast, t]);
 
   const onSubmit = async (data: DemographicsFormData) => {
     if (!user) {
-      toast({ title: 'Error', description: 'User not logged in.', variant: 'destructive' });
+      toast({ 
+        title: t('submit.toast.error.title'), 
+        description: t('submit.toast.error.userNotLoggedIn'), 
+        variant: 'destructive' 
+      });
       return;
     }
     setIsSubmitting(true);
@@ -143,8 +149,8 @@ export default function ReviewPage() {
       console.log("User progress updated to review stage complete.");
 
       toast({
-        title: 'Information Saved',
-        description: 'Your demographic information has been saved.',
+        title: t('submit.toast.success.title'),
+        description: t('submit.toast.success.description'),
       });
         
       router.push('/app/dashboard'); 
@@ -152,8 +158,8 @@ export default function ReviewPage() {
     } catch (error: any) {
       console.error('Error submitting demographics:', error);
       toast({
-        title: 'Submission Failed',
-        description: error.message || 'Could not save your information.',
+        title: t('submit.toast.error.title'),
+        description: error.message || t('submit.toast.error.description'),
         variant: 'destructive',
       });
     } finally {
@@ -161,25 +167,53 @@ export default function ReviewPage() {
     }
   };
 
+  const renderSelectField = (
+    fieldName: keyof DemographicsFormData,
+    options: { [key: string]: string }
+  ) => (
+    <div>
+      <Label htmlFor={fieldName}>{t(`aboutYou.fields.${fieldName}.label`)}</Label>
+      <Controller
+        name={fieldName}
+        control={control}
+        render={({ field }) => (
+          <Select onValueChange={field.onChange} value={field.value}>
+            <SelectTrigger id={fieldName}>
+              <SelectValue placeholder={t(`aboutYou.fields.${fieldName}.placeholder`)} />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(options).map(([key, value]) => (
+                <SelectItem key={key} value={value}>{value}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      />
+      {errors[fieldName] && (
+        <p className="text-sm text-destructive mt-1">
+          {t(`aboutYou.fields.${fieldName}.error`)}
+        </p>
+      )}
+    </div>
+  );
+
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Review Your Uploads</h1>
-        <p className="text-muted-foreground">
-          Please review your uploaded photos and provide some details to help us generate the best headshots.
-        </p>
+        <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
+        <p className="text-muted-foreground">{t('description')}</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Uploaded Photos</CardTitle>
-          <CardDescription>Here are the photos you uploaded for this order.</CardDescription>
+          <CardTitle>{t('uploadedPhotos.title')}</CardTitle>
+          <CardDescription>{t('uploadedPhotos.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <p>Loading images...</p>
+            <p>{t('uploadedPhotos.loading')}</p>
           ) : uploadedImages.length === 0 ? (
-            <p>No photos found for this order. Please go back and upload images.</p>
+            <p>{t('uploadedPhotos.noPhotos')}</p>
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
               {uploadedImages.map((image) => (
@@ -201,119 +235,20 @@ export default function ReviewPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>About You</CardTitle>
-          <CardDescription>This information helps tailor the headshot generation.</CardDescription>
+          <CardTitle>{t('aboutYou.title')}</CardTitle>
+          <CardDescription>{t('aboutYou.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div>
-              <Label htmlFor="ethnicity">Ethnicity</Label>
-              <Controller
-                name="ethnicity"
-                control={control}
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger id="ethnicity">
-                      <SelectValue placeholder="Select your ethnicity" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ethnicityOptions.map((option) => (
-                        <SelectItem key={option} value={option}>{option}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.ethnicity && <p className="text-sm text-destructive mt-1">{errors.ethnicity.message}</p>}
-            </div>
-
-            <div>
-              <Label htmlFor="eyeColor">Eye Color</Label>
-              <Controller
-                name="eyeColor"
-                control={control}
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger id="eyeColor">
-                      <SelectValue placeholder="Select your eye color" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {eyeColorOptions.map((option) => (
-                        <SelectItem key={option} value={option}>{option}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.eyeColor && <p className="text-sm text-destructive mt-1">{errors.eyeColor.message}</p>}
-            </div>
-
-            <div>
-              <Label htmlFor="hairColor">Hair Color</Label>
-              <Controller
-                name="hairColor"
-                control={control}
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger id="hairColor">
-                      <SelectValue placeholder="Select your hair color" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {hairColorOptions.map((option) => (
-                        <SelectItem key={option} value={option}>{option}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.hairColor && <p className="text-sm text-destructive mt-1">{errors.hairColor.message}</p>}
-            </div>
-
-            <div>
-              <Label htmlFor="hairLength">Hair Length</Label>
-              <Controller
-                name="hairLength"
-                control={control}
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger id="hairLength">
-                      <SelectValue placeholder="Select your hair length" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {hairLengthOptions.map((option) => (
-                        <SelectItem key={option} value={option}>{option}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.hairLength && <p className="text-sm text-destructive mt-1">{errors.hairLength.message}</p>}
-            </div>
-            
-            <div>
-              <Label htmlFor="bodyType">Body Type</Label>
-              <Controller
-                name="bodyType"
-                control={control}
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger id="bodyType">
-                      <SelectValue placeholder="Select your body type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {bodyTypeOptions.map((option) => (
-                        <SelectItem key={option} value={option}>{option}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.bodyType && <p className="text-sm text-destructive mt-1">{errors.bodyType.message}</p>}
-            </div>
+            {renderSelectField('ethnicity', t('aboutYou.fields.ethnicity.options', { returnObjects: true }))}
+            {renderSelectField('eyeColor', t('aboutYou.fields.eyeColor.options', { returnObjects: true }))}
+            {renderSelectField('hairColor', t('aboutYou.fields.hairColor.options', { returnObjects: true }))}
+            {renderSelectField('hairLength', t('aboutYou.fields.hairLength.options', { returnObjects: true }))}
+            {renderSelectField('bodyType', t('aboutYou.fields.bodyType.options', { returnObjects: true }))}
 
             <div className="flex justify-end pt-4">
               <Button type="submit" disabled={isSubmitting || isLoading || uploadedImages.length === 0}>
-                {isSubmitting ? 'Saving...' : 'Save and Continue to Dashboard'}
+                {isSubmitting ? t('submit.button.saving') : t('submit.button.default')}
                 <ArrowRightIcon className="ml-2 h-4 w-4" />
               </Button>
             </div>

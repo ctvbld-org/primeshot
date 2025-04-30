@@ -1,0 +1,39 @@
+{
+  "page": {
+    "title": "Instellingen",
+    "description": "Beheer uw accountinstellingen en voorkeuren."
+  },
+  "form": {
+    "profile": {
+      "title": "Profiel",
+      "description": "Werk uw profielinformatie bij.",
+      "fullName": {
+        "label": "Volledige Naam",
+        "placeholder": "Voer uw volledige naam in"
+      },
+      "submit": {
+        "saving": "Opslaan...",
+        "default": "Wijzigingen Opslaan"
+      },
+      "toast": {
+        "success": {
+          "title": "Profiel bijgewerkt",
+          "description": "Uw profiel is succesvol bijgewerkt."
+        },
+        "error": {
+          "title": "Fout",
+          "description": "Profiel bijwerken mislukt. Probeer het opnieuw.",
+          "notAuthenticated": "Niet geauthenticeerd"
+        }
+      }
+    }
+  },
+  "language": "Taal",
+  "theme": "Thema",
+  "notifications": "Meldingen",
+  "privacy": "Privacy",
+  "save": "Opslaan",
+  "cancel": "Annuleren",
+  "success": "Instellingen succesvol opgeslagen",
+  "error": "Fout bij het opslaan van instellingen"
+} 

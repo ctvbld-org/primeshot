@@ -15,6 +15,7 @@ import { useToast } from '@/components/ui/use-toast'
 import { createClient } from '@/lib/supabase/client'
 import { User } from '@/types/auth'
 import { cn } from "@/lib/utils"
+import { useTranslation } from 'react-i18next'
 
 // Custom DialogContent without close button
 const NoCloseDialogContent = React.forwardRef<
@@ -41,9 +42,11 @@ NoCloseDialogContent.displayName = "NoCloseDialogContent"
 
 // Schema for form validation
 const profileSchema = z.object({
-  full_name: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name is too long'),
+  full_name: z.string()
+    .min(2, 'completionModal.form.fullName.errors.tooShort')
+    .max(100, 'completionModal.form.fullName.errors.tooLong'),
   gender: z.enum(['male', 'female'], {
-    errorMap: () => ({ message: 'Please select an option' })
+    errorMap: () => ({ message: 'completionModal.form.gender.error' })
   })
 })
 
@@ -59,6 +62,7 @@ export function ProfileCompletionModal({ isOpen, onComplete, user }: ProfileComp
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
   const supabase = createClient()
+  const { t } = useTranslation('profile')
 
   const { control, handleSubmit, setValue, formState: { errors, isValid } } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -79,8 +83,8 @@ export function ProfileCompletionModal({ isOpen, onComplete, user }: ProfileComp
   const onSubmit = async (data: ProfileFormData) => {
     if (!user) {
       toast({
-        title: 'Error',
-        description: 'You must be logged in to update your profile.',
+        title: t('completionModal.toast.error.title'),
+        description: t('completionModal.toast.error.notLoggedIn'),
         variant: 'destructive'
       })
       return
@@ -101,8 +105,8 @@ export function ProfileCompletionModal({ isOpen, onComplete, user }: ProfileComp
       if (error) throw error
 
       toast({
-        title: 'Profile updated',
-        description: 'Your profile has been updated successfully.'
+        title: t('completionModal.toast.success.title'),
+        description: t('completionModal.toast.success.description')
       })
 
       // Call the onComplete callback to proceed
@@ -110,8 +114,8 @@ export function ProfileCompletionModal({ isOpen, onComplete, user }: ProfileComp
     } catch (error) {
       console.error('Error updating profile:', error)
       toast({
-        title: 'Error',
-        description: 'Failed to update your profile. Please try again.',
+        title: t('completionModal.toast.error.title'),
+        description: t('completionModal.toast.error.updateFailed'),
         variant: 'destructive'
       })
     } finally {
@@ -144,53 +148,53 @@ export function ProfileCompletionModal({ isOpen, onComplete, user }: ProfileComp
           onEscapeKeyDown={(e) => e.preventDefault()}
         >
           <DialogHeader>
-            <DialogTitle className="text-xl">Complete Your Profile</DialogTitle>
+            <DialogTitle className="text-xl">{t('completionModal.title')}</DialogTitle>
             <DialogDescription>
-              Please provide the following information to continue. This helps us generate more accurate headshots for you.
+              {t('completionModal.description')}
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-4">
             <div className="space-y-2">
-              <Label htmlFor="full_name">Full Name</Label>
+              <Label htmlFor="full_name">{t('completionModal.form.fullName.label')}</Label>
               <Controller
                 name="full_name"
                 control={control}
                 render={({ field }) => (
                   <Input
                     id="full_name"
-                    placeholder="Enter your full name"
+                    placeholder={t('completionModal.form.fullName.placeholder')}
                     {...field}
                   />
                 )}
               />
               {errors.full_name && (
-                <p className="text-sm text-destructive mt-1">{errors.full_name.message}</p>
+                <p className="text-sm text-destructive mt-1">{t(errors.full_name.message!, errors.full_name.message!)}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="gender">Gender</Label>
+              <Label htmlFor="gender">{t('completionModal.form.gender.label')}</Label>
               <Controller
                 name="gender"
                 control={control}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger id="gender">
-                      <SelectValue placeholder="Select your gender" />
+                      <SelectValue placeholder={t('completionModal.form.gender.placeholder')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
+                      <SelectItem value="male">{t('completionModal.form.gender.options.male')}</SelectItem>
+                      <SelectItem value="female">{t('completionModal.form.gender.options.female')}</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
               />
               {errors.gender && (
-                <p className="text-sm text-destructive mt-1">{errors.gender.message}</p>
+                <p className="text-sm text-destructive mt-1">{t(errors.gender.message!, errors.gender.message!)}</p>
               )}
               <p className="text-xs text-muted-foreground mt-1">
-                This information helps us generate more accurate headshots for you.
+                {t('completionModal.form.gender.help')}
               </p>
             </div>
 
@@ -199,7 +203,7 @@ export function ProfileCompletionModal({ isOpen, onComplete, user }: ProfileComp
               className="w-full"
               disabled={isSubmitting || !isValid}
             >
-              {isSubmitting ? 'Saving...' : 'Continue'}
+              {isSubmitting ? t('completionModal.submit.saving') : t('completionModal.submit.continue')}
             </Button>
           </form>
         </NoCloseDialogContent>

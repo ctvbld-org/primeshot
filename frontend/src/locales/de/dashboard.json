@@ -1,0 +1,36 @@
+{
+  "title": "Ihr Dashboard",
+  "description": "Sehen und verwalten Sie Ihre Fotoshootings.",
+  "loading": {
+    "error": "Fehler beim Laden Ihrer Shootings. Bitte versuchen Sie es erneut."
+  },
+  "emptyState": {
+    "title": "Noch keine Shootings",
+    "description": "Sie haben noch keine Shootings abgeschlossen. Beginnen Sie, indem Sie einen Stil erstellen und den Zahlungsprozess abschließen.",
+    "button": "Erstellen Sie Ihr erstes Shooting"
+  },
+  "tabs": {
+    "all": "Alle Shootings",
+    "processing": "In Bearbeitung",
+    "completed": "Abgeschlossen"
+  },
+  "shootCard": {
+    "shootNumber": "Shooting {{number}}",
+    "shootTBD": "Shooting TBD",
+    "status": {
+      "paid": "Bezahlt",
+      "processing": "In Bearbeitung",
+      "completed": "Abgeschlossen"
+    },
+    "details": {
+      "styles": "Stile",
+      "styleCount": "Anzahl der Stile",
+      "totalAmount": "Gesamtbetrag",
+      "orderId": "Bestell-ID"
+    },
+    "actions": {
+      "viewDetails": "Details anzeigen",
+      "viewResults": "Ergebnisse anzeigen"
+    }
+  }
+} 

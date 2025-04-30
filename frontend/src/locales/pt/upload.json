@@ -1,0 +1,25 @@
+{
+  "title": "Enviar fotos",
+  "description": "Envie suas fotos seguindo as diretrizes para obter o melhor resultado.",
+  "instructions": {
+    "title": "Instruções de envio",
+    "step1": "Selecione pelo menos {{count}} fotos.",
+    "step2": "Garanta boa iluminação e rostos nítidos.",
+    "step3": "Evite fotos em grupo ou com várias pessoas.",
+    "step4": "Não use filtros ou edições pesadas."
+  },
+  "buttons": {
+    "upload": "Enviar",
+    "remove": "Remover",
+    "continue": "Continuar"
+  },
+  "status": {
+    "uploading": "Enviando...",
+    "success": "Envio bem-sucedido!",
+    "error": "Erro ao enviar. Tente novamente."
+  },
+  "validation": {
+    "minPhotos": "Envie pelo menos {{count}} fotos para obter o melhor resultado.",
+    "poorQuality": "Algumas fotos não atendem aos nossos padrões de qualidade. Tente enviar imagens mais nítidas."
+  }
+} 

@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { useToast } from '@/components/ui/use-toast'
 import { useState } from 'react'
 import { updateUserSchema } from '@/lib/schemas'
+import { useTranslation } from 'react-i18next'
 
 interface SettingsFormProps {
   initialData: {
@@ -16,6 +17,7 @@ interface SettingsFormProps {
 }
 
 export function SettingsForm({ initialData }: SettingsFormProps) {
+  const { t } = useTranslation('settings')
   const [isLoading, setIsLoading] = useState(false)
   const [fullName, setFullName] = useState(initialData?.full_name || '')
   const { toast } = useToast()
@@ -28,7 +30,7 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
     try {
       const { data } = await supabase.auth.getUser()
      
-      if (!data.user) throw new Error('Not authenticated')
+      if (!data.user) throw new Error(t('form.profile.toast.error.notAuthenticated'))
 
       // Validate input
       const validatedData = updateUserSchema.parse({
@@ -44,14 +46,14 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
       if (error) throw error
 
       toast({
-        title: 'Profile updated',
-        description: 'Your profile has been updated successfully.'
+        title: t('form.profile.toast.success.title'),
+        description: t('form.profile.toast.success.description')
       })
     } catch (error) {
       console.error('Error:', error)
       toast({
-        title: 'Error',
-        description: 'Failed to update profile. Please try again.',
+        title: t('form.profile.toast.error.title'),
+        description: t('form.profile.toast.error.description'),
         variant: 'destructive'
       })
     } finally {
@@ -62,24 +64,24 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Profile</CardTitle>
+        <CardTitle>{t('form.profile.title')}</CardTitle>
         <CardDescription>
-          Update your profile information.
+          {t('form.profile.description')}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="fullName">Full Name</Label>
+            <Label htmlFor="fullName">{t('form.profile.fullName.label')}</Label>
             <Input
               id="fullName"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              placeholder="Enter your full name"
+              placeholder={t('form.profile.fullName.placeholder')}
             />
           </div>
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? 'Saving...' : 'Save Changes'}
+            {isLoading ? t('form.profile.submit.saving') : t('form.profile.submit.default')}
           </Button>
         </form>
       </CardContent>

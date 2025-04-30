@@ -1,0 +1,248 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+- **Translation File Structure**
+  ```
+  frontend/src/
+  ├── locales/
+  │   ├── en/
+  │   │   ├── common.json     # Shared translations
+  │   │   ├── payment.json    # Payment-related translations
+  │   │   └── feature.json    # Example naming for feature-specific translations
+  │   └── es/
+  │       ├── common.json
+  │       ├── payment.json
+  │       └── feature.json
+  ├── i18n.ts                 # i18n configuration
+  └── types/
+      └── i18next.d.ts       # Type declarations
+  ```
+
+- **Database Translation Patterns**
+  - **Direct Label Translation Object**
+    ```typescript
+    // ✅ DO: Use direct label translations for simple cases
+    interface TableRow {
+      id: string;
+      label: string; // Default language (en)
+      translations: {
+        [lang: string]: {
+          label: string;
+        }
+      };
+    }
+
+    // Example data
+    {
+      id: "item-1",
+      label: "Blue Background",
+      translations: {
+        es: {
+          label: "Fondo Azul"
+        }
+        // Add languages as needed
+      }
+    }
+    ```
+
+  - **Multiple Translatable Fields**
+    ```typescript
+    // ✅ DO: Use translations object for multiple fields
+    interface TableRow {
+      id: string;
+      name: string;  // Default language (en)
+      description: string;
+      translations?: {
+        [lang: string]: {
+          name: string;
+          description: string;
+        }
+      }
+    }
+
+    // Example data
+    {
+      id: "item-1",
+      name: "Blue Background",
+      description: "A solid blue backdrop",
+      translations: {
+        es: {
+          name: "Fondo Azul",
+          description: "Un fondo azul sólido"
+        }
+        // Add languages as needed
+      }
+    }
+    ```
+
+  - **When to Use Each Pattern**
+    ```typescript
+    // ✅ DO: Use direct label object when:
+    - Only one field needs translation
+    - All languages are required
+    - UI needs quick access to translations
+    - Performance is critical
+
+    // ✅ DO: Use translations object when:
+    - Multiple fields need translation
+    - Languages are optional
+    - Separating content from translations
+    - Future fields might need translation
+    ```
+
+- **Translation Key Naming**
+  ```typescript
+  // ✅ DO: Use nested objects for better organization
+  {
+    "feature": {
+      "section": {
+        "key": "value"
+      }
+    }
+  }
+
+  // ❌ DON'T: Use flat keys with repetitive prefixes
+  {
+    "feature_section_key": "value"
+  }
+  ```
+
+- **Component Usage**
+  ```typescript
+  // ✅ DO: Use namespaced translations
+  const { t } = useTranslation('payment');
+  t('success.title');
+
+  // ✅ DO: Use multiple namespaces when needed
+  const { t } = useTranslation(['payment', 'common']);
+  t('payment:success.title');
+  t('common:error.message');
+
+  // ❌ DON'T: Use the default namespace without specifying
+  const { t } = useTranslation();
+  t('success.title'); // Unclear which namespace
+  ```
+
+- **Translation File Organization**
+  - **Common Translations (`common.json`)**
+    ```json
+    {
+      "error": {
+        "title": "Error",
+        "description": "An error occurred"
+      },
+      "loading": "Loading...",
+      "buttons": {
+        "save": "Save",
+        "cancel": "Cancel"
+      }
+    }
+    ```
+  - **Feature Translations (`feature.json`)**
+    ```json
+    {
+      "title": "Feature Title",
+      "description": "Feature description",
+      "sections": {
+        "main": {
+          "title": "Section Title"
+        }
+      }
+    }
+    ```
+
+- **Type Safety**
+  ```typescript
+  // ✅ DO: Define types for translations
+  // types/i18next.d.ts
+  import 'i18next';
+  declare module 'i18next' {
+    interface CustomTypeOptions {
+      defaultNS: 'common';
+      resources: {
+        common: typeof import('../locales/en/common.json');
+        payment: typeof import('../locales/en/payment.json');
+      }
+    }
+  }
+
+  // ❌ DON'T: Use translations without type checking
+  const { t } = useTranslation();
+  t('nonexistent.key'); // Should show type error
+  ```
+
+- **Database Translation Types**
+  ```typescript
+  // ✅ DO: Define clear interfaces for database translations
+  // Direct label pattern
+  interface TranslatedLabel {
+    [lang: string]: string;
+  }
+
+  // Translations object pattern
+  interface Translations {
+    [lang: string]: {
+      [field: string]: string;
+    }
+  }
+
+  // ✅ DO: Use discriminated unions for different patterns
+  type TranslationField = 
+    | { label: TranslatedLabel }
+    | { translations: Translations }
+  ```
+
+- **Best Practices**
+  - Keep translations organized by feature/page
+  - Use common namespace for shared translations
+  - Always specify namespace when using translations
+  - Add new languages in all namespaces simultaneously
+  - Use TypeScript for type safety
+  - Keep translation keys descriptive and hierarchical
+  - Document all namespaces in i18next.d.ts
+  - Be consistent with database translation patterns
+  - Consider query performance when choosing patterns
+
+- **Adding New Features**
+  1. Create translation files in all language directories
+  2. Add namespace to i18n.ts configuration
+  3. Update type definitions in i18next.d.ts
+  4. Use namespaced translations in components
+  5. Choose appropriate database translation pattern
+  6. Update database schemas and migrations
+
+- **Interpolation**
+  ```typescript
+  // ✅ DO: Use type-safe interpolation
+  t('welcome', { name: user.name });
+  
+  // ✅ DO: Use pluralization
+  t('items', { count: items.length });
+  
+  // ❌ DON'T: Use string concatenation
+  t('welcome') + user.name;
+  ```
+
+- **Maintenance**
+  - Review unused translations periodically
+  - Keep language files in sync
+  - Update types when adding/removing translations
+  - Use translation management tools for collaboration
+  - Consider automated translation verification
+  - Monitor database translation coverage
+  - Plan for language additions/removals
+
+- **Common Issues**
+  - Missing translations in some languages
+  - Inconsistent naming across namespaces
+  - Type mismatches in interpolation
+  - Duplicate translations in different namespaces
+  - Unnecessary nesting levels
+  - Mixed translation patterns in database
+  - Performance impact of translation queries
+
+- **Related Rules**
+  - See [project_structure.mdc](mdc:.cursor/rules/project_structure.mdc) for directory organization
+  - See [supabase_migrations.mdc](mdc:.cursor/rules/supabase_migrations.mdc) for database changes

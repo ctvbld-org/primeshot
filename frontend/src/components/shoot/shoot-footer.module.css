@@ -62,7 +62,10 @@
 }
 
 .footer-photos-per-style {
+  display: flex;
+  flex-wrap: nowrap;
   margin-left: 4px;
+  flex: 1 0 auto;
 }
 
 /* You can also use nested selectors and pseudo-classes */

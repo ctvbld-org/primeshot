@@ -1,0 +1,46 @@
+{
+  "common": {
+    "title": "Subir fotos",
+    "description": "Sube tus fotos para la generación de retratos.",
+    "order": {
+      "title": "Detalles del pedido",
+      "description": "Por favor, sube fotos según las especificaciones de tu pedido."
+    }
+  },
+  "fields": {
+    "orderId": "ID de pedido",
+    "styles": "Estilos seleccionados",
+    "acceptedImages": "Imágenes aceptadas",
+    "needsImprovement": "Necesita mejora",
+    "overallQualityScore": "Puntaje de calidad general",
+    "totalImages": "Total de imágenes",
+    "acceptedImagesCount": "Imágenes aceptadas",
+    "rejectedImagesCount": "Imágenes rechazadas"
+  },
+  "status": {
+    "error": "Error",
+    "failed": "Fallido",
+    "successful": "Exitoso",
+    "image": "{{count}} imagen",
+    "image_plural": "{{count}} imágenes",
+    "uploadMore": "Por favor, sube {{count}} {{image}} más",
+    "removeImages": "Por favor, elimina {{count}} {{image}}",
+    "imagesSelected": "{{count}} imágenes seleccionadas",
+    "processing": "Procesando... {{uploaded}}/{{total}} ({{progress}}%)"
+  },
+  "errors": {
+    "noActiveOrder": "No hay pedido activo",
+    "paymentRequired": "Por favor, completa el pago antes de subir fotos.",
+    "loadOrderData": "No se pudieron cargar los datos del pedido. Por favor, inténtalo de nuevo.",
+    "uploadFailed": "No se pudieron subir las imágenes. Por favor, inténtalo de nuevo.",
+    "someUploadsFailed": "{{count}} cargas fallidas. Por favor, inténtalo de nuevo.",
+    "savingProgress": "No se pudo guardar el progreso. Continuando a la revisión."
+  },
+  "success": {
+    "uploadComplete": "{{count}} imágenes subidas exitosamente."
+  },
+  "buttons": {
+    "upload": "Subir {{count}} estilo",
+    "upload_plural": "Subir {{count}} estilos"
+  }
+} 

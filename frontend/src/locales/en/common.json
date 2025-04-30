@@ -1,0 +1,26 @@
+{
+  "welcome": "Welcome",
+  "error": {
+    "title": "Error",
+    "description": "An error occurred"
+  },
+  "language": "Language",
+  "loading": "Loading...",
+  "buttons": {
+    "customize": "Customize",
+    "confirmChanges": "Confirm changes",
+    "addToShoot": "Add to Shoot",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "next": "Next",
+    "previous": "Prev",
+    "keep": "Keep it",
+    "discard": "Discard",
+    "confirm": "Confirm",
+    "remove": "Remove",
+    "add": "Add"
+  }
+} 

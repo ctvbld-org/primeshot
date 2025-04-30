@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { Toaster } from 'react-hot-toast'
 import './globals.css'
+import '@/i18n'
 
 import { SupabaseProvider } from '@/components/providers/supabase-provider'
 import { AuthProvider } from '@/contexts/auth-context'

@@ -3,6 +3,7 @@ import Image from "next/image"
 import styles from './shoot-footer.module.css'
 import { Icon } from "../icons/icon"
 import { useState } from "react"
+import { useTranslation } from 'react-i18next'
 
 interface ShootFooterProps {
   stylesCount: number
@@ -25,6 +26,7 @@ export function ShootFooter({
 }: ShootFooterProps) {
   const totalPhotos = stylesCount * photosPerStyle
   const [loading, setLoading] = useState(false)
+  const { t } = useTranslation('styles')
 
   const handleCheckout = async () => {
     if (loading) return;
@@ -40,11 +42,11 @@ export function ShootFooter({
     <div className={styles.footer}>
       <div className="mx-auto flex items-center">
         <div className={styles['footer-title-container']}>
-          <span className={styles['footer-title']}>My Shoot</span>
+          <span className={styles['footer-title']}>{t('footer.title')}</span>
           <span className={styles['footer-separator']}>
             <Image 
               src="/footer-separator.svg"
-              alt="Footer Separator"
+              alt={t('footer.separator.alt')}
               width={13}
               height={64}
             />
@@ -52,33 +54,33 @@ export function ShootFooter({
         </div>
         {stylesCount > 0 ? (
           <>
-            <div className="flex items-center mr-10 justify-between flex-wrap flex-[1_1_80%]">
-              <div className={styles['footer-content']}>
+            <div className="flex items-center justify-between flex-nowrap flex-[1_1_80%] mr-10 overflow-x-auto hide-scrollbar">
+              <div className={`${styles['footer-content']} flex flex-nowrap flex-[1_0_auto]`}>
                 <div className={`flex items-center ${styles['footer-styles']}`}>
-                  <span className="text-[#FFB45E] mr-1">{stylesCount}</span>
-                  <span className={styles['footer-multiplier']}>×</span>
-                  <span className="text-[#ffffff]"> Styles</span>
+                  <span className="text-[#FFB45E] mr-1">{t('footer.styles.count', { count: stylesCount })}</span>
+                  <span className={styles['footer-multiplier']}>{t('footer.styles.multiplier')}</span>
+                  <span className="text-[#ffffff]"> {t('footer.styles.label')}</span>
                 </div>
                 <div className="flex items-center">
                   <span className="mr-2">
                     <Icon variant="camera" size={14} className={styles.icon} />
                   </span>
-                  <span className="text-[#FFB45E] mr-1">{totalPhotos}</span>
-                  <span className={styles['footer-multiplier']}>×</span>
-                  <span className="text-[#ffffff]"> Photos</span>
-                  <span className={styles['footer-photos-per-style']}>({photosPerStyle} per style)</span>
+                  <span className="text-[#FFB45E] mr-1">{t('footer.photos.count', { count: totalPhotos })}</span>
+                  <span className={styles['footer-multiplier']}>{t('footer.photos.multiplier')}</span>
+                  <span className="text-[#ffffff]"> {t('footer.photos.label')}</span>
+                  <span className={styles['footer-photos-per-style']}>{t('footer.photos.perStyle', { count: photosPerStyle })}</span>
                 </div>
 
-                <span className="bg-[#44E3C910] rounded-full px-3 py-2 text-[#44E3C9]">
-                  {basePrice / 100} USD
+                <span className="flex flex-nowrap flex-[0_0_auto] bg-[#44E3C910] rounded-full px-3 py-2 mr-4 text-[#44E3C9]">
+                  {t('footer.price.amount', { amount: basePrice / 100 })}
                 </span>
               </div>
-              <div className={styles['footer-upgrade-container']}>
-                <Icon variant="plusFill" size={16} className="text-[#FFB45E]" />
-                <span>Add {extraStylesCount} extra styles and get</span>
+              <div className={`${styles['footer-upgrade-container']} flex flex-nowrap flex-[0_0_auto]`}>
+                <Icon variant="plusFill" size={16} className="flex-[1_0_auto] text-[#FFB45E]" />
+                <span className="flex flex-nowrap flex-[1_0_auto]">{t('footer.upgrade.text', { count: extraStylesCount })}</span>
                 <span className="text-[#FFFFFF]">{totalPhotosWithExtra}</span>
-                <span>photos for only</span>
-                <span className="text-[#FFFFFF]">{upgradedPrice} USD</span>
+                <span className="flex flex-nowrap flex-[1_0_auto]">{t('footer.upgrade.photosText')}</span>
+                <span className="text-[#FFFFFF] flex flex-nowrap flex-[1_0_auto]">{t('footer.upgrade.price', { amount: upgradedPrice })}</span>
               </div>
             </div>
           </>
@@ -87,7 +89,7 @@ export function ShootFooter({
             <div className="flex items-center mr-10 flex-wrap flex-[1_1_80%]">
               <Icon variant="dizzyFace" size={22} className="mr-2" />
               <div className={styles['footer-content']}>
-                <span>Your style list is empty. Add a few looks to generate your perfect shoot.</span>
+                <span>{t('footer.emptyState')}</span>
               </div>
             </div>
           </>
@@ -99,7 +101,7 @@ export function ShootFooter({
           disabled={stylesCount === 0 || loading}
           loading={loading}
         >
-          Checkout
+          {t('footer.checkout')}
         </Button>
       </div>
     </div>

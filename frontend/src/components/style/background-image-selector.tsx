@@ -6,7 +6,9 @@ import { StyleBackground, StylePhotographyStyle } from '@/lib/types'
 import { OptionsCarousel } from './options-carousel'
 import { getOptionsImage } from '@/lib/utils/get-options-image'
 import { useStyleConfigs, useOption } from '@/hooks/useConfig'
+import { useTranslatedOption } from '@/hooks/useTranslatedOption'
 import { useValidStyleOptions } from '@/lib/utils/style-validation'
+import { useTranslation } from 'react-i18next'
 
 interface BackgroundImageSelectorProps {
   photographyStyle: StylePhotographyStyle;
@@ -25,10 +27,12 @@ export function BackgroundImageSelector({ photographyStyle, isCard }: Background
   const settings = store((state) => state.settings)
   const setBackground = store((state) => state.setBackground)
   const { data: validOptions, isLoading: isLoadingValidOptions } = useValidStyleOptions();
+  const { t } = useTranslation("common");
 
   // Query for styles and background options using custom hooks
   const { data: styles, isLoading: isLoadingStyles, error: stylesError } = useStyleConfigs();
-  const { data: backgroundOptions, isLoading: isLoadingBackground, error: backgroundError } = useOption('background');
+  const { data: rawBackgroundOptions, isLoading: isLoadingBackground, error: backgroundError } = useOption('background');
+  const backgroundOptions = useTranslatedOption(rawBackgroundOptions);
 
   // Find the current style configuration
   const currentStyleConfig = styles?.find(style => style.id === photographyStyle);
@@ -63,7 +67,7 @@ export function BackgroundImageSelector({ photographyStyle, isCard }: Background
   }, [photographyStyle, filteredBackgroundOptions, settings.background, setBackground, validOptions]);
 
   if (isLoading) {
-    return <div className="p-4">Loading background options...</div>;
+    return <div className="p-4">{t("loading")}</div>;
   }
 
   if (error) {
