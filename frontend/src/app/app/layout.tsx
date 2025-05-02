@@ -8,10 +8,7 @@ import { useEffect, useState } from 'react'
 import { usePaymentRecovery } from "@/lib/hooks/use-payment-recovery"
 import { PaymentRecoveryDialog } from "@/components/ui/alert-dialog"
 import { usePathname } from 'next/navigation'
-import Image from 'next/image'
-import Link from 'next/link'
-import { UserNav } from '@/components/user-nav'
-import { LanguageSwitcher } from '@/components/language-switcher'
+import { AppHeader } from '@/components/app-header'
 
 export default function AppLayout({
   children,
@@ -45,20 +42,7 @@ export default function AppLayout({
   return (
     <div className="flex flex-col flex-1 justify-center pt-[56px] pb-[64px] min-h-screen overflow-hidden" style={{ backgroundColor: '#001514' }}>
       {!pathname.includes('/settings/profile') && (
-        <header className="fixed top-0 left-0 right-0 z-50">
-          <div className="mx-auto flex h-[56px] items-center justify-between px-4">
-            <Image 
-              src="/logo.svg" 
-              alt="Primeshot Logo" 
-              width={40} 
-              height={40}
-              priority
-            />
-            <div className="flex items-center gap-4">
-              <UserNav user={user} />
-            </div>
-          </div>
-        </header>
+        <AppHeader user={user} />
       )}
       <main className="h-full pt-0">
         {children}

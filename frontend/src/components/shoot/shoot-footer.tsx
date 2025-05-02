@@ -34,7 +34,7 @@ export function ShootFooter({
     try {
       await onCheckout?.()
     } finally {
-      setLoading(false)
+      //setLoading(false)
     }
   }
 

@@ -42,12 +42,6 @@ export function UserNav({ user }: UserNavProps) {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem 
-          onSelect={() => router.push('/app/shoot')}
-        >
-          Create New Styles
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
         <DropdownMenuLabel>
           <LanguageSwitcher variant='modal' />
         </DropdownMenuLabel>

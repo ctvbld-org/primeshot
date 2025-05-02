@@ -107,10 +107,10 @@ export default function SignIn() {
             <div className={styles.headingContainer}>
               {/* Heading */}
               <h1 className={styles.heading}>
-                Get started now
+                {t('signin.getStarted.title')}
               </h1>
               <p className={styles.subheading}>
-                Choose the option below to access your account
+                {t('signin.getStarted.description')}
               </p>
             </div>
 
@@ -145,7 +145,7 @@ export default function SignIn() {
             {/* Divider */}
             <div className={styles.divider}>
               <span className={styles.dividerLine}></span>
-              <span className={styles.dividerText}>or</span>
+              <span className={styles.dividerText}>{t('signin.divider.text')}</span>
               <span className={styles.dividerLine}></span>
             </div>
 
@@ -156,7 +156,7 @@ export default function SignIn() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Email address"
+                  placeholder={t('signin.emailInput.placeholder')}
                   className={styles.input}
                   required
                 />
@@ -172,20 +172,20 @@ export default function SignIn() {
                 disabled={isLoading}
                 loading={isLoading}
               >
-                {isLoading ? 'Sending...' : 'Send code to login'}
+                {isLoading ? t('signin.emailInput.sendingButton') : t('signin.emailInput.sendButton')}
                 <Icon variant="arrowRight" className={styles.arrowRight} />
               </Button>
             </form>
 
             {/* Terms */}
             <p className={styles.terms}>
-              By signing up, you accept our <br />
+              {t('signin.terms.text')} <br />
               <Link href="/terms" className={styles.termsLink}>
-                Terms & Conditions
+                {t('signin.terms.termsLink')}
               </Link>
-              &nbsp;and&nbsp;
+              &nbsp;{t('signin.terms.and')}&nbsp;
               <Link href="/privacy" className={styles.termsLink}>
-                Privacy Policy
+                {t('signin.terms.privacyLink')}
               </Link>
             </p>
           </CardContent>
