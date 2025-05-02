@@ -97,7 +97,7 @@ export function ShootFooter({
         )}
         <Button 
           onClick={handleCheckout}
-          variant="primary"
+          variant="secondary"
           className={styles.checkoutButton}
           disabled={stylesCount === 0 || loading}
           loading={loading}

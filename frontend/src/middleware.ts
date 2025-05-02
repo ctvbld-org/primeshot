@@ -5,12 +5,6 @@ import { NextResponse, type NextRequest } from 'next/server'
 // Type alias for FlowStage to use in middleware
 type FlowStage = 'shoot' | 'payment' | 'upload' | 'review' | 'dashboard';
 
-// Define a type for the progress data structure expected from the database
-type UserProgressData = {
-  current_stage: FlowStage | null; 
-  completed_stages: FlowStage[] | null;
-} | null;
-
 export async function middleware(request: NextRequest) {
   // Update session using our shared middleware function
   const response = await updateSession(request)
@@ -34,6 +28,29 @@ export async function middleware(request: NextRequest) {
     
     if (!user) {
       return NextResponse.redirect(new URL('/auth/signin', request.url))
+    }
+
+    // Check if the current route is the profile settings page
+    const isProfileSettingsPage = request.nextUrl.pathname === '/app/settings/profile';
+    
+    // If not on the profile settings page, check profile completion
+    if (!isProfileSettingsPage) {
+      // Get user profile
+      const { data: profileData, error: profileError } = await supabase
+        .from('users')
+        .select('full_name, gender')
+        .eq('id', user.id)
+        .single()
+
+      if (profileError) {
+        console.error('Middleware: Error fetching user profile:', profileError);
+        return response;
+      }
+      
+      // If profile is incomplete, redirect to profile settings
+      if (!profileData?.gender) {
+        return NextResponse.redirect(new URL('/app/settings/profile', request.url))
+      }
     }
 
     // Get user progress

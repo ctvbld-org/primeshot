@@ -16,21 +16,18 @@
 }
 
 .title {
-    color: #44E3C9;
+    color: #fff;
     font-size: 28px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-    letter-spacing: 0.56px;
+    font-weight: 300;
     text-align: center;
 }
 
 .description {
-    color: #FFF;
+    color: rgba(255, 255, 255, 0.5);
     text-align: center;
-    font-size: 16px;
+    font-size: 14px;
     font-style: normal;
-    font-weight: 500;
+    font-weight: 400;
     line-height: 20px;
     text-align: center;
 }

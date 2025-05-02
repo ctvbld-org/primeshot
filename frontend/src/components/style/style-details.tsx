@@ -247,7 +247,7 @@ export function StyleDetails({
               </div>
               <Button 
                 variant="ghost"
-                className="text-black bg-[#00000010]"
+                className={styles.editButton}
                 onClick={() => {
                   onCustomize(index);
                 }}
@@ -258,7 +258,8 @@ export function StyleDetails({
           ) : (
             <>
               <Button 
-                variant="primary"
+                className={styles['customize-button']}
+                variant="secondary"
                 onClick={() => {
                   setIsNavigating(false);
                   onCustomize(index);

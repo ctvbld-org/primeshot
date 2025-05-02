@@ -6,7 +6,7 @@
   gap: 0.5rem;
   border-radius: 99px;
   font-weight: 500;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
   will-change: transform;
   transform-style: preserve-3d;
   perspective: 1000px;
@@ -15,7 +15,28 @@
 
 .btn {
   overflow: hidden;
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25), 1px 0px 0px 0px rgba(255, 255, 255, 0.40) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.40) inset;
   transform: translate3d(0, 0, 0);
+}
+
+.btn:not(:disabled):hover {
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25), -1px 0px 0px 0px rgba(255, 255, 255, 0.40) inset, 0px -1px 0px 0px rgba(255, 255, 255, 0.40) inset;
+}
+
+.btn:not(:disabled):active {
+  transform: translateY(-1px);
+  box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.25), -1px 0px 0px 0px rgba(255, 255, 255, 0.40) inset, 0px -1px 0px 0px rgba(255, 255, 255, 0.40) inset;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .btnLabel {
@@ -27,6 +48,7 @@
   transform: translate3d(0, 0, 0);
   transition: transform 0.1s ease;
   will-change: transform;
+  z-index: 1;
 }
 
 .btnIcon {
@@ -37,11 +59,12 @@
   transform: translate3d(0, 0, 0);
   transition: transform 0.1s ease;
   will-change: transform;
+  z-index: 1;
 }
 
-.base:disabled {
+.base:not(.loading):disabled {
   pointer-events: none;
-  opacity: 0.5;
+  opacity: 0.65;
   cursor: not-allowed;
 }
 
@@ -82,67 +105,82 @@
 
 .primary {
   background-color: #44E3C9;
-  color: var(--text-white);
-  background-image: linear-gradient(97deg, #44E3C9 -1.38%, rgba(182, 198, 136, 0.88) 8.97%, rgba(255, 180, 94, 0.90) 23.97%, #44E3C9 63.91%), #44E3C9;
+  color: #000000;
+  background-image: linear-gradient(92deg, #44E3C9 4.48%, rgba(161, 190, 131, 0.95) 14.75%, rgba(208, 170, 95, 0.92) 23.2%, rgba(255, 151, 60, 0.90) 35.03%, rgba(204, 172, 99, 0.93) 49.15%, rgba(120, 206, 162, 0.97) 58.42%, #44E3C9 70.43%);
 }
 
-.primary:not(:disabled):hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
-}
-
-.destructive {
-  background-color: var(--destructive);
-  color: var(--destructive-foreground);
-  background-image: linear-gradient(97deg, var(--destructive) -1.38%, color-mix(in srgb, var(--destructive) 80%, #ff8f8f) 30%, color-mix(in srgb, var(--destructive) 60%, #ff6b6b) 60%, var(--destructive) 90%);
-}
-
-.destructive:not(:disabled):hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
+.primary:after {
+  background: linear-gradient(180deg, rgba(68, 227, 201, 0.20) 0%, rgba(0, 138, 115, 0.90) 100%);
 }
 
 .secondary {
-  background-color: var(--secondary);
-  color: var(--secondary-foreground);
-  background-image: linear-gradient(97deg, var(--secondary) -1.38%, color-mix(in srgb, var(--secondary) 80%, #e1e1e1) 30%, color-mix(in srgb, var(--secondary) 60%, #f0f0f0) 60%, var(--secondary) 90%);
+  background-color: #FF7C0A;
+  color: #000000;
+  background-image: linear-gradient(92deg, #FF973C 4.48%, rgba(192, 177, 107, 0.97) 12.86%, rgba(137, 199, 149, 0.94) 23.67%, rgba(68, 227, 201, 0.90) 35.03%, rgba(109, 205, 160, 0.92) 47.05%, rgba(210, 149, 56, 0.98) 61.48%, #FF7C0A 70.43%);
+  box-shadow: 1px 0px 0px 0px rgba(255, 255, 255, 0.40) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.40) inset, 0px 4px 4px 0px rgba(0, 0, 0, 0.2);
 }
 
-.secondary:not(:disabled):hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
+.secondary:after {
+  background: linear-gradient(180deg, rgba(255, 151, 60, 0.20) 0%, rgba(255, 124, 10, 0.90) 100%);
 }
 
 .tertiary {
-  background-image: linear-gradient(97deg, #44E3C9 -1.38%, #FFB45E 30%, color-mix(in srgb, #44E3C9 60%, #a0f5e8) 60%, #44E3C9 90%);
-  color: #000000;
+  background-color: #000000;
+  background-image: linear-gradient(92deg, #000 4.48%, rgba(68, 227, 201, 0.90) 35.03%, #000 70.43%);
+  color: #FFFFFF;
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25), 1px 0px 0px 0px rgba(255, 255, 255, 0.15) inset, 0px 1px 0px 0px rgba(255, 255, 255, 0.15) inset;
+}
+
+.tertiary:after {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.90) 100%);
 }
 
 .tertiary:not(:disabled):hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25), -1px 0px 0px 0px rgba(255, 255, 255, 0.15) inset, 0px -1px 0px 0px rgba(255, 255, 255, 0.15) inset;
+}
+
+.tertiary:not(:disabled):active {
+  box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.25), -1px 0px 0px 0px rgba(255, 255, 255, 0.15) inset, 0px -1px 0px 0px rgba(255, 255, 255, 0.15) inset;
 }
 
 .outline {
-  border: 1px solid var(--input);
   background-color: transparent;
-  background-image: linear-gradient(97deg, var(--accent) -1.38%, color-mix(in srgb, var(--accent) 80%, #ffffff) 30%, color-mix(in srgb, var(--accent) 60%, #f8f8f8) 60%, var(--accent) 90%);
+  background-image: linear-gradient(92deg, rgba(255, 151, 60, 0.08) 4.48%, rgba(255, 151, 60, 0.20) 35.03%, rgba(255, 151, 60, 0.08) 70.43%);
+  color: rgba(255, 151, 60, 1);
+  box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.25), 0px 1px 0px 0px rgba(255, 151, 60, 0.40) inset;
+}
+
+.outline:after {
+  background: linear-gradient(180deg, rgba(255, 151, 60, 0.00) 0%, rgba(255, 151, 60, 0.10) 100%);
 }
 
 .outline:not(:disabled):hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
-  color: var(--accent-foreground);
+  box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.25), 0px 1px 0px 0px rgba(255, 151, 60, 0.40) inset;
+}
+
+.outline:not(:disabled):active {
+  box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.25), 0px 1px 0px 0px rgba(255, 151, 60, 0.40) inset;
 }
 
 .ghost {
   background-color: transparent;
-  background-image: linear-gradient(97deg, var(--accent) -1.38%, color-mix(in srgb, var(--accent) 90%, transparent) 30%, color-mix(in srgb, var(--accent) 70%, transparent) 60%, var(--accent) 90%);
+  box-shadow: none !important;
 }
 
 .ghost:not(:disabled):hover {
   transform: translateY(-1px);
   color: var(--accent-foreground);
+}
+
+.destructive {
+  background-color: var(--destructive);
+  color: #fff;
+  background-image: linear-gradient(92deg, #D00 4.48%, rgba(84, 0, 0, 0.90) 35.03%, #D00 70.43%);
+  box-shadow: none !important;
+}
+
+.destructive:after {
+  background-image: linear-gradient(180deg, rgba(221, 0, 0, 0.20) 0%, rgba(155, 0, 0, 0.90) 100%);
 }
 
 .link {
@@ -169,7 +207,7 @@
 
 .size-md {
   height: 2.5rem;
-  padding: 0 1rem;
+  padding: 0 20px;
   font-size: 0.875rem;
 }
 
@@ -189,15 +227,13 @@
 .loading {
   position: relative;
   pointer-events: none;
-  opacity: 0.6;
+  opacity: 1;
 }
 
 .spinner {
-  position: absolute;
   width: 1rem;
   height: 1rem;
   animation: spin 1s linear infinite;
-  margin-right: 0.5rem;
 }
 
 .spinnerCircle {

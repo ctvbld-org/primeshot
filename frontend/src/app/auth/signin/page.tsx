@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { AnimatedBackground } from "@/components/auth/animated-background";
@@ -13,6 +13,7 @@ import Image from "next/image";
 import Link from "next/link";
 import styles from './signin.module.css';
 import { Icon } from "@/components/icons/icon";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function SignIn() {
   const [mounted, setMounted] = useState(false);
@@ -21,11 +22,46 @@ export default function SignIn() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { t } = useTranslation('auth');
+  const { toast } = useToast();
   
   // Handle client-side only rendering
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Create a stable showToast function
+  const showToast = useCallback((title: string, description: string) => {
+    toast({
+      title,
+      description,
+      variant: "destructive",
+    });
+  }, [toast]);
+
+  // Check for social sign-in cancellation from URL hash
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const error = hashParams.get('error');
+    const errorDescription = hashParams.get('error_description');
+    
+    if (error === 'user_cancelled_login' || error === 'access_denied') {
+      showToast(
+        "Sign in cancelled",
+        "You cancelled the sign in process"
+      );
+      // Clean up the URL
+      window.history.replaceState(null, '', window.location.pathname);
+    } else if (error && errorDescription) {
+      showToast(
+        "Sign in error",
+        decodeURIComponent(errorDescription).replace(/\+/g, ' ')
+      );
+      // Clean up the URL
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  }, [showToast]);
 
   // Get return URL from query params
   const returnUrlParam = searchParams.get('returnUrl') || '/app/shoot';
@@ -81,6 +117,7 @@ export default function SignIn() {
             {/* Social Login Buttons */}
             <div className={styles.socialButtons}>
               <Button 
+                variant="ghost"
                 onClick={() => signInWithGoogle()}
                 className={styles.socialButton}
                 disabled={isLoading}
@@ -93,6 +130,7 @@ export default function SignIn() {
                 </svg>
               </Button>
               <Button 
+                variant="ghost"
                 onClick={() => signInWithLinkedIn()}
                 className={styles.socialButton}
                 disabled={isLoading}
@@ -127,7 +165,8 @@ export default function SignIn() {
                 )}
               </div>
               <Button 
-                variant="tertiary"
+                variant="primary"
+                size="lg"
                 type="submit" 
                 className={styles.submitButton}
                 disabled={isLoading}

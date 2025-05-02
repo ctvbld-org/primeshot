@@ -1,7 +1,7 @@
 {
   "completionModal": {
-    "title": "Maak je profiel compleet",
-    "description": "Vul de onderstaande informatie in om verder te gaan. Dit helpt ons om nauwkeurigere portretten te genereren.",
+    "title": "Vertel ons wat over uzelf",
+    "description": "Dit helpt ons uw stijlopties te personaliseren",
     "form": {
       "fullName": {
         "label": "Volledige naam",
@@ -19,22 +19,22 @@
           "female": "Vrouw"
         },
         "error": "Selecteer een optie",
-        "help": "Deze informatie helpt bij het genereren van nauwkeurigere portretten."
+        "help": "Deze informatie helpt ons nauwkeurigere foto's van u te maken."
       }
     },
     "submit": {
-      "saving": "Bezig met opslaan...",
+      "saving": "Opslaan...",
       "continue": "Doorgaan"
     },
     "toast": {
       "error": {
         "title": "Fout",
-        "notLoggedIn": "Je moet ingelogd zijn om je profiel bij te werken.",
-        "updateFailed": "Bijwerken van profiel mislukt. Probeer het opnieuw."
+        "notLoggedIn": "U moet ingelogd zijn om uw profiel bij te werken.",
+        "updateFailed": "Profiel bijwerken mislukt. Probeer het opnieuw."
       },
       "success": {
         "title": "Profiel bijgewerkt",
-        "description": "Je profiel is succesvol bijgewerkt."
+        "description": "Uw profiel is succesvol bijgewerkt."
       }
     }
   }

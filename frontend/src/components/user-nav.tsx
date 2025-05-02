@@ -12,8 +12,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar } from '@/components/ui/avatar'
 import { User } from '@/types/auth'
+import style from 'styled-jsx/style'
+import { LanguageSwitcher } from './language-switcher'
 
 interface UserNavProps {
   user: User | null
@@ -25,16 +27,13 @@ export function UserNav({ user }: UserNavProps) {
   
   const userEmail = user?.email || ''
   const userInitial = userEmail ? userEmail.charAt(0).toUpperCase() : ''
-  console.log(user);
+  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar>
-            <AvatarImage src={user?.avatar_url} />
-            <AvatarFallback>{userInitial}</AvatarFallback>
-          </Avatar>
-        </Button>
+        <div className="relative h-8 w-8 cursor-pointer">
+          <Avatar src={user?.avatar_url} fallback={userInitial} />
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
@@ -48,6 +47,10 @@ export function UserNav({ user }: UserNavProps) {
         >
           Create New Styles
         </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel>
+          <LanguageSwitcher variant='modal' />
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem 
           onSelect={() => signOut()}

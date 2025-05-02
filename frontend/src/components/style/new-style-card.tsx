@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import styles from './new-style-card.module.css'
 import { Icon } from '@/components/icons/icon'
 import { useTranslation } from 'react-i18next'
+import { TiltCard } from '../animations/TiltCard'
 
 interface NewStyleCardProps {
   onClick: () => void,
@@ -16,11 +17,11 @@ export function NewStyleCard({
   const { t } = useTranslation('styles')
 
   return (
-    <div 
-      className={`${styles['empty-state-card']} ${className}`} 
-      onClick={onClick} 
-      role="region" 
-      aria-label={t('newStyle.card.ariaLabel')}
+      <TiltCard 
+        className={`${styles['empty-state-card']} ${className}`} 
+        onClick={onClick} 
+        role="region" 
+        aria-label={t('newStyle.card.ariaLabel')}
     >
       <div className={styles['top-card']}>
         <Image
@@ -61,12 +62,12 @@ export function NewStyleCard({
 
         <Button 
           variant="outline" 
-          className={`${styles['add-style']} pointer-events-none`} 
+          className={`${styles['add-style']}`} 
           aria-label={t('newStyle.card.buttonAriaLabel')}
         >
           {t('newStyle.card.button')}
         </Button>
       </div>
-    </div>
+    </TiltCard>
   )
 } 

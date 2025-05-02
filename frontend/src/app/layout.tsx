@@ -4,13 +4,13 @@ import { Inter } from 'next/font/google'
 import { createBrowserClient } from '@supabase/ssr'
 import { useEffect, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
-import { Toaster } from 'react-hot-toast'
 import './globals.css'
 import '@/i18n'
 
 import { SupabaseProvider } from '@/components/providers/supabase-provider'
 import { AuthProvider } from '@/contexts/auth-context'
 import { QueryProvider } from '@/components/providers/query-provider'
+import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ['latin'] })
 

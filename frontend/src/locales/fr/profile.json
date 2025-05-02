@@ -1,7 +1,7 @@
 {
   "completionModal": {
-    "title": "Complétez votre profil",
-    "description": "Veuillez fournir les informations suivantes pour continuer. Cela nous aide à générer des portraits plus précis pour vous.",
+    "title": "Parlez-nous un peu de vous",
+    "description": "Cela nous aide à personnaliser vos options de style",
     "form": {
       "fullName": {
         "label": "Nom complet",
@@ -19,7 +19,7 @@
           "female": "Femme"
         },
         "error": "Veuillez sélectionner une option",
-        "help": "Cette information nous aide à générer des portraits plus précis pour vous."
+        "help": "Cette information nous aide à générer des photos de profil plus précises de vous."
       }
     },
     "submit": {
@@ -29,7 +29,7 @@
     "toast": {
       "error": {
         "title": "Erreur",
-        "notLoggedIn": "Vous devez être connecté pour mettre à jour votre profil.",
+        "notLoggedIn": "Vous devez être connecté(e) pour mettre à jour votre profil.",
         "updateFailed": "Échec de la mise à jour de votre profil. Veuillez réessayer."
       },
       "success": {

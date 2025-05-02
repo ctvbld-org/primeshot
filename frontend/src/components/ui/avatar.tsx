@@ -1,50 +1,62 @@
 "use client"
 
-import * as React from "react"
-import * as AvatarPrimitive from "@radix-ui/react-avatar"
-
+import React, { useMemo } from 'react'
 import { cn } from "@/lib/utils"
+import style from "./avatar.module.css"
 
-const Avatar = React.forwardRef<
-  React.ComponentRef<typeof AvatarPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
->(({ className, ...props }, ref) => (
-  <AvatarPrimitive.Root
-    ref={ref}
-    className={cn(
-      "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
-      className
-    )}
-    {...props}
-  />
-))
-Avatar.displayName = AvatarPrimitive.Root.displayName
+interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
+  src?: string | null
+  fallback?: React.ReactNode
+  alt?: string
+}
 
-const AvatarImage = React.forwardRef<
-  React.ComponentRef<typeof AvatarPrimitive.Image>,
-  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
->(({ className, ...props }, ref) => (
-  <AvatarPrimitive.Image
-    ref={ref}
-    className={cn("aspect-square h-full w-full", className)}
-    {...props}
-  />
-))
-AvatarImage.displayName = AvatarPrimitive.Image.displayName
+export function Avatar({ src, fallback, alt, className, ...props }: AvatarProps) {
+  const [hasError, setHasError] = React.useState(false)
 
-const AvatarFallback = React.forwardRef<
-  React.ComponentRef<typeof AvatarPrimitive.Fallback>,
-  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>
->(({ className, ...props }, ref) => (
-  <AvatarPrimitive.Fallback
-    ref={ref}
-    className={cn(
-      "flex h-full w-full items-center justify-center rounded-full bg-muted",
-      className
-    )}
-    {...props}
-  />
-))
-AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName
+  // Transform social login profile picture URLs to ensure best quality and compatibility
+  const transformedSrc = useMemo(() => {
+    if (!src) return null
 
-export { Avatar, AvatarImage, AvatarFallback } 
+    // Handle Google profile pictures
+    if (src.includes('googleusercontent.com')) {
+      // Convert to a more reliable format that works better with direct access
+      const baseUrl = src.split('=')[0]
+      return `${baseUrl}=s96-cc-rg`
+    }
+
+    // Handle LinkedIn profile pictures
+    if (src.includes('licdn.com')) {
+      // Remove size restrictions if present and request full size
+      return src.replace(/\?.*$/, '')
+    }
+
+    return src
+  }, [src])
+
+  return (
+    <div
+      className={cn(
+        style.base,
+        className
+      )}
+      {...props}
+    >
+      {transformedSrc && !hasError ? (
+        <img
+          src={transformedSrc}
+          alt={alt}
+          className={style.image}
+          onError={(e) => {
+            console.error('Image failed to load:', e.currentTarget.src)
+            setHasError(true)
+          }}
+          referrerPolicy="no-referrer"
+        />
+      ) : (
+        <div className={style.fallback}>
+          {fallback}
+        </div>
+      )}
+    </div>
+  )
+} 

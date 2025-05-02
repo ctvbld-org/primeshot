@@ -57,8 +57,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const animationStateRef = React.useRef<AnimationState>({
       targetLabelX: 0,
       targetLabelY: 0,
-      targetBtnX: 0,
-      targetBtnY: 0,
+      targetBtnX: 2,
+      targetBtnY: 2,
       currentLabelX: 0,
       currentLabelY: 0,
       currentBtnX: 0,
@@ -79,8 +79,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         // Smooth interpolation between current and target positions
         state.currentLabelX += (state.targetLabelX - state.currentLabelX) * 0.15;
         state.currentLabelY += (state.targetLabelY - state.currentLabelY) * 0.15;
-        state.currentBtnX += (state.targetBtnX - state.currentBtnX) * 0.15;
-        state.currentBtnY += (state.targetBtnY - state.currentBtnY) * 0.15;
+        state.currentBtnX += (state.targetBtnX - state.currentBtnX) * 0.9;
+        state.currentBtnY += (state.targetBtnY - state.currentBtnY) * 0.9;
 
         // Apply transforms
         label.style.transform = `translate3d(${state.currentLabelX}px, ${state.currentLabelY}px, 0)`;

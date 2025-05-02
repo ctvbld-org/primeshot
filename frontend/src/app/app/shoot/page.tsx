@@ -12,7 +12,6 @@ import { useUserProgress } from '@/lib/hooks/use-user-progress'
 import { getStyles, deleteStyle, calculateHeadshots, handleStyleDeletion } from '@/lib/api/styles'
 import { useUserProfile } from '@/lib/hooks/use-user-profile'
 import { usePaymentFlow } from '@/lib/hooks/use-payment-flow'
-import { ProfileCompletionModal } from '@/components/profile/profile-completion-modal'
 import { ShootFooter } from '@/components/shoot/shoot-footer'
 import { PRICING } from '@/lib/constants/pricing'
 import stylesCSS from './page.module.css'
@@ -31,7 +30,6 @@ export default function StylesPage() {
   const [styles, setStyles] = useState<Style[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { updateProgress, canModifyStyles, progress } = useUserProgress()
-  const [showProfileModal, setShowProfileModal] = useState(false)
   const supabase = createClient()
   const { fetchProfile } = useUserProfile()
   
@@ -43,7 +41,6 @@ export default function StylesPage() {
   // Replace showOverlay with activeEditId
   const [activeEditId, setActiveEditId] = useState<string | null>(null)
   const [isDraggingEnabled, setIsDraggingEnabled] = useState(true)
-
 
   // Headshot calculation state
   const [headshotInfo, setHeadshotInfo] = useState<{
@@ -65,25 +62,6 @@ export default function StylesPage() {
     styles,
     headshotInfo
   })
-
-  // Check if user profile is complete
-  useEffect(() => {
-    if (!user) return;
-
-    const loadProfile = async () => {
-      const profile = await fetchProfile(user.id);
-      if (profile) {
-        // Show profile modal if name or gender is missing
-        if (!profile.full_name || !profile.gender) {
-          setShowProfileModal(true);
-        } else {
-          setShowProfileModal(false);
-        }
-      }
-    };
-
-    loadProfile();
-  }, [user, fetchProfile]);
 
   // Function to load styles
   const loadStyles = useCallback(async () => {
@@ -137,12 +115,6 @@ export default function StylesPage() {
       }
     );
   };
-
-  const handleProfileComplete = () => {
-    setShowProfileModal(false);
-    // Refresh the page data
-    loadStyles();
-  }
 
   // Add carousel effect
   React.useEffect(() => {
@@ -252,12 +224,6 @@ export default function StylesPage() {
             />
           </Carousel>
         )}
-
-        <ProfileCompletionModal
-          isOpen={showProfileModal}
-          onComplete={handleProfileComplete}
-          user={user}
-        />
       </motion.div>
       <ShootFooter
         stylesCount={headshotInfo.styleCount}

@@ -1,10 +1,10 @@
 {
   "completionModal": {
-    "title": "Completa il Tuo Profilo",
-    "description": "Per continuare, fornisci le seguenti informazioni. Questo ci aiuta a generare foto più accurate per te.",
+    "title": "Ci parli un po' di Lei",
+    "description": "Questo ci aiuta a personalizzare le Sue opzioni di stile",
     "form": {
       "fullName": {
-        "label": "Nome Completo",
+        "label": "Nome completo",
         "placeholder": "Inserisci il tuo nome completo",
         "errors": {
           "tooShort": "Il nome deve contenere almeno 2 caratteri",
@@ -15,26 +15,26 @@
         "label": "Genere",
         "placeholder": "Seleziona il tuo genere",
         "options": {
-          "male": "Uomo",
-          "female": "Donna"
+          "male": "Maschile",
+          "female": "Femminile"
         },
-        "error": "Seleziona un'opzione",
-        "help": "Questa informazione ci aiuta a generare foto più accurate per te."
+        "error": "Selezioni un'opzione",
+        "help": "Questa informazione ci aiuta a generare foto più accurate di Lei."
       }
     },
     "submit": {
-      "saving": "Salvataggio in corso...",
+      "saving": "Salvataggio...",
       "continue": "Continua"
     },
     "toast": {
       "error": {
         "title": "Errore",
-        "notLoggedIn": "Devi essere autenticato per aggiornare il tuo profilo.",
-        "updateFailed": "Impossibile aggiornare il profilo. Riprova."
+        "notLoggedIn": "Deve accedere per aggiornare il Suo profilo.",
+        "updateFailed": "Impossibile aggiornare il Suo profilo. Riprovi."
       },
       "success": {
         "title": "Profilo aggiornato",
-        "description": "Il tuo profilo è stato aggiornato con successo."
+        "description": "Il Suo profilo è stato aggiornato con successo."
       }
     }
   }

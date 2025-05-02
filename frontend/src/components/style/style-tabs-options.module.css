@@ -128,6 +128,18 @@ button[data-state="inactive"]:hover .footer-icon-button {
     background: rgba(0, 0, 0, 0.05);
 }
 
+.saveButton {
+    box-shadow: none !important;
+}
+
+.backButton {
+    background: rgba(0, 0, 0, 0.15);
+    color: black;
+    width: 40px;
+    height: 40px;
+    box-shadow: none !important;
+}
+
 .footer-option-image {
     position: absolute;
     inset: 0;
@@ -253,10 +265,6 @@ button[data-state="inactive"]:hover .footer-icon-button {
         font-size: 13px;
         max-width: 90%;
     }
-
-}
-
-@media (max-width: 840px) {
 
     .footer-option-icon-label-container {
         display: none;

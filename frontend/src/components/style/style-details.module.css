@@ -90,6 +90,12 @@
     margin-top: 4px;
 }
 
+.editButton {
+    background: rgba(0, 0, 0, 0.15);
+    color: black;
+    box-shadow: none !important;
+}
+
 .icons-container {
   display: flex;
   gap: 0.5rem;
@@ -99,6 +105,10 @@
 .icon {
   padding: 0.5rem;
   box-sizing: content-box;
+}
+
+.customize-button {
+  box-shadow: none !important;
 }
 
 .card-styling.image-strip:after {
