@@ -14,39 +14,73 @@ const initialState: AuthState = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, setState] = useState<AuthState>(initialState)
   const supabase = createClient()
 
   useEffect(() => {
     // Function to update state only if user ID changes
-    const updateUserState = (session: any) => {
+    const updateUserState = async (session: any) => {
       const newUser = session?.user as User | null;
-      setState(prev => {
-        // Only update if the user ID is actually different, or if loading state needs change
-        if (prev.user?.id !== newUser?.id || prev.isLoading) {
+      
+      if (newUser) {
+        // Fetch user data from our database
+        const { data: dbUser, error: dbError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', newUser.id)
+          .single();
+          
+        if (dbError) {
+          console.error('Error fetching user data:', dbError);
+        }
+        
+        // Merge session user with database user
+        const mergedUser = {
+          ...newUser,
+          ...dbUser
+        };
+        
+        setState(prev => {
+          // Only update if the user ID is actually different, or if loading state needs change
+          if (prev.user?.id !== mergedUser.id || prev.isLoading) {
+            return {
+              ...prev,
+              user: mergedUser,
+              isAuthenticated: true,
+              isLoading: false
+            };
+          }
+          // Otherwise, return previous state to avoid unnecessary re-renders
+          return prev;
+        });
+      } else {
+        setState(prev => {
+          if (!prev.user && !prev.isLoading) return prev;
           return {
             ...prev,
-            user: newUser,
-            isAuthenticated: !!newUser,
+            user: null,
+            isAuthenticated: false,
             isLoading: false
           };
-        }
-        // Otherwise, return previous state to avoid unnecessary re-renders
-        return prev;
-      });
+        });
+      }
     };
 
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUserState(session);
+      updateUserState(session).catch(error => {
+        console.error('Error updating user state:', error);
+      });
     })
 
     // Listen for auth changes
     const {
       data: { subscription }
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      updateUserState(session);
+      updateUserState(session).catch(error => {
+        console.error('Error updating user state:', error);
+      });
     })
 
     return () => {
@@ -66,7 +100,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) throw error
 
-      window.location.href = '/auth/verify'
+      // Add email parameter to verify page URL
+      window.location.href = `/auth/verify?email=${encodeURIComponent(email)}`
     } catch (error) {
       setState(prev => ({
         ...prev,
@@ -91,6 +126,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       })
 
+      if (error) throw error
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        error: formatAuthError(error as Error)
+      }))
+    } finally {
+      setState(prev => ({ ...prev, isLoading: false }))
+    }
+  }
+
+  const signInWithLinkedIn = async () => {
+    setState(prev => ({ ...prev, isLoading: true, error: null }))
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'linkedin_oidc',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          scopes: 'openid profile email'
+        }
+      })
       if (error) throw error
     } catch (error) {
       setState(prev => ({
@@ -143,6 +199,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     ...state,
     signIn,
     signInWithGoogle,
+    signInWithLinkedIn,
     signOut,
     clearError
   }

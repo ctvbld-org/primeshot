@@ -1,7 +1,7 @@
 {
   "completionModal": {
-    "title": "Vervollständigen Sie Ihr Profil",
-    "description": "Bitte geben Sie die folgenden Informationen an, um fortzufahren. Dies hilft uns, genauere Porträts für Sie zu erstellen.",
+    "title": "Erzählen Sie uns etwas über sich",
+    "description": "Dies hilft uns, Ihre Stiloptionen zu personalisieren",
     "form": {
       "fullName": {
         "label": "Vollständiger Name",
@@ -18,19 +18,19 @@
           "male": "Männlich",
           "female": "Weiblich"
         },
-        "error": "Bitte wählen Sie eine Option aus",
-        "help": "Diese Information hilft uns, genauere Porträts für Sie zu erstellen."
+        "error": "Bitte wählen Sie eine Option",
+        "help": "Diese Information hilft uns, genauere Fotos von Ihnen zu erstellen."
       }
     },
     "submit": {
-      "saving": "Speichern...",
+      "saving": "Wird gespeichert...",
       "continue": "Weiter"
     },
     "toast": {
       "error": {
         "title": "Fehler",
         "notLoggedIn": "Sie müssen angemeldet sein, um Ihr Profil zu aktualisieren.",
-        "updateFailed": "Profilaktualisierung fehlgeschlagen. Bitte versuchen Sie es erneut."
+        "updateFailed": "Ihr Profil konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut."
       },
       "success": {
         "title": "Profil aktualisiert",

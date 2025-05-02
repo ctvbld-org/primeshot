@@ -43,12 +43,13 @@ export async function GET(request: Request) {
 
       if (user) {
         // Get user metadata from OAuth provider if available
-        const full_name = user.user_metadata?.full_name || 
-                         user.user_metadata?.name ||
+        const full_name = user.user_metadata?.name || 
+                         user.user_metadata?.full_name ||
+                         `${user.user_metadata?.given_name || ''} ${user.user_metadata?.family_name || ''}`.trim() ||
                          user.user_metadata?.user_name ||
                          null
 
-        const avatar_url = user.user_metadata?.avatar_url || null
+        const avatar_url = user.user_metadata?.picture || user.user_metadata?.avatar_url || null
 
         // Create/update user in database using same client (has service role permissions)
         const { error: dbError } = await supabase

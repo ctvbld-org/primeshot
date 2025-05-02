@@ -1,25 +1,22 @@
 {
   "completionModal": {
-    "title": "Complete Your Profile",
-    "description": "Please provide the following information to continue. This helps us generate more accurate headshots for you.",
+    "title": "Tell us a little about you",
+    "description": "This helps us personalise your style options",
     "form": {
       "fullName": {
         "label": "Full Name",
-        "placeholder": "Enter your full name",
         "errors": {
           "tooShort": "Name must be at least 2 characters",
           "tooLong": "Name is too long"
         }
       },
       "gender": {
-        "label": "Gender",
-        "placeholder": "Select your gender",
         "options": {
           "male": "Male",
           "female": "Female"
         },
         "error": "Please select an option",
-        "help": "This information helps us generate more accurate headshots for you."
+        "help": "This information helps us generate more accurate headshots of you."
       }
     },
     "submit": {

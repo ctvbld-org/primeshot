@@ -6,10 +6,17 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/contexts/auth-context';
 import i18n from '@/i18n';
 import { t } from 'i18next';
+import React from 'react';
 
 // Language name mapping
 const languageLabels: Record<string, string> = {
@@ -37,7 +44,11 @@ const languages: Language[] = (i18n.options.supportedLngs || [])
     value: lng
   }));
 
-export function LanguageSwitcher() {
+interface LanguageSwitcherProps {
+  variant?: 'popover' | 'modal';
+}
+
+export function LanguageSwitcher({ variant = 'popover' }: LanguageSwitcherProps) {
   const { i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(i18n.language);
@@ -104,22 +115,8 @@ export function LanguageSwitcher() {
     }
   };
 
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <button
-          role="combobox"
-          aria-expanded={open}
-          className="flex items-center justify-center cursor-pointer h-8 w-auto px-3 text-white text-sm font-normal"
-        >
-          {value
-            ? languages.find((language) => language.value === value)?.label
-            : t('language')}
-          <ChevronsUpDown className="ml-1 h-4 w-4 shrink-0 opacity-50" />
-        </button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[100px] p-1">
-        <div className="flex flex-col gap-1">
+  const LanguageList = () => (
+   <div className="flex flex-col gap-1">
           {languages.map((language) => (
             <button
               key={language.value}
@@ -133,6 +130,50 @@ export function LanguageSwitcher() {
             </button>
           ))}
         </div>
+  );
+
+  const TriggerButton = React.forwardRef<
+    HTMLButtonElement,
+    React.ButtonHTMLAttributes<HTMLButtonElement>
+  >((props, ref) => (
+    <button
+      {...props}
+      ref={ref}
+      role="combobox"
+      aria-expanded={open}
+      className="flex items-center justify-between cursor-pointer h-8 w-full text-sm font-normal"
+    >
+      {value
+        ? languages.find((language) => language.value === value)?.label
+        : t('language')}
+      <ChevronsUpDown className="ml-1 h-4 w-4 shrink-0 opacity-50" />
+    </button>
+  ));
+  TriggerButton.displayName = 'TriggerButton';
+
+  if (variant === 'modal') {
+    return (
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <TriggerButton />
+        </DialogTrigger>
+        <DialogContent className="w-[200px] p-2">
+          <DialogTitle>
+            {t('language')}
+          </DialogTitle>
+          <LanguageList />
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <TriggerButton />
+      </PopoverTrigger>
+      <PopoverContent className="w-[100px] p-1">
+        <LanguageList />
       </PopoverContent>
     </Popover>
   );

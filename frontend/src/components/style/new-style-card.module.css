@@ -36,7 +36,7 @@
 }
 
 .top-card {
-  background: radial-gradient(62.77% 75.99% at 50% 0%, rgba(68, 227, 201, 0.10) 0%, rgba(68, 227, 201, 0.00) 100%), radial-gradient(33.96% 100% at 50% 0%, rgba(68, 227, 201, 0.10) 0%, rgba(68, 227, 201, 0.00) 100%), rgba(68, 227, 201, 0.02);
+  background: radial-gradient(62.77% 75.99% at 50% 0%, rgba(68, 227, 201, 0.10) 0%, rgba(68, 227, 201, 0.00) 100%), radial-gradient(33.96% 100% at 50% 0%, rgba(68, 227, 201, 0.10) 0%, rgba(68, 227, 201, 0.00) 100%), rgba(68, 227, 201, 0.04);
   width: 100%;
   display: flex;
   justify-content: center;

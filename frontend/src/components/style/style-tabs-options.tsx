@@ -379,7 +379,7 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
                         <Button
                           onClick={handleClose}
                           variant="ghost"
-                          className="w-10 h-10 rounded-full bg-[#00000015] flex flex-0 items-center justify-center hover:bg-accent/15 cursor-pointer transition-all text-black"
+                          className={styles.backButton}
                         >
                           <Icon variant="arrowLeft" size={16} />
                         </Button>
@@ -506,8 +506,8 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
         {isCard ? (
           <Button 
             onClick={handleUpdate}
-            variant="primary"
-            className={styles.button}
+            variant="secondary"
+            className={styles.saveButton}
             disabled={isUpdating || !hasSettingsChanged}
             loading={isUpdating}
           >
@@ -523,8 +523,8 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
                 onAddToShoot(style);
               }
             }}
-            variant={areAllCategoriesComplete() ? "primary" : "secondary"}
-            className={styles.button}
+            variant={areAllCategoriesComplete() ? "secondary" : "tertiary"}
+            className={styles.saveButton}
             disabled={isSaving}
             loading={isSaving}
           >

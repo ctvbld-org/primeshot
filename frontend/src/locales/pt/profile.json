@@ -1,7 +1,7 @@
 {
   "completionModal": {
-    "title": "Complete seu perfil",
-    "description": "Preencha as informações abaixo para continuar. Isso nos ajuda a gerar retratos mais precisos.",
+    "title": "Conte-nos um pouco sobre você",
+    "description": "Isso nos ajuda a personalizar suas opções de estilo",
     "form": {
       "fullName": {
         "label": "Nome completo",
@@ -18,8 +18,8 @@
           "male": "Masculino",
           "female": "Feminino"
         },
-        "error": "Selecione uma opção",
-        "help": "Esta informação ajuda a gerar retratos mais precisos."
+        "error": "Por favor, selecione uma opção",
+        "help": "Esta informação nos ajuda a gerar fotos mais precisas de você."
       }
     },
     "submit": {
@@ -29,8 +29,8 @@
     "toast": {
       "error": {
         "title": "Erro",
-        "notLoggedIn": "Você precisa estar logado para atualizar o perfil.",
-        "updateFailed": "Falha ao atualizar o perfil. Tente novamente."
+        "notLoggedIn": "Você precisa estar conectado para atualizar seu perfil.",
+        "updateFailed": "Falha ao atualizar seu perfil. Por favor, tente novamente."
       },
       "success": {
         "title": "Perfil atualizado",
