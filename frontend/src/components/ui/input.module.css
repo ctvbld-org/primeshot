@@ -1,0 +1,75 @@
+.input {
+  max-height: 48px;
+  width: 100%;
+  padding: 16px 20px; 
+  border-radius: 99px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 1px solid transparent;
+  font-size: 14px;
+  font-weight: 400;
+  color: #fff;
+  outline: none;
+  transition: all 0.3s ease-in-out;
+  
+  /* Dark mode background */
+  @media (prefers-color-scheme: dark) {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* File input specific styles */
+.input::file-selector-button {
+  display: inline-flex;
+  height: 1.75rem; /* h-7 */
+  border: 0;
+  background-color: transparent;
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500; /* font-medium */
+  color: var(--foreground);
+}
+
+/* Placeholder styles */
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Selection styles */
+.input::selection {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* Focus styles */
+.input:focus-visible {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 3px rgba(var(--ring-rgb), 0.5); /* ring-[3px] ring-ring/50 */
+}
+
+/* Invalid state styles */
+.input[aria-invalid="true"] {
+  border-color: var(--destructive);
+}
+
+.input[aria-invalid="true"]:focus-visible {
+  box-shadow: 0 0 0 3px rgba(var(--destructive-rgb), 0.2); /* ring-destructive/20 */
+}
+
+@media (prefers-color-scheme: dark) {
+  .input[aria-invalid="true"]:focus-visible {
+    box-shadow: 0 0 0 3px rgba(var(--destructive-rgb), 0.4); /* dark:ring-destructive/40 */
+  }
+}
+
+/* Disabled state */
+.input:disabled {
+  pointer-events: none;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Responsive text size */
+@media (min-width: 768px) {
+  .input {
+    font-size: 0.875rem; /* md:text-sm */
+  }
+} 

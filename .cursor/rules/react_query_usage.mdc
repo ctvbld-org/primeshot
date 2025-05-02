@@ -1,6 +1,26 @@
----
-description: 
-globs: 
-alwaysApply: false
----
- 
+- **Use React Query (or SWR) hooks for all client-side data fetching and caching**
+  - Do not use ad-hoc in-memory caches (e.g., `let cachedData`) in React modules.
+  - All data fetching should be handled by hooks (e.g., `useQuery`, `useSWR`) with appropriate cache keys and stale times.
+  - Validation functions should accept fetched data as arguments, not fetch or cache data themselves.
+
+- **DO:**
+  ```typescript
+  // ✅ Use a React Query hook for fetching
+  const { data: validOptions } = useValidStyleOptions();
+  const result = validateStyleSettings(validOptions, settings);
+  ```
+
+- **DON'T:**
+  ```typescript
+  // ❌ Don't use in-memory cache variables in React code
+  let cachedValidOptions = null;
+  export async function getValidStyleOptions() { ... }
+  ```
+
+- **Rationale:**
+  - Ensures cache is consistent, easy to invalidate, and works with Suspense/SSR.
+  - Prevents stale data bugs and memory leaks.
+  - Makes it easy to refetch or invalidate data after mutations.
+
+- **Related Rules:**
+  - See [cursor_rules.mdc](mdc:.cursor/rules/cursor_rules.mdc) for rule formatting and structure. 

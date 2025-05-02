@@ -1,18 +1,23 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { AnimatedBackground } from "@/components/auth/animated-background";
+import { TiltCard } from "@/components/animations/TiltCard";
+import Image from "next/image";
+import Link from "next/link";
+import styles from './signin.module.css';
+import { Icon } from "@/components/icons/icon";
 
 export default function SignIn() {
   const [mounted, setMounted] = useState(false);
   const [email, setEmail] = useState("");
-  const { signIn, signInWithGoogle, isLoading, error, isAuthenticated } = useAuth();
+  const { signIn, signInWithGoogle, signInWithLinkedIn, isLoading, error, isAuthenticated } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { t } = useTranslation('auth');
@@ -39,81 +44,113 @@ export default function SignIn() {
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     await signIn(email);
-    // Router will handle redirect via the useEffect above
-  };
-
-  const handleGoogleSignIn = async () => {
-    await signInWithGoogle();
-    // Router will handle redirect via the useEffect above
   };
 
   // Show nothing until client-side rendering is ready
   if (!mounted) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center p-24">
-        <Card className="w-[350px]">
-          <CardHeader>
-            <CardTitle>&nbsp;</CardTitle>
-            <CardDescription>&nbsp;</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[200px]" />
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return null;
   }
 
   return (
     <>
       <AnimatedBackground />
-      <div className="relative flex min-h-screen flex-col items-center justify-center p-24 z-20">
-        <Card className="w-[350px] bg-background/80 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle>{t('signin.title')}</CardTitle>
-            <CardDescription>{t('signin.description')}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleEmailSignIn} className="space-y-4">
-              <div className="space-y-2">
+      <div className={styles.container}>
+        <TiltCard className={styles.card}>
+          <CardContent className={styles.cardContent}>
+            {/* Logo */}
+            <div className={styles.logoContainer}>
+              <Image 
+                src="/logo.svg" 
+                alt="Logo" 
+                width={48} 
+                height={48} 
+                className={styles.logo}
+              />
+            </div>
+
+            <div className={styles.headingContainer}>
+              {/* Heading */}
+              <h1 className={styles.heading}>
+                Get started now
+              </h1>
+              <p className={styles.subheading}>
+                Choose the option below to access your account
+              </p>
+            </div>
+
+            {/* Social Login Buttons */}
+            <div className={styles.socialButtons}>
+              <Button 
+                onClick={() => signInWithGoogle()}
+                className={styles.socialButton}
+                disabled={isLoading}
+              >
+                <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M23.52 12.7729C23.52 11.922 23.4436 11.1038 23.3018 10.3184H12V14.9602H18.4582C18.18 16.4602 17.3345 17.7311 16.0636 18.582V21.5929H19.9418C22.2109 19.5038 23.52 16.4275 23.52 12.7729Z" fill="#4285F4"/>
+                  <path d="M12.0049 24.5C15.2449 24.5 17.9613 23.4255 19.9467 21.5928L16.0685 18.5818C14.994 19.3018 13.6194 19.7273 12.0049 19.7273C8.87943 19.7273 6.23398 17.6164 5.29034 14.78H1.28125V17.8891C3.2558 21.8109 7.31398 24.5 12.0049 24.5Z" fill="#34A853"/>
+                  <path d="M5.28545 14.7802C5.04545 14.0602 4.90909 13.2911 4.90909 12.5002C4.90909 11.7093 5.04545 10.9402 5.28545 10.2202V7.11108H1.27636C0.463636 8.73108 0 10.5638 0 12.5002C0 14.4365 0.463636 16.2693 1.27636 17.8893L5.28545 14.7802Z" fill="#FBBC05"/>
+                  <path d="M12.0049 5.27273C13.7667 5.27273 15.3485 5.87818 16.5922 7.06727L20.034 3.62545C17.9558 1.68909 15.2394 0.5 12.0049 0.5C7.31398 0.5 3.2558 3.18909 1.28125 7.11091L5.29034 10.22C6.23398 7.38364 8.87943 5.27273 12.0049 5.27273Z" fill="#EA4335"/>
+                </svg>
+              </Button>
+              <Button 
+                onClick={() => signInWithLinkedIn()}
+                className={styles.socialButton}
+                disabled={isLoading}
+              >
+              <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 2.21919C0 1.27025 0.794438 0.5 1.77375 0.5H22.2262C23.2059 0.5 24 1.27025 24 2.21919V22.7811C24 23.7303 23.2059 24.5 22.2262 24.5H1.77375C0.794531 24.5 0 23.7304 0 22.7814V2.21891V2.21919Z" fill="#0A66C2"/>
+                <path d="M7.29525 20.5847V9.77985H3.70387V20.5847H7.29563H7.29525ZM5.50031 8.30488C6.75244 8.30488 7.53197 7.4752 7.53197 6.43832C7.50853 5.37782 6.75244 4.57129 5.52413 4.57129C4.29497 4.57129 3.49219 5.37782 3.49219 6.43823C3.49219 7.4751 4.27144 8.30479 5.47678 8.30479H5.50003L5.50031 8.30488ZM9.28312 20.5847H12.8742V14.5514C12.8742 14.2289 12.8977 13.9056 12.9925 13.6753C13.252 13.0298 13.8429 12.3616 14.8353 12.3616C16.1345 12.3616 16.6545 13.3524 16.6545 14.805V20.5847H20.2455V14.3895C20.2455 11.0709 18.474 9.52654 16.1112 9.52654C14.1741 9.52654 13.3233 10.6093 12.8506 11.3467H12.8745V9.78023H9.28331C9.33019 10.7939 9.28303 20.5851 9.28303 20.5851L9.28312 20.5847Z" fill="white"/>
+                </svg>
+              </Button>
+            </div>
+
+            {/* Divider */}
+            <div className={styles.divider}>
+              <span className={styles.dividerLine}></span>
+              <span className={styles.dividerText}>or</span>
+              <span className={styles.dividerLine}></span>
+            </div>
+
+            {/* Email Form */}
+            <form onSubmit={handleEmailSignIn} className={styles.form}>
+              <div>
                 <Input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t('signin.email.placeholder')}
+                  placeholder="Email address"
+                  className={styles.input}
                   required
                 />
                 {error && (
-                  <p className="text-sm text-red-500">{error.message || t('errors.generic')}</p>
+                  <p className={styles.errorMessage}>{error.message || t('errors.generic')}</p>
                 )}
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? t('signin.email.loading') : t('signin.email.button')}
+              <Button 
+                variant="tertiary"
+                type="submit" 
+                className={styles.submitButton}
+                disabled={isLoading}
+                loading={isLoading}
+              >
+                {isLoading ? 'Sending...' : 'Send code to login'}
+                <Icon variant="arrowRight" className={styles.arrowRight} />
               </Button>
             </form>
 
-            <div className="relative my-4">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  {t('signin.divider.text')}
-                </span>
-              </div>
-            </div>
-
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              onClick={handleGoogleSignIn}
-              disabled={isLoading}
-            >
-              {t('signin.google.button')}
-            </Button>
+            {/* Terms */}
+            <p className={styles.terms}>
+              By signing up, you accept our <br />
+              <Link href="/terms" className={styles.termsLink}>
+                Terms & Conditions
+              </Link>
+              &nbsp;and&nbsp;
+              <Link href="/privacy" className={styles.termsLink}>
+                Privacy Policy
+              </Link>
+            </p>
           </CardContent>
-        </Card>
+        </TiltCard>
       </div>
     </>
   );

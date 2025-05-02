@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { User } from '@/types/auth'
 
 interface UserNavProps {
@@ -25,12 +25,13 @@ export function UserNav({ user }: UserNavProps) {
   
   const userEmail = user?.email || ''
   const userInitial = userEmail ? userEmail.charAt(0).toUpperCase() : ''
-  
+  console.log(user);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar>
+            <AvatarImage src={user?.avatar_url} />
             <AvatarFallback>{userInitial}</AvatarFallback>
           </Avatar>
         </Button>
@@ -39,17 +40,9 @@ export function UserNav({ user }: UserNavProps) {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{userEmail}</p>
-            <p className="text-xs leading-none text-muted-foreground">
-              {user?.id || ''}
-            </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem 
-          onSelect={() => router.push('/app/dashboard')}
-        >
-          Dashboard
-        </DropdownMenuItem>
         <DropdownMenuItem 
           onSelect={() => router.push('/app/shoot')}
         >

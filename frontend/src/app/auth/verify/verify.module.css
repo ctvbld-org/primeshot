@@ -1,0 +1,55 @@
+.container {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+}
+
+.iconContainer {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.title {
+    color: #44E3C9;
+    font-size: 28px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    letter-spacing: 0.56px;
+    text-align: center;
+}
+
+.description {
+    color: #FFF;
+    text-align: center;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 20px;
+    text-align: center;
+}
+
+.resendText {
+    color: rgba(255, 255, 255, 0.50);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 20px;
+    text-align: center;
+} 
+
+.resendButton {
+    color: #44E3C9;
+    text-decoration: none;
+    padding: 0;
+}
+
+.resendButton:hover {
+    text-decoration: underline;
+}
