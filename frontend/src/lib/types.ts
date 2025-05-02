@@ -12,7 +12,7 @@ export interface StyleSettings {
   clothing: StyleClothing
   clothingColor?: StyleClothingColor
   gender?: Gender
-  customSettings?: Record<string, any>
+  customSettings?: Record<string, unknown>
 }
 
 // Database entity types
@@ -62,6 +62,7 @@ export type Style = {
   status: StyleStatus
   created_at: string
   updated_at: string
+  customData?: Record<string, unknown>
 }
 
 export type ImageDimensions = {

@@ -4,6 +4,7 @@ import styles from './new-style-card.module.css'
 import { Icon } from '@/components/icons/icon'
 import { useTranslation } from 'react-i18next'
 import { TiltCard } from '../animations/TiltCard'
+import { useState } from 'react'
 
 interface NewStyleCardProps {
   onClick: () => void,
@@ -15,6 +16,12 @@ export function NewStyleCard({
   className
 }: NewStyleCardProps) {
   const { t } = useTranslation('styles')
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleClick = () => {
+    setIsLoading(true)
+    onClick?.()
+  }
 
   return (
       <TiltCard 
@@ -64,6 +71,8 @@ export function NewStyleCard({
           variant="outline" 
           className={`${styles['add-style']}`} 
           aria-label={t('newStyle.card.buttonAriaLabel')}
+          loading={isLoading}
+          onClick={handleClick}
         >
           {t('newStyle.card.button')}
         </Button>

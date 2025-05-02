@@ -74,14 +74,13 @@ export async function middleware(request: NextRequest) {
     const isPaymentCompleted = (progressRecord: typeof progress): boolean => {
       const completed = progressRecord?.completed_stages ?? [];
       // Check if 'payment' exists in the potentially mixed-type array
-      return completed.includes('payment' as any); 
+      return completed.includes('payment' as FlowStage); 
     }
     
     // If progress exists (user has started the flow)
     if (progress) {
       // Explicitly cast current_stage from the database (which might be text) to FlowStage
       const currentActualStage = (progress.current_stage || 'shoot');
-      const currentStageIndex = stageOrder.indexOf(currentActualStage as FlowStage);
       
       // Get the stage the user is trying to access from the URL
       let targetStage = 'shoot'; // Default
