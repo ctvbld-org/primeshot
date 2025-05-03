@@ -1,29 +1,21 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { Toaster } from '@/components/ui/toaster'
 import { useAuth } from '@/contexts/auth-context'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { usePaymentRecovery } from "@/lib/hooks/use-payment-recovery"
-import { PaymentRecoveryDialog } from "@/components/ui/alert-dialog"
+import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { AppHeader } from '@/components/app-header'
+import { Loader } from "@/components/ui/loader"
 
 export default function AppLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const { isAuthenticated, isLoading, user, signOut } = useAuth()
+  const { isAuthenticated, isLoading, user } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
-  const { orderId, hasInterruptedPayment, resumePayment, dismissRecovery } = usePaymentRecovery()
-  const [showRecoveryDialog, setShowRecoveryDialog] = useState(hasInterruptedPayment)
-  
-  // Don't show recovery dialog on payment pages
-  const isPaymentPage = pathname.includes("/payment")
-  const shouldShowRecovery = hasInterruptedPayment && !isPaymentPage && showRecoveryDialog
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -32,7 +24,11 @@ export default function AppLayout({
   }, [isLoading, isAuthenticated, router])
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader size="lg" text="Loading your workspace..." />
+      </div>
+    )
   }
 
   if (!isAuthenticated) {

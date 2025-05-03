@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { usePageReady } from '@/lib/hooks/use-page-ready';
+import { LoadingContent } from '@/components/ui/loading-content';
 import styles from './animated-background.module.css';
 
 interface AnimatedBackgroundProps {
@@ -266,21 +268,10 @@ export function AnimatedBackground({ className }: AnimatedBackgroundProps) {
   const lastMoveTime = useRef<number>(Date.now());
   const targetPosition = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const isMouseInViewport = useRef<boolean>(true);
-  const [isPageLoaded, setIsPageLoaded] = useState(false);
-
-  // Handle page load
-  useEffect(() => {
-    const handleLoad = () => {
-      setTimeout(() => setIsPageLoaded(true), INITIAL_DELAY);
-    };
-
-    if (document.readyState === 'complete') {
-      handleLoad();
-    } else {
-      window.addEventListener('load', handleLoad);
-      return () => window.removeEventListener('load', handleLoad);
-    }
-  }, []);
+  const { isReady } = usePageReady({
+    rootElement: containerRef.current,
+    waitForImages: true
+  });
 
   // Update bounds on resize
   useEffect(() => {
@@ -431,7 +422,7 @@ export function AnimatedBackground({ className }: AnimatedBackgroundProps) {
         className="absolute inset-[-15%]"
         style={{
           transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
-          transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+          transition: isReady ? 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
           willChange: 'transform'
         }}
       >
@@ -457,12 +448,8 @@ export function AnimatedBackground({ className }: AnimatedBackgroundProps) {
                 }}
               >
                 {rowItems.map((item: GridItem, colIndex: number) => {
-                  const imageDelay = isPageLoaded ? ITEM_DELAY * (rowIndex * colIndex) : 0;
-                  
-                  // For text items, calculate content animation delay based on their position
-                  const contentDelay = item.type === 'text' 
-                    ? imageDelay + CONTENT_DELAY
-                    : 0;
+                  const imageDelay = isReady ? ITEM_DELAY * (rowIndex * colIndex) : 0;
+                  const contentDelay = item.type === 'text' ? imageDelay + CONTENT_DELAY : 0;
                   
                   return (
                     <div
@@ -470,7 +457,7 @@ export function AnimatedBackground({ className }: AnimatedBackgroundProps) {
                       className={cn(
                         "aspect-square rounded-[36px] overflow-hidden",
                         styles.gridItem,
-                        isPageLoaded && styles.animate
+                        isReady && styles.animate
                       )}
                       style={{ 
                         width: '300px',
@@ -485,7 +472,7 @@ export function AnimatedBackground({ className }: AnimatedBackgroundProps) {
                           src={item.content.imageUrl}
                           alt="Headshot example"
                           className="w-full h-full object-cover"
-                          loading="lazy"
+                          loading="eager"
                         />
                       ) : (
                         <>
@@ -493,7 +480,7 @@ export function AnimatedBackground({ className }: AnimatedBackgroundProps) {
                             src={item.content.overlayImageUrl}
                             alt="Headshot example"
                             className="w-full h-full object-cover"
-                            loading="lazy"
+                            loading="eager"
                           />
                           <div 
                             className={cn(

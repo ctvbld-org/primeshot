@@ -55,7 +55,6 @@ export default function PaymentPage() {
   useEffect(() => {
     async function loadData() {
       if (!user) return;
-      if (isLoading === false) return;
       
       const supabase = createClient();
       let currentOrder: Order;
@@ -239,16 +238,6 @@ export default function PaymentPage() {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handlePaymentSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    toast({
-      title: t('status.processing'),
-      description: t('notifications.doNotClose'),
-    });
   };
 
   if (isLoading) {

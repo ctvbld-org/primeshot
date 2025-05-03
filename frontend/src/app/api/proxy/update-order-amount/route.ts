@@ -26,7 +26,10 @@ export async function POST(request: Request) {
       updateOrderAmountSchema.parse(body)
     } catch (validationError) {
       return NextResponse.json(
-        { error: 'Invalid request parameters' },
+        { 
+          error: 'Invalid request parameters',
+          details: validationError instanceof z.ZodError ? validationError.errors : undefined
+        },
         { status: 400 }
       )
     }
@@ -69,10 +72,10 @@ export async function POST(request: Request) {
       // Return the response with appropriate status
       return NextResponse.json(data)
       
-    } catch (fetchError: any) {
+    } catch (fetchError: unknown) {
       clearTimeout(timeoutId)
       
-      if (fetchError.name === 'AbortError') {
+      if ((fetchError as { name?: string })?.name === 'AbortError') {
         return NextResponse.json(
           { error: 'Request timed out' },
           { status: 504 }

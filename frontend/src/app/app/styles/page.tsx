@@ -22,8 +22,7 @@ import { StyleTabsOptions } from '@/components/style/style-tabs-options'
 import { StyleDetails } from '@/components/style/style-details'
 import { useStyleConfigs } from '@/hooks/useConfig'
 import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { CarouselProvider } from '@/contexts/carousel-context'
 
 // Create a Zod enum from the Gender type
 const GenderEnum = z.enum(['male', 'female'] as const) satisfies z.ZodType<Gender>;
@@ -67,7 +66,7 @@ export default function Page() {
   const [isSaving, setIsSaving] = useState(false)
   const { gender, isLoading: isGenderLoading } = useUserGender();
   const [selectedIndex, setSelectedIndex] = useState(0)
-  const { data: styleConfigs = [], isLoading: isLoadingStyles } = useStyleConfigs();
+  const { data: styleConfigs = [] } = useStyleConfigs();
   
   // Validate style configs at runtime and transform to expected format
   const photographyStyleOptions = useMemo(() => {
@@ -92,13 +91,6 @@ export default function Page() {
   }, [styleConfigs]);
 
   const filteredStyles = useGenderFilter(photographyStyleOptions, gender || undefined)
-  // Get the current style ID based on the selected index
-  const currentStyleId = selectedIndex >= 0 && filteredStyles.length > 0 
-    ? filteredStyles[selectedIndex].id as StylePhotographyStyle 
-    : 'studio'
-  const store = useStyleStore(currentStyleId)
-  const settings = store((state) => state.settings)
-  const reset = store((state) => state.reset)
   const [showingCustomizeFor, setShowingCustomizeFor] = useState<number | null>(null)
   const [isNavigating, setIsNavigating] = useState(false)
   const [canScrollPrev, setCanScrollPrev] = useState(false)
@@ -112,26 +104,24 @@ export default function Page() {
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [previousIndex, setPreviousIndex] = useState(selectedIndex)
   
-  // Create refs to store style stores at component level
+  // Create ref to store style stores at component level
   const styleStoresRef = useRef<Record<string, ReturnType<typeof useStyleStore>>>({});
 
   // Initialize stores for all styles
+  const initializeStyleStore = useCallback((styleId: StylePhotographyStyle) => {
+    if (!styleStoresRef.current[styleId]) {
+      styleStoresRef.current[styleId] = useStyleStore(styleId);
+    }
+    return styleStoresRef.current[styleId];
+  }, []);
+
+  // Initialize stores on mount and when filtered styles change
   useEffect(() => {
-    // Create stores for new styles
     filteredStyles.forEach(style => {
       const styleId = style.id as StylePhotographyStyle;
-      if (!styleStoresRef.current[styleId]) {
-        styleStoresRef.current[styleId] = useStyleStore(styleId);
-      }
+      initializeStyleStore(styleId);
     });
-
-    // Cleanup stores for removed styles
-    Object.keys(styleStoresRef.current).forEach(styleId => {
-      if (!filteredStyles.find(style => style.id === styleId)) {
-        delete styleStoresRef.current[styleId];
-      }
-    });
-  }, [filteredStyles]);
+  }, [filteredStyles, initializeStyleStore]);
 
   // Reset settings when selectedIndex changes
   useEffect(() => {
@@ -323,7 +313,7 @@ export default function Page() {
   }
 
   return (
-    <div className="wrapper flex flex-col">
+    <div className={stylesCSS.container}>
       <motion.div 
         className="flex-1 flex items-center justify-center"
         initial={{ opacity: 0 }}
@@ -335,69 +325,71 @@ export default function Page() {
           <div className={stylesCSS['highlight-overlay']} />
           
           {/* Carousel container */}
-          <div className="w-full relative" ref={emblaRef}>
-            <div 
-              className="flex touch-pan-y"
-              style={containerStyle}
-              onTransitionEnd={handleTransitionEnd}
-            >
-              {stylesWithImages.map((style, index) => (
-                <div 
-                  key={style.id} 
-                  className={stylesCSS['slide-card-container']}
-                >
-                  <div className="relative h-full bg-[#F0F9F7]">
-                    {/* Toggle between style overview and customization options */}
-                    <AnimatePresence mode="wait">
-                      {showingCustomizeFor === index ? (
-                        <motion.div
-                          key="customization-options"
-                          className={cn(
-                            stylesCSS['slide-card'],
-                            "absolute inset-0 bg-white overflow-hidden transition-all duration-500 select-none",
-                            selectedIndex === index 
-                              ? stylesCSS['active-slide']
-                              : stylesCSS['inactive-slide']
-                          )}
-                          {...fadeAnimation}
-                        >
-                          <StyleTabsOptions
-                            style={{
-                              ...style,
-                              styleId: 'new'
-                            }}
-                            isSaving={isSaving}
-                            onClose={() => setShowingCustomizeFor(null)}
-                            onAddToShoot={handleAddToShoot}
-                          />
-                        </motion.div>
-                      ) : (
-                        <motion.div 
-                          key="style-overview"
-                          className={cn(
-                            stylesCSS['slide-card'],
-                            "flex flex-col overflow-hidden transition-all duration-500 select-none h-full bg-[#F0F9F7]",
-                            selectedIndex === index 
-                              ? stylesCSS['active-slide']
-                              : stylesCSS['inactive-slide'],
-                            isNavigating && stylesCSS.sliding
-                          )}
-                          {...(isNavigating ? {} : fadeAnimation)}
-                        >
-                          <StyleDetails
-                            style={style}
-                            index={index}
-                            onCustomize={setShowingCustomizeFor}
-                            setIsNavigating={setIsNavigating}
-                          />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+          <CarouselProvider>
+            <div className="w-full relative" ref={emblaRef}>
+              <div 
+                className="flex touch-pan-y"
+                style={containerStyle}
+                onTransitionEnd={handleTransitionEnd}
+              >
+                {stylesWithImages.map((style, index) => (
+                  <div 
+                    key={style.id} 
+                    className={stylesCSS['slide-card-container']}
+                  >
+                    <div className="relative h-full bg-[#F0F9F7]">
+                      {/* Toggle between style overview and customization options */}
+                      <AnimatePresence mode="wait">
+                        {showingCustomizeFor === index ? (
+                          <motion.div
+                            key="customization-options"
+                            className={cn(
+                              stylesCSS['slide-card'],
+                              "absolute inset-0 bg-white overflow-hidden transition-all duration-500 select-none",
+                              selectedIndex === index 
+                                ? stylesCSS['active-slide']
+                                : stylesCSS['inactive-slide']
+                            )}
+                            {...fadeAnimation}
+                          >
+                            <StyleTabsOptions
+                              style={{
+                                ...style,
+                                styleId: 'new'
+                              }}
+                              isSaving={isSaving}
+                              onClose={() => setShowingCustomizeFor(null)}
+                              onAddToShoot={handleAddToShoot}
+                            />
+                          </motion.div>
+                        ) : (
+                          <motion.div 
+                            key="style-overview"
+                            className={cn(
+                              stylesCSS['slide-card'],
+                              "flex flex-col overflow-hidden transition-all duration-500 select-none h-full bg-[#F0F9F7]",
+                              selectedIndex === index 
+                                ? stylesCSS['active-slide']
+                                : stylesCSS['inactive-slide'],
+                              isNavigating && stylesCSS.sliding
+                            )}
+                            {...(isNavigating ? {} : fadeAnimation)}
+                          >
+                            <StyleDetails
+                              style={style}
+                              index={index}
+                              onCustomize={setShowingCustomizeFor}
+                              setIsNavigating={setIsNavigating}
+                            />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          </CarouselProvider>
         </div>
       </motion.div>
 

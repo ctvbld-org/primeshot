@@ -21,7 +21,7 @@ if (!APP_URL) {
 
 // Initialize Stripe with latest API version
 const stripe = new Stripe(STRIPE_SECRET_KEY, {
-  apiVersion: '2023-10-16' as any,
+  apiVersion: '2025-03-31.basil',
 });
 
 export async function POST(request: Request) {
@@ -104,7 +104,7 @@ export async function POST(request: Request) {
     }
     
     // If verification passed, continue with the verified amount
-    let verifiedAmount = verification.calculatedAmount;
+    const verifiedAmount = verification.calculatedAmount;
     
     // Ensure amount is a non-negative integer (required by Stripe)
     if (typeof verifiedAmount !== 'number' || !Number.isInteger(verifiedAmount) || verifiedAmount < 0) {

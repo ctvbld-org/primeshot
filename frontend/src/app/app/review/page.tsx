@@ -1,11 +1,10 @@
 'use client'
 
-import React, { useState, useEffect, useCallback, ChangeEvent } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { getOrCreateDraftOrder } from '@/lib/api/orders'
-import { createPresignedGetUrl } from '@/lib/s3'
 import { useToast } from '@/components/ui/use-toast'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -16,7 +15,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import Image from 'next/image'
 import { useUserProgress } from '@/lib/hooks/use-user-progress'
-import type { Database } from '@/types/supabase'
 import { ArrowRightIcon } from 'lucide-react'
 import { Image as ImageType } from '@/lib/types'
 import { useTranslation } from 'react-i18next'
@@ -38,6 +36,12 @@ const eyeColorOptions = ['Brown', 'Blue', 'Green', 'Hazel', 'Grey', 'Amber', 'Ot
 const hairColorOptions = ['Black', 'Brown', 'Blonde', 'Red', 'Grey', 'White', 'Dyed/Other']
 const hairLengthOptions = ['Bald/Shaved', 'Short', 'Medium', 'Long', 'Other']
 const bodyTypeOptions = ['Slim', 'Average', 'Athletic', 'Heavy-set', 'Prefer not to say']
+
+console.log(ethnicityOptions);
+console.log(eyeColorOptions);
+console.log(hairColorOptions);
+console.log(hairLengthOptions);
+console.log(bodyTypeOptions);
 
 type ImageRecord = ImageType
 
@@ -155,11 +159,11 @@ export default function ReviewPage() {
         
       router.push('/app/dashboard'); 
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error submitting demographics:', error);
       toast({
         title: t('submit.toast.error.title'),
-        description: error.message || t('submit.toast.error.description'),
+        description: error instanceof Error ? error.message : t('submit.toast.error.description'),
         variant: 'destructive',
       });
     } finally {

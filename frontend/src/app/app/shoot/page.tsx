@@ -4,13 +4,10 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/components/ui/use-toast'
 import { useAuth } from '@/contexts/auth-context'
-import { createClient } from '@/lib/supabase/client'
-import { Style, StyleStatus } from '@/lib/types'
+import { Style } from '@/lib/types'
 import { StyleCard } from '@/components/style/style-card'
 import { NewStyleCard } from '@/components/style/new-style-card'
-import { useUserProgress } from '@/lib/hooks/use-user-progress'
-import { getStyles, deleteStyle, calculateHeadshots, handleStyleDeletion } from '@/lib/api/styles'
-import { useUserProfile } from '@/lib/hooks/use-user-profile'
+import { getStyles, calculateHeadshots, handleStyleDeletion } from '@/lib/api/styles'
 import { usePaymentFlow } from '@/lib/hooks/use-payment-flow'
 import { ShootFooter } from '@/components/shoot/shoot-footer'
 import { PRICING } from '@/lib/constants/pricing'
@@ -21,6 +18,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import React from 'react'
 import { cn } from '@/lib/utils'
 import { useTranslation } from 'react-i18next'
+import { CarouselProvider } from '@/contexts/carousel-context'
 
 export default function StylesPage() {
   const router = useRouter()
@@ -29,15 +27,12 @@ export default function StylesPage() {
   const { t } = useTranslation(['styles', 'common'])
   const [styles, setStyles] = useState<Style[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const { updateProgress, canModifyStyles, progress } = useUserProgress()
-  const supabase = createClient()
-  const { fetchProfile } = useUserProfile()
+  const [count, setCount] = useState(0)
+  const [current, setCurrent] = useState(0)
   
   // Add carousel API state
   const [api, setApi] = React.useState<CarouselApi>()
-  const [current, setCurrent] = React.useState(0)
-  const [count, setCount] = React.useState(0)
-
+  
   // Replace showOverlay with activeEditId
   const [activeEditId, setActiveEditId] = useState<string | null>(null)
   const [isDraggingEnabled, setIsDraggingEnabled] = useState(true)
@@ -58,7 +53,7 @@ export default function StylesPage() {
   })
 
   // Add usePaymentFlow at component level
-  const { proceedToPayment, isLoading: isPaymentLoading } = usePaymentFlow({
+  const { proceedToPayment } = usePaymentFlow({
     styles,
     headshotInfo
   })
@@ -131,7 +126,7 @@ export default function StylesPage() {
   }, [api])
 
   return (
-    <>
+    <div className={stylesCSS.container}>
       <motion.div 
         className={`${stylesCSS['card-wrapper']} wrapper ${styles.length === 0 && stylesCSS['scrollable']}`}
         initial={{ opacity: 0 }}
@@ -154,75 +149,77 @@ export default function StylesPage() {
             <div className={stylesCSS['fake-card']}></div>
           </>
         ) : (
-          <Carousel
-            setApi={setApi}
-            opts={{
-              align: "start",
-              containScroll: false,
-              dragFree: true,
-              loop: false,
-              watchDrag: isDraggingEnabled,
-              breakpoints: {
-                '(max-width: 600px)': {
-                  dragFree: false,
-                  align: "start",
-                  slidesToScroll: 1
+          <CarouselProvider>
+            <Carousel
+              setApi={setApi}
+              opts={{
+                align: "start",
+                containScroll: false,
+                dragFree: true,
+                loop: false,
+                watchDrag: isDraggingEnabled,
+                breakpoints: {
+                  '(max-width: 600px)': {
+                    dragFree: false,
+                    align: "start",
+                    slidesToScroll: 1
+                  }
                 }
-              }
-            }}
-            className={stylesCSS['carousel']}
-            aria-label={t('carousel.label')}
-            aria-roledescription="carousel" 
-          >
-            <CarouselContent>
-              <CarouselItem 
-                className={cn(
-                  "basis-[386px] pl-6",
-                  activeEditId && "disabled-card"
-                )} 
-                aria-label={t('newStyle.title')}
-              >
-                <NewStyleCard 
-                  className="h-[98%] max-h-none" 
-                  onClick={() => router.push('/app/styles')}
-                />
-              </CarouselItem>
-              
-              {styles.map((style) => (
+              }}
+              className={stylesCSS['carousel']}
+              aria-label={t('carousel.label')}
+              aria-roledescription="carousel" 
+            >
+              <CarouselContent>
                 <CarouselItem 
-                  key={style.id}
                   className={cn(
                     "basis-[386px] pl-6",
-                    activeEditId === style.id ? "editing-card" : activeEditId ? "disabled-card" : ""
-                  )}
-                  aria-label={t('buttons.edit', { ns: 'common' })}
+                    activeEditId && "disabled-card"
+                  )} 
+                  aria-label={t('newStyle.title')}
                 >
-                  <StyleCard
-                    savedStyle={style}
-                    headshotsPerStyle={headshotInfo.headshotsPerStyle}
-                    onDelete={handleDeleteStyle}
-                    onEdit={() => {
-                      setActiveEditId(style.id);
-                      setIsDraggingEnabled(false);
-                    }}
-                    onCloseEdit={() => {
-                      setActiveEditId(null);
-                      setIsDraggingEnabled(true);
-                      loadStyles();
-                    }}
+                  <NewStyleCard 
+                    className="h-[98%] max-h-none" 
+                    onClick={() => router.push('/app/styles')}
                   />
                 </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious 
-              className={`${stylesCSS['carousel-previous']}`}
-              aria-label={t('buttons.previous', { ns: 'common' })}
-            />
-            <CarouselNext 
-              className={`${stylesCSS['carousel-next']}`}
-              aria-label={t('buttons.next', { ns: 'common' })}
-            />
-          </Carousel>
+                
+                {styles.map((style) => (
+                  <CarouselItem 
+                    key={style.id}
+                    className={cn(
+                      "basis-[386px] pl-6",
+                      activeEditId === style.id ? "editing-card" : activeEditId ? "disabled-card" : ""
+                    )}
+                    aria-label={t('buttons.edit', { ns: 'common' })}
+                  >
+                    <StyleCard
+                      savedStyle={style}
+                      headshotsPerStyle={headshotInfo.headshotsPerStyle}
+                      onDelete={handleDeleteStyle}
+                      onEdit={() => {
+                        setActiveEditId(style.id);
+                        setIsDraggingEnabled(false);
+                      }}
+                      onCloseEdit={() => {
+                        setActiveEditId(null);
+                        setIsDraggingEnabled(true);
+                        loadStyles();
+                      }}
+                    />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious 
+                className={`${stylesCSS['carousel-previous']}`}
+                aria-label={t('buttons.previous', { ns: 'common' })}
+              />
+              <CarouselNext 
+                className={`${stylesCSS['carousel-next']}`}
+                aria-label={t('buttons.next', { ns: 'common' })}
+              />
+            </Carousel>
+          </CarouselProvider>
         )}
       </motion.div>
       <ShootFooter
@@ -254,6 +251,6 @@ export default function StylesPage() {
           }
         }}
       />
-    </>
+    </div>
   )
 } 
