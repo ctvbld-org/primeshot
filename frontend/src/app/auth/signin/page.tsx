@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { AnimatedBackground } from "@/components/auth/animated-background";
@@ -16,7 +16,7 @@ import styles from './signin.module.css';
 import { Icon } from "@/components/icons/icon";
 import { useToast } from "@/components/ui/use-toast";
 
-export default function SignIn() {
+function SignInContent() {
   const [mounted, setMounted] = useState(false);
   const [email, setEmail] = useState("");
   const [, setImagesLoaded] = useState(false);
@@ -241,5 +241,23 @@ export default function SignIn() {
         </TiltCard>
       </div>
     </LoadingContent>
+  );
+}
+
+export default function SignIn() {
+  return (
+    <Suspense 
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-pulse flex flex-col items-center space-y-4">
+            <div className="w-12 h-12 bg-muted rounded-full"></div>
+            <div className="h-4 w-32 bg-muted rounded"></div>
+            <div className="h-4 w-32 bg-muted rounded"></div>
+          </div>
+        </div>
+      }
+    >
+      <SignInContent />
+    </Suspense>
   );
 } 

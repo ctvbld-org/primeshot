@@ -31,6 +31,41 @@ interface StageData {
   payment?: PaymentStageData
 }
 
+// Retry configuration
+const RETRY_ATTEMPTS = 3;
+const RETRY_DELAY = 1000; // 1 second
+
+// Helper function to delay execution
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Helper function to fetch user profile with retries
+async function fetchUserProfile(supabase: any, userId: string, maxAttempts = RETRY_ATTEMPTS) {
+  let lastError;
+  
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('full_name')
+        .eq('id', userId)
+        .single();
+        
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      lastError = error;
+      console.warn(`Attempt ${attempt} failed to fetch user profile:`, error);
+      
+      if (attempt < maxAttempts) {
+        await delay(RETRY_DELAY * attempt); // Exponential backoff
+        continue;
+      }
+    }
+  }
+  
+  return { data: null, error: lastError };
+}
+
 export default function PaymentPage() {
   const { t } = useTranslation('payment');
   const { user } = useAuth();
@@ -51,6 +86,8 @@ export default function PaymentPage() {
   const [userProfile, setUserProfile] = useState<{ full_name: string | null } | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
+    
     async function loadData() {
       if (!user) return;
       
@@ -58,22 +95,22 @@ export default function PaymentPage() {
       let currentOrder: Order;
       
       try {
-        // Fetch user profile data
-        const { data: profileData, error: profileError } = await supabase
-          .from('users')
-          .select('full_name')
-          .eq('id', user.id)
-          .single();
+        // Fetch user profile data with retries
+        const { data: profileData, error: profileError } = await fetchUserProfile(supabase, user.id);
         
         if (profileError) {
-          console.error('Error fetching user profile:', profileError);
-        } else if (!profileData) {
-          console.log('No profile data found for user:', user.id);
-        } else {
-          console.log('Profile data fetched:', profileData);
+          console.error('Error fetching user profile after retries:', profileError);
+          // Only show toast for critical errors
+          toast({ 
+            title: t('status.error'),
+            description: t('errors.loadPaymentData'),
+            variant: 'destructive'
+          });
         }
         
-        setUserProfile(profileData);
+        if (isMounted) {
+          setUserProfile(profileData);
+        }
 
         if (resumeOrderId) {
           setIsRecoveringPayment(true);
@@ -184,11 +221,17 @@ export default function PaymentPage() {
           });
         }
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     }
     
     loadData();
+    
+    return () => {
+      isMounted = false;
+    };
   }, [user, router, toast, updateProgress, resumeOrderId, progress?.stage_data, t]);
 
   const handleContinueToPayment = async () => {
