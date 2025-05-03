@@ -1,7 +1,7 @@
 {
   "welcome": "ようこそ",
-  "uploadSuccess": "写真が正常にアップロードされました",
-  "greeting": "こんにちは、{{name}}さん！",
+  "uploadSuccess": "写真のアップロードが完了しました",
+  "greeting": "こんにちは、{{name}}様",
   "error": {
     "title": "エラー",
     "description": "エラーが発生しました"
@@ -24,5 +24,15 @@
     "confirm": "確認",
     "remove": "削除",
     "add": "追加"
+  },
+  "navigation": {
+    "addStyles": "スタイルを追加",
+    "checkout": "チェックアウト",
+    "uploadPhotos": "写真をアップロード",
+    "generate": "生成"
+  },
+  "userNav": {
+    "signOut": "ログアウト",
+    "accountSettings": "アカウント設定"
   }
 } 

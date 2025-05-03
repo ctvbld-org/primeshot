@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
 import { useState, useEffect, useCallback } from "react";
@@ -19,7 +19,7 @@ import { useToast } from "@/components/ui/use-toast";
 export default function SignIn() {
   const [mounted, setMounted] = useState(false);
   const [email, setEmail] = useState("");
-  const [imagesLoaded, setImagesLoaded] = useState(false);
+  const [, setImagesLoaded] = useState(false);
   const { signIn, signInWithGoogle, signInWithLinkedIn, isLoading, error, isAuthenticated } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();

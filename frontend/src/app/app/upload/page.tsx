@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { useRouter } from 'next/navigation'
 import { FileUploader } from '@/components/upload/file-uploader'
@@ -8,7 +8,6 @@ import { UploadedFilesList } from '@/components/upload/uploaded-files-list'
 import { UploadRequirements } from '@/components/upload/upload-requirements'
 import { useToast } from '@/components/ui/use-toast'
 import { cn } from '@/lib/utils'
-import type { ImageQualityResult } from '@/lib/image-quality'
 import type { Order, Style } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { ArrowRightIcon } from 'lucide-react'
@@ -141,7 +140,10 @@ export default function UploadPage() {
         try {
            const errorData = await response.json()
            errorMsg = errorData.error || errorMsg
-        } catch (e) { /* Ignore */ }
+        } catch (e) { 
+          // eslint-disable-next-line no-empty
+          /* Ignore */ 
+        }
         throw new Error(errorMsg)
       }
 
@@ -230,6 +232,8 @@ export default function UploadPage() {
             })
             router.push('/app/review') 
           } catch (progressError) {
+            // eslint-disable-next-line no-empty
+            /* Ignore */ 
             toast({
                title: t('status.error'),
                description: t('errors.savingProgress'),

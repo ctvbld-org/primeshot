@@ -18,7 +18,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import React from 'react'
 import { cn } from '@/lib/utils'
 import { useTranslation } from 'react-i18next'
-import { CarouselProvider } from '@/contexts/carousel-context'
+import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 
 export default function StylesPage() {
   const router = useRouter()
@@ -27,8 +27,8 @@ export default function StylesPage() {
   const { t } = useTranslation(['styles', 'common'])
   const [styles, setStyles] = useState<Style[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [count, setCount] = useState(0)
-  const [current, setCurrent] = useState(0)
+  const [, setCount] = useState(0)
+  const [, setCurrent] = useState(0)
   
   // Add carousel API state
   const [api, setApi] = React.useState<CarouselApi>()
@@ -149,77 +149,76 @@ export default function StylesPage() {
             <div className={stylesCSS['fake-card']}></div>
           </>
         ) : (
-          <CarouselProvider>
-            <Carousel
-              setApi={setApi}
-              opts={{
-                align: "start",
-                containScroll: false,
-                dragFree: true,
-                loop: false,
-                watchDrag: isDraggingEnabled,
-                breakpoints: {
-                  '(max-width: 600px)': {
-                    dragFree: false,
-                    align: "start",
-                    slidesToScroll: 1
-                  }
+          <Carousel
+            setApi={setApi}
+            opts={{
+              align: "start",
+              containScroll: false,
+              dragFree: true,
+              loop: false,
+              watchDrag: isDraggingEnabled,
+              breakpoints: {
+                '(max-width: 600px)': {
+                  dragFree: false,
+                  align: "start",
+                  slidesToScroll: 1
                 }
-              }}
-              className={stylesCSS['carousel']}
-              aria-label={t('carousel.label')}
-              aria-roledescription="carousel" 
-            >
-              <CarouselContent>
+              }
+            }}
+            plugins={[WheelGesturesPlugin()]}
+            className={stylesCSS['carousel']}
+            aria-label={t('carousel.label')}
+            aria-roledescription="carousel" 
+          >
+            <CarouselContent>
+              <CarouselItem 
+                className={cn(
+                  "basis-[386px] pl-6",
+                  activeEditId && "disabled-card"
+                )} 
+                aria-label={t('newStyle.title')}
+              >
+                <NewStyleCard 
+                  className="h-[98%] max-h-none" 
+                  onClick={() => router.push('/app/styles')}
+                />
+              </CarouselItem>
+              
+              {styles.map((style) => (
                 <CarouselItem 
+                  key={style.id}
                   className={cn(
                     "basis-[386px] pl-6",
-                    activeEditId && "disabled-card"
-                  )} 
-                  aria-label={t('newStyle.title')}
+                    activeEditId === style.id ? "editing-card" : activeEditId ? "disabled-card" : ""
+                  )}
+                  aria-label={t('buttons.edit', { ns: 'common' })}
                 >
-                  <NewStyleCard 
-                    className="h-[98%] max-h-none" 
-                    onClick={() => router.push('/app/styles')}
+                  <StyleCard
+                    savedStyle={style}
+                    headshotsPerStyle={headshotInfo.headshotsPerStyle}
+                    onDelete={handleDeleteStyle}
+                    onEdit={() => {
+                      setActiveEditId(style.id);
+                      setIsDraggingEnabled(false);
+                    }}
+                    onCloseEdit={() => {
+                      setActiveEditId(null);
+                      setIsDraggingEnabled(true);
+                      loadStyles();
+                    }}
                   />
                 </CarouselItem>
-                
-                {styles.map((style) => (
-                  <CarouselItem 
-                    key={style.id}
-                    className={cn(
-                      "basis-[386px] pl-6",
-                      activeEditId === style.id ? "editing-card" : activeEditId ? "disabled-card" : ""
-                    )}
-                    aria-label={t('buttons.edit', { ns: 'common' })}
-                  >
-                    <StyleCard
-                      savedStyle={style}
-                      headshotsPerStyle={headshotInfo.headshotsPerStyle}
-                      onDelete={handleDeleteStyle}
-                      onEdit={() => {
-                        setActiveEditId(style.id);
-                        setIsDraggingEnabled(false);
-                      }}
-                      onCloseEdit={() => {
-                        setActiveEditId(null);
-                        setIsDraggingEnabled(true);
-                        loadStyles();
-                      }}
-                    />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious 
-                className={`${stylesCSS['carousel-previous']}`}
-                aria-label={t('buttons.previous', { ns: 'common' })}
-              />
-              <CarouselNext 
-                className={`${stylesCSS['carousel-next']}`}
-                aria-label={t('buttons.next', { ns: 'common' })}
-              />
-            </Carousel>
-          </CarouselProvider>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious 
+              className={`${stylesCSS['carousel-previous']}`}
+              aria-label={t('buttons.previous', { ns: 'common' })}
+            />
+            <CarouselNext 
+              className={`${stylesCSS['carousel-next']}`}
+              aria-label={t('buttons.next', { ns: 'common' })}
+            />
+          </Carousel>
         )}
       </motion.div>
       <ShootFooter

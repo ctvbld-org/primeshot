@@ -100,6 +100,7 @@
 }
 
 .dividerText {
+  text-transform: lowercase;
   flex: 0 0 auto;
   color: #fff;
   font-size: 12px;

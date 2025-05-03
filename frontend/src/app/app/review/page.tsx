@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { getOrCreateDraftOrder } from '@/lib/api/orders'
 import { useToast } from '@/components/ui/use-toast'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -71,46 +70,65 @@ export default function ReviewPage() {
     async function fetchData() {
       if (!user) return
 
-      setIsLoading(true);
       try {
-        const order = await getOrCreateDraftOrder(user.id);
-        if (!order) {
-          throw new Error("Could not find or create a draft order.");
-        }
-        const currentOrderId = order.id;
-        setDraftOrderId(currentOrderId);
-        console.log("Draft Order ID:", currentOrderId);
+        const supabase = createClient()
+        
+        // Get the most recent paid order
+        const { data: orderData, error: orderError } = await supabase
+          .from('orders')
+          .select()
+          .eq('user_id', user.id)
+          .eq('status', 'paid')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single()
 
-        const response = await fetch(`/api/user-images?orderId=${currentOrderId}`);
+        if (orderError) throw orderError
+
+        if (!orderData) {
+          toast({
+            title: t('errors.noActiveOrder', { ns: 'upload' }),
+            description: t('errors.paymentRequired', { ns: 'upload' }),
+            variant: 'destructive'
+          })
+          router.push('/app/shoot')
+          return
+        }
+
+        const currentOrderId = orderData.id
+        setDraftOrderId(currentOrderId)
+        console.log("Paid Order ID:", currentOrderId)
+
+        const response = await fetch(`/api/user-images?orderId=${currentOrderId}`)
         
         if (!response.ok) {
-           const errorData = await response.json();
-           throw new Error(errorData.error || `API error! Status: ${response.status}`);
+           const errorData = await response.json()
+           throw new Error(errorData.error || `API error! Status: ${response.status}`)
         }
         
-        const imagesWithUrls = await response.json();
+        const imagesWithUrls = await response.json()
         
         if (!Array.isArray(imagesWithUrls)) {
-            throw new Error("Invalid image data received from API.");
+            throw new Error("Invalid image data received from API.")
         }
         
-        setUploadedImages(imagesWithUrls as ImageRecord[]); 
-        console.log("Images received from /api/user-images:", imagesWithUrls);
+        setUploadedImages(imagesWithUrls as ImageRecord[])
+        console.log("Images received from /api/user-images:", imagesWithUrls)
 
       } catch (error) {
-        console.error("Error fetching review data:", error);
+        console.error("Error fetching review data:", error)
         toast({
           title: t('submit.toast.error.title'),
           description: error instanceof Error ? error.message : t('submit.toast.error.description'),
           variant: 'destructive',
-        });
+        })
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
     }
 
-    fetchData();
-  }, [user, toast, t]);
+    fetchData()
+  }, [user, toast, t, router])
 
   const onSubmit = async (data: DemographicsFormData) => {
     if (!user) {

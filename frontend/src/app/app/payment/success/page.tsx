@@ -68,7 +68,7 @@ export default function PaymentSuccessPage() {
           .eq('user_id', user.id);
           
         if (sessionId) {
-          query = query.eq('payment_intent_id', sessionId);
+          query = query.eq('checkout_session_id', sessionId);
         } 
         else if (orderId) {
           query = query.eq('id', orderId);

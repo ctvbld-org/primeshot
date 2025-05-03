@@ -57,7 +57,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { orderId, amount, metadata = {}, retryAttempt = 0 } = body;
+    const { orderId, amount, metadata = {}, retryAttempt = 0, customerEmail, customerName } = body;
 
     if (!orderId || amount === undefined) {
       return NextResponse.json(
@@ -146,6 +146,8 @@ export async function POST(request: Request) {
       {
         payment_method_types: ['card'],
         mode: 'payment',
+        customer_email: customerEmail, // Add customer email if provided
+        customer_creation: customerEmail ? 'always' : undefined,
         line_items: [
           {
             price_data: {
@@ -165,6 +167,7 @@ export async function POST(request: Request) {
           styleCount: verification.styleCount.toString(), // Add style count for reference
           verifiedAmount: 'true', // Flag to indicate the amount was verified
           createdAt: new Date().toISOString(),
+          customerName, // Add customer name to metadata if provided
           ...enhancedMetadata,
         },
         success_url: `${APP_URL}/app/payment/success?session_id={CHECKOUT_SESSION_ID}`,

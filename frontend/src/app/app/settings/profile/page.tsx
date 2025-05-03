@@ -60,11 +60,8 @@ export default function ProfileSettingsPage() {
         title: t('success.title', '', { ns: 'common' }),
         description: t('completionModal.toast.success.description', '', { ns: 'profile' })
       })
-      // If we came from the shoot page, go back there
-      const previousPage = sessionStorage.getItem('previousPage')
-      if (previousPage === '/app/shoot') {
-        router.push('/app/shoot')
-      }
+      // Always redirect to shoot page after successful profile update
+      router.push('/app/shoot')
     } catch (error) {
       toast({
         title: t('error.title', '', { ns: 'common' }),

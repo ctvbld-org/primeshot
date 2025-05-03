@@ -24,5 +24,15 @@
     "confirm": "Confirmar",
     "remove": "Remover",
     "add": "Adicionar"
+  },
+  "navigation": {
+    "addStyles": "Adicionar Estilos",
+    "checkout": "Finalizar Compra",
+    "uploadPhotos": "Enviar Fotos",
+    "generate": "Gerar"
+  },
+  "userNav": {
+    "signOut": "Sair",
+    "accountSettings": "Configurações da Conta"
   }
 } 

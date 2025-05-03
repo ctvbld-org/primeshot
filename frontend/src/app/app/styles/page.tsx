@@ -58,6 +58,34 @@ const fadeAnimation = {
   }
 }
 
+// Custom hook to handle style stores
+function useStyleStores(styles: Array<{ id: string }>) {
+  // Create a ref to hold all stores
+  const storesRef = useRef<Record<string, ReturnType<typeof useStyleStore>>>({});
+  
+  // Create a single store for the currently selected style
+  const [selectedStyleId, setSelectedStyleId] = useState<string | null>(null);
+  
+  // Initialize all stores on mount
+  useEffect(() => {
+    styles.forEach(style => {
+      if (!storesRef.current[style.id]) {
+        storesRef.current[style.id] = useStyleStore(style.id as StylePhotographyStyle);
+      }
+    });
+  }, [styles]);
+
+  const getStore = useCallback((styleId: string) => {
+    return storesRef.current[styleId];
+  }, []);
+
+  return {
+    getStore,
+    storesRef,
+    setSelectedStyleId
+  };
+}
+
 export default function Page() {
   const router = useRouter()
   const { user } = useAuth()
@@ -67,7 +95,19 @@ export default function Page() {
   const { gender, isLoading: isGenderLoading } = useUserGender();
   const [selectedIndex, setSelectedIndex] = useState(0)
   const { data: styleConfigs = [] } = useStyleConfigs();
-  
+  const [previousIndex, setPreviousIndex] = useState(selectedIndex)
+  const [showingCustomizeFor, setShowingCustomizeFor] = useState<number | null>(null)
+  const [isNavigating, setIsNavigating] = useState(false)
+  const [canScrollPrev, setCanScrollPrev] = useState(false)
+  const [canScrollNext, setCanScrollNext] = useState(false)
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    startIndex: 0,
+    align: 'center',
+    containScroll: false,
+    duration: 30
+  })
+  const [isTransitioning, setIsTransitioning] = useState(false)
+
   // Validate style configs at runtime and transform to expected format
   const photographyStyleOptions = useMemo(() => {
     try {
@@ -91,45 +131,25 @@ export default function Page() {
   }, [styleConfigs]);
 
   const filteredStyles = useGenderFilter(photographyStyleOptions, gender || undefined)
-  const [showingCustomizeFor, setShowingCustomizeFor] = useState<number | null>(null)
-  const [isNavigating, setIsNavigating] = useState(false)
-  const [canScrollPrev, setCanScrollPrev] = useState(false)
-  const [canScrollNext, setCanScrollNext] = useState(false)
-  const [emblaRef, emblaApi] = useEmblaCarousel({ 
-    startIndex: 0,
-    align: 'center',
-    containScroll: false,
-    duration: 30
-  })
-  const [isTransitioning, setIsTransitioning] = useState(false)
-  const [previousIndex, setPreviousIndex] = useState(selectedIndex)
   
-  // Create ref to store style stores at component level
-  const styleStoresRef = useRef<Record<string, ReturnType<typeof useStyleStore>>>({});
+  // Use our custom hook
+  const { getStore, storesRef, setSelectedStyleId } = useStyleStores(filteredStyles);
 
-  // Initialize stores for all styles
-  const initializeStyleStore = useCallback((styleId: StylePhotographyStyle) => {
-    if (!styleStoresRef.current[styleId]) {
-      styleStoresRef.current[styleId] = useStyleStore(styleId);
-    }
-    return styleStoresRef.current[styleId];
-  }, []);
-
-  // Initialize stores on mount and when filtered styles change
-  useEffect(() => {
-    filteredStyles.forEach(style => {
-      const styleId = style.id as StylePhotographyStyle;
-      initializeStyleStore(styleId);
-    });
-  }, [filteredStyles, initializeStyleStore]);
+  const stylesWithImages = useMemo(() => {
+    return filteredStyles.map(style => ({
+      ...style,
+      genderSpecificImages: getStyleImages(style.previewImages, gender || undefined),
+      translations: style.translations
+    }));
+  }, [filteredStyles, gender]);
 
   // Reset settings when selectedIndex changes
   useEffect(() => {
     if (selectedIndex !== previousIndex) {
-      // Reset settings for the previous style using stored ref
+      // Reset settings for the previous style
       if (previousIndex >= 0 && filteredStyles.length > 0) {
         const previousStyleId = filteredStyles[previousIndex].id as StylePhotographyStyle;
-        const store = styleStoresRef.current[previousStyleId];
+        const store = getStore(previousStyleId);
         if (store) {
           store.getState().reset();
         }
@@ -138,7 +158,7 @@ export default function Page() {
       // Reset settings for the new style
       if (selectedIndex >= 0 && filteredStyles.length > 0) {
         const currentStyleId = filteredStyles[selectedIndex].id as StylePhotographyStyle;
-        const store = styleStoresRef.current[currentStyleId];
+        const store = getStore(currentStyleId);
         if (store) {
           store.getState().reset();
         }
@@ -147,7 +167,71 @@ export default function Page() {
       // Update previousIndex
       setPreviousIndex(selectedIndex);
     }
-  }, [selectedIndex, previousIndex, filteredStyles]);
+  }, [selectedIndex, previousIndex, filteredStyles, getStore]);
+
+  const handleAddToShoot = useCallback(async (style: {
+    id: string;
+    name: string;
+    description: string;
+    previewImages: string[];
+    availableGenders?: Gender[];
+    availableBackgrounds: string[];
+    availableClothing: string[];
+    availableClothingColor: string[];
+    genderSpecificImages: string[];
+    translations: {
+      [lang: string]: {
+        name: string;
+        tagline: string;
+        description: string;
+      }
+    };
+  }) => {
+    try {
+      if (!user) {
+        throw new Error('User not found')
+      }
+
+      setIsSaving(true)
+      const order = await getOrCreateDraftOrder(user.id)
+      const orderId = order.id
+
+      const store = getStore(style.id);
+      const currentSettings = store.getState().settings
+      
+      const styleData = {
+        user_id: user.id,
+        order_id: orderId,
+        name: style.name,
+        settings: {
+          photographyStyle: style.id as StylePhotographyStyle,
+          background: currentSettings.background,
+          clothing: currentSettings.clothing,
+          clothingColor: currentSettings.clothingColor,
+        },
+        status: 'draft' as StyleStatus
+      }
+
+      await saveStyle(styleData)
+      await ensureUserProgress(user.id)
+
+      toast({
+        title: t('toast.successAddedStyle.title', { ns: 'styles' }),
+        description: t('toast.successAddedStyle.description', { ns: 'styles' }),
+      })
+
+      router.push('/app/shoot')
+    } catch (error) {
+      console.error(error)
+      toast({
+        variant: 'destructive',
+        description: t('toast.errorSavingStyle.description', { ns: 'styles' }),
+        title: t('toast.errorSavingStyle.title', { ns: 'styles' }),
+      })
+    } finally {
+      setIsSaving(false)
+    }
+  }, [user, getStore, router, toast, t])
 
   useEffect(() => {
     if (emblaApi) {
@@ -224,78 +308,6 @@ export default function Page() {
       setTimeout(() => setIsNavigating(false), 1000);
     }
   }, [emblaApi])
-
-  const stylesWithImages = useMemo(() => {
-    return filteredStyles.map(style => ({
-      ...style,
-      genderSpecificImages: getStyleImages(style.previewImages, gender || undefined),
-      translations: style.translations
-    }));
-  }, [filteredStyles, gender]);
-
-  const handleAddToShoot = useCallback(async (style: {
-    id: string;
-    name: string;
-    description: string;
-    previewImages: string[];
-    availableGenders?: Gender[];
-    availableBackgrounds: string[];
-    availableClothing: string[];
-    availableClothingColor: string[];
-    genderSpecificImages: string[];
-    translations: {
-      [lang: string]: {
-        name: string;
-        tagline: string;
-        description: string;
-      }
-    };
-  }) => {
-    try {
-      if (!user) {
-        throw new Error('User not found')
-      }
-
-      setIsSaving(true)
-      const order = await getOrCreateDraftOrder(user.id)
-      const orderId = order.id
-
-      const styleStore = styleStoresRef.current[style.id as StylePhotographyStyle]
-      const currentSettings = styleStore.getState().settings
-      
-      const styleData = {
-        user_id: user.id,
-        order_id: orderId,
-        name: style.name,
-        settings: {
-          photographyStyle: style.id as StylePhotographyStyle,
-          background: currentSettings.background,
-          clothing: currentSettings.clothing,
-          clothingColor: currentSettings.clothingColor,
-        },
-        status: 'draft' as StyleStatus
-      }
-
-      await saveStyle(styleData)
-      await ensureUserProgress(user.id)
-
-      toast({
-        title: t('toast.successAddedStyle.title', { ns: 'styles' }),
-        description: t('toast.successAddedStyle.description', { ns: 'styles' }),
-      })
-
-      router.push('/app/shoot')
-    } catch (error) {
-      console.error(error)
-      toast({
-        variant: 'destructive',
-        description: t('toast.errorSavingStyle.description', { ns: 'styles' }),
-        title: t('toast.errorSavingStyle.title', { ns: 'styles' }),
-      })
-    } finally {
-      setIsSaving(false)
-    }
-  }, [user, styleStoresRef, router, toast, t])
 
   const handleTransitionEnd = useCallback(() => {
     if (showingCustomizeFor === null) {

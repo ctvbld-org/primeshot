@@ -1,11 +1,13 @@
 {
   "welcome": "Willkommen",
+  "uploadSuccess": "Ihre Fotos wurden erfolgreich hochgeladen",
+  "greeting": "Hallo, {{name}}!",
+  "language": "Sprache",
   "error": {
     "title": "Fehler",
     "description": "Ein Fehler ist aufgetreten"
   },
-  "language": "Sprache",
-  "loading": "Lädt...",
+  "loading": "Laden...",
   "buttons": {
     "customize": "Anpassen",
     "confirmChanges": "Änderungen bestätigen",
@@ -22,5 +24,15 @@
     "confirm": "Bestätigen",
     "remove": "Entfernen",
     "add": "Hinzufügen"
+  },
+  "navigation": {
+    "addStyles": "Stile Hinzufügen",
+    "checkout": "Zur Kasse",
+    "uploadPhotos": "Fotos Hochladen",
+    "generate": "Generieren"
+  },
+  "userNav": {
+    "signOut": "Abmelden",
+    "accountSettings": "Kontoeinstellungen"
   }
 } 

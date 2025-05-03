@@ -11,9 +11,10 @@ import { FlipCard } from './flip-card'
 import { useState, useCallback, useRef } from 'react'
 import { StyleTabsOptions, StyleTabsOptionsRef } from './style-tabs-options'
 import styles from './style-card.module.css'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { toast } from '@/components/ui/use-toast'
 import { useTranslation } from 'react-i18next'
+import { CarouselProvider } from '@/contexts/carousel-context'
 
 interface StyleCardProps {
   savedStyle: Style
@@ -176,29 +177,31 @@ export function StyleCard({
           </div>
         }
         backContent={
-          <StyleTabsOptions
-            ref={styleTabsRef}
-            style={{
-              ...styleConfig,
-              styleId: savedStyle.id
-            }}
-            settings={savedStyle.settings}
-            isSaving={isSaving}
-            onClose={() => {
-              setIsFlipped(false);
-              onCloseEdit?.();
-            }}
-            onAddToShoot={handleAddToShoot}
-            onUpdate={(updatedStyle) => {
-              onUpdate?.({
-                ...savedStyle,
-                settings: updatedStyle.settings
-              });
-              setIsFlipped(false);
-              onCloseEdit?.();
-            }}
-            isCard
-          />
+          <CarouselProvider>
+            <StyleTabsOptions
+              ref={styleTabsRef}
+              style={{
+                ...styleConfig,
+                styleId: savedStyle.id
+              }}
+              settings={savedStyle.settings}
+              isSaving={isSaving}
+              onClose={() => {
+                setIsFlipped(false);
+                onCloseEdit?.();
+              }}
+              onAddToShoot={handleAddToShoot}
+              onUpdate={(updatedStyle) => {
+                onUpdate?.({
+                  ...savedStyle,
+                  settings: updatedStyle.settings
+                });
+                setIsFlipped(false);
+                onCloseEdit?.();
+              }}
+              isCard
+            />
+          </CarouselProvider>
         }
       />
     </motion.div>

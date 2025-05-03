@@ -156,7 +156,6 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
   // the flip animation starts (before the component is fully visible)
   useEffect(() => {
     if (isCard && !hasAppliedSettings.current) {
-      console.log("Card mode detected, applying prop settings immediately");
       getPropSettings();
     }
   }, [isCard, getPropSettings]);

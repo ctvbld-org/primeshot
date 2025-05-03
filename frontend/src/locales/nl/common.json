@@ -24,5 +24,15 @@
     "confirm": "Bevestigen",
     "remove": "Verwijderen",
     "add": "Toevoegen"
+  },
+  "navigation": {
+    "addStyles": "Stijlen Toevoegen",
+    "checkout": "Afrekenen",
+    "uploadPhotos": "Foto's Uploaden",
+    "generate": "Genereren"
+  },
+  "userNav": {
+    "signOut": "Uitloggen",
+    "accountSettings": "Account Instellingen"
   }
 } 

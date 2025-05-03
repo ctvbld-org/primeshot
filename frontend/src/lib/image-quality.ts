@@ -440,7 +440,7 @@ async function analyzeImageStats(img: HTMLImageElement) {
   
   // Calculate brightness
   let totalBrightness = 0;
-  let pixelCount = data.length / 4; // RGBA values
+  const pixelCount = data.length / 4; // RGBA values
   
   // For variance calculations (contrast)
   let rSum = 0, gSum = 0, bSum = 0;
