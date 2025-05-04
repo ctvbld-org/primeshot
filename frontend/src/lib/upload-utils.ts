@@ -1,0 +1,88 @@
+import { v4 as uuidv4 } from 'uuid';
+
+// Size of each chunk in bytes (2MB)
+export const CHUNK_SIZE = 2 * 1024 * 1024;
+
+export interface ChunkMetadata {
+  chunkIndex: number;
+  totalChunks: number;
+  fileSize: number;
+  fileName: string;
+  fileType: string;
+  uploadId: string;
+  orderId: string;
+}
+
+export function* createChunks(file: File, orderId: string, chunkSize: number = CHUNK_SIZE) {
+  const totalChunks = Math.ceil(file.size / chunkSize);
+  const uploadId = uuidv4(); // Unique ID for this chunked upload
+
+  for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+    const start = chunkIndex * chunkSize;
+    const end = Math.min(start + chunkSize, file.size);
+    const chunk = file.slice(start, end);
+
+    const metadata: ChunkMetadata = {
+      chunkIndex,
+      totalChunks,
+      fileSize: file.size,
+      fileName: file.name,
+      fileType: file.type,
+      uploadId,
+      orderId
+    };
+
+    yield { chunk, metadata };
+  }
+}
+
+export async function uploadChunk(
+  chunk: Blob,
+  metadata: ChunkMetadata,
+  onProgress?: (progress: number) => void
+): Promise<Response> {
+  const formData = new FormData();
+  formData.append('chunk', chunk);
+  formData.append('metadata', JSON.stringify(metadata));
+
+  return fetch('/api/upload-chunk', {
+    method: 'POST',
+    body: formData,
+  });
+}
+
+export async function uploadFileInChunks(
+  file: File,
+  orderId: string,
+  onProgress?: (progress: number) => void
+): Promise<string> {
+  const chunks = createChunks(file, orderId);
+  let uploadedChunks = 0;
+
+  for (const { chunk, metadata } of chunks) {
+    try {
+      const response = await uploadChunk(chunk, metadata, onProgress);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to upload chunk');
+      }
+
+      uploadedChunks++;
+      if (onProgress) {
+        onProgress((uploadedChunks / metadata.totalChunks) * 100);
+      }
+
+      // If this was the last chunk, get the final URL
+      if (uploadedChunks === metadata.totalChunks) {
+        const result = await response.json();
+        return result.url;
+      }
+    } catch (error) {
+      console.error(`Error uploading chunk ${metadata.chunkIndex}:`, error);
+      throw error;
+    }
+  }
+
+  throw new Error('Failed to complete chunked upload');
+} 

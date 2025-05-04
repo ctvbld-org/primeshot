@@ -62,9 +62,10 @@ export default function PaymentSuccessPage() {
       try {
         const supabase = createClient();
         
+        // First, get the order details
         let query = supabase
           .from('orders')
-          .select('*, styles(*)')
+          .select('*')
           .eq('user_id', user.id);
           
         if (sessionId) {
@@ -86,7 +87,22 @@ export default function PaymentSuccessPage() {
         }
         
         const order = orders[0];
-        setOrderDetails(order);
+        
+        // Then, get the associated styles
+        const { data: styles, error: stylesError } = await supabase
+          .from('styles')
+          .select('*')
+          .eq('order_id', order.id);
+          
+        if (stylesError) {
+          console.error('Error fetching styles:', stylesError);
+          // Don't throw, just log the error and continue with empty styles
+        }
+        
+        setOrderDetails({
+          ...order,
+          styles: styles || []
+        });
         
         if (order.status !== 'paid' || order.payment_status !== 'succeeded') {
           await supabase

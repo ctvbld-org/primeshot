@@ -2,18 +2,21 @@ import { useState, useEffect } from 'react'
 import { ImageQualityResult } from '@/lib/image-quality'
 import { useToast } from '@/components/ui/use-toast'
 import { formatFileSize } from '@/lib/utils'
+import { uploadFileInChunks, CHUNK_SIZE } from '@/lib/upload-utils'
 
 interface UseFileUploadOptions {
   maxSize?: number
   allowedTypes?: string[]
   maxFiles?: number
+  chunkSize?: number
 }
 
 export function useFileUpload(options: UseFileUploadOptions = {}) {
   const {
-    maxSize = 10 * 1024 * 1024, // 10MB default
+    maxSize = 100 * 1024 * 1024, // 100MB max file size
     allowedTypes = ['image/jpeg', 'image/png', 'image/webp'],
-    maxFiles = Infinity
+    maxFiles = Infinity,
+    chunkSize = CHUNK_SIZE
   } = options
 
   const [files, setFiles] = useState<File[]>([])
@@ -97,6 +100,41 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     return validFiles
   }
 
+  const uploadFile = async (file: File, orderId?: string): Promise<string> => {
+    try {
+      if (!orderId) {
+        throw new Error('orderId is required for file upload');
+      }
+
+      // Use chunked upload for files larger than 4MB
+      if (file.size > 4 * 1024 * 1024) {
+        return await uploadFileInChunks(file, orderId, (progress) => {
+          setProgress(progress);
+        });
+      } else {
+        // Use regular upload for smaller files
+        const formData = new FormData();
+        formData.append('files', file);
+        formData.append('orderId', orderId);
+        
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error('Upload failed');
+        }
+
+        const data = await response.json();
+        return data.url;
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      throw error;
+    }
+  }
+
   const removeFile = (index: number) => {
     const fileToRemove = files[index]
     setFiles(prev => prev.filter((_, i) => i !== index))
@@ -139,6 +177,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     isUploading,
     progress,
     addFiles,
+    uploadFile,
     removeFile,
     clearFiles,
     setIsUploading,

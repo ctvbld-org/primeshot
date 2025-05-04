@@ -71,8 +71,7 @@ async function processAndUploadFile(
     // 2. Upload to S3
     const cleanOriginalName = originalName.replace(/\.[^/.]+$/, '')
     const key = `source-images/${userId}/${uuidv4()}-${cleanOriginalName}.webp`
-    const processedFile = new File([processedBuffer], `${cleanOriginalName}.webp`, { type: outputMimeType })
-    const url = await uploadToS3(processedFile, key) 
+    const url = await uploadToS3(processedBuffer, key, outputMimeType)
     console.log(`[${originalName}] Uploaded to S3.`) 
 
     // 3. Save to Database

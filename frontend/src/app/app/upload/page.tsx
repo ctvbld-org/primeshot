@@ -31,10 +31,12 @@ export default function UploadPage() {
   // Use the hook for file state management
   const {
     files: selectedFiles,
+    fileUrls,
     qualityResults,
     isUploading,
     progress,
     addFiles,
+    uploadFile,
     removeFile,
     setIsUploading,
     setProgress
@@ -123,72 +125,27 @@ export default function UploadPage() {
     const results: { originalName: string; url?: string; error?: string }[] = []
 
     try {
-      const formData = new FormData()
-      filesToUpload.forEach(file => {
-        formData.append('files', file)
-      })
-      // Add the order ID to the form data
-      formData.append('orderId', order.id)
-
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData
-      })
-
-      if (!response.ok || !response.body) {
-        let errorMsg = 'Upload failed to start.'
+      // Upload files one by one using the new uploadFile function
+      for (const file of filesToUpload) {
         try {
-           const errorData = await response.json()
-           errorMsg = errorData.error || errorMsg
-        } catch (e) { 
-          // eslint-disable-next-line no-empty
-          /* Ignore */ 
-        }
-        throw new Error(errorMsg)
-      }
-
-      // Read the stream
-      const reader = response.body.getReader()
-      const decoder = new TextDecoder()
-      let buffer = ''
-
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) {
-            console.log('Stream finished.')
-            break
-        }
-
-        // Decode chunk and add to buffer
-        buffer += decoder.decode(value, { stream: true })
-        
-        // Process buffer line by line (newline-delimited JSON)
-        const lines = buffer.split('\n')
-        buffer = lines.pop() || '' // Keep incomplete line in buffer
-
-        for (const line of lines) {
-          if (line.trim() === '') continue
-          try {
-            const result = JSON.parse(line)
-            console.log('Parsed result from stream:', result)
-            results.push(result)
-            
-            // Update progress based on count
-            setUploadedCount(prev => {
-                const newCount = prev + 1;
-                // Update progress bar (0-99% based on file count)
-                setProgress(Math.min((newCount / totalFiles) * 100, 99));
-                return newCount;
-            });
-
-          } catch (e) {
-            console.error('Error parsing streamed JSON line:', line, e)
-            // Handle potential parsing errors if needed
-          }
+          const url = await uploadFile(file, order.id);
+          results.push({ originalName: file.name, url });
+          setUploadedCount(prev => {
+            const newCount = prev + 1;
+            // Update progress bar (0-99% based on file count)
+            setProgress(Math.min((newCount / totalFiles) * 100, 99));
+            return newCount;
+          });
+        } catch (error) {
+          console.error(`Error uploading ${file.name}:`, error);
+          results.push({ 
+            originalName: file.name, 
+            error: error instanceof Error ? error.message : 'Upload failed' 
+          });
         }
       }
       
-      // Final processing after stream ends
+      // Final processing after all files are handled
       setProgress(100)
       
       const failedUploads = results.filter(r => r.error)
@@ -209,9 +166,6 @@ export default function UploadPage() {
       }
       
       const successfulFileNames = new Set(successfulUploads.map(r => r.originalName))
-      //setSelectedFiles(prev => prev.filter(file => !successfulFileNames.has(file.name)))
-      
-      // Remove successfully uploaded files using the removeFile function from the hook
       const indicesToRemove: number[] = []
       selectedFiles.forEach((file, index) => {
         if (successfulFileNames.has(file.name)) {
@@ -232,14 +186,12 @@ export default function UploadPage() {
             })
             router.push('/app/review') 
           } catch (progressError) {
-            // eslint-disable-next-line no-empty
-            /* Ignore */ 
             toast({
                title: t('status.error'),
                description: t('errors.savingProgress'),
                variant: 'destructive' 
             })
-            router.push('/app/review') // Still navigate? 
+            router.push('/app/review')
           }
       } else {
           console.warn('Upload completed with errors or no successes, not navigating.')

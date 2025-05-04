@@ -4,7 +4,7 @@ import { User } from '@supabase/supabase-js'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import styles from './app-header.module.css'
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useMemo } from 'react'
 import { Icon } from '@/components/icons/icon'
 import { useTranslation } from 'react-i18next'
 import { MoreVertical } from 'lucide-react'
@@ -14,12 +14,12 @@ interface AppHeaderProps {
   user: User | null
 }
 
-const steps = [
+const NAVIGATION_STEPS = [
   { id: 'shoot', label: 'navigation.addStyles' as const, paths: ['/app/shoot', '/app/styles'] },
   { id: 'payment', label: 'navigation.checkout' as const, paths: ['/app/payment'] },
   { id: 'upload', label: 'navigation.uploadPhotos' as const, paths: ['/app/upload'] },
   { id: 'generate', label: 'navigation.generate' as const, paths: ['/app/generate'] }
-]
+] as const
 
 export function AppHeader({ user }: AppHeaderProps) {
   const pathname = usePathname()
@@ -29,26 +29,29 @@ export function AppHeader({ user }: AppHeaderProps) {
   const popupRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   
-  // Use the new useStyles hook to get draft styles count
-  const { styles: draftStyles = [], isLoading } = useStyles({ status: 'draft' })
+  // Memoize derived values
+  const showBasket = useMemo(() => 
+    pathname.startsWith('/app/shoot') || 
+    pathname.startsWith('/app/styles') || 
+    pathname.startsWith('/app/payment')
+  , [pathname])
+  
+  // Only fetch styles when basket is shown
+  const { styles: draftStyles = [], isLoading } = useStyles({ 
+    status: 'draft'
+  })
+  
   const stylesCount = draftStyles.length
 
-  // Find current step index
-  const currentStepIndex = steps.findIndex(step => 
+  const currentStepIndex = NAVIGATION_STEPS.findIndex(step => 
     step.paths.some(path => pathname.startsWith(path))
   )
 
-  // Get current step for mobile display
-  const currentStep = currentStepIndex >= 0 ? steps[currentStepIndex] : null
+  const currentStep = currentStepIndex >= 0 ? NAVIGATION_STEPS[currentStepIndex] : null
 
-  // Check if we should show the basket
-  const showBasket = pathname.startsWith('/app/shoot') || 
-                    pathname.startsWith('/app/styles') || 
-                    pathname.startsWith('/app/payment')
-
-  // Handle click outside to close popup
+  // Handle click outside using custom hook
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    const handleClickOutside = (event: MouseEvent) => {
       if (
         popupRef.current && 
         buttonRef.current && 
@@ -63,7 +66,6 @@ export function AppHeader({ user }: AppHeaderProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Calculate popup position based on current step
   const getPopupStyle = () => {
     if (!buttonRef.current || !popupRef.current) return {}
     
@@ -79,9 +81,48 @@ export function AppHeader({ user }: AppHeaderProps) {
     }
   }
 
-  // Handle basket click
   const handleBasketClick = () => {
     router.push('/app/shoot')
+  }
+
+  const renderStep = (step: typeof NAVIGATION_STEPS[number], index: number, isMobile = false) => {
+    const isCompleted = currentStepIndex > index
+    const isActive = currentStepIndex === index
+    
+    const stepContent = (
+      <>
+        {isCompleted ? (
+          <Icon variant='check' size={isMobile ? 20 : 23} />
+        ) : (
+          <div className={styles.stepIcon}>{index + 1}</div>
+        )}
+        <span>{t(step.label)}</span>
+      </>
+    )
+
+    return isMobile ? (
+      <div 
+        key={step.id}
+        className={cn(
+          styles.mobileStep,
+          isActive && styles.active,
+          isCompleted && styles.completed
+        )}
+      >   
+        {stepContent}
+      </div>
+    ) : (
+      <div 
+        key={step.id}
+        className={cn(
+          styles.step,
+          isActive && styles.active,
+          isCompleted && styles.completed
+        )}
+      >   
+        {stepContent}
+      </div>
+    )
   }
   
   return (
@@ -96,25 +137,7 @@ export function AppHeader({ user }: AppHeaderProps) {
         />
         
         <div className={styles.progressSteps}>
-          {steps.map((step, index) => {
-            const isCompleted = currentStepIndex > index
-            const isActive = currentStepIndex === index
-            
-            return (
-              <React.Fragment key={step.id}>
-                <div 
-                  className={cn(
-                    styles.step,
-                    isActive && styles.active,
-                    isCompleted && styles.completed
-                  )}
-                >   
-                    {isCompleted ? <Icon variant='check' size={23} /> : <div className={styles.stepIcon}>{index + 1}</div>}
-                    <span>{t(step.label)}</span>
-                </div>
-              </React.Fragment>
-            )
-          })}
+          {NAVIGATION_STEPS.map((step, index) => renderStep(step, index))}
         </div>
 
         {/* Mobile Progress Button & Popup */}
@@ -134,24 +157,7 @@ export function AppHeader({ user }: AppHeaderProps) {
           style={getPopupStyle()}
           onClick={() => setIsOpen(false)}
         >
-          {steps.map((step, index) => {
-            const isCompleted = currentStepIndex > index
-            const isActive = currentStepIndex === index
-            
-            return (
-              <div 
-                key={step.id}
-                className={cn(
-                  styles.mobileStep,
-                  isActive && styles.active,
-                  isCompleted && styles.completed
-                )}
-              >   
-                {isCompleted ? <Icon variant='check' size={20} /> : <div className={styles.stepIcon}>{index + 1}</div>}
-                <span>{t(step.label)}</span>
-              </div>
-            )
-          })}
+          {NAVIGATION_STEPS.map((step, index) => renderStep(step, index, true))}
         </div>
 
         <div className={styles.rightSection}>

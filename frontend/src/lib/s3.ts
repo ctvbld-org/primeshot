@@ -19,7 +19,7 @@ export const s3Client = new S3Client({
 
 // Allowed file types and max size
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4MB - Edge Function payload limit is 4.5MB
 
 // Folder paths
 const SOURCE_IMAGES_FOLDER = 'source-images/';
@@ -41,19 +41,13 @@ export class S3ValidationError extends Error {
 }
 
 // Validate file before upload
-const validateFile = async (file: File) => {
+const validateUpload = async (buffer: Buffer, mimeType: string) => {
   try {
-    await fileUploadSchema.parseAsync({
-      file,
-      contentType: file.type,
-      maxSize: MAX_FILE_SIZE,
-    });
-
-    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+    if (!ALLOWED_MIME_TYPES.includes(mimeType)) {
       throw new S3ValidationError('Invalid file type. Only JPEG, PNG, and WebP are supported.');
     }
 
-    if (file.size > MAX_FILE_SIZE) {
+    if (buffer.length > MAX_FILE_SIZE) {
       throw new S3ValidationError(`File size exceeds maximum limit of ${MAX_FILE_SIZE / 1024 / 1024}MB`);
     }
   } catch (error) {
@@ -65,8 +59,8 @@ const validateFile = async (file: File) => {
 };
 
 // Upload file to S3
-export const uploadToS3 = async (file: File, key: string) => {
-  await validateFile(file);
+export const uploadToS3 = async (buffer: Buffer, key: string, mimeType: string) => {
+  await validateUpload(buffer, mimeType);
 
   // Ensure the file is uploaded to the source-images folder
   const finalKey = key.startsWith(SOURCE_IMAGES_FOLDER) 
@@ -78,11 +72,10 @@ export const uploadToS3 = async (file: File, key: string) => {
     params: {
       Bucket: process.env.AWS_S3_BUCKET!,
       Key: finalKey,
-      Body: file,
-      ContentType: file.type,
+      Body: buffer,
+      ContentType: mimeType,
       Metadata: {
-        originalName: file.name,
-        fileSize: file.size.toString(),
+        fileSize: buffer.length.toString(),
       },
     },
   });
@@ -98,7 +91,8 @@ export const uploadToS3 = async (file: File, key: string) => {
 
 // Upload style image to S3
 export const uploadStyleImage = async (file: File, fileName: string, gender: 'default' | 'male' | 'female') => {
-  await validateFile(file);
+  const buffer = Buffer.from(await file.arrayBuffer());
+  await validateUpload(buffer, file.type);
 
   // Ensure we're using webp format for style images (best practice)
   const webpFileName = fileName.endsWith('.webp') 
@@ -113,7 +107,7 @@ export const uploadStyleImage = async (file: File, fileName: string, gender: 'de
     params: {
       Bucket: process.env.AWS_S3_BUCKET!,
       Key: key,
-      Body: file,
+      Body: buffer,
       ContentType: 'image/webp', // Force WebP content type for style images
       Metadata: {
         originalName: file.name,
