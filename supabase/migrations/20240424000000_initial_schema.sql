@@ -1,5 +1,5 @@
 -- Create flow_stage enum type
-CREATE TYPE public.flow_stage AS ENUM ('shoot', 'payment', 'upload', 'review', 'dashboard');
+CREATE TYPE public.flow_stage AS ENUM ('shoot', 'payment', 'upload', 'review', 'albums');
 COMMENT ON TYPE public.flow_stage IS 'Represents the different stages in the headshot generation workflow';
 
 -- Create tables

@@ -83,7 +83,7 @@ export async function middleware(request: NextRequest) {
       // Initial flow - only allow shoot, style, and payment (if has styles)
       if (currentPath.startsWith('/app/upload') || 
           currentPath.startsWith('/app/review') || 
-          currentPath.startsWith('/app/shoots')) {
+          currentPath.startsWith('/app/albums')) {
         return NextResponse.redirect(new URL('/app/shoot', request.url));
       }
       
@@ -114,10 +114,10 @@ export async function middleware(request: NextRequest) {
         }
       }
       
-      // If in shoots stage (generation started)
-      else if (currentStage === 'shoots') {
-        if (!currentPath.startsWith('/app/shoots')) {
-          return NextResponse.redirect(new URL('/app/shoots', request.url));
+      // If in albums stage (generation started)
+      else if (currentStage === 'albums') {
+        if (!currentPath.startsWith('/app/albums')) {
+          return NextResponse.redirect(new URL('/app/albums', request.url));
         }
       }
       

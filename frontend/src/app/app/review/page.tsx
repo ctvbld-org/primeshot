@@ -175,7 +175,7 @@ export default function ReviewPage() {
         description: t('submit.toast.success.description'),
       });
         
-      router.push('/app/dashboard'); 
+      router.push('/app/albums'); 
 
     } catch (error: unknown) {
       console.error('Error submitting demographics:', error);

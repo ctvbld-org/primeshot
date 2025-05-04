@@ -56,7 +56,7 @@ c. Preview System:
 - Why: Creates professional-quality headshots from user photos
 - How: Integration with Fal.ai and/or Replicate APIs with fallback mechanisms
 
-4. User Dashboard
+4. User Albums
 - What: Central hub for managing styles and generated images
 - Why: Provides easy access to all user's content and generation progress
 - How: Real-time status updates, preview capabilities, and download options
@@ -103,7 +103,7 @@ Key User Flows:
   2. Uploaded images details
   3. Questionnaire details
 - View generation progress:
-  1. Status dashboard for each composition
+  1. Status albums for each composition
   2. Email notifications for completion
   3. Preview of completed headshots
 - Composition page results:

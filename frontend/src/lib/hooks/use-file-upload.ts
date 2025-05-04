@@ -155,6 +155,11 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
 
         const data = await response.json()
         
+        // Validate response data structure
+        if (!data || typeof data.url !== 'string') {
+          throw new Error('Invalid response: missing or invalid URL')
+        }
+        
         // Set progress to 100% for successful upload
         setUploadProgress(prev => ({
           ...prev,

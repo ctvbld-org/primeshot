@@ -205,7 +205,7 @@ async function updatePaymentToSucceeded(
       .from('user_progress')
       .update({
         completed_stages: supabase.sql`array_append(completed_stages, 'payment')`,
-        current_stage: 'dashboard',
+        current_stage: 'albums',
         last_active_at: new Date().toISOString(),
       })
       .eq('user_id', order.user_id);

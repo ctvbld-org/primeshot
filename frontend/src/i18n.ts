@@ -7,7 +7,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 // German
 import commonDe from '@/locales/de/common.json';
 import paymentDe from '@/locales/de/payment.json';
-import dashboardDe from '@/locales/de/dashboard.json'; 
+import albumsDe from '@/locales/de/albums.json'; 
 import stylesDe from '@/locales/de/styles.json';
 import authDe from '@/locales/de/auth.json';
 import profileDe from '@/locales/de/profile.json';
@@ -18,7 +18,7 @@ import settingsDe from '@/locales/de/settings.json';
 // English
 import commonEn from '@/locales/en/common.json';
 import paymentEn from '@/locales/en/payment.json';
-import dashboardEn from '@/locales/en/dashboard.json'; 
+import albumsEn from '@/locales/en/albums.json'; 
 import stylesEn from '@/locales/en/styles.json';
 import authEn from '@/locales/en/auth.json';
 import profileEn from '@/locales/en/profile.json';
@@ -29,7 +29,7 @@ import settingsEn from '@/locales/en/settings.json';
 // Spanish
 import commonEs from '@/locales/es/common.json';
 import paymentEs from '@/locales/es/payment.json';
-import dashboardEs from '@/locales/es/dashboard.json'; 
+import albumsEs from '@/locales/es/albums.json'; 
 import stylesEs from '@/locales/es/styles.json';
 import authEs from '@/locales/es/auth.json';
 import profileEs from '@/locales/es/profile.json';
@@ -40,7 +40,7 @@ import settingsEs from '@/locales/es/settings.json';
 // French
 import commonFr from '@/locales/fr/common.json';
 import paymentFr from '@/locales/fr/payment.json';
-import dashboardFr from '@/locales/fr/dashboard.json'; 
+import albumsFr from '@/locales/fr/albums.json'; 
 import stylesFr from '@/locales/fr/styles.json';
 import authFr from '@/locales/fr/auth.json';
 import profileFr from '@/locales/fr/profile.json';
@@ -51,7 +51,7 @@ import settingsFr from '@/locales/fr/settings.json';
 // Italian
 import commonIt from '@/locales/it/common.json';
 import paymentIt from '@/locales/it/payment.json';
-import dashboardIt from '@/locales/it/dashboard.json'; 
+import albumsIt from '@/locales/it/albums.json'; 
 import stylesIt from '@/locales/it/styles.json';
 import authIt from '@/locales/it/auth.json';
 import profileIt from '@/locales/it/profile.json';
@@ -62,7 +62,7 @@ import settingsIt from '@/locales/it/settings.json';
 // Dutch
 import commonNl from '@/locales/nl/common.json';
 import paymentNl from '@/locales/nl/payment.json';
-import dashboardNl from '@/locales/nl/dashboard.json'; 
+import albumsNl from '@/locales/nl/albums.json'; 
 import stylesNl from '@/locales/nl/styles.json';
 import authNl from '@/locales/nl/auth.json';
 import profileNl from '@/locales/nl/profile.json';
@@ -73,7 +73,7 @@ import settingsNl from '@/locales/nl/settings.json';
 // Portuguese
 import commonPt from '@/locales/pt/common.json';
 import paymentPt from '@/locales/pt/payment.json';
-import dashboardPt from '@/locales/pt/dashboard.json'; 
+import albumsPt from '@/locales/pt/albums.json'; 
 import stylesPt from '@/locales/pt/styles.json';
 import authPt from '@/locales/pt/auth.json';
 import profilePt from '@/locales/pt/profile.json';
@@ -84,7 +84,7 @@ import settingsPt from '@/locales/pt/settings.json';
 // Japanese
 import commonJa from '@/locales/ja/common.json';
 import paymentJa from '@/locales/ja/payment.json';
-import dashboardJa from '@/locales/ja/dashboard.json'; 
+import albumsJa from '@/locales/ja/albums.json'; 
 import stylesJa from '@/locales/ja/styles.json';
 import authJa from '@/locales/ja/auth.json';
 import profileJa from '@/locales/ja/profile.json';
@@ -95,7 +95,7 @@ import settingsJa from '@/locales/ja/settings.json';
 // Chinese
 import commonZh from '@/locales/zh/common.json';
 import paymentZh from '@/locales/zh/payment.json';
-import dashboardZh from '@/locales/zh/dashboard.json'; 
+import albumsZh from '@/locales/zh/albums.json'; 
 import stylesZh from '@/locales/zh/styles.json';
 import authZh from '@/locales/zh/auth.json';
 import profileZh from '@/locales/zh/profile.json';
@@ -107,7 +107,7 @@ export const resources = {
     de: {
         common: commonDe,
         payment: paymentDe,
-        dashboard: dashboardDe,
+        albums: albumsDe,
         styles: stylesDe,
         auth: authDe,
         profile: profileDe,
@@ -118,7 +118,7 @@ export const resources = {
     en: {
         common: commonEn,
         payment: paymentEn,
-        dashboard: dashboardEn,
+        albums: albumsEn,
         styles: stylesEn,
         auth: authEn,
         profile: profileEn,
@@ -129,7 +129,7 @@ export const resources = {
     es: {
         common: commonEs,
         payment: paymentEs,
-        dashboard: dashboardEs,
+        albums: albumsEs,
         styles: stylesEs,
         auth: authEs,
         profile: profileEs,
@@ -140,7 +140,7 @@ export const resources = {
     fr: {
         common: commonFr,
         payment: paymentFr,
-        dashboard: dashboardFr,
+        albums: albumsFr,
         styles: stylesFr,
         auth: authFr,
         profile: profileFr,
@@ -151,7 +151,7 @@ export const resources = {
     it: {
         common: commonIt,
         payment: paymentIt,
-        dashboard: dashboardIt,
+        albums: albumsIt,
         styles: stylesIt,
         auth: authIt,
         profile: profileIt,
@@ -162,7 +162,7 @@ export const resources = {
     nl: {
         common: commonNl,
         payment: paymentNl,
-        dashboard: dashboardNl,
+        albums: albumsNl,
         styles: stylesNl,
         auth: authNl,
         profile: profileNl,
@@ -173,7 +173,7 @@ export const resources = {
     pt: {
         common: commonPt,
         payment: paymentPt,
-        dashboard: dashboardPt, 
+        albums: albumsPt, 
         styles: stylesPt,
         auth: authPt,
         profile: profilePt,
@@ -184,7 +184,7 @@ export const resources = {
     ja: {
         common: commonJa,
         payment: paymentJa,
-        dashboard: dashboardJa,
+        albums: albumsJa,
         styles: stylesJa,
         auth: authJa,
         profile: profileJa,
@@ -195,7 +195,7 @@ export const resources = {
     zh: {
         common: commonZh,
         payment: paymentZh,
-        dashboard: dashboardZh,
+        albums: albumsZh,
         styles: stylesZh,
         auth: authZh,
         profile: profileZh,
@@ -221,7 +221,7 @@ i18n
       escapeValue: false,
     },
     defaultNS: 'common',
-    ns: ['common', 'payment', 'dashboard', 'styles', 'auth', 'profile', 'upload', 'review', 'settings'],
+    ns: ['common', 'payment', 'albums', 'styles', 'auth', 'profile', 'upload', 'review', 'settings'],
     resources,
     detection: {
       // Order of language detection

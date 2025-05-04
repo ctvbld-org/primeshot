@@ -99,7 +99,7 @@ export function useUserProgress() {
         console.error('Error fetching existing user progress before update:', fetchError)
       }
 
-      const stageOrder: FlowStage[] = ['shoot', 'payment', 'upload', 'review', 'dashboard'];
+      const stageOrder: FlowStage[] = ['shoot', 'payment', 'upload', 'review', 'albums'];
       const existingStages: (FlowStage[] | string[]) = existingProgress?.completed_stages || [];
       const currentActualStage = (existingProgress?.current_stage || 'shoot') as FlowStage;
 
@@ -196,7 +196,7 @@ export function useUserProgress() {
   function validateStageAccess(pageStage: FlowStage): boolean {
     if (!progress) return pageStage === 'shoot' // Allow shoot page initially
 
-    const stageOrder: FlowStage[] = ['shoot', 'payment', 'upload', 'review', 'dashboard']
+    const stageOrder: FlowStage[] = ['shoot', 'payment', 'upload', 'review', 'albums']
     const currentPageIndex = stageOrder.indexOf(pageStage)
     const maxCompletedIndex = Math.max(
       ...((progress.completed_stages as FlowStage[]) || []).map(s => stageOrder.indexOf(s)),
@@ -214,7 +214,7 @@ export function useUserProgress() {
       return true
     }
     
-    // For other stages (upload, review, dashboard), require payment to be completed
+    // For other stages (upload, review, albums), require payment to be completed
     return false 
   }
 

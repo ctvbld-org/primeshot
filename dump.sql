@@ -70,7 +70,7 @@ CREATE TYPE "public"."flow_stage" AS ENUM (
     'payment',
     'upload',
     'review',
-    'dashboard'
+    'albums'
 );
 
 

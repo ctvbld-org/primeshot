@@ -458,7 +458,7 @@ INSERT INTO supabase_functions.migrations VALUES ('20210809183423_update_grants'
 --
 
 INSERT INTO supabase_migrations.schema_migrations VALUES ('20240424000000', '{"-- Create flow_stage enum type
-CREATE TYPE public.flow_stage AS ENUM (''shoot'', ''payment'', ''upload'', ''review'', ''dashboard'')","COMMENT ON TYPE public.flow_stage IS ''Represents the different stages in the headshot generation workflow''","-- Create tables
+CREATE TYPE public.flow_stage AS ENUM (''shoot'', ''payment'', ''upload'', ''review'', ''albums'')","COMMENT ON TYPE public.flow_stage IS ''Represents the different stages in the headshot generation workflow''","-- Create tables
 CREATE TABLE users (
   id UUID REFERENCES auth.users PRIMARY KEY,
   email TEXT,
