@@ -20,10 +20,22 @@
   padding-right: 1rem;
 }
 
+.middleSection {
+  display: flex;
+  align-items: center;
+}
+
+.leftSection {
+  display: flex;
+  flex: 0 0 100px;
+}
+
 .rightSection {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 1rem;
+  flex: 0 0 100px;
 }
 
 .progressSteps {
@@ -75,7 +87,7 @@
 .mobileStepsList {
   position: absolute;
   top: 0;
-  left: 50%;
+  left: calc(50% - 4px) !important;
   transform: translate(-50%, -100%);
   border-radius: 12px;
   display: flex;

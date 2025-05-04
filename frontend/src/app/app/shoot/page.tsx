@@ -19,6 +19,7 @@ import React from 'react'
 import { cn } from '@/lib/utils'
 import { useTranslation } from 'react-i18next'
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
+import { useHeadshotStore } from '@/store/headshot'
 
 export default function StylesPage() {
   const router = useRouter()
@@ -38,19 +39,7 @@ export default function StylesPage() {
   const [isDraggingEnabled, setIsDraggingEnabled] = useState(true)
 
   // Headshot calculation state
-  const [headshotInfo, setHeadshotInfo] = useState<{
-    styleCount: number,
-    totalHeadshots: number,
-    headshotsPerStyle: number,
-    tier: string,
-    price: number
-  }>({
-    styleCount: 0,
-    totalHeadshots: 0,
-    headshotsPerStyle: 0,
-    tier: 'none',
-    price: 0
-  })
+  const { headshotInfo, setHeadshotInfo } = useHeadshotStore()
 
   // Add usePaymentFlow at component level
   const { proceedToPayment } = usePaymentFlow({

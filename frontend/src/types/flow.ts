@@ -3,4 +3,4 @@ export type FlowStage =
   | 'payment'
   | 'upload'
   | 'review'
-  | 'dashboard' 
+  | 'shoots' 

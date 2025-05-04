@@ -2,9 +2,6 @@ import { updateSession } from '@/lib/supabase/middleware'
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-// Type alias for FlowStage to use in middleware
-type FlowStage = 'shoot' | 'payment' | 'upload' | 'review' | 'shoots';
-
 export async function middleware(request: NextRequest) {
   // Update session using our shared middleware function
   const response = await updateSession(request)
@@ -39,7 +36,7 @@ export async function middleware(request: NextRequest) {
     // Get user profile first as it's needed for all flows
     const { data: profileData, error: profileError } = await supabase
       .from('users')
-      .select('full_name, gender')
+      .select('gender')
       .eq('id', user.id)
       .single()
 
@@ -71,7 +68,6 @@ export async function middleware(request: NextRequest) {
     const progress = progressData && progressData.length > 0 ? progressData[0] : null;
     const currentStage = progress?.current_stage || 'shoot';
     const completedStages = progress?.completed_stages || [];
-    const stageData = progress?.stage_data || {};
 
     // Helper to check if payment is completed
     const isPaymentCompleted = completedStages.includes('payment');

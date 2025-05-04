@@ -47,7 +47,7 @@ export const OptionsCarousel = React.memo(function OptionsCarouselComponent({
     dragFree: false,
     skipSnaps: true,
     containScroll: false,
-    duration: 10,
+    duration: 15,
     startIndex: initialIndex > -1 ? initialIndex : 0
   });
 
@@ -129,10 +129,6 @@ export const OptionsCarousel = React.memo(function OptionsCarouselComponent({
 
     // Start slide change
     const onPointerDown = () => {
-      setIsChangingSlide(true);
-    };
-
-    const onDragMove = () => {
       setIsChangingSlide(true);
     };
 

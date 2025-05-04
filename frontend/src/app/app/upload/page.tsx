@@ -37,9 +37,7 @@ export default function UploadPage() {
     progress,
     addFiles,
     uploadFile,
-    removeFile,
-    setIsUploading,
-    setProgress
+    removeFile
   } = useFileUpload({ maxFiles: MAX_IMAGES })
 
   // State specific to this page
@@ -118,35 +116,25 @@ export default function UploadPage() {
       return
     }
 
-    setIsUploading(true)
-    setProgress(0)
     setUploadedCount(0)
     const totalFiles = filesToUpload.length
     const results: { originalName: string; url?: string; error?: string }[] = []
 
     try {
-      // Upload files one by one using the new uploadFile function
+      // Upload files one by one
       for (const file of filesToUpload) {
         try {
-          const url = await uploadFile(file, order.id);
-          results.push({ originalName: file.name, url });
-          setUploadedCount(prev => {
-            const newCount = prev + 1;
-            // Update progress bar (0-99% based on file count)
-            setProgress(Math.min((newCount / totalFiles) * 100, 99));
-            return newCount;
-          });
+          const url = await uploadFile(file, order.id)
+          results.push({ originalName: file.name, url })
+          setUploadedCount(prev => prev + 1)
         } catch (error) {
-          console.error(`Error uploading ${file.name}:`, error);
+          console.error(`Error uploading ${file.name}:`, error)
           results.push({ 
             originalName: file.name, 
             error: error instanceof Error ? error.message : 'Upload failed' 
-          });
+          })
         }
       }
-      
-      // Final processing after all files are handled
-      setProgress(100)
       
       const failedUploads = results.filter(r => r.error)
       const successfulUploads = results.filter(r => !r.error)
@@ -204,9 +192,6 @@ export default function UploadPage() {
         description: error instanceof Error ? error.message : t('errors.uploadFailed'),
         variant: 'destructive'
       })
-      setProgress(0)
-    } finally {
-      setIsUploading(false)
     }
   }
 

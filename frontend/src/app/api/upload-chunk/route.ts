@@ -8,14 +8,50 @@ import { ChunkMetadata } from '@/lib/upload-utils';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
+import { z } from 'zod';
+
+// Security limits
+const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+const MAX_CHUNKS = 1000;
+const MAX_CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
 
 // Constants for image processing
 const MAX_WIDTH = 2048;
 const MAX_HEIGHT = 2048;
 const WEBP_QUALITY = 85;
 
+// UUID v4 validation regex
+const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+// Metadata validation schema
+const chunkMetadataSchema = z.object({
+  uploadId: z.string().uuid(),
+  orderId: z.string().uuid(),
+  chunkIndex: z.number().int().min(0),
+  totalChunks: z.number().int().min(1).max(MAX_CHUNKS)
+    .refine(val => val <= MAX_CHUNKS, {
+      message: `Maximum number of chunks exceeded (limit: ${MAX_CHUNKS})`
+    }),
+  fileName: z.string().min(1).max(255),
+  fileSize: z.number().positive()
+    .max(MAX_FILE_SIZE)
+    .refine(val => val <= MAX_FILE_SIZE, {
+      message: `File size exceeds limit (${MAX_FILE_SIZE / 1024 / 1024}MB)`
+    }),
+  fileType: z.enum(ALLOWED_MIME_TYPES, {
+    errorMap: () => ({ message: `Only ${ALLOWED_MIME_TYPES.join(', ')} files are allowed` })
+  })
+}).refine(data => data.chunkIndex < data.totalChunks, {
+  message: "chunkIndex must be less than totalChunks"
+});
+
 // Get temp directory for chunks
 const getTempDir = async (uploadId: string) => {
+  // Validate uploadId is a valid UUID v4 to prevent path traversal
+  if (!UUID_V4_REGEX.test(uploadId)) {
+    throw new Error('Invalid uploadId format - must be a valid UUID v4');
+  }
   const tempDir = path.join(os.tmpdir(), 'primeshot-uploads', uploadId);
   await fs.mkdir(tempDir, { recursive: true });
   return tempDir;
@@ -197,8 +233,34 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing chunk or metadata' }, { status: 400 });
     }
 
-    const metadata: ChunkMetadata = JSON.parse(metadataStr);
+    // Validate chunk size before processing
+    if (chunkBlob.size > MAX_CHUNK_SIZE) {
+      return NextResponse.json({ 
+        error: `Chunk size exceeds limit (${MAX_CHUNK_SIZE / 1024 / 1024}MB)` 
+      }, { status: 400 });
+    }
+
+    let metadata: ChunkMetadata;
+    try {
+      const parsedMetadata = JSON.parse(metadataStr);
+      metadata = chunkMetadataSchema.parse(parsedMetadata);
+    } catch (error) {
+      console.error('Metadata validation error:', error);
+      return NextResponse.json({ 
+        error: error instanceof z.ZodError 
+          ? error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')
+          : 'Invalid metadata format'
+      }, { status: 400 });
+    }
+
     const chunkBuffer = Buffer.from(await chunkBlob.arrayBuffer());
+
+    // Additional runtime chunk size validation as defense in depth
+    if (chunkBuffer.length > MAX_CHUNK_SIZE) {
+      return NextResponse.json({ 
+        error: `Chunk size exceeds limit (${MAX_CHUNK_SIZE / 1024 / 1024}MB)` 
+      }, { status: 400 });
+    }
     
     // Check if upload session exists or create new one
     let { data: session } = await supabase

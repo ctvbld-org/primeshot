@@ -14,6 +14,21 @@ export interface ChunkMetadata {
 }
 
 export function* createChunks(file: File, orderId: string, chunkSize: number = CHUNK_SIZE) {
+  // Handle empty files
+  if (file.size === 0) {
+    const metadata: ChunkMetadata = {
+      chunkIndex: 0,
+      totalChunks: 1,
+      fileSize: 0,
+      fileName: file.name,
+      fileType: file.type,
+      uploadId: uuidv4(),
+      orderId
+    };
+    yield { chunk: new Blob(), metadata };
+    return;
+  }
+
   const totalChunks = Math.ceil(file.size / chunkSize);
   const uploadId = uuidv4(); // Unique ID for this chunked upload
 
@@ -45,9 +60,36 @@ export async function uploadChunk(
   formData.append('chunk', chunk);
   formData.append('metadata', JSON.stringify(metadata));
 
-  return fetch('/api/upload-chunk', {
-    method: 'POST',
-    body: formData,
+  return new Promise<Response>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    
+    xhr.open('POST', '/api/upload-chunk');
+    
+    xhr.upload.addEventListener('progress', (event) => {
+      if (event.lengthComputable && onProgress) {
+        const percentComplete = (event.loaded / event.total) * 100;
+        onProgress(percentComplete);
+      }
+    });
+    
+    xhr.addEventListener('load', () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        const response = new Response(xhr.response, {
+          status: xhr.status,
+          headers: {
+            'Content-Type': xhr.getResponseHeader('Content-Type') || 'application/json'
+          }
+        });
+        resolve(response);
+      } else {
+        reject(new Error(`HTTP error ${xhr.status}`));
+      }
+    });
+    
+    xhr.addEventListener('error', () => reject(new Error('Network error')));
+    xhr.addEventListener('abort', () => reject(new Error('Upload aborted')));
+    
+    xhr.send(formData);
   });
 }
 
@@ -60,27 +102,44 @@ export async function uploadFileInChunks(
   let uploadedChunks = 0;
 
   for (const { chunk, metadata } of chunks) {
-    try {
-      const response = await uploadChunk(chunk, metadata, onProgress);
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to upload chunk');
-      }
+    let retries = 0;
+    const maxRetries = 3;
+    
+    while (retries <= maxRetries) {
+      try {
+        const response = await uploadChunk(chunk, metadata, onProgress);
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          if (retries < maxRetries) {
+            retries++;
+            console.warn(`Chunk upload failed, retrying (${retries}/${maxRetries})...`);
+            continue;
+          }
+          throw new Error(errorData.error || 'Failed to upload chunk');
+        }
 
-      uploadedChunks++;
-      if (onProgress) {
-        onProgress((uploadedChunks / metadata.totalChunks) * 100);
-      }
+        uploadedChunks++;
+        if (onProgress) {
+          onProgress((uploadedChunks / metadata.totalChunks) * 100);
+        }
 
-      // If this was the last chunk, get the final URL
-      if (uploadedChunks === metadata.totalChunks) {
-        const result = await response.json();
-        return result.url;
+        // If this was the last chunk, get the final URL
+        if (uploadedChunks === metadata.totalChunks) {
+          const result = await response.json();
+          return result.url;
+        }
+        break; // Exit retry loop on success
+      } catch (error) {
+        if (retries < maxRetries) {
+          retries++;
+          console.warn(`Chunk upload error, retrying (${retries}/${maxRetries})...`, error);
+          await new Promise(resolve => setTimeout(resolve, 1000 * retries)); // Exponential backoff
+          continue;
+        }
+        console.error(`Error uploading chunk ${metadata.chunkIndex}:`, error);
+        throw error;
       }
-    } catch (error) {
-      console.error(`Error uploading chunk ${metadata.chunkIndex}:`, error);
-      throw error;
     }
   }
 

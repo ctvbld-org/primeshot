@@ -8,7 +8,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react'
 import { Icon } from '@/components/icons/icon'
 import { useTranslation } from 'react-i18next'
 import { MoreVertical } from 'lucide-react'
-import { useStyles } from '@/hooks/useStyles'
+import { useHeadshotStore } from '@/store/headshot'
 
 interface AppHeaderProps {
   user: User | null
@@ -36,12 +36,6 @@ export function AppHeader({ user }: AppHeaderProps) {
     pathname.startsWith('/app/payment')
   , [pathname])
   
-  // Only fetch styles when basket is shown
-  const { styles: draftStyles = [], isLoading } = useStyles({ 
-    status: 'draft'
-  })
-  
-  const stylesCount = draftStyles.length
 
   const currentStepIndex = NAVIGATION_STEPS.findIndex(step => 
     step.paths.some(path => pathname.startsWith(path))
@@ -49,9 +43,11 @@ export function AppHeader({ user }: AppHeaderProps) {
 
   const currentStep = currentStepIndex >= 0 ? NAVIGATION_STEPS[currentStepIndex] : null
 
+  const headshotInfo = useHeadshotStore((state) => state.headshotInfo)
+
   // Handle click outside using custom hook
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       if (
         popupRef.current && 
         buttonRef.current && 
@@ -63,7 +59,12 @@ export function AppHeader({ user }: AppHeaderProps) {
     }
 
     document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    document.addEventListener('touchstart', handleClickOutside)
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
+    }
   }, [])
 
   const getPopupStyle = () => {
@@ -108,6 +109,9 @@ export function AppHeader({ user }: AppHeaderProps) {
           isActive && styles.active,
           isCompleted && styles.completed
         )}
+        role="menuitem"
+        aria-current={isActive ? 'step' : undefined}
+        tabIndex={isActive ? 0 : -1}
       >   
         {stepContent}
       </div>
@@ -128,36 +132,46 @@ export function AppHeader({ user }: AppHeaderProps) {
   return (
     <header className={styles.header}>
       <div className={styles.container}>
-        <Image 
-          src="/logo.svg" 
-          alt="Primeshot Logo" 
-          width={40} 
-          height={40}
-          priority
-        />
-        
-        <div className={styles.progressSteps}>
-          {NAVIGATION_STEPS.map((step, index) => renderStep(step, index))}
+        <div className={styles.leftSection}>
+          <Image 
+            src="/logo.svg" 
+            alt="Primeshot Logo" 
+            width={40} 
+            height={40}
+            priority
+          />
         </div>
 
-        {/* Mobile Progress Button & Popup */}
-        <button 
-          ref={buttonRef}
-          className={styles.mobileProgressButton}
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          <div className={styles.stepIcon}>{currentStepIndex + 1}</div>
-          <span>{currentStep ? t(currentStep.label) : t('navigation.addStyles')}</span>
-          <MoreVertical size={12} />
-        </button>
+        <div className={styles.middleSection}>
+          <div className={styles.progressSteps}>
+            {NAVIGATION_STEPS.map((step, index) => renderStep(step, index))}
+          </div>
 
-        <div 
-          ref={popupRef}
-          className={cn(styles.mobileStepsList, isOpen && styles.visible)}
-          style={getPopupStyle()}
-          onClick={() => setIsOpen(false)}
-        >
-          {NAVIGATION_STEPS.map((step, index) => renderStep(step, index, true))}
+          {/* Mobile Progress Button & Popup */}
+          <button 
+            ref={buttonRef}
+            id="mobile-progress-button"
+            className={styles.mobileProgressButton}
+            onClick={() => setIsOpen(!isOpen)}
+            aria-expanded={isOpen}
+            aria-haspopup="true"
+            aria-label={`Current step: ${currentStep ? t(currentStep.label) : t('navigation.addStyles')}`}
+          >
+            <div className={styles.stepIcon}>{currentStepIndex + 1}</div>
+            <span>{currentStep ? t(currentStep.label) : t('navigation.addStyles')}</span>
+            <MoreVertical size={12} />
+          </button>
+
+          <div 
+            ref={popupRef}
+            className={cn(styles.mobileStepsList, isOpen && styles.visible)}
+            style={getPopupStyle()}
+            onClick={() => setIsOpen(false)}
+            role="menu"
+            aria-labelledby="mobile-progress-button"
+          >
+            {NAVIGATION_STEPS.map((step, index) => renderStep(step, index, true))}
+          </div>
         </div>
 
         <div className={styles.rightSection}>
@@ -166,7 +180,7 @@ export function AppHeader({ user }: AppHeaderProps) {
               onClick={handleBasketClick}
               className={cn(
                 styles.basketButton,
-                stylesCount > 0 && styles.basketActive
+                headshotInfo.styleCount > 0 && styles.basketActive
               )}
             >
               <Icon 
@@ -174,11 +188,11 @@ export function AppHeader({ user }: AppHeaderProps) {
                 size={20} 
                 className={cn(
                   styles.basketIcon,
-                  stylesCount > 0 && styles.basketIconActive
+                  headshotInfo.styleCount > 0 && styles.basketIconActive
                 )}
               />
-              {stylesCount > 0 && (
-                <span className={styles.basketCount}>{stylesCount}</span>
+              {headshotInfo.styleCount > 0 && (
+                <span className={styles.basketCount}>{headshotInfo.styleCount}</span>
               )}
             </button>
           )}

@@ -31,10 +31,10 @@ function useStyleStores(styles: Array<Style>) {
   const storesRef = useRef<Record<string, ReturnType<typeof useStyleStore>>>({});
   
   // Create a single store for the currently selected style
-  const [selectedStyleId, setSelectedStyleId] = useState<string | null>(null);
+  const [, setSelectedStyleId] = useState<string | null>(null);
   
-  // Initialize all stores on mount and clean up when styles change
-  useEffect(() => {
+  // Initialize stores for all styles using useMemo
+  useMemo(() => {
     // Get the current style IDs
     const currentStyleIds = new Set(styles.map(style => style.id));
     
@@ -51,13 +51,14 @@ function useStyleStores(styles: Array<Style>) {
         storesRef.current[style.id] = useStyleStore(style.id as StylePhotographyStyle);
       }
     });
-    
-    // Return cleanup function
+  }, [styles]);
+
+  // Cleanup on unmount
+  useEffect(() => {
     return () => {
-      // Clear all stores on unmount
       storesRef.current = {};
     };
-  }, [styles]);
+  }, []);
 
   const getStore = useCallback((styleId: string) => {
     return storesRef.current[styleId];
@@ -117,7 +118,7 @@ export default function Page() {
   const filteredStyles = useGenderFilter(photographyStyleOptions, gender || undefined)
   
   // Use our custom hook
-  const { getStore, storesRef, setSelectedStyleId } = useStyleStores(filteredStyles);
+  const { getStore, } = useStyleStores(filteredStyles);
 
   const stylesWithImages = useMemo(() => {
     return filteredStyles.map(style => ({
