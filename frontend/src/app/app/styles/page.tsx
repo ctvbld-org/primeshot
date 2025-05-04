@@ -23,7 +23,7 @@ import { useStyleConfigs } from '@/hooks/useConfig'
 import { useTranslation } from 'react-i18next'
 import { CarouselProvider } from '@/contexts/carousel-context'
 import { fadeAnimation } from '@/constants/animations'
-import { StyleConfigsSchema, Style, StyleWithImages } from '@/types/styles'
+import { StyleConfigsSchema, Style } from '@/types/styles'
 
 // Custom hook to handle style stores
 function useStyleStores(styles: Array<Style>) {
@@ -33,13 +33,30 @@ function useStyleStores(styles: Array<Style>) {
   // Create a single store for the currently selected style
   const [selectedStyleId, setSelectedStyleId] = useState<string | null>(null);
   
-  // Initialize all stores on mount
+  // Initialize all stores on mount and clean up when styles change
   useEffect(() => {
+    // Get the current style IDs
+    const currentStyleIds = new Set(styles.map(style => style.id));
+    
+    // Clean up stores that are no longer needed
+    Object.keys(storesRef.current).forEach(styleId => {
+      if (!currentStyleIds.has(styleId)) {
+        delete storesRef.current[styleId];
+      }
+    });
+    
+    // Initialize new stores
     styles.forEach(style => {
       if (!storesRef.current[style.id]) {
         storesRef.current[style.id] = useStyleStore(style.id as StylePhotographyStyle);
       }
     });
+    
+    // Return cleanup function
+    return () => {
+      // Clear all stores on unmount
+      storesRef.current = {};
+    };
   }, [styles]);
 
   const getStore = useCallback((styleId: string) => {
@@ -164,6 +181,9 @@ export default function Page() {
       const orderId = order.id
 
       const store = getStore(style.id);
+      if (!store) {  
+        throw new Error(`Store not found for style ID: ${style.id}`);  
+      }  
       const currentSettings = store.getState().settings
       
       const styleData = {
