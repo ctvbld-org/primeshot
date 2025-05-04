@@ -52,18 +52,16 @@ export function getPaymentIntentIdempotencyKey(
 
 /**
  * Generates an idempotency key for a checkout session creation
- * 
- * @param orderId The order ID
- * @param userId The user ID
- * @param amount The payment amount in cents
- * @returns An idempotency key for checkout session creation
+ * Always includes a timestamp to ensure uniqueness for each attempt
  */
 export function getCheckoutSessionIdempotencyKey(
   orderId: string,
   userId: string,
   amount: number
 ): string {
-  return generateIdempotencyKey('checkout_session', orderId, userId, amount);
+  // Include current timestamp to ensure uniqueness for each attempt
+  const timestamp = new Date().toISOString();
+  return generateIdempotencyKey('checkout_session', orderId, userId, amount, timestamp);
 }
 
 /**
@@ -100,11 +98,7 @@ export function getRetryIdempotencyKey(
   userId: string,
   amount: number
 ): string {
-  return generateIdempotencyKey(
-    operationType,
-    orderId,
-    userId,
-    amount,
-    Date.now().toString() // Add current timestamp to make it unique
-  );
+  // Include timestamp for retry attempts
+  const timestamp = new Date().toISOString();
+  return generateIdempotencyKey(operationType, orderId, userId, amount, timestamp);
 } 

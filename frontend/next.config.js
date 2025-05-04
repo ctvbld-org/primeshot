@@ -27,11 +27,11 @@ const nextConfig = {
       },
     ],
   },
-  compiler: {
-    removeConsole: {
-      exclude: ['error'],
-    },
-  },
+  // compiler: {
+  //   removeConsole: {
+  //     exclude: ['error'],
+  //   },
+  // },
 }
 
 // Add dynamic hostname from environment variable if available

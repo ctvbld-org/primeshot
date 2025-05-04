@@ -16,6 +16,7 @@ import type { PricingInfo } from '@/lib/pricing';
 import type { Order, Style } from '@/lib/types';
 import { getOrCreateDraftOrder } from '@/lib/api/orders';
 import { useTranslation } from 'react-i18next';
+import { API_ENDPOINTS } from '@/lib/constants/api';
 
 // Define types for payment-related stage data
 interface PaymentStageData {
@@ -85,27 +86,55 @@ export default function PaymentPage() {
   const [isRecoveringPayment, setIsRecoveringPayment] = useState(false);
   const [userProfile, setUserProfile] = useState<{ full_name: string | null } | null>(null);
 
+  // Separate effect for progress updates
+  useEffect(() => {
+    if (!order?.id || hasUpdatedProgress.current) return;
+
+    async function updatePaymentProgress() {
+      console.log('Updating user progress...');
+      const stageData = progress?.stage_data as StageData | undefined;
+      const paymentData = stageData?.payment || {};
+      
+      await updateProgress('payment', {
+        orderId: order?.id,
+        attemptCount: (paymentData.attemptCount || 0) + 1,
+        lastAttemptAt: new Date().toISOString(),
+        isRecovery: !!resumeOrderId
+      });
+      hasUpdatedProgress.current = true;
+      console.log('User progress updated');
+    }
+
+    updatePaymentProgress();
+  }, [order, progress?.stage_data, resumeOrderId, updateProgress]);
+
+  // Main data loading effect
   useEffect(() => {
     let isMounted = true;
     
     async function loadData() {
-      if (!user) return;
+      if (!user) {
+        console.log('No user found, returning early');
+        return;
+      }
       
+      console.log('Starting loadData function');
       const supabase = createClient();
       let currentOrder: Order;
       
       try {
-        // Fetch user profile data with retries
+        console.log('Fetching user profile data...');
         const { data: profileData, error: profileError } = await fetchUserProfile(supabase, user.id);
         
         if (profileError) {
           console.error('Error fetching user profile after retries:', profileError);
-          // Only show toast for critical errors
           toast({ 
             title: t('status.error'),
             description: t('errors.loadPaymentData'),
             variant: 'destructive'
           });
+        } else {
+          console.log('Successfully fetched user profile:', profileData);
         }
         
         if (isMounted) {
@@ -113,8 +142,8 @@ export default function PaymentPage() {
         }
 
         if (resumeOrderId) {
-          setIsRecoveringPayment(true);
           console.log(`Attempting to recover payment for order: ${resumeOrderId}`);
+          setIsRecoveringPayment(true);
           
           const { data, error } = await supabase
             .from('orders')
@@ -125,17 +154,23 @@ export default function PaymentPage() {
             .single();
           
           if (error || !data) {
+            console.error('Error fetching order for recovery:', error);
             throw new Error(t('errors.orderNotFound'));
           }
           
           currentOrder = data;
           console.log(`Successfully found order ${currentOrder.id} for payment recovery`);
         } else {
+          console.log('Creating or fetching draft order...');
           currentOrder = await getOrCreateDraftOrder(user.id);
+          console.log('Draft order retrieved:', currentOrder);
         }
         
-        setOrder(currentOrder);
+        if (isMounted) {
+          setOrder(currentOrder);
+        }
 
+        console.log('Fetching styles for order:', currentOrder.id);
         const { data: stylesData, error: stylesError } = await supabase
           .from('styles')
           .select('*')
@@ -143,58 +178,91 @@ export default function PaymentPage() {
           .eq('order_id', currentOrder.id)
           .order('created_at', { ascending: true });
           
-        if (stylesError) throw stylesError;
+        if (stylesError) {
+          console.error('Error fetching styles:', stylesError);
+          throw stylesError;
+        }
         
-        setStyles(stylesData || []);
+        console.log('Styles data retrieved:', stylesData?.length || 0, 'styles');
+        if (isMounted) {
+          setStyles(stylesData || []);
+        }
         
         if (!stylesData || stylesData.length === 0) {
-          console.log('No styles found for order', currentOrder.id, 'calculating price for 0 styles.');
+          console.log('No styles found for order', currentOrder.id);
         }
         
         const styleCount = stylesData?.length || 0;
+        console.log('Calculating pricing for', styleCount, 'styles');
         const pricing = calculatePricing(styleCount);
-        setPricingInfo(pricing);
+        if (isMounted) {
+          setPricingInfo(pricing);
+        }
         
         if (currentOrder.amount !== pricing.price) {
-          console.log(`Order ${currentOrder.id} amount (${currentOrder.amount}) differs from calculated price (${pricing.price}). Updating order.`);
+          console.log(`Order amount mismatch. Current: ${currentOrder.amount}, Calculated: ${pricing.price}`);
           
-          try {
-            const response = await fetch('/api/proxy/update-order-amount', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                orderId: currentOrder.id,
-                newAmount: pricing.price,
-              }),
-            });
-            
-            if (!response.ok) {
-              const errorData = await response.json().catch(() => ({ error: t('errors.unexpectedError') }));
-              throw new Error(errorData.error || t('errors.unexpectedError'));
+          const maxRetries = 3;
+          const baseDelay = 1000; // 1 second
+          
+          for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+              console.log(`Updating order amount (attempt ${attempt}/${maxRetries})...`);
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+              
+              const response = await fetch(API_ENDPOINTS.UPDATE_ORDER_AMOUNT, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+                },
+                body: JSON.stringify({
+                  orderId: currentOrder.id,
+                  newAmount: pricing.price,
+                }),
+                signal: controller.signal
+              });
+              
+              clearTimeout(timeoutId);
+              
+              if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ error: t('errors.unexpectedError') }));
+                console.error(`Failed to update order amount (attempt ${attempt}):`, errorData);
+                
+                if (attempt === maxRetries) {
+                  throw new Error(errorData.error || t('errors.unexpectedError'));
+                }
+                
+                // Wait before retrying with exponential backoff
+                await delay(baseDelay * Math.pow(2, attempt - 1));
+                continue;
+              }
+              
+              console.log('Successfully updated order amount');
+              if (isMounted) {
+                setOrder(prev => prev ? { ...prev, amount: pricing.price } : null);
+              }
+              break; // Success - exit retry loop
+            } catch (error: unknown) {
+              console.error(`Error in attempt ${attempt}:`, error);
+              
+              if (error instanceof Error && error.name === 'AbortError') {
+                console.log('Request timed out');
+                if (attempt === maxRetries) {
+                  throw new Error(t('errors.networkError'));
+                }
+              } else if (attempt === maxRetries) {
+                throw error;
+              }
+              
+              // Wait before retrying
+              await delay(baseDelay * Math.pow(2, attempt - 1));
             }
-            
-            setOrder(prev => prev ? { ...prev, amount: pricing.price } : null);
-          } catch (error) {
-            console.error("Failed to update order amount via proxy:", error);
           }
         }
-
-        if (!hasUpdatedProgress.current) {
-          const stageData = progress?.stage_data as StageData | undefined;
-          const paymentData = stageData?.payment || {};
-          
-          await updateProgress('payment', {
-            orderId: currentOrder.id,
-            attemptCount: (paymentData.attemptCount || 0) + 1,
-            lastAttemptAt: new Date().toISOString(),
-            isRecovery: !!resumeOrderId
-          });
-          hasUpdatedProgress.current = true;
-        }
       } catch (error) {
-        console.error('Error loading payment data:', error);
+        console.error('Error in loadData:', error);
         
         if (resumeOrderId && error instanceof Error) {
           toast({ 
@@ -221,6 +289,7 @@ export default function PaymentPage() {
           });
         }
       } finally {
+        console.log('LoadData function completed');
         if (isMounted) {
           setIsLoading(false);
         }
@@ -232,7 +301,7 @@ export default function PaymentPage() {
     return () => {
       isMounted = false;
     };
-  }, [user, router, toast, updateProgress, resumeOrderId, progress?.stage_data, t]);
+  }, [user, router, toast, resumeOrderId, t]); // Removed progress?.stage_data and updateProgress
 
   const handleContinueToPayment = async () => {
     if (!order || !pricingInfo) {

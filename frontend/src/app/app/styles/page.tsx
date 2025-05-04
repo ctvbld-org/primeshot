@@ -6,7 +6,6 @@ import { StylePhotographyStyle, Gender, StyleStatus } from '@/lib/types'
 import { getStyleImages } from '@/lib/utils/get-styles-images'
 import { useUserGender } from '@/lib/hooks/use-user-gender'
 import { useGenderFilter } from '@/lib/hooks/use-gender-filter'
-import { z } from 'zod'
 import { cn } from '@/lib/utils'
 import useEmblaCarousel from 'embla-carousel-react'
 import { useAuth } from '@/contexts/auth-context'
@@ -23,43 +22,11 @@ import { StyleDetails } from '@/components/style/style-details'
 import { useStyleConfigs } from '@/hooks/useConfig'
 import { useTranslation } from 'react-i18next'
 import { CarouselProvider } from '@/contexts/carousel-context'
-
-// Create a Zod enum from the Gender type
-const GenderEnum = z.enum(['male', 'female'] as const) satisfies z.ZodType<Gender>;
-
-// Define the validation schema
-const StyleConfigSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  tagline: z.string().optional(),
-  description: z.string(),
-  preview_images: z.array(z.string()),
-  available_genders: z.array(GenderEnum).optional(),
-  available_backgrounds: z.array(z.string()),
-  available_clothing: z.array(z.string()),
-  available_clothing_colors: z.array(z.string()),
-  translations: z.record(z.object({
-    name: z.string(),
-    tagline: z.string(),
-    description: z.string()
-  }))
-});
-
-const StyleConfigsSchema = z.array(StyleConfigSchema);
-
-// Modify the fadeAnimation object to include variants for the options section
-const fadeAnimation = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: 20 },
-  transition: { 
-    duration: 0.5,
-    ease: [0.32, 0.72, 0, 1] // Custom easing for smoother motion
-  }
-}
+import { fadeAnimation } from '@/constants/animations'
+import { StyleConfigsSchema, Style, StyleWithImages } from '@/types/styles'
 
 // Custom hook to handle style stores
-function useStyleStores(styles: Array<{ id: string }>) {
+function useStyleStores(styles: Array<Style>) {
   // Create a ref to hold all stores
   const storesRef = useRef<Record<string, ReturnType<typeof useStyleStore>>>({});
   
@@ -117,11 +84,11 @@ export default function Page() {
         name: config.name,
         tagline: config.tagline,
         description: config.description,
-        previewImages: config.preview_images,
+        preview_images: config.preview_images,
         availableGenders: config.available_genders,
-        availableBackgrounds: config.available_backgrounds,
-        availableClothing: config.available_clothing,
-        availableClothingColor: config.available_clothing_colors,
+        available_backgrounds: config.available_backgrounds,
+        available_clothing: config.available_clothing,
+        available_clothing_colors: config.available_clothing_colors,
         translations: config.translations
       }));
     } catch (error) {
@@ -138,7 +105,7 @@ export default function Page() {
   const stylesWithImages = useMemo(() => {
     return filteredStyles.map(style => ({
       ...style,
-      genderSpecificImages: getStyleImages(style.previewImages, gender || undefined),
+      genderSpecificImages: getStyleImages(style.preview_images, gender || undefined),
       translations: style.translations
     }));
   }, [filteredStyles, gender]);
@@ -173,11 +140,11 @@ export default function Page() {
     id: string;
     name: string;
     description: string;
-    previewImages: string[];
-    availableGenders?: Gender[];
-    availableBackgrounds: string[];
-    availableClothing: string[];
-    availableClothingColor: string[];
+    preview_images: string[];
+    available_genders?: Gender[];
+    available_backgrounds: string[];
+    available_clothing: string[];
+    available_clothing_colors: string[];
     genderSpecificImages: string[];
     translations: {
       [lang: string]: {
