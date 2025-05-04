@@ -117,5 +117,10 @@ export const paginatedResponseSchema = z.object({
 export const fileUploadSchema = z.object({
   file: z.any(),
   contentType: z.string().regex(/^image\/(jpeg|png|webp)$/, 'Invalid file type. Only JPEG, PNG, and WebP are supported'),
-  maxSize: z.number().default(10 * 1024 * 1024), // 10MB default
-}); 
+  maxSize: z.number().default(4 * 1024 * 1024) // 4MB default - Edge Function payload limit
+}).refine(
+  ({ file, maxSize }) => file?.size !== undefined && file.size <= maxSize,
+  ({ maxSize }) => ({
+    message: `File exceeds maximum size of ${maxSize / (1024 * 1024)} MB`
+  })
+); 

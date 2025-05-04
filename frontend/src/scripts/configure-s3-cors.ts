@@ -1,6 +1,5 @@
 // Load environment variables first
 import { config } from 'dotenv';
-import path from 'path';
 
 config();
 
@@ -43,7 +42,7 @@ async function configureCORS() {
     try {
       const currentCors = await s3Client.send(getCorsCommand);
       console.log('Current CORS Rules:', JSON.stringify(currentCors.CORSRules, null, 2));
-    } catch (error) {
+    } catch (corsError) {
       console.log('No existing CORS configuration found');
     }
 

@@ -1,10 +1,12 @@
 {
   "welcome": "欢迎",
+  "uploadSuccess": "您的照片已成功上传",
+  "greeting": "您好，{{name}}！",
+  "language": "语言",
   "error": {
     "title": "错误",
     "description": "发生错误"
   },
-  "language": "语言",
   "loading": "加载中...",
   "buttons": {
     "customize": "自定义",
@@ -22,5 +24,15 @@
     "confirm": "确认",
     "remove": "移除",
     "add": "添加"
+  },
+  "navigation": {
+    "addStyles": "添加风格",
+    "checkout": "结账",
+    "uploadPhotos": "上传照片",
+    "generate": "生成"
+  },
+  "userNav": {
+    "signOut": "退出登录",
+    "accountSettings": "账户设置"
   }
 } 

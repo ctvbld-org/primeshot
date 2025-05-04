@@ -35,6 +35,8 @@ export async function createCheckoutSession(data: {
   amount: number;
   metadata?: Record<string, string>;
   retryAttempt?: number;
+  customerEmail?: string;
+  customerName?: string;
 }): Promise<{
   sessionId: string;
   idempotencyKey: string;

@@ -1,0 +1,15 @@
+.git
+.env
+.env.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+.next/cache/
+**/node_modules/
+**/.turbo
+coverage/
+__tests__/
+*.test.*
+*.spec.*
+scripts/

@@ -6,7 +6,6 @@ import { StylePhotographyStyle, Gender, StyleStatus } from '@/lib/types'
 import { getStyleImages } from '@/lib/utils/get-styles-images'
 import { useUserGender } from '@/lib/hooks/use-user-gender'
 import { useGenderFilter } from '@/lib/hooks/use-gender-filter'
-import { z } from 'zod'
 import { cn } from '@/lib/utils'
 import useEmblaCarousel from 'embla-carousel-react'
 import { useAuth } from '@/contexts/auth-context'
@@ -22,41 +21,54 @@ import { StyleTabsOptions } from '@/components/style/style-tabs-options'
 import { StyleDetails } from '@/components/style/style-details'
 import { useStyleConfigs } from '@/hooks/useConfig'
 import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { CarouselProvider } from '@/contexts/carousel-context'
+import { fadeAnimation } from '@/constants/animations'
+import { StyleConfigsSchema, Style } from '@/types/styles'
 
-// Create a Zod enum from the Gender type
-const GenderEnum = z.enum(['male', 'female'] as const) satisfies z.ZodType<Gender>;
+// Custom hook to handle style stores
+function useStyleStores(styles: Array<Style>) {
+  // Create a ref to hold all stores
+  const storesRef = useRef<Record<string, ReturnType<typeof useStyleStore>>>({});
+  
+  // Create a single store for the currently selected style
+  const [, setSelectedStyleId] = useState<string | null>(null);
+  
+  // Initialize stores for all styles using useMemo
+  useMemo(() => {
+    // Get the current style IDs
+    const currentStyleIds = new Set(styles.map(style => style.id));
+    
+    // Clean up stores that are no longer needed
+    Object.keys(storesRef.current).forEach(styleId => {
+      if (!currentStyleIds.has(styleId)) {
+        delete storesRef.current[styleId];
+      }
+    });
+    
+    // Initialize new stores
+    styles.forEach(style => {
+      if (!storesRef.current[style.id]) {
+        storesRef.current[style.id] = useStyleStore(style.id as StylePhotographyStyle);
+      }
+    });
+  }, [styles]);
 
-// Define the validation schema
-const StyleConfigSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  tagline: z.string().optional(),
-  description: z.string(),
-  preview_images: z.array(z.string()),
-  available_genders: z.array(GenderEnum).optional(),
-  available_backgrounds: z.array(z.string()),
-  available_clothing: z.array(z.string()),
-  available_clothing_colors: z.array(z.string()),
-  translations: z.record(z.object({
-    name: z.string(),
-    tagline: z.string(),
-    description: z.string()
-  }))
-});
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      storesRef.current = {};
+    };
+  }, []);
 
-const StyleConfigsSchema = z.array(StyleConfigSchema);
+  const getStore = useCallback((styleId: string) => {
+    return storesRef.current[styleId];
+  }, []);
 
-// Modify the fadeAnimation object to include variants for the options section
-const fadeAnimation = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: 20 },
-  transition: { 
-    duration: 0.5,
-    ease: [0.32, 0.72, 0, 1] // Custom easing for smoother motion
-  }
+  return {
+    getStore,
+    storesRef,
+    setSelectedStyleId
+  };
 }
 
 export default function Page() {
@@ -67,38 +79,8 @@ export default function Page() {
   const [isSaving, setIsSaving] = useState(false)
   const { gender, isLoading: isGenderLoading } = useUserGender();
   const [selectedIndex, setSelectedIndex] = useState(0)
-  const { data: styleConfigs = [], isLoading: isLoadingStyles } = useStyleConfigs();
-  
-  // Validate style configs at runtime and transform to expected format
-  const photographyStyleOptions = useMemo(() => {
-    try {
-      const validatedConfigs = StyleConfigsSchema.parse(styleConfigs);
-      return validatedConfigs.map(config => ({
-        id: config.id,
-        name: config.name,
-        tagline: config.tagline,
-        description: config.description,
-        previewImages: config.preview_images,
-        availableGenders: config.available_genders,
-        availableBackgrounds: config.available_backgrounds,
-        availableClothing: config.available_clothing,
-        availableClothingColor: config.available_clothing_colors,
-        translations: config.translations
-      }));
-    } catch (error) {
-      console.error('Invalid style configuration:', error);
-      return [];
-    }
-  }, [styleConfigs]);
-
-  const filteredStyles = useGenderFilter(photographyStyleOptions, gender || undefined)
-  // Get the current style ID based on the selected index
-  const currentStyleId = selectedIndex >= 0 && filteredStyles.length > 0 
-    ? filteredStyles[selectedIndex].id as StylePhotographyStyle 
-    : 'studio'
-  const store = useStyleStore(currentStyleId)
-  const settings = store((state) => state.settings)
-  const reset = store((state) => state.reset)
+  const { data: styleConfigs = [] } = useStyleConfigs();
+  const [previousIndex, setPreviousIndex] = useState(selectedIndex)
   const [showingCustomizeFor, setShowingCustomizeFor] = useState<number | null>(null)
   const [isNavigating, setIsNavigating] = useState(false)
   const [canScrollPrev, setCanScrollPrev] = useState(false)
@@ -110,36 +92,49 @@ export default function Page() {
     duration: 30
   })
   const [isTransitioning, setIsTransitioning] = useState(false)
-  const [previousIndex, setPreviousIndex] = useState(selectedIndex)
+
+  // Validate style configs at runtime and transform to expected format
+  const photographyStyleOptions = useMemo(() => {
+    try {
+      const validatedConfigs = StyleConfigsSchema.parse(styleConfigs);
+      return validatedConfigs.map(config => ({
+        id: config.id,
+        name: config.name,
+        tagline: config.tagline,
+        description: config.description,
+        preview_images: config.preview_images,
+        availableGenders: config.available_genders,
+        available_backgrounds: config.available_backgrounds,
+        available_clothing: config.available_clothing,
+        available_clothing_colors: config.available_clothing_colors,
+        translations: config.translations
+      }));
+    } catch (error) {
+      console.error('Invalid style configuration:', error);
+      return [];
+    }
+  }, [styleConfigs]);
+
+  const filteredStyles = useGenderFilter(photographyStyleOptions, gender || undefined)
   
-  // Create refs to store style stores at component level
-  const styleStoresRef = useRef<Record<string, ReturnType<typeof useStyleStore>>>({});
+  // Use our custom hook
+  const { getStore, } = useStyleStores(filteredStyles);
 
-  // Initialize stores for all styles
-  useEffect(() => {
-    // Create stores for new styles
-    filteredStyles.forEach(style => {
-      const styleId = style.id as StylePhotographyStyle;
-      if (!styleStoresRef.current[styleId]) {
-        styleStoresRef.current[styleId] = useStyleStore(styleId);
-      }
-    });
-
-    // Cleanup stores for removed styles
-    Object.keys(styleStoresRef.current).forEach(styleId => {
-      if (!filteredStyles.find(style => style.id === styleId)) {
-        delete styleStoresRef.current[styleId];
-      }
-    });
-  }, [filteredStyles]);
+  const stylesWithImages = useMemo(() => {
+    return filteredStyles.map(style => ({
+      ...style,
+      genderSpecificImages: getStyleImages(style.preview_images, gender || undefined),
+      translations: style.translations
+    }));
+  }, [filteredStyles, gender]);
 
   // Reset settings when selectedIndex changes
   useEffect(() => {
     if (selectedIndex !== previousIndex) {
-      // Reset settings for the previous style using stored ref
+      // Reset settings for the previous style
       if (previousIndex >= 0 && filteredStyles.length > 0) {
         const previousStyleId = filteredStyles[previousIndex].id as StylePhotographyStyle;
-        const store = styleStoresRef.current[previousStyleId];
+        const store = getStore(previousStyleId);
         if (store) {
           store.getState().reset();
         }
@@ -148,7 +143,7 @@ export default function Page() {
       // Reset settings for the new style
       if (selectedIndex >= 0 && filteredStyles.length > 0) {
         const currentStyleId = filteredStyles[selectedIndex].id as StylePhotographyStyle;
-        const store = styleStoresRef.current[currentStyleId];
+        const store = getStore(currentStyleId);
         if (store) {
           store.getState().reset();
         }
@@ -157,7 +152,74 @@ export default function Page() {
       // Update previousIndex
       setPreviousIndex(selectedIndex);
     }
-  }, [selectedIndex, previousIndex, filteredStyles]);
+  }, [selectedIndex, previousIndex, filteredStyles, getStore]);
+
+  const handleAddToShoot = useCallback(async (style: {
+    id: string;
+    name: string;
+    description: string;
+    preview_images: string[];
+    available_genders?: Gender[];
+    available_backgrounds: string[];
+    available_clothing: string[];
+    available_clothing_colors: string[];
+    genderSpecificImages: string[];
+    translations: {
+      [lang: string]: {
+        name: string;
+        tagline: string;
+        description: string;
+      }
+    };
+  }) => {
+    try {
+      if (!user) {
+        throw new Error('User not found')
+      }
+
+      setIsSaving(true)
+      const order = await getOrCreateDraftOrder(user.id)
+      const orderId = order.id
+
+      const store = getStore(style.id);
+      if (!store) {  
+        throw new Error(`Store not found for style ID: ${style.id}`);  
+      }  
+      const currentSettings = store.getState().settings
+      
+      const styleData = {
+        user_id: user.id,
+        order_id: orderId,
+        name: style.name,
+        settings: {
+          photographyStyle: style.id as StylePhotographyStyle,
+          background: currentSettings.background,
+          clothing: currentSettings.clothing,
+          clothingColor: currentSettings.clothingColor,
+        },
+        status: 'draft' as StyleStatus
+      }
+
+      await saveStyle(styleData)
+      await ensureUserProgress(user.id)
+
+      toast({
+        title: t('toast.successAddedStyle.title', { ns: 'styles' }),
+        description: t('toast.successAddedStyle.description', { ns: 'styles' }),
+      })
+
+      router.push('/app/shoot')
+    } catch (error) {
+      console.error(error)
+      toast({
+        variant: 'destructive',
+        description: t('toast.errorSavingStyle.description', { ns: 'styles' }),
+        title: t('toast.errorSavingStyle.title', { ns: 'styles' }),
+      })
+    } finally {
+      setIsSaving(false)
+    }
+  }, [user, getStore, router, toast, t])
 
   useEffect(() => {
     if (emblaApi) {
@@ -235,78 +297,6 @@ export default function Page() {
     }
   }, [emblaApi])
 
-  const stylesWithImages = useMemo(() => {
-    return filteredStyles.map(style => ({
-      ...style,
-      genderSpecificImages: getStyleImages(style.previewImages, gender || undefined),
-      translations: style.translations
-    }));
-  }, [filteredStyles, gender]);
-
-  const handleAddToShoot = useCallback(async (style: {
-    id: string;
-    name: string;
-    description: string;
-    previewImages: string[];
-    availableGenders?: Gender[];
-    availableBackgrounds: string[];
-    availableClothing: string[];
-    availableClothingColor: string[];
-    genderSpecificImages: string[];
-    translations: {
-      [lang: string]: {
-        name: string;
-        tagline: string;
-        description: string;
-      }
-    };
-  }) => {
-    try {
-      if (!user) {
-        throw new Error('User not found')
-      }
-
-      setIsSaving(true)
-      const order = await getOrCreateDraftOrder(user.id)
-      const orderId = order.id
-
-      const styleStore = styleStoresRef.current[style.id as StylePhotographyStyle]
-      const currentSettings = styleStore.getState().settings
-      
-      const styleData = {
-        user_id: user.id,
-        order_id: orderId,
-        name: style.name,
-        settings: {
-          photographyStyle: style.id as StylePhotographyStyle,
-          background: currentSettings.background,
-          clothing: currentSettings.clothing,
-          clothingColor: currentSettings.clothingColor,
-        },
-        status: 'draft' as StyleStatus
-      }
-
-      await saveStyle(styleData)
-      await ensureUserProgress(user.id)
-
-      toast({
-        title: t('toast.successAddedStyle.title', { ns: 'styles' }),
-        description: t('toast.successAddedStyle.description', { ns: 'styles' }),
-      })
-
-      router.push('/app/shoot')
-    } catch (error) {
-      console.error(error)
-      toast({
-        variant: 'destructive',
-        description: t('toast.errorSavingStyle.description', { ns: 'styles' }),
-        title: t('toast.errorSavingStyle.title', { ns: 'styles' }),
-      })
-    } finally {
-      setIsSaving(false)
-    }
-  }, [user, styleStoresRef, router, toast, t])
-
   const handleTransitionEnd = useCallback(() => {
     if (showingCustomizeFor === null) {
       setIsTransitioning(false)
@@ -323,7 +313,7 @@ export default function Page() {
   }
 
   return (
-    <div className="wrapper flex flex-col">
+    <div className={stylesCSS.container}>
       <motion.div 
         className="flex-1 flex items-center justify-center"
         initial={{ opacity: 0 }}
@@ -335,69 +325,71 @@ export default function Page() {
           <div className={stylesCSS['highlight-overlay']} />
           
           {/* Carousel container */}
-          <div className="w-full relative" ref={emblaRef}>
-            <div 
-              className="flex touch-pan-y"
-              style={containerStyle}
-              onTransitionEnd={handleTransitionEnd}
-            >
-              {stylesWithImages.map((style, index) => (
-                <div 
-                  key={style.id} 
-                  className={stylesCSS['slide-card-container']}
-                >
-                  <div className="relative h-full bg-[#F0F9F7]">
-                    {/* Toggle between style overview and customization options */}
-                    <AnimatePresence mode="wait">
-                      {showingCustomizeFor === index ? (
-                        <motion.div
-                          key="customization-options"
-                          className={cn(
-                            stylesCSS['slide-card'],
-                            "absolute inset-0 bg-white overflow-hidden transition-all duration-500 select-none",
-                            selectedIndex === index 
-                              ? stylesCSS['active-slide']
-                              : stylesCSS['inactive-slide']
-                          )}
-                          {...fadeAnimation}
-                        >
-                          <StyleTabsOptions
-                            style={{
-                              ...style,
-                              styleId: 'new'
-                            }}
-                            isSaving={isSaving}
-                            onClose={() => setShowingCustomizeFor(null)}
-                            onAddToShoot={handleAddToShoot}
-                          />
-                        </motion.div>
-                      ) : (
-                        <motion.div 
-                          key="style-overview"
-                          className={cn(
-                            stylesCSS['slide-card'],
-                            "flex flex-col overflow-hidden transition-all duration-500 select-none h-full bg-[#F0F9F7]",
-                            selectedIndex === index 
-                              ? stylesCSS['active-slide']
-                              : stylesCSS['inactive-slide'],
-                            isNavigating && stylesCSS.sliding
-                          )}
-                          {...(isNavigating ? {} : fadeAnimation)}
-                        >
-                          <StyleDetails
-                            style={style}
-                            index={index}
-                            onCustomize={setShowingCustomizeFor}
-                            setIsNavigating={setIsNavigating}
-                          />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+          <CarouselProvider>
+            <div className="w-full relative" ref={emblaRef}>
+              <div 
+                className="flex touch-pan-y"
+                style={containerStyle}
+                onTransitionEnd={handleTransitionEnd}
+              >
+                {stylesWithImages.map((style, index) => (
+                  <div 
+                    key={style.id} 
+                    className={stylesCSS['slide-card-container']}
+                  >
+                    <div className="relative h-full bg-[#F0F9F7]">
+                      {/* Toggle between style overview and customization options */}
+                      <AnimatePresence mode="wait">
+                        {showingCustomizeFor === index ? (
+                          <motion.div
+                            key="customization-options"
+                            className={cn(
+                              stylesCSS['slide-card'],
+                              "absolute inset-0 bg-white overflow-hidden transition-all duration-500 select-none",
+                              selectedIndex === index 
+                                ? stylesCSS['active-slide']
+                                : stylesCSS['inactive-slide']
+                            )}
+                            {...fadeAnimation}
+                          >
+                            <StyleTabsOptions
+                              style={{
+                                ...style,
+                                styleId: 'new'
+                              }}
+                              isSaving={isSaving}
+                              onClose={() => setShowingCustomizeFor(null)}
+                              onAddToShoot={handleAddToShoot}
+                            />
+                          </motion.div>
+                        ) : (
+                          <motion.div 
+                            key="style-overview"
+                            className={cn(
+                              stylesCSS['slide-card'],
+                              "flex flex-col overflow-hidden transition-all duration-500 select-none h-full bg-[#F0F9F7]",
+                              selectedIndex === index 
+                                ? stylesCSS['active-slide']
+                                : stylesCSS['inactive-slide'],
+                              isNavigating && stylesCSS.sliding
+                            )}
+                            {...(isNavigating ? {} : fadeAnimation)}
+                          >
+                            <StyleDetails
+                              style={style}
+                              index={index}
+                              onCustomize={setShowingCustomizeFor}
+                              setIsNavigating={setIsNavigating}
+                            />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          </CarouselProvider>
         </div>
       </motion.div>
 

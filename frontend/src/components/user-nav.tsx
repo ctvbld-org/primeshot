@@ -16,6 +16,7 @@ import { Avatar } from '@/components/ui/avatar'
 import { User } from '@/types/auth'
 import style from 'styled-jsx/style'
 import { LanguageSwitcher } from './language-switcher'
+import { useTranslation } from 'react-i18next'
 
 interface UserNavProps {
   user: User | null
@@ -24,6 +25,7 @@ interface UserNavProps {
 export function UserNav({ user }: UserNavProps) {
   const { signOut } = useAuth()
   const router = useRouter()
+  const { t } = useTranslation()
   
   const userEmail = user?.email || ''
   const userInitial = userEmail ? userEmail.charAt(0).toUpperCase() : ''
@@ -49,7 +51,7 @@ export function UserNav({ user }: UserNavProps) {
         <DropdownMenuItem 
           onSelect={() => signOut()}
         >
-          Sign out
+          {t('userNav.signOut')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { s3Client } from '@/lib/s3';
 
 /**
  * API route for proxying S3 image requests through our server
@@ -9,20 +10,6 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
  * - Clothing option thumbnails
  * - Generated headshots
  */
- 
-// Validate required environment variables
-if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
-  throw new Error('AWS credentials are not properly configured. Please check your environment variables.');
-}
-
-// Initialize S3 client once for reuse across requests
-export const s3Client = new S3Client({
-  region: process.env.NEXT_PUBLIC_AWS_REGION || 'us-east-1',
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-});
 
 // This is a simple security check to prevent abuse
 const isValidPath = (path: string) => {

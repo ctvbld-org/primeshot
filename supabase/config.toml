@@ -256,7 +256,7 @@ redirect_uri = "http://127.0.0.1:54321/auth/v1/callback"
 # or any other third-party OIDC providers.
 url = ""
 # If enabled, the nonce check will be skipped. Required for local sign in with Google auth.
-skip_nonce_check = false
+skip_nonce_check = true
 
 [auth.external.linkedin_oidc]
 enabled = true

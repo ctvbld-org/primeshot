@@ -7,6 +7,7 @@ import { getOptionsImage } from '@/lib/utils/get-options-image'
 import { Icon } from '@/components/icons/icon'
 import useEmblaCarousel from 'embla-carousel-react'
 import styles from './options-carousel.module.css'
+import { useCarouselContext } from '@/contexts/carousel-context'
 
 interface Option {
   id: string
@@ -27,6 +28,7 @@ export const OptionsCarousel = React.memo(function OptionsCarouselComponent({
   onChange,
   forceMobile = false
 }: OptionsCarouselProps) {
+  const { setIsChangingSlide } = useCarouselContext();
   const initialIndex = options.findIndex(opt => opt.id === value);
   const [isMobile, setIsMobile] = React.useState(forceMobile);
 
@@ -53,8 +55,19 @@ export const OptionsCarousel = React.memo(function OptionsCarouselComponent({
   const [canScrollNext, setCanScrollNext] = React.useState(true);
   const [selectedOption, setSelectedOption] = React.useState<string | null>(value);
  
-  const scrollPrev = React.useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
-  const scrollNext = React.useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
+  const scrollPrev = React.useCallback(() => {
+    if (emblaApi) {
+      setIsChangingSlide(true);
+      emblaApi.scrollPrev();
+    }
+  }, [emblaApi, setIsChangingSlide]);
+
+  const scrollNext = React.useCallback(() => {
+    if (emblaApi) {
+      setIsChangingSlide(true);
+      emblaApi.scrollNext();
+    }
+  }, [emblaApi, setIsChangingSlide]);
 
   // Wrap onChange in useCallback to stabilize the reference if passed from parent
   const memoizedOnChange = React.useCallback(onChange, [onChange]);
@@ -108,16 +121,42 @@ export const OptionsCarousel = React.memo(function OptionsCarouselComponent({
 
   React.useEffect(() => {
     if (!emblaApi) return;
+    
+    const onSelect = () => {
+      setCanScrollPrev(emblaApi.canScrollPrev());
+      setCanScrollNext(emblaApi.canScrollNext());
+    };
+
+    // Start slide change
+    const onPointerDown = () => {
+      setIsChangingSlide(true);
+    };
+
+    const onScroll = () => {
+      setIsChangingSlide(true);
+    };
+
+    // End slide change
+    const onSettle = () => {
+      setIsChangingSlide(false);
+      updateSelection();
+    };
+
     onSelect();
     emblaApi.on('select', onSelect);
-    emblaApi.on('settle', updateSelection); // Use settle for reliable state update
+    emblaApi.on('pointerDown', onPointerDown);
+    emblaApi.on('scroll', onScroll);
+    emblaApi.on('settle', onSettle);
     emblaApi.on('reInit', onSelect);
+
     return () => {
       emblaApi.off('select', onSelect);
-      emblaApi.off('settle', updateSelection);
+      emblaApi.off('pointerDown', onPointerDown);
+      emblaApi.off('scroll', onScroll);
+      emblaApi.off('settle', onSettle);
       emblaApi.off('reInit', onSelect);
     };
-  }, [emblaApi, onSelect, updateSelection]);
+  }, [emblaApi, setIsChangingSlide, updateSelection]);
 
   // Sync local state if the external value prop changes
   React.useEffect(() => {

@@ -15,13 +15,13 @@ alwaysApply: true
     | 'payment'       // Payment processing
     | 'upload'        // Uploading user photos
     | 'review'        // Image quality review
-    | 'dashboard'     // Results viewing
+    | 'shoots'        // Results viewing
   ```
 
 - **1. Authentication (Route: /auth)**
   - Required before accessing any app features
   - Handled by Supabase authentication
-  - Redirects to compositions page on success
+  - Redirects to shoot page on success
   ```typescript
   // ✅ DO: Check auth state before rendering protected routes
   if (!user) return <RedirectToAuth />
@@ -30,23 +30,34 @@ alwaysApply: true
   if (!user) renderProtectedContent() // Wrong
   ```
 
-- **2. Styles Page (Route: /app/shoot)**
+- **2. Profile Check (Route: /app/settings/profile)**
+  - Required before accessing any app features
+  - If user has gender = null, redirects to profile settings
+  - Must complete profile before accessing other pages
+  ```typescript
+  // ✅ DO: Check profile completion
+  if (!user.gender) return <RedirectToProfile />
+  ```
+
+- **3. Styles Page (Route: /app/shoot)**
   - Initial state shows empty grid with "New Style" button
   - Lists all draft styles for the user
   - "Next" button enabled only with at least one style
+  - Can navigate to style creation page
   ```typescript
-  // ✅ DO: Filter compositions by status
+  // ✅ DO: Filter styles by status
   .eq('status', 'draft')
   
   // ✅ DO: Enable next button conditionally
   disabled={styles.length === 0}
   ```
 
-- **3. Style Creation (Route: /app/style)**
+- **4. Style Creation (Route: /app/style)**
   - Three main selectors:
     - Photography Style (studio, natural, dramatic)
     - Outfit (professional, casual, creative)
     - Background (plain, office, outdoor, custom)
+  - Can save or go back to shoot page
   - Saves as draft status
   ```typescript
   // ✅ DO: Save with draft status
@@ -56,8 +67,10 @@ alwaysApply: true
   `${photographyStyle} ${outfit} ${background}`
   ```
 
-- **4. Payment (Route: /app/payment)**
+- **5. Payment (Route: /app/payment)**
+  - Only accessible with at least one style
   - Shows order summary with selected styles
+  - Can go back to shoot or style pages
   - Handles payment processing
   - Updates style status on successful payment
   ```typescript
@@ -68,8 +81,15 @@ alwaysApply: true
   paymentStatus, paymentError
   ```
 
-- **5. Photo Upload (Route: /app/upload)**
+- **6. Payment Success (Route: /app/payment/success)**
   - Only accessible after successful payment
+  - Shows success message
+  - Provides button to proceed to upload
+  - Cannot go back to previous stages
+
+- **7. Photo Upload (Route: /app/upload)**
+  - Only accessible after successful payment
+  - Cannot go back to previous stages
   - Handles multiple photo uploads
   - Validates image requirements:
     - Minimum resolution
@@ -83,10 +103,12 @@ alwaysApply: true
   uploadProgress, uploadStatus
   ```
 
-- **6. Upload Review (Route: /app/review)**
+- **8. Upload Review (Route: /app/review)**
   - Shows upload results with quality ratings
+  - Can go back to upload page only
   - Allows re-upload of rejected images
   - Requires all images to pass quality check
+  - Provides button to start AI generation
   ```typescript
   // ✅ DO: Show clear rejection reasons
   image.rejectionReasons.map(reason => ...)
@@ -95,29 +117,18 @@ alwaysApply: true
   disabled={hasRejectedImages}
   ```
 
-- **7. Dashboard (Route: /app/dashboard)**
+- **9. My Shoots (Route: /app/shoots)**
   - Shows all compositions grouped by status:
     - Completed: Ready for viewing
     - Processing: Being generated
     - Draft: Not yet submitted
+  - Cannot go back to any previous stages
   ```typescript
   // ✅ DO: Group compositions by status
   groupBy(compositions, 'status')
   
   // ✅ DO: Sort by creation date within groups
   orderBy(group, 'created_at', 'desc')
-  ```
-
-- **8. Results View (Route: /app/compositions/[id])**
-  - Shows generated images for completed compositions
-  - Allows image downloads
-  - Displays original composition settings
-  ```typescript
-  // ✅ DO: Check composition status before showing results
-  if (composition.status !== 'completed') return <NotReady />
-  
-  // ✅ DO: Enable download for completed images
-  disabled={!image.isReady}
   ```
 
 - **State Transitions**
@@ -334,7 +345,7 @@ alwaysApply: true
       'payment',
       'upload',
       'review',
-      'dashboard'
+      'shoots'
     ]
     
     const currentIndex = stageOrder.indexOf(currentStage)

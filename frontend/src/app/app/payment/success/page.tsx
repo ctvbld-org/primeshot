@@ -7,20 +7,29 @@ import { useUserProgress } from '@/lib/hooks/use-user-progress';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/use-toast';
 import { CheckCircle, Loader2, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import type { Style } from '@/lib/types';
+
+interface OrderDetails {
+  id: string;
+  shoot_number?: number;
+  status: string;
+  amount: number;
+  updated_at: string;
+  styles: Style[];
+  payment_status: string;
+}
 
 export default function PaymentSuccessPage() {
   const { t } = useTranslation('payment');
   const { user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { toast } = useToast();
   const { updateProgress, clearProgress } = useUserProgress();
   
   const [isLoading, setIsLoading] = useState(true);
-  const [orderDetails, setOrderDetails] = useState<any>(null);
+  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [verificationAttempted, setVerificationAttempted] = useState(false);
   
@@ -53,13 +62,14 @@ export default function PaymentSuccessPage() {
       try {
         const supabase = createClient();
         
+        // First, get the order details
         let query = supabase
           .from('orders')
-          .select('*, styles(*)')
+          .select('*')
           .eq('user_id', user.id);
           
         if (sessionId) {
-          query = query.eq('payment_intent_id', sessionId);
+          query = query.eq('checkout_session_id', sessionId);
         } 
         else if (orderId) {
           query = query.eq('id', orderId);
@@ -77,7 +87,22 @@ export default function PaymentSuccessPage() {
         }
         
         const order = orders[0];
-        setOrderDetails(order);
+        
+        // Then, get the associated styles
+        const { data: styles, error: stylesError } = await supabase
+          .from('styles')
+          .select('*')
+          .eq('order_id', order.id);
+          
+        if (stylesError) {
+          console.error('Error fetching styles:', stylesError);
+          // Don't throw, just log the error and continue with empty styles
+        }
+        
+        setOrderDetails({
+          ...order,
+          styles: styles || []
+        });
         
         if (order.status !== 'paid' || order.payment_status !== 'succeeded') {
           await supabase
@@ -213,7 +238,7 @@ export default function PaymentSuccessPage() {
               <div className="pt-4 border-t">
                 <h3 className="font-medium mb-2">{t('success.orderSummary.stylesTitle')}</h3>
                 <ul className="space-y-1 text-sm">
-                  {orderDetails?.styles && Array.isArray(orderDetails.styles) && orderDetails.styles.length > 0 ? orderDetails.styles.map((style: any) => (
+                  {orderDetails?.styles && Array.isArray(orderDetails.styles) && orderDetails.styles.length > 0 ? orderDetails.styles.map((style: Style) => (
                     <li key={style?.id || `style-${Math.random()}`} className="flex items-center">
                       <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
                       {style?.name || t('fields.styles')}

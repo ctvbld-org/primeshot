@@ -9,14 +9,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/components/ui/use-toast';
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { getStripe, createPaymentIntent } from '@/lib/stripe';
+import { getStripe, createCheckoutSession } from '@/lib/stripe';
 import { CheckCircle, CreditCard, ArrowRight } from 'lucide-react';
 import { formatPrice, calculatePricing } from '@/lib/pricing';
 import type { PricingInfo } from '@/lib/pricing';
 import type { Order, Style } from '@/lib/types';
 import { getOrCreateDraftOrder } from '@/lib/api/orders';
 import { useTranslation } from 'react-i18next';
+import { API_ENDPOINTS } from '@/lib/constants/api';
 
 // Define types for payment-related stage data
 interface PaymentStageData {
@@ -30,6 +30,41 @@ interface PaymentStageData {
 interface StageData {
   [key: string]: unknown
   payment?: PaymentStageData
+}
+
+// Retry configuration
+const RETRY_ATTEMPTS = 3;
+const RETRY_DELAY = 1000; // 1 second
+
+// Helper function to delay execution
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Helper function to fetch user profile with retries
+async function fetchUserProfile(supabase: any, userId: string, maxAttempts = RETRY_ATTEMPTS) {
+  let lastError;
+  
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('full_name')
+        .eq('id', userId)
+        .single();
+        
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      lastError = error;
+      console.warn(`Attempt ${attempt} failed to fetch user profile:`, error);
+      
+      if (attempt < maxAttempts) {
+        await delay(RETRY_DELAY * attempt); // Exponential backoff
+        continue;
+      }
+    }
+  }
+  
+  return { data: null, error: lastError };
 }
 
 export default function PaymentPage() {
@@ -46,24 +81,69 @@ export default function PaymentPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [styles, setStyles] = useState<Style[]>([]);
   const [order, setOrder] = useState<Order | null>(null);
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [paymentStep, setPaymentStep] = useState<'summary' | 'payment'>('summary');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pricingInfo, setPricingInfo] = useState<PricingInfo | null>(null);
   const [isRecoveringPayment, setIsRecoveringPayment] = useState(false);
+  const [userProfile, setUserProfile] = useState<{ full_name: string | null } | null>(null);
 
+  // Separate effect for progress updates
   useEffect(() => {
-    async function loadData() {
-      if (!user) return;
-      if (isLoading === false) return;
+    if (!order?.id || hasUpdatedProgress.current) return;
+
+    async function updatePaymentProgress() {
+      console.log('Updating user progress...');
+      const stageData = progress?.stage_data as StageData | undefined;
+      const paymentData = stageData?.payment || {};
       
+      await updateProgress('payment', {
+        orderId: order?.id,
+        attemptCount: (paymentData.attemptCount || 0) + 1,
+        lastAttemptAt: new Date().toISOString(),
+        isRecovery: !!resumeOrderId
+      });
+      hasUpdatedProgress.current = true;
+      console.log('User progress updated');
+    }
+
+    updatePaymentProgress();
+  }, [order, progress?.stage_data, resumeOrderId, updateProgress]);
+
+  // Main data loading effect
+  useEffect(() => {
+    let isMounted = true;
+    
+    async function loadData() {
+      if (!user) {
+        console.log('No user found, returning early');
+        return;
+      }
+      
+      console.log('Starting loadData function');
       const supabase = createClient();
       let currentOrder: Order;
       
       try {
+        console.log('Fetching user profile data...');
+        const { data: profileData, error: profileError } = await fetchUserProfile(supabase, user.id);
+        
+        if (profileError) {
+          console.error('Error fetching user profile after retries:', profileError);
+          toast({ 
+            title: t('status.error'),
+            description: t('errors.loadPaymentData'),
+            variant: 'destructive'
+          });
+        } else {
+          console.log('Successfully fetched user profile:', profileData);
+        }
+        
+        if (isMounted) {
+          setUserProfile(profileData);
+        }
+
         if (resumeOrderId) {
-          setIsRecoveringPayment(true);
           console.log(`Attempting to recover payment for order: ${resumeOrderId}`);
+          setIsRecoveringPayment(true);
           
           const { data, error } = await supabase
             .from('orders')
@@ -74,17 +154,23 @@ export default function PaymentPage() {
             .single();
           
           if (error || !data) {
+            console.error('Error fetching order for recovery:', error);
             throw new Error(t('errors.orderNotFound'));
           }
           
           currentOrder = data;
           console.log(`Successfully found order ${currentOrder.id} for payment recovery`);
         } else {
+          console.log('Creating or fetching draft order...');
           currentOrder = await getOrCreateDraftOrder(user.id);
+          console.log('Draft order retrieved:', currentOrder);
         }
         
-        setOrder(currentOrder);
+        if (isMounted) {
+          setOrder(currentOrder);
+        }
 
+        console.log('Fetching styles for order:', currentOrder.id);
         const { data: stylesData, error: stylesError } = await supabase
           .from('styles')
           .select('*')
@@ -92,80 +178,91 @@ export default function PaymentPage() {
           .eq('order_id', currentOrder.id)
           .order('created_at', { ascending: true });
           
-        if (stylesError) throw stylesError;
+        if (stylesError) {
+          console.error('Error fetching styles:', stylesError);
+          throw stylesError;
+        }
         
-        setStyles(stylesData || []);
+        console.log('Styles data retrieved:', stylesData?.length || 0, 'styles');
+        if (isMounted) {
+          setStyles(stylesData || []);
+        }
         
         if (!stylesData || stylesData.length === 0) {
-          console.log('No styles found for order', currentOrder.id, 'calculating price for 0 styles.');
+          console.log('No styles found for order', currentOrder.id);
         }
         
         const styleCount = stylesData?.length || 0;
+        console.log('Calculating pricing for', styleCount, 'styles');
         const pricing = calculatePricing(styleCount);
-        setPricingInfo(pricing);
+        if (isMounted) {
+          setPricingInfo(pricing);
+        }
         
         if (currentOrder.amount !== pricing.price) {
-          console.log(`Order ${currentOrder.id} amount (${currentOrder.amount}) differs from calculated price (${pricing.price}). Updating order.`);
+          console.log(`Order amount mismatch. Current: ${currentOrder.amount}, Calculated: ${pricing.price}`);
           
-          try {
-            const response = await fetch('/api/proxy/update-order-amount', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                orderId: currentOrder.id,
-                newAmount: pricing.price,
-              }),
-            });
-            
-            if (!response.ok) {
-              const errorData = await response.json().catch(() => ({ error: t('errors.unexpectedError') }));
-              throw new Error(errorData.error || t('errors.unexpectedError'));
-            }
-            
-            setOrder(prev => prev ? { ...prev, amount: pricing.price } : null);
-          } catch (error) {
-            console.error("Failed to update order amount via proxy:", error);
-          }
-        }
-
-        if (!hasUpdatedProgress.current) {
-          const stageData = progress?.stage_data as StageData | undefined;
-          const paymentData = stageData?.payment || {};
+          const maxRetries = 3;
+          const baseDelay = 1000; // 1 second
           
-          await updateProgress('payment', {
-            orderId: currentOrder.id,
-            attemptCount: (paymentData.attemptCount || 0) + 1,
-            lastAttemptAt: new Date().toISOString(),
-            isRecovery: !!resumeOrderId
-          });
-          hasUpdatedProgress.current = true;
-        }
-        
-        if (resumeOrderId && currentOrder.payment_intent_id) {
-          setPaymentStep('payment');
-          
-          try {
-            const paymentInfo = await createPaymentIntent({
-              orderId: currentOrder.id,
-              amount: pricing.price,
-              metadata: {
-                isRecovery: 'true',
-                recoveryTimestamp: new Date().toISOString()
+          for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+              console.log(`Updating order amount (attempt ${attempt}/${maxRetries})...`);
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+              
+              const response = await fetch(API_ENDPOINTS.UPDATE_ORDER_AMOUNT, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+                },
+                body: JSON.stringify({
+                  orderId: currentOrder.id,
+                  newAmount: pricing.price,
+                }),
+                signal: controller.signal
+              });
+              
+              clearTimeout(timeoutId);
+              
+              if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ error: t('errors.unexpectedError') }));
+                console.error(`Failed to update order amount (attempt ${attempt}):`, errorData);
+                
+                if (attempt === maxRetries) {
+                  throw new Error(errorData.error || t('errors.unexpectedError'));
+                }
+                
+                // Wait before retrying with exponential backoff
+                await delay(baseDelay * Math.pow(2, attempt - 1));
+                continue;
               }
-            });
-            
-            if (paymentInfo && paymentInfo.clientSecret) {
-              setClientSecret(paymentInfo.clientSecret);
-              console.log(`Successfully recovered payment intent for order ${currentOrder.id}`);
+              
+              console.log('Successfully updated order amount');
+              if (isMounted) {
+                setOrder(prev => prev ? { ...prev, amount: pricing.price } : null);
+              }
+              break; // Success - exit retry loop
+            } catch (error: unknown) {
+              console.error(`Error in attempt ${attempt}:`, error);
+              
+              if (error instanceof Error && error.name === 'AbortError') {
+                console.log('Request timed out');
+                if (attempt === maxRetries) {
+                  throw new Error(t('errors.networkError'));
+                }
+              } else if (attempt === maxRetries) {
+                throw error;
+              }
+              
+              // Wait before retrying
+              await delay(baseDelay * Math.pow(2, attempt - 1));
             }
-          } catch (paymentError) {
-            console.error('Error recovering payment intent:', paymentError);
           }
         }
       } catch (error) {
-        console.error('Error loading payment data:', error);
+        console.error('Error in loadData:', error);
         
         if (resumeOrderId && error instanceof Error) {
           toast({ 
@@ -192,12 +289,19 @@ export default function PaymentPage() {
           });
         }
       } finally {
-        setIsLoading(false);
+        console.log('LoadData function completed');
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     }
     
     loadData();
-  }, [user, router, toast, updateProgress, resumeOrderId, progress?.stage_data, t]);
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [user, router, toast, resumeOrderId, t]); // Removed progress?.stage_data and updateProgress
 
   const handleContinueToPayment = async () => {
     if (!order || !pricingInfo) {
@@ -212,23 +316,35 @@ export default function PaymentPage() {
     setIsSubmitting(true);
     
     try {
-      const paymentInfo = await createPaymentIntent({
+      const checkoutInfo = await createCheckoutSession({
         orderId: order.id,
         amount: pricingInfo.price,
         metadata: {
           tier: pricingInfo.tier,
           styleCount: styles.length.toString(),
           totalHeadshots: pricingInfo.totalHeadshots.toString()
-        }
+        },
+        customerEmail: user?.email,
+        customerName: userProfile?.full_name || undefined
       });
       
-      if (!paymentInfo || !paymentInfo.clientSecret) {
+      if (!checkoutInfo || !checkoutInfo.sessionId) {
         throw new Error(t('errors.paymentClientSecret'));
       }
       
-      setClientSecret(paymentInfo.clientSecret);
-      console.log(`Payment prepared with idempotency key: ${paymentInfo.idempotencyKey}`);
-      setPaymentStep('payment');
+      // Redirect to Stripe Checkout
+      const stripe = await getStripe();
+      if (!stripe) {
+        throw new Error('Failed to load Stripe');
+      }
+      
+      const { error } = await stripe.redirectToCheckout({
+        sessionId: checkoutInfo.sessionId
+      });
+      
+      if (error) {
+        throw error;
+      }
     } catch (error) {
       console.error('Error preparing payment:', error);
       toast({
@@ -236,19 +352,8 @@ export default function PaymentPage() {
         description: error instanceof Error ? error.message : t('errors.unexpectedError'),
         variant: 'destructive'
       });
-    } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handlePaymentSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    toast({
-      title: t('status.processing'),
-      description: t('notifications.doNotClose'),
-    });
   };
 
   if (isLoading) {
@@ -271,311 +376,124 @@ export default function PaymentPage() {
         </p>
       </div>
 
-      {paymentStep === 'summary' ? (
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div>
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('fields.package.title')}</CardTitle>
-                <CardDescription>
-                  {t('fields.package.description', { 
-                    count: styles.length,
-                    style: styles.length === 1 ? t('_.style') : t('_.style_plural')
-                  })}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {pricingInfo && (
-                  <>
-                    <div>
-                      <h3 className="font-medium mb-2">
-                        {t('pricing.package.description', { 
-                          count: styles.length,
-                          style: styles.length === 1 ? t('_.style') : t('_.style_plural')
-                        })}
-                      </h3>
-                      <ul className="space-y-1 text-sm ml-6 list-disc">
-                        {styles.map((style) => (
-                          <li key={style.id}>{style.name}</li>
-                        ))}
-                      </ul>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('fields.package.title')}</CardTitle>
+              <CardDescription>
+                {t('fields.package.description', { 
+                  count: styles.length,
+                  style: styles.length === 1 ? t('_.style') : t('_.style_plural')
+                })}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {pricingInfo && (
+                <>
+                  <div>
+                    <h3 className="font-medium mb-2">
+                      {t('pricing.package.description', { 
+                        count: styles.length,
+                        style: styles.length === 1 ? t('_.style') : t('_.style_plural')
+                      })}
+                    </h3>
+                    <ul className="space-y-1 text-sm ml-6 list-disc">
+                      {styles.map((style) => (
+                        <li key={style.id}>{style.name}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  <div className="bg-muted p-4 rounded-lg">
+                    <h3 className="font-medium mb-2">
+                      {t('fields.package.includes', { tier: pricingInfo.tier.charAt(0).toUpperCase() + pricingInfo.tier.slice(1) })}
+                    </h3>
+                    <ul className="space-y-1">
+                      <li className="flex items-center text-sm">
+                        <CheckCircle className="mr-2 h-4 w-4 text-primary" />
+                        {t('fields.package.features.totalHeadshots', { count: pricingInfo.totalHeadshots })}
+                      </li>
+                      {pricingInfo.headshotsPerStyle && (
+                        <li className="flex items-center text-sm">
+                          <CheckCircle className="mr-2 h-4 w-4 text-primary" />
+                          {t('fields.package.features.variations', { count: pricingInfo.headshotsPerStyle })}
+                        </li>
+                      )}
+                      <li className="flex items-center text-sm">
+                        <CheckCircle className="mr-2 h-4 w-4 text-primary" />
+                        {t('fields.package.features.fullRights')}
+                      </li>
+                      <li className="flex items-center text-sm">
+                        <CheckCircle className="mr-2 h-4 w-4 text-primary" />
+                        {t('fields.package.features.webFormat')}
+                      </li>
+                      {pricingInfo.isAddOn && (
+                        <li className="flex items-center text-sm">
+                          <CheckCircle className="mr-2 h-4 w-4 text-primary" />
+                          {t('fields.package.features.additionalCapacity', { count: pricingInfo.totalHeadshots - 120 })}
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div>
+          <Card className="sticky top-20">
+            <CardHeader>
+              <CardTitle>{t('common.order.title')}</CardTitle>
+              <CardDescription>
+                {t('pricing.package.description', { 
+                  count: styles.length,
+                  style: styles.length === 1 ? t('_.style') : t('_.style_plural')
+                })}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {pricingInfo && (
+                <>
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground capitalize">
+                        {t('pricing.package.title', { tier: pricingInfo.tier })}
+                      </span>
+                      <span>{formatPrice(pricingInfo.price)}</span>
                     </div>
                     
-                    <div className="bg-muted p-4 rounded-lg">
-                      <h3 className="font-medium mb-2">
-                        {t('fields.package.includes', { tier: pricingInfo.tier.charAt(0).toUpperCase() + pricingInfo.tier.slice(1) })}
-                      </h3>
-                      <ul className="space-y-1">
-                        <li className="flex items-center text-sm">
-                          <CheckCircle className="mr-2 h-4 w-4 text-primary" />
-                          {t('fields.package.features.totalHeadshots', { count: pricingInfo.totalHeadshots })}
-                        </li>
-                        {pricingInfo.headshotsPerStyle && (
-                          <li className="flex items-center text-sm">
-                            <CheckCircle className="mr-2 h-4 w-4 text-primary" />
-                            {t('fields.package.features.variations', { count: pricingInfo.headshotsPerStyle })}
-                          </li>
-                        )}
-                        <li className="flex items-center text-sm">
-                          <CheckCircle className="mr-2 h-4 w-4 text-primary" />
-                          {t('fields.package.features.fullRights')}
-                        </li>
-                        <li className="flex items-center text-sm">
-                          <CheckCircle className="mr-2 h-4 w-4 text-primary" />
-                          {t('fields.package.features.webFormat')}
-                        </li>
-                        {pricingInfo.isAddOn && (
-                          <li className="flex items-center text-sm">
-                            <CheckCircle className="mr-2 h-4 w-4 text-primary" />
-                            {t('fields.package.features.additionalCapacity', { count: pricingInfo.totalHeadshots - 120 })}
-                          </li>
-                        )}
-                      </ul>
+                    <Separator className="my-2" />
+                    <div className="flex justify-between font-medium">
+                      <span>{t('pricing.total')}</span>
+                      <span>{formatPrice(pricingInfo.price)}</span>
                     </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          <div>
-            <Card className="sticky top-20">
-              <CardHeader>
-                <CardTitle>{t('common.order.title')}</CardTitle>
-                <CardDescription>
-                  {t('pricing.package.description', { 
-                    count: styles.length,
-                    style: styles.length === 1 ? t('_.style') : t('_.style_plural')
-                  })}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {pricingInfo && (
-                  <>
-                    <div className="space-y-1.5">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground capitalize">
-                          {t('pricing.package.title', { tier: pricingInfo.tier })}
-                        </span>
-                        <span>{formatPrice(pricingInfo.price)}</span>
-                      </div>
-                      
-                      <Separator className="my-2" />
-                      <div className="flex justify-between font-medium">
-                        <span>{t('pricing.total')}</span>
-                        <span>{formatPrice(pricingInfo.price)}</span>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </CardContent>
-              <CardFooter className="flex flex-col space-y-2">
-                <Button 
-                  className="w-full"
-                  onClick={handleContinueToPayment}
-                  disabled={isSubmitting || !pricingInfo}
-                >
-                  {isSubmitting ? t('status.processing') : t('buttons.continueToPayment')}
-                  {!isSubmitting && <ArrowRight className="ml-2 h-4 w-4" />}
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => router.push('/app/shoot')}
-                  disabled={isSubmitting}
-                >
-                  {t('buttons.modifyStyles')}
-                </Button>
-              </CardFooter>
-            </Card>
-          </div>
-        </div>
-      ) : (
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div>
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('common.title')}</CardTitle>
-                <CardDescription>{t('security.securePayment')}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {clientSecret && (
-                  <Elements 
-                    stripe={getStripe()} 
-                    options={{ 
-                      clientSecret,
-                      appearance: { theme: 'stripe' }
-                    }}
-                  >
-                    <PaymentForm 
-                      orderId={order?.id || ''} 
-                      isSubmitting={isSubmitting} 
-                      setIsSubmitting={setIsSubmitting} 
-                    />
-                  </Elements>
-                )}
-                
-                <div className="mt-4 text-center text-sm text-muted-foreground">
-                  <p>{t('security.noCharge')}</p>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <div className="mt-4">
-              <Button
-                variant="outline"
-                onClick={() => setPaymentStep('summary')}
+                  </div>
+                </>
+              )}
+            </CardContent>
+            <CardFooter className="flex flex-col space-y-2">
+              <Button 
+                className="w-full"
+                onClick={handleContinueToPayment}
+                disabled={isSubmitting || !pricingInfo}
+              >
+                {isSubmitting ? t('status.processing') : t('buttons.continueToPayment')}
+                {!isSubmitting && <CreditCard className="ml-2 h-4 w-4" />}
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => router.push('/app/shoot')}
                 disabled={isSubmitting}
               >
-                {t('buttons.backToSummary')}
+                {t('buttons.modifyStyles')}
               </Button>
-            </div>
-          </div>
-          
-          <div>
-            <Card className="sticky top-20">
-              <CardHeader>
-                <CardTitle>{t('common.order.title')}</CardTitle>
-                <CardDescription>
-                  {t('pricing.package.description', { 
-                    count: styles.length,
-                    style: styles.length === 1 ? t('_.style') : t('_.style_plural')
-                  })}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {pricingInfo && (
-                  <>
-                    <div className="space-y-1.5">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground capitalize">
-                          {t('pricing.package.title', { tier: pricingInfo.tier })}
-                        </span>
-                        <span>{formatPrice(pricingInfo.price)}</span>
-                      </div>
-                      
-                      <Separator className="my-2" />
-                      <div className="flex justify-between font-medium">
-                        <span>{t('pricing.total')}</span>
-                        <span>{formatPrice(pricingInfo.price)}</span>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+            </CardFooter>
+          </Card>
         </div>
-      )}
+      </div>
     </div>
-  );
-}
-
-function PaymentForm({ 
-  orderId, 
-  isSubmitting, 
-  setIsSubmitting 
-}: { 
-  orderId: string, 
-  isSubmitting: boolean, 
-  setIsSubmitting: React.Dispatch<React.SetStateAction<boolean>> 
-}) {
-  const { t } = useTranslation('payment');
-  const stripe = useStripe();
-  const elements = useElements();
-  const router = useRouter();
-  const { toast } = useToast();
-  
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!stripe || !elements) {
-      return;
-    }
-    
-    setIsSubmitting(true);
-    
-    const { error, paymentIntent } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: `${window.location.origin}/app/payment/success?order_id=${orderId}`,
-      },
-      redirect: 'if_required',
-    });
-    
-    if (error) {
-      toast({
-        title: t('status.error'),
-        description: error.message || t('errors.unexpectedError'),
-        variant: 'destructive',
-      });
-      setIsSubmitting(false);
-    } else if (paymentIntent) {
-      switch (paymentIntent.status) {
-        case 'succeeded': 
-          toast({
-            title: t('success.title'),
-            description: t('success.description'),
-          });
-          
-          router.push(`/app/payment/success?session_id=${paymentIntent.id}&order_id=${orderId}`);
-          break;
-          
-        case 'requires_action':
-          toast({
-            title: t('notifications.authRequired.title'),
-            description: t('notifications.authRequired.description'),
-            variant: 'default',
-          });
-          break;
-          
-        case 'processing':
-          toast({
-            title: t('notifications.paymentProcessing.title'),
-            description: t('notifications.paymentProcessing.description'),
-          });
-          
-          router.push(`/app/payment/processing?payment_intent=${paymentIntent.id}&order_id=${orderId}`);
-          break;
-          
-        case 'requires_payment_method':
-          toast({
-            title: t('notifications.paymentFailed.title'),
-            description: t('notifications.paymentFailed.description'),
-            variant: 'destructive',
-          });
-          setIsSubmitting(false);
-          break;
-          
-        default:
-          toast({
-            title: t('notifications.unexpectedResponse.title'),
-            description: t('notifications.unexpectedResponse.description'),
-          });
-          
-          router.push(`/app/payment/status?payment_intent=${paymentIntent.id}&order_id=${orderId}&status=${paymentIntent.status}`);
-      }
-    } else {
-      toast({
-        title: t('notifications.unexpectedResponse.title'),
-        description: t('notifications.unexpectedResponse.description'),
-        variant: 'destructive',
-      });
-      setIsSubmitting(false);
-    }
-  };
-  
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <PaymentElement />
-      <Button 
-        type="submit" 
-        className="w-full"
-        disabled={!stripe || isSubmitting}
-      >
-        {isSubmitting ? t('status.processing') : t('buttons.pay')}
-        {!isSubmitting && <CreditCard className="ml-2 h-4 w-4" />}
-      </Button>
-    </form>
   );
 } 

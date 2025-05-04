@@ -5,12 +5,19 @@ import type { StyleSettings, StylePhotographyStyle, StyleBackground, StyleClothi
 import { validateStyleSettings } from '@/lib/utils/style-validation'
 import { getAllStyleConfigs } from '@/lib/api/config'
 
+// Add type for valid options
+type ValidStyleOptions = {
+  photographyStyles: string[];
+  backgrounds: string[];
+  clothing: string[];
+}
+
 interface StyleState {
   settings: StyleSettings
-  setBackground: (background: StyleBackground, validOptions: any) => Promise<void>
-  setClothing: (clothing: StyleClothing, validOptions: any) => Promise<void>
-  setPhotographyStyle: (style: StylePhotographyStyle, validOptions: any) => Promise<void>
-  setClothingColor: (color: StyleClothingColor, validOptions: any) => Promise<void>
+  setBackground: (background: StyleBackground, validOptions: ValidStyleOptions) => Promise<void>
+  setClothing: (clothing: StyleClothing, validOptions: ValidStyleOptions) => Promise<void>
+  setPhotographyStyle: (style: StylePhotographyStyle, validOptions: ValidStyleOptions) => Promise<void>
+  setClothingColor: (color: StyleClothingColor, validOptions: ValidStyleOptions) => Promise<void>
   setGender: (gender: Gender) => void
   reset: () => void
 }

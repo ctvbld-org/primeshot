@@ -67,6 +67,24 @@ When translating content from English to target languages (French, Spanish, Ital
 - Maintain proper formatting of dates, times, and numbers according to Italian conventions
 - Be attentive to false friends between English and Italian
 
+### Dutch (nl)
+
+- Use appropriate formal ("u") or informal ("je/jij") address based on context
+- Be aware that Dutch can be more direct and concise than English
+- Pay attention to word order differences, especially in subordinate clauses
+- Consider separable verbs and their placement in different sentence structures
+- Be mindful of false friends between English and Dutch
+- Account for text expansion (English text typically expands 10-20% when translated to Dutch)
+
+### Portuguese (pt)
+
+- Specify whether using European Portuguese (pt-PT) or Brazilian Portuguese (pt-BR)
+- Use appropriate formal ("você"/"o senhor"/"a senhora") or informal ("tu") address based on context and region
+- Pay attention to significant differences in vocabulary and grammar between European and Brazilian Portuguese
+- Be mindful of gender agreement for nouns, adjectives, and past participles
+- Consider text expansion (English text can expand 15-30% when translated to Portuguese)
+- Use the appropriate placement of pronouns, which differs between European and Brazilian Portuguese
+
 ### German (de)
 
 - Use appropriate formal ("Sie") or informal ("du") address based on context

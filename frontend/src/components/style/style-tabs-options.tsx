@@ -19,6 +19,7 @@ import { updateStyle } from '@/lib/api/styles'
 import React, { Suspense } from 'react'
 import { useValidStyleOptions } from '@/lib/utils/style-validation'
 import { useTranslation } from 'react-i18next'
+import { useCarouselContext } from '@/contexts/carousel-context'
 
 // Map category IDs to icon variants
 const categoryIconMap: Record<string, React.ComponentProps<typeof Icon>['variant']> = {
@@ -99,6 +100,7 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
   onAddToShoot,
   onUpdate
 }, ref) => {
+  const { isChangingSlide } = useCarouselContext();
   const { toast } = useToast();
   const { user } = useAuth();
   const [isUpdating, setIsUpdating] = useState(false);
@@ -154,7 +156,6 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
   // the flip animation starts (before the component is fully visible)
   useEffect(() => {
     if (isCard && !hasAppliedSettings.current) {
-      console.log("Card mode detected, applying prop settings immediately");
       getPropSettings();
     }
   }, [isCard, getPropSettings]);
@@ -508,7 +509,7 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
             onClick={handleUpdate}
             variant="secondary"
             className={styles.saveButton}
-            disabled={isUpdating || !hasSettingsChanged}
+            disabled={isUpdating || !hasSettingsChanged || isChangingSlide}
             loading={isUpdating}
           >
             {t('buttons.confirmChanges', { ns: 'common' })}
@@ -525,7 +526,7 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
             }}
             variant={areAllCategoriesComplete() ? "secondary" : "tertiary"}
             className={styles.saveButton}
-            disabled={isSaving}
+            disabled={isSaving || isChangingSlide}
             loading={isSaving}
           >
             {areAllCategoriesComplete() ? t('buttons.addToShoot', { ns: 'common' }) : t('buttons.next', { ns: 'common' })}

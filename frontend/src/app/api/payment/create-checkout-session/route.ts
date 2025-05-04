@@ -21,7 +21,7 @@ if (!APP_URL) {
 
 // Initialize Stripe with latest API version
 const stripe = new Stripe(STRIPE_SECRET_KEY, {
-  apiVersion: '2023-10-16' as any,
+  apiVersion: '2025-03-31.basil',
 });
 
 export async function POST(request: Request) {
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { orderId, amount, metadata = {}, retryAttempt = 0 } = body;
+    const { orderId, amount, metadata = {}, retryAttempt = 0, customerEmail, customerName } = body;
 
     if (!orderId || amount === undefined) {
       return NextResponse.json(
@@ -104,7 +104,7 @@ export async function POST(request: Request) {
     }
     
     // If verification passed, continue with the verified amount
-    let verifiedAmount = verification.calculatedAmount;
+    const verifiedAmount = verification.calculatedAmount;
     
     // Ensure amount is a non-negative integer (required by Stripe)
     if (typeof verifiedAmount !== 'number' || !Number.isInteger(verifiedAmount) || verifiedAmount < 0) {
@@ -146,6 +146,8 @@ export async function POST(request: Request) {
       {
         payment_method_types: ['card'],
         mode: 'payment',
+        customer_email: customerEmail, // Add customer email if provided
+        customer_creation: customerEmail ? 'always' : undefined,
         line_items: [
           {
             price_data: {
@@ -165,6 +167,7 @@ export async function POST(request: Request) {
           styleCount: verification.styleCount.toString(), // Add style count for reference
           verifiedAmount: 'true', // Flag to indicate the amount was verified
           createdAt: new Date().toISOString(),
+          customerName, // Add customer name to metadata if provided
           ...enhancedMetadata,
         },
         success_url: `${APP_URL}/app/payment/success?session_id={CHECKOUT_SESSION_ID}`,

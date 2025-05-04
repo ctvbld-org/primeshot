@@ -4,13 +4,10 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/components/ui/use-toast'
 import { useAuth } from '@/contexts/auth-context'
-import { createClient } from '@/lib/supabase/client'
-import { Style, StyleStatus } from '@/lib/types'
+import { Style } from '@/lib/types'
 import { StyleCard } from '@/components/style/style-card'
 import { NewStyleCard } from '@/components/style/new-style-card'
-import { useUserProgress } from '@/lib/hooks/use-user-progress'
-import { getStyles, deleteStyle, calculateHeadshots, handleStyleDeletion } from '@/lib/api/styles'
-import { useUserProfile } from '@/lib/hooks/use-user-profile'
+import { getStyles, calculateHeadshots, handleStyleDeletion } from '@/lib/api/styles'
 import { usePaymentFlow } from '@/lib/hooks/use-payment-flow'
 import { ShootFooter } from '@/components/shoot/shoot-footer'
 import { PRICING } from '@/lib/constants/pricing'
@@ -21,6 +18,8 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import React from 'react'
 import { cn } from '@/lib/utils'
 import { useTranslation } from 'react-i18next'
+import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
+import { useHeadshotStore } from '@/store/headshot'
 
 export default function StylesPage() {
   const router = useRouter()
@@ -29,36 +28,21 @@ export default function StylesPage() {
   const { t } = useTranslation(['styles', 'common'])
   const [styles, setStyles] = useState<Style[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const { updateProgress, canModifyStyles, progress } = useUserProgress()
-  const supabase = createClient()
-  const { fetchProfile } = useUserProfile()
+  const [, setCount] = useState(0)
+  const [, setCurrent] = useState(0)
   
   // Add carousel API state
   const [api, setApi] = React.useState<CarouselApi>()
-  const [current, setCurrent] = React.useState(0)
-  const [count, setCount] = React.useState(0)
-
+  
   // Replace showOverlay with activeEditId
   const [activeEditId, setActiveEditId] = useState<string | null>(null)
   const [isDraggingEnabled, setIsDraggingEnabled] = useState(true)
 
   // Headshot calculation state
-  const [headshotInfo, setHeadshotInfo] = useState<{
-    styleCount: number,
-    totalHeadshots: number,
-    headshotsPerStyle: number,
-    tier: string,
-    price: number
-  }>({
-    styleCount: 0,
-    totalHeadshots: 0,
-    headshotsPerStyle: 0,
-    tier: 'none',
-    price: 0
-  })
+  const { headshotInfo, setHeadshotInfo } = useHeadshotStore()
 
   // Add usePaymentFlow at component level
-  const { proceedToPayment, isLoading: isPaymentLoading } = usePaymentFlow({
+  const { proceedToPayment } = usePaymentFlow({
     styles,
     headshotInfo
   })
@@ -131,7 +115,7 @@ export default function StylesPage() {
   }, [api])
 
   return (
-    <>
+    <div className={stylesCSS.container}>
       <motion.div 
         className={`${stylesCSS['card-wrapper']} wrapper ${styles.length === 0 && stylesCSS['scrollable']}`}
         initial={{ opacity: 0 }}
@@ -170,6 +154,7 @@ export default function StylesPage() {
                 }
               }
             }}
+            plugins={[WheelGesturesPlugin()]}
             className={stylesCSS['carousel']}
             aria-label={t('carousel.label')}
             aria-roledescription="carousel" 
@@ -254,6 +239,6 @@ export default function StylesPage() {
           }
         }}
       />
-    </>
+    </div>
   )
 } 

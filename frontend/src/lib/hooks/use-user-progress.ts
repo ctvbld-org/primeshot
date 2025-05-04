@@ -99,12 +99,12 @@ export function useUserProgress() {
         console.error('Error fetching existing user progress before update:', fetchError)
       }
 
-      const stageOrder: FlowStage[] = ['shoot', 'payment', 'upload', 'review', 'dashboard'];
+      const stageOrder: FlowStage[] = ['shoot', 'payment', 'upload', 'review', 'albums'];
       const existingStages: (FlowStage[] | string[]) = existingProgress?.completed_stages || [];
       const currentActualStage = (existingProgress?.current_stage || 'shoot') as FlowStage;
 
       // Determine the new set of completed stages
-      let completedStages = Array.from(new Set(existingStages));
+      let completedStages = Array.from(new Set(existingStages)) as FlowStage[];
       const targetIndex = stageOrder.indexOf(targetStage);
       if (targetIndex > 0) {
           const previousStage = stageOrder[targetIndex - 1];
@@ -131,7 +131,7 @@ export function useUserProgress() {
       }
 
       // Prepare data for upsert
-      const upsertData = {
+      const upsertData: Omit<UserProgress, 'id' | 'created_at' | 'updated_at'> = {
         user_id: userId,
         current_stage: newCurrentStage,
         completed_stages: completedStages,
@@ -151,9 +151,11 @@ export function useUserProgress() {
 
       // Update local state optimistically
       setProgress(prev => ({
-         ...(prev ?? { id: '', created_at: '', updated_at: '' }),
-         ...upsertData 
-      }) as UserProgress)
+        id: prev?.id ?? '',
+        created_at: prev?.created_at ?? '',
+        updated_at: prev?.updated_at ?? '',
+        ...upsertData
+      }))
 
       console.log(`User progress upserted. Current stage: ${newCurrentStage}, Completed: ${completedStages.join(', ')}`)
 
@@ -194,7 +196,7 @@ export function useUserProgress() {
   function validateStageAccess(pageStage: FlowStage): boolean {
     if (!progress) return pageStage === 'shoot' // Allow shoot page initially
 
-    const stageOrder: FlowStage[] = ['shoot', 'payment', 'upload', 'review', 'dashboard']
+    const stageOrder: FlowStage[] = ['shoot', 'payment', 'upload', 'review', 'albums']
     const currentPageIndex = stageOrder.indexOf(pageStage)
     const maxCompletedIndex = Math.max(
       ...((progress.completed_stages as FlowStage[]) || []).map(s => stageOrder.indexOf(s)),
@@ -212,7 +214,7 @@ export function useUserProgress() {
       return true
     }
     
-    // For other stages (upload, review, dashboard), require payment to be completed
+    // For other stages (upload, review, albums), require payment to be completed
     return false 
   }
 

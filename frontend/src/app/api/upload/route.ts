@@ -10,14 +10,9 @@ import { SupabaseClient } from '@supabase/supabase-js'
 const MAX_WIDTH = 2048
 const MAX_HEIGHT = 2048
 const WEBP_QUALITY = 85
-const MAX_RETRIES = 3
-const RETRY_DELAY = 1000 // 1 second
-
-// Utility function to wait
-const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 // Process image with sharp
-async function processImage(buffer: Buffer, originalMimeType: string) {
+async function processImage(buffer: Buffer) {
   try {
     console.log('Starting image processing...')
     
@@ -52,7 +47,7 @@ async function processImage(buffer: Buffer, originalMimeType: string) {
       buffer: processedBuffer,
       mimeType: 'image/webp'
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Image processing error:', error)
     throw new Error(`Image processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
@@ -70,14 +65,13 @@ async function processAndUploadFile(
   try {
     // 1. Process Image
     const buffer = Buffer.from(await file.arrayBuffer())
-    const { buffer: processedBuffer, mimeType: outputMimeType } = await processImage(buffer, file.type)
+    const { buffer: processedBuffer, mimeType: outputMimeType } = await processImage(buffer)
     console.log(`[${originalName}] Image processed.`) 
     
     // 2. Upload to S3
     const cleanOriginalName = originalName.replace(/\.[^/.]+$/, '')
     const key = `source-images/${userId}/${uuidv4()}-${cleanOriginalName}.webp`
-    const processedFile = new File([processedBuffer], `${cleanOriginalName}.webp`, { type: outputMimeType })
-    const url = await uploadToS3(processedFile, key) 
+    const url = await uploadToS3(processedBuffer, key, outputMimeType)
     console.log(`[${originalName}] Uploaded to S3.`) 
 
     // 3. Save to Database
@@ -104,10 +98,10 @@ async function processAndUploadFile(
     // Return success result for this file
     return { originalName, url }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(`[${originalName}] Error in processing pipeline:`, error)
     // Return error result for this file
-    return { originalName, error: error.message || 'Processing failed' }
+    return { originalName, error: error instanceof Error ? error.message : 'Processing failed' }
   }
 }
 

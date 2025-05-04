@@ -14,11 +14,11 @@ import { CameraIcon, ImageIcon, Loader2Icon } from 'lucide-react'
 import type { Order, Style } from '@/lib/types'
 import { useTranslation } from 'react-i18next'
 
-export default function DashboardPage() {
+export default function AlbumsPage() {
   const { user } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
-  const { t } = useTranslation('dashboard')
+  const { t } = useTranslation('albums')
   const [isLoading, setIsLoading] = useState(true)
   const [orders, setOrders] = useState<(Order & { styles: Style[] })[]>([])
   
@@ -55,7 +55,7 @@ export default function DashboardPage() {
         
         setOrders(orders || [])
       } catch (error) {
-        console.error('Error loading dashboard data:', error)
+        console.error('Error loading albums data:', error)
         toast({
           title: 'Error',
           description: t('loading.error'),
@@ -156,7 +156,7 @@ function ShootCard({
   getStatusClass: (status: string) => string 
 }) {
   const router = useRouter()
-  const { t } = useTranslation('dashboard')
+  const { t } = useTranslation('albums')
   
   // Format shoot date
   const shootDate = new Date(order.created_at).toLocaleDateString('en-US', {

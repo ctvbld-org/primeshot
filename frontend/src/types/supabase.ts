@@ -403,7 +403,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      flow_stage: "shoot" | "payment" | "upload" | "review" | "dashboard"
+      flow_stage: "shoot" | "payment" | "upload" | "review" | "albums"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -522,7 +522,7 @@ export const Constants = {
   },
   public: {
     Enums: {
-      flow_stage: ["shoot", "payment", "upload", "review", "dashboard"],
+      flow_stage: ["shoot", "payment", "upload", "review", "albums"],
     },
   },
 } as const

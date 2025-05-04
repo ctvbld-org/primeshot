@@ -1,10 +1,12 @@
 {
   "welcome": "Bienvenido",
+  "uploadSuccess": "Tus fotos se han subido correctamente",
+  "greeting": "¡Hola, {{name}}!",
+  "language": "Idioma",
   "error": {
     "title": "Error",
-    "description": "Se ha producido un error"
+    "description": "Ha ocurrido un error"
   },
-  "language": "Idioma",
   "loading": "Cargando...",
   "buttons": {
     "customize": "Personalizar",
@@ -22,5 +24,15 @@
     "confirm": "Confirmar",
     "remove": "Eliminar",
     "add": "Añadir"
+  },
+  "navigation": {
+    "addStyles": "Añadir Estilos",
+    "checkout": "Pagar",
+    "uploadPhotos": "Subir Fotos",
+    "generate": "Generar"
+  },
+  "userNav": {
+    "signOut": "Cerrar sesión",
+    "accountSettings": "Configuración de cuenta"
   }
 } 

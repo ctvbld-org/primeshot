@@ -6,7 +6,7 @@ import { cookies } from 'next/headers';
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2023-10-16' as any,
+  apiVersion: '2025-03-31.basil',
 });
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -205,7 +205,7 @@ async function updatePaymentToSucceeded(
       .from('user_progress')
       .update({
         completed_stages: supabase.sql`array_append(completed_stages, 'payment')`,
-        current_stage: 'dashboard',
+        current_stage: 'albums',
         last_active_at: new Date().toISOString(),
       })
       .eq('user_id', order.user_id);

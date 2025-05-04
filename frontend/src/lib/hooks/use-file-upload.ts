@@ -2,26 +2,39 @@ import { useState, useEffect } from 'react'
 import { ImageQualityResult } from '@/lib/image-quality'
 import { useToast } from '@/components/ui/use-toast'
 import { formatFileSize } from '@/lib/utils'
+import { uploadFileInChunks, CHUNK_SIZE } from '@/lib/upload-utils'
 
 interface UseFileUploadOptions {
   maxSize?: number
   allowedTypes?: string[]
   maxFiles?: number
+  chunkSize?: number
+}
+
+interface FileProgress {
+  progress: number
+  isUploading: boolean
+  error?: string
 }
 
 export function useFileUpload(options: UseFileUploadOptions = {}) {
   const {
-    maxSize = 10 * 1024 * 1024, // 10MB default
+    maxSize = 100 * 1024 * 1024, // 100MB max file size
     allowedTypes = ['image/jpeg', 'image/png', 'image/webp'],
-    maxFiles = Infinity
+    maxFiles = Infinity,
+    chunkSize = CHUNK_SIZE
   } = options
 
   const [files, setFiles] = useState<File[]>([])
   const [fileUrls, setFileUrls] = useState<Record<string, string>>({})
   const [qualityResults, setQualityResults] = useState<Record<string, ImageQualityResult>>({})
-  const [isUploading, setIsUploading] = useState(false)
-  const [progress, setProgress] = useState(0)
+  const [uploadProgress, setUploadProgress] = useState<Record<string, FileProgress>>({})
   const { toast } = useToast()
+
+  // Computed overall upload state
+  const isUploading = Object.values(uploadProgress).some(p => p.isUploading)
+  const totalProgress = Object.values(uploadProgress).reduce((sum, p) => sum + p.progress, 0) / 
+    Math.max(Object.keys(uploadProgress).length, 1)
 
   // Create and cleanup file URLs
   useEffect(() => {
@@ -93,8 +106,86 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
       if (results) {
         setQualityResults(prev => ({ ...prev, ...results }))
       }
+      // Initialize progress for new files
+      setUploadProgress(prev => {
+        const next = { ...prev }
+        validFiles.forEach(file => {
+          next[file.name] = { progress: 0, isUploading: false }
+        })
+        return next
+      })
     }
     return validFiles
+  }
+
+  const uploadFile = async (file: File, orderId?: string): Promise<string> => {
+    try {
+      if (!orderId) {
+        throw new Error('orderId is required for file upload')
+      }
+
+      // Set initial upload state for this file
+      setUploadProgress(prev => ({
+        ...prev,
+        [file.name]: { ...prev[file.name], isUploading: true }
+      }))
+
+      // Use chunked upload for files larger than 4MB
+      if (file.size > 4 * 1024 * 1024) {
+        return await uploadFileInChunks(file, orderId, (progress) => {
+          setUploadProgress(prev => ({
+            ...prev,
+            [file.name]: { ...prev[file.name], progress }
+          }))
+        })
+      } else {
+        // Use regular upload for smaller files
+        const formData = new FormData()
+        formData.append('files', file)
+        formData.append('orderId', orderId)
+        
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        })
+
+        if (!response.ok) {
+          throw new Error('Upload failed')
+        }
+
+        const data = await response.json()
+        
+        // Validate response data structure
+        if (!data || typeof data.url !== 'string') {
+          throw new Error('Invalid response: missing or invalid URL')
+        }
+        
+        // Set progress to 100% for successful upload
+        setUploadProgress(prev => ({
+          ...prev,
+          [file.name]: { ...prev[file.name], progress: 100 }
+        }))
+        
+        return data.url
+      }
+    } catch (error) {
+      console.error('Upload error:', error)
+      // Set error state for this file
+      setUploadProgress(prev => ({
+        ...prev,
+        [file.name]: { 
+          ...prev[file.name], 
+          error: error instanceof Error ? error.message : 'Upload failed' 
+        }
+      }))
+      throw error
+    } finally {
+      // Clear uploading state for this file
+      setUploadProgress(prev => ({
+        ...prev,
+        [file.name]: { ...prev[file.name], isUploading: false }
+      }))
+    }
   }
 
   const removeFile = (index: number) => {
@@ -120,6 +211,13 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
           return next
         })
       }
+
+      // Cleanup progress
+      setUploadProgress(prev => {
+        const next = { ...prev }
+        delete next[fileToRemove.name]
+        return next
+      })
     }
   }
 
@@ -129,7 +227,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     setFiles([])
     setFileUrls({})
     setQualityResults({})
-    setProgress(0)
+    setUploadProgress({})
   }
 
   return {
@@ -137,13 +235,12 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     fileUrls,
     qualityResults,
     isUploading,
-    progress,
+    progress: totalProgress,
+    uploadProgress,
     addFiles,
+    uploadFile,
     removeFile,
     clearFiles,
-    setIsUploading,
-    setProgress,
-    setQualityResults,
     formatFileSize
   }
 } 

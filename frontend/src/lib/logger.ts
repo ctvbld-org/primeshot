@@ -2,13 +2,21 @@
  * Simple logging utility for consistent logging throughout the application
  */
 
-type LogLevel = 'info' | 'warn' | 'error' | 'debug';
+// Define types for log data
+type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+type LogData = Record<string, unknown>;
 
 interface LogOptions {
   context?: string;
-  data?: Record<string, any>;
-  // Allow any additional properties to be included
-  [key: string]: any;
+  data?: LogData;
+  [key: string]: unknown;
+}
+
+interface LogEntry {
+  level: LogLevel;
+  message: string;
+  timestamp: string;
+  data?: LogData;
 }
 
 class Logger {
@@ -52,7 +60,7 @@ class Logger {
     const context = options?.context ? `[${options.context}]` : '';
     
     // Create a clean copy of options without known properties
-    const logData = {
+    const logData: LogEntry = {
       timestamp,
       level,
       message: `${context} ${message}`,
@@ -60,6 +68,9 @@ class Logger {
 
     // Extract data from options
     const data = this.extractLogData(options);
+    if (data) {
+      logData.data = data;
+    }
     
     switch (level) {
       case 'info':
@@ -85,11 +96,11 @@ class Logger {
   /**
    * Extract log data from options, handling both data property and direct properties
    */
-  private extractLogData(options?: LogOptions): Record<string, any> | undefined {
+  private extractLogData(options?: LogOptions): LogData | undefined {
     if (!options) return undefined;
     
     // Start with the explicit data property if it exists
-    const result: Record<string, any> = { ...(options.data || {}) };
+    const result: LogData = { ...(options.data || {}) };
     
     // Add all other properties except 'context' and 'data'
     Object.entries(options).forEach(([key, value]) => {

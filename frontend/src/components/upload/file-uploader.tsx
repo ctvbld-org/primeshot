@@ -65,7 +65,7 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
     
     try {
       const qualityResults: Record<string, ImageQualityResult> = {}
-      let noFaceImages: string[] = [];
+      const noFaceImages: string[] = [];
       let faceDetectionSkipped = false;
       
       // Process files sequentially to avoid overwhelming the browser

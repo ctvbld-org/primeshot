@@ -5,7 +5,9 @@
   right: 0;
   z-index: 50;
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   background-color: rgba(0, 21, 20, 0.7);
+  border-bottom: 1px solid #202A32;
 }
 
 .container {
@@ -18,10 +20,22 @@
   padding-right: 1rem;
 }
 
+.middleSection {
+  display: flex;
+  align-items: center;
+}
+
+.leftSection {
+  display: flex;
+  flex: 0 0 100px;
+}
+
 .rightSection {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 1rem;
+  flex: 0 0 100px;
 }
 
 .progressSteps {
@@ -32,12 +46,12 @@
 }
 
 .step {
-    display: flex;
-    align-items: center;
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 14px;
-    font-weight: 600;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  font-weight: 600;
+  gap: 10px;
 }
 
 .step.active {
@@ -49,7 +63,7 @@
 }
 
 .step.completed span {
-    color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .stepIcon {
@@ -68,4 +82,155 @@
 
 .step.active .stepIcon {
   background: #FF973C;
+}
+
+.mobileStepsList {
+  position: absolute;
+  top: 0;
+  left: calc(50% - 4px) !important;
+  transform: translate(-50%, -100%);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 11px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+  z-index: 100;
+}
+
+.mobileStepsList.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.mobileStep {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 28px 8px 20px;
+  border-radius: 8px;
+  width: fit-content;
+  background: rgba(16, 44, 41, 0.5);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.mobileStep.active {
+  background: #1e241a;
+  color: #FF973C;
+}
+
+.mobileStep.completed {
+  color: #44E3C9;
+}
+
+.mobileStep .stepIcon {
+  background-color: rgb(159 166 166);
+}
+
+.mobileStep.active .stepIcon {
+  background-color: #FF973C;
+}
+
+.mobileStep.completed .stepIcon {
+  color: #44E3C9;
+}
+
+/* Adjust mobile progress button styles */
+.mobileProgressButton {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  color: #FF973C;
+  font-size: 14px;
+  font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+  position: relative;
+}
+
+.mobileProgressButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mobileProgressButton .stepIcon {
+  background: #FF973C;
+  margin-right: 4px;
+}
+
+@media (max-width: 761px) {
+  .progressSteps {
+    gap: 14px;
+  }
+  .step {
+    font-size: 12px;
+    font-weight: 400;
+    gap: 6px;
+  }
+  .stepIcon {
+    width: 18px;
+    height: 18px;
+  }
+  .mobileProgressButton {
+    display: flex;
+  }
+  .progressSteps {
+    display: none;
+  }
+}
+
+@media (max-width: 650px) {
+  .mobileProgressButton {
+    display: flex;
+  }
+  .progressSteps {
+    display: none;
+  }
+}
+
+.basketButton {
+  position: relative;
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.basketButton:hover {
+  background-color: rgba(255, 184, 0, 0.1);
+}
+
+.basketIcon {
+  color: #666;
+  transition: color 0.2s ease;
+}
+
+.basketIconActive {
+  color: #FFB800;
+}
+
+.basketCount {
+  color: #FFF;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
 }

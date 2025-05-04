@@ -22,5 +22,15 @@
     "confirm": "Confirm",
     "remove": "Remove",
     "add": "Add"
+  },
+  "navigation": {
+    "addStyles": "Add Styles",
+    "checkout": "Checkout",
+    "uploadPhotos": "Upload Photos",
+    "generate": "Generate"
+  },
+  "userNav": {
+    "signOut": "Sign out",
+    "accountSettings": "Account Settings"
   }
 } 

@@ -1,36 +1,25 @@
 import { S3Client, DeleteObjectCommand, HeadObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
-import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { fileUploadSchema } from './schemas';
 
-// Environment variable validation
-const requiredEnvVars = {
-  AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
-  AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
-  AWS_REGION: process.env.AWS_REGION,
-  AWS_S3_BUCKET: process.env.AWS_S3_BUCKET,
-};
+// Validate required environment variables
+if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+  throw new Error('AWS credentials are not properly configured. Please check your environment variables.');
+}
 
-Object.entries(requiredEnvVars).forEach(([name, value]) => {
-  if (!value) {
-    throw new Error(`Missing environment variable: ${name}`);
-  }
-});
-
-// S3 client configuration
+// Initialize S3 client once for reuse across requests
 export const s3Client = new S3Client({
-  region: process.env.AWS_REGION,
+  region: process.env.NEXT_PUBLIC_AWS_REGION || 'us-east-1',
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
-  maxAttempts: 3, // Enable retry with exponential backoff
 });
 
 // Allowed file types and max size
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4MB - Edge Function payload limit is 4.5MB
 
 // Folder paths
 const SOURCE_IMAGES_FOLDER = 'source-images/';
@@ -52,19 +41,13 @@ export class S3ValidationError extends Error {
 }
 
 // Validate file before upload
-const validateFile = async (file: File) => {
+const validateUpload = async (buffer: Buffer, mimeType: string) => {
   try {
-    await fileUploadSchema.parseAsync({
-      file,
-      contentType: file.type,
-      maxSize: MAX_FILE_SIZE,
-    });
-
-    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+    if (!ALLOWED_MIME_TYPES.includes(mimeType)) {
       throw new S3ValidationError('Invalid file type. Only JPEG, PNG, and WebP are supported.');
     }
 
-    if (file.size > MAX_FILE_SIZE) {
+    if (buffer.length > MAX_FILE_SIZE) {
       throw new S3ValidationError(`File size exceeds maximum limit of ${MAX_FILE_SIZE / 1024 / 1024}MB`);
     }
   } catch (error) {
@@ -76,8 +59,8 @@ const validateFile = async (file: File) => {
 };
 
 // Upload file to S3
-export const uploadToS3 = async (file: File, key: string) => {
-  await validateFile(file);
+export const uploadToS3 = async (buffer: Buffer, key: string, mimeType: string) => {
+  await validateUpload(buffer, mimeType);
 
   // Ensure the file is uploaded to the source-images folder
   const finalKey = key.startsWith(SOURCE_IMAGES_FOLDER) 
@@ -89,11 +72,10 @@ export const uploadToS3 = async (file: File, key: string) => {
     params: {
       Bucket: process.env.AWS_S3_BUCKET!,
       Key: finalKey,
-      Body: file,
-      ContentType: file.type,
+      Body: buffer,
+      ContentType: mimeType,
       Metadata: {
-        originalName: file.name,
-        fileSize: file.size.toString(),
+        fileSize: buffer.length.toString(),
       },
     },
   });
@@ -109,7 +91,8 @@ export const uploadToS3 = async (file: File, key: string) => {
 
 // Upload style image to S3
 export const uploadStyleImage = async (file: File, fileName: string, gender: 'default' | 'male' | 'female') => {
-  await validateFile(file);
+  const buffer = Buffer.from(await file.arrayBuffer());
+  await validateUpload(buffer, file.type);
 
   // Ensure we're using webp format for style images (best practice)
   const webpFileName = fileName.endsWith('.webp') 
@@ -124,7 +107,7 @@ export const uploadStyleImage = async (file: File, fileName: string, gender: 'de
     params: {
       Bucket: process.env.AWS_S3_BUCKET!,
       Key: key,
-      Body: file,
+      Body: buffer,
       ContentType: 'image/webp', // Force WebP content type for style images
       Metadata: {
         originalName: file.name,

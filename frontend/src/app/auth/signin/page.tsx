@@ -1,23 +1,25 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth-context";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { AnimatedBackground } from "@/components/auth/animated-background";
 import { TiltCard } from "@/components/animations/TiltCard";
+import { LoadingContent } from "@/components/ui/loading-content";
 import Image from "next/image";
 import Link from "next/link";
 import styles from './signin.module.css';
 import { Icon } from "@/components/icons/icon";
 import { useToast } from "@/components/ui/use-toast";
 
-export default function SignIn() {
+function SignInContent() {
   const [mounted, setMounted] = useState(false);
   const [email, setEmail] = useState("");
+  const [, setImagesLoaded] = useState(false);
   const { signIn, signInWithGoogle, signInWithLinkedIn, isLoading, error, isAuthenticated } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -28,6 +30,43 @@ export default function SignIn() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Track image loading
+  useEffect(() => {
+    if (!mounted) return;
+
+    const images = document.querySelectorAll('img');
+    let loadedCount = 0;
+    const totalImages = images.length;
+
+    if (totalImages === 0) {
+      setImagesLoaded(true);
+      return;
+    }
+
+    const handleImageLoad = () => {
+      loadedCount++;
+      if (loadedCount === totalImages) {
+        setImagesLoaded(true);
+      }
+    };
+
+    images.forEach(img => {
+      if (img.complete) {
+        handleImageLoad();
+      } else {
+        img.addEventListener('load', handleImageLoad);
+        img.addEventListener('error', handleImageLoad); // Count errors as loaded to prevent hanging
+      }
+    });
+
+    return () => {
+      images.forEach(img => {
+        img.removeEventListener('load', handleImageLoad);
+        img.removeEventListener('error', handleImageLoad);
+      });
+    };
+  }, [mounted]);
 
   // Create a stable showToast function
   const showToast = useCallback((title: string, description: string) => {
@@ -70,12 +109,11 @@ export default function SignIn() {
   const returnUrl = isValidUrl ? returnUrlParam : '/app/shoot';
 
   // Redirect to return URL if already authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      const decodedReturnUrl = decodeURIComponent(returnUrl);
-      router.replace(decodedReturnUrl);
-    }
-  }, [isAuthenticated, returnUrl, router]);
+  if (isAuthenticated) {
+    const decodedReturnUrl = decodeURIComponent(returnUrl);
+    router.replace(decodedReturnUrl);
+    return null;
+  }
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,7 +126,18 @@ export default function SignIn() {
   }
 
   return (
-    <>
+    <LoadingContent
+      className="min-h-screen"
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-pulse flex flex-col items-center space-y-4">
+            <div className="w-12 h-12 bg-muted rounded-full"></div>
+            <div className="h-4 w-32 bg-muted rounded"></div>
+            <div className="h-4 w-32 bg-muted rounded"></div>
+          </div>
+        </div>
+      }
+    >
       <AnimatedBackground />
       <div className={styles.container}>
         <TiltCard className={styles.card}>
@@ -138,7 +187,7 @@ export default function SignIn() {
               <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M0 2.21919C0 1.27025 0.794438 0.5 1.77375 0.5H22.2262C23.2059 0.5 24 1.27025 24 2.21919V22.7811C24 23.7303 23.2059 24.5 22.2262 24.5H1.77375C0.794531 24.5 0 23.7304 0 22.7814V2.21891V2.21919Z" fill="#0A66C2"/>
                 <path d="M7.29525 20.5847V9.77985H3.70387V20.5847H7.29563H7.29525ZM5.50031 8.30488C6.75244 8.30488 7.53197 7.4752 7.53197 6.43832C7.50853 5.37782 6.75244 4.57129 5.52413 4.57129C4.29497 4.57129 3.49219 5.37782 3.49219 6.43823C3.49219 7.4751 4.27144 8.30479 5.47678 8.30479H5.50003L5.50031 8.30488ZM9.28312 20.5847H12.8742V14.5514C12.8742 14.2289 12.8977 13.9056 12.9925 13.6753C13.252 13.0298 13.8429 12.3616 14.8353 12.3616C16.1345 12.3616 16.6545 13.3524 16.6545 14.805V20.5847H20.2455V14.3895C20.2455 11.0709 18.474 9.52654 16.1112 9.52654C14.1741 9.52654 13.3233 10.6093 12.8506 11.3467H12.8745V9.78023H9.28331C9.33019 10.7939 9.28303 20.5851 9.28303 20.5851L9.28312 20.5847Z" fill="white"/>
-                </svg>
+              </svg>
               </Button>
             </div>
 
@@ -191,6 +240,24 @@ export default function SignIn() {
           </CardContent>
         </TiltCard>
       </div>
-    </>
+    </LoadingContent>
+  );
+}
+
+export default function SignIn() {
+  return (
+    <Suspense 
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-pulse flex flex-col items-center space-y-4">
+            <div className="w-12 h-12 bg-muted rounded-full"></div>
+            <div className="h-4 w-32 bg-muted rounded"></div>
+            <div className="h-4 w-32 bg-muted rounded"></div>
+          </div>
+        </div>
+      }
+    >
+      <SignInContent />
+    </Suspense>
   );
 } 
