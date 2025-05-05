@@ -1,21 +1,52 @@
 {
   "common": {
-    "title": "Télécharger des photos",
+    "title": "Télécharger des Photos",
     "description": "Téléchargez vos photos pour la génération de portraits.",
     "order": {
-      "title": "Détails de la commande",
-      "description": "Veuillez télécharger des photos selon les spécifications de votre commande."
+      "title": "Détails de la Commande",
+      "description": "Veuillez télécharger les photos selon les spécifications de votre commande."
+    }
+  },
+  "requirements": {
+    "title": "Exigences pour les Photos",
+    "heading": "Conseils rapides pour des",
+    "headingHighlight": "portraits IA impeccables",
+    "description": "Une meilleure qualité photo et plus de variété conduisent à de meilleurs portraits. La lumière naturelle et les expressions détendues font toute la différence.",
+    "sideHeading": {
+      "tips": "Suivez ces conseils photo pour de meilleurs résultats",
+      "dodonts": "Ce qui fonctionne bien et ce qui ne fonctionne pas"
+    },
+    "tips": {
+      "naturalLight": "Utilisez la lumière naturelle en vous plaçant près d'une fenêtre ou en allant à l'extérieur.",
+      "photos": "Incluez des photos en gros plan et en plan taille.",
+      "expression": "Gardez une expression neutre ou naturellement amicale.",
+      "avoid": "Évitez les filtres, les chapeaux, le maquillage prononcé ou les images générées par IA.",
+      "clothing": "Portez des vêtements simples avec des couleurs unies ou des motifs discrets.",
+      "quantity": "Téléchargez 8 à 12 photos différentes avec des angles et éclairages variés."
+    },
+    "tipBox": "La lumière naturelle, la variété des expressions et un cadrage clair aident l'IA à créer des résultats plus précis et professionnels.",
+    "dodonts": {
+      "eyes": "Regardez la caméra avec vos yeux clairement visibles.",
+      "lighting": "Utilisez un éclairage lumineux et naturel. Évitez les photos sombres ou floues.",
+      "frame": "Assurez-vous d'être seul dans le cadre, sans désordre ni autres personnes.",
+      "face": "Cadrez votre visage pour qu'il ne soit ni trop petit ni coupé."
+    },
+    "buttons": {
+      "open": "Exigences pour les Photos",
+      "confirm": "Compris - commençons le téléchargement !"
     }
   },
   "fields": {
-    "orderId": "ID de commande",
-    "styles": "Styles sélectionnés",
-    "acceptedImages": "Images acceptées",
-    "needsImprovement": "Nécessite des améliorations",
-    "overallQualityScore": "Score de qualité global",
-    "totalImages": "Total des images",
-    "acceptedImagesCount": "Images acceptées",
-    "rejectedImagesCount": "Images rejetées"
+    "orderId": "ID de Commande",
+    "styles": "Styles Sélectionnés",
+    "images": {
+      "accepted": "Images Acceptées",
+      "needsImprovement": "À Améliorer",
+      "total": "Total des Images"
+    },
+    "quality": {
+      "score": "Score de Qualité Globale"
+    }
   },
   "status": {
     "error": "Erreur",
@@ -23,18 +54,18 @@
     "successful": "Réussi",
     "image": "{{count}} Image",
     "image_plural": "{{count}} Images",
-    "uploadMore": "Veuillez télécharger {{count}} {{image}} supplémentaires",
+    "uploadMore": "Veuillez télécharger {{count}} {{image}} supplémentaire(s)",
     "removeImages": "Veuillez supprimer {{count}} {{image}}",
     "imagesSelected": "{{count}} images sélectionnées",
-    "processing": "Traitement... {{uploaded}}/{{total}} ({{progress}}%)"
+    "processing": "Traitement en cours... {{uploaded}}/{{total}} ({{progress}}%)"
   },
   "errors": {
-    "noActiveOrder": "Aucune commande active",
-    "paymentRequired": "Veuillez compléter le paiement avant de télécharger des photos.",
+    "noActiveOrder": "Aucune Commande Active",
+    "paymentRequired": "Veuillez finaliser le paiement avant de télécharger des photos.",
     "loadOrderData": "Échec du chargement des données de commande. Veuillez réessayer.",
     "uploadFailed": "Échec du téléchargement des images. Veuillez réessayer.",
     "someUploadsFailed": "{{count}} téléchargements ont échoué. Veuillez réessayer.",
-    "savingProgress": "Échec de l'enregistrement de la progression. Continuation vers l'examen."
+    "savingProgress": "Échec de la sauvegarde de la progression. Poursuite de la révision."
   },
   "success": {
     "uploadComplete": "{{count}} images téléchargées avec succès."

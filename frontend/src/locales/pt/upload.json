@@ -1,25 +1,77 @@
 {
-  "title": "Enviar fotos",
-  "description": "Envie suas fotos seguindo as diretrizes para obter o melhor resultado.",
-  "instructions": {
-    "title": "Instruções de envio",
-    "step1": "Selecione pelo menos {{count}} fotos.",
-    "step2": "Garanta boa iluminação e rostos nítidos.",
-    "step3": "Evite fotos em grupo ou com várias pessoas.",
-    "step4": "Não use filtros ou edições pesadas."
+  "common": {
+    "title": "Carregar Fotos",
+    "description": "Carregue suas fotos para a geração de retratos.",
+    "order": {
+      "title": "Detalhes do Pedido",
+      "description": "Por favor, carregue as fotos de acordo com as especificações do seu pedido."
+    }
   },
-  "buttons": {
-    "upload": "Enviar",
-    "remove": "Remover",
-    "continue": "Continuar"
+  "requirements": {
+    "title": "Requisitos das Fotos",
+    "heading": "Dicas rápidas para",
+    "headingHighlight": "retratos IA perfeitos",
+    "description": "Melhor qualidade de foto e mais variedade levam a melhores retratos. Luz natural e expressões relaxadas fazem toda a diferença.",
+    "sideHeading": {
+      "tips": "Siga estas dicas de foto para melhores resultados",
+      "dodonts": "O que funciona bem e o que não funciona"
+    },
+    "tips": {
+      "naturalLight": "Use luz natural ficando perto de uma janela ou indo para fora.",
+      "photos": "Inclua fotos tanto de close-up quanto de meio corpo.",
+      "expression": "Mantenha sua expressão neutra ou naturalmente amigável.",
+      "avoid": "Evite filtros, chapéus, maquiagem pesada ou imagens geradas por IA.",
+      "clothing": "Use roupas simples com cores sólidas ou padrões suaves.",
+      "quantity": "Carregue 8 a 12 fotos diferentes com ângulos e iluminação variados."
+    },
+    "tipBox": "Luz natural, variedade facial e enquadramento claro ajudam a IA a criar resultados mais precisos e profissionais.",
+    "dodonts": {
+      "eyes": "Olhe para a câmera com seus olhos claramente visíveis.",
+      "lighting": "Use iluminação clara e natural. Evite fotos escuras ou desfocadas.",
+      "frame": "Certifique-se de estar sozinho no enquadramento, sem desordem ou outras pessoas.",
+      "face": "Enquadre seu rosto para que não fique muito pequeno ou cortado."
+    },
+    "buttons": {
+      "open": "Requisitos das Fotos",
+      "confirm": "Entendi - vamos carregar!"
+    }
+  },
+  "fields": {
+    "orderId": "ID do Pedido",
+    "styles": "Estilos Selecionados",
+    "images": {
+      "accepted": "Imagens Aceitas",
+      "needsImprovement": "Precisa de Melhorias",
+      "total": "Total de Imagens"
+    },
+    "quality": {
+      "score": "Pontuação Geral de Qualidade"
+    }
   },
   "status": {
-    "uploading": "Enviando...",
-    "success": "Envio bem-sucedido!",
-    "error": "Erro ao enviar. Tente novamente."
+    "error": "Erro",
+    "failed": "Falhou",
+    "successful": "Sucesso",
+    "image": "{{count}} Imagem",
+    "image_plural": "{{count}} Imagens",
+    "uploadMore": "Por favor, carregue mais {{count}} {{image}}",
+    "removeImages": "Por favor, remova {{count}} {{image}}",
+    "imagesSelected": "{{count}} imagens selecionadas",
+    "processing": "Processando... {{uploaded}}/{{total}} ({{progress}}%)"
   },
-  "validation": {
-    "minPhotos": "Envie pelo menos {{count}} fotos para obter o melhor resultado.",
-    "poorQuality": "Algumas fotos não atendem aos nossos padrões de qualidade. Tente enviar imagens mais nítidas."
+  "errors": {
+    "noActiveOrder": "Nenhum Pedido Ativo",
+    "paymentRequired": "Por favor, complete o pagamento antes de carregar fotos.",
+    "loadOrderData": "Falha ao carregar dados do pedido. Por favor, tente novamente.",
+    "uploadFailed": "Falha ao carregar imagens. Por favor, tente novamente.",
+    "someUploadsFailed": "{{count}} uploads falharam. Por favor, tente novamente.",
+    "savingProgress": "Falha ao salvar o progresso. Continuando com a revisão."
+  },
+  "success": {
+    "uploadComplete": "{{count}} imagens carregadas com sucesso."
+  },
+  "buttons": {
+    "upload": "Carregar {{count}} Estilo",
+    "upload_plural": "Carregar {{count}} Estilos"
   }
 } 

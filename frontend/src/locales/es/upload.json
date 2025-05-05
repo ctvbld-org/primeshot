@@ -1,46 +1,77 @@
 {
   "common": {
-    "title": "Subir fotos",
+    "title": "Subir Fotos",
     "description": "Sube tus fotos para la generación de retratos.",
     "order": {
-      "title": "Detalles del pedido",
-      "description": "Por favor, sube fotos según las especificaciones de tu pedido."
+      "title": "Detalles del Pedido",
+      "description": "Por favor, sube las fotos según las especificaciones de tu pedido."
+    }
+  },
+  "requirements": {
+    "title": "Requisitos de las Fotos",
+    "heading": "Consejos rápidos para",
+    "headingHighlight": "retratos con IA impecables",
+    "description": "Una mejor calidad de foto y más variedad conducen a mejores retratos. La luz natural y las expresiones relajadas marcan la diferencia.",
+    "sideHeading": {
+      "tips": "Sigue estos consejos fotográficos para mejores resultados",
+      "dodonts": "Lo que funciona bien y lo que no"
+    },
+    "tips": {
+      "naturalLight": "Usa luz natural colocándote cerca de una ventana o saliendo al exterior.",
+      "photos": "Incluye fotos tanto de primer plano como de medio cuerpo.",
+      "expression": "Mantén tu expresión neutral o naturalmente amigable.",
+      "avoid": "Evita filtros, sombreros, maquillaje pesado o imágenes generadas por IA.",
+      "clothing": "Usa ropa sencilla con colores sólidos o patrones suaves.",
+      "quantity": "Sube de 8 a 12 fotos diferentes con ángulos e iluminación variados."
+    },
+    "tipBox": "La luz natural, la variedad facial y el encuadre claro ayudan a la IA a crear resultados más precisos y profesionales.",
+    "dodonts": {
+      "eyes": "Mira a la cámara con tus ojos claramente visibles.",
+      "lighting": "Usa iluminación brillante y natural. Evita fotos oscuras o borrosas.",
+      "frame": "Asegúrate de estar solo en el encuadre, sin desorden ni otras personas.",
+      "face": "Encuadra tu rostro para que no quede demasiado pequeño ni cortado."
+    },
+    "buttons": {
+      "open": "Requisitos de las Fotos",
+      "confirm": "¡Entendido, vamos a subir!"
     }
   },
   "fields": {
-    "orderId": "ID de pedido",
-    "styles": "Estilos seleccionados",
-    "acceptedImages": "Imágenes aceptadas",
-    "needsImprovement": "Necesita mejora",
-    "overallQualityScore": "Puntaje de calidad general",
-    "totalImages": "Total de imágenes",
-    "acceptedImagesCount": "Imágenes aceptadas",
-    "rejectedImagesCount": "Imágenes rechazadas"
+    "orderId": "ID del Pedido",
+    "styles": "Estilos Seleccionados",
+    "images": {
+      "accepted": "Imágenes Aceptadas",
+      "needsImprovement": "Necesita Mejoras",
+      "total": "Total de Imágenes"
+    },
+    "quality": {
+      "score": "Puntuación de Calidad General"
+    }
   },
   "status": {
     "error": "Error",
     "failed": "Fallido",
     "successful": "Exitoso",
-    "image": "{{count}} imagen",
-    "image_plural": "{{count}} imágenes",
+    "image": "{{count}} Imagen",
+    "image_plural": "{{count}} Imágenes",
     "uploadMore": "Por favor, sube {{count}} {{image}} más",
     "removeImages": "Por favor, elimina {{count}} {{image}}",
     "imagesSelected": "{{count}} imágenes seleccionadas",
     "processing": "Procesando... {{uploaded}}/{{total}} ({{progress}}%)"
   },
   "errors": {
-    "noActiveOrder": "No hay pedido activo",
+    "noActiveOrder": "Sin Pedido Activo",
     "paymentRequired": "Por favor, completa el pago antes de subir fotos.",
-    "loadOrderData": "No se pudieron cargar los datos del pedido. Por favor, inténtalo de nuevo.",
-    "uploadFailed": "No se pudieron subir las imágenes. Por favor, inténtalo de nuevo.",
-    "someUploadsFailed": "{{count}} cargas fallidas. Por favor, inténtalo de nuevo.",
-    "savingProgress": "No se pudo guardar el progreso. Continuando a la revisión."
+    "loadOrderData": "Error al cargar los datos del pedido. Por favor, inténtalo de nuevo.",
+    "uploadFailed": "Error al subir las imágenes. Por favor, inténtalo de nuevo.",
+    "someUploadsFailed": "{{count}} subidas fallaron. Por favor, inténtalo de nuevo.",
+    "savingProgress": "Error al guardar el progreso. Continuando con la revisión."
   },
   "success": {
     "uploadComplete": "{{count}} imágenes subidas exitosamente."
   },
   "buttons": {
-    "upload": "Subir {{count}} estilo",
-    "upload_plural": "Subir {{count}} estilos"
+    "upload": "Subir {{count}} Estilo",
+    "upload_plural": "Subir {{count}} Estilos"
   }
 } 

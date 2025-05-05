@@ -1,46 +1,77 @@
 {
   "common": {
-    "title": "Carica foto",
+    "title": "Carica Foto",
     "description": "Carica le tue foto per la generazione dei ritratti.",
     "order": {
-      "title": "Dettagli ordine",
+      "title": "Dettagli dell'Ordine",
       "description": "Carica le foto secondo le specifiche del tuo ordine."
     }
   },
+  "requirements": {
+    "title": "Requisiti delle Foto",
+    "heading": "Consigli rapidi per",
+    "headingHighlight": "ritratti IA impeccabili",
+    "description": "Una migliore qualità delle foto e più varietà portano a ritratti migliori. La luce naturale e le espressioni rilassate fanno la differenza.",
+    "sideHeading": {
+      "tips": "Segui questi consigli fotografici per risultati migliori",
+      "dodonts": "Cosa funziona bene e cosa no"
+    },
+    "tips": {
+      "naturalLight": "Usa la luce naturale stando vicino a una finestra o uscendo all'aperto.",
+      "photos": "Includi sia primi piani che foto a mezzo busto.",
+      "expression": "Mantieni un'espressione neutra o naturalmente amichevole.",
+      "avoid": "Evita filtri, cappelli, trucco pesante o immagini generate dall'IA.",
+      "clothing": "Indossa abiti semplici con colori solidi o motivi delicati.",
+      "quantity": "Carica da 8 a 12 foto diverse con angolazioni e illuminazione variata."
+    },
+    "tipBox": "La luce naturale, la varietà delle espressioni e un'inquadratura chiara aiutano l'IA a creare risultati più accurati e professionali.",
+    "dodonts": {
+      "eyes": "Guarda la fotocamera con gli occhi chiaramente visibili.",
+      "lighting": "Usa un'illuminazione luminosa e naturale. Evita foto scure o sfocate.",
+      "frame": "Assicurati di essere solo nell'inquadratura, senza disordine o altre persone.",
+      "face": "Inquadra il tuo viso in modo che non sia troppo piccolo o tagliato."
+    },
+    "buttons": {
+      "open": "Requisiti delle Foto",
+      "confirm": "Ho capito - carichiamo!"
+    }
+  },
   "fields": {
-    "orderId": "ID ordine",
-    "styles": "Stili selezionati",
-    "acceptedImages": "Immagini accettate",
-    "needsImprovement": "Necessita miglioramento",
-    "overallQualityScore": "Punteggio qualità complessiva",
-    "totalImages": "Totale immagini",
-    "acceptedImagesCount": "Immagini accettate",
-    "rejectedImagesCount": "Immagini rifiutate"
+    "orderId": "ID Ordine",
+    "styles": "Stili Selezionati",
+    "images": {
+      "accepted": "Immagini Accettate",
+      "needsImprovement": "Da Migliorare",
+      "total": "Totale Immagini"
+    },
+    "quality": {
+      "score": "Punteggio Qualità Complessiva"
+    }
   },
   "status": {
     "error": "Errore",
     "failed": "Fallito",
     "successful": "Riuscito",
-    "image": "{{count}} immagine",
-    "image_plural": "{{count}} immagini",
+    "image": "{{count}} Immagine",
+    "image_plural": "{{count}} Immagini",
     "uploadMore": "Carica altre {{count}} {{image}}",
     "removeImages": "Rimuovi {{count}} {{image}}",
     "imagesSelected": "{{count}} immagini selezionate",
-    "processing": "Elaborazione... {{uploaded}}/{{total}} ({{progress}}%)"
+    "processing": "Elaborazione in corso... {{uploaded}}/{{total}} ({{progress}}%)"
   },
   "errors": {
-    "noActiveOrder": "Nessun ordine attivo",
+    "noActiveOrder": "Nessun Ordine Attivo",
     "paymentRequired": "Completa il pagamento prima di caricare le foto.",
     "loadOrderData": "Impossibile caricare i dati dell'ordine. Riprova.",
-    "uploadFailed": "Impossibile caricare le immagini. Riprova.",
+    "uploadFailed": "Caricamento delle immagini fallito. Riprova.",
     "someUploadsFailed": "{{count}} caricamenti falliti. Riprova.",
-    "savingProgress": "Impossibile salvare i progressi. Continuando alla revisione."
+    "savingProgress": "Impossibile salvare i progressi. Continuo con la revisione."
   },
   "success": {
     "uploadComplete": "{{count}} immagini caricate con successo."
   },
   "buttons": {
-    "upload": "Carica {{count}} stile",
-    "upload_plural": "Carica {{count}} stili"
+    "upload": "Carica {{count}} Stile",
+    "upload_plural": "Carica {{count}} Stili"
   }
 } 

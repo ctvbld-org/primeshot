@@ -114,6 +114,17 @@
   background: linear-gradient(180deg, rgba(68, 227, 201, 0.20) 0%, rgba(0, 138, 115, 0.90) 100%);
 }
 
+.primary:disabled {
+  background: #C0CED820;
+  color: #00000040;
+  opacity: 1;
+  box-shadow: none !important;
+}
+
+.primary:disabled::after {
+  background: linear-gradient(180deg, #C0CED820 0%, #C0CED850 100%);
+}
+
 .secondary {
   background-color: #FF7C0A;
   color: #000000;

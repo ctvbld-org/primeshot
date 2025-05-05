@@ -7,15 +7,46 @@
       "description": "Please upload photos according to your order specifications."
     }
   },
+  "requirements": {
+    "title": "Photo Requirements",
+    "heading": "Quick tips for flawless",
+    "headingHighlight": "AI headshots",
+    "description": "Better photo quality and more variety lead to better headshots. Natural lighting and relaxed expressions make all the difference.",
+    "sideHeading": {
+      "tips": "Follow these photo tips for better results",
+      "dodonts": "What works well and what doesn't"
+    },
+    "tips": {
+      "naturalLight": "Use natural light by standing near a window or going outside.",
+      "photos": "Include both close-up and waist-up photos.",
+      "expression": "Keep your expression neutral or naturally friendly.",
+      "avoid": "Avoid filters, hats, heavy makeup, or AI-generated images.",
+      "clothing": "Wear plain clothing with solid colors or soft patterns.",
+      "quantity": "Upload 8 to 12 different photos with varied angles and lighting."
+    },
+    "tipBox": "Natural light, facial variety, and clear framing help the AI create more accurate, professional results.",
+    "dodonts": {
+      "eyes": "Look at the camera with your eyes clearly visible.",
+      "lighting": "Use bright, natural lighting. Avoid dark or blurry photos.",
+      "frame": "Make sure you're alone in the frame, with no clutter or other people.",
+      "face": "Frame your face so it's not too small or cut off."
+    },
+    "buttons": {
+      "open": "Photo Requirements",
+      "confirm": "Got it — let's upload!"
+    }
+  },
   "fields": {
     "orderId": "Order ID",
     "styles": "Selected Styles",
-    "acceptedImages": "Accepted Images",
-    "needsImprovement": "Needs Improvement",
-    "overallQualityScore": "Overall Quality Score",
-    "totalImages": "Total Images",
-    "acceptedImagesCount": "Accepted Images",
-    "rejectedImagesCount": "Rejected Images"
+    "images": {
+      "accepted": "Accepted Images",
+      "needsImprovement": "Needs Improvement",
+      "total": "Total Images"
+    },
+    "quality": {
+      "score": "Overall Quality Score"
+    }
   },
   "status": {
     "error": "Error",

@@ -1,26 +1,57 @@
 {
   "common": {
     "title": "Foto's Uploaden",
-    "description": "Upload uw foto's voor headshot generatie.",
+    "description": "Upload je foto's voor het genereren van portretfoto's.",
     "order": {
       "title": "Bestelgegevens",
-      "description": "Upload foto's volgens uw bestelspecificaties."
+      "description": "Upload foto's volgens je bestelspecificaties."
+    }
+  },
+  "requirements": {
+    "title": "Foto-eisen",
+    "heading": "Snelle tips voor perfecte",
+    "headingHighlight": "AI-portretfoto's",
+    "description": "Betere fotokwaliteit en meer variatie leiden tot betere portretfoto's. Natuurlijk licht en ontspannen expressies maken het verschil.",
+    "sideHeading": {
+      "tips": "Volg deze fototips voor betere resultaten",
+      "dodonts": "Wat wel en niet werkt"
+    },
+    "tips": {
+      "naturalLight": "Gebruik natuurlijk licht door bij een raam te staan of naar buiten te gaan.",
+      "photos": "Voeg zowel close-ups als foto's tot aan de taille toe.",
+      "expression": "Houd je gezichtsuitdrukking neutraal of natuurlijk vriendelijk.",
+      "avoid": "Vermijd filters, hoeden, zware make-up of door AI gegenereerde afbeeldingen.",
+      "clothing": "Draag eenvoudige kleding met effen kleuren of subtiele patronen.",
+      "quantity": "Upload 8 tot 12 verschillende foto's met gevarieerde hoeken en belichting."
+    },
+    "tipBox": "Natuurlijk licht, gezichtsvariatie en duidelijke kadrering helpen de AI om nauwkeurigere, professionele resultaten te creëren.",
+    "dodonts": {
+      "eyes": "Kijk in de camera met je ogen duidelijk zichtbaar.",
+      "lighting": "Gebruik helder, natuurlijk licht. Vermijd donkere of onscherpe foto's.",
+      "frame": "Zorg dat je alleen in beeld bent, zonder rommel of andere mensen.",
+      "face": "Kadreer je gezicht zodat het niet te klein of afgesneden is."
+    },
+    "buttons": {
+      "open": "Foto-eisen",
+      "confirm": "Begrepen - laten we uploaden!"
     }
   },
   "fields": {
     "orderId": "Bestelnummer",
     "styles": "Geselecteerde Stijlen",
-    "acceptedImages": "Geaccepteerde Afbeeldingen",
-    "needsImprovement": "Verbetering Nodig",
-    "overallQualityScore": "Algemene Kwaliteitsscore",
-    "totalImages": "Totaal Aantal Afbeeldingen",
-    "acceptedImagesCount": "Geaccepteerde Afbeeldingen",
-    "rejectedImagesCount": "Geweigerde Afbeeldingen"
+    "images": {
+      "accepted": "Geaccepteerde Afbeeldingen",
+      "needsImprovement": "Verbetering Nodig",
+      "total": "Totaal Aantal Afbeeldingen"
+    },
+    "quality": {
+      "score": "Algemene Kwaliteitsscore"
+    }
   },
   "status": {
     "error": "Fout",
     "failed": "Mislukt",
-    "successful": "Succesvol",
+    "successful": "Geslaagd",
     "image": "{{count}} Afbeelding",
     "image_plural": "{{count}} Afbeeldingen",
     "uploadMore": "Upload nog {{count}} {{image}}",
@@ -30,11 +61,11 @@
   },
   "errors": {
     "noActiveOrder": "Geen Actieve Bestelling",
-    "paymentRequired": "Voltooi de betaling voordat u foto's uploadt.",
+    "paymentRequired": "Voltooi de betaling voordat je foto's uploadt.",
     "loadOrderData": "Laden van bestelgegevens mislukt. Probeer het opnieuw.",
     "uploadFailed": "Uploaden van afbeeldingen mislukt. Probeer het opnieuw.",
     "someUploadsFailed": "{{count}} uploads mislukt. Probeer het opnieuw.",
-    "savingProgress": "Voortgang opslaan mislukt. Doorgaan met beoordeling."
+    "savingProgress": "Opslaan van voortgang mislukt. Doorgaan met beoordeling."
   },
   "success": {
     "uploadComplete": "{{count}} afbeeldingen succesvol geüpload."
