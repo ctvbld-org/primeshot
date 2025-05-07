@@ -1,6 +1,8 @@
 {
   "common": {
     "title": "Upload <highlight>{{minImages}}-{{maxImages}}</highlight> photos",
+    "titleReady": "You're <highlight>ready</highlight> with {{count}} photos!",
+    "titleNeedMore": "Upload <highlight>{{minImages}}-{{maxImages}}</highlight> photos",
     "description": "More variety leads to better headshots.",
     "order": {
       "title": "Order Details",
@@ -52,16 +54,18 @@
     "error": "Error",
     "failed": "Failed",
     "successful": "Successful",
-    "image": "{{count}} Image",
-    "image_plural": "{{count}} Images",
+    "image_one": "{{count}} Image",
+    "image_other": "{{count}} Images",
     "uploadMore": "Please upload {{count}} more {{image}}",
     "removeImages": "Please remove {{count}} {{image}}",
     "imagesSelected": "{{count}} images selected",
     "processing": "Processing... {{uploaded}}/{{total}} ({{progress}}%)",
-    "photosLabel": "Photos",
+    "photosLabel_zero": "Photo",
+    "photosLabel_one": "Photo",
+    "photosLabel_other": "Photos",
     "photosRequired": "{{min}}-{{max}} required",
-    "analyzing": "Analyzing {{count}} photo",
-    "analyzing_plural": "Analyzing {{count}} photos",
+    "analyzing_one": "Analyzing {{count}} photo",
+    "analyzing_other": "Analyzing {{count}} photos",
     "checkingQuality": "Checking lighting, framing, and sharpness."
   },
   "errors": {
@@ -74,11 +78,11 @@
     "maxImagesReached": "Maximum images reached",
     "maxImagesMessage": "You already have {{count}} images. Please remove some images before adding more.",
     "someImagesSkipped": "Some images were skipped",
-    "skippedMessage": "Only {{count}} image could be added. Skipped: {{files}}",
-    "skippedMessage_plural": "Only {{count}} images could be added. Skipped: {{files}}",
+    "skippedMessage_one": "Only {{count}} image could be added. Skipped: {{files}}",
+    "skippedMessage_other": "Only {{count}} images could be added. Skipped: {{files}}",
     "moreImagesNeeded": "More images needed",
-    "moreImagesMessage": "You'll need {{count}} more image to continue. You can add them now or later.",
-    "moreImagesMessage_plural": "You'll need {{count}} more images to continue. You can add them now or later.",
+    "moreImagesMessage_one": "You'll need {{count}} more image to continue. You can add it now or later.",
+    "moreImagesMessage_other": "You'll need {{count}} more images to continue. You can add them now or later.",
     "tooManyFiles": "Too many files",
     "maxFilesMessage": "You can only upload up to {{count}} files.",
     "invalidFileType": "Invalid file type. Allowed types: {{types}}",
@@ -92,8 +96,8 @@
     "uploadComplete": "Successfully uploaded {{count}} images."
   },
   "buttons": {
-    "upload": "Upload {{count}} Style",
-    "upload_plural": "Upload {{count}} Styles",
+    "upload_one": "Upload {{count}} Style",
+    "upload_other": "Upload {{count}} Styles",
     "review": "Review Shoot"
   },
   "uploader": {
@@ -101,5 +105,14 @@
     "dragDropMessage": "Drag and drop files here, or",
     "browse": "browse",
     "supportedFormats": "Supports JPEG, PNG and WebP up to 4Mb each"
+  },
+  "quality": {
+    "high": "High quality",
+    "medium": "Medium quality"
+  },
+  "accessibility": {
+    "photoWithQuality": "Photo {{number}} - {{quality}}",
+    "emptyPhotoSlot": "Empty photo slot {{number}}",
+    "photoPreview": "Preview of photo {{number}}"
   }
 } 

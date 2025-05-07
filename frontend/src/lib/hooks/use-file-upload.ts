@@ -206,30 +206,6 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
       return [];
     }
 
-    // Calculate how many more files we can accept
-    const remainingSlots = maxFiles - files.length;
-    
-    // Handle case where too many files are selected
-    if (files.length + newFiles.length > maxFiles) {
-      const acceptedFiles = newFiles.slice(0, remainingSlots);
-      const skippedFiles = newFiles.slice(remainingSlots);
-      const skippedFileNames = skippedFiles.map(f => f.name);
-      const formattedSkippedFiles = skippedFileNames.length > 3
-        ? `${skippedFileNames.slice(0, 3).join(', ')} and ${skippedFileNames.length - 3} more`
-        : skippedFileNames.join(', ');
-
-      toast({
-        title: t('errors.someImagesSkipped'),
-        description: t('errors.skippedMessage', { 
-          count: remainingSlots,
-          files: formattedSkippedFiles 
-        }),
-        duration: Infinity,
-      });
-
-      return acceptedFiles;
-    }
-
     // Check if we're below minimum images and show informative toast
     if (files.length + newFiles.length < UPLOAD_CONSTANTS.MIN_IMAGES) {
       const remaining = UPLOAD_CONSTANTS.MIN_IMAGES - (files.length + newFiles.length);
@@ -247,16 +223,6 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
   const validateFiles = (newFiles: File[]): File[] => {
     const validFiles: File[] = []
     const invalidFiles: { file: File; reason: string }[] = []
-
-    // Check if adding new files would exceed maxFiles
-    if (files.length + newFiles.length > maxFiles) {
-      toast({
-        title: t('errors.tooManyFiles'),
-        description: t('errors.maxFilesMessage', { count: maxFiles }),
-        variant: 'destructive',
-      })
-      return []
-    }
 
     newFiles.forEach((file) => {
       if (!allowedTypes.includes(file.type)) {
@@ -294,22 +260,71 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
 
   const addFiles = async (newFiles: File[]) => {
     const validFiles = validateFiles(newFiles)
-    if (validFiles.length > 0) {
-      const [analyzedFiles, results] = await analyzeImages(validFiles)
-      setFiles(prev => [...prev, ...analyzedFiles])
-      setQualityResults(prev => ({ ...prev, ...results }))
+    if (validFiles.length === 0) return []
+
+    // Analyze all valid files first
+    const [analyzedFiles, results] = await analyzeImages(validFiles)
+    
+    // Filter files that passed quality checks
+    const passingFiles = analyzedFiles.filter(file => 
+      results[file.name]?.isAcceptable === true
+    )
+
+    // Calculate how many more files we can accept
+    const remainingSlots = maxFiles - files.length
+    
+    // If we have more passing files than slots, take only the first N
+    if (files.length + passingFiles.length > maxFiles) {
+      const acceptedFiles = passingFiles.slice(0, remainingSlots)
+      const skippedFiles = passingFiles.slice(remainingSlots)
+      const skippedFileNames = skippedFiles.map(f => f.name)
+      const formattedSkippedFiles = skippedFileNames.length > 3
+        ? `${skippedFileNames.slice(0, 3).join(', ')} and ${skippedFileNames.length - 3} more`
+        : skippedFileNames.join(', ')
+
+      toast({
+        title: t('errors.someImagesSkipped'),
+        description: t('errors.skippedMessage', { 
+          count: remainingSlots,
+          files: formattedSkippedFiles 
+        }),
+        duration: 5000,
+      })
+
+      // Only keep results for accepted files
+      const acceptedResults = Object.fromEntries(
+        acceptedFiles.map(file => [file.name, results[file.name]])
+      )
+
+      setFiles(prev => [...prev, ...acceptedFiles])
+      setQualityResults(prev => ({ ...prev, ...acceptedResults }))
       
-      // Initialize progress for new files
+      // Initialize progress for accepted files
       setUploadProgress(prev => {
         const next = { ...prev }
-        analyzedFiles.forEach(file => {
+        acceptedFiles.forEach(file => {
           next[file.name] = { progress: 0, isUploading: false }
         })
         return next
       })
-      return analyzedFiles
+
+      return acceptedFiles
     }
-    return []
+
+    // If we're under the limit, keep all passing files
+    setFiles(prev => [...prev, ...passingFiles])
+    setQualityResults(prev => ({ ...prev, ...results }))
+    
+    // Initialize progress for all passing files
+    setUploadProgress(prev => {
+      const next = { ...prev }
+      passingFiles.forEach(file => {
+        next[file.name] = { progress: 0, isUploading: false }
+      })
+      return next
+    })
+
+    return passingFiles
   }
 
   const uploadFile = async (file: File, orderId?: string): Promise<string> => {

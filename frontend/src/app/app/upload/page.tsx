@@ -1,17 +1,15 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslation, Trans } from 'react-i18next'
 import { useToast } from '@/components/ui/use-toast'
-import { ArrowRightIcon } from 'lucide-react'
+import dynamic from 'next/dynamic'
+import { useWindowSize } from '@/lib/hooks/use-window-size'
 
 import { FileUploader } from '@/components/upload/file-uploader'
-import { UploadedFilesList } from '@/components/upload/uploaded-files-list'
 import { UploadRequirements } from '@/components/upload/upload-requirements'
-import { UploadSummary } from '@/components/upload/upload-summary'
 import { UploadFooter } from '@/components/upload/upload-footer'
-import { Button } from '@/components/ui/button'
 
 import { useUserProgress } from '@/lib/hooks/use-user-progress'
 import { useFileUpload } from '@/lib/hooks/use-file-upload'
@@ -19,25 +17,50 @@ import { useOrder } from '@/lib/hooks/use-order'
 import { cn } from '@/lib/utils'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 
+// Import Confetti dynamically to avoid SSR issues
+const ReactConfetti = dynamic(() => import('react-confetti'), { ssr: false })
+
+// Easy toggle for confetti animation
+const SHOW_CONFETTI = true
+
 export default function UploadPage() {
+  const { width, height } = useWindowSize()
   const { t } = useTranslation('upload')
   const router = useRouter()
   const { toast } = useToast()
   const { updateProgress } = useUserProgress()
-  const [uploadedCount, setUploadedCount] = useState(0)
+  const [, setUploadedCount] = useState(0)
+  const [showConfetti, setShowConfetti] = useState<boolean | 'stopping'>(false)
 
   // Custom hooks for managing state
   const { order, styles, isLoading, error } = useOrder()
   const {
     files: selectedFiles,
-    fileUrls,
     qualityResults,
     isUploading,
-    progress,
     addFiles,
     uploadFile,
     removeFile
   } = useFileUpload({ maxFiles: UPLOAD_CONSTANTS.MAX_IMAGES })
+
+  // Show confetti when we have enough accepted files
+  useEffect(() => {
+    if (SHOW_CONFETTI && selectedFiles.length >= UPLOAD_CONSTANTS.MIN_IMAGES) {
+      setShowConfetti(true)
+      // Stop generating new confetti after 3 seconds, but let existing pieces fall
+      const stopNewConfetti = setTimeout(() => {
+        setShowConfetti('stopping')
+      }, 3000)
+      // Remove component after all pieces have likely fallen (8 seconds total)
+      const removeConfetti = setTimeout(() => {
+        setShowConfetti(false)
+      }, 8000)
+      return () => {
+        clearTimeout(stopNewConfetti)
+        clearTimeout(removeConfetti)
+      }
+    }
+  }, [selectedFiles.length])
 
   // Filter accepted images
   const acceptedFiles = selectedFiles.filter(file => 
@@ -138,14 +161,34 @@ export default function UploadPage() {
 
   return (
     <div className="text-[#C0CED8] text-center space-y-6 pb-[80px]">
+      {SHOW_CONFETTI && showConfetti && (
+        <ReactConfetti
+          width={width}
+          height={height}
+          numberOfPieces={200}
+          recycle={showConfetti === true}
+          gravity={0.2}
+          initialVelocityY={10}
+          colors={['#44E3C9', '#FF973C', '#C0CED8']}
+        />
+      )}
       <div>
         <h2 className="text-[24px] leading-[28px] font-normal tracking-tight">
-          <Trans
-            ns="upload"
-            i18nKey="common.title"
-            values={{ minImages: UPLOAD_CONSTANTS.MIN_IMAGES, maxImages: UPLOAD_CONSTANTS.MAX_IMAGES }}
-            components={{ highlight: <span className="text-[#FF973C]" /> }}
-          />
+          {selectedFiles.length >= UPLOAD_CONSTANTS.MIN_IMAGES ? (
+            <Trans
+              ns="upload"
+              i18nKey="common.titleReady"
+              values={{ count: selectedFiles.length }}
+              components={{ highlight: <span className="text-[#44E3C9]" /> }}
+            />
+          ) : (
+            <Trans
+              ns="upload"
+              i18nKey="common.titleNeedMore"
+              values={{ minImages: UPLOAD_CONSTANTS.MIN_IMAGES, maxImages: UPLOAD_CONSTANTS.MAX_IMAGES }}
+              components={{ highlight: <span className="text-[#FF973C]" /> }}
+            />
+          )}
         </h2>
         <p className="font-normal text-[12px] leading-[14px] text-[#C0CED8] mt-2">{t('common.description')}</p>
       </div>
@@ -156,67 +199,14 @@ export default function UploadPage() {
         <FileUploader onFilesAdded={addFiles} />
       </div>
 
-      {selectedFiles.length > 0 && (
-        <div className={cn(
-          "grid gap-6",
-          selectedFiles.some(file => !qualityResults[file.name]?.isAcceptable)
-            ? "grid-cols-1 md:grid-cols-2"
-            : "grid-cols-1"
-        )}>
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-medium">{t('fields.images.accepted')}</h3>
-              <span className="text-sm text-muted-foreground">
-                {t('status.imagesSelected', { count: acceptedFiles.length })}
-              </span>
-            </div>
-            <UploadedFilesList 
-              files={acceptedFiles}
-              onRemoveFile={removeFile}
-              isUploading={isUploading}
-              progress={progress}
-              qualityResults={qualityResults}
-              variant="accepted"
-            />
-          </div>
-
-          {selectedFiles.some(file => !qualityResults[file.name]?.isAcceptable) && (
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-medium">{t('fields.images.needsImprovement')}</h3>
-                <span className="text-sm text-muted-foreground">
-                  {t('status.imagesSelected', { 
-                    count: selectedFiles.filter(file => !qualityResults[file.name]?.isAcceptable).length 
-                  })}
-                </span>
-              </div>
-              <UploadedFilesList 
-                files={selectedFiles.filter(file => !qualityResults[file.name]?.isAcceptable)}
-                onRemoveFile={removeFile}
-                isUploading={false}
-                progress={0}
-                qualityResults={qualityResults}
-                variant="rejected"
-              />
-            </div>
-          )}
-        </div>
-      )}
-
-      {selectedFiles.length > 0 && (
-        <UploadSummary 
-          acceptedFiles={acceptedFiles}
-          totalFiles={selectedFiles.length}
-          qualityResults={qualityResults}
-        />
-      )}
-
       <UploadFooter
         acceptedFiles={acceptedFiles}
         minImages={UPLOAD_CONSTANTS.MIN_IMAGES}
         maxImages={UPLOAD_CONSTANTS.MAX_IMAGES}
         onReviewClick={() => handleUpload(acceptedFiles)}
         isUploading={isUploading}
+        onRemoveFile={removeFile}
+        qualityResults={qualityResults}
       />
     </div>
   )

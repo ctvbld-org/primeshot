@@ -1,0 +1,198 @@
+.tooltip {
+    background-color: #111619;
+    color: #C0CED8;
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+    height: 260px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1), inset 0 0 0 1px #202A32;
+    backdrop-filter: blur(50px);
+    -webkit-backdrop-filter: blur(50px);
+}
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  flex: 1 1 90%;
+  overflow: hidden;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.closeButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(192, 206, 216, 0.60);
+    position: absolute;
+    right: 11px;
+    top: 11px;
+    width: 24px;
+    height: 24px;
+    border-radius: 9999px;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: background-color 0.2s;
+}
+
+.closeButton:hover {
+  background-color: rgba(192, 206, 216, 0.9);
+}
+
+.closeIcon {
+  color: #000000;
+  transform: rotate(0deg);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.closeButton:hover .closeIcon {
+  transform: rotate(180deg);
+}
+
+.scoreContainer {
+    background: rgba(192, 206, 216, 0.60);
+    color: #000000;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 18px;
+    display: flex;
+    padding: 2px 8px 2px 2px;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    position: absolute;
+    left: 10px;
+    bottom: 12px;
+    border-radius: 9999px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.scoreContainer:before {
+    background-color: #000;
+    content: '';
+    display: block;
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 9999px;
+    z-index: 0;
+}
+
+.scoreIcon {
+    position: relative;
+    z-index: 1;
+}
+
+.scoreContainerHigh .scoreIcon {
+  color: #44E3C9;
+}
+
+.scoreContainerLow .scoreIcon {
+  color: #FF973C;
+}
+
+.infoContainer {
+  flex: 1 1 10%;
+  padding: 1rem;
+}
+
+.infoContent {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  position: relative;
+}
+
+.fileInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.fileName {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 130px;
+}
+
+.fileSize {
+    font-size: 12px;
+    font-weight: 300;
+    line-height: 16px;
+    opacity: 0.6;
+}
+
+.deleteButton {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+.deleteButton,
+.deleteButtonConfirm {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 66, 66, 1);
+    font-size: 12px;
+    font-weight: 300;
+    line-height: 16px;
+    display: flex;
+    height: 32px;
+    padding: 0 8px;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    max-width: 32px;
+    overflow: hidden;
+}
+
+.deleteButton:hover,
+.deleteButtonConfirm:hover {
+    background: rgba(255, 66, 66, 0.1);
+    color: #ffffff !important;
+}
+
+.deleteButtonConfirm {
+    max-width: fit-content;
+    padding: 0 16px;
+    color: #ffffff !important;
+}
+
+.deleteIcon {
+    opacity: 1;
+    position: absolute;
+    transform: scale(1);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.deleteButtonConfirm .deleteIcon {
+    opacity: 0;
+    transform: scale(0);
+    position: absolute;
+}
+
+.deleteText {
+    opacity: 0;
+    transform: translateX(10px);
+    transition: opacity 0.3s ease-in-out 0.1s, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    visibility: hidden;
+}
+
+.deleteButtonConfirm .deleteText {
+    opacity: 1;
+    transform: translateX(0);
+    visibility: visible;
+}
+    

@@ -44,6 +44,11 @@
   border-radius: 32px;
 }
 
+.countActive {
+  background: rgba(68, 227, 201, 0.1);
+  color: #44E3C9;
+}
+
 .countLabel {
   display: flex;
   flex-direction: column;
@@ -161,6 +166,8 @@
   line-height: normal;
   transition: all 0.2s ease;
   overflow: hidden;
+  position: relative;
+  cursor: pointer;
 }
 
 .squareOptional {
@@ -184,6 +191,12 @@
   background: rgba(192, 206, 216, 0.02);
 }
 
+.square:hover,
+.squareOptional:hover,
+.squareActive[aria-expanded="true"] {
+  border: 1px solid #44E3C9;
+}
+
 .squareActive {
   opacity: 1;
 }
@@ -199,6 +212,24 @@
   flex: 0 0 1px;
 }
 
+.qualityIndicator {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(192, 206, 216, 0.60);
+  z-index: 1;
+}
+
+.qualityIndicatorHigh {
+  background: #44E3C9;
+}
+
+.qualityIndicatorMedium {
+  background: #FF973C;
+}
 
 @media (max-width: 768px) {
   .separator {
