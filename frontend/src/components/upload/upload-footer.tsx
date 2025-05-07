@@ -106,9 +106,9 @@ export function UploadFooter({
         <div className={styles.countWrapper}>
           <span className={styles.count}>{count}</span>
           <p className={styles.countLabel}>
-            Photos
+            {t('status.photosLabel')}
             <span className={styles.countDesc}>
-              {UPLOAD_CONSTANTS.MIN_IMAGES}-{UPLOAD_CONSTANTS.MAX_IMAGES} required
+              {t('status.photosRequired', { min: UPLOAD_CONSTANTS.MIN_IMAGES, max: UPLOAD_CONSTANTS.MAX_IMAGES })}
             </span>
           </p>
         </div>

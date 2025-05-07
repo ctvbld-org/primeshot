@@ -1,10 +1,10 @@
 {
   "common": {
     "title": "Sube <highlight>{{minImages}}-{{maxImages}}</highlight> fotos",
-    "description": "Más variedad conduce a retratos mejores.",
+    "description": "Más variedad lleva a mejores fotos.",
     "order": {
-      "title": "Detalles del Pedido",
-      "description": "Por favor, sube las fotos según las especificaciones de tu pedido."
+      "title": "Detalles del pedido",
+      "description": "Por favor, sube fotos según las especificaciones de tu pedido."
     }
   },
   "requirements": {
@@ -57,7 +57,12 @@
     "uploadMore": "Por favor, sube {{count}} {{image}} más",
     "removeImages": "Por favor, elimina {{count}} {{image}}",
     "imagesSelected": "{{count}} imágenes seleccionadas",
-    "processing": "Procesando... {{uploaded}}/{{total}} ({{progress}}%)"
+    "processing": "Procesando... {{uploaded}}/{{total}} ({{progress}}%)",
+    "photosLabel": "Fotos",
+    "photosRequired": "{{min}}-{{max}} requeridas",
+    "analyzing": "Analizando {{count}} foto",
+    "analyzing_plural": "Analizando {{count}} fotos",
+    "checkingQuality": "Comprobando iluminación, encuadre y claridad."
   },
   "errors": {
     "noActiveOrder": "Sin Pedido Activo",
@@ -65,13 +70,39 @@
     "loadOrderData": "Error al cargar los datos del pedido. Por favor, inténtalo de nuevo.",
     "uploadFailed": "Error al subir las imágenes. Por favor, inténtalo de nuevo.",
     "someUploadsFailed": "{{count}} subidas fallaron. Por favor, inténtalo de nuevo.",
-    "savingProgress": "Error al guardar el progreso. Continuando con la revisión."
+    "savingProgress": "Error al guardar el progreso. Continuando con la revisión.",
+    "maxImagesReached": "Número máximo de imágenes alcanzado",
+    "maxImagesMessage": "Ya tienes {{count}} imágenes. Por favor, elimina algunas antes de añadir más.",
+    "someImagesSkipped": "Algunas imágenes fueron omitidas",
+    "skippedMessage": "Solo se pudo añadir {{count}} imagen. Omitidas: {{files}}",
+    "skippedMessage_plural": "Solo se pudieron añadir {{count}} imágenes. Omitidas: {{files}}",
+    "moreImagesNeeded": "Se necesitan más imágenes",
+    "moreImagesMessage": "Necesitas {{count}} imagen más para continuar. Puedes añadirla ahora o más tarde.",
+    "moreImagesMessage_plural": "Necesitas {{count}} imágenes más para continuar. Puedes añadirlas ahora o más tarde.",
+    "tooManyFiles": "Demasiados archivos",
+    "maxFilesMessage": "Solo puedes subir hasta {{count}} archivos.",
+    "invalidFileType": "Tipo de archivo no válido. Tipos permitidos: {{types}}",
+    "fileSizeExceeded": "El tamaño del archivo excede el límite máximo de {{size}}.",
+    "duplicateFile": "Ya existe un archivo con este nombre.",
+    "uploadFailedCount": "No se pudieron añadir {{count}} archivo(s)",
+    "orderIdRequired": "Se requiere ID de pedido para la subida",
+    "invalidResponse": "Respuesta no válida: URL faltante o no válida"
   },
   "success": {
     "uploadComplete": "{{count}} imágenes subidas exitosamente."
   },
   "buttons": {
     "upload": "Subir {{count}} Estilo",
-    "upload_plural": "Subir {{count}} Estilos"
+    "upload_plural": "Subir {{count}} Estilos",
+    "dropMessage": "¡Adelante, suéltalo aquí! 🔥",
+    "dragDropMessage": "Arrastra y suelta archivos aquí, o",
+    "browse": "explorar",
+    "supportedFormats": "Soporta JPEG, PNG y WebP hasta 4Mb cada uno"
+  },
+  "uploader": {
+    "dropMessage": "¡Adelante, suéltalo aquí! 🔥",
+    "dragDropMessage": "Arrastra y suelta archivos aquí, o",
+    "browse": "explorar",
+    "supportedFormats": "Soporta JPEG, PNG y WebP hasta 4Mb cada uno"
   }
 } 

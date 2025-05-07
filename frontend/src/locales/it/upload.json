@@ -1,9 +1,9 @@
 {
   "common": {
-    "title": "Carica Foto",
-    "description": "Carica le tue foto per la generazione dei ritratti.",
+    "title": "Carica <highlight>{{minImages}}-{{maxImages}}</highlight> foto",
+    "description": "Più varietà porta a foto migliori.",
     "order": {
-      "title": "Dettagli dell'Ordine",
+      "title": "Dettagli dell'ordine",
       "description": "Carica le foto secondo le specifiche del tuo ordine."
     }
   },
@@ -57,7 +57,12 @@
     "uploadMore": "Carica altre {{count}} {{image}}",
     "removeImages": "Rimuovi {{count}} {{image}}",
     "imagesSelected": "{{count}} immagini selezionate",
-    "processing": "Elaborazione in corso... {{uploaded}}/{{total}} ({{progress}}%)"
+    "processing": "Elaborazione in corso... {{uploaded}}/{{total}} ({{progress}}%",
+    "photosLabel": "Foto",
+    "photosRequired": "{{min}}-{{max}} richieste",
+    "analyzing": "Analisi di {{count}} foto",
+    "analyzing_plural": "Analisi di {{count}} foto",
+    "checkingQuality": "Controllo illuminazione, inquadratura e nitidezza."
   },
   "errors": {
     "noActiveOrder": "Nessun Ordine Attivo",
@@ -65,13 +70,36 @@
     "loadOrderData": "Impossibile caricare i dati dell'ordine. Riprova.",
     "uploadFailed": "Caricamento delle immagini fallito. Riprova.",
     "someUploadsFailed": "{{count}} caricamenti falliti. Riprova.",
-    "savingProgress": "Impossibile salvare i progressi. Continuo con la revisione."
+    "savingProgress": "Impossibile salvare i progressi. Continuo con la revisione.",
+    "maxImagesReached": "Numero massimo di immagini raggiunto",
+    "maxImagesMessage": "Hai già {{count}} immagini. Rimuovine alcune prima di aggiungerne altre.",
+    "someImagesSkipped": "Alcune immagini sono state saltate",
+    "skippedMessage": "È stato possibile aggiungere solo {{count}} immagine. Saltate: {{files}}",
+    "skippedMessage_plural": "È stato possibile aggiungere solo {{count}} immagini. Saltate: {{files}}",
+    "moreImagesNeeded": "Sono necessarie più immagini",
+    "moreImagesMessage": "Hai bisogno di {{count}} altra immagine. Puoi aggiungerla ora o più tardi.",
+    "moreImagesMessage_plural": "Hai bisogno di {{count}} altre immagini. Puoi aggiungerle ora o più tardi.",
+    "tooManyFiles": "Troppi file",
+    "maxFilesMessage": "Puoi caricare solo fino a {{count}} file.",
+    "invalidFileType": "Tipo di file non valido. Tipi consentiti: {{types}}",
+    "fileSizeExceeded": "La dimensione del file supera il limite massimo di {{size}}.",
+    "duplicateFile": "Esiste già un file con questo nome.",
+    "uploadFailedCount": "Impossibile aggiungere {{count}} file",
+    "orderIdRequired": "ID ordine richiesto per il caricamento",
+    "invalidResponse": "Risposta non valida: URL mancante o non valido"
   },
   "success": {
     "uploadComplete": "{{count}} immagini caricate con successo."
   },
   "buttons": {
     "upload": "Carica {{count}} Stile",
-    "upload_plural": "Carica {{count}} Stili"
+    "upload_plural": "Carica {{count}} Stili",
+    "review": "Rivedi Scatti"
+  },
+  "uploader": {
+    "dropMessage": "Dai, lascialo qui! 🔥",
+    "dragDropMessage": "Trascina e rilascia i file qui, oppure",
+    "browse": "sfoglia",
+    "supportedFormats": "Supporta JPEG, PNG e WebP fino a 4Mb ciascuno"
   }
 } 

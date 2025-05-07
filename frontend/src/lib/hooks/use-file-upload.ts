@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, Fragment } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ImageQualityResult } from '@/lib/image-quality'
 import { useToast } from '@/components/ui/use-toast'
 import { formatFileSize } from '@/lib/utils'
@@ -20,6 +21,7 @@ interface FileProgress {
 }
 
 export function useFileUpload(options: UseFileUploadOptions = {}) {
+  const { t } = useTranslation('upload')
   const {
     maxSize = 100 * 1024 * 1024, // 100MB max file size
     allowedTypes = ['image/jpeg', 'image/png', 'image/webp'],
@@ -196,8 +198,8 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     // Check if we already have max files
     if (files.length >= maxFiles) {
       toast({
-        title: 'Maximum images reached',
-        description: `You already have ${maxFiles} images. Please remove some images before adding more.`,
+        title: t('errors.maxImagesReached'),
+        description: t('errors.maxImagesMessage', { count: maxFiles }),
         variant: 'destructive',
         duration: 5000,
       });
@@ -217,8 +219,11 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
         : skippedFileNames.join(', ');
 
       toast({
-        title: 'Some images were skipped',
-        description: `Only ${remainingSlots} image${remainingSlots === 1 ? '' : 's'} could be added. Skipped: ${formattedSkippedFiles}`,
+        title: t('errors.someImagesSkipped'),
+        description: t('errors.skippedMessage', { 
+          count: remainingSlots,
+          files: formattedSkippedFiles 
+        }),
         duration: Infinity,
       });
 
@@ -229,15 +234,15 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     if (files.length + newFiles.length < UPLOAD_CONSTANTS.MIN_IMAGES) {
       const remaining = UPLOAD_CONSTANTS.MIN_IMAGES - (files.length + newFiles.length);
       toast({
-        title: 'More images needed',
-        description: `You'll need ${remaining} more image${remaining === 1 ? '' : 's'} to continue. You can add them now or later.`,
+        title: t('errors.moreImagesNeeded'),
+        description: t('errors.moreImagesMessage', { count: remaining }),
         variant: 'default',
         duration: 5000,
       });
     }
 
     return newFiles;
-  }, [files.length, maxFiles, toast]);
+  }, [files.length, maxFiles, toast, t]);
 
   const validateFiles = (newFiles: File[]): File[] => {
     const validFiles: File[] = []
@@ -246,8 +251,8 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     // Check if adding new files would exceed maxFiles
     if (files.length + newFiles.length > maxFiles) {
       toast({
-        title: 'Too many files',
-        description: `You can only upload up to ${maxFiles} files.`,
+        title: t('errors.tooManyFiles'),
+        description: t('errors.maxFilesMessage', { count: maxFiles }),
         variant: 'destructive',
       })
       return []
@@ -257,17 +262,17 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
       if (!allowedTypes.includes(file.type)) {
         invalidFiles.push({ 
           file, 
-          reason: `Invalid file type. Allowed types: ${allowedTypes.join(', ')}` 
+          reason: t('errors.invalidFileType', { types: allowedTypes.join(', ') })
         })
       } else if (file.size > maxSize) {
         invalidFiles.push({ 
           file, 
-          reason: `File size exceeds maximum limit of ${formatFileSize(maxSize)}.` 
+          reason: t('errors.fileSizeExceeded', { size: formatFileSize(maxSize) })
         })
       } else if (files.some(f => f.name === file.name)) {
         invalidFiles.push({ 
           file, 
-          reason: 'A file with this name already exists.' 
+          reason: t('errors.duplicateFile')
         })
       } else {
         validFiles.push(file)
@@ -276,7 +281,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
 
     if (invalidFiles.length > 0) {
       toast({
-        title: `${invalidFiles.length} file(s) could not be added`,
+        title: t('errors.uploadFailedCount', { count: invalidFiles.length }),
         description: invalidFiles.map(({ file, reason }) => 
           `${file.name}: ${reason}`
         ).join('\n'),
@@ -310,7 +315,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
   const uploadFile = async (file: File, orderId?: string): Promise<string> => {
     try {
       if (!orderId) {
-        throw new Error('orderId is required for file upload')
+        throw new Error(t('errors.orderIdRequired'))
       }
 
       // Set initial upload state for this file
@@ -339,14 +344,14 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
         })
 
         if (!response.ok) {
-          throw new Error('Upload failed')
+          throw new Error(t('errors.uploadFailed'))
         }
 
         const data = await response.json()
         
         // Validate response data structure
         if (!data || typeof data.url !== 'string') {
-          throw new Error('Invalid response: missing or invalid URL')
+          throw new Error(t('errors.invalidResponse'))
         }
         
         // Set progress to 100% for successful upload

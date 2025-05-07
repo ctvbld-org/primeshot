@@ -57,7 +57,12 @@
     "uploadMore": "Please upload {{count}} more {{image}}",
     "removeImages": "Please remove {{count}} {{image}}",
     "imagesSelected": "{{count}} images selected",
-    "processing": "Processing... {{uploaded}}/{{total}} ({{progress}}%)"
+    "processing": "Processing... {{uploaded}}/{{total}} ({{progress}}%)",
+    "photosLabel": "Photos",
+    "photosRequired": "{{min}}-{{max}} required",
+    "analyzing": "Analyzing {{count}} photo",
+    "analyzing_plural": "Analyzing {{count}} photos",
+    "checkingQuality": "Checking lighting, framing, and sharpness."
   },
   "errors": {
     "noActiveOrder": "No Active Order",
@@ -65,7 +70,23 @@
     "loadOrderData": "Failed to load order data. Please try again.",
     "uploadFailed": "Failed to upload images. Please try again.",
     "someUploadsFailed": "{{count}} uploads failed. Please try again.",
-    "savingProgress": "Failed to save progress. Continuing to review."
+    "savingProgress": "Failed to save progress. Continuing to review.",
+    "maxImagesReached": "Maximum images reached",
+    "maxImagesMessage": "You already have {{count}} images. Please remove some images before adding more.",
+    "someImagesSkipped": "Some images were skipped",
+    "skippedMessage": "Only {{count}} image could be added. Skipped: {{files}}",
+    "skippedMessage_plural": "Only {{count}} images could be added. Skipped: {{files}}",
+    "moreImagesNeeded": "More images needed",
+    "moreImagesMessage": "You'll need {{count}} more image to continue. You can add them now or later.",
+    "moreImagesMessage_plural": "You'll need {{count}} more images to continue. You can add them now or later.",
+    "tooManyFiles": "Too many files",
+    "maxFilesMessage": "You can only upload up to {{count}} files.",
+    "invalidFileType": "Invalid file type. Allowed types: {{types}}",
+    "fileSizeExceeded": "File size exceeds maximum limit of {{size}}.",
+    "duplicateFile": "A file with this name already exists.",
+    "uploadFailedCount": "{{count}} file(s) could not be added",
+    "orderIdRequired": "Order ID is required for file upload",
+    "invalidResponse": "Invalid response: missing or invalid URL"
   },
   "success": {
     "uploadComplete": "Successfully uploaded {{count}} images."
@@ -74,5 +95,11 @@
     "upload": "Upload {{count}} Style",
     "upload_plural": "Upload {{count}} Styles",
     "review": "Review Shoot"
+  },
+  "uploader": {
+    "dropMessage": "Go ahead, drop it like it's hot! 🔥",
+    "dragDropMessage": "Drag and drop files here, or",
+    "browse": "browse",
+    "supportedFormats": "Supports JPEG, PNG and WebP up to 4Mb each"
   }
 } 

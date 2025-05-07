@@ -1,10 +1,10 @@
 {
   "common": {
-    "title": "Télécharger des Photos",
-    "description": "Téléchargez vos photos pour la génération de portraits.",
+    "title": "Téléchargez <highlight>{{minImages}}-{{maxImages}}</highlight> photos",
+    "description": "Plus de variété mène à de meilleures photos.",
     "order": {
-      "title": "Détails de la Commande",
-      "description": "Veuillez télécharger les photos selon les spécifications de votre commande."
+      "title": "Détails de la commande",
+      "description": "Veuillez télécharger des photos selon les spécifications de votre commande."
     }
   },
   "requirements": {
@@ -57,7 +57,12 @@
     "uploadMore": "Veuillez télécharger {{count}} {{image}} supplémentaire(s)",
     "removeImages": "Veuillez supprimer {{count}} {{image}}",
     "imagesSelected": "{{count}} images sélectionnées",
-    "processing": "Traitement en cours... {{uploaded}}/{{total}} ({{progress}}%)"
+    "processing": "Traitement en cours... {{uploaded}}/{{total}} ({{progress}}%)",
+    "photosLabel": "Photos",
+    "photosRequired": "{{min}}-{{max}} requis",
+    "analyzing": "Analyse de {{count}} photo",
+    "analyzing_plural": "Analyse de {{count}} photos",
+    "checkingQuality": "Vérification de l'éclairage, du cadrage et de la netteté."
   },
   "errors": {
     "noActiveOrder": "Aucune Commande Active",
@@ -65,7 +70,23 @@
     "loadOrderData": "Échec du chargement des données de commande. Veuillez réessayer.",
     "uploadFailed": "Échec du téléchargement des images. Veuillez réessayer.",
     "someUploadsFailed": "{{count}} téléchargements ont échoué. Veuillez réessayer.",
-    "savingProgress": "Échec de la sauvegarde de la progression. Poursuite de la révision."
+    "savingProgress": "Échec de la sauvegarde de la progression. Poursuite de la révision.",
+    "maxImagesReached": "Nombre maximum d'images atteint",
+    "maxImagesMessage": "Vous avez déjà {{count}} images. Veuillez en supprimer avant d'en ajouter d'autres.",
+    "someImagesSkipped": "Certaines images ont été ignorées",
+    "skippedMessage": "Seule {{count}} image a pu être ajoutée. Ignorées : {{files}}",
+    "skippedMessage_plural": "Seules {{count}} images ont pu être ajoutées. Ignorées : {{files}}",
+    "moreImagesNeeded": "Plus d'images nécessaires",
+    "moreImagesMessage": "Il vous faut {{count}} image supplémentaire pour continuer. Vous pouvez l'ajouter maintenant ou plus tard.",
+    "moreImagesMessage_plural": "Il vous faut {{count}} images supplémentaires pour continuer. Vous pouvez les ajouter maintenant ou plus tard.",
+    "tooManyFiles": "Trop de fichiers",
+    "maxFilesMessage": "Vous ne pouvez télécharger que {{count}} fichiers maximum.",
+    "invalidFileType": "Type de fichier invalide. Types autorisés : {{types}}",
+    "fileSizeExceeded": "La taille du fichier dépasse la limite maximale de {{size}}.",
+    "duplicateFile": "Un fichier avec ce nom existe déjà.",
+    "uploadFailedCount": "{{count}} fichier(s) n'ont pas pu être ajoutés",
+    "orderIdRequired": "L'ID de commande est requis pour le téléchargement",
+    "invalidResponse": "Réponse invalide : URL manquante ou invalide"
   },
   "success": {
     "uploadComplete": "{{count}} images téléchargées avec succès."
@@ -73,5 +94,11 @@
   "buttons": {
     "upload": "Télécharger {{count}} Style",
     "upload_plural": "Télécharger {{count}} Styles"
+  },
+  "uploader": {
+    "dropMessage": "Allez-y, déposez-le ici ! 🔥",
+    "dragDropMessage": "Glissez et déposez les fichiers ici, ou",
+    "browse": "parcourir",
+    "supportedFormats": "Supporte JPEG, PNG et WebP jusqu'à 4Mo chacun"
   }
 } 

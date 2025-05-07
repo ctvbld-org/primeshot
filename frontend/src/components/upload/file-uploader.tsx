@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 import styles from './file-uploader.module.css'
 import clsx from 'clsx'
@@ -11,6 +12,7 @@ interface FileUploaderProps {
 }
 
 export function FileUploader({ onFilesAdded }: FileUploaderProps) {
+  const { t } = useTranslation('upload')
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const { handleNewFiles, addFiles, isAnalyzing, analyzingCount } = useFileUpload()
@@ -93,20 +95,21 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
             <div className="space-y-2">
               <h3 className={styles.title}>
                 {isDragging ? (
-                  'Go ahead, drop it like it\'s hot! 🔥'
+                  t('uploader.dropMessage')
                 ) : isAnalyzing ? (
-                  `Analyzing ${analyzingCount} photo${analyzingCount === 1 ? '' : 's'}...`
+                  t('status.analyzing', { count: analyzingCount })
                 ) : (
                   <>
-                    Drag and drop files here, or{' '}
-                    <span className={styles.browse}>browse</span>
+                    {t('uploader.dragDropMessage')}{' '}
+                    <span className={styles.browse}>{t('uploader.browse')}</span>
                   </>
                 )}
               </h3>
               <p className={styles.subtitle}>
                 {isAnalyzing 
-                  ? 'Checking for lighting, framing, and image clarity.' 
-                  : 'Supports JPEG, PNG and WebP up to 4Mb each'}
+                  ? t('status.checkingQuality')
+                  : t('uploader.supportedFormats')
+                }
               </p>
             </div>
           </div>

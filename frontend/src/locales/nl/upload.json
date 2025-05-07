@@ -1,10 +1,10 @@
 {
   "common": {
-    "title": "Foto's Uploaden",
-    "description": "Upload je foto's voor het genereren van portretfoto's.",
+    "title": "Upload <highlight>{{minImages}}-{{maxImages}}</highlight> foto's",
+    "description": "Meer variatie leidt tot betere foto's.",
     "order": {
       "title": "Bestelgegevens",
-      "description": "Upload foto's volgens je bestelspecificaties."
+      "description": "Upload foto's volgens uw bestelspecificaties."
     }
   },
   "requirements": {
@@ -57,7 +57,12 @@
     "uploadMore": "Upload nog {{count}} {{image}}",
     "removeImages": "Verwijder {{count}} {{image}}",
     "imagesSelected": "{{count}} afbeeldingen geselecteerd",
-    "processing": "Verwerken... {{uploaded}}/{{total}} ({{progress}}%)"
+    "processing": "Verwerken... {{uploaded}}/{{total}} ({{progress}}%)",
+    "photosLabel": "Foto's",
+    "photosRequired": "{{min}}-{{max}} vereist",
+    "analyzing": "Analyseren van {{count}} foto",
+    "analyzing_plural": "Analyseren van {{count}} foto's",
+    "checkingQuality": "Controleren van belichting, kadrering en scherpte."
   },
   "errors": {
     "noActiveOrder": "Geen Actieve Bestelling",
@@ -65,13 +70,39 @@
     "loadOrderData": "Laden van bestelgegevens mislukt. Probeer het opnieuw.",
     "uploadFailed": "Uploaden van afbeeldingen mislukt. Probeer het opnieuw.",
     "someUploadsFailed": "{{count}} uploads mislukt. Probeer het opnieuw.",
-    "savingProgress": "Opslaan van voortgang mislukt. Doorgaan met beoordeling."
+    "savingProgress": "Opslaan van voortgang mislukt. Doorgaan met beoordeling.",
+    "maxImagesReached": "Maximaal aantal afbeeldingen bereikt",
+    "maxImagesMessage": "U heeft al {{count}} afbeeldingen. Verwijder eerst enkele afbeeldingen voordat u nieuwe toevoegt.",
+    "someImagesSkipped": "Sommige afbeeldingen zijn overgeslagen",
+    "skippedMessage": "Er kon slechts {{count}} afbeelding worden toegevoegd. Overgeslagen: {{files}}",
+    "skippedMessage_plural": "Er konden slechts {{count}} afbeeldingen worden toegevoegd. Overgeslagen: {{files}}",
+    "moreImagesNeeded": "Meer afbeeldingen nodig",
+    "moreImagesMessage": "U heeft nog {{count}} afbeelding nodig. U kunt deze nu of later toevoegen.",
+    "moreImagesMessage_plural": "U heeft nog {{count}} afbeeldingen nodig. U kunt deze nu of later toevoegen.",
+    "tooManyFiles": "Te veel bestanden",
+    "maxFilesMessage": "U kunt maximaal {{count}} bestanden uploaden.",
+    "invalidFileType": "Ongeldig bestandstype. Toegestane types: {{types}}",
+    "fileSizeExceeded": "Bestandsgrootte overschrijdt de maximale limiet van {{size}}.",
+    "duplicateFile": "Er bestaat al een bestand met deze naam.",
+    "uploadFailedCount": "{{count}} bestand(en) konden niet worden toegevoegd",
+    "orderIdRequired": "Bestelnummer is vereist voor upload",
+    "invalidResponse": "Ongeldige respons: ontbrekende of ongeldige URL"
   },
   "success": {
     "uploadComplete": "{{count}} afbeeldingen succesvol geüpload."
   },
   "buttons": {
     "upload": "{{count}} Stijl Uploaden",
-    "upload_plural": "{{count}} Stijlen Uploaden"
+    "upload_plural": "{{count}} Stijlen Uploaden",
+    "dropMessage": "Ga je gang, laat het hier vallen! 🔥",
+    "dragDropMessage": "Sleep bestanden hierheen, of",
+    "browse": "bladeren",
+    "supportedFormats": "Ondersteunt JPEG, PNG en WebP tot 4Mb elk"
+  },
+  "uploader": {
+    "dropMessage": "Ga je gang, laat het hier vallen! 🔥",
+    "dragDropMessage": "Sleep bestanden hierheen, of",
+    "browse": "bladeren",
+    "supportedFormats": "Ondersteunt JPEG, PNG en WebP tot 4Mb elk"
   }
 } 

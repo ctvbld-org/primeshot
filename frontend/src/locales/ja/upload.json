@@ -1,7 +1,7 @@
 {
   "common": {
-    "title": "写真のアップロード",
-    "description": "ヘッドショット生成用の写真をアップロードしてください。",
+    "title": "<highlight>{{minImages}}-{{maxImages}}</highlight>枚の写真をアップロード",
+    "description": "多様な写真がより良い結果につながります。",
     "order": {
       "title": "注文詳細",
       "description": "注文仕様に従って写真をアップロードしてください。"
@@ -57,7 +57,12 @@
     "uploadMore": "さらに{{count}}{{image}}をアップロードしてください",
     "removeImages": "{{count}}{{image}}を削除してください",
     "imagesSelected": "{{count}}枚の画像が選択されました",
-    "processing": "処理中... {{uploaded}}/{{total}} ({{progress}}%)"
+    "processing": "処理中... {{uploaded}}/{{total}} ({{progress}}%)",
+    "photosLabel": "写真",
+    "photosRequired": "{{min}}-{{max}}枚必要",
+    "analyzing": "{{count}}枚の写真を分析中",
+    "analyzing_plural": "{{count}}枚の写真を分析中",
+    "checkingQuality": "照明、構図、シャープネスを確認中。"
   },
   "errors": {
     "noActiveOrder": "アクティブな注文がありません",
@@ -65,7 +70,23 @@
     "loadOrderData": "注文データの読み込みに失敗しました。もう一度お試しください。",
     "uploadFailed": "画像のアップロードに失敗しました。もう一度お試しください。",
     "someUploadsFailed": "{{count}}件のアップロードが失敗しました。もう一度お試しください。",
-    "savingProgress": "進行状況の保存に失敗しました。レビューを続行します。"
+    "savingProgress": "進行状況の保存に失敗しました。レビューを続行します。",
+    "maxImagesReached": "最大画像数に達しました",
+    "maxImagesMessage": "すでに{{count}}枚の画像があります。新しい画像を追加する前に、いくつかを削除してください。",
+    "someImagesSkipped": "一部の画像がスキップされました",
+    "skippedMessage": "{{count}}枚の画像のみ追加できました。スキップ：{{files}}",
+    "skippedMessage_plural": "{{count}}枚の画像のみ追加できました。スキップ：{{files}}",
+    "moreImagesNeeded": "さらに画像が必要です",
+    "moreImagesMessage": "あと{{count}}枚の画像が必要です。今すぐまたは後で追加できます。",
+    "moreImagesMessage_plural": "あと{{count}}枚の画像が必要です。今すぐまたは後で追加できます。",
+    "tooManyFiles": "ファイルが多すぎます",
+    "maxFilesMessage": "最大{{count}}個のファイルまでアップロードできます。",
+    "invalidFileType": "無効なファイルタイプです。許可されているタイプ：{{types}}",
+    "fileSizeExceeded": "ファイルサイズが最大制限{{size}}を超えています。",
+    "duplicateFile": "同じ名前のファイルが既に存在します。",
+    "uploadFailedCount": "{{count}}個のファイルを追加できませんでした",
+    "orderIdRequired": "アップロードには注文IDが必要です",
+    "invalidResponse": "無効な応答：URLが欠落または無効です"
   },
   "success": {
     "uploadComplete": "{{count}}枚の画像が正常にアップロードされました。"
@@ -73,5 +94,11 @@
   "buttons": {
     "upload": "{{count}}スタイルをアップロード",
     "upload_plural": "{{count}}スタイルをアップロード"
+  },
+  "uploader": {
+    "dropMessage": "ここにドロップしてください！🔥",
+    "dragDropMessage": "ファイルをここにドラッグ＆ドロップ、または",
+    "browse": "参照",
+    "supportedFormats": "JPEG、PNG、WebPをサポート（各4Mbまで）"
   }
 } 
