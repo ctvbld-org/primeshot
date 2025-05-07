@@ -27,6 +27,9 @@
 }
 
 .footer-separator {
+  background: url('/footer-separator.svg') no-repeat center center; 
+  background-size: 13px 64px;
+  width: 13px;
   overflow: hidden;
   height: 64px;
   padding: 0 24px;

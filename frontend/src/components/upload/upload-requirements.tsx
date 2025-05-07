@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useTranslation } from 'react-i18next'
 import styles from './upload-requirements.module.css'
+import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 
 const requirements = [
   {
@@ -162,7 +163,9 @@ function UploadRequirementsComponent() {
         type="button"
         aria-label={t('requirements.buttons.open')}
       >
+        <Icon variant="check" size={24} />
         {t('requirements.buttons.open')}
+        <Icon variant="arrowRight" size={16} />
       </Button>
 
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -211,7 +214,7 @@ function UploadRequirementsComponent() {
                   {requirements.map((requirement, index) => (
                     <div key={index} className={styles.requirementItem}>
                       <Icon variant={`${requirement.icon}` as any} size={32} className={cn("text-accent", styles.requirementIcon)} />
-                      <span className={styles.requirementText}>{t(`requirements.tips.${requirement.text}`)}</span>
+                      <span className={styles.requirementText}>{t(`requirements.tips.${requirement.text}`, { minImages: UPLOAD_CONSTANTS.MIN_IMAGES, maxImages: UPLOAD_CONSTANTS.MAX_IMAGES })}</span>
                     </div>
                   ))}
                 </div>

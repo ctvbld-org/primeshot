@@ -1,6 +1,6 @@
 export const UPLOAD_CONSTANTS = {
-  MIN_IMAGES: 12,
-  MAX_IMAGES: 30,
+  MIN_IMAGES: 8,
+  MAX_IMAGES: 12,
 } as const
 
 export const UPLOAD_STATUS = {

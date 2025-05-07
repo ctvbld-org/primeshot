@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useTranslation } from 'react-i18next'
+import { useTranslation, Trans } from 'react-i18next'
 import { useToast } from '@/components/ui/use-toast'
 import { ArrowRightIcon } from 'lucide-react'
 
@@ -10,8 +10,8 @@ import { FileUploader } from '@/components/upload/file-uploader'
 import { UploadedFilesList } from '@/components/upload/uploaded-files-list'
 import { UploadRequirements } from '@/components/upload/upload-requirements'
 import { UploadSummary } from '@/components/upload/upload-summary'
+import { UploadFooter } from '@/components/upload/upload-footer'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 import { useUserProgress } from '@/lib/hooks/use-user-progress'
 import { useFileUpload } from '@/lib/hooks/use-file-upload'
@@ -137,17 +137,22 @@ export default function UploadPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="text-[#C0CED8] text-center space-y-6 pb-[80px]">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">{t('common.title')}</h2>
-        <p className="text-muted-foreground">
-          {t('common.description')}
-        </p>
+        <h2 className="text-[24px] leading-[28px] font-normal tracking-tight">
+          <Trans
+            ns="upload"
+            i18nKey="common.title"
+            values={{ minImages: UPLOAD_CONSTANTS.MIN_IMAGES, maxImages: UPLOAD_CONSTANTS.MAX_IMAGES }}
+            components={{ highlight: <span className="text-[#FF973C]" /> }}
+          />
+        </h2>
+        <p className="font-normal text-[12px] leading-[14px] text-[#C0CED8] mt-2">{t('common.description')}</p>
       </div>
 
       <UploadRequirements />
     
-      <div className="space-y-6">
+      <div className="mt-[32px]">
         <FileUploader onFilesAdded={addFiles} />
       </div>
 
@@ -160,7 +165,7 @@ export default function UploadPage() {
         )}>
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-medium">{t('fields.acceptedImages')}</h3>
+              <h3 className="font-medium">{t('fields.images.accepted')}</h3>
               <span className="text-sm text-muted-foreground">
                 {t('status.imagesSelected', { count: acceptedFiles.length })}
               </span>
@@ -178,7 +183,7 @@ export default function UploadPage() {
           {selectedFiles.some(file => !qualityResults[file.name]?.isAcceptable) && (
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-medium">{t('fields.needsImprovement')}</h3>
+                <h3 className="font-medium">{t('fields.images.needsImprovement')}</h3>
                 <span className="text-sm text-muted-foreground">
                   {t('status.imagesSelected', { 
                     count: selectedFiles.filter(file => !qualityResults[file.name]?.isAcceptable).length 
@@ -206,35 +211,13 @@ export default function UploadPage() {
         />
       )}
 
-      <div className="flex justify-between items-center mt-8">
-        <p className="text-sm text-muted-foreground">
-          {acceptedFiles.length < UPLOAD_CONSTANTS.MIN_IMAGES 
-            ? t('status.uploadMore', { count: UPLOAD_CONSTANTS.MIN_IMAGES - acceptedFiles.length })
-            : acceptedFiles.length > UPLOAD_CONSTANTS.MAX_IMAGES
-            ? t('status.removeImages', { count: acceptedFiles.length - UPLOAD_CONSTANTS.MAX_IMAGES })
-            : t('status.imagesSelected', { count: acceptedFiles.length })}
-        </p>
-        
-        <Button 
-          onClick={() => handleUpload(acceptedFiles)}
-          disabled={
-            !order || 
-            styles.length === 0 || 
-            acceptedFiles.length < UPLOAD_CONSTANTS.MIN_IMAGES || 
-            acceptedFiles.length > UPLOAD_CONSTANTS.MAX_IMAGES || 
-            isUploading
-          }
-        >
-          {isUploading 
-            ? t('status.processing', { 
-                count: uploadedCount, 
-                total: acceptedFiles.length, 
-                progress: progress.toFixed(0) 
-              })
-            : t('buttons.upload', { count: styles.length })}
-          {!isUploading && <ArrowRightIcon className="h-4 w-4 ml-2" />}
-        </Button>
-      </div>
+      <UploadFooter
+        acceptedFiles={acceptedFiles}
+        minImages={UPLOAD_CONSTANTS.MIN_IMAGES}
+        maxImages={UPLOAD_CONSTANTS.MAX_IMAGES}
+        onReviewClick={() => handleUpload(acceptedFiles)}
+        isUploading={isUploading}
+      />
     </div>
   )
 }

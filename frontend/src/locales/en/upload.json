@@ -1,7 +1,7 @@
 {
   "common": {
-    "title": "Upload Photos",
-    "description": "Upload your photos for headshot generation.",
+    "title": "Upload <highlight>{{minImages}}-{{maxImages}}</highlight> photos",
+    "description": "More variety leads to better headshots.",
     "order": {
       "title": "Order Details",
       "description": "Please upload photos according to your order specifications."
@@ -22,7 +22,7 @@
       "expression": "Keep your expression neutral or naturally friendly.",
       "avoid": "Avoid filters, hats, heavy makeup, or AI-generated images.",
       "clothing": "Wear plain clothing with solid colors or soft patterns.",
-      "quantity": "Upload 8 to 12 different photos with varied angles and lighting."
+      "quantity": "Upload <highlight>{{minImages}} to {{maxImages}}</highlight> different photos with varied angles and lighting."
     },
     "tipBox": "Natural light, facial variety, and clear framing help the AI create more accurate, professional results.",
     "dodonts": {
@@ -72,6 +72,7 @@
   },
   "buttons": {
     "upload": "Upload {{count}} Style",
-    "upload_plural": "Upload {{count}} Styles"
+    "upload_plural": "Upload {{count}} Styles",
+    "review": "Review Shoot"
   }
 } 

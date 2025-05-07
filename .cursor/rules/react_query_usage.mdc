@@ -1,3 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
 - **Use React Query (or SWR) hooks for all client-side data fetching and caching**
   - Do not use ad-hoc in-memory caches (e.g., `let cachedData`) in React modules.
   - All data fetching should be handled by hooks (e.g., `useQuery`, `useSWR`) with appropriate cache keys and stale times.

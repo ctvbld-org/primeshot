@@ -11,6 +11,8 @@
   transform-style: preserve-3d;
   perspective: 1000px;
   cursor: pointer;
+  backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(1px);
 }
 
 .btn {

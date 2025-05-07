@@ -1,7 +1,7 @@
 {
   "common": {
-    "title": "Subir Fotos",
-    "description": "Sube tus fotos para la generación de retratos.",
+    "title": "Sube <highlight>{{minImages}}-{{maxImages}}</highlight> fotos",
+    "description": "Más variedad conduce a retratos mejores.",
     "order": {
       "title": "Detalles del Pedido",
       "description": "Por favor, sube las fotos según las especificaciones de tu pedido."
@@ -17,12 +17,12 @@
       "dodonts": "Lo que funciona bien y lo que no"
     },
     "tips": {
-      "naturalLight": "Usa luz natural colocándote cerca de una ventana o saliendo al exterior.",
+      "naturalLight": "Usa luz natural colocándote cerca de una ventana o al aire libre.",
       "photos": "Incluye fotos tanto de primer plano como de medio cuerpo.",
-      "expression": "Mantén tu expresión neutral o naturalmente amigable.",
+      "expression": "Mantén una expresión neutral o naturalmente amigable.",
       "avoid": "Evita filtros, sombreros, maquillaje pesado o imágenes generadas por IA.",
       "clothing": "Usa ropa sencilla con colores sólidos o patrones suaves.",
-      "quantity": "Sube de 8 a 12 fotos diferentes con ángulos e iluminación variados."
+      "quantity": "Sube <highlight>{{minImages}} a {{maxImages}}</highlight> fotos diferentes con ángulos e iluminación variados."
     },
     "tipBox": "La luz natural, la variedad facial y el encuadre claro ayudan a la IA a crear resultados más precisos y profesionales.",
     "dodonts": {

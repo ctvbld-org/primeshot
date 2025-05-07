@@ -327,6 +327,11 @@
 } 
 
 @media (max-width: 640px) {
+  .dialog {
+    max-height: none;
+    width: 100%;
+  }
+
   .leftSide {
     flex: 1 1 35%;
   }

@@ -1,0 +1,233 @@
+.footer {
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.03) 100%), rgba(0, 21, 20, 0.6);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  min-height: 72px;
+  padding: 0 32px;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 10;
+}
+
+.footerContent {
+  display: flex;
+  align-items: center;
+  margin: 0 auto;
+  width: 100%;
+  gap: 20px;
+}
+
+.countWrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.count {
+  background: rgba(192, 206, 216, 0.10);
+  color: rgba(192, 206, 216, 0.60);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 16px;
+  display: flex;
+  width: 32px;
+  height: 32px;
+  padding: 8px 0px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 32px;
+}
+
+.countLabel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  color: #C0CED8;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.countDesc {
+  color: #C0CED880;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 16px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.separator {
+  background: url('/footer-separator.svg') no-repeat center center; 
+  background-size: 13px 72px;
+  width: 13px;
+  overflow: hidden;
+  height: 72px;
+  flex: 0 0 auto;
+}
+
+.squares {
+  position: relative;
+  overflow: hidden;
+  flex: 1 1 auto;
+}
+
+.squaresWrapper {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-padding: 0 20px;
+  position: relative;
+  -webkit-mask: linear-gradient(90deg, 
+    transparent 0%,
+    #000 20px,
+    #000 calc(100% - 20px),
+    transparent 100%
+  );
+  mask: linear-gradient(90deg, 
+    transparent 0%,
+    #000 20px,
+    #000 calc(100% - 20px),
+    transparent 100%
+  );
+}
+
+.squaresWrapper::-webkit-scrollbar {
+  display: none;
+}
+
+/* When content is at the start (no scroll left) */
+.squaresWrapper.atStart {
+  -webkit-mask: linear-gradient(90deg, 
+    #000 0%,
+    #000 calc(100% - 20px),
+    transparent 100%
+  );
+  mask: linear-gradient(90deg, 
+    #000 0%,
+    #000 calc(100% - 20px),
+    transparent 100%
+  );
+}
+
+/* When content is at the end (no scroll right) */
+.squaresWrapper.atEnd {
+  -webkit-mask: linear-gradient(90deg, 
+    transparent 0%,
+    #000 20px,
+    #000 100%
+  );
+  mask: linear-gradient(90deg, 
+    transparent 0%,
+    #000 20px,
+    #000 100%
+  );
+}
+
+/* When content fits without scrolling */
+.squaresWrapper.noScroll {
+  -webkit-mask: none;
+  mask: none;
+}
+
+.squaresContainer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.squareGroup {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.square, .squareOptional {
+  background: rgba(192, 206, 216, 0.20);
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0C1013;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: normal;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.squareOptional {
+  background: rgba(192, 206, 216, 0.1);
+  color: #C0CED830;
+}
+
+.squareOptional:nth-child(2) {
+  background: rgba(192, 206, 216, 0.08);
+}
+
+.squareOptional:nth-child(3) {
+  background: rgba(192, 206, 216, 0.06);
+}
+
+.squareOptional:nth-child(4) {
+  background: rgba(192, 206, 216, 0.04);
+}
+
+.squareOptional:nth-child(5) {
+  background: rgba(192, 206, 216, 0.02);
+}
+
+.squareActive {
+  opacity: 1;
+}
+
+.reviewButton {
+  flex: 0 0 auto;
+}
+
+.separatorImg {
+  width: 1px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  flex: 0 0 1px;
+}
+
+
+@media (max-width: 768px) {
+  .separator {
+    display: none;
+  }
+
+  .footer {
+    padding: 0;
+  }
+
+  .footerContent {
+    padding: 16px;
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .reviewButton {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+  }
+
+  .countWrapper {
+    padding: 5px 0;
+  }
+
+  .squares {
+    width: 100%;
+  }
+
+} 
