@@ -62,6 +62,7 @@ export default function UploadPage() {
     handleNewFiles,
     isAnalyzing,
     analyzingCount,
+    currentFileIndex,
   } = useFileUpload()
 
   // 4. Memoized values
@@ -92,7 +93,7 @@ export default function UploadPage() {
         <Trans
           ns="upload"
           i18nKey="common.titleNeedMore"
-          values={{ count: UPLOAD_CONSTANTS.MIN_IMAGES - acceptedFiles.length }}
+          values={{ minImages: UPLOAD_CONSTANTS.MIN_IMAGES - acceptedFiles.length, maxImages: UPLOAD_CONSTANTS.MAX_IMAGES - acceptedFiles.length, count: UPLOAD_CONSTANTS.MAX_IMAGES - acceptedFiles.length }}
           components={{ highlight: <span className="text-[#FF973C]" /> }}
         />
       )
@@ -224,7 +225,8 @@ export default function UploadPage() {
       name => !uploadState.shownRejectedFiles.includes(name)
     )
     
-    if (acceptedFiles.length < UPLOAD_CONSTANTS.MIN_IMAGES && 
+    if (!isAnalyzing && // Only show dialog when analysis is complete
+        acceptedFiles.length < UPLOAD_CONSTANTS.MAX_IMAGES && // Changed from MIN_IMAGES to MAX_IMAGES
         rejectedFiles.length > 0 && 
         hasNewRejectedFiles) {
       setUploadState(prev => ({
@@ -233,7 +235,7 @@ export default function UploadPage() {
         shownRejectedFiles: rejectedFileNames
       }))
     }
-  }, [acceptedFiles.length, rejectedFiles, uploadState.shownRejectedFiles])
+  }, [acceptedFiles.length, rejectedFiles, uploadState.shownRejectedFiles, isAnalyzing])
 
   // 7. Conditional returns - after all hooks
   if (isLoading) {
@@ -283,6 +285,7 @@ export default function UploadPage() {
           }
         }}
         files={rejectedFiles}
+        totalFiles={selectedFiles.length}
         qualityResults={qualityResults}
         onRemoveFile={removeFile}
         onContinue={handleDialogClose}
@@ -296,6 +299,8 @@ export default function UploadPage() {
         isUploading={isUploading}
         onRemoveFile={removeFile}
         qualityResults={qualityResults}
+        isAnalyzing={isAnalyzing}
+        currentAnalyzingIndex={currentFileIndex}
       />
     </div>
   )

@@ -164,8 +164,8 @@
   font-size: 16px;
   font-weight: 500;
   line-height: normal;
+  border: 1px solid transparent;
   transition: all 0.2s ease;
-  overflow: hidden;
   position: relative;
 }
 
@@ -200,6 +200,49 @@
   cursor: pointer;
 }
 
+.squareAnalyzing {
+  color: #FF973C;
+}
+
+.squareAnalyzing::before {
+  content: " ";
+  position: absolute;
+  inset: calc(1px * -1);
+  z-index: -1;
+  border: inherit;
+  border-radius: inherit;
+  background-image: conic-gradient(from var(--angle), #40403F 30%, #936741 58%, #aa6f38 92%, #FF973C 100%);
+  background-origin: border-box;
+  -webkit-mask:
+    linear-gradient(black, black) content-box,
+    linear-gradient(black, black);  
+  mask: linear-gradient(black, black),
+        linear-gradient(black, black);
+  -webkit-mask-clip: content-box, border-box;  
+  mask-clip: content-box, border-box;
+  -webkit-mask-composite: xor;  
+  mask-composite: exclude;
+  animation: spin 2s linear infinite;
+}
+
+@supports not (background: paint(something)) {
+  .squareAnalyzing::before {
+    background-image: conic-gradient(#40403F 30%, #936741 58%, #aa6f38 92%, #FF973C 100%);    
+  }
+}
+
+@property --angle {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0turn;
+}
+
+@keyframes spin {
+  to {
+    --angle: 1turn;
+  }
+}
+
 .reviewButton {
   flex: 0 0 auto;
 }
@@ -228,6 +271,27 @@
 
 .qualityIndicatorMedium {
   background: #FF973C;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
 }
 
 @media (max-width: 768px) {

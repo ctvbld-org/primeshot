@@ -7,6 +7,9 @@ import { uploadFileInChunks, CHUNK_SIZE } from '@/lib/upload-utils'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 import { analyzeImageQuality, loadModels, checkBodyPercentageRequirements } from '@/lib/image-quality'
 
+// Add delay helper
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
 interface UseFileUploadOptions {
   maxSize?: number
   allowedTypes?: string[]
@@ -25,6 +28,7 @@ interface FileState {
   previewUrl?: string
   qualityResult?: ImageQualityResult
   uploadProgress: FileProgress
+  isAnalyzing?: boolean
 }
 
 export function useFileUpload(options: UseFileUploadOptions = {}) {
@@ -43,7 +47,9 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
   const [fileStates, setFileStates] = useState<FileState[]>([])
   const [analysisState, setAnalysisState] = useState({
     isAnalyzing: false,
-    analyzingCount: 0
+    analyzingCount: 0,
+    currentFileIndex: -1,
+    acceptedCount: 0
   })
   const [modelsStatus, setModelsStatus] = useState<'loading' | 'loaded' | 'error'>('loading')
 
@@ -54,17 +60,6 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
       Math.max(fileStates.length, 1),
     acceptedCount: fileStates.filter(state => state.qualityResult?.isAcceptable).length
   }), [fileStates])
-
-  // Cleanup preview URLs when component unmounts
-  useEffect(() => {
-    return () => {
-      fileStates.forEach(state => {
-        if (state.previewUrl) {
-          URL.revokeObjectURL(state.previewUrl)
-        }
-      })
-    }
-  }, [])
 
   // Load face detection models on mount
   useEffect(() => {
@@ -148,71 +143,172 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
   }, [validateFiles, fileStates])
 
   const analyzeImages = async (files: File[]): Promise<[File[], Record<string, ImageQualityResult>]> => {
-    setAnalysisState(prev => ({ ...prev, isAnalyzing: true, analyzingCount: files.length }))
+    // Calculate the starting display index based on current accepted files
+    const startingDisplayIndex = fileStates.filter(state => state.qualityResult?.isAcceptable).length
+    
+    setAnalysisState(prev => ({ 
+      ...prev, 
+      isAnalyzing: true, 
+      analyzingCount: files.length,
+      currentFileIndex: startingDisplayIndex, // Start at the first empty square
+      acceptedCount: 0 
+    }))
     
     try {
       const results: Record<string, ImageQualityResult> = {}
+      let acceptedCount = 0
+      let currentIndex = 0
+      let displayIndex = startingDisplayIndex
+      const maxAcceptableFiles = maxFiles - fileStates.filter(state => state.qualityResult?.isAcceptable).length
+      const acceptedFiles: File[] = []
+      const rejectedFileStates: FileState[] = []
       
-      // Process files sequentially
-      for (const file of files) {
+      // Process files sequentially until we hit the max limit
+      while (currentIndex < files.length && acceptedCount < maxAcceptableFiles) {
+        const file = files[currentIndex]
+        setAnalysisState(prev => ({ ...prev, currentFileIndex: displayIndex }))
+        
         try {
+          // Add artificial delay only in development for testing purposes
+          if (process.env.NODE_ENV === 'development') {
+            await delay(500)
+          }
           const result = await analyzeImageQuality(file)
           results[file.name] = result
+          
+          if (result.isAcceptable) {
+            // Add accepted file state immediately after analysis
+            setFileStates(prev => [...prev, {
+              file,
+              previewUrl: URL.createObjectURL(file),
+              qualityResult: result,
+              uploadProgress: { progress: 0, isUploading: false }
+            }])
+            
+            acceptedFiles.push(file)
+            acceptedCount++
+            setAnalysisState(prev => ({ ...prev, acceptedCount }))
+            currentIndex++
+            displayIndex++ // Only move the loader when we accept an image
+          } else {
+            // Collect rejected file state but don't add it yet
+            rejectedFileStates.push({
+              file,
+              previewUrl: URL.createObjectURL(file),
+              qualityResult: result,
+              uploadProgress: { progress: 0, isUploading: false }
+            })
+            currentIndex++ // Try next file but keep the loader on the same position
+          }
         } catch (error) {
           console.error(`Error analyzing ${file.name}:`, error)
-          results[file.name] = {
+          const errorResult: ImageQualityResult = {
             width: 0,
             height: 0,
             faceCount: 0,
-            score: 0.5,
-            faceScore: 0.5,
-            bodyScore: 0.5,
-            brightnessScore: 0.5,
-            contrastScore: 0.5,
-            blurScore: 0.5,
-            resolutionScore: 0.5,
+            score: 0,
+            faceScore: 0,
+            bodyScore: 0,
+            brightnessScore: 0,
+            contrastScore: 0,
+            blurScore: 0,
+            resolutionScore: 0,
             hasSingleFace: false,
             hasGoodResolution: false,
             hasGoodScore: false,
-            isAcceptable: true,
+            isAcceptable: false,
             hasFace: false,
             hasBody: false,
             faceDetectionSkipped: true,
-            issues: ['Image analysis was limited. Quality assessment is based on minimal checks.']
+            issues: ['Analysis error']
           }
+          results[file.name] = errorResult
+          
+          // Collect error file state but don't add it yet
+          rejectedFileStates.push({
+            file,
+            previewUrl: URL.createObjectURL(file),
+            qualityResult: errorResult,
+            uploadProgress: { progress: 0, isUploading: false }
+          })
+          
+          currentIndex++
         }
       }
       
-      return [files, results]
+      // Process any remaining files without showing them (for rejected dialog)
+      for (let i = currentIndex; i < files.length; i++) {
+        const file = files[i]
+        try {
+          const result = await analyzeImageQuality(file)
+          results[file.name] = result
+          
+          // Collect rejected file state but don't add it yet
+          if (!result.isAcceptable) {
+            rejectedFileStates.push({
+              file,
+              previewUrl: URL.createObjectURL(file),
+              qualityResult: result,
+              uploadProgress: { progress: 0, isUploading: false }
+            })
+          }
+        } catch (error) {
+          console.error(`Error analyzing remaining file ${file.name}:`, error)
+          const errorResult: ImageQualityResult = {
+            width: 0,
+            height: 0,
+            faceCount: 0,
+            score: 0,
+            faceScore: 0,
+            bodyScore: 0,
+            brightnessScore: 0,
+            contrastScore: 0,
+            blurScore: 0,
+            resolutionScore: 0,
+            hasSingleFace: false,
+            hasGoodResolution: false,
+            hasGoodScore: false,
+            isAcceptable: false,
+            hasFace: false,
+            hasBody: false,
+            faceDetectionSkipped: true,
+            issues: ['Analysis error']
+          }
+          results[file.name] = errorResult
+          
+          // Collect error file state but don't add it yet
+          rejectedFileStates.push({
+            file,
+            previewUrl: URL.createObjectURL(file),
+            qualityResult: errorResult,
+            uploadProgress: { progress: 0, isUploading: false }
+          })
+        }
+      }
+      
+      // Now that all analysis is complete, add all rejected files at once
+      if (rejectedFileStates.length > 0) {
+        setFileStates(prev => [...prev, ...rejectedFileStates])
+      }
+      
+      // Set analyzing to false after all files are processed
+      setAnalysisState(prev => ({ 
+        ...prev, 
+        isAnalyzing: false, 
+        currentFileIndex: -1,
+        acceptedCount: 0 
+      }))
+      
+      return [acceptedFiles, results]
     } catch (error) {
       console.error('Error during image analysis:', error)
-      const basicResults: Record<string, ImageQualityResult> = {}
-      files.forEach(file => {
-        basicResults[file.name] = {
-          width: 0,
-          height: 0,
-          faceCount: 0,
-          score: 0.7,
-          faceScore: 0.7,
-          bodyScore: 0.7,
-          brightnessScore: 0.7,
-          contrastScore: 0.7,
-          blurScore: 0.7,
-          resolutionScore: 0.7,
-          hasSingleFace: false,
-          hasGoodResolution: false,
-          hasGoodScore: true,
-          isAcceptable: true,
-          hasFace: false,
-          hasBody: false,
-          faceDetectionSkipped: true,
-          issues: ['Image analysis unavailable. All images are accepted by default.']
-        }
-      })
-      
-      return [files, basicResults]
-    } finally {
-      setAnalysisState(prev => ({ ...prev, isAnalyzing: false, analyzingCount: 0 }))
+      setAnalysisState(prev => ({ 
+        ...prev, 
+        isAnalyzing: false, 
+        currentFileIndex: -1,
+        acceptedCount: 0 
+      }))
+      return [[], {}]
     }
   }
 
@@ -221,46 +317,27 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     const validFiles = validateFiles(newFiles)
     if (validFiles.length === 0) return []
 
-    // Get current count of accepted files from computed values
-    const { acceptedCount } = computedValues
-    
-    // Analyze all files first
+    // Analyze files - file states are added during analysis
     const [analyzedFiles, results] = await analyzeImages(validFiles)
+
+    // Only show skipped toast if we hit the max files limit
+    // NOT when files are rejected due to quality checks
+    const remainingSlots = maxFiles - computedValues.acceptedCount
+    const skippedDueToLimit = validFiles.length > remainingSlots
     
-    // Create new file states
-    const newFileStates: FileState[] = analyzedFiles.map(file => ({
-      file,
-      previewUrl: URL.createObjectURL(file),
-      qualityResult: results[file.name],
-      uploadProgress: { progress: 0, isUploading: false }
-    }))
-
-    // Count accepted files and handle max files limit
-    const newAcceptedFiles = newFileStates.filter(state => state.qualityResult?.isAcceptable)
-    const remainingSlots = maxFiles - acceptedCount
-    const statesToAdd = remainingSlots > 0 
-      ? [...newAcceptedFiles.slice(0, remainingSlots), ...newFileStates.filter(state => !state.qualityResult?.isAcceptable)]
-      : newFileStates.filter(state => !state.qualityResult?.isAcceptable)
-
-    // Update state
-    setFileStates(prev => [...prev, ...statesToAdd])
-
-    // Show toast if we had to skip files
-    const skippedFiles = newAcceptedFiles.slice(remainingSlots)
-    if (skippedFiles.length > 0) {
-      const skippedFileNames = skippedFiles.map(state => state.file.name)
+    if (skippedDueToLimit) {
       toast({
         title: t('errors.someImagesSkipped'),
         description: t('errors.skippedMessage', { 
           count: remainingSlots,
-          files: skippedFileNames.join(', ')
+          files: validFiles.slice(remainingSlots).map(f => f.name).join(', ')
         }),
         duration: 5000,
       })
     }
 
-    return statesToAdd
-  }, [validateFiles, computedValues, maxFiles, analyzeImages, t, toast])
+    return fileStates
+  }, [validateFiles, computedValues.acceptedCount, maxFiles, analyzeImages, t, toast])
 
   const removeFile = (index: number) => {
     setFileStates(prev => {

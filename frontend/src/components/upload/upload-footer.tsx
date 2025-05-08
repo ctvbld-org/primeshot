@@ -16,6 +16,8 @@ interface UploadFooterProps {
   isUploading: boolean
   onRemoveFile: (index: number) => void
   qualityResults: Record<string, ImageQualityResult>
+  isAnalyzing: boolean
+  currentAnalyzingIndex: number
 }
 
 interface ScrollState {
@@ -31,14 +33,15 @@ export function UploadFooter({
   onReviewClick,
   isUploading,
   onRemoveFile,
-  qualityResults
+  qualityResults,
+  isAnalyzing,
+  currentAnalyzingIndex
 }: UploadFooterProps) {
   // 1. Hooks
   const { t } = useTranslation('upload')
   const wrapperRef = useRef<HTMLDivElement>(null)
   
   // 2. State
-  const [fileUrls, setFileUrls] = useState<string[]>([])
   const [scrollState, setScrollState] = useState<ScrollState>({
     atStart: true,
     atEnd: false,
@@ -75,20 +78,6 @@ export function UploadFooter({
 
   // 5. Effects
   useEffect(() => {
-    if (!acceptedFiles?.length) {
-      setFileUrls([])
-      return
-    }
-
-    const urls = acceptedFiles.map(file => URL.createObjectURL(file))
-    setFileUrls(urls)
-
-    return () => {
-      urls.forEach(url => URL.revokeObjectURL(url))
-    }
-  }, [acceptedFiles])
-
-  useEffect(() => {
     const wrapper = wrapperRef.current
     if (!wrapper) return
 
@@ -107,9 +96,9 @@ export function UploadFooter({
 
   // 6. Render helpers
   const renderSquare = useCallback((index: number, isRequired: boolean) => {
-    const fileUrl = fileUrls[index]
     const file = acceptedFiles[index]
     const result = file ? qualityResults[file.name] : null
+    const isCurrentlyAnalyzing = isAnalyzing && index === currentAnalyzingIndex
     
     let qualityClass = ''
     let qualityLabel = ''
@@ -133,20 +122,24 @@ export function UploadFooter({
           <div
             className={cn(
               isRequired ? styles.square : styles.squareOptional,
-              fileUrl ? styles.squareActive : ''
+              file ? styles.squareActive : '',
+              isCurrentlyAnalyzing && styles.squareAnalyzing
             )}
             role="button"
-            aria-label={fileUrl ? 
+            aria-label={file ? 
               t('accessibility.photoWithQuality', { number: index + 1, quality: qualityLabel }) : 
               t('accessibility.emptyPhotoSlot', { number: index + 1 })
             }
           >
-            {fileUrl ? (
+            {file && result?.isAcceptable ? (
               <>
                 <img 
-                  src={fileUrl}
+                  src={URL.createObjectURL(file)}
                   alt={t('accessibility.photoPreview', { number: index + 1 })}
-                  className="w-full h-full object-cover rounded-lg"
+                  className={cn(
+                    "w-full h-full object-cover rounded-lg transition-all duration-300"
+                  )}
+                  onLoad={(e) => URL.revokeObjectURL((e.target as HTMLImageElement).src)}
                 />
                 {result && (
                   <div 
@@ -160,7 +153,7 @@ export function UploadFooter({
             )}
           </div>
         </PopoverTrigger>
-        {file && fileUrl && result && (
+        {file && result?.isAcceptable && !isCurrentlyAnalyzing && (
           <PopoverContent 
             className="w-auto p-0 border-none shadow-none bg-transparent" 
             align="center"
@@ -170,7 +163,7 @@ export function UploadFooter({
             <ImageTooltip
               file={file}
               result={result}
-              fileUrl={fileUrl}
+              fileUrl={URL.createObjectURL(file)}
               onClose={() => setOpenTooltipIndex(null)}
               onDelete={() => handleRemoveFile(index)}
             />
@@ -178,7 +171,7 @@ export function UploadFooter({
         )}
       </Popover>
     )
-  }, [fileUrls, acceptedFiles, qualityResults, openTooltipIndex, handleTooltipOpenChange, handleRemoveFile, t])
+  }, [acceptedFiles, qualityResults, openTooltipIndex, handleTooltipOpenChange, handleRemoveFile, t, isAnalyzing, currentAnalyzingIndex])
 
   const generateSquares = useCallback((count: number, isRequired: boolean, startIndex: number = 0) => {
     return Array.from({ length: count }).map((_, i) => renderSquare(startIndex + i, isRequired))

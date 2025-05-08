@@ -146,7 +146,7 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
   result.resolutionScore = resolutionScore;
   
   if (resolutionScore < 0.7) {
-    result.issues.push(`Low resolution image. Minimum recommended size is ${MIN_WIDTH}x${MIN_HEIGHT}px.`);
+    result.issues.push(`Low resolution image. Minimum size is ${MIN_WIDTH}x${MIN_HEIGHT}px.`);
   }
   
   // Face detection
@@ -163,25 +163,30 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
       // Set faceCount based on TinyFaceDetector results
       result.faceCount = faceDetections.length;
       
-      // Detect body presence by checking face position and size relative to image
-      const faceBox = faceDetections[0].detection.box;
-      const faceArea = faceBox.width * faceBox.height;
-      const imageArea = img.width * img.height;
-      const faceRelativeSize = faceArea / imageArea;
-      const faceBottomY = faceBox.y + faceBox.height;
-      const spaceBelow = (img.height - faceBottomY) / img.height;
-      
-      // Consider it a body shot if:
-      // 1. Face takes up less than 15% of the image area AND
-      // 2. There's significant space below the face (at least 40% of image height) AND
-      // 3. Face is positioned in the upper 35% of the image
-      const hasBody = faceDetections.length > 0 && 
-        faceRelativeSize < 0.15 && // Face should be smaller for body shots
-        spaceBelow > 0.4 && // Significant space below face for body
-        faceBox.y < img.height * 0.35; // Face in upper portion
-      
-      result.hasBody = hasBody;
-      result.bodyScore = hasBody ? 1 : 0;
+      // Only proceed with body detection if we have at least one face
+      if (faceDetections.length > 0) {
+        // Detect body presence by checking face position and size relative to image
+        const faceBox = faceDetections[0].detection.box;
+        const faceArea = faceBox.width * faceBox.height;
+        const imageArea = img.width * img.height;
+        const faceRelativeSize = faceArea / imageArea;
+        const faceBottomY = faceBox.y + faceBox.height;
+        const spaceBelow = (img.height - faceBottomY) / img.height;
+        
+        // Consider it a body shot if:
+        // 1. Face takes up less than 15% of the image area AND
+        // 2. There's significant space below the face (at least 40% of image height) AND
+        // 3. Face is positioned in the upper 35% of the image
+        const hasBody = faceRelativeSize < 0.15 && // Face should be smaller for body shots
+          spaceBelow > 0.4 && // Significant space below face for body
+          faceBox.y < img.height * 0.35; // Face in upper portion
+        
+        result.hasBody = hasBody;
+        result.bodyScore = hasBody ? 1 : 0;
+      } else {
+        result.hasBody = false;
+        result.bodyScore = 0;
+      }
       
       // If no faces detected, try SSD MobileNet as a fallback with lower threshold
       if (faceDetections.length === 0) {
@@ -214,13 +219,13 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
             });
             
             result.faceScore = evaluateFacePosition(ssdDetections[0], width, height);
-            result.issues.push('Multiple faces detected. Using the largest face for analysis.');
+            result.issues.push('Multiple faces detected.');
           } else {
             result.faceScore = evaluateFacePosition(ssdDetections[0], width, height);
           }
           
           if (result.faceScore < 0.7) {
-            result.issues.push('Face position is not optimal. Ensure your face is centered and occupies a good portion of the image.');
+            result.issues.push('Face position is not optimal.');
           }
           
           // Update body detection for SSD results
@@ -289,11 +294,11 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
         result.hasFace = false;
         result.faceCount = 0;
         result.faceScore = 0.1; // Very low score for no face
-        result.issues.push('No face detected. Please upload a photo that clearly shows your face.');
+        result.issues.push('No face detected.');
       } else if (faceDetections.length > 1) {
         result.hasFace = true;
         result.faceCount = faceDetections.length;
-        result.issues.push('Multiple faces detected. Please upload a photo with only your face.');
+        result.issues.push('Multiple faces detected.');
         result.faceScore = 0.5;
       } else {
         // One face detected
@@ -304,7 +309,7 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
         result.faceScore = evaluateFacePosition(faceDetections[0], width, height);
         
         if (result.faceScore < 0.7) {
-          result.issues.push('Face position is not optimal. Ensure your face is centered and occupies a good portion of the image.');
+          result.issues.push('Face position is not optimal.');
         }
       }
     } catch (error) {
@@ -315,7 +320,7 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
       result.hasFace = false; 
       result.faceCount = 0;
       result.faceScore = 0.5; // Give a medium score as fallback
-      result.issues.push('Face/body detection was skipped. Analysis will rely on other image quality metrics.');
+      result.issues.push('Face/body detection was skipped.');
     }
   } else {
     // Models not available
@@ -325,7 +330,7 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
     result.hasFace = false;
     result.faceCount = 0;
     result.faceScore = 0.5; // Medium fallback score when face detection is skipped
-    result.issues.push('Face/body detection was skipped. Analysis will rely on other image quality metrics.');
+    result.issues.push('Face/body detection was skipped.');
   }
   
   // Analyze image stats using canvas
@@ -335,22 +340,22 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
   result.brightnessScore = calculateBrightnessScore(stats.brightness);
   if (result.brightnessScore < 0.7) {
     if (stats.brightness < MIN_BRIGHTNESS) {
-      result.issues.push('Image is too dark. Please upload a well-lit photo.');
+      result.issues.push('Image is too dark.');
     } else if (stats.brightness > MAX_BRIGHTNESS) {
-      result.issues.push('Image is too bright. Please upload a photo with balanced lighting.');
+      result.issues.push('Image is too bright.');
     }
   }
   
   // Check contrast
   result.contrastScore = calculateContrastScore(stats.contrast);
   if (result.contrastScore < 0.7) {
-    result.issues.push('Image has poor contrast. Please upload a photo with good contrast.');
+    result.issues.push('Image has poor contrast.');
   }
   
  // Check blur
   result.blurScore = calculateBlurScore(stats.blurValue);
   if (result.blurScore < 0.7) {
-    result.issues.push('Image appears to be blurry. Please upload a sharper photo.');
+    result.issues.push('Image appears to be blurry.');
   }
   
   // Calculate overall score

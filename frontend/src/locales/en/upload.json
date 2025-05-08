@@ -2,8 +2,8 @@
   "common": {
     "title": "Upload <highlight>{{minImages}}-{{maxImages}}</highlight> photos",
     "titleReady": "You're <highlight>ready</highlight> with {{count}} photos!",
-    "titleNeedMore_one": "Upload <highlight>{{count}} more</highlight> photo",
-    "titleNeedMore_other": "Upload <highlight>{{count}} more</highlight> photos",
+    "titleNeedMore_one": "Upload <highlight>{{minImages}}-{{maxImages}} more</highlight> photo",
+    "titleNeedMore_other": "Upload <highlight>{{minImages}}-{{maxImages}} more</highlight> photos",
     "titleNoImages": "Upload <highlight>{{minImages}}-{{maxImages}}</highlight> photos",
     "description": "More variety leads to better headshots.",
     "order": {
@@ -66,8 +66,8 @@
     "photosLabel_one": "Photo",
     "photosLabel_other": "Photos",
     "photosRequired": "{{min}}-{{max}} required",
-    "analyzing_one": "Analyzing {{count}} photo",
-    "analyzing_other": "Analyzing {{count}} photos",
+    "analyzing_one": "Analyzing {{count}} photo...",
+    "analyzing_other": "Analyzing {{count}} photos...",
     "checkingQuality": "Checking lighting, framing, and sharpness."
   },
   "errors": {
@@ -112,10 +112,11 @@
     "high": "High quality",
     "medium": "Medium quality",
     "rejected": {
-      "title": "Rejected Images",
+      "title_one": "{{rejected}} of {{total}} photo didn't meet the quality guidelines",
+      "title_other": "{{rejected}} of {{total}} photos didn't meet the quality guidelines",
       "description": "The following images need improvement. Please review and try again.",
       "close": "Close",
-      "continue": "Continue Anyway"
+      "continue": "Replace or continue without"
     }
   },
   "accessibility": {

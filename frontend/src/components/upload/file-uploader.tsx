@@ -72,7 +72,7 @@ export function FileUploader({
 
   return (
     <div className={styles.fileUploaderContainer}>
-      <Card className={clsx(styles.card, isDragging ? styles.cardDragging : undefined)}>
+      <Card className={clsx(styles.card, isDragging || isAnalyzing ? styles.cardDragging : undefined)}>
         <CardContent className={styles.cardContent}>
           <div
             className={styles.dropArea}
