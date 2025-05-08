@@ -45,7 +45,15 @@
       "total": "Gesamtanzahl Bilder"
     },
     "quality": {
-      "score": "Gesamtqualitätsbewertung"
+      "score": "Gesamtqualitätsbewertung",
+      "high": "Hohe Qualität",
+      "medium": "Mittlere Qualität",
+      "rejected": {
+        "title": "Abgelehnte Bilder",
+        "description": "Die folgenden Bilder müssen verbessert werden. Bitte überprüfen und erneut versuchen.",
+        "close": "Schließen",
+        "continue": "Trotzdem Fortfahren"
+      }
     }
   },
   "status": {

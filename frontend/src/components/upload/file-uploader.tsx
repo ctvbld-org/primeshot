@@ -5,17 +5,30 @@ import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 import styles from './file-uploader.module.css'
 import clsx from 'clsx'
-import { useFileUpload } from '@/lib/hooks/use-file-upload'
 
 interface FileUploaderProps {
-  onFilesAdded: (files: File[]) => void
+  handleNewFiles: (files: File[]) => File[]
+  addFiles: (files: File[]) => Promise<FileState[]>
+  isAnalyzing: boolean
+  analyzingCount: number
 }
 
-export function FileUploader({ onFilesAdded }: FileUploaderProps) {
+interface FileState {
+  file: File
+  previewUrl?: string
+  qualityResult?: any // Replace with proper type
+  uploadProgress: { progress: number; isUploading: boolean }
+}
+
+export function FileUploader({ 
+  handleNewFiles,
+  addFiles,
+  isAnalyzing,
+  analyzingCount
+}: FileUploaderProps) {
   const { t } = useTranslation('upload')
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
-  const { handleNewFiles, addFiles, isAnalyzing, analyzingCount } = useFileUpload()
 
   const handleDrop = useCallback(async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
@@ -25,27 +38,21 @@ export function FileUploader({ onFilesAdded }: FileUploaderProps) {
     const droppedFiles = Array.from(e.dataTransfer.files)
     const filesToAdd = handleNewFiles(droppedFiles)
     if (filesToAdd.length > 0) {
-      const addedFiles = await addFiles(filesToAdd)
-      if (addedFiles.length > 0) {
-        onFilesAdded(addedFiles)
-      }
+      await addFiles(filesToAdd)
     }
-  }, [handleNewFiles, addFiles, onFilesAdded])
+  }, [handleNewFiles, addFiles])
 
   const handleFileInputChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files)
       const filesToAdd = handleNewFiles(selectedFiles)
       if (filesToAdd.length > 0) {
-        const addedFiles = await addFiles(filesToAdd)
-        if (addedFiles.length > 0) {
-          onFilesAdded(addedFiles)
-        }
+        await addFiles(filesToAdd)
       }
     }
     // Reset input value to allow selecting the same file again
     e.target.value = ''
-  }, [handleNewFiles, addFiles, onFilesAdded])
+  }, [handleNewFiles, addFiles])
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()

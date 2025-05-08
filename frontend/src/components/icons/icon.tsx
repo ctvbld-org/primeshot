@@ -1,7 +1,7 @@
 interface IconProps extends React.SVGProps<SVGSVGElement> {
   size?: number
   className?: string
-  variant: 'background' | 'clothing' | 'camera' | 'dizzyFace' | 'plusFill' | 'arrowLeft' | 'arrowRight' | 'clothingColor' | 'cross' | 'check' | 'bin' | 'basket' | 'sun' | 'crop' | 'smilyFace' | 'insights' | 'tshirt' | 'multitask' | 'idea'
+  variant: 'background' | 'clothing' | 'camera' | 'dizzyFace' | 'plusFill' | 'arrowLeft' | 'arrowRight' | 'clothingColor' | 'cross' | 'check' | 'bin' | 'basket' | 'sun' | 'crop' | 'smilyFace' | 'insights' | 'tshirt' | 'multitask' | 'idea' | 'chevronRight'
 }
 
 export function Icon({ size = 28, className, variant, ...props }: IconProps) {
@@ -24,7 +24,8 @@ export function Icon({ size = 28, className, variant, ...props }: IconProps) {
     insights: "0 0 32 32",
     tshirt: "0 0 32 32",
     multitask: "0 0 32 32",
-    idea: "0 0 24 24"
+    idea: "0 0 24 24",
+    chevronRight: "0 0 17 16"
   }
 
   const icons = {
@@ -153,6 +154,9 @@ export function Icon({ size = 28, className, variant, ...props }: IconProps) {
     ), 
     idea: (
       <path d="M14.2505 23.5197H9.75047V22.9797H14.2505V23.5197ZM15.0005 22.0197H9.00047V21.4797H15.0005V22.0197ZM15.0005 20.5197H9.00047V19.9797H15.0005V20.5197ZM15.0005 19.0197H9.00047C8.85122 19.0197 8.73047 18.899 8.73047 18.7497V17.66C8.73047 16.4435 8.73047 14.6052 7.19972 13.0137C5.76872 11.5242 4.98047 9.63647 4.98047 7.69847C4.98047 3.65072 8.06372 0.480469 12.0005 0.480469C15.9372 0.480469 19.0205 3.65072 19.0205 7.69847C19.0205 9.63647 18.2322 11.525 16.8012 13.013C15.2705 14.6052 15.2705 16.4435 15.2705 17.66V18.7497C15.2705 18.899 15.1497 19.0197 15.0005 19.0197ZM9.27047 18.4797H14.7305V17.66C14.7305 16.436 14.7305 14.3877 16.412 12.6387C17.7455 11.2505 18.4805 9.49622 18.4805 7.69772C18.4805 3.95297 15.6342 1.01972 12.0005 1.01972C8.36672 1.01972 5.52047 3.95297 5.52047 7.69772C5.52047 9.49622 6.25472 11.2505 7.58897 12.6387C9.27047 14.3877 9.27047 16.436 9.27047 17.66V18.4797Z" fill="currentColor"/>
+    ),
+    chevronRight: (
+      <path d="M11.5008 8L6.50078 13L5.80078 12.3L10.1008 8L5.80078 3.7L6.50078 3L11.5008 8Z" fill="currentColor"/>
     )
   }
 

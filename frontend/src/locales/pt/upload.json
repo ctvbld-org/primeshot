@@ -45,7 +45,15 @@
       "total": "Total de Imagens"
     },
     "quality": {
-      "score": "Pontuação Geral de Qualidade"
+      "score": "Pontuação Geral de Qualidade",
+      "high": "Alta qualidade",
+      "medium": "Qualidade média",
+      "rejected": {
+        "title": "Imagens Rejeitadas",
+        "description": "As seguintes imagens precisam de melhorias. Por favor, revise e tente novamente.",
+        "close": "Fechar",
+        "continue": "Continuar Mesmo Assim"
+      }
     }
   },
   "status": {

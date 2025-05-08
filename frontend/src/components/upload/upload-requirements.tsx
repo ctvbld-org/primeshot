@@ -158,14 +158,15 @@ function UploadRequirementsComponent() {
   return (
     <>
       <Button
+        className={styles.openButton}
         variant="outline"
         onClick={() => onOpenChange(true)}
         type="button"
         aria-label={t('requirements.buttons.open')}
       >
-        <Icon variant="check" size={24} />
+        <Icon variant="check" size={22} />
         {t('requirements.buttons.open')}
-        <Icon variant="arrowRight" size={16} />
+        <Icon variant="chevronRight" size={16} />
       </Button>
 
       <Dialog open={isOpen} onOpenChange={onOpenChange}>

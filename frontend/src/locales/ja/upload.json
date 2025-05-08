@@ -45,7 +45,15 @@
       "total": "画像の合計"
     },
     "quality": {
-      "score": "総合品質スコア"
+      "score": "総合品質スコア",
+      "high": "高品質",
+      "medium": "中品質",
+      "rejected": {
+        "title": "却下された画像",
+        "description": "以下の画像は改善が必要です。確認して再試行してください。",
+        "close": "閉じる",
+        "continue": "このまま続行"
+      }
     }
   },
   "status": {

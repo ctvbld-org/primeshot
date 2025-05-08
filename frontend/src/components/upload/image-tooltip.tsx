@@ -1,9 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { formatFileSize } from '@/lib/utils'
 import { ImageQualityResult } from '@/lib/image-quality'
 import { cn } from '@/lib/utils'
-import { X, Check } from 'lucide-react'
 import { Icon } from '@/components/icons/icon'
 import styles from './image-tooltip.module.css'
 
@@ -22,67 +21,96 @@ export function ImageTooltip({
   onClose,
   onDelete
 }: ImageTooltipProps) {
+  // 1. State
   const [confirmDelete, setConfirmDelete] = useState(false)
 
-  const handleDeleteClick = () => {
+  // 2. Memoized values
+  const score = useMemo(() => Math.round(result?.score || 0), [result?.score])
+  const isHighScore = useMemo(() => score >= 80, [score])
+
+  const scoreContainerClasses = useMemo(() => 
+    cn(
+      styles.scoreContainer,
+      isHighScore ? styles.scoreContainerHigh : styles.scoreContainerLow
+    ),
+    [isHighScore]
+  )
+
+  const deleteButtonClasses = useMemo(() => 
+    cn(
+      styles.deleteButton,
+      confirmDelete && styles.deleteButtonConfirm
+    ),
+    [confirmDelete]
+  )
+
+  // 3. Callbacks
+  const handleDeleteClick = useCallback(() => {
     if (!confirmDelete) {
       setConfirmDelete(true)
     } else {
       onDelete()
     }
-  }
+  }, [confirmDelete, onDelete])
 
-  // Reset delete confirmation when clicking outside
-  const handleClickOutside = (e: React.MouseEvent) => {
+  const handleClickOutside = useCallback((e: React.MouseEvent) => {
     if (confirmDelete) {
       e.stopPropagation()
       setConfirmDelete(false)
     }
-  }
+  }, [confirmDelete])
 
-  const score = Math.round(result?.score || 0)
-  const isHighScore = score >= 80
-
+  // 4. Render
   return (
     <div className={styles.tooltip} onClick={handleClickOutside}>
       <div className={styles.imageContainer}>
         <img
           src={fileUrl}
-          alt={file.name}
+          alt={`Preview of ${file.name}`}
           className={styles.image}
+          loading="lazy"
         />
         <button
           onClick={onClose}
           className={styles.closeButton}
+          aria-label="Close preview"
         >
           <Icon variant="cross" size={16} className={styles.closeIcon} />
         </button>
-        <div className={cn(
-          styles.scoreContainer,
-          isHighScore ? styles.scoreContainerHigh : styles.scoreContainerLow
-        )}>
+        <div className={scoreContainerClasses}>
           <Icon variant="check" size={20} className={styles.scoreIcon} />
-          <span className={styles.scoreText}>{score}%</span>
+          <span className={styles.scoreText}>
+            {score}%
+          </span>
         </div>
       </div>
 
       <div className={styles.infoContainer}>
         <div className={styles.infoContent}>
           <div className={styles.fileInfo}>
-            <p className={styles.fileName}>{file.name}</p>
-            <p className={styles.fileSize}>{formatFileSize(file.size)}</p>
+            <p className={styles.fileName} title={file.name}>
+              {file.name}
+            </p>
+            <p className={styles.fileSize}>
+              {formatFileSize(file.size)}
+            </p>
           </div>
           <Button
             variant={confirmDelete ? "destructive" : "ghost"}
             size="sm"
-            className={cn(
-              styles.deleteButton,
-              confirmDelete && styles.deleteButtonConfirm
-            )}
+            className={deleteButtonClasses}
             onClick={handleDeleteClick}
+            aria-label={confirmDelete ? "Confirm delete" : "Delete"}
           >
-            <span className={styles.deleteText}>Confirm</span>
-            <Icon variant="bin" size={16} className={styles.deleteIcon} />
+            <span className={styles.deleteText}>
+              {confirmDelete ? "Confirm" : "Delete"}
+            </span>
+            <Icon 
+              variant="bin" 
+              size={16} 
+              className={styles.deleteIcon}
+              aria-hidden="true"
+            />
           </Button>
         </div>
       </div>

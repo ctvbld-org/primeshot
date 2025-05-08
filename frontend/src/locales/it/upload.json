@@ -45,7 +45,15 @@
       "total": "Totale Immagini"
     },
     "quality": {
-      "score": "Punteggio Qualità Complessiva"
+      "score": "Punteggio Qualità Complessiva",
+      "high": "Alta qualità",
+      "medium": "Qualità media",
+      "rejected": {
+        "title": "Immagini Rifiutate",
+        "description": "Le seguenti immagini necessitano di miglioramenti. Si prega di verificare e riprovare.",
+        "close": "Chiudi",
+        "continue": "Continua Comunque"
+      }
     }
   },
   "status": {

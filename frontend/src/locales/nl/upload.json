@@ -45,7 +45,15 @@
       "total": "Totaal Aantal Afbeeldingen"
     },
     "quality": {
-      "score": "Algemene Kwaliteitsscore"
+      "score": "Algemene Kwaliteitsscore",
+      "high": "Hoge kwaliteit",
+      "medium": "Gemiddelde kwaliteit",
+      "rejected": {
+        "title": "Afgekeurde Afbeeldingen",
+        "description": "De volgende afbeeldingen hebben verbetering nodig. Controleer en probeer opnieuw.",
+        "close": "Sluiten",
+        "continue": "Toch Doorgaan"
+      }
     }
   },
   "status": {

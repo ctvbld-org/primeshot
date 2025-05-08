@@ -118,6 +118,15 @@
   font-size: 0.875rem;
 }
 
+.openButton {
+  padding: 0 12px;
+}
+
+.openButton svg {
+  width: 22px !important;
+  height: 22px !important;
+}
+
 .tipBox {
   display: flex;
   color: #FF973C;

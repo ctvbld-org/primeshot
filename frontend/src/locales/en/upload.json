@@ -2,7 +2,9 @@
   "common": {
     "title": "Upload <highlight>{{minImages}}-{{maxImages}}</highlight> photos",
     "titleReady": "You're <highlight>ready</highlight> with {{count}} photos!",
-    "titleNeedMore": "Upload <highlight>{{minImages}}-{{maxImages}}</highlight> photos",
+    "titleNeedMore_one": "Upload <highlight>{{count}} more</highlight> photo",
+    "titleNeedMore_other": "Upload <highlight>{{count}} more</highlight> photos",
+    "titleNoImages": "Upload <highlight>{{minImages}}-{{maxImages}}</highlight> photos",
     "description": "More variety leads to better headshots.",
     "order": {
       "title": "Order Details",
@@ -108,7 +110,13 @@
   },
   "quality": {
     "high": "High quality",
-    "medium": "Medium quality"
+    "medium": "Medium quality",
+    "rejected": {
+      "title": "Rejected Images",
+      "description": "The following images need improvement. Please review and try again.",
+      "close": "Close",
+      "continue": "Continue Anyway"
+    }
   },
   "accessibility": {
     "photoWithQuality": "Photo {{number}} - {{quality}}",

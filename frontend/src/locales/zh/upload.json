@@ -45,7 +45,15 @@
       "total": "图片总数"
     },
     "quality": {
-      "score": "整体质量评分"
+      "score": "整体质量评分",
+      "high": "高质量",
+      "medium": "中等质量",
+      "rejected": {
+        "title": "被拒绝的图片",
+        "description": "以下图片需要改进。请检查并重试。",
+        "close": "关闭",
+        "continue": "仍然继续"
+      }
     }
   },
   "status": {

@@ -29,7 +29,7 @@ export default function AppLayout({
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader size="lg" text="Loading your workspace..." />
+        <Loader size="lg" />
       </div>
     )
   }

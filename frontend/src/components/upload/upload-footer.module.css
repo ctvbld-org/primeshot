@@ -167,7 +167,6 @@
   transition: all 0.2s ease;
   overflow: hidden;
   position: relative;
-  cursor: pointer;
 }
 
 .squareOptional {
@@ -191,14 +190,14 @@
   background: rgba(192, 206, 216, 0.02);
 }
 
-.square:hover,
-.squareOptional:hover,
+.squareActive:hover,
 .squareActive[aria-expanded="true"] {
   border: 1px solid #44E3C9;
 }
 
 .squareActive {
   opacity: 1;
+  cursor: pointer;
 }
 
 .reviewButton {
