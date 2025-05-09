@@ -41,23 +41,23 @@ const requirements = [
 const dodonts = [
   {
     text: "eyes",
-    doImgURL: "/api/app-images?path=app-images/requirements/do_1.webp",
-    dontImgURL: "/api/app-images?path=app-images/requirements/dont_1.webp"
+    doImgURL: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/requirements/do_1.webp`,
+    dontImgURL: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/requirements/dont_1.webp`
   },
   {
     text: "lighting", 
-    doImgURL: "/api/app-images?path=app-images/requirements/do_2.webp",
-    dontImgURL: "/api/app-images?path=app-images/requirements/dont_2.webp"
+    doImgURL: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/requirements/do_2.webp`,
+    dontImgURL: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/requirements/dont_2.webp`
   },
   {
     text: "frame",
-    doImgURL: "/api/app-images?path=app-images/requirements/do_3.webp",
-    dontImgURL: "/api/app-images?path=app-images/requirements/dont_3.webp"
+    doImgURL: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/requirements/do_3.webp`,
+    dontImgURL: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/requirements/dont_3.webp`
   },
   {
     text: "face",
-    doImgURL: "/api/app-images?path=app-images/requirements/do_4.webp",
-    dontImgURL: "/api/app-images?path=app-images/requirements/dont_4.webp"
+    doImgURL: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/requirements/do_4.webp`,
+    dontImgURL: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/requirements/dont_4.webp`
   }
 ] as const;
 
@@ -201,7 +201,7 @@ function UploadRequirementsComponent() {
 
               <div className={styles.editorialImage}>
                 <img 
-                  src="/api/app-images?path=app-images/requirements/editorial_example.webp" 
+                  src={`${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/requirements/editorial_example.webp`} 
                   alt="Editorial Headshot" 
                   onLoad={handleImageLoad}
                 />

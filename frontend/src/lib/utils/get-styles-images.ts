@@ -2,8 +2,7 @@ import { Gender } from '../types';
 
 // Use the proxy endpoint instead of direct S3 access
 const getProxyUrl = (path: string) => {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || '';
-  return `${baseUrl}/api/app-images?path=${encodeURIComponent(path)}`;
+  return `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/${path}`;
 };
 
 /**

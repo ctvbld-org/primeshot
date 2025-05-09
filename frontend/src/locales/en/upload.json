@@ -112,8 +112,8 @@
     "high": "High quality",
     "medium": "Medium quality",
     "rejected": {
-      "title_one": "{{rejected}} of {{total}} photo didn't meet the quality guidelines",
-      "title_other": "{{rejected}} of {{total}} photos didn't meet the quality guidelines",
+      "title_one": "{{rejected}} of {{total}} photo didn't meet the quality requirements.",
+      "title_other": "{{rejected}} of {{total}} photos didn't meet the quality requirements.",
       "description": "The following images need improvement. Please review and try again.",
       "close": "Close",
       "continue": "Replace or continue without"

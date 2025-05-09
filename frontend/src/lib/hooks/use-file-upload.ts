@@ -6,6 +6,7 @@ import { formatFileSize } from '@/lib/utils'
 import { uploadFileInChunks, CHUNK_SIZE } from '@/lib/upload-utils'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 import { analyzeImageQuality, loadModels, checkBodyPercentageRequirements } from '@/lib/image-quality'
+import { useUserGender } from '@/lib/hooks/use-user-gender'
 
 // Add delay helper
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
@@ -34,6 +35,7 @@ interface FileState {
 export function useFileUpload(options: UseFileUploadOptions = {}) {
   const { t } = useTranslation('upload')
   const { toast } = useToast()
+  const { gender } = useUserGender()
 
   // Split options into separate constants for better memoization
   const {
@@ -173,7 +175,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
           if (process.env.NODE_ENV === 'development') {
             await delay(500)
           }
-          const result = await analyzeImageQuality(file)
+          const result = await analyzeImageQuality(file, gender || undefined)
           results[file.name] = result
           
           if (result.isAcceptable) {
@@ -220,6 +222,10 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
             hasFace: false,
             hasBody: false,
             faceDetectionSkipped: true,
+            genderDetectionSkipped: true,
+            genderMatchesUser: false,
+            eyesVisible: false,
+            eyeDetectionSkipped: true,
             issues: ['Analysis error']
           }
           results[file.name] = errorResult
@@ -240,7 +246,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
       for (let i = currentIndex; i < files.length; i++) {
         const file = files[i]
         try {
-          const result = await analyzeImageQuality(file)
+          const result = await analyzeImageQuality(file, gender || undefined)
           results[file.name] = result
           
           // Collect rejected file state but don't add it yet
@@ -272,6 +278,10 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
             hasFace: false,
             hasBody: false,
             faceDetectionSkipped: true,
+            genderDetectionSkipped: true,
+            genderMatchesUser: false,
+            eyesVisible: false,
+            eyeDetectionSkipped: true,
             issues: ['Analysis error']
           }
           results[file.name] = errorResult
@@ -320,20 +330,26 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     // Analyze files - file states are added during analysis
     const [analyzedFiles, results] = await analyzeImages(validFiles)
 
-    // Only show skipped toast if we hit the max files limit
-    // NOT when files are rejected due to quality checks
+    // Only show skipped toast if we hit the max files limit AND have acceptable files that were skipped
     const remainingSlots = maxFiles - computedValues.acceptedCount
-    const skippedDueToLimit = validFiles.length > remainingSlots
+    const acceptableFilesCount = Object.values(results).filter(r => r.isAcceptable).length
+    const skippedDueToLimit = acceptableFilesCount > remainingSlots
     
     if (skippedDueToLimit) {
-      toast({
-        title: t('errors.someImagesSkipped'),
-        description: t('errors.skippedMessage', { 
-          count: remainingSlots,
-          files: validFiles.slice(remainingSlots).map(f => f.name).join(', ')
-        }),
-        duration: 5000,
-      })
+      const skippedAcceptableFiles = analyzedFiles
+        .slice(remainingSlots)
+        .filter(f => results[f.name]?.isAcceptable)
+      
+      if (skippedAcceptableFiles.length > 0) {
+        toast({
+          title: t('errors.someImagesSkipped'),
+          description: t('errors.skippedMessage', { 
+            count: remainingSlots,
+            files: skippedAcceptableFiles.map(f => f.name).join(', ')
+          }),
+          duration: 5000,
+        })
+      }
     }
 
     return fileStates

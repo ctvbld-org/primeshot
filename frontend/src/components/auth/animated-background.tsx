@@ -23,49 +23,49 @@ const GRID_ITEMS: GridItem[] = [
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/male/business-1.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/male/business-1.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/female/business-2.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/female/business-2.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/male/business-3.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/male/business-3.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/female/outdoor-fashion-1.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/female/outdoor-fashion-1.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/male/outdoor-fashion-1.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/male/outdoor-fashion-1.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/female/outdoor-fashion-2.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/female/outdoor-fashion-2.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/male/outdoor-fashion-2.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/male/outdoor-fashion-2.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/female/outdoor-fashion-3.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/female/outdoor-fashion-3.webp`
     }
   },
 
@@ -73,19 +73,19 @@ const GRID_ITEMS: GridItem[] = [
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/female/outdoor-fashion-1.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/female/outdoor-fashion-1.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/male/outdoor-fashion-3.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/male/outdoor-fashion-3.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/female/outdoor-fashion-3.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/female/outdoor-fashion-3.webp`
     }
   },
   { 
@@ -94,19 +94,19 @@ const GRID_ITEMS: GridItem[] = [
       title: 'Fast Generation',
       description: 'Create unique photos within minutes',
       classes: 'bg-[#001514] text-white justify-end',
-      overlayImageUrl: '/api/app-images?path=app-images/placeholders/male/business-1.webp'
+      overlayImageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/male/business-1.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/male/outdoor-fashion-3.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/male/outdoor-fashion-3.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/female/outdoor-fashion-1.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/female/outdoor-fashion-1.webp`
     }
   },
   { 
@@ -114,19 +114,19 @@ const GRID_ITEMS: GridItem[] = [
     content: {
       description: '<svg width="121" height="121" viewBox="0 0 121 121" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M26.1904 63.0103C26.1904 67.7109 27.1162 72.3657 28.915 76.7085C30.7139 81.0513 33.351 84.997 36.6748 88.3208C39.9987 91.6447 43.9443 94.2817 48.2871 96.0806C52.6299 97.8794 57.2847 98.8052 61.9854 98.8052V114.195C55.2638 114.195 48.6074 112.871 42.3975 110.298C36.1877 107.726 30.5457 103.955 25.793 99.2026C21.0402 94.4499 17.2695 88.8079 14.6973 82.5981C12.125 76.3882 10.8008 69.7318 10.8008 63.0103H26.1904ZM92.5908 78.313H61.9844V63.0103H77.2881V27.1284H92.5908V78.313ZM52.2227 7.60498C57.614 7.60498 61.9853 11.9754 61.9854 17.3667C61.9854 22.7581 57.614 27.1284 52.2227 27.1284C46.8315 27.1282 42.4609 22.7579 42.4609 17.3667C42.461 11.9756 46.8316 7.60522 52.2227 7.60498Z" fill="black"/></svg>',
       classes: 'bg-[#00CC99] justify-center',
-      overlayImageUrl: '/api/app-images?path=app-images/placeholders/female/business-2.webp'
+      overlayImageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/female/business-2.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/male/outdoor-fashion-1.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/male/outdoor-fashion-1.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/female/outdoor-fashion-2.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/female/outdoor-fashion-2.webp`
     }
   },
 
@@ -134,37 +134,37 @@ const GRID_ITEMS: GridItem[] = [
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/male/outdoor-fashion-2.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/male/outdoor-fashion-2.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/female/outdoor-fashion-3.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/female/outdoor-fashion-3.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/female/outdoor-fashion-2.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/female/outdoor-fashion-2.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/male/outdoor-fashion-3.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/male/outdoor-fashion-3.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/female/business-3.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/female/business-3.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/female/outdoor-fashion-2.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/female/outdoor-fashion-2.webp`
     }
   },
   { 
@@ -173,13 +173,13 @@ const GRID_ITEMS: GridItem[] = [
       title: 'Maximum Customisation',
       description: 'Mix and match multiple options to fulfil your needs',
       classes: 'bg-[#FFB45E] text-black',
-      overlayImageUrl: '/api/app-images?path=app-images/placeholders/male/business-3.webp'
+      overlayImageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/male/business-3.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/male/outdoor-fashion-3.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/male/outdoor-fashion-3.webp`
     }
   },
 
@@ -187,55 +187,55 @@ const GRID_ITEMS: GridItem[] = [
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/male/business-1.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/male/business-1.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/female/business-2.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/female/business-2.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/male/business-3.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/male/business-3.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/female/outdoor-fashion-1.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/female/outdoor-fashion-1.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/male/outdoor-fashion-1.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/male/outdoor-fashion-1.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/female/outdoor-fashion-2.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/female/outdoor-fashion-2.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/male/outdoor-fashion-2.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/male/outdoor-fashion-2.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/female/outdoor-fashion-3.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/female/outdoor-fashion-3.webp`
     }
   },
   { 
     type: 'image', 
     content: { 
-      imageUrl: '/api/app-images?path=app-images/placeholders/female/outdoor-fashion-2.webp'
+      imageUrl: `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/female/outdoor-fashion-2.webp`
     }
   },
 ];
