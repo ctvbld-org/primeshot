@@ -16,6 +16,9 @@ export default function AppLayout({
   const { isAuthenticated, isLoading, user } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
+  
+  // Extract the page name from the pathname
+  const pageName = pathname.split('/').pop() || 'root'
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -26,7 +29,7 @@ export default function AppLayout({
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader size="lg" text="Loading your workspace..." />
+        <Loader size="lg" />
       </div>
     )
   }
@@ -36,7 +39,7 @@ export default function AppLayout({
   }
 
   return (
-    <div className="flex flex-col flex-1 justify-center pt-[56px] pb-[64px] min-h-screen overflow-hidden" style={{ backgroundColor: '#001514' }}>
+    <div className={`flex flex-col flex-1 justify-center pt-[56px] pb-[64px] min-h-screen overflow-hidden page-${pageName}`}>
       {!pathname.includes('/settings/profile') && (
         <AppHeader user={user} />
       )}

@@ -1,21 +1,60 @@
 {
   "common": {
-    "title": "上传照片",
-    "description": "上传照片以生成证件照。",
+    "title": "上传 <highlight>{{minImages}}-{{maxImages}}</highlight> 张照片",
+    "description": "更多样化的照片会带来更好的效果。",
     "order": {
       "title": "订单详情",
-      "description": "请按照订单规格上传照片。"
+      "description": "请根据您的订单要求上传照片。"
+    }
+  },
+  "requirements": {
+    "title": "照片要求",
+    "heading": "完美AI证件照的",
+    "headingHighlight": "快速提示",
+    "description": "更好的照片质量和更多样化的照片会带来更好的证件照效果。自然光线和放松的表情会带来很大的不同。",
+    "sideHeading": {
+      "tips": "遵循这些拍摄技巧以获得更好的效果",
+      "dodonts": "适合与不适合的拍摄方式"
+    },
+    "tips": {
+      "naturalLight": "通过站在窗边或到户外使用自然光。",
+      "photos": "包含特写和半身照片。",
+      "expression": "保持自然友好或中性的表情。",
+      "avoid": "避免使用滤镜、帽子、浓妆或AI生成的图像。",
+      "clothing": "穿着纯色或简单图案的衣服。",
+      "quantity": "上传8至12张不同角度和光线的照片。"
+    },
+    "tipBox": "自然光线、面部表情的多样性和清晰的构图有助于AI创建更准确、更专业的效果。",
+    "dodonts": {
+      "eyes": "注视相机，确保眼睛清晰可见。",
+      "lighting": "使用明亮的自然光线。避免昏暗或模糊的照片。",
+      "frame": "确保画面中只有您一人，没有杂物或其他人。",
+      "face": "构图时确保脸部不会太小或被截断。"
+    },
+    "buttons": {
+      "open": "照片要求",
+      "confirm": "明白了 - 开始上传！"
     }
   },
   "fields": {
-    "orderId": "订单ID",
+    "orderId": "订单编号",
     "styles": "已选风格",
-    "acceptedImages": "已接受的图片",
-    "needsImprovement": "需要改进",
-    "overallQualityScore": "整体质量评分",
-    "totalImages": "图片总数",
-    "acceptedImagesCount": "已接受的图片",
-    "rejectedImagesCount": "已拒绝的图片"
+    "images": {
+      "accepted": "已接受的图片",
+      "needsImprovement": "需要改进",
+      "total": "图片总数"
+    },
+    "quality": {
+      "score": "整体质量评分",
+      "high": "高质量",
+      "medium": "中等质量",
+      "rejected": {
+        "title": "被拒绝的图片",
+        "description": "以下图片需要改进。请检查并重试。",
+        "close": "关闭",
+        "continue": "仍然继续"
+      }
+    }
   },
   "status": {
     "error": "错误",
@@ -23,24 +62,51 @@
     "successful": "成功",
     "image": "{{count}}张图片",
     "image_plural": "{{count}}张图片",
-    "uploadMore": "请再上传{{count}}张{{image}}",
-    "removeImages": "请删除{{count}}张{{image}}",
+    "uploadMore": "请再上传{{count}}{{image}}",
+    "removeImages": "请删除{{count}}{{image}}",
     "imagesSelected": "已选择{{count}}张图片",
-    "processing": "处理中... {{uploaded}}/{{total}} ({{progress}}%)"
+    "processing": "处理中... {{uploaded}}/{{total}} ({{progress}}%)",
+    "photosLabel": "照片",
+    "photosRequired": "{{min}}-{{max}}张必需",
+    "analyzing": "正在分析{{count}}张照片",
+    "analyzing_plural": "正在分析{{count}}张照片",
+    "checkingQuality": "正在检查光线、构图和清晰度。"
   },
   "errors": {
-    "noActiveOrder": "没有活动订单",
+    "noActiveOrder": "无活动订单",
     "paymentRequired": "请在上传照片前完成支付。",
     "loadOrderData": "加载订单数据失败。请重试。",
-    "uploadFailed": "上传图片失败。请重试。",
+    "uploadFailed": "图片上传失败。请重试。",
     "someUploadsFailed": "{{count}}个上传失败。请重试。",
-    "savingProgress": "保存进度失败。继续审核。"
+    "savingProgress": "保存进度失败。继续审核。",
+    "maxImagesReached": "已达到最大图片数量",
+    "maxImagesMessage": "您已有 {{count}} 张图片。请先删除一些再添加。",
+    "someImagesSkipped": "部分图片已跳过",
+    "skippedMessage": "只能添加 {{count}} 张图片。已跳过：{{files}}",
+    "skippedMessage_plural": "只能添加 {{count}} 张图片。已跳过：{{files}}",
+    "moreImagesNeeded": "需要更多图片",
+    "moreImagesMessage": "您还需要 {{count}} 张图片。可以现在或稍后添加。",
+    "moreImagesMessage_plural": "您还需要 {{count}} 张图片。可以现在或稍后添加。",
+    "tooManyFiles": "文件过多",
+    "maxFilesMessage": "您最多只能上传 {{count}} 个文件。",
+    "invalidFileType": "文件类型无效。允许的类型：{{types}}",
+    "fileSizeExceeded": "文件大小超过最大限制 {{size}}。",
+    "duplicateFile": "已存在同名文件。",
+    "uploadFailedCount": "无法添加 {{count}} 个文件",
+    "orderIdRequired": "上传需要订单ID",
+    "invalidResponse": "无效响应：URL缺失或无效"
   },
   "success": {
-    "uploadComplete": "成功上传{{count}}张图片。"
+    "uploadComplete": "已成功上传{{count}}张图片。"
   },
   "buttons": {
     "upload": "上传{{count}}个风格",
     "upload_plural": "上传{{count}}个风格"
+  },
+  "uploader": {
+    "dropMessage": "来吧，把文件放在这里！🔥",
+    "dragDropMessage": "拖放文件到这里，或",
+    "browse": "浏览",
+    "supportedFormats": "支持JPEG、PNG和WebP格式，每个文件最大4Mb"
   }
 } 

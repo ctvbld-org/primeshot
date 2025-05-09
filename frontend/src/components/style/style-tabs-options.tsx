@@ -463,12 +463,15 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
                       </>
                     ) : isImageOption(selectedOptionData) ? (
                       <>
-                        <Image
-                          src={getOptionsImage(selectedOptionData.imageUrl)}
-                          alt={selectedOptionData.label}
-                          fill
-                          className={`${styles['footer-option-image']} ${styles['footer-option-swatch']}`}
-                        />
+                        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                          <Image
+                            src={getOptionsImage(selectedOptionData.imageUrl)}
+                            alt={selectedOptionData.label}
+                            fill
+                            sizes="(max-width: 48px) 96px, 48px"
+                            className={`${styles['footer-option-image']} ${styles['footer-option-swatch']}`}
+                          />
+                        </div>
                         {!isCard && (
                           <Icon 
                             variant="check" 

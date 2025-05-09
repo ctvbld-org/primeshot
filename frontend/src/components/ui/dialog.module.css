@@ -1,0 +1,240 @@
+.dialog {
+    --dialog-radius: 32px;
+}
+
+/* Dialog Overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background-color: rgba(12, 16, 19, 0.6);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+}
+
+.overlay[data-state="open"] {
+  animation: fadeIn 200ms ease-out;
+}
+
+.overlay[data-state="closed"] {
+  animation: fadeOut 200ms ease-out;
+}
+
+.dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: auto;
+    height: auto;
+    z-index: 50;
+    border-radius: calc(var(--dialog-radius) + 1px);
+    overflow: hidden;
+    padding: 1px;
+    max-width: 700px;
+    transform: translate(-50%, -50%);
+    transition: all 300ms ease-out;
+    backdrop-filter: blur(50px);
+    -webkit-backdrop-filter: blur(50px);
+}
+
+.dialog:before {
+    content: '';
+    background: linear-gradient(133deg, rgba(68, 227, 201, 0.50) 0%, rgba(68, 227, 201, 0.05) 29.92%, rgba(68, 227, 201, 0.00) 42.9%, rgba(68, 227, 201, 0.00) 52.1%, rgba(68, 227, 201, 0.40) 100%), #202A32;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: -1;
+    transform: scale(1.5) rotate(0deg);
+    animation: rotate 10s linear infinite;
+}
+
+@keyframes rotate {
+  0% {
+    transform: scale(1.5) rotate(0deg);
+  }
+  100% {
+    transform: scale(1.5) rotate(360deg);
+  }
+}
+
+.dialog[data-state="open"] {
+  animation: fadeInZoomIn 200ms ease-out;
+}
+
+.dialog[data-state="closed"] {
+  animation: fadeOutZoomOut 200ms ease-out;
+}
+
+/* Dialog Content */
+.content {
+    background: radial-gradient(70% 70% at -1% -0.93%, rgba(68, 227, 201, 0.15) 0%, rgba(68, 227, 201, 0.00) 100%), #12181C;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    border-radius: var(--dialog-radius);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 32px 0;
+    overflow: hidden;
+}
+
+/* Close Button */
+.closeButton {
+  position: absolute;
+  top: 8px;
+  right: 16px;
+  padding: 8px;
+  border-radius: 0.125rem;
+  opacity: 0.7;
+  cursor: pointer;
+  transform: rotate(0deg);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.closeButton:hover {
+  opacity: 1;
+  transform: rotate(180deg);
+}
+
+.closeButton:focus {
+  outline: none;
+  ring: 2px solid var(--ring);
+  ring-offset: 2px;
+}
+
+.closeButton[data-state="open"] {
+  background-color: var(--accent);
+  color: var(--muted-foreground);
+}
+
+.closeButton:disabled {
+  pointer-events: none;
+}
+
+.closeButton svg {
+  pointer-events: none;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+}
+
+/* Dialog Header */
+.header {
+    gap: 1rem;
+    align-items: start;
+    text-align: center;
+    top: 1px;
+    height: 56px;
+    border-radius: var(--dialog-radius) var(--dialog-radius) 0px 0px;
+}
+
+/* Dialog Body */
+.body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 56px 32px 72px;
+}
+
+.body::-webkit-scrollbar {
+  display: none;
+}
+
+/* Dialog Footer */
+.footer {
+  display: flex;
+  align-items: end;
+  bottom: 1px;
+  height: 72px;
+  border-radius: 0px 0px var(--dialog-radius) var(--dialog-radius);
+}
+
+.header, .footer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 0 0 auto;
+    position: absolute;
+    left: 1px;
+    right: 1px;
+    padding: 8px 32px;
+    background: rgba(12, 16, 19, 0.10);
+    backdrop-filter: blur(50px);
+    -webkit-backdrop-filter: blur(50px);
+    z-index: 10;
+}
+
+/* Dialog Title */
+.title {
+  font-size: 1.125rem;
+  line-height: 1;
+  font-weight: 600;
+}
+
+/* Dialog Description */
+.description {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeInZoomIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes fadeOutZoomOut {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+} 
+
+@media (max-width: 640px) {
+    .dialog {
+        --dialog-radius: 0px;
+
+        right: 0;
+        width: 100%;
+        height: 100%;
+        max-height: none;
+    }
+}
+
+@media (max-height: 640px) {
+    .dialog {
+        max-height: 95vh;
+    }
+}

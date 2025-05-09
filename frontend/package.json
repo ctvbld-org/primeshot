@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.782.0",
+    "@aws-sdk/cloudfront-signer": "^3.804.0",
     "@aws-sdk/lib-storage": "^3.782.0",
     "@aws-sdk/s3-presigned-post": "^3.782.0",
     "@aws-sdk/s3-request-presigner": "^3.782.0",
@@ -60,7 +61,9 @@
     "next": "15.3.1",
     "opencv.js": "^1.2.1",
     "react": "19.1.0",
+    "react-confetti": "^6.4.0",
     "react-dom": "19.1.0",
+    "react-dropzone": "^14.3.8",
     "react-hook-form": "^7.55.0",
     "react-hot-toast": "^2.5.2",
     "react-i18next": "^15.5.1",

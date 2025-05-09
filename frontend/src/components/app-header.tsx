@@ -18,7 +18,7 @@ const NAVIGATION_STEPS = [
   { id: 'shoot', label: 'navigation.addStyles' as const, paths: ['/app/shoot', '/app/styles'] },
   { id: 'payment', label: 'navigation.checkout' as const, paths: ['/app/payment'] },
   { id: 'upload', label: 'navigation.uploadPhotos' as const, paths: ['/app/upload'] },
-  { id: 'generate', label: 'navigation.generate' as const, paths: ['/app/generate'] }
+  { id: 'generate', label: 'navigation.generate' as const, paths: ['/app/generate', '/app/review'] }
 ] as const
 
 export function AppHeader({ user }: AppHeaderProps) {
@@ -71,7 +71,6 @@ export function AppHeader({ user }: AppHeaderProps) {
     if (!buttonRef.current || !popupRef.current) return {}
     
     const buttonRect = buttonRef.current.getBoundingClientRect()
-    const popupRect = popupRef.current.getBoundingClientRect()
     const stepHeight = 48 // Height of each step item
     const currentStepOffset = currentStepIndex * stepHeight
     

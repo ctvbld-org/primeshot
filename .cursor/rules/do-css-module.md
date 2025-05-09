@@ -1,0 +1,1 @@
+# Move all the Tailwind CSS classes into a css module of the same name than the page and translate it into standard CSS

@@ -1,3 +1,9 @@
+---
+description: Project structure and file directory
+globs: 
+alwaysApply: true
+---
+
 # Project Structure
 
 ## Root Directory Structure
@@ -19,7 +25,7 @@
 frontend/
 ├── .next/           # Next.js build output
 ├── public/          # Static assets
-├── src/            # Application source code
+├── src/              # Application source code
 ├── supabase/        # Supabase client configuration
 ├── docs/           # Project documentation
 ├── scripts/        # Frontend-specific scripts
@@ -31,9 +37,17 @@ frontend/
 ```
 src/
 ├── app/            # Next.js 13+ app directory
-│   ├── (auth)/     # Authentication routes
-│   ├── (dashboard) # Dashboard routes
 │   ├── api/        # API routes
+│   ├── app/
+│   │   ├── albums      # Where all completed/generated styles go
+│   │   ├── payment/    # Screen related to checkout and payment
+│   │   ├── review/     # Review all informations regarding the order (styles, infos, uploaded photos)
+│   │   ├── settings/   # All user's settings
+│   │   ├── shoot/      # Displays all the created styles
+│   │   ├── styles/     # Displays all the styles to create a style
+│   │   ├── upload/     # User upload screen
+│   │   └── layout.tsx  # App layout
+│   ├── auth/       # Authentication routes
 │   └── layout.tsx  # Root layout
 ├── components/     # React components
 │   ├── ui/         # Shadcn/UI components

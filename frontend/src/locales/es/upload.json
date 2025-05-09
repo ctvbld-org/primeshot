@@ -1,46 +1,116 @@
 {
   "common": {
-    "title": "Subir fotos",
-    "description": "Sube tus fotos para la generación de retratos.",
+    "title": "Sube <highlight>{{minImages}}-{{maxImages}}</highlight> fotos",
+    "description": "Más variedad lleva a mejores fotos.",
     "order": {
       "title": "Detalles del pedido",
       "description": "Por favor, sube fotos según las especificaciones de tu pedido."
     }
   },
+  "requirements": {
+    "title": "Requisitos de las Fotos",
+    "heading": "Consejos rápidos para",
+    "headingHighlight": "retratos con IA impecables",
+    "description": "Una mejor calidad de foto y más variedad conducen a mejores retratos. La luz natural y las expresiones relajadas marcan la diferencia.",
+    "sideHeading": {
+      "tips": "Sigue estos consejos fotográficos para mejores resultados",
+      "dodonts": "Lo que funciona bien y lo que no"
+    },
+    "tips": {
+      "naturalLight": "Usa luz natural colocándote cerca de una ventana o al aire libre.",
+      "photos": "Incluye fotos tanto de primer plano como de medio cuerpo.",
+      "expression": "Mantén una expresión neutral o naturalmente amigable.",
+      "avoid": "Evita filtros, sombreros, maquillaje pesado o imágenes generadas por IA.",
+      "clothing": "Usa ropa sencilla con colores sólidos o patrones suaves.",
+      "quantity": "Sube <highlight>{{minImages}} a {{maxImages}}</highlight> fotos diferentes con ángulos e iluminación variados."
+    },
+    "tipBox": "La luz natural, la variedad facial y el encuadre claro ayudan a la IA a crear resultados más precisos y profesionales.",
+    "dodonts": {
+      "eyes": "Mira a la cámara con tus ojos claramente visibles.",
+      "lighting": "Usa iluminación brillante y natural. Evita fotos oscuras o borrosas.",
+      "frame": "Asegúrate de estar solo en el encuadre, sin desorden ni otras personas.",
+      "face": "Encuadra tu rostro para que no quede demasiado pequeño ni cortado."
+    },
+    "buttons": {
+      "open": "Requisitos de las Fotos",
+      "confirm": "¡Entendido, vamos a subir!"
+    }
+  },
   "fields": {
-    "orderId": "ID de pedido",
-    "styles": "Estilos seleccionados",
-    "acceptedImages": "Imágenes aceptadas",
-    "needsImprovement": "Necesita mejora",
-    "overallQualityScore": "Puntaje de calidad general",
-    "totalImages": "Total de imágenes",
-    "acceptedImagesCount": "Imágenes aceptadas",
-    "rejectedImagesCount": "Imágenes rechazadas"
+    "orderId": "ID del Pedido",
+    "styles": "Estilos Seleccionados",
+    "images": {
+      "accepted": "Imágenes Aceptadas",
+      "needsImprovement": "Necesita Mejoras",
+      "total": "Total de Imágenes"
+    },
+    "quality": {
+      "score": "Puntuación de Calidad General",
+      "high": "Alta calidad",
+      "medium": "Calidad media",
+      "rejected": {
+        "title": "Imágenes Rechazadas",
+        "description": "Las siguientes imágenes necesitan mejoras. Por favor, revise e intente de nuevo.",
+        "close": "Cerrar",
+        "continue": "Continuar de Todos Modos"
+      }
+    }
   },
   "status": {
     "error": "Error",
     "failed": "Fallido",
     "successful": "Exitoso",
-    "image": "{{count}} imagen",
-    "image_plural": "{{count}} imágenes",
+    "image_one": "{{count}} Imagen",
+    "image_other": "{{count}} Imágenes",
     "uploadMore": "Por favor, sube {{count}} {{image}} más",
     "removeImages": "Por favor, elimina {{count}} {{image}}",
     "imagesSelected": "{{count}} imágenes seleccionadas",
-    "processing": "Procesando... {{uploaded}}/{{total}} ({{progress}}%)"
+    "processing": "Procesando... {{uploaded}}/{{total}} ({{progress}}%)",
+    "photosLabel": "Fotos",
+    "photosRequired": "{{min}}-{{max}} requeridas",
+    "analyzing_one": "Analizando {{count}} foto",
+    "analyzing_other": "Analizando {{count}} fotos",
+    "checkingQuality": "Comprobando iluminación, encuadre y claridad."
   },
   "errors": {
-    "noActiveOrder": "No hay pedido activo",
+    "noActiveOrder": "Sin Pedido Activo",
     "paymentRequired": "Por favor, completa el pago antes de subir fotos.",
-    "loadOrderData": "No se pudieron cargar los datos del pedido. Por favor, inténtalo de nuevo.",
-    "uploadFailed": "No se pudieron subir las imágenes. Por favor, inténtalo de nuevo.",
-    "someUploadsFailed": "{{count}} cargas fallidas. Por favor, inténtalo de nuevo.",
-    "savingProgress": "No se pudo guardar el progreso. Continuando a la revisión."
+    "loadOrderData": "Error al cargar los datos del pedido. Por favor, inténtalo de nuevo.",
+    "uploadFailed": "Error al subir las imágenes. Por favor, inténtalo de nuevo.",
+    "someUploadsFailed": "{{count}} subidas fallaron. Por favor, inténtalo de nuevo.",
+    "savingProgress": "Error al guardar el progreso. Continuando con la revisión.",
+    "maxImagesReached": "Número máximo de imágenes alcanzado",
+    "maxImagesMessage": "Ya tienes {{count}} imágenes. Por favor, elimina algunas antes de añadir más.",
+    "someImagesSkipped": "Algunas imágenes fueron omitidas",
+    "skippedMessage_one": "Solo se pudo añadir {{count}} imagen. Omitida: {{files}}",
+    "skippedMessage_other": "Solo se pudieron añadir {{count}} imágenes. Omitidas: {{files}}",
+    "moreImagesNeeded": "Se necesitan más imágenes",
+    "moreImagesMessage_one": "Necesitas {{count}} imagen más para continuar. Puedes añadirla ahora o más tarde.",
+    "moreImagesMessage_other": "Necesitas {{count}} imágenes más para continuar. Puedes añadirlas ahora o más tarde.",
+    "tooManyFiles": "Demasiados archivos",
+    "maxFilesMessage": "Solo puedes subir hasta {{count}} archivos.",
+    "invalidFileType": "Tipo de archivo no válido. Tipos permitidos: {{types}}",
+    "fileSizeExceeded": "El tamaño del archivo excede el límite máximo de {{size}}.",
+    "duplicateFile": "Ya existe un archivo con este nombre.",
+    "uploadFailedCount": "No se pudieron añadir {{count}} archivo(s)",
+    "orderIdRequired": "Se requiere ID de pedido para la subida",
+    "invalidResponse": "Respuesta no válida: URL faltante o no válida"
   },
   "success": {
     "uploadComplete": "{{count}} imágenes subidas exitosamente."
   },
   "buttons": {
-    "upload": "Subir {{count}} estilo",
-    "upload_plural": "Subir {{count}} estilos"
+    "upload_one": "Subir {{count}} Estilo",
+    "upload_other": "Subir {{count}} Estilos",
+    "dropMessage": "¡Adelante, suéltalo aquí! 🔥",
+    "dragDropMessage": "Arrastra y suelta archivos aquí, o",
+    "browse": "explorar",
+    "supportedFormats": "Soporta JPEG, PNG y WebP hasta 4Mb cada uno"
+  },
+  "uploader": {
+    "dropMessage": "¡Adelante, suéltalo aquí! 🔥",
+    "dragDropMessage": "Arrastra y suelta archivos aquí, o",
+    "browse": "explorar",
+    "supportedFormats": "Soporta JPEG, PNG y WebP hasta 4Mb cada uno"
   }
 } 

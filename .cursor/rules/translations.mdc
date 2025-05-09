@@ -15,14 +15,49 @@ frontend/src/
 │   └── language-switcher.tsx  # Language selection component
 └── locales/                   # Translation files
     ├── en/                    # English translations
-    │   ├── common.json
+    │   ├── albums.json
     │   ├── auth.json
-    │   ├── dashboard.json
+    │   ├── common.json
     │   └── ...
-    └── es/                    # Spanish translations
-        ├── common.json
+    ├── es/                    # Spanish translations
+    │   ├── albums.json
+    │   ├── auth.json
+    │   ├── common.json
+    │   └── ...
+    ├── fr/                    # French translations
+    │   ├── albums.json
+    │   ├── auth.json
+    │   ├── common.json
+    │   └── ...
+    ├── it/                    # Italian translations
+    │   ├── albums.json
+    │   ├── auth.json
+    │   ├── common.json
+    │   └── ...
+    ├── pt/                    # Portuguese translations
+    │   ├── albums.json
+    │   ├── auth.json
+    │   ├── common.json
+    │   └── ...
+    ├── de/                    # German translations
+    │   ├── albums.json
+    │   ├── auth.json
+    │   ├── common.json
+    │   └── ...
+    ├── nl/                    # Dutch translations
+    │   ├── albums.json
+    │   ├── auth.json
+    │   ├── common.json
+    │   └── ...
+    ├── zh/                    # Chinese translations
+    │   ├── albums.json
+    │   ├── auth.json
+    │   ├── common.json
+    │   └── ...
+    └── ja/                    # Japanese translations
+        ├── albums.json
         ├── auth.json
-        ├── dashboard.json
+        ├── common.json
         └── ...
 ```
 
@@ -37,14 +72,32 @@ frontend/src/
 ```typescript
 // ✅ DO: Preserve meaning while adapting to target language
 {
-  "welcome": "Welcome to our platform",
-  "welcomeEs": "Bienvenido a nuestra plataforma"
+  "welcome": {
+    "en": "Welcome to our platform",
+    "es": "Bienvenido a nuestra plataforma",
+    "fr": "Bienvenue sur notre plateforme",
+    "it": "Benvenuto sulla nostra piattaforma",
+    "pt": "Bem-vindo à nossa plataforma",
+    "de": "Willkommen auf unserer Plattform",
+    "nl": "Welkom op ons platform",
+    "zh": "欢迎使用我们的平台",
+    "ja": "プラットフォームへようこそ"
+  }
 }
 
 // ❌ DON'T: Use literal translations that lose meaning
 {
-  "welcome": "Welcome to our platform",
-  "welcomeEs": "Bienvenido a nuestro platform" // Incorrect
+  "welcome": {
+    "en": "Welcome to our platform",
+    "es": "Bienvenido a nuestro platform", // Incorrect
+    "fr": "Bienvenue à notre platform", // Incorrect
+    "it": "Benvenuto al nostro platform", // Incorrect
+    "pt": "Bem-vindo ao nosso platform", // Incorrect
+    "de": "Willkommen zu unser platform", // Incorrect
+    "nl": "Welkom op onze platform", // Incorrect
+    "zh": "欢迎来到我们的platform", // Incorrect
+    "ja": "私たちのplatformへようこそ" // Incorrect
+  }
 }
 ```
 
@@ -52,14 +105,32 @@ frontend/src/
 ```typescript
 // ✅ DO: Use natural expressions in target language
 {
-  "uploadSuccess": "Your photos have been uploaded successfully",
-  "uploadSuccessEs": "Tus fotos se han subido correctamente"
+  "uploadSuccess": {
+    "en": "Your photos have been uploaded successfully",
+    "es": "Tus fotos se han subido correctamente",
+    "fr": "Vos photos ont été téléchargées avec succès",
+    "it": "Le tue foto sono state caricate con successo",
+    "pt": "Suas fotos foram enviadas com sucesso",
+    "de": "Ihre Fotos wurden erfolgreich hochgeladen",
+    "nl": "Je foto's zijn succesvol geüpload",
+    "zh": "您的照片已成功上传",
+    "ja": "写真のアップロードが完了しました"
+  }
 }
 
 // ❌ DON'T: Translate word-by-word
 {
-  "uploadSuccess": "Your photos have been uploaded successfully",
-  "uploadSuccessEs": "Tus fotos han sido subidas exitosamente" // Unnatural
+  "uploadSuccess": {
+    "en": "Your photos have been uploaded successfully",
+    "es": "Tus fotos han sido subidas exitosamente", // Unnatural
+    "fr": "Vos photos ont été uploadées successfullment", // Unnatural
+    "it": "Le tue foto sono state uploadate successamente", // Unnatural
+    "pt": "Suas fotos têm sido upadas sucessamente", // Unnatural
+    "de": "Deine Fotos sind erfolgreich upgeloadet geworden", // Unnatural
+    "nl": "Jouw foto's zijn successvol geupload geworden", // Unnatural
+    "zh": "你的照片已经被成功地上传了", // Unnatural
+    "ja": "あなたの写真は成功的にアップロードされました" // Unnatural
+  }
 }
 ```
 
@@ -69,16 +140,84 @@ frontend/src/
 ```typescript
 // ✅ DO: Maintain variable placeholders
 {
-  "greeting": "Hello, {{name}}!",
-  "greetingEs": "¡Hola, {{name}}!"
+  "greeting": {
+    "en": "Hello, {{name}}!",
+    "es": "¡Hola, {{name}}!",
+    "fr": "Bonjour, {{name}} !",
+    "it": "Ciao, {{name}}!",
+    "pt": "Olá, {{name}}!",
+    "de": "Hallo, {{name}}!",
+    "nl": "Hallo, {{name}}!",
+    "zh": "你好，{{name}}！",
+    "ja": "こんにちは、{{name}}さん！"
+  }
 }
 
 // ❌ DON'T: Modify variable syntax
 {
-  "greeting": "Hello, {{name}}!",
-  "greetingEs": "¡Hola, {nombre}!" // Wrong variable format
+  "greeting": {
+    "en": "Hello, {{name}}!",
+    "es": "¡Hola, {nombre}!", // Wrong variable format
+    "fr": "Bonjour, {nom} !", // Wrong variable format
+    "it": "Ciao, {nome}!", // Wrong variable format
+    "pt": "Olá, {nome}!", // Wrong variable format
+    "de": "Hallo, {name}!", // Wrong variable format
+    "nl": "Hallo, {naam}!", // Wrong variable format
+    "zh": "你好，{名字}！", // Wrong variable format
+    "ja": "こんにちは、{名前}さん！" // Wrong variable format
+  }
 }
 ```
+
+### 4. Pluralization
+
+- **Pluralization Rules**
+  ```typescript
+  // ✅ DO: Use _one and _other suffixes for pluralization
+  {
+    "photo_one": "{{count}} photo",
+    "photo_other": "{{count}} photos",
+    
+    "message_one": "You have {{count}} new message",
+    "message_other": "You have {{count}} new messages"
+  }
+
+  // ❌ DON'T: Use _plural suffix
+  {
+    "photo": "{{count}} photo",
+    "photo_plural": "{{count}} photos" // Wrong format
+  }
+  ```
+
+- **Component Usage**
+  ```typescript
+  // ✅ DO: Simply pass the count parameter
+  t('photo', { count: photoCount })  // i18next will automatically select the right plural form
+
+  // ❌ DON'T: Try to handle pluralization in the component
+  t(`photo${photoCount > 1 ? '_plural' : ''}`) // Wrong approach
+  ```
+
+- **Language-Specific Plural Forms**
+  - Some languages have more plural forms than just singular/plural
+  - Use appropriate suffixes for each language:
+    - `_zero`: zero items (in languages that have special zero form)
+    - `_one`: singular form
+    - `_two`: dual form (in languages that have it)
+    - `_few`: few items (in languages that have it)
+    - `_many`: many items (in languages that have it)
+    - `_other`: fallback plural form
+
+  ```typescript
+  // Example for languages with more plural forms
+  {
+    "file_zero": "No files",
+    "file_one": "{{count}} file",
+    "file_few": "{{count}} files",  // For languages like Russian (2-4 files)
+    "file_many": "{{count}} files", // For languages like Russian (5+ files)
+    "file_other": "{{count}} files" // Fallback
+  }
+  ```
 
 - **Namespace Organization**
 ```typescript
@@ -97,7 +236,219 @@ frontend/src/
 }
 ```
 
-### 4. Implementation Guidelines
+#### Language-Specific Pluralization Rules
+
+Each language has its own pluralization rules that must be followed for natural-sounding translations:
+
+- **English (en)**
+  ```typescript
+  {
+    "photo_one": "{{count}} photo",
+    "photo_other": "{{count}} photos"
+  }
+  ```
+
+- **Spanish (es)**
+  ```typescript
+  {
+    "photo_one": "{{count}} foto",
+    "photo_other": "{{count}} fotos"
+  }
+  ```
+
+- **French (fr)** - Uses the same rules as English
+  ```typescript
+  {
+    "photo_one": "{{count}} photo",
+    "photo_other": "{{count}} photos"
+  }
+  ```
+
+- **Italian (it)** - Uses the same rules as English
+  ```typescript
+  {
+    "photo_one": "{{count}} foto",
+    "photo_other": "{{count}} foto"  // Note: Some nouns don't change in plural
+  }
+  ```
+
+- **Portuguese (pt)** - Uses the same rules as English
+  ```typescript
+  {
+    "photo_one": "{{count}} foto",
+    "photo_other": "{{count}} fotos"
+  }
+  ```
+
+- **German (de)** - Uses the same rules as English, but watch for noun capitalization
+  ```typescript
+  {
+    "photo_one": "{{count}} Foto",
+    "photo_other": "{{count}} Fotos"
+  }
+  ```
+
+- **Dutch (nl)** - Uses the same rules as English
+  ```typescript
+  {
+    "photo_one": "{{count}} foto",
+    "photo_other": "{{count}} foto's"  // Note: Apostrophe in plural
+  }
+  ```
+
+- **Chinese (zh)** - No plural forms, uses measure words (量词)
+  ```typescript
+  {
+    "photo_other": "{{count}}张照片"  // 张 is the measure word for flat objects
+  }
+  ```
+
+- **Japanese (ja)** - No plural forms, uses counters (助数詞)
+  ```typescript
+  {
+    "photo_other": "{{count}}枚の写真"  // 枚 is the counter for flat objects
+  }
+  ```
+
+#### Special Considerations
+
+1. **East Asian Languages (Chinese, Japanese)**
+   - Don't use `_one` suffix as these languages don't have grammatical number
+   - Use appropriate measure words/counters
+   - Position of the number marker varies by language
+   ```typescript
+   // ✅ DO: Use correct measure words
+   {
+     "zh": {
+       "photo_other": "{{count}}张照片",  // Chinese
+       "person_other": "{{count}}位客人"   // Different measure word for people
+     },
+     "ja": {
+       "photo_other": "{{count}}枚の写真",  // Japanese
+       "person_other": "{{count}}人"        // Different counter for people
+     }
+   }
+
+   // ❌ DON'T: Directly translate without measure words
+   {
+     "zh": {
+       "photo_other": "{{count}}照片"  // Incorrect: missing measure word
+     }
+   }
+   ```
+
+2. **Germanic Languages (German, Dutch)**
+   - German requires capitalization of nouns
+   - Dutch uses apostrophe for some plurals
+   ```typescript
+   // ✅ DO: Follow language-specific rules
+   {
+     "de": {
+       "book_one": "{{count}} Buch",
+       "book_other": "{{count}} Bücher"  // Note capitalization
+     },
+     "nl": {
+       "photo_one": "{{count}} foto",
+       "photo_other": "{{count}} foto's"  // Note apostrophe
+     }
+   }
+   ```
+
+3. **Romance Languages (French, Italian, Portuguese, Spanish)**
+   - Watch for gender agreement with numbers
+   - Some Italian nouns don't change in plural
+   ```typescript
+   // ✅ DO: Consider gender agreement
+   {
+     "fr": {
+       "new_photo_one": "{{count}} nouvelle photo",
+       "new_photo_other": "{{count}} nouvelles photos"
+     },
+     "it": {
+       "photo_one": "{{count}} foto",
+       "photo_other": "{{count}} foto"  // Doesn't change
+     }
+   }
+   ```
+
+#### Common Patterns Across Languages
+
+1. **Zero States**
+   - For languages that treat zero as plural:
+   ```typescript
+   {
+     "message_other": "No messages"  // Used for count=0
+   }
+   ```
+   - For languages with special zero forms:
+   ```typescript
+   {
+     "message_zero": "No messages",
+     "message_one": "{{count}} message",
+     "message_other": "{{count}} messages"
+   }
+   ```
+
+2. **Unit Formatting**
+   ```typescript
+   // ✅ DO: Use appropriate spacing for units
+   {
+     "en": {
+       "size_one": "{{count}} MB",
+       "size_other": "{{count}} MB"
+     },
+     "fr": {
+       "size_one": "{{count}} Mo",  // Note: MB becomes Mo in French
+       "size_other": "{{count}} Mo"
+     }
+   }
+   ```
+
+3. **Ordinal Numbers**
+   ```typescript
+   // ✅ DO: Use language-appropriate ordinal indicators
+   {
+     "en": {
+       "position_one": "{{count}}st place",
+       "position_two": "{{count}}nd place",
+       "position_few": "{{count}}rd place",
+       "position_other": "{{count}}th place"
+     },
+     "fr": {
+       "position_one": "{{count}}ère place",
+       "position_other": "{{count}}e place"
+     }
+   }
+   ```
+
+#### Testing Pluralization
+
+1. **Test Numbers to Check**
+   - 0 (zero state)
+   - 1 (singular)
+   - 2 (special case in some languages)
+   - 3-10 (few cases)
+   - 11+ (many/other cases)
+   ```typescript
+   // Test script example
+   const numbers = [0, 1, 2, 3, 5, 11, 21, 100];
+   numbers.forEach(n => {
+     console.log(i18n.t('photo', { count: n }));
+   });
+   ```
+
+2. **Language-Specific Edge Cases**
+   ```typescript
+   // Test special cases by language
+   const testCases = {
+     ja: [1, 2, 10],      // Test counter variations
+     zh: [1, 2, 10],      // Test measure word usage
+     de: [0, 1, 2],       // Test capitalization
+     nl: [0, 1, 2]        // Test apostrophe usage
+   };
+   ```
+
+### 5. Implementation Guidelines
 
 - **Adding New Languages**
 ```typescript
@@ -142,7 +493,7 @@ declare module 'i18next' {
 }
 ```
 
-### 5. Quality Assurance Checklist
+### 6. Quality Assurance Checklist
 
 Before committing translations:
 - [ ] Verify all variables/placeholders are preserved
@@ -151,8 +502,10 @@ Before committing translations:
 - [ ] Test UI for text overflow/wrapping
 - [ ] Verify all required namespaces are present
 - [ ] Run type checks for i18next integration
+- [ ] Verify plural forms are correctly defined
+- [ ] Test with different count values
 
-### 6. Language Switcher Implementation
+### 7. Language Switcher Implementation
 
 - Use the `LanguageSwitcher` component for consistent language selection
 - Persist language preference in user settings

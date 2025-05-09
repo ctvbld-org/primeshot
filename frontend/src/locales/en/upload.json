@@ -1,46 +1,128 @@
 {
   "common": {
-    "title": "Upload Photos",
-    "description": "Upload your photos for headshot generation.",
+    "title": "Upload <highlight>{{minImages}}-{{maxImages}}</highlight> photos",
+    "titleReady": "You're <highlight>ready</highlight> with {{count}} photos!",
+    "titleNeedMore_one": "Upload <highlight>{{minImages}}-{{maxImages}} more</highlight> photo",
+    "titleNeedMore_other": "Upload <highlight>{{minImages}}-{{maxImages}} more</highlight> photos",
+    "titleNoImages": "Upload <highlight>{{minImages}}-{{maxImages}}</highlight> photos",
+    "description": "More variety leads to better headshots.",
     "order": {
       "title": "Order Details",
       "description": "Please upload photos according to your order specifications."
     }
   },
+  "requirements": {
+    "title": "Photo Requirements",
+    "heading": "Quick tips for flawless",
+    "headingHighlight": "AI headshots",
+    "description": "Better photo quality and more variety lead to better headshots. Natural lighting and relaxed expressions make all the difference.",
+    "sideHeading": {
+      "tips": "Follow these photo tips for better results",
+      "dodonts": "What works well and what doesn't"
+    },
+    "tips": {
+      "naturalLight": "Use natural light by standing near a window or going outside.",
+      "photos": "Include both close-up and waist-up photos.",
+      "expression": "Keep your expression neutral or naturally friendly.",
+      "avoid": "Avoid filters, hats, heavy makeup, or AI-generated images.",
+      "clothing": "Wear plain clothing with solid colors or soft patterns.",
+      "quantity": "Upload <highlight>{{minImages}} to {{maxImages}}</highlight> different photos with varied angles and lighting."
+    },
+    "tipBox": "Natural light, facial variety, and clear framing help the AI create more accurate, professional results.",
+    "dodonts": {
+      "eyes": "Look at the camera with your eyes clearly visible.",
+      "lighting": "Use bright, natural lighting. Avoid dark or blurry photos.",
+      "frame": "Make sure you're alone in the frame, with no clutter or other people.",
+      "face": "Frame your face so it's not too small or cut off."
+    },
+    "buttons": {
+      "open": "Photo Requirements",
+      "confirm": "Got it — let's upload!"
+    }
+  },
   "fields": {
     "orderId": "Order ID",
     "styles": "Selected Styles",
-    "acceptedImages": "Accepted Images",
-    "needsImprovement": "Needs Improvement",
-    "overallQualityScore": "Overall Quality Score",
-    "totalImages": "Total Images",
-    "acceptedImagesCount": "Accepted Images",
-    "rejectedImagesCount": "Rejected Images"
+    "images": {
+      "accepted": "Accepted Images",
+      "needsImprovement": "Needs Improvement",
+      "total": "Total Images"
+    },
+    "quality": {
+      "score": "Overall Quality Score"
+    }
   },
   "status": {
     "error": "Error",
     "failed": "Failed",
     "successful": "Successful",
-    "image": "{{count}} Image",
-    "image_plural": "{{count}} Images",
+    "uploadComplete": "Successfully uploaded {{count}} images.",
+    "uploadingProgress": "Uploading image {{current}} of {{total}}...",
+    "image_one": "{{count}} Image",
+    "image_other": "{{count}} Images",
     "uploadMore": "Please upload {{count}} more {{image}}",
     "removeImages": "Please remove {{count}} {{image}}",
     "imagesSelected": "{{count}} images selected",
-    "processing": "Processing... {{uploaded}}/{{total}} ({{progress}}%)"
+    "processing": "Processing... {{uploaded}}/{{total}} ({{progress}}%)",
+    "photosLabel_zero": "Photo",
+    "photosLabel_one": "Photo",
+    "photosLabel_other": "Photos",
+    "photosRequired": "{{min}}-{{max}} required",
+    "analyzing_one": "Analyzing {{count}} photo...",
+    "analyzing_other": "Analyzing {{count}} photos...",
+    "checkingQuality": "Checking lighting, framing, and sharpness."
   },
   "errors": {
     "noActiveOrder": "No Active Order",
     "paymentRequired": "Please complete payment before uploading photos.",
     "loadOrderData": "Failed to load order data. Please try again.",
-    "uploadFailed": "Failed to upload images. Please try again.",
+    "uploadFailed": "Failed to upload images..",
     "someUploadsFailed": "{{count}} uploads failed. Please try again.",
-    "savingProgress": "Failed to save progress. Continuing to review."
-  },
-  "success": {
-    "uploadComplete": "Successfully uploaded {{count}} images."
+    "savingProgress": "Failed to save progress. Continuing to review.",
+    "maxImagesReached": "Maximum images reached",
+    "maxImagesMessage": "You already have {{count}} images. Please remove some images before adding more.",
+    "someImagesSkipped": "Some images were skipped",
+    "skippedMessage_one": "Only {{count}} image could be added. Skipped: {{files}}",
+    "skippedMessage_other": "Only {{count}} images could be added. Skipped: {{files}}",
+    "moreImagesNeeded": "More images needed",
+    "moreImagesMessage_one": "You'll need {{count}} more image to continue. You can add it now or later.",
+    "moreImagesMessage_other": "You'll need {{count}} more images to continue. You can add them now or later.",
+    "tooManyFiles": "Too many files",
+    "maxFilesMessage": "You can only upload up to {{count}} files.",
+    "invalidFileType": "Invalid file type. Allowed types: {{types}}",
+    "fileSizeExceeded": "File size exceeds maximum limit of {{size}}.",
+    "duplicateFile": "A file with this name already exists.",
+    "uploadFailedCount": "{{count}} file(s) could not be added",
+    "orderIdRequired": "Order ID is required for file upload",
+    "invalidResponse": "Invalid response: missing or invalid URL"
   },
   "buttons": {
-    "upload": "Upload {{count}} Style",
-    "upload_plural": "Upload {{count}} Styles"
+    "upload_one": "Upload {{count}} Style",
+    "upload_other": "Upload {{count}} Styles",
+    "review": "Review Shoot",
+    "uploading": "Uploading..."
+  },
+  "uploader": {
+    "dropMessage": "Go ahead, drop it like it's hot! 🔥",
+    "dragDropMessage": "Drag and drop files here, or",
+    "maxImagesReached": "You've reached the maximum number of images.",
+    "browse": "browse",
+    "supportedFormats": "Supports JPEG, PNG and WebP up to 4Mb each"
+  },
+  "quality": {
+    "high": "High quality",
+    "medium": "Medium quality",
+    "rejected": {
+      "title_one": "{{rejected}} of {{total}} photo didn't meet the quality requirements.",
+      "title_other": "{{rejected}} of {{total}} photos didn't meet the quality requirements.",
+      "description": "The following images need improvement. Please review and try again.",
+      "close": "Close",
+      "continue": "Replace or continue without"
+    }
+  },
+  "accessibility": {
+    "photoWithQuality": "Photo {{number}} - {{quality}}",
+    "emptyPhotoSlot": "Empty photo slot {{number}}",
+    "photoPreview": "Preview of photo {{number}}"
   }
 } 

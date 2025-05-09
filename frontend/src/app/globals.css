@@ -144,6 +144,13 @@
   }
 }
 
+.page-upload {
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(12, 16, 19, 0.00) 0%, #0C1013 100%),
+    url(/bg_tile.webp) repeat 0 0;
+  background-size: 34px;
+}
+
 /* Hide scrollbar utility */
 .hide-scrollbar {
   -ms-overflow-style: none;  /* IE and Edge */

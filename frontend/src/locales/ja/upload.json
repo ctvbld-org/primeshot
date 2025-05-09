@@ -1,21 +1,60 @@
 {
   "common": {
-    "title": "写真をアップロード",
-    "description": "ヘッドショット生成用の写真をアップロードしてください。",
+    "title": "<highlight>{{minImages}}-{{maxImages}}</highlight>枚の写真をアップロード",
+    "description": "多様な写真がより良い結果につながります。",
     "order": {
       "title": "注文詳細",
       "description": "注文仕様に従って写真をアップロードしてください。"
     }
   },
+  "requirements": {
+    "title": "写真の要件",
+    "heading": "完璧なAIヘッドショットのための",
+    "headingHighlight": "クイックヒント",
+    "description": "より良い写真品質と多様性が、より良いヘッドショットにつながります。自然光とリラックスした表情が大きな違いを生みます。",
+    "sideHeading": {
+      "tips": "より良い結果を得るためのフォトヒント",
+      "dodonts": "効果的な方法と避けるべき方法"
+    },
+    "tips": {
+      "naturalLight": "窓際や屋外で自然光を活用してください。",
+      "photos": "クローズアップと上半身の写真の両方を含めてください。",
+      "expression": "表情は自然な笑顔か無表情を保ってください。",
+      "avoid": "フィルター、帽子、濃いメイク、AI生成画像は避けてください。",
+      "clothing": "無地やシンプルな柄の服を着用してください。",
+      "quantity": "異なる角度と照明で8～12枚の写真をアップロードしてください。"
+    },
+    "tipBox": "自然光、表情の多様性、明確な構図は、AIがより正確でプロフェッショナルな結果を生み出すのに役立ちます。",
+    "dodonts": {
+      "eyes": "目がはっきりと見えるようにカメラを見てください。",
+      "lighting": "明るい自然光を使用してください。暗いまたはぼやけた写真は避けてください。",
+      "frame": "フレーム内にあなた一人だけが写るようにし、雑然とした背景や他の人が写らないようにしてください。",
+      "face": "顔が小さすぎたり切れたりしないように構図を調整してください。"
+    },
+    "buttons": {
+      "open": "写真の要件",
+      "confirm": "了解 - アップロードを始めましょう！"
+    }
+  },
   "fields": {
     "orderId": "注文ID",
     "styles": "選択したスタイル",
-    "acceptedImages": "承認された画像",
-    "needsImprovement": "改善が必要",
-    "overallQualityScore": "総合品質スコア",
-    "totalImages": "画像の合計",
-    "acceptedImagesCount": "承認された画像",
-    "rejectedImagesCount": "拒否された画像"
+    "images": {
+      "accepted": "承認された画像",
+      "needsImprovement": "改善が必要",
+      "total": "画像の合計"
+    },
+    "quality": {
+      "score": "総合品質スコア",
+      "high": "高品質",
+      "medium": "中品質",
+      "rejected": {
+        "title": "却下された画像",
+        "description": "以下の画像は改善が必要です。確認して再試行してください。",
+        "close": "閉じる",
+        "continue": "このまま続行"
+      }
+    }
   },
   "status": {
     "error": "エラー",
@@ -23,10 +62,15 @@
     "successful": "成功",
     "image": "{{count}}枚の画像",
     "image_plural": "{{count}}枚の画像",
-    "uploadMore": "あと{{count}}枚の{{image}}をアップロードしてください",
-    "removeImages": "{{count}}枚の{{image}}を削除してください",
+    "uploadMore": "さらに{{count}}{{image}}をアップロードしてください",
+    "removeImages": "{{count}}{{image}}を削除してください",
     "imagesSelected": "{{count}}枚の画像が選択されました",
-    "processing": "処理中... {{uploaded}}/{{total}} ({{progress}}%)"
+    "processing": "処理中... {{uploaded}}/{{total}} ({{progress}}%)",
+    "photosLabel": "写真",
+    "photosRequired": "{{min}}-{{max}}枚必要",
+    "analyzing": "{{count}}枚の写真を分析中",
+    "analyzing_plural": "{{count}}枚の写真を分析中",
+    "checkingQuality": "照明、構図、シャープネスを確認中。"
   },
   "errors": {
     "noActiveOrder": "アクティブな注文がありません",
@@ -34,7 +78,23 @@
     "loadOrderData": "注文データの読み込みに失敗しました。もう一度お試しください。",
     "uploadFailed": "画像のアップロードに失敗しました。もう一度お試しください。",
     "someUploadsFailed": "{{count}}件のアップロードが失敗しました。もう一度お試しください。",
-    "savingProgress": "進行状況の保存に失敗しました。レビューを続行します。"
+    "savingProgress": "進行状況の保存に失敗しました。レビューを続行します。",
+    "maxImagesReached": "最大画像数に達しました",
+    "maxImagesMessage": "すでに{{count}}枚の画像があります。新しい画像を追加する前に、いくつかを削除してください。",
+    "someImagesSkipped": "一部の画像がスキップされました",
+    "skippedMessage": "{{count}}枚の画像のみ追加できました。スキップ：{{files}}",
+    "skippedMessage_plural": "{{count}}枚の画像のみ追加できました。スキップ：{{files}}",
+    "moreImagesNeeded": "さらに画像が必要です",
+    "moreImagesMessage": "あと{{count}}枚の画像が必要です。今すぐまたは後で追加できます。",
+    "moreImagesMessage_plural": "あと{{count}}枚の画像が必要です。今すぐまたは後で追加できます。",
+    "tooManyFiles": "ファイルが多すぎます",
+    "maxFilesMessage": "最大{{count}}個のファイルまでアップロードできます。",
+    "invalidFileType": "無効なファイルタイプです。許可されているタイプ：{{types}}",
+    "fileSizeExceeded": "ファイルサイズが最大制限{{size}}を超えています。",
+    "duplicateFile": "同じ名前のファイルが既に存在します。",
+    "uploadFailedCount": "{{count}}個のファイルを追加できませんでした",
+    "orderIdRequired": "アップロードには注文IDが必要です",
+    "invalidResponse": "無効な応答：URLが欠落または無効です"
   },
   "success": {
     "uploadComplete": "{{count}}枚の画像が正常にアップロードされました。"
@@ -42,5 +102,11 @@
   "buttons": {
     "upload": "{{count}}スタイルをアップロード",
     "upload_plural": "{{count}}スタイルをアップロード"
+  },
+  "uploader": {
+    "dropMessage": "ここにドロップしてください！🔥",
+    "dragDropMessage": "ファイルをここにドラッグ＆ドロップ、または",
+    "browse": "参照",
+    "supportedFormats": "JPEG、PNG、WebPをサポート（各4Mbまで）"
   }
 } 

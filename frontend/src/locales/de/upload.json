@@ -1,21 +1,60 @@
 {
   "common": {
-    "title": "Fotos hochladen",
-    "description": "Laden Sie Ihre Fotos für die Porträterstellung hoch.",
+    "title": "Laden Sie <highlight>{{minImages}}-{{maxImages}}</highlight> Fotos hoch",
+    "description": "Mehr Vielfalt führt zu besseren Fotos.",
     "order": {
       "title": "Bestelldetails",
-      "description": "Bitte laden Sie Fotos entsprechend Ihren Bestellspezifikationen hoch."
+      "description": "Bitte laden Sie Fotos gemäß Ihrer Bestellspezifikationen hoch."
+    }
+  },
+  "requirements": {
+    "title": "Fotoanforderungen",
+    "heading": "Schnelle Tipps für makellose",
+    "headingHighlight": "KI-Porträtfotos",
+    "description": "Bessere Fotoqualität und mehr Vielfalt führen zu besseren Porträtfotos. Natürliches Licht und entspannte Gesichtsausdrücke machen den Unterschied.",
+    "sideHeading": {
+      "tips": "Befolgen Sie diese Fototipps für bessere Ergebnisse",
+      "dodonts": "Was gut funktioniert und was nicht"
+    },
+    "tips": {
+      "naturalLight": "Nutzen Sie natürliches Licht, indem Sie sich in der Nähe eines Fensters aufhalten oder nach draußen gehen.",
+      "photos": "Fügen Sie sowohl Nahaufnahmen als auch Aufnahmen bis zur Taille hinzu.",
+      "expression": "Halten Sie Ihren Gesichtsausdruck neutral oder natürlich freundlich.",
+      "avoid": "Vermeiden Sie Filter, Hüte, starkes Make-up oder KI-generierte Bilder.",
+      "clothing": "Tragen Sie schlichte Kleidung mit einfarbigen oder dezenten Mustern.",
+      "quantity": "Laden Sie 8 bis 12 verschiedene Fotos mit unterschiedlichen Winkeln und Beleuchtungen hoch."
+    },
+    "tipBox": "Natürliches Licht, Gesichtsvielfalt und klare Bildkomposition helfen der KI, genauere, professionelle Ergebnisse zu erstellen.",
+    "dodonts": {
+      "eyes": "Schauen Sie in die Kamera, wobei Ihre Augen klar sichtbar sein sollten.",
+      "lighting": "Verwenden Sie helles, natürliches Licht. Vermeiden Sie dunkle oder unscharfe Fotos.",
+      "frame": "Stellen Sie sicher, dass Sie allein im Bildausschnitt sind, ohne Unordnung oder andere Personen.",
+      "face": "Rahmen Sie Ihr Gesicht so ein, dass es nicht zu klein oder abgeschnitten ist."
+    },
+    "buttons": {
+      "open": "Fotoanforderungen",
+      "confirm": "Verstanden – lass uns hochladen!"
     }
   },
   "fields": {
-    "orderId": "Bestell-ID",
+    "orderId": "Bestellnummer",
     "styles": "Ausgewählte Stile",
-    "acceptedImages": "Akzeptierte Bilder",
-    "needsImprovement": "Verbesserung nötig",
-    "overallQualityScore": "Gesamtqualitätsbewertung",
-    "totalImages": "Gesamtanzahl Bilder",
-    "acceptedImagesCount": "Akzeptierte Bilder",
-    "rejectedImagesCount": "Abgelehnte Bilder"
+    "images": {
+      "accepted": "Akzeptierte Bilder",
+      "needsImprovement": "Verbesserungsbedürftig",
+      "total": "Gesamtanzahl Bilder"
+    },
+    "quality": {
+      "score": "Gesamtqualitätsbewertung",
+      "high": "Hohe Qualität",
+      "medium": "Mittlere Qualität",
+      "rejected": {
+        "title": "Abgelehnte Bilder",
+        "description": "Die folgenden Bilder müssen verbessert werden. Bitte überprüfen und erneut versuchen.",
+        "close": "Schließen",
+        "continue": "Trotzdem Fortfahren"
+      }
+    }
   },
   "status": {
     "error": "Fehler",
@@ -23,24 +62,55 @@
     "successful": "Erfolgreich",
     "image": "{{count}} Bild",
     "image_plural": "{{count}} Bilder",
-    "uploadMore": "Bitte laden Sie noch {{count}} weitere {{image}} hoch",
+    "uploadMore": "Bitte laden Sie {{count}} weitere {{image}} hoch",
     "removeImages": "Bitte entfernen Sie {{count}} {{image}}",
     "imagesSelected": "{{count}} Bilder ausgewählt",
-    "processing": "Verarbeitung... {{uploaded}}/{{total}} ({{progress}}%)"
+    "processing": "Verarbeitung... {{uploaded}}/{{total}} ({{progress}}%",
+    "photosLabel": "Fotos",
+    "photosRequired": "{{min}}-{{max}} erforderlich",
+    "analyzing": "Analysiere {{count}} Foto",
+    "analyzing_plural": "Analysiere {{count}} Fotos",
+    "checkingQuality": "Überprüfe Beleuchtung, Bildausschnitt und Schärfe."
   },
   "errors": {
     "noActiveOrder": "Keine aktive Bestellung",
     "paymentRequired": "Bitte schließen Sie die Zahlung ab, bevor Sie Fotos hochladen.",
     "loadOrderData": "Bestelldaten konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
-    "uploadFailed": "Bilder konnten nicht hochgeladen werden. Bitte versuchen Sie es erneut.",
+    "uploadFailed": "Hochladen der Bilder fehlgeschlagen. Bitte versuchen Sie es erneut.",
     "someUploadsFailed": "{{count}} Uploads fehlgeschlagen. Bitte versuchen Sie es erneut.",
-    "savingProgress": "Fortschritt konnte nicht gespeichert werden. Weiter zur Überprüfung."
+    "savingProgress": "Speichern des Fortschritts fehlgeschlagen. Überprüfung wird fortgesetzt.",
+    "maxImagesReached": "Maximale Anzahl an Bildern erreicht",
+    "maxImagesMessage": "Sie haben bereits {{count}} Bilder. Bitte entfernen Sie einige, bevor Sie weitere hinzufügen.",
+    "someImagesSkipped": "Einige Bilder wurden übersprungen",
+    "skippedMessage": "Nur {{count}} Bild konnte hinzugefügt werden. Übersprungen: {{files}}",
+    "skippedMessage_plural": "Nur {{count}} Bilder konnten hinzugefügt werden. Übersprungen: {{files}}",
+    "moreImagesNeeded": "Weitere Bilder erforderlich",
+    "moreImagesMessage": "Sie benötigen {{count}} weiteres Bild. Sie können es jetzt oder später hinzufügen.",
+    "moreImagesMessage_plural": "Sie benötigen {{count}} weitere Bilder. Sie können sie jetzt oder später hinzufügen.",
+    "tooManyFiles": "Zu viele Dateien",
+    "maxFilesMessage": "Sie können nur bis zu {{count}} Dateien hochladen.",
+    "invalidFileType": "Ungültiger Dateityp. Erlaubte Typen: {{types}}",
+    "fileSizeExceeded": "Dateigröße überschreitet das Maximum von {{size}}.",
+    "duplicateFile": "Eine Datei mit diesem Namen existiert bereits.",
+    "uploadFailedCount": "{{count}} Datei(en) konnten nicht hinzugefügt werden",
+    "orderIdRequired": "Bestellnummer für Upload erforderlich",
+    "invalidResponse": "Ungültige Antwort: Fehlende oder ungültige URL"
   },
   "success": {
     "uploadComplete": "{{count}} Bilder erfolgreich hochgeladen."
   },
   "buttons": {
     "upload": "{{count}} Stil hochladen",
-    "upload_plural": "{{count}} Stile hochladen"
+    "upload_plural": "{{count}} Stile hochladen",
+    "dropMessage": "Los, lass es hier fallen! 🔥",
+    "dragDropMessage": "Dateien hier ablegen oder",
+    "browse": "durchsuchen",
+    "supportedFormats": "Unterstützt JPEG, PNG und WebP bis zu 4Mb pro Datei"
+  },
+  "uploader": {
+    "dropMessage": "Los, lass es hier fallen! 🔥",
+    "dragDropMessage": "Dateien hier ablegen oder",
+    "browse": "durchsuchen",
+    "supportedFormats": "Unterstützt JPEG, PNG und WebP bis zu 4Mb pro Datei"
   }
 } 

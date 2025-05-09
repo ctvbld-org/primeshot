@@ -43,15 +43,7 @@ export function ShootFooter({
       <div className="mx-auto flex items-center">
         <div className={styles['footer-title-container']}>
           <span className={styles['footer-title']}>{t('footer.title')}</span>
-          <span className={styles['footer-separator']}>
-            <Image 
-              src="/footer-separator.svg"
-              alt={t('footer.separator.alt')}
-              width={13}
-              height={64}
-              style={{ width: 'auto', height: '64px' }}
-            />
-          </span>
+          <span className={styles['footer-separator']} aria-hidden="true"></span>
         </div>
         {stylesCount > 0 ? (
           <>
