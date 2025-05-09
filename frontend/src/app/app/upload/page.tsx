@@ -170,8 +170,8 @@ export default function UploadPage() {
       // Handle failed uploads
       if (failedUploads.length > 0) {
         toast({
-          title: t('errors.someUploadsFailed'),
-          description: t('errors.uploadFailed', { count: failedUploads.length }),
+          title: t('errors.uploadFailed'),
+          description: t('errors.someUploadsFailed', { count: failedUploads.length }),
           variant: 'destructive'
         })
       }

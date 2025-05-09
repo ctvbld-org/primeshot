@@ -1,23 +1,26 @@
 'use client'
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 import styles from './file-uploader.module.css'
 import clsx from 'clsx'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 import { Loader } from '@/components/ui/loader'
+import { toast } from '@/components/ui/use-toast'
 
 interface FileUploaderProps {
   handleNewFiles: (files: File[]) => File[]
   addFiles: (files: File[]) => Promise<FileState[]>
-  acceptedFiles?: File[],
+  acceptedFiles?: File[]
   isReady: boolean  
   isAnalyzing: boolean
   isUploading: boolean
   analyzingCount: number
   uploadedCount: number
   disabled?: boolean
+  onCreateObjectURL?: (file: File) => string
+  onRevokeObjectURL?: (url: string) => void
 }
 
 interface FileState {
@@ -36,11 +39,62 @@ export function FileUploader({
   analyzingCount,
   isUploading,
   uploadedCount,
-  disabled = false
+  disabled = false,
+  onCreateObjectURL,
+  onRevokeObjectURL
 }: FileUploaderProps) {
   const { t } = useTranslation('upload')
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const objectUrlsRef = useRef<string[]>([])
+
+  // Cleanup effect for object URLs
+  useEffect(() => {
+    return () => {
+      // Revoke all created object URLs when component unmounts
+      objectUrlsRef.current.forEach(url => {
+        try {
+          URL.revokeObjectURL(url)
+        } catch (err) {
+          console.warn('Failed to revoke object URL:', err)
+        }
+      })
+      objectUrlsRef.current = []
+    }
+  }, [])
+
+  // Helper function to create and track object URLs
+  const createAndTrackObjectURL = useCallback((file: File): string => {
+    const url = URL.createObjectURL(file)
+    objectUrlsRef.current.push(url)
+    return url
+  }, [])
+
+  // Helper function to safely revoke a specific URL
+  const revokeObjectURL = useCallback((url: string) => {
+    try {
+      URL.revokeObjectURL(url)
+      objectUrlsRef.current = objectUrlsRef.current.filter(u => u !== url)
+    } catch (err) {
+      console.warn('Failed to revoke object URL:', err)
+    }
+  }, [])
+
+  // Use provided URL management functions if available, otherwise use local ones
+  const createObjectURL = useCallback((file: File): string => {
+    if (onCreateObjectURL) {
+      return onCreateObjectURL(file)
+    }
+    return createAndTrackObjectURL(file)
+  }, [onCreateObjectURL, createAndTrackObjectURL])
+
+  const removeObjectURL = useCallback((url: string) => {
+    if (onRevokeObjectURL) {
+      onRevokeObjectURL(url)
+    } else {
+      revokeObjectURL(url)
+    }
+  }, [onRevokeObjectURL, revokeObjectURL])
 
   const handleDrop = useCallback(async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
@@ -51,7 +105,17 @@ export function FileUploader({
     const droppedFiles = Array.from(e.dataTransfer.files)
     const filesToAdd = handleNewFiles(droppedFiles)
     if (filesToAdd.length > 0) {
-      await addFiles(filesToAdd)
+      try {
+        await addFiles(filesToAdd)
+      } catch (err) {
+        console.error('File upload failed:', err)
+        toast({
+          title: 'Upload Failed',
+          description: err instanceof Error ? err.message : 'Failed to upload files. Please try again.',
+          variant: 'destructive',
+          duration: 5000,
+        })
+      }
     }
   }, [handleNewFiles, addFiles, disabled])
 
@@ -61,7 +125,17 @@ export function FileUploader({
       const selectedFiles = Array.from(e.target.files)
       const filesToAdd = handleNewFiles(selectedFiles)
       if (filesToAdd.length > 0) {
-        await addFiles(filesToAdd)
+        try {
+          await addFiles(filesToAdd)
+        } catch (err) {
+          console.error('File upload failed:', err)
+          toast({
+            title: 'Upload Failed',
+            description: err instanceof Error ? err.message : 'Failed to upload files. Please try again.',
+            variant: 'destructive',
+            duration: 5000,
+          })
+        }
       }
     }
     // Reset input value to allow selecting the same file again

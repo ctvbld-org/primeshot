@@ -76,7 +76,7 @@
     "noActiveOrder": "No Active Order",
     "paymentRequired": "Please complete payment before uploading photos.",
     "loadOrderData": "Failed to load order data. Please try again.",
-    "uploadFailed": "Failed to upload images. Please try again.",
+    "uploadFailed": "Failed to upload images..",
     "someUploadsFailed": "{{count}} uploads failed. Please try again.",
     "savingProgress": "Failed to save progress. Continuing to review.",
     "maxImagesReached": "Maximum images reached",

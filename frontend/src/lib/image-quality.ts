@@ -374,7 +374,7 @@ export async function analyzeImageQuality(file: File, userGender?: 'male' | 'fem
           if (userGender) {
             result.genderMatchesUser = result.detectedGender === userGender;
             if (!result.genderMatchesUser) {
-              result.issues.push(`Possible gender mismatch (you chose ${userGender}, detected ${result.detectedGender})`);
+              result.issues.push(`Gender in photo (${result.detectedGender}) does not match selected gender (${userGender})`);
               result.isAcceptable = false;
             }
           }
@@ -751,7 +751,7 @@ function isAcceptable(result: ImageQualityResult): boolean {
   // Check eye visibility as a critical factor
   const hasVisibleEyes = result.eyeDetectionSkipped || result.eyesVisible;
   if (!result.eyeDetectionSkipped && !result.eyesVisible) {
-    criticalFailures.push('Eyes must be clearly visible - remove sunglasses or any other coverings');
+    criticalFailures.push('Eyes are not clearly visible (possibly covered by sunglasses or hair)');
   }
 
   // Check gender match as a critical factor
@@ -770,7 +770,7 @@ function isAcceptable(result: ImageQualityResult): boolean {
   }
 
   // Add all critical failures to issues
-  result.issues = [...criticalFailures, ...warnings];
+  result.issues = [...result.issues, ...warnings];
   
   // Image is acceptable only if there are no critical failures
   result.isAcceptable = criticalFailures.length === 0;

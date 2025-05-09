@@ -43,7 +43,7 @@ export function ShootFooter({
       <div className="mx-auto flex items-center">
         <div className={styles['footer-title-container']}>
           <span className={styles['footer-title']}>{t('footer.title')}</span>
-          <span className={styles['footer-separator']}></span>
+          <span className={styles['footer-separator']} aria-hidden="true"></span>
         </div>
         {stylesCount > 0 ? (
           <>

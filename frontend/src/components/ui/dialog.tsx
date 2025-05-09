@@ -4,7 +4,7 @@ import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import styles from "./dialog.module.css"
 import { Icon } from "../icons/icon"
-
+import { useTranslation } from "react-i18next"
 function Dialog({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Root>) {
@@ -64,6 +64,8 @@ function DialogContent({
 }
 
 function DialogHeader({ className, children, ...props }: React.ComponentProps<"div">) {
+  const { t } = useTranslation('common')
+
   return (
     <div
       data-slot="dialog-header"
@@ -73,7 +75,7 @@ function DialogHeader({ className, children, ...props }: React.ComponentProps<"d
         {children}
       <DialogPrimitive.Close className={styles.closeButton}>
         <Icon variant="cross" size={24} className={styles.closeIcon} />
-        <span className="sr-only">Close</span>
+        <span className="sr-only">{t('buttons.close')}</span>
       </DialogPrimitive.Close>
     </div>
   )
