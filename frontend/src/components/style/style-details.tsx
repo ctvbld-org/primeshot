@@ -121,7 +121,7 @@ export function StyleDetails({
               fill
               sizes="(max-width: 248px) 496px, 248px"
               className="object-cover"
-              priority={idx === 0}
+              priority
               onLoad={() => handleImageLoad(idx)}
             />
           </motion.div>

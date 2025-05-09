@@ -226,8 +226,9 @@ export function UploadFooter({
           onClick={onReviewClick}
           disabled={count < minImages || isUploading}
           className={styles.reviewButton}
+          loading={isUploading}
         >
-          {t('buttons.review')}
+          {isUploading ? t('buttons.uploading') : t('buttons.review')}
         </Button>
       </div>
     </div>

@@ -153,7 +153,6 @@
 }
 
 .square, .squareOptional {
-  background: rgba(192, 206, 216, 0.20);
   width: 56px;
   height: 56px;
   border-radius: 12px;
@@ -167,27 +166,42 @@
   border: 1px solid transparent;
   transition: all 0.2s ease;
   position: relative;
+  overflow: hidden;
 }
 
-.squareOptional {
-  background: rgba(192, 206, 216, 0.1);
+.square:after,
+.squareOptional:after {
+  background: #323d40;
+  content: " ";
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  border: inherit;
+  border-radius: 11px; 
+}
+
+.squareOptional:after {
   color: #C0CED830;
 }
 
-.squareOptional:nth-child(2) {
-  background: rgba(192, 206, 216, 0.08);
+.squareOptional:after {
+  background: #263133;
 }
 
-.squareOptional:nth-child(3) {
-  background: rgba(192, 206, 216, 0.06);
+.squareOptional:nth-child(2):after {
+  background: #1f2c2e;
 }
 
-.squareOptional:nth-child(4) {
-  background: rgba(192, 206, 216, 0.04);
+.squareOptional:nth-child(3):after {
+  background: #1a282a;
 }
 
-.squareOptional:nth-child(5) {
-  background: rgba(192, 206, 216, 0.02);
+.squareOptional:nth-child(4):after {
+  background: #162426;
+}
+
+.squareOptional:nth-child(5):after {
+  background: #142122;
 }
 
 .squareActive:hover,
@@ -207,39 +221,19 @@
 .squareAnalyzing::before {
   content: " ";
   position: absolute;
-  inset: calc(1px * -1);
+  inset: -9px;
   z-index: -1;
   border: inherit;
-  border-radius: inherit;
-  background-image: conic-gradient(from var(--angle), #40403F 30%, #936741 58%, #aa6f38 92%, #FF973C 100%);
+  border-radius: 99px;
+  background-image: conic-gradient(#40403F 30%, #936741 58%, #aa6f38 92%, #FF973C 100%);    
   background-origin: border-box;
-  -webkit-mask:
-    linear-gradient(black, black) content-box,
-    linear-gradient(black, black);  
-  mask: linear-gradient(black, black),
-        linear-gradient(black, black);
-  -webkit-mask-clip: content-box, border-box;  
-  mask-clip: content-box, border-box;
-  -webkit-mask-composite: xor;  
-  mask-composite: exclude;
+  transform: rotate(0deg);
   animation: spin 2s linear infinite;
-}
-
-@supports not (background: paint(something)) {
-  .squareAnalyzing::before {
-    background-image: conic-gradient(#40403F 30%, #936741 58%, #aa6f38 92%, #FF973C 100%);    
-  }
-}
-
-@property --angle {
-  syntax: "<angle>";
-  inherits: true;
-  initial-value: 0turn;
 }
 
 @keyframes spin {
   to {
-    --angle: 1turn;
+    transform: rotate(1turn);
   }
 }
 

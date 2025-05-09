@@ -171,10 +171,8 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
         setAnalysisState(prev => ({ ...prev, currentFileIndex: displayIndex }))
         
         try {
-          // Add artificial delay only in development for testing purposes
-          if (process.env.NODE_ENV === 'development') {
-            await delay(500)
-          }
+          // Random delay between 400ms and 800ms
+          await delay(Math.floor(Math.random() * (800 - 400 + 1)) + 400)
           const result = await analyzeImageQuality(file, gender || undefined)
           results[file.name] = result
           

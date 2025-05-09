@@ -5,13 +5,16 @@ import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 import styles from './file-uploader.module.css'
 import clsx from 'clsx'
+import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 
 interface FileUploaderProps {
   handleNewFiles: (files: File[]) => File[]
   addFiles: (files: File[]) => Promise<FileState[]>
+  acceptedFiles?: File[],
   isReady: boolean  
   isAnalyzing: boolean
   analyzingCount: number
+  disabled?: boolean
 }
 
 interface FileState {
@@ -24,9 +27,11 @@ interface FileState {
 export function FileUploader({ 
   handleNewFiles,
   addFiles,
+  acceptedFiles,
   isReady,
   isAnalyzing,
-  analyzingCount
+  analyzingCount,
+  disabled = false
 }: FileUploaderProps) {
   const { t } = useTranslation('upload')
   const [isDragging, setIsDragging] = useState(false)
@@ -35,6 +40,7 @@ export function FileUploader({
   const handleDrop = useCallback(async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     e.stopPropagation()
+    if (disabled) return
     setIsDragging(false)
 
     const droppedFiles = Array.from(e.dataTransfer.files)
@@ -42,9 +48,10 @@ export function FileUploader({
     if (filesToAdd.length > 0) {
       await addFiles(filesToAdd)
     }
-  }, [handleNewFiles, addFiles])
+  }, [handleNewFiles, addFiles, disabled])
 
   const handleFileInputChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (disabled) return
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files)
       const filesToAdd = handleNewFiles(selectedFiles)
@@ -54,13 +61,15 @@ export function FileUploader({
     }
     // Reset input value to allow selecting the same file again
     e.target.value = ''
-  }, [handleNewFiles, addFiles])
+  }, [handleNewFiles, addFiles, disabled])
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     e.stopPropagation()
-    setIsDragging(true)
-  }, [])
+    if (!disabled) {
+      setIsDragging(true)
+    }
+  }, [disabled])
 
   const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
@@ -69,15 +78,24 @@ export function FileUploader({
   }, [])
 
   const handleBrowseClick = useCallback(() => {
-    fileInputRef.current?.click()
-  }, [])
+    if (!disabled) {
+      fileInputRef.current?.click()
+    }
+  }, [disabled])
 
   return (
     <div className={styles.fileUploaderContainer}>
-      <Card className={clsx(styles.card, isDragging || isAnalyzing ? styles.cardDragging : isReady ? styles.cardReady : undefined)}>
+      <Card className={clsx(
+        styles.card,
+        disabled && styles.cardDisabled,
+        isAnalyzing && styles.cardAnalyzing,
+        isDragging || isAnalyzing ? styles.cardDragging : isReady ? styles.cardReady : undefined
+      )}>
         <CardContent className={styles.cardContent}>
           <div
-            className={styles.dropArea}
+            className={clsx(
+              styles.dropArea
+            )}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -112,6 +130,8 @@ export function FileUploader({
                   t('uploader.dropMessage')
                 ) : isAnalyzing ? (
                   t('status.analyzing', { count: analyzingCount })
+                ) : acceptedFiles && acceptedFiles.length >= UPLOAD_CONSTANTS.MAX_IMAGES ? (
+                  t('uploader.maxImagesReached')
                 ) : (
                   <>
                     {t('uploader.dragDropMessage')}{' '}

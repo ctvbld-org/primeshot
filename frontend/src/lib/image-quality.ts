@@ -531,15 +531,12 @@ function evaluateFacePosition(detection: WithFaceLandmarks<{ detection: FaceDete
 }
 
 async function analyzeImageStats(img: HTMLImageElement) {
-  // Create a canvas to analyze the image
   const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    throw new Error('Could not get canvas context for image analysis');
-  }
-  
   canvas.width = img.width;
   canvas.height = img.height;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  if (!ctx) throw new Error('Could not get canvas context');
+  
   ctx.drawImage(img, 0, 0);
   
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -783,6 +780,14 @@ function isAcceptable(result: ImageQualityResult): boolean {
 
 // Improve eye visibility check function
 async function checkEyesVisible(img: HTMLImageElement, landmarks: any, ctx: CanvasRenderingContext2D): Promise<{visible: boolean, confidence: number}> {
+  const canvas = document.createElement('canvas');
+  canvas.width = img.width;
+  canvas.height = img.height;
+  const eyeCtx = canvas.getContext('2d', { willReadFrequently: true });
+  if (!eyeCtx) throw new Error('Could not get canvas context');
+  
+  eyeCtx.drawImage(img, 0, 0);
+  
   try {
     const leftEye = landmarks.getLeftEye();
     const rightEye = landmarks.getRightEye();
@@ -807,7 +812,7 @@ async function checkEyesVisible(img: HTMLImageElement, landmarks: any, ctx: Canv
 
     // Enhanced eye region analysis with brightness variance
     const analyzeEyeRegion = (region: any) => {
-      const imageData = ctx.getImageData(region.x, region.y, region.width, region.height);
+      const imageData = eyeCtx.getImageData(region.x, region.y, region.width, region.height);
       const data = imageData.data;
       
       let totalBrightness = 0;

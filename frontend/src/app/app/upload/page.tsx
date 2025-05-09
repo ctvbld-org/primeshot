@@ -6,6 +6,7 @@ import { useTranslation, Trans } from 'react-i18next'
 import { useToast } from '@/components/ui/use-toast'
 import dynamic from 'next/dynamic'
 import { useWindowSize } from '@/lib/hooks/use-window-size'
+import { cn } from '@/lib/utils'
 
 import { FileUploader } from '@/components/upload/file-uploader'
 import { UploadRequirements } from '@/components/upload/upload-requirements'
@@ -16,6 +17,7 @@ import { useUserProgress } from '@/lib/hooks/use-user-progress'
 import { useFileUpload } from '@/lib/hooks/use-file-upload'
 import { useOrder } from '@/lib/hooks/use-order'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
+import { Loader } from '@/components/ui/loader'
 
 // Import Confetti dynamically to avoid SSR issues
 const ReactConfetti = dynamic(() => import('react-confetti'), { ssr: false })
@@ -110,7 +112,11 @@ export default function UploadPage() {
 
   // 5. Callbacks
   const handleDialogClose = useCallback(() => {
-    setUploadState(prev => ({ ...prev, showRejectedDialog: false }))
+    setUploadState(prev => ({ 
+      ...prev, 
+      showRejectedDialog: false,
+      shownRejectedFiles: [] // Reset the shown files tracking
+    }))
     clearRejectedFiles()
   }, [clearRejectedFiles])
 
@@ -175,8 +181,8 @@ export default function UploadPage() {
       // Handle successful uploads
       if (successfulUploads.length > 0) {
         toast({
-          title: t('success.uploadComplete'),
-          description: t('status.successful', { count: successfulUploads.length })
+          title: t('status.successful'),
+          description: t('status.uploadComplete', { count: successfulUploads.length })
         })
 
         // Remove successfully uploaded files
@@ -220,18 +226,20 @@ export default function UploadPage() {
 
   useEffect(() => {
     const rejectedFileNames = rejectedFiles.map(f => f.name)
-    const hasNewRejectedFiles = rejectedFileNames.some(
-      name => !uploadState.shownRejectedFiles.includes(name)
+    const hasNewRejectedFiles = rejectedFileNames.length > 0 && (
+      // Show dialog if we have any rejected files that haven't been shown yet
+      rejectedFileNames.some(name => !uploadState.shownRejectedFiles.includes(name)) ||
+      // Or if we have a different set of rejected files than what was previously shown
+      uploadState.shownRejectedFiles.some(name => !rejectedFileNames.includes(name))
     )
     
     if (!isAnalyzing && // Only show dialog when analysis is complete
-        acceptedFiles.length < UPLOAD_CONSTANTS.MAX_IMAGES && // Changed from MIN_IMAGES to MAX_IMAGES
-        rejectedFiles.length > 0 && 
+        acceptedFiles.length < UPLOAD_CONSTANTS.MAX_IMAGES && // Only show if we can still add more files
         hasNewRejectedFiles) {
       setUploadState(prev => ({
         ...prev,
         showRejectedDialog: true,
-        shownRejectedFiles: rejectedFileNames
+        shownRejectedFiles: rejectedFileNames // Update the list of shown files
       }))
     }
   }, [acceptedFiles.length, rejectedFiles, uploadState.shownRejectedFiles, isAnalyzing])
@@ -267,13 +275,29 @@ export default function UploadPage() {
 
       <UploadRequirements />
     
-      <div className="mt-[32px]">
+      <div className={cn(
+        "mt-[32px] relative transition-opacity duration-300"
+      )}>
+        {isUploading && (
+          <div className="flex flex-col items-center bg-[rgba(255,151,60,0.07)] backdrop-blur-sm gap-6 rounded-[16px] absolute top-1/2 left-1/2 transform-[translate3d(-50%,-50%,0)] z-10 py-10 px-6">
+            <Loader className="w-6 h-6" />
+            <p className="text-[16px] text-[#C0CED8]">
+              {t('status.uploadingProgress', {
+                current: uploadState.uploadedCount + 1,
+                total: acceptedFiles.length
+              })}
+            </p>
+          </div>
+        )}
+        
         <FileUploader 
           handleNewFiles={handleNewFiles}
           addFiles={addFiles}
+          acceptedFiles={acceptedFiles}
           isReady={acceptedFiles.length >= UPLOAD_CONSTANTS.MIN_IMAGES}
           isAnalyzing={isAnalyzing}
           analyzingCount={analyzingCount}
+          disabled={isUploading || acceptedFiles.length >= UPLOAD_CONSTANTS.MAX_IMAGES}
         />
       </div>
 

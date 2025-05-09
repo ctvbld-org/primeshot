@@ -30,6 +30,13 @@
   box-shadow: 0px 0px 12px 0px rgba(68,227,201,0.30), 0px 0px 24px 0px rgba(68,227,201,0.05);
   transform: scale(1.02);
 }
+.cardDisabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.cardAnalyzing {
+  cursor: not-allowed;
+}
 .cardContent {
   padding: 0;
 }
@@ -43,6 +50,11 @@
   gap: 1rem;
   text-align: center;
   cursor: pointer;
+}
+
+.cardDisabled .dropArea,
+.cardAnalyzing .dropArea {
+  pointer-events: none;
 }
 
 .iconContainer {
@@ -140,4 +152,4 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-} 
+}

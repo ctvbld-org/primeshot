@@ -47,6 +47,11 @@ CREATE POLICY "Users can update their own upload sessions"
   FOR UPDATE
   USING (auth.uid() = user_id);
 
+CREATE POLICY "Users can delete their own upload sessions"
+  ON public.upload_sessions
+  FOR DELETE
+  USING (auth.uid() = user_id);
+
 -- Users can manage chunks for their own upload sessions
 CREATE POLICY "Users can view chunks for their upload sessions"
   ON public.upload_chunks
@@ -69,6 +74,15 @@ CREATE POLICY "Users can insert chunks for their upload sessions"
 CREATE POLICY "Users can update chunks for their upload sessions"
   ON public.upload_chunks
   FOR UPDATE
+  USING (EXISTS (
+    SELECT 1 FROM public.upload_sessions
+    WHERE id = upload_chunks.session_id
+    AND user_id = auth.uid()
+  ));
+
+CREATE POLICY "Users can delete chunks for their upload sessions"
+  ON public.upload_chunks
+  FOR DELETE
   USING (EXISTS (
     SELECT 1 FROM public.upload_sessions
     WHERE id = upload_chunks.session_id

@@ -43,6 +43,6 @@
 }
 
 .continueButton {
-  background: #C0CED8;
-  color: #000;
+  background: #C0CED8 !important;
+  color: #000 !important;
 } 
