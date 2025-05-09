@@ -322,6 +322,10 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     }
   }
 
+  const clearRejectedFiles = () => {
+    setFileStates(prev => prev.filter(state => state.qualityResult?.isAcceptable))
+  }
+
   const addFiles = useCallback(async (newFiles: File[]) => {
     // First do basic validation
     const validFiles = validateFiles(newFiles)
@@ -334,6 +338,17 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     const remainingSlots = maxFiles - computedValues.acceptedCount
     const acceptableFilesCount = Object.values(results).filter(r => r.isAcceptable).length
     const skippedDueToLimit = acceptableFilesCount > remainingSlots
+    
+    // Clean up rejected files if:
+    // 1. All files passed quality checks, or
+    // 2. We filled all remaining slots with passing files
+    const shouldShowRejected = Object.values(results).some(r => !r.isAcceptable) && 
+      acceptableFilesCount < remainingSlots;
+    
+    if (!shouldShowRejected) {
+      // Clean up rejected files immediately
+      clearRejectedFiles();
+    }
     
     if (skippedDueToLimit) {
       const skippedAcceptableFiles = analyzedFiles
@@ -353,7 +368,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     }
 
     return fileStates
-  }, [validateFiles, computedValues.acceptedCount, maxFiles, analyzeImages, t, toast])
+  }, [validateFiles, computedValues.acceptedCount, maxFiles, analyzeImages, t, toast, clearRejectedFiles])
 
   const removeFile = (index: number) => {
     setFileStates(prev => {
@@ -372,10 +387,6 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
       }
     })
     setFileStates([])
-  }
-
-  const clearRejectedFiles = () => {
-    setFileStates(prev => prev.filter(state => state.qualityResult?.isAcceptable))
   }
 
   const uploadFile = async (file: File, orderId: string) => {

@@ -6,20 +6,28 @@
 
 .card {
   background: linear-gradient(180deg, #0C1013 0%, #09090B 100%);
-  box-shadow: 0px 0px 12px 0px rgba(68,227,201,0.30), 0px 0px 24px 0px rgba(68,227,201,0.05);
+  box-shadow: 0px 0px 12px 0px rgba(255,151,60,0.30), 0px 0px 24px 0px rgba(255,151,60,0.05);
   transition: box-shadow 0.3s;
   max-width: calc(100% - 64px);
   width: 860px;
   border-radius: 36px;
   border-width: 2px;
   border-style: dotted;
-  border-color: #44E3C9;
+  border-color: #FF973C;
+  color: #FF973C;
   transform: scale(1);
   transition: all 0.5s ease;
 }
 .cardDragging {
-  border-color: #FF973C;
-  box-shadow: 0px 0px 12px 0px rgba(255,151,60,0.30), 0px 0px 24px 0px rgba(255,151,60,0.05);
+  color: #cee5e1;
+  box-shadow: 0px 0px 12px 0px rgba(200, 222, 218, 0.3), 0px 0px 24px 0px rgba(195, 223, 219, 0.05);
+  border-color: #cee5e1;
+  transform: scale(1.02);
+}
+.cardReady {
+  border-color: #44E3C9;
+  color: #44E3C9;
+  box-shadow: 0px 0px 12px 0px rgba(68,227,201,0.30), 0px 0px 24px 0px rgba(68,227,201,0.05);
   transform: scale(1.02);
 }
 .cardContent {
@@ -55,6 +63,10 @@
 }
 
 .browse {
+  color: #FF973C;
+}
+
+.cardReady .browse {
   color: #44E3C9;
 }
 

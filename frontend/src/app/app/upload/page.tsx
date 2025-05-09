@@ -57,7 +57,6 @@ export default function UploadPage() {
     addFiles,
     removeFile,
     uploadFile,
-    clearFiles,
     clearRejectedFiles,
     handleNewFiles,
     isAnalyzing,
@@ -272,6 +271,7 @@ export default function UploadPage() {
         <FileUploader 
           handleNewFiles={handleNewFiles}
           addFiles={addFiles}
+          isReady={acceptedFiles.length >= UPLOAD_CONSTANTS.MIN_IMAGES}
           isAnalyzing={isAnalyzing}
           analyzingCount={analyzingCount}
         />
