@@ -1,15 +1,16 @@
 .fileUploaderContainer {
   display: flex;
   justify-content: center;
-  width: 100%;
+  max-width: calc(100% - 64px);
+  width: 860px;
+  position: relative;
 }
 
 .card {
   background: linear-gradient(180deg, #0C1013 0%, #09090B 100%);
   box-shadow: 0px 0px 12px 0px rgba(255,151,60,0.30), 0px 0px 24px 0px rgba(255,151,60,0.05);
   transition: box-shadow 0.3s;
-  max-width: calc(100% - 64px);
-  width: 860px;
+  width: 100%;
   border-radius: 36px;
   border-width: 2px;
   border-style: dotted;
@@ -152,4 +153,33 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+.uploadingOverlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 21, 20, 0.07);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  gap: 1.5rem;
+  border-radius: 35px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  padding: 2.5rem 1.5rem;
+}
+
+.uploadingLoader {
+  width: 46px;
+  height: 46px;
+}
+
+.uploadingText {
+  font-size: 16px;
+  color: #C0CED8;
 }

@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import styles from './file-uploader.module.css'
 import clsx from 'clsx'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
+import { Loader } from '@/components/ui/loader'
 
 interface FileUploaderProps {
   handleNewFiles: (files: File[]) => File[]
@@ -13,7 +14,9 @@ interface FileUploaderProps {
   acceptedFiles?: File[],
   isReady: boolean  
   isAnalyzing: boolean
+  isUploading: boolean
   analyzingCount: number
+  uploadedCount: number
   disabled?: boolean
 }
 
@@ -31,6 +34,8 @@ export function FileUploader({
   isReady,
   isAnalyzing,
   analyzingCount,
+  isUploading,
+  uploadedCount,
   disabled = false
 }: FileUploaderProps) {
   const { t } = useTranslation('upload')
@@ -85,6 +90,17 @@ export function FileUploader({
 
   return (
     <div className={styles.fileUploaderContainer}>
+      {isUploading && (
+        <div className={styles.uploadingOverlay}>
+          <Loader className={styles.uploadingLoader} />
+          <p className={styles.uploadingText}>
+            {t('status.uploadingProgress', {
+              current: uploadedCount + 1,
+              total: acceptedFiles?.length
+            })}
+          </p>
+        </div>
+      )}
       <Card className={clsx(
         styles.card,
         disabled && styles.cardDisabled,

@@ -2,6 +2,7 @@ import { S3Client, DeleteObjectCommand, HeadObjectCommand, GetObjectCommand } fr
 import { Upload } from '@aws-sdk/lib-storage';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { fileUploadSchema } from './schemas';
+import { getCloudFrontSignedUrl } from './cloudfront';
 
 // Validate required environment variables
 if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
@@ -179,9 +180,13 @@ export const createPresignedGetUrl = async (key: string) => {
     if (!key) {
       throw new Error('Invalid key provided for presigned URL');
     }
+
+    // Use CloudFront signed URLs for protected paths
+    if (key.startsWith('source-images/') || key.startsWith('generated-images/')) {
+      return await getCloudFrontSignedUrl(key);
+    }
     
-    // We don't need to force the source-images prefix - just use whatever path is in the database
-    // This handles both source-images/ and app-images/ paths
+    // For other paths, use S3 presigned URLs
     const command = new GetObjectCommand({
       Bucket: process.env.AWS_S3_BUCKET!,
       Key: key,
@@ -189,8 +194,8 @@ export const createPresignedGetUrl = async (key: string) => {
 
     return await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // 1 hour
   } catch (error) {
-    console.error('Error creating presigned get URL:', error);
-    throw new S3UploadError('Failed to create presigned get URL', error as Error);
+    console.error('Error creating presigned URL:', error);
+    throw new S3UploadError('Failed to create presigned URL', error as Error);
   }
 };
 
