@@ -80,53 +80,25 @@ export async function middleware(request: NextRequest) {
 
     // Define allowed paths based on current stage and flow rules
     if (!progress || currentStage === 'shoot') {
-      // Initial flow - only allow shoot, style, and payment (if has styles)
+      // Initial flow - only allow shoot and style pages
       if (currentPath.startsWith('/app/upload') || 
           currentPath.startsWith('/app/review') || 
           currentPath.startsWith('/app/albums')) {
         return NextResponse.redirect(new URL('/app/shoot', request.url));
       }
-      
-      // Block payment if no styles
-      if (currentPath.startsWith('/app/payment') && (!stylesCount || stylesCount === 0)) {
-        return NextResponse.redirect(new URL('/app/shoot', request.url));
-      }
     }
-    
-    // After payment completed
-    else if (isPaymentCompleted) {
-      // Special case for payment success page
-      if (currentPath === '/app/payment/success') {
-        return response;
-      }
 
-      // If in upload stage
-      if (currentStage === 'upload') {
-        if (!currentPath.startsWith('/app/upload')) {
-          return NextResponse.redirect(new URL('/app/upload', request.url));
-        }
-      }
-      
-      // If in review stage
-      else if (currentStage === 'review') {
-        if (!currentPath.startsWith('/app/review') && !currentPath.startsWith('/app/upload')) {
-          return NextResponse.redirect(new URL('/app/review', request.url));
-        }
-      }
-      
-      // If in albums stage (generation started)
-      else if (currentStage === 'albums') {
-        if (!currentPath.startsWith('/app/albums')) {
-          return NextResponse.redirect(new URL('/app/albums', request.url));
-        }
-      }
-      
-      // Block access to shoot, style, and payment pages after payment
-      if (currentPath.startsWith('/app/shoot') || 
-          currentPath.startsWith('/app/style') || 
-          currentPath.startsWith('/app/payment')) {
-        return NextResponse.redirect(new URL(`/app/${currentStage}`, request.url));
-      }
+    // Block upload/review/albums if payment not completed
+    if (!isPaymentCompleted && 
+        (currentPath.startsWith('/app/upload') || 
+         currentPath.startsWith('/app/review') || 
+         currentPath.startsWith('/app/albums'))) {
+      return NextResponse.redirect(new URL('/app/shoot', request.url));
+    }
+
+    // Allow payment success page for Stripe callback
+    if (currentPath.startsWith('/app/payment/success')) {
+      return NextResponse.next();
     }
   }
 

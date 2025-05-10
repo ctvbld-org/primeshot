@@ -1,11 +1,15 @@
 /**
+ * PRICING_VERSION: 1.0.0
+ * This is a copy of the frontend/src/lib/constants/pricing.ts file
+ * Last synchronized: 2025-05-09T20:14:00.778Z
+ * 
  * SHARED PRICING CONSTANTS
  * 
  * This file serves as the single source of truth for pricing information
- * across both frontend and Supabase Edge Functions.
+ * across Supabase Edge Functions.
  * 
- * IMPORTANT: When updating pricing, remember to deploy both frontend and
- * Edge Functions to maintain consistency between client and server.
+ * IMPORTANT: When updating pricing, this file should be kept in sync with
+ * frontend/src/lib/constants/pricing.ts to maintain consistency.
  */
 
 export type PricingTier = 'individual' | 'professional' | 'studio';
@@ -42,7 +46,7 @@ export interface PricingConstants {
  */
 export const PRICING: PricingConstants = {
   individual: {
-    price: 3900, // $39
+    price: 3900, // $29
     minStyles: 1,
     maxStyles: 1,
     headshotsPerStyle: 20,
@@ -61,7 +65,7 @@ export const PRICING: PricingConstants = {
     totalHeadshots: 120
   },
   addon: {
-    price: 1000, // $10 for additional 20 headshots
+    price: 1000, // $15 for additional 20 headshots
     headshots: 20
   }
 };
@@ -71,7 +75,7 @@ export const PRICING: PricingConstants = {
  * This is a simpler version of the full pricing calculation
  * that only returns the price in cents.
  */
-export function calculateSimplePrice(styleCount: number): number {
+export function calculatePrice(styleCount: number): number {
   if (styleCount <= 0) return 0;
   
   // Individual tier (1 style)

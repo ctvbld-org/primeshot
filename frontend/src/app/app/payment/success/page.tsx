@@ -62,208 +62,120 @@ export default function PaymentSuccessPage() {
       try {
         const supabase = createClient();
         
-        // First, get the order details
-        let query = supabase
+        // Get order details
+        const { data: order, error: orderError } = await supabase
           .from('orders')
           .select('*')
-          .eq('user_id', user.id);
+          .eq('id', orderId)
+          .single();
           
-        if (sessionId) {
-          query = query.eq('checkout_session_id', sessionId);
-        } 
-        else if (orderId) {
-          query = query.eq('id', orderId);
+        if (orderError || !order) {
+          throw new Error(t('errors.orderNotFound'));
         }
         
-        const { data: orders, error: orderError } = await query.limit(1);
+        // Verify payment status with Stripe session ID
+        const { data: verifyData, error: verifyError } = await supabase
+          .functions.invoke('verify-stripe-payment', {
+            body: { sessionId, orderId }
+          });
           
-        if (orderError) throw orderError;
-        
-        if (!orders || orders.length === 0) {
-          setError(t('errors.orderNotFound'));
-          setIsLoading(false);
-          setVerificationAttempted(true);
-          return;
+        if (verifyError || !verifyData?.success) {
+          throw new Error(t('errors.verificationFailed'));
         }
         
-        const order = orders[0];
-        
-        // Then, get the associated styles
-        const { data: styles, error: stylesError } = await supabase
-          .from('styles')
-          .select('*')
-          .eq('order_id', order.id);
+        // Update order status
+        const { error: updateError } = await supabase
+          .from('orders')
+          .update({
+            status: 'paid',
+            payment_status: 'completed',
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', orderId);
           
-        if (stylesError) {
-          console.error('Error fetching styles:', stylesError);
-          // Don't throw, just log the error and continue with empty styles
+        if (updateError) {
+          throw new Error('Failed to update order status');
         }
         
-        setOrderDetails({
-          ...order,
-          styles: styles || []
-        });
+        // Update user progress
+        await updateProgress('payment');
+        await clearProgress(); // Clear progress after successful payment
         
-        if (order.status !== 'paid' || order.payment_status !== 'succeeded') {
-          await supabase
-            .from('orders')
-            .update({
-              status: 'paid',
-              payment_status: 'succeeded',
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', order.id);
-            
-          console.log(`Updated order ${order.id} status to paid`);
-          
-          await updateProgress('payment');
-          await clearProgress();
-          await updateProgress('upload');
-        } else {
-          console.log(`Order ${order.id} already marked as paid, skipping status update`);
-        }
-      } catch (error) {
-        console.error('Error verifying payment:', error);
-        setError(t('errors.verificationFailed'));
-      } finally {
+        setOrderDetails(order);
         setIsLoading(false);
         setVerificationAttempted(true);
-        isVerifyingRef.current = false;
+      } catch (error) {
+        console.error('Payment verification error:', error);
+        setError(error instanceof Error ? error.message : t('errors.unexpectedError'));
+        setIsLoading(false);
+        setVerificationAttempted(true);
       }
     }
     
     verifyPayment();
-  }, [user, sessionId, orderId, updateProgress, clearProgress, verificationAttempted, t]);
+  }, [user, sessionId, orderId, t, updateProgress, clearProgress]);
   
   const handleContinue = () => {
     router.push('/app/upload');
   };
   
-  const handleRetry = () => {
-    router.push('/app/payment');
-  };
-  
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="text-xl">{t('status.confirming')}</p>
-      </div>
+      <Card className="w-full max-w-lg mx-auto mt-8">
+        <CardHeader>
+          <CardTitle>{t('status.verifying')}</CardTitle>
+          <CardDescription>{t('status.confirming')}</CardDescription>
+        </CardHeader>
+        <CardContent className="flex justify-center py-8">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </CardContent>
+      </Card>
     );
   }
   
   if (error) {
     return (
-      <div className="space-y-6">
-        <Card className="mx-auto max-w-md">
-          <CardHeader>
-            <div className="flex items-center space-x-2">
-              <AlertTriangle className="h-6 w-6 text-destructive" />
-              <CardTitle className="text-destructive">{t('status.error')}</CardTitle>
-            </div>
-            <CardDescription>
-              {t('errors.verificationFailed')}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p>{error}</p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {t('security.noCharge')}
-            </p>
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-2">
-            <Button onClick={handleRetry} className="w-full">
-              {t('buttons.returnToPayment')}
-            </Button>
-            <Button variant="outline" onClick={() => router.push('/app/shoot')} className="w-full">
-              {t('buttons.returnToStyles')}
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
+      <Card className="w-full max-w-lg mx-auto mt-8">
+        <CardHeader>
+          <CardTitle className="text-destructive flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5" />
+            {t('status.error')}
+          </CardTitle>
+          <CardDescription>{error}</CardDescription>
+        </CardHeader>
+        <CardFooter>
+          <Button variant="outline" onClick={() => router.push('/app/shoot')}>
+            {t('buttons.returnToStyles')}
+          </Button>
+        </CardFooter>
+      </Card>
     );
   }
   
   return (
-    <div className="space-y-8">
-      <div className="text-center">
-        <CheckCircle className="mx-auto h-16 w-16 text-green-500 mb-4" />
-        <h1 className="text-3xl font-bold tracking-tight">{t('success.title')}</h1>
-        <p className="text-muted-foreground mt-2">
-          {t('success.subtitle')}
-        </p>
-      </div>
-      
-      <Card className="mx-auto max-w-2xl">
-        <CardHeader>
-          <CardTitle>{t('success.orderSummary.title')}</CardTitle>
-          <CardDescription>
-            {t('success.orderSummary.description')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {orderDetails && (
-            <>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="font-medium">{t('fields.shootNumber')}</p>
-                  <p className="text-muted-foreground">
-                    {orderDetails?.shoot_number 
-                      ? `Shoot ${orderDetails.shoot_number.toString().padStart(3, '0')}` 
-                      : t('status.processing')}
-                  </p>
-                </div>
-                <div>
-                  <p className="font-medium">{t('fields.orderId')}</p>
-                  <p className="text-muted-foreground">{orderDetails?.id ? orderDetails.id.substring(0, 8) : 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="font-medium">{t('fields.date')}</p>
-                  <p className="text-muted-foreground">
-                    {orderDetails?.updated_at ? new Date(orderDetails.updated_at).toLocaleDateString() : 'N/A'}
-                  </p>
-                </div>
-                <div>
-                  <p className="font-medium">{t('fields.status')}</p>
-                  <p className="text-muted-foreground capitalize">{orderDetails?.status || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="font-medium">{t('success.orderSummary.amount')}</p>
-                  <p className="text-muted-foreground">
-                    ${((orderDetails?.amount || 0) / 100).toFixed(2)} USD
-                  </p>
-                </div>
-              </div>
-              
-              <div className="pt-4 border-t">
-                <h3 className="font-medium mb-2">{t('success.orderSummary.stylesTitle')}</h3>
-                <ul className="space-y-1 text-sm">
-                  {orderDetails?.styles && Array.isArray(orderDetails.styles) && orderDetails.styles.length > 0 ? orderDetails.styles.map((style: Style) => (
-                    <li key={style?.id || `style-${Math.random()}`} className="flex items-center">
-                      <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                      {style?.name || t('fields.styles')}
-                    </li>
-                  )) : (
-                    <li className="text-muted-foreground">{t('errors.noStyles.description')}</li>
-                  )}
-                </ul>
-              </div>
-              
-              <div className="pt-4 border-t">
-                <h3 className="font-medium mb-2">{t('success.nextSteps.title')}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {t('success.nextSteps.description')}
-                </p>
-              </div>
-            </>
-          )}
-        </CardContent>
-        <CardFooter>
-          <Button onClick={handleContinue} className="w-full">
-            {t('buttons.continueToUpload')}
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>
+    <Card className="w-full max-w-lg mx-auto mt-8">
+      <CardHeader>
+        <CardTitle className="text-primary flex items-center gap-2">
+          <CheckCircle className="h-5 w-5" />
+          {t('status.completed')}
+        </CardTitle>
+        <CardDescription>
+          {t('success.subtitle', {
+            amount: ((orderDetails?.amount || 0) / 100).toFixed(2),
+            styles: orderDetails?.styles?.length || 0
+          })}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <p>{t('success.nextSteps.description')}</p>
+        </div>
+      </CardContent>
+      <CardFooter>
+        <Button onClick={handleContinue} className="w-full">
+          {t('buttons.continueToUpload')}
+        </Button>
+      </CardFooter>
+    </Card>
   );
 } 

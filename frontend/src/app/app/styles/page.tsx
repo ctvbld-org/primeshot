@@ -48,7 +48,8 @@ function useStyleStores(styles: Array<Style>) {
     // Initialize new stores
     styles.forEach(style => {
       if (!storesRef.current[style.id]) {
-        storesRef.current[style.id] = useStyleStore(style.id as StylePhotographyStyle);
+        // Create store without casting the ID
+        storesRef.current[style.id] = useStyleStore(style.id);
       }
     });
   }, [styles]);
@@ -61,6 +62,11 @@ function useStyleStores(styles: Array<Style>) {
   }, []);
 
   const getStore = useCallback((styleId: string) => {
+    // Ensure store exists before returning it
+    if (!storesRef.current[styleId]) {
+      // Create store if it doesn't exist
+      storesRef.current[styleId] = useStyleStore(styleId);
+    }
     return storesRef.current[styleId];
   }, []);
 

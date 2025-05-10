@@ -4,6 +4,9 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { verifyOrderPrice } from '@/lib/server/price-verification';
 import { getCheckoutSessionIdempotencyKey, getRetryIdempotencyKey } from '@/lib/server/idempotency';
+import { calculatePricing, getTierDisplayText } from '@/lib/pricing';
+import { getOptionByCategory } from '@/lib/api/config';
+import { PRICING } from '@/lib/constants/pricing';
 
 // Check if STRIPE_SECRET_KEY is set
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
@@ -133,48 +136,119 @@ export async function POST(request: Request) {
     };
 
     // Get styles for this order
-    const { data: styles } = await supabase
+    const { data: styles, error: stylesError } = await supabase
       .from('styles')
-      .select('id, name')
+      .select('id, name, settings, status')
       .eq('order_id', orderId);
 
-    // Create a readable list of styles
-    const stylesList = styles?.map(style => style.name).join(', ') || 'Custom Headshots';
+    console.log(`Querying styles for order ${orderId}:`, { styles, error: stylesError });
+
+    if (stylesError) {
+      console.error('Error fetching styles:', stylesError);
+      return NextResponse.json(
+        { error: 'Failed to fetch styles for order' },
+        { status: 500 }
+      );
+    }
+
+    if (!styles || styles.length === 0) {
+      // Try to find any styles that might be associated with the user but not properly linked
+      const { data: userStyles, error: userStylesError } = await supabase
+        .from('styles')
+        .select('id, name, settings, status')
+        .eq('user_id', user.id)
+        .eq('status', 'draft');
+
+      console.log('Checking user styles as fallback:', { userStyles, error: userStylesError });
+
+      return NextResponse.json(
+        { 
+          error: 'No styles found for this order',
+          details: 'Please ensure styles are properly associated with the order',
+          debug: {
+            orderId,
+            userStyles: userStyles || [],
+            userStylesError
+          }
+        },
+        { status: 400 }
+      );
+    }
+
+    // Get option translations
+    const [backgroundOptions, clothingOptions, colorOptions] = await Promise.all([
+      getOptionByCategory('background'),
+      getOptionByCategory('clothing'),
+      getOptionByCategory('clothingColor')
+    ]);
+
+    // Calculate pricing info to get headshots per style
+    const pricingInfo = calculatePricing(styles.length);
     
     // Create checkout session with idempotency key
     const checkoutSession = await stripe.checkout.sessions.create(
       {
         payment_method_types: ['card'],
         mode: 'payment',
-        customer_email: customerEmail, // Add customer email if provided
+        customer_email: customerEmail,
         customer_creation: customerEmail ? 'always' : undefined,
-        line_items: [
-          {
-            price_data: {
-              currency: 'usd',
-              product_data: {
-                name: 'Professional Headshots',
-                description: `Styles: ${stylesList}`,
+        line_items: (() => {
+          const baseStyleCount = Math.min(styles.length, PRICING.studio.maxStyles);
+          const baseAmount = PRICING.studio.price; 
+
+          return [
+            // Base package price
+            {
+              price_data: {
+                currency: 'usd',
+                product_data: {
+                  name: `📷 ${getTierDisplayText(pricingInfo.tier)} Package`,
+                  description: `${baseStyleCount} Professional Style${baseStyleCount > 1 ? 's' : ''} • ${pricingInfo.headshotsPerStyle} Photos per Style`,
+                },
+                unit_amount: baseAmount,
               },
-              unit_amount: verifiedAmount, // Use VERIFIED amount
+              quantity: 1,
             },
-            quantity: 1,
-          },
-        ],
+            // Individual styles
+            ...styles.map((style, index) => {
+              const background = backgroundOptions?.options.find(opt => opt.id === style.settings?.background)?.label || style.settings?.background;
+              const clothing = clothingOptions?.options.find(opt => opt.id === style.settings?.clothing)?.label || style.settings?.clothing;
+              const color = colorOptions?.options.find(opt => opt.id === style.settings?.clothingColor)?.label || style.settings?.clothingColor;
+              
+              const isAddon = index >= PRICING.studio.maxStyles;
+              
+              return {
+                price_data: {
+                  currency: 'usd',
+                  product_data: {
+                    name: `Style ${index + 1}: ${style.name}${isAddon ? ' (Addon)' : ''}`,
+                    description: [
+                      `🖼️  ${background}`,
+                      `👔  ${clothing}`,
+                      color ? `🎨  ${color}` : null
+                    ].filter(Boolean).join('   '),
+                  },
+                  unit_amount: isAddon ? PRICING.addon.price : 0,
+                },
+                quantity: 1,
+              };
+            }),
+          ];
+        })(),
         metadata: {
           orderId,
           userId: user.id,
-          styleCount: verification.styleCount.toString(), // Add style count for reference
-          verifiedAmount: 'true', // Flag to indicate the amount was verified
+          styleCount: verification.styleCount.toString(),
+          verifiedAmount: 'true',
           createdAt: new Date().toISOString(),
-          customerName, // Add customer name to metadata if provided
+          customerName,
           ...enhancedMetadata,
         },
         success_url: `${APP_URL}/app/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${APP_URL}/app/payment`,
+        cancel_url: `${APP_URL}/app/shoot`,
       },
       {
-        idempotencyKey, // Using idempotency key for creation
+        idempotencyKey,
       }
     );
 
