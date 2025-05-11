@@ -244,8 +244,8 @@ export async function POST(request: Request) {
           customerName,
           ...enhancedMetadata,
         },
-        success_url: `${APP_URL}/app/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${APP_URL}/app/shoot`,
+        success_url: `${APP_URL}/app/upload?session_id={CHECKOUT_SESSION_ID}&order_id=${order.id}`,
+        cancel_url: `${APP_URL}/app/payment?canceled=true`,
       },
       {
         idempotencyKey,
@@ -286,10 +286,24 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({ 
-      sessionId: checkoutSession.id,
-      idempotencyKey
-    });
+    // Get current progress first
+    const { data: currentProgress } = await supabase
+      .from('user_progress')
+      .select('completed_stages')
+      .eq('user_id', user.id)
+      .single()
+
+    // Update user progress to mark payment stage
+    await supabase
+      .from('user_progress')
+      .upsert({
+        user_id: user.id,
+        current_stage: 'upload',
+        completed_stages: [...(currentProgress?.completed_stages || []), 'payment'],
+        last_active_at: new Date().toISOString()
+      }, { onConflict: 'user_id' })
+
+    return NextResponse.json({ sessionId: checkoutSession.id });
   } catch (error) {
     console.error('Error creating checkout session:', error);
     return NextResponse.json(

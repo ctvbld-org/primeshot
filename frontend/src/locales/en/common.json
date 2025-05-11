@@ -16,7 +16,7 @@
     "cancel": "Cancel",
     "close": "Close",
     "next": "Next",
-    "previous": "Prev",
+    "previous": "Prev.",
     "keep": "Keep it",
     "discard": "Discard",
     "confirm": "Confirm",
@@ -25,7 +25,7 @@
   },
   "navigation": {
     "addStyles": "Add Styles",
-    "checkout": "Checkout",
+    "payment": "Payment",
     "uploadPhotos": "Upload Photos",
     "generate": "Generate"
   },

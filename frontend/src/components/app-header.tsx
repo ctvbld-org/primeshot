@@ -16,7 +16,7 @@ interface AppHeaderProps {
 
 const NAVIGATION_STEPS = [
   { id: 'shoot', label: 'navigation.addStyles' as const, paths: ['/app/shoot', '/app/styles'] },
-  { id: 'payment', label: 'navigation.checkout' as const, paths: ['/app/payment'] },
+  { id: 'payment', label: 'navigation.payment' as const, paths: ['/app/payment'] },
   { id: 'upload', label: 'navigation.uploadPhotos' as const, paths: ['/app/upload'] },
   { id: 'generate', label: 'navigation.generate' as const, paths: ['/app/generate', '/app/review'] }
 ] as const

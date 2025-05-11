@@ -12,6 +12,8 @@ import { AuthProvider } from '@/contexts/auth-context'
 import { QueryProvider } from '@/components/providers/query-provider'
 import { Toaster } from "@/components/ui/toaster"
 import { LanguageProvider } from '@/contexts/language-context'
+import { BannerProvider } from "@/components/ui/use-banner"
+import { Banner } from "@/components/ui/banner"
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -39,14 +41,17 @@ export default function RootLayout({
   }, [supabase])
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <SupabaseProvider session={session}>
           <AuthProvider>
             <LanguageProvider>
               <QueryProvider>
-                {children}
-                <Toaster />
+                <BannerProvider>
+                  {children}
+                  <Toaster />
+                  <Banner />
+                </BannerProvider>
               </QueryProvider>
             </LanguageProvider>
           </AuthProvider>

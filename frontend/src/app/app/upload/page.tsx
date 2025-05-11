@@ -1,11 +1,12 @@
 'use client'
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation, Trans } from 'react-i18next'
 import { useToast } from '@/components/ui/use-toast'
 import dynamic from 'next/dynamic'
 import { useWindowSize } from '@/lib/hooks/use-window-size'
+import { paymentEvents, PAYMENT_EVENTS } from '@/lib/events/payment'
 
 import { FileUploader } from '@/components/upload/file-uploader'
 import { UploadRequirements } from '@/components/upload/upload-requirements'
@@ -16,12 +17,12 @@ import { useUserProgress } from '@/lib/hooks/use-user-progress'
 import { useFileUpload } from '@/lib/hooks/use-file-upload'
 import { useOrder } from '@/lib/hooks/use-order'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
+import { useAuth } from '@/contexts/auth-context'
 
 // Import Confetti dynamically to avoid SSR issues
 const ReactConfetti = dynamic(() => import('react-confetti'), { ssr: false })
 
 // Constants
-const SHOW_CONFETTI = true
 const CONFETTI_DURATION = 3000
 const CONFETTI_CONFIG = {
   numberOfPieces: 300,
@@ -34,22 +35,41 @@ const CONFETTI_CONFIG = {
 export default function UploadPage() {
   // 1. All hooks must be called before any conditional returns
   const { width, height } = useWindowSize()
-  const { t } = useTranslation('upload')
+  const { t } = useTranslation(['upload', 'payment'])
+  const { user } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { toast } = useToast()
-  const { updateProgress } = useUserProgress()
-  const { order, isLoading, error } = useOrder()
+  const { updateProgress, clearProgress } = useUserProgress()
   
-  // 2. State hooks
-  const [uploadState, setUploadState] = useState({
-    uploadedCount: 0,
-    showConfetti: false as boolean | 'stopping',
-    hasShownConfetti: false,
-    showRejectedDialog: false,
-    shownRejectedFiles: [] as string[]
+  const { 
+    order,
+    isLoading: isLoadingOrder,
+    error: orderError,
+    isVerifying,
+    isVerified
+  } = useOrder({ 
+    sessionId: searchParams.get('session_id'),
+    loadStyles: false
   })
 
-  // 3. Custom hooks
+  const [showConfetti, setShowConfetti] = useState<boolean | 'stopping'>(false)
+
+  // 5. State hooks
+  const [uploadState, setUploadState] = useState({
+    uploadedCount: 0,
+    showRejectedDialog: false,
+    shownRejectedFiles: [] as string[],
+    isVerifyingFiles: false,
+    isAnalyzing: false,
+    isUploading: false,
+    uploadProgress: 0,
+    uploadedFiles: [] as string[],
+    qualityResults: {} as Record<string, { isAcceptable: boolean; reason?: string }>,
+    rejectedFiles: [] as string[]
+  })
+
+  // 6. Custom hooks
   const {
     files: selectedFiles,
     qualityResults,
@@ -64,7 +84,7 @@ export default function UploadPage() {
     currentFileIndex,
   } = useFileUpload()
 
-  // 4. Memoized values
+  // 7. Memoized values
   const acceptedFiles = useMemo(() => 
     selectedFiles.filter(file => qualityResults[file.name]?.isAcceptable),
     [selectedFiles, qualityResults]
@@ -108,7 +128,7 @@ export default function UploadPage() {
     )
   }, [acceptedFiles.length, selectedFiles.length, t])
 
-  // 5. Callbacks
+  // 8. Callbacks
   const handleDialogClose = useCallback(() => {
     setUploadState(prev => ({ 
       ...prev, 
@@ -206,21 +226,32 @@ export default function UploadPage() {
     }
   }, [order, uploadFile, removeFile, handleUploadSuccess, toast, t, selectedFiles])
 
-  // 6. Effects - always after all other hooks
+  // Replace the confetti effect with improved state handling
   useEffect(() => {
-    if (!SHOW_CONFETTI || uploadState.hasShownConfetti || 
-        acceptedFiles.length < UPLOAD_CONSTANTS.MIN_IMAGES) {
-      return
+    const handlePaymentSuccess = () => {
+      setShowConfetti(true)
+      
+      // First transition to 'stopping' state
+      const stopTimer = setTimeout(() => {
+        setShowConfetti('stopping')
+        
+        // Then completely remove after particles have fallen
+        const removeTimer = setTimeout(() => {
+          setShowConfetti(false)
+        }, 15000) // Additional time for particles to fall
+        
+        return () => clearTimeout(removeTimer)
+      }, CONFETTI_DURATION)
+      
+      return () => clearTimeout(stopTimer)
     }
 
-    setUploadState(prev => ({ ...prev, hasShownConfetti: true, showConfetti: true }))
-    
-    const timer = setTimeout(() => {
-      setUploadState(prev => ({ ...prev, showConfetti: false }))
-    }, CONFETTI_DURATION)
+    paymentEvents.on(PAYMENT_EVENTS.PAYMENT_SUCCESS, handlePaymentSuccess)
 
-    return () => clearTimeout(timer)
-  }, [uploadState.hasShownConfetti, acceptedFiles.length])
+    return () => {
+      paymentEvents.off(PAYMENT_EVENTS.PAYMENT_SUCCESS, handlePaymentSuccess)
+    }
+  }, [])
 
   useEffect(() => {
     const rejectedFileNames = rejectedFiles.map(f => f.name)
@@ -242,23 +273,27 @@ export default function UploadPage() {
     }
   }, [acceptedFiles.length, rejectedFiles, uploadState.shownRejectedFiles, isAnalyzing])
 
-  // 7. Conditional returns - after all hooks
-  if (isLoading) {
-    return <div className="text-muted-foreground">{t('status.processing')}</div>
+  // 10. Conditional returns - after all hooks
+  if (isLoadingOrder || isVerifying) {
+    // TODO: Add a skeleton loader here
+    return <div className="text-white">{t('status.processing')}</div>
   }
 
-  if (error) {
+  if (orderError) {
     return <div className="text-destructive">{t('status.error')}</div>
   }
 
-  // 8. Final render
+  // 11. Final render
   return (
     <div className="text-[#C0CED8] text-center space-y-6 pb-[80px]">
-      {SHOW_CONFETTI && uploadState.showConfetti && (
+      {(showConfetti === true || showConfetti === 'stopping') && (
         <ReactConfetti
+          className='z-52!'
           width={width}
           height={height}
           {...CONFETTI_CONFIG}
+          recycle={showConfetti === true} // Only generate new particles when actively showing
+          numberOfPieces={showConfetti === 'stopping' ? 0 : CONFETTI_CONFIG.numberOfPieces}
         />
       )}
       

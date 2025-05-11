@@ -32,7 +32,7 @@ export default function AppRoot() {
         router.replace(`/app/${progress.current_stage}`);
       } else {
         // If payment completed, go to shoots page
-        router.replace('/app/shoots');
+        router.replace('/app/upload');
       }
     }
   }, [isLoading, progress, router, user]);
