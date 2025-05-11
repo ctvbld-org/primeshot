@@ -245,7 +245,7 @@ export async function POST(request: Request) {
           ...enhancedMetadata,
         },
         success_url: `${APP_URL}/app/upload?session_id={CHECKOUT_SESSION_ID}&order_id=${order.id}`,
-        cancel_url: `${APP_URL}/app/payment?canceled=true`,
+        cancel_url: `${APP_URL}/app/shoot`,
       },
       {
         idempotencyKey,
