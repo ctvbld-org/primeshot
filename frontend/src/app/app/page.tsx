@@ -40,7 +40,7 @@ export default function AppRoot() {
   // Show loading state while redirecting
   return (
     <div className="h-[50vh] flex items-center justify-center">
-      <Loader size="lg" text="Redirecting to your workspace..." />
+      <Loader size="lg" />
     </div>
   );
 } 

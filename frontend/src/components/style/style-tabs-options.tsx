@@ -131,7 +131,6 @@ export const StyleTabsOptions = forwardRef<StyleTabsOptionsRef, StyleTabsOptions
   // Function to apply prop settings
   const getPropSettings = useCallback(() => {
     if (!validOptions) return;
-    console.log("Applying prop settings:", propSettings);
     if (propSettings) {
       if (propSettings.background) {
         setBackground(propSettings.background, validOptions).catch(console.error);

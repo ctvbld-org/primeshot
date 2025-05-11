@@ -139,7 +139,7 @@ export function ShootFooter({
 
       // Calculate pricing
       const pricing = calculatePricing(stylesCount);
-
+      
       // Create checkout session
       const checkoutInfo = await createCheckoutSession({
         orderId: order.id,
@@ -155,13 +155,6 @@ export function ShootFooter({
       if (!checkoutInfo || !checkoutInfo.sessionId) {
         throw new Error(t('errors.paymentClientSecret', { ns: 'payment' }));
       }
-
-      // Update user progress
-      await updateProgress('payment', {
-        orderId: order.id,
-        attemptCount: 1,
-        lastAttemptAt: new Date().toISOString()
-      });
 
       // Redirect to Stripe Checkout
       const stripe = await getStripe();

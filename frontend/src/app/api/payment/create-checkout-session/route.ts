@@ -193,8 +193,8 @@ export async function POST(request: Request) {
         customer_email: customerEmail,
         customer_creation: customerEmail ? 'always' : undefined,
         line_items: (() => {
-          const baseStyleCount = Math.min(styles.length, PRICING.studio.maxStyles);
-          const baseAmount = PRICING.studio.price; 
+          const baseStyleCount = styles.length;
+          const baseAmount = pricingInfo.price; 
 
           return [
             // Base package price
