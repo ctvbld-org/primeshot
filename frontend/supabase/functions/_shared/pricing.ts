@@ -1,7 +1,7 @@
 /**
- * PRICING_VERSION: 1.0.0
+ * PRICING_VERSION: 1.0.1
  * This is a copy of the frontend/src/lib/constants/pricing.ts file
- * Last synchronized: 2025-05-09T20:14:00.778Z
+ * Last synchronized: 2025-05-12T13:33:51.977Z
  * 
  * SHARED PRICING CONSTANTS
  * 
@@ -42,11 +42,11 @@ export interface PricingConstants {
 
 /**
  * Central pricing constants
- * All price values are in cents (e.g., 2900 = $29.00)
+ * All price values are in cents (e.g., 3900 = $39.00)
  */
 export const PRICING: PricingConstants = {
   individual: {
-    price: 3900, // $29
+    price: 3900, // $39
     minStyles: 1,
     maxStyles: 1,
     headshotsPerStyle: 20,
@@ -65,7 +65,7 @@ export const PRICING: PricingConstants = {
     totalHeadshots: 120
   },
   addon: {
-    price: 1000, // $15 for additional 20 headshots
+    price: 1000, // $10 for additional 20 headshots
     headshots: 20
   }
 };
@@ -103,13 +103,13 @@ export function calculatePrice(styleCount: number): number {
  * Version string to help with tracking pricing changes
  * Increment this when modifying pricing structure
  */
-export const PRICING_VERSION = '1.0.0';
+export const PRICING_VERSION = '1.0.1';
 
 /**
  * Use this comment block when copying to Edge Functions:
  * 
  * ```ts
- * // PRICING_VERSION: 1.0.0
+ * // PRICING_VERSION: 1.0.1
  * // This is a copy of the frontend/src/lib/constants/pricing.ts file
  * // Last synchronized: ${new Date().toISOString()}
  * ```

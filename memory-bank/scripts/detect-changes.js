@@ -85,10 +85,15 @@ function updateMemoryBankFile(filePath, section, content) {
         }
 
         let fileContent = fs.readFileSync(filePath, 'utf8');
-        const sectionRegex = new RegExp(`## ${section}[^#]*`);
+        const sectionRegex = new RegExp(`## ${section}\\s*[^#]*(?=##|$)`, 's');
         const date = new Date().toISOString().split('T')[0];
         const newContent = `\n\n**Auto-update ${date}**:\n${content.trim()}\n`;
         
+        // Check if section exists in file
+        if (!sectionRegex.test(fileContent)) {
+            console.error(`Section "${section}" not found in ${filePath}`);
+            return false;
+        }
         const updatedContent = fileContent.replace(
             sectionRegex,
             match => `${match}${newContent}`
@@ -125,10 +130,13 @@ async function handleUpdates(changes) {
         });
         
         if (answer.toLowerCase() === 'y') {
-            const content = await new Promise(resolve => {
-                rl.question('Enter the update content (press Enter, then Ctrl+D when done):\n', resolve);
-            });
-            
+            console.log('Enter the update content (type "END" on a new line when done):');
+            let content = '';
+            while (true) {
+                const line = await new Promise(resolve => rl.question('', resolve));
+                if (line === 'END') break;
+                content += line + '\n';
+            }
             const filePath = path.join(MEMORY_BANK_DIR, data.memoryBankFile);
             updateMemoryBankFile(filePath, data.section, content);
         }

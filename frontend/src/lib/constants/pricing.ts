@@ -38,7 +38,7 @@ export interface PricingConstants {
 
 /**
  * Central pricing constants
- * All price values are in cents (e.g., 2900 = $29.00)
+ * All price values are in cents (e.g., 3900 = $39.00)
  */
 export const PRICING: PricingConstants = {
   individual: {
@@ -99,13 +99,13 @@ export function calculateSimplePrice(styleCount: number): number {
  * Version string to help with tracking pricing changes
  * Increment this when modifying pricing structure
  */
-export const PRICING_VERSION = '1.0.0';
+export const PRICING_VERSION = '1.0.1';
 
 /**
  * Use this comment block when copying to Edge Functions:
  * 
  * ```ts
- * // PRICING_VERSION: 1.0.0
+ * // PRICING_VERSION: 1.0.1
  * // This is a copy of the frontend/src/lib/constants/pricing.ts file
  * // Last synchronized: ${new Date().toISOString()}
  * ```

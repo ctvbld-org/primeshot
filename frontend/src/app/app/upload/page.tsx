@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation, Trans } from 'react-i18next'
 import { useToast } from '@/components/ui/use-toast'
@@ -170,9 +170,9 @@ export default function UploadPage() {
     }
 
     // Use local variables to track progress
-    let uploadedFiles: string[] = []
+    const uploadedFiles: string[] = []
     let uploadedCount = 0
-    let currentUploadingIndex: number | null = 0
+    let currentUploadingIndex: number | null = null
 
     setUploadState(prev => ({ 
       ...prev, 
@@ -273,30 +273,30 @@ export default function UploadPage() {
     }
   }, [order, uploadFile, removeFile, handleUploadSuccess, toast, t, selectedFiles])
 
-  // Replace the confetti effect with improved state handling
+  // Confetti timer refs to prevent leaks
+  const stopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const removeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   useEffect(() => {
     const handlePaymentSuccess = () => {
       setShowConfetti(true)
-      
-      // First transition to 'stopping' state
-      const stopTimer = setTimeout(() => {
+      stopTimerRef.current = setTimeout(() => {
         setShowConfetti('stopping')
-        
-        // Then completely remove after particles have fallen
-        const removeTimer = setTimeout(() => {
-          setShowConfetti(false)
-        }, 15000) // Additional time for particles to fall
-        
-        return () => clearTimeout(removeTimer)
+        removeTimerRef.current = setTimeout(() => setShowConfetti(false), 15000)
       }, CONFETTI_DURATION)
-      
-      return () => clearTimeout(stopTimer)
     }
 
     paymentEvents.on(PAYMENT_EVENTS.PAYMENT_SUCCESS, handlePaymentSuccess)
-
     return () => {
       paymentEvents.off(PAYMENT_EVENTS.PAYMENT_SUCCESS, handlePaymentSuccess)
+      if (stopTimerRef.current !== null) {
+        clearTimeout(stopTimerRef.current)
+        stopTimerRef.current = null
+      }
+      if (removeTimerRef.current !== null) {
+        clearTimeout(removeTimerRef.current)
+        removeTimerRef.current = null
+      }
     }
   }, [])
 

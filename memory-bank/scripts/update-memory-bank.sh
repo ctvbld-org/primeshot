@@ -19,7 +19,7 @@ update_section() {
     if [ ! -f "$file" ]; then
         echo "Error: File $file not found"
         return 1
-    }
+    fi
     
     # Find the section and add new content below it
     awk -v section="## $section" -v content="$content" '
