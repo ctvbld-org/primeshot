@@ -196,7 +196,7 @@ export function useUserProgress() {
   function validateStageAccess(pageStage: FlowStage): boolean {
     if (!progress) return pageStage === 'shoot' // Allow shoot page initially
 
-    const stageOrder: FlowStage[] = ['shoot', 'upload', 'review', 'albums']
+    const stageOrder: FlowStage[] = ['shoot', 'payment', 'upload', 'review', 'albums']
     const currentPageIndex = stageOrder.indexOf(pageStage)
     const maxCompletedIndex = Math.max(
       ...((progress.completed_stages as FlowStage[]) || []).map(s => stageOrder.indexOf(s)),
@@ -209,8 +209,8 @@ export function useUserProgress() {
     }
     
     // Before payment is completed:
-    // Allow access to 'shoot' only
-    return pageStage === 'shoot'
+    // Allow access to shoot and payment stages only
+    return pageStage === 'shoot' || pageStage === 'payment'
   }
 
   // Special function to check if user can modify styles

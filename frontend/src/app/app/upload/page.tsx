@@ -18,6 +18,7 @@ import { useFileUpload } from '@/lib/hooks/use-file-upload'
 import { useOrder } from '@/lib/hooks/use-order'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 import { useAuth } from '@/contexts/auth-context'
+import { UploadPageSkeleton } from '@/components/skeleton/upload/page'
 
 // Import Confetti dynamically to avoid SSR issues
 const ReactConfetti = dynamic(() => import('react-confetti'), { ssr: false })
@@ -66,7 +67,8 @@ export default function UploadPage() {
     uploadProgress: 0,
     uploadedFiles: [] as string[],
     qualityResults: {} as Record<string, { isAcceptable: boolean; reason?: string }>,
-    rejectedFiles: [] as string[]
+    rejectedFiles: [] as string[],
+    currentUploadingIndex: null as number | null
   })
 
   // 6. Custom hooks
@@ -165,16 +167,41 @@ export default function UploadPage() {
       return
     }
 
-    setUploadState(prev => ({ ...prev, uploadedCount: 0 }))
+    // Use local variables to track progress
+    let uploadedFiles: string[] = []
+    let uploadedCount = 0
+    let currentUploadingIndex: number | null = 0
+
+    setUploadState(prev => ({ 
+      ...prev, 
+      uploadedCount: 0,
+      uploadedFiles: [],
+      currentUploadingIndex: 0, // Start with the first file
+      isUploading: true // Set uploading state to true
+    }))
+    
     const results: { originalName: string; url?: string; error?: string }[] = []
 
     try {
       // Upload files one by one
-      for (const file of filesToUpload) {
+      for (let i = 0; i < filesToUpload.length; i++) {
+        const file = filesToUpload[i]
+        currentUploadingIndex = i
+        
+        // Only one setUploadState per iteration
+        setUploadState(prev => ({
+          ...prev,
+          uploadedFiles: [...uploadedFiles],
+          uploadedCount: uploadedCount,
+          currentUploadingIndex,
+          isUploading: true
+        }))
+        
         try {
           const url = await uploadFile(file, order.id)
           results.push({ originalName: file.name, url })
-          setUploadState(prev => ({ ...prev, uploadedCount: prev.uploadedCount + 1 }))
+          uploadedFiles.push(file.name)
+          uploadedCount++
         } catch (error) {
           console.error(`Error uploading ${file.name}:`, error)
           results.push({ 
@@ -182,7 +209,18 @@ export default function UploadPage() {
             error: error instanceof Error ? error.message : 'Upload failed' 
           })
         }
+        // Add a small delay to make the visual transition more noticeable
+        await new Promise(resolve => setTimeout(resolve, 300))
       }
+      
+      // After all files, ensure isUploading is false and currentUploadingIndex is null
+      setUploadState(prev => ({ 
+        ...prev, 
+        uploadedFiles: [...uploadedFiles],
+        uploadedCount: uploadedCount,
+        currentUploadingIndex: null,
+        isUploading: false
+      }))
       
       const failedUploads = results.filter(r => r.error)
       const successfulUploads = results.filter(r => !r.error)
@@ -223,6 +261,12 @@ export default function UploadPage() {
         description: error instanceof Error ? error.message : t('errors.uploadFailed'),
         variant: 'destructive'
       })
+      // Make sure to reset uploading state if there's an error
+      setUploadState(prev => ({
+        ...prev,
+        isUploading: false,
+        currentUploadingIndex: null
+      }))
     }
   }, [order, uploadFile, removeFile, handleUploadSuccess, toast, t, selectedFiles])
 
@@ -275,8 +319,7 @@ export default function UploadPage() {
 
   // 10. Conditional returns - after all hooks
   if (isLoadingOrder || isVerifying) {
-    // TODO: Add a skeleton loader here
-    return <div className="text-white">{t('status.processing')}</div>
+    return <UploadPageSkeleton />
   }
 
   if (orderError) {
@@ -316,9 +359,11 @@ export default function UploadPage() {
           isReady={acceptedFiles.length >= UPLOAD_CONSTANTS.MIN_IMAGES}
           isAnalyzing={isAnalyzing}
           analyzingCount={analyzingCount}
-          isUploading={isUploading}
+          isUploading={uploadState.isUploading}
           uploadedCount={uploadState.uploadedCount}
-          disabled={isUploading || acceptedFiles.length >= UPLOAD_CONSTANTS.MAX_IMAGES}
+          disabled={uploadState.isUploading || acceptedFiles.length >= UPLOAD_CONSTANTS.MAX_IMAGES}
+          currentUploadingIndex={uploadState.currentUploadingIndex}
+          uploadedFiles={uploadState.uploadedFiles}
         />
       </div>
 
@@ -341,11 +386,13 @@ export default function UploadPage() {
         minImages={UPLOAD_CONSTANTS.MIN_IMAGES}
         maxImages={UPLOAD_CONSTANTS.MAX_IMAGES}
         onReviewClick={() => handleUpload(acceptedFiles)}
-        isUploading={isUploading}
+        isUploading={uploadState.isUploading}
         onRemoveFile={removeFile}
         qualityResults={qualityResults}
         isAnalyzing={isAnalyzing}
         currentAnalyzingIndex={currentFileIndex}
+        currentUploadingIndex={uploadState.currentUploadingIndex}
+        uploadedFiles={uploadState.uploadedFiles}
       />
     </div>
   )

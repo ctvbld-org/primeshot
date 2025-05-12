@@ -21,6 +21,8 @@ interface FileUploaderProps {
   disabled?: boolean
   onCreateObjectURL?: (file: File) => string
   onRevokeObjectURL?: (url: string) => void
+  currentUploadingIndex?: number | null
+  uploadedFiles?: string[]
 }
 
 interface FileState {
@@ -41,7 +43,9 @@ export function FileUploader({
   uploadedCount,
   disabled = false,
   onCreateObjectURL,
-  onRevokeObjectURL
+  onRevokeObjectURL,
+  currentUploadingIndex = null,
+  uploadedFiles = []
 }: FileUploaderProps) {
   const { t } = useTranslation('upload')
   const [isDragging, setIsDragging] = useState(false)
@@ -169,7 +173,7 @@ export function FileUploader({
           <Loader className={styles.uploadingLoader} />
           <p className={styles.uploadingText}>
             {t('status.uploadingProgress', {
-              current: uploadedCount + 1,
+              current: currentUploadingIndex ? currentUploadingIndex + 1 : 1,
               total: acceptedFiles?.length
             })}
           </p>

@@ -113,7 +113,7 @@
   },
   "success": {
     "title": "🎉 Payment Successful!",
-    "description": "A confirmation email has been sent to you 🎉",
+    "description": "A confirmation email has been sent to your inbox 🎉",
     "orderSummary": {
       "title": "Order Summary",
       "description": "Your order has been confirmed and is being processed.",

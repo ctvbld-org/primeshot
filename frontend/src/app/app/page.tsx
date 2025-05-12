@@ -8,7 +8,7 @@ import { Loader } from '@/components/ui/loader';
 
 export default function AppRoot() {
   const { user } = useAuth();
-  const { progress, isLoading } = useUserProgress();
+  const { progress, isLoading, isPaymentCompleted } = useUserProgress();
   const router = useRouter();
 
   useEffect(() => {
@@ -27,15 +27,21 @@ export default function AppRoot() {
       if (!progress) {
         // No progress means starting fresh - go to shoot page
         router.replace('/app/shoot');
-      } else if (!progress.completed_stages.includes('payment')) {
-        // If payment not completed, go to current stage
+      } else if (isPaymentCompleted) {
+        // After payment completion, always go to current stage
         router.replace(`/app/${progress.current_stage}`);
       } else {
-        // If payment completed, go to shoots page
-        router.replace('/app/upload');
+        // Before payment, allow going back to shoot or payment
+        const allowedStages = ['shoot', 'payment'];
+        const currentStage = progress.current_stage;
+        if (allowedStages.includes(currentStage)) {
+          router.replace(`/app/${currentStage}`);
+        } else {
+          router.replace('/app/shoot');
+        }
       }
     }
-  }, [isLoading, progress, router, user]);
+  }, [isLoading, progress, router, user, isPaymentCompleted]);
 
   // Show loading state while redirecting
   return (

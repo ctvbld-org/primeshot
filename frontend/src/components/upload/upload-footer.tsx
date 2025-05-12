@@ -7,6 +7,8 @@ import styles from './upload-footer.module.css'
 import { ImageTooltip } from './image-tooltip'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { ImageQualityResult } from '@/lib/image-quality'
+import { Loader } from '@/components/ui/loader'
+import { Icon } from '../icons/icon'
 
 interface UploadFooterProps {
   acceptedFiles?: File[]
@@ -18,6 +20,8 @@ interface UploadFooterProps {
   qualityResults: Record<string, ImageQualityResult>
   isAnalyzing: boolean
   currentAnalyzingIndex: number
+  currentUploadingIndex?: number | null
+  uploadedFiles?: string[]
 }
 
 interface ScrollState {
@@ -35,7 +39,9 @@ export function UploadFooter({
   onRemoveFile,
   qualityResults,
   isAnalyzing,
-  currentAnalyzingIndex
+  currentAnalyzingIndex,
+  currentUploadingIndex = null,
+  uploadedFiles = []
 }: UploadFooterProps) {
   // 1. Hooks
   const { t } = useTranslation('upload')
@@ -99,6 +105,9 @@ export function UploadFooter({
     const file = acceptedFiles[index]
     const result = file ? qualityResults[file.name] : null
     const isCurrentlyAnalyzing = isAnalyzing && index === currentAnalyzingIndex
+    const isCurrentlyUploading = isUploading && index === currentUploadingIndex
+    const isUploaded = file && uploadedFiles.includes(file.name)
+    const isPendingUpload = isUploading && file && !isUploaded && index > (currentUploadingIndex || -1)
     
     let qualityClass = ''
     let qualityLabel = ''
@@ -112,18 +121,29 @@ export function UploadFooter({
       }
     }
 
+    // Disable tooltip interaction when uploading
+    const popoverTriggerProps = isUploading
+      ? { tabIndex: -1, style: { pointerEvents: 'none' as React.CSSProperties['pointerEvents'], cursor: 'not-allowed' as React.CSSProperties['cursor'] } }
+      : {}
+    const handlePopoverOpenChange = isUploading ? () => {} : (open: boolean) => handleTooltipOpenChange(open, index)
+
     return (
       <Popover 
         key={index}
-        open={openTooltipIndex === index}
-        onOpenChange={(open) => handleTooltipOpenChange(open, index)}
+        open={openTooltipIndex === index && !isUploading}
+        onOpenChange={handlePopoverOpenChange}
       >
         <PopoverTrigger asChild>
           <div
+            {...popoverTriggerProps}
             className={cn(
               isRequired ? styles.square : styles.squareOptional,
               file ? styles.squareActive : '',
-              isCurrentlyAnalyzing && styles.squareAnalyzing
+              isCurrentlyAnalyzing && styles.squareAnalyzing,
+              isUploading && file && styles.squareUploading,
+              isCurrentlyUploading && styles.squareCurrentlyUploading,
+              isPendingUpload && styles.squarePendingUpload,
+              isUploaded && styles.squareUploaded
             )}
             role="button"
             aria-label={file ? 
@@ -137,15 +157,29 @@ export function UploadFooter({
                   src={URL.createObjectURL(file)}
                   alt={t('accessibility.photoPreview', { number: index + 1 })}
                   className={cn(
-                    "w-full h-full object-cover rounded-lg transition-all duration-300"
+                    "w-full h-full object-cover rounded-lg transition-all duration-300",
+                    isUploading && !isUploaded && !isCurrentlyUploading && "opacity-60",
+                    isCurrentlyUploading && "opacity-70"
                   )}
                   onLoad={(e) => URL.revokeObjectURL((e.target as HTMLImageElement).src)}
                 />
-                {result && (
+                {result && !isUploading && (
                   <div 
                     className={cn(styles.qualityIndicator, qualityClass)}
                     aria-hidden="true"
                   />
+                )}
+                {isUploaded && (
+                  <Icon 
+                    variant="check"
+                    className={styles.uploadedIndicator}
+                    aria-hidden="true"
+                  />
+                )}
+                {isCurrentlyUploading && (
+                  <div className={styles.uploadingIndicator}>
+                    <Loader className={styles.uploadingLoader} />
+                  </div>
                 )}
               </>
             ) : (
@@ -153,7 +187,7 @@ export function UploadFooter({
             )}
           </div>
         </PopoverTrigger>
-        {file && result?.isAcceptable && !isCurrentlyAnalyzing && (
+        {file && result?.isAcceptable && !isCurrentlyAnalyzing && !isCurrentlyUploading && !isUploading && (
           <PopoverContent 
             className="w-auto p-0 border-none shadow-none bg-transparent" 
             align="center"
@@ -171,7 +205,7 @@ export function UploadFooter({
         )}
       </Popover>
     )
-  }, [acceptedFiles, qualityResults, openTooltipIndex, handleTooltipOpenChange, handleRemoveFile, t, isAnalyzing, currentAnalyzingIndex])
+  }, [acceptedFiles, qualityResults, openTooltipIndex, handleTooltipOpenChange, handleRemoveFile, t, isAnalyzing, currentAnalyzingIndex, isUploading, currentUploadingIndex, uploadedFiles])
 
   const generateSquares = useCallback((count: number, isRequired: boolean, startIndex: number = 0) => {
     return Array.from({ length: count }).map((_, i) => renderSquare(startIndex + i, isRequired))
