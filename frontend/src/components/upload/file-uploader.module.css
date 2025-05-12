@@ -174,9 +174,11 @@
   padding: 2.5rem 1.5rem;
 }
 
-.uploadingLoader {
-  width: 46px;
-  height: 46px;
+.uploadingLoader div {
+  width: 56px !important;
+  height: 56px !important;
+  border-color: #44E3C9 !important;
+  border-top-color: transparent !important;
 }
 
 .uploadingText {

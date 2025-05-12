@@ -34,33 +34,30 @@
     "loadStyles": "Failed to load styles"
   },
   "footer": {
-    "title": "My Shoot",
     "separator": {
       "alt": "Footer Separator"
     },
     "styles": {
-      "count": "{{count}}",
-      "label": "Styles",
-      "multiplier": "×"
-    },
-    "photos": {
-      "count": "{{count}}",
-      "label": "Photos",
-      "perStyle": "({{count}} per style)",
-      "multiplier": "×"
+      "label_zero": "Style",
+      "label_one": "Style",
+      "label_other": "Styles"
     },
     "upgrade": {
       "text": "Add {{count}} extra styles and get",
       "photosText": "photos for only",
-      "price": "{{amount}} USD"
+      "price": "US$ {{amount}}"
     },
     "emptyState": "Your style list is empty. Add a few looks to generate your perfect shoot.",
     "price": {
-      "amount": "{{amount}} USD"
+      "amount": "US$ {{amount}}"
     },
     "checkout": "Checkout",
     "headshots": {
-      "perStyle": "{{count}} headshots per style",
+      "count": "{{count}}",
+      "label_zero": "Headshot",
+      "label_one": "Headshot",
+      "label_other": "Headshots",
+      "perStyle": "({{count}} per style)",
       "total": "{{count}} total headshots"
     },
     "perHeadshot": "${{amount}} per headshot",

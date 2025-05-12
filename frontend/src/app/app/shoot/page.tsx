@@ -8,7 +8,6 @@ import { Style } from '@/lib/types'
 import { StyleCard } from '@/components/style/style-card'
 import { NewStyleCard } from '@/components/style/new-style-card'
 import { getStyles, calculateHeadshots, handleStyleDeletion } from '@/lib/api/styles'
-import { usePaymentFlow } from '@/lib/hooks/use-payment-flow'
 import { ShootFooter } from '@/components/shoot/shoot-footer'
 import { PRICING } from '@/lib/constants/pricing'
 import stylesCSS from './page.module.css'
@@ -20,6 +19,7 @@ import { cn } from '@/lib/utils'
 import { useTranslation } from 'react-i18next'
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 import { useHeadshotStore } from '@/store/headshot'
+import { useUserProgress } from '@/lib/hooks/use-user-progress'
 
 export default function StylesPage() {
   const router = useRouter()
@@ -41,11 +41,8 @@ export default function StylesPage() {
   // Headshot calculation state
   const { headshotInfo, setHeadshotInfo } = useHeadshotStore()
 
-  // Add usePaymentFlow at component level
-  const { proceedToPayment } = usePaymentFlow({
-    styles,
-    headshotInfo
-  })
+  // Add useUserProgress at component level
+  const { canModifyStyles } = useUserProgress()
 
   // Function to load styles
   const loadStyles = useCallback(async () => {
@@ -229,15 +226,6 @@ export default function StylesPage() {
           headshotInfo.styleCount <= 3 ? PRICING.studio.price / 100 :         // Professional -> Studio
           headshotInfo.price / 100 + PRICING.addon.price / 100               // Studio -> Studio + addon
         }
-        onCheckout={async () => {
-          if (!user) {
-            toast({ title: 'Error', description: 'User not logged in.', variant: 'destructive' });
-            return;
-          }
-          if (headshotInfo.styleCount > 0) {
-            await proceedToPayment();
-          }
-        }}
       />
     </div>
   )

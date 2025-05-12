@@ -1,11 +1,15 @@
 /**
+ * PRICING_VERSION: 1.0.1
+ * This is a copy of the frontend/src/lib/constants/pricing.ts file
+ * Last synchronized: 2025-05-12T13:33:51.977Z
+ * 
  * SHARED PRICING CONSTANTS
  * 
  * This file serves as the single source of truth for pricing information
- * across both frontend and Supabase Edge Functions.
+ * across Supabase Edge Functions.
  * 
- * IMPORTANT: When updating pricing, remember to deploy both frontend and
- * Edge Functions to maintain consistency between client and server.
+ * IMPORTANT: When updating pricing, this file should be kept in sync with
+ * frontend/src/lib/constants/pricing.ts to maintain consistency.
  */
 
 export type PricingTier = 'individual' | 'professional' | 'studio';
@@ -71,7 +75,7 @@ export const PRICING: PricingConstants = {
  * This is a simpler version of the full pricing calculation
  * that only returns the price in cents.
  */
-export function calculateSimplePrice(styleCount: number): number {
+export function calculatePrice(styleCount: number): number {
   if (styleCount <= 0) return 0;
   
   // Individual tier (1 style)

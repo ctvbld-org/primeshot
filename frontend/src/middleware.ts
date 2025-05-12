@@ -72,60 +72,40 @@ export async function middleware(request: NextRequest) {
     // Helper to check if payment is completed
     const isPaymentCompleted = completedStages.includes('payment');
 
-    // Get user's styles count for payment access check
-    const { count: stylesCount } = await supabase
-      .from('styles')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id);
-
-    // Define allowed paths based on current stage and flow rules
-    if (!progress || currentStage === 'shoot') {
-      // Initial flow - only allow shoot, style, and payment (if has styles)
-      if (currentPath.startsWith('/app/upload') || 
-          currentPath.startsWith('/app/review') || 
-          currentPath.startsWith('/app/albums')) {
-        return NextResponse.redirect(new URL('/app/shoot', request.url));
-      }
-      
-      // Block payment if no styles
-      if (currentPath.startsWith('/app/payment') && (!stylesCount || stylesCount === 0)) {
-        return NextResponse.redirect(new URL('/app/shoot', request.url));
-      }
-    }
+    // Define stage order for validation
+    const stageOrder = ['shoot', 'payment', 'upload', 'review', 'albums'];
     
-    // After payment completed
-    else if (isPaymentCompleted) {
-      // Special case for payment success page
-      if (currentPath === '/app/payment/success') {
+    // Get the current path's stage (if it matches any)
+    const pathStage = stageOrder.find(stage => currentPath.startsWith(`/app/${stage}`));
+    
+    // Special cases that are always allowed
+    if (currentPath === '/app/settings/profile' || 
+        currentPath.startsWith('/app/payment/success')) {
+      return response;
+    }
+
+    // If we're on a stage path, validate access
+    if (pathStage) {
+      const currentStageIndex = stageOrder.indexOf(currentStage);
+      const pathStageIndex = stageOrder.indexOf(pathStage);
+      
+      // After payment is completed, enforce staying on current stage
+      if (isPaymentCompleted) {
+        if (pathStage !== currentStage) {
+          return NextResponse.redirect(new URL(`/app/${currentStage}`, request.url));
+        }
         return response;
       }
-
-      // If in upload stage
-      if (currentStage === 'upload') {
-        if (!currentPath.startsWith('/app/upload')) {
-          return NextResponse.redirect(new URL('/app/upload', request.url));
-        }
-      }
       
-      // If in review stage
-      else if (currentStage === 'review') {
-        if (!currentPath.startsWith('/app/review') && !currentPath.startsWith('/app/upload')) {
-          return NextResponse.redirect(new URL('/app/review', request.url));
-        }
-      }
-      
-      // If in albums stage (generation started)
-      else if (currentStage === 'albums') {
-        if (!currentPath.startsWith('/app/albums')) {
-          return NextResponse.redirect(new URL('/app/albums', request.url));
-        }
-      }
-      
-      // Block access to shoot, style, and payment pages after payment
-      if (currentPath.startsWith('/app/shoot') || 
-          currentPath.startsWith('/app/style') || 
-          currentPath.startsWith('/app/payment')) {
+      // Before payment completion:
+      // Block access to future stages
+      if (pathStageIndex > currentStageIndex) {
         return NextResponse.redirect(new URL(`/app/${currentStage}`, request.url));
+      }
+      
+      // Block access to upload/review/albums if payment not completed
+      if (!isPaymentCompleted && pathStageIndex > stageOrder.indexOf('payment')) {
+        return NextResponse.redirect(new URL('/app/shoot', request.url));
       }
     }
   }

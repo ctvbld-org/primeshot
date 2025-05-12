@@ -112,9 +112,8 @@
     }
   },
   "success": {
-    "title": "Payment Successful",
-    "description": "Your payment has been processed successfully.",
-    "subtitle": "Your headshots are now being generated!",
+    "title": "🎉 Payment Successful!",
+    "description": "A confirmation email has been sent to your inbox 🎉",
     "orderSummary": {
       "title": "Order Summary",
       "description": "Your order has been confirmed and is being processed.",

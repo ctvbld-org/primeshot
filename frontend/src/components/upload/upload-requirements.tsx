@@ -6,8 +6,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogB
 import { Icon } from '@/components/icons/icon'
 import { usePhotoRequirements } from '@/hooks/use-photo-requirements'
 import { cn } from '@/lib/utils'
-import { Skeleton } from '@/components/ui/skeleton'
 import { useTranslation } from 'react-i18next'
+import { UploadRequirementsSkeleton } from '@/components/skeleton/upload/requirements'
 import styles from './upload-requirements.module.css'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 
@@ -67,7 +67,7 @@ function UploadRequirementsComponent() {
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
   const [allImagesLoaded, setAllImagesLoaded] = useState(false);
   const [totalImages, setTotalImages] = useState(0);
-  const [loadedImages, setLoadedImages] = useState(0);
+  const [, setLoadedImages] = useState(0);
   const dialogBodyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -102,59 +102,6 @@ function UploadRequirementsComponent() {
     }
   };
 
-  const renderSkeleton = () => (
-    <div className={styles.skeletonContainer}>
-      <div className={styles.skeletonHeader}>
-        <div className={styles.skeletonHeaderCol}>
-          <Skeleton className="w-10 h-10 rounded-full" />
-          <Skeleton className="w-32 h-4" />
-        </div>
-        <div className={styles.skeletonHeaderCol}>
-          <Skeleton className="w-48 h-8" />
-          <Skeleton className="w-full h-4" />
-        </div>
-      </div>
-
-      <Skeleton className={styles.skeletonImage} />
-
-      <div className={styles.skeletonSection}>
-        <div className={styles.skeletonHeaderCol}>
-          <Skeleton className="w-40 h-6" />
-        </div>
-        <div className={styles.skeletonList}>
-          {Array(6).fill(0).map((_, index) => (
-            <div key={index} className={styles.skeletonItem}>
-              <Skeleton className="w-8 h-8 rounded-full flex-shrink-0" />
-              <Skeleton className="w-full h-4" />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <Skeleton className="w-full h-[120px] rounded-[16px]" />
-
-      <div className={styles.skeletonSection}>
-        <div className={styles.skeletonHeaderCol}>
-          <Skeleton className="w-40 h-6" />
-        </div>
-        <div className={styles.skeletonList}>
-          {Array(4).fill(0).map((_, index) => (
-            <div key={index} className={styles.skeletonDodontItem}>
-              <div className={styles.skeletonDodontHeader}>
-                <Skeleton className="w-8 h-8 rounded-full flex-shrink-0" />
-                <Skeleton className="w-full h-4" />
-              </div>
-              <div className={styles.skeletonDodontImages}>
-                <Skeleton className={styles.skeletonDodontImage} />
-                <Skeleton className={styles.skeletonDodontImage} />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
   return (
     <>
       <Button
@@ -179,7 +126,7 @@ function UploadRequirementsComponent() {
             ref={dialogBodyRef} 
             onScroll={handleScroll}
           >
-            {!allImagesLoaded && renderSkeleton()}
+            {!allImagesLoaded && <UploadRequirementsSkeleton />}
             <div className={cn(styles.container, allImagesLoaded && styles.visible)}>
               <div className={styles.header + " " + styles.section}>
                 <div className={styles.leftSide}>

@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node ../memory-bank/scripts/detect-changes.js --auto",
     "dev": "next dev",
     "dev:no-types": "next dev",
     "build": "next build",
@@ -11,7 +12,8 @@
     "lint": "next lint",
     "sync-pricing": "node scripts/sync-pricing.js",
     "configure-s3-cors": "npx tsx src/scripts/configure-s3-cors.ts",
-    "generate-types": "npx tsx --tsconfig tsconfig.scripts.json src/scripts/generate-types.ts"
+    "generate-types": "npx tsx --tsconfig tsconfig.scripts.json src/scripts/generate-types.ts",
+    "detect-changes": "node ../memory-bank/scripts/detect-changes.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.782.0",

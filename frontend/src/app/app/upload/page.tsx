@@ -1,11 +1,12 @@
 'use client'
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation, Trans } from 'react-i18next'
 import { useToast } from '@/components/ui/use-toast'
 import dynamic from 'next/dynamic'
 import { useWindowSize } from '@/lib/hooks/use-window-size'
+import { paymentEvents, PAYMENT_EVENTS } from '@/lib/events/payment'
 
 import { FileUploader } from '@/components/upload/file-uploader'
 import { UploadRequirements } from '@/components/upload/upload-requirements'
@@ -16,12 +17,13 @@ import { useUserProgress } from '@/lib/hooks/use-user-progress'
 import { useFileUpload } from '@/lib/hooks/use-file-upload'
 import { useOrder } from '@/lib/hooks/use-order'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
+import { useAuth } from '@/contexts/auth-context'
+import { UploadPageSkeleton } from '@/components/skeleton/upload/page'
 
 // Import Confetti dynamically to avoid SSR issues
 const ReactConfetti = dynamic(() => import('react-confetti'), { ssr: false })
 
 // Constants
-const SHOW_CONFETTI = true
 const CONFETTI_DURATION = 3000
 const CONFETTI_CONFIG = {
   numberOfPieces: 300,
@@ -34,22 +36,43 @@ const CONFETTI_CONFIG = {
 export default function UploadPage() {
   // 1. All hooks must be called before any conditional returns
   const { width, height } = useWindowSize()
-  const { t } = useTranslation('upload')
+  const { t } = useTranslation(['upload', 'payment'])
+  const { user } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { toast } = useToast()
-  const { updateProgress } = useUserProgress()
-  const { order, isLoading, error } = useOrder()
+  const { updateProgress, clearProgress } = useUserProgress()
   
-  // 2. State hooks
-  const [uploadState, setUploadState] = useState({
-    uploadedCount: 0,
-    showConfetti: false as boolean | 'stopping',
-    hasShownConfetti: false,
-    showRejectedDialog: false,
-    shownRejectedFiles: [] as string[]
+  const { 
+    order,
+    isLoading: isLoadingOrder,
+    error: orderError,
+    isVerifying,
+    isVerified
+  } = useOrder({ 
+    sessionId: searchParams.get('session_id'),
+    loadStyles: false
   })
 
-  // 3. Custom hooks
+  const [showConfetti, setShowConfetti] = useState<boolean | 'stopping'>(false)
+  const [isTransitioningToReview, setIsTransitioningToReview] = useState(false)
+
+  // 5. State hooks
+  const [uploadState, setUploadState] = useState({
+    uploadedCount: 0,
+    showRejectedDialog: false,
+    shownRejectedFiles: [] as string[],
+    isVerifyingFiles: false,
+    isAnalyzing: false,
+    isUploading: false,
+    uploadProgress: 0,
+    uploadedFiles: [] as string[],
+    qualityResults: {} as Record<string, { isAcceptable: boolean; reason?: string }>,
+    rejectedFiles: [] as string[],
+    currentUploadingIndex: null as number | null
+  })
+
+  // 6. Custom hooks
   const {
     files: selectedFiles,
     qualityResults,
@@ -64,7 +87,7 @@ export default function UploadPage() {
     currentFileIndex,
   } = useFileUpload()
 
-  // 4. Memoized values
+  // 7. Memoized values
   const acceptedFiles = useMemo(() => 
     selectedFiles.filter(file => qualityResults[file.name]?.isAcceptable),
     [selectedFiles, qualityResults]
@@ -108,7 +131,7 @@ export default function UploadPage() {
     )
   }, [acceptedFiles.length, selectedFiles.length, t])
 
-  // 5. Callbacks
+  // 8. Callbacks
   const handleDialogClose = useCallback(() => {
     setUploadState(prev => ({ 
       ...prev, 
@@ -120,6 +143,7 @@ export default function UploadPage() {
 
   const handleUploadSuccess = useCallback(async (successfulUploads: { url?: string }[]) => {
     try {
+      setIsTransitioningToReview(true)
       await updateProgress('review', { 
         uploadedFiles: successfulUploads.map(r => r.url).filter(Boolean),
         lastUploadAt: new Date().toISOString()
@@ -145,16 +169,41 @@ export default function UploadPage() {
       return
     }
 
-    setUploadState(prev => ({ ...prev, uploadedCount: 0 }))
+    // Use local variables to track progress
+    const uploadedFiles: string[] = []
+    let uploadedCount = 0
+    let currentUploadingIndex: number | null = null
+
+    setUploadState(prev => ({ 
+      ...prev, 
+      uploadedCount: 0,
+      uploadedFiles: [],
+      currentUploadingIndex: 0, // Start with the first file
+      isUploading: true // Set uploading state to true
+    }))
+    
     const results: { originalName: string; url?: string; error?: string }[] = []
 
     try {
       // Upload files one by one
-      for (const file of filesToUpload) {
+      for (let i = 0; i < filesToUpload.length; i++) {
+        const file = filesToUpload[i]
+        currentUploadingIndex = i
+        
+        // Only one setUploadState per iteration
+        setUploadState(prev => ({
+          ...prev,
+          uploadedFiles: [...uploadedFiles],
+          uploadedCount: uploadedCount,
+          currentUploadingIndex,
+          isUploading: true
+        }))
+        
         try {
           const url = await uploadFile(file, order.id)
           results.push({ originalName: file.name, url })
-          setUploadState(prev => ({ ...prev, uploadedCount: prev.uploadedCount + 1 }))
+          uploadedFiles.push(file.name)
+          uploadedCount++
         } catch (error) {
           console.error(`Error uploading ${file.name}:`, error)
           results.push({ 
@@ -162,7 +211,18 @@ export default function UploadPage() {
             error: error instanceof Error ? error.message : 'Upload failed' 
           })
         }
+        // Add a small delay to make the visual transition more noticeable
+        await new Promise(resolve => setTimeout(resolve, 300))
       }
+      
+      // After all files, ensure isUploading is false and currentUploadingIndex is null
+      setUploadState(prev => ({ 
+        ...prev, 
+        uploadedFiles: [...uploadedFiles],
+        uploadedCount: uploadedCount,
+        currentUploadingIndex: null,
+        isUploading: false
+      }))
       
       const failedUploads = results.filter(r => r.error)
       const successfulUploads = results.filter(r => !r.error)
@@ -183,13 +243,14 @@ export default function UploadPage() {
           description: t('status.uploadComplete', { count: successfulUploads.length })
         })
 
-        // Remove successfully uploaded files
-        const successfulFileNames = new Set(successfulUploads.map(r => r.originalName))
-        selectedFiles
-          .map((file, index) => successfulFileNames.has(file.name) ? index : -1)
-          .filter(index => index !== -1)
-          .sort((a, b) => b - a)
-          .forEach(removeFile)
+        // DEFERRED: Remove successfully uploaded files after navigation to review page
+        // const successfulFileNames = new Set(successfulUploads.map(r => r.originalName))
+        // selectedFiles
+        //   .map((file, index) => successfulFileNames.has(file.name) ? index : -1)
+        //   .filter(index => index !== -1)
+        //   .sort((a, b) => b - a)
+        //   .forEach(removeFile)
+        // TODO: Remove files after navigation if needed
 
         // Handle completion
         if (failedUploads.length === 0) {
@@ -203,24 +264,41 @@ export default function UploadPage() {
         description: error instanceof Error ? error.message : t('errors.uploadFailed'),
         variant: 'destructive'
       })
+      // Make sure to reset uploading state if there's an error
+      setUploadState(prev => ({
+        ...prev,
+        isUploading: false,
+        currentUploadingIndex: null
+      }))
     }
   }, [order, uploadFile, removeFile, handleUploadSuccess, toast, t, selectedFiles])
 
-  // 6. Effects - always after all other hooks
+  // Confetti timer refs to prevent leaks
+  const stopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const removeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   useEffect(() => {
-    if (!SHOW_CONFETTI || uploadState.hasShownConfetti || 
-        acceptedFiles.length < UPLOAD_CONSTANTS.MIN_IMAGES) {
-      return
+    const handlePaymentSuccess = () => {
+      setShowConfetti(true)
+      stopTimerRef.current = setTimeout(() => {
+        setShowConfetti('stopping')
+        removeTimerRef.current = setTimeout(() => setShowConfetti(false), 15000)
+      }, CONFETTI_DURATION)
     }
 
-    setUploadState(prev => ({ ...prev, hasShownConfetti: true, showConfetti: true }))
-    
-    const timer = setTimeout(() => {
-      setUploadState(prev => ({ ...prev, showConfetti: false }))
-    }, CONFETTI_DURATION)
-
-    return () => clearTimeout(timer)
-  }, [uploadState.hasShownConfetti, acceptedFiles.length])
+    paymentEvents.on(PAYMENT_EVENTS.PAYMENT_SUCCESS, handlePaymentSuccess)
+    return () => {
+      paymentEvents.off(PAYMENT_EVENTS.PAYMENT_SUCCESS, handlePaymentSuccess)
+      if (stopTimerRef.current !== null) {
+        clearTimeout(stopTimerRef.current)
+        stopTimerRef.current = null
+      }
+      if (removeTimerRef.current !== null) {
+        clearTimeout(removeTimerRef.current)
+        removeTimerRef.current = null
+      }
+    }
+  }, [])
 
   useEffect(() => {
     const rejectedFileNames = rejectedFiles.map(f => f.name)
@@ -242,23 +320,26 @@ export default function UploadPage() {
     }
   }, [acceptedFiles.length, rejectedFiles, uploadState.shownRejectedFiles, isAnalyzing])
 
-  // 7. Conditional returns - after all hooks
-  if (isLoading) {
-    return <div className="text-muted-foreground">{t('status.processing')}</div>
+  // 10. Conditional returns - after all hooks
+  if (isLoadingOrder || isVerifying) {
+    return <UploadPageSkeleton />
   }
 
-  if (error) {
+  if (orderError) {
     return <div className="text-destructive">{t('status.error')}</div>
   }
 
-  // 8. Final render
+  // 11. Final render
   return (
     <div className="text-[#C0CED8] text-center space-y-6 pb-[80px]">
-      {SHOW_CONFETTI && uploadState.showConfetti && (
+      {(showConfetti === true || showConfetti === 'stopping') && (
         <ReactConfetti
+          className='z-52!'
           width={width}
           height={height}
           {...CONFETTI_CONFIG}
+          recycle={showConfetti === true} // Only generate new particles when actively showing
+          numberOfPieces={showConfetti === 'stopping' ? 0 : CONFETTI_CONFIG.numberOfPieces}
         />
       )}
       
@@ -281,9 +362,12 @@ export default function UploadPage() {
           isReady={acceptedFiles.length >= UPLOAD_CONSTANTS.MIN_IMAGES}
           isAnalyzing={isAnalyzing}
           analyzingCount={analyzingCount}
-          isUploading={isUploading}
+          isUploading={uploadState.isUploading}
           uploadedCount={uploadState.uploadedCount}
-          disabled={isUploading || acceptedFiles.length >= UPLOAD_CONSTANTS.MAX_IMAGES}
+          disabled={uploadState.isUploading || acceptedFiles.length >= UPLOAD_CONSTANTS.MAX_IMAGES}
+          currentUploadingIndex={uploadState.currentUploadingIndex}
+          uploadedFiles={uploadState.uploadedFiles}
+          isTransitioningToReview={isTransitioningToReview}
         />
       </div>
 
@@ -306,11 +390,13 @@ export default function UploadPage() {
         minImages={UPLOAD_CONSTANTS.MIN_IMAGES}
         maxImages={UPLOAD_CONSTANTS.MAX_IMAGES}
         onReviewClick={() => handleUpload(acceptedFiles)}
-        isUploading={isUploading}
+        isUploading={uploadState.isUploading}
         onRemoveFile={removeFile}
         qualityResults={qualityResults}
         isAnalyzing={isAnalyzing}
         currentAnalyzingIndex={currentFileIndex}
+        currentUploadingIndex={uploadState.currentUploadingIndex}
+        uploadedFiles={uploadState.uploadedFiles}
       />
     </div>
   )

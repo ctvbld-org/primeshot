@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/auth-context'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/ui/use-toast'
 import { useUserProgress } from '@/lib/hooks/use-user-progress'
+import { getStripe, createCheckoutSession } from '@/lib/stripe'
 
 interface PaymentRecoveryState {
   orderId: string | null
   hasInterruptedPayment: boolean
   isLoading: boolean
-  resumePayment: () => void
+  resumePayment: () => Promise<void>
   dismissRecovery: () => void
 }
 
@@ -31,7 +31,6 @@ interface StageData {
 
 export function usePaymentRecovery(): PaymentRecoveryState {
   const { user } = useAuth()
-  const router = useRouter()
   const { toast } = useToast()
   const { progress } = useUserProgress()
   const [isLoading, setIsLoading] = useState(true)
@@ -58,7 +57,7 @@ export function usePaymentRecovery(): PaymentRecoveryState {
         const supabase = createClient()
         
         // If we don't have a known order ID, find the most recent pending_payment order
-        if (!knownOrderId && user) { // Ensure user is defined
+        if (!knownOrderId && user) {
           const { data: orders, error } = await supabase
             .from('orders')
             .select('id, status, payment_status, payment_intent_id')
@@ -105,15 +104,47 @@ export function usePaymentRecovery(): PaymentRecoveryState {
     checkInterruptedPayment()
   }, [user, progress, toast])
   
-  // Resume the interrupted payment flow
-  const resumePayment = () => {
+  // Resume the interrupted payment flow by creating a new checkout session
+  const resumePayment = async () => {
     if (!orderId) return
     
-    // Save the current orderId to localStorage as a fallback
-    localStorage.setItem('payment_recovery_order_id', orderId)
-    
-    // Navigate to the payment page with query param
-    router.push(`/app/payment?resume=${orderId}`)
+    try {
+      setIsLoading(true)
+      
+      // Get the order details to get the amount
+      const supabase = createClient()
+      const { data: order, error } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('id', orderId)
+        .single()
+        
+      if (error || !order) throw new Error('Could not fetch order details')
+      
+      // Create a new checkout session for the interrupted order
+      const checkoutInfo = await createCheckoutSession({
+        orderId,
+        amount: order.amount,
+        metadata: order.metadata
+      })
+      
+      // Redirect to Stripe Checkout
+      const stripe = await getStripe()
+      if (!stripe) throw new Error('Stripe not initialized')
+      
+      await stripe.redirectToCheckout({
+        sessionId: checkoutInfo.sessionId
+      })
+    } catch (error) {
+      console.error('Error resuming payment:', error)
+      toast({
+        title: 'Error',
+        description: 'Could not resume payment. Please try again.',
+        variant: 'destructive'
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
   
   // Dismiss the recovery dialog and mark as handled
