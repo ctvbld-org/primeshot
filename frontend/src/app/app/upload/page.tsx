@@ -55,6 +55,7 @@ export default function UploadPage() {
   })
 
   const [showConfetti, setShowConfetti] = useState<boolean | 'stopping'>(false)
+  const [isTransitioningToReview, setIsTransitioningToReview] = useState(false)
 
   // 5. State hooks
   const [uploadState, setUploadState] = useState({
@@ -142,6 +143,7 @@ export default function UploadPage() {
 
   const handleUploadSuccess = useCallback(async (successfulUploads: { url?: string }[]) => {
     try {
+      setIsTransitioningToReview(true)
       await updateProgress('review', { 
         uploadedFiles: successfulUploads.map(r => r.url).filter(Boolean),
         lastUploadAt: new Date().toISOString()
@@ -241,13 +243,14 @@ export default function UploadPage() {
           description: t('status.uploadComplete', { count: successfulUploads.length })
         })
 
-        // Remove successfully uploaded files
-        const successfulFileNames = new Set(successfulUploads.map(r => r.originalName))
-        selectedFiles
-          .map((file, index) => successfulFileNames.has(file.name) ? index : -1)
-          .filter(index => index !== -1)
-          .sort((a, b) => b - a)
-          .forEach(removeFile)
+        // DEFERRED: Remove successfully uploaded files after navigation to review page
+        // const successfulFileNames = new Set(successfulUploads.map(r => r.originalName))
+        // selectedFiles
+        //   .map((file, index) => successfulFileNames.has(file.name) ? index : -1)
+        //   .filter(index => index !== -1)
+        //   .sort((a, b) => b - a)
+        //   .forEach(removeFile)
+        // TODO: Remove files after navigation if needed
 
         // Handle completion
         if (failedUploads.length === 0) {
@@ -364,6 +367,7 @@ export default function UploadPage() {
           disabled={uploadState.isUploading || acceptedFiles.length >= UPLOAD_CONSTANTS.MAX_IMAGES}
           currentUploadingIndex={uploadState.currentUploadingIndex}
           uploadedFiles={uploadState.uploadedFiles}
+          isTransitioningToReview={isTransitioningToReview}
         />
       </div>
 

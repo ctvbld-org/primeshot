@@ -23,6 +23,7 @@ interface FileUploaderProps {
   onRevokeObjectURL?: (url: string) => void
   currentUploadingIndex?: number | null
   uploadedFiles?: string[]
+  isTransitioningToReview?: boolean
 }
 
 interface FileState {
@@ -45,7 +46,8 @@ export function FileUploader({
   onCreateObjectURL,
   onRevokeObjectURL,
   currentUploadingIndex = null,
-  uploadedFiles = []
+  uploadedFiles = [],
+  isTransitioningToReview = false
 }: FileUploaderProps) {
   const { t } = useTranslation('upload')
   const [isDragging, setIsDragging] = useState(false)
@@ -172,7 +174,9 @@ export function FileUploader({
         <div className={styles.uploadingOverlay}>
           <Loader className={styles.uploadingLoader} />
           <p className={styles.uploadingText}>
-            {t('status.uploadingProgress', {
+            {isTransitioningToReview
+              ? 'Setting up the review page for you...'
+              : t('status.uploadingProgress', {
               current: currentUploadingIndex ? currentUploadingIndex + 1 : 1,
               total: acceptedFiles?.length
             })}

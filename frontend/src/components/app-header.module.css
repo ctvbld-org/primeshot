@@ -171,6 +171,10 @@
   margin-right: 4px;
 }
 
+.mobileProgressButton > span{
+  white-space: nowrap;
+}
+
 @media (max-width: 761px) {
   .progressSteps {
     gap: 14px;
