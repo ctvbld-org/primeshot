@@ -28,21 +28,22 @@ const getMimeType = (path: string): string => {
  * API Route: /api/user-images
  * 
  * Returns signed URLs for user-uploaded images from S3.
- * Requires authentication and returns images filtered by user ID and optional
- * image ID or order ID parameters.
+ * Accepts either:
+ * - s3_url: Direct S3 URL to generate signed URL for
+ * - imageId: ID of the image to look up
+ * - orderId: ID of the order to get images for
+ * 
+ * Requires authentication and validates user access.
  */
 export async function GET(request: NextRequest) {
   try {
     // Parse query parameters
     const url = new URL(request.url)
+    const s3Url = url.searchParams.get('s3_url')
     const imageId = url.searchParams.get('imageId')
     const orderId = url.searchParams.get('orderId')
 
-    if (!imageId && !orderId) {
-      return NextResponse.json({ error: 'Missing imageId or orderId parameter' }, { status: 400 })
-    }
-
-    // Create Supabase client
+    // Create Supabase client for auth check
     const supabase = await createClient()
 
     // Get current user for authorization
@@ -50,8 +51,15 @@ export async function GET(request: NextRequest) {
     if (userError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+    
+    // If direct S3 URL is provided, generate signed URL
+    if (s3Url) {
+      // No need to decode as URLSearchParams handles it automatically
+      const signedUrl = await createPresignedGetUrl(s3Url)
+      return NextResponse.json({ url: signedUrl })
+    }
 
-    // If imageId is provided, fetch single image
+    // If imageId is provided, look up the image
     if (imageId) {
       const { data: image, error: imageError } = await supabase
         .from('images')
@@ -64,34 +72,33 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Image not found' }, { status: 404 })
       }
 
-      // Generate signed URL
       const signedUrl = await createPresignedGetUrl(image.url)
       return NextResponse.json({ url: signedUrl })
     }
 
-    // If orderId is provided, fetch all images for that order
+    // If orderId is provided, look up all images for the order
     if (orderId) {
       const { data: images, error: imagesError } = await supabase
         .from('images')
-        .select('id, url')
+        .select('url')
         .eq('order_id', orderId)
         .eq('user_id', user.id)
-        .order('created_at', { ascending: true })
 
       if (imagesError) {
-        return NextResponse.json({ error: 'Failed to fetch images' }, { status: 500 })
+        return NextResponse.json({ error: 'Failed to fetch order images' }, { status: 500 })
       }
 
-      // Generate signed URLs for all images
-      const imagesWithSignedUrls = await Promise.all(
-        (images || []).map(async (image) => ({
-          ...image,
-          url: await createPresignedGetUrl(image.url)
-        }))
+      const signedUrls = await Promise.all(
+        images.map(image => createPresignedGetUrl(image.url))
       )
 
-      return NextResponse.json(imagesWithSignedUrls)
+      return NextResponse.json(signedUrls)
     }
+
+    return NextResponse.json(
+      { error: 'Missing required parameter: s3_url, imageId, or orderId' }, 
+      { status: 400 }
+    )
   } catch (error) {
     console.error('Error in user-images API route:', error)
     const message = error instanceof Error ? error.message : 'Internal server error'

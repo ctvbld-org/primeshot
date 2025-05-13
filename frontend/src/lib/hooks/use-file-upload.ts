@@ -173,7 +173,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
         
         try {
           // Random delay between 400ms and 800ms
-          //await delay(Math.floor(Math.random() * (800 - 400 + 1)) + 400)
+          await delay(Math.floor(Math.random() * (800 - 400 + 1)) + 400)
           const result = await analyzeImageQuality(file, gender || undefined)
           results[file.name] = result
           

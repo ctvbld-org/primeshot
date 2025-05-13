@@ -100,7 +100,7 @@ export default function UploadPage() {
         fileWithScore.score = Math.round(qualityResults[file.name]?.score);
         return fileWithScore;
       });
-    console.log('existingImages', existingImages)
+      
     // Combine with existing images if any
     return [...(existingImages || []), ...newFiles];
   }, [selectedFiles, qualityResults, existingImages])

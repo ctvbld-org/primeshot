@@ -52,6 +52,7 @@ export function UploadFooter({
     noScroll: true
   })
   const [openTooltipIndex, setOpenTooltipIndex] = useState<number | null>(null)
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({})
 
   // 3. Memoized values
   const count = useMemo(() => acceptedFiles.length, [acceptedFiles])
@@ -98,33 +99,51 @@ export function UploadFooter({
     }
   }, [checkScroll])
 
-  // Add state for signed URLs
-  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({})
-
-  // Add function to fetch signed URL
-  const fetchSignedUrl = useCallback(async (fileId: string) => {
+  // Function to fetch signed URL
+  const fetchSignedUrl = useCallback(async (file: FileWithScore) => {
+    if (!file.url) return null
+    
     try {
-      const response = await fetch(`/api/user-images?imageId=${fileId}`)
+      const params = new URLSearchParams()
+      params.append('s3_url', file.url)
+      const response = await fetch(`/api/user-images?${params.toString()}`)
       if (!response.ok) throw new Error('Failed to fetch signed URL')
       const data = await response.json()
-      setSignedUrls(prev => ({ ...prev, [fileId]: data.url }))
+      return data.url
     } catch (error) {
       console.error('Error fetching signed URL:', error)
+      return null
     }
   }, [])
 
   // Effect to fetch signed URLs for uploaded files
   useEffect(() => {
-    acceptedFiles.forEach(file => {
-      if (file.id && !signedUrls[file.id]) {
-        fetchSignedUrl(file.id)
+    const fetchUrls = async () => {
+      const newSignedUrls: Record<string, string> = {}
+      
+      for (const file of acceptedFiles) {
+        if (file.id && file.url && !signedUrls[file.url]) {
+          const signedUrl = await fetchSignedUrl(file)
+          if (signedUrl) {
+            newSignedUrls[file.url] = signedUrl
+          }
+        }
       }
-    })
+      
+      if (Object.keys(newSignedUrls).length > 0) {
+        setSignedUrls(prev => ({ ...prev, ...newSignedUrls }))
+      }
+    }
+
+    fetchUrls()
   }, [acceptedFiles, fetchSignedUrl])
 
   const getImageUrl = useCallback((file: FileWithScore) => {
-    if (!file.id) return URL.createObjectURL(file as Blob)
-    return signedUrls[file.id] || null
+    if (!file.id || !file.url) {
+      return URL.createObjectURL(file as Blob)
+    }
+    
+    return signedUrls[file.url] || ''
   }, [signedUrls])
 
   // 6. Render helpers
@@ -146,7 +165,7 @@ export function UploadFooter({
     }
 
     const imageUrl = file ? getImageUrl(file) : null
-
+    
     // Disable tooltip interaction when uploading
     const popoverTriggerProps = isUploading
       ? { tabIndex: -1, style: { pointerEvents: 'none' as React.CSSProperties['pointerEvents'], cursor: 'not-allowed' as React.CSSProperties['cursor'] } }
@@ -177,29 +196,23 @@ export function UploadFooter({
               t('accessibility.emptyPhotoSlot', { number: index + 1 })
             }
           >
-            {file ? (
+            {file && imageUrl ? (
               <>
-                {imageUrl ? (
-                  <img 
-                    src={imageUrl}
-                    alt={t('accessibility.photoPreview', { number: index + 1 })}
-                    className={cn(
-                      "w-full h-full object-cover rounded-lg transition-all duration-300",
-                      isUploading && !isUploaded && !isCurrentlyUploading && "opacity-60",
-                      isCurrentlyUploading && "opacity-70"
-                    )}
-                    onLoad={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      if (target.src.startsWith('blob:')) {
-                        URL.revokeObjectURL(target.src);
-                      }
-                    }}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Loader className="w-6 h-6" />
-                  </div>
-                )}
+                <img 
+                  src={imageUrl}
+                  alt={t('accessibility.photoPreview', { number: index + 1 })}
+                  className={cn(
+                    "w-full h-full object-cover rounded-lg transition-all duration-300",
+                    isUploading && !isUploaded && !isCurrentlyUploading && "opacity-60",
+                    isCurrentlyUploading && "opacity-70"
+                  )}
+                  onLoad={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    if (target.src.startsWith('blob:')) {
+                      URL.revokeObjectURL(target.src);
+                    }
+                  }}
+                />
                 {!isUploading && (
                   <div 
                     className={cn(styles.qualityIndicator, qualityClass)}
@@ -243,10 +256,6 @@ export function UploadFooter({
     )
   }, [acceptedFiles, openTooltipIndex, handleTooltipOpenChange, handleRemoveFile, t, isAnalyzing, currentAnalyzingIndex, isUploading, currentUploadingIndex, uploadedFiles, getImageUrl])
 
-  const generateSquares = useCallback((count: number, isRequired: boolean, startIndex: number = 0) => {
-    return Array.from({ length: count }).map((_, i) => renderSquare(startIndex + i, isRequired))
-  }, [renderSquare])
-
   // 7. Render
   return (
     <div className={styles.footer}>
@@ -279,13 +288,13 @@ export function UploadFooter({
             <div className={styles.squaresContainer}>
               {/* Required photos */}
               <div className={styles.squareGroup}>
-                {generateSquares(minImages, true)}
+                {Array.from({ length: minImages }).map((_, i) => renderSquare(i, true))}
               </div>
               {/* Line separator */}
               <span className={styles.separatorImg} />
               {/* Optional additional photos */}
               <div className={styles.squareGroup}>
-                {generateSquares(maxImages - minImages, false, minImages)}
+                {Array.from({ length: maxImages - minImages }).map((_, i) => renderSquare(i + minImages, false))}
               </div>
             </div>
           </div>

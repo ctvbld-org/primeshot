@@ -11,7 +11,7 @@ import { useTranslatedOption } from '@/hooks/useTranslatedOption';
 
 interface ShootSummaryProps {
   isLoading?: boolean;
-  images?: ImageType[];
+  images?: string[];
 }
 
 const ShootSummary: React.FC<ShootSummaryProps> = ({ isLoading: externalLoading = false, images = [] }) => {
@@ -30,11 +30,6 @@ const ShootSummary: React.FC<ShootSummaryProps> = ({ isLoading: externalLoading 
   // Combine external and internal loading states
   const isLoading = externalLoading || orderLoading;
   
-  // Use passed images if available, otherwise use sample photos
-  const photoData = images.length > 0 
-    ? images.slice(0, 12).map(img => img.url)
-    : [];
-    
   // Calculate total photos from styles
   const totalPhotos = orderStyles?.reduce((total, style) => total + 20, 0) || 0;
   
@@ -77,7 +72,7 @@ const ShootSummary: React.FC<ShootSummaryProps> = ({ isLoading: externalLoading 
           <div className={styles.loadingState}>Loading photos...</div>
         ) : (
           <div className={styles.photosGrid}>
-            {photoData.map((photo, index) => (
+            {images.map((photo, index) => (
               <div key={index} className={styles.photoItem}>
                 <img src={photo} alt={`Photo ${index + 1}`} className={styles.photo} />
               </div>

@@ -5,7 +5,6 @@ import { useAuth } from '@/contexts/auth-context'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/ui/use-toast'
-import { z } from 'zod'
 import { useUserProgress } from '@/lib/hooks/use-user-progress'
 import { Image as ImageType } from '@/lib/types'
 import { useTranslation } from 'react-i18next'
@@ -16,14 +15,14 @@ import ProfileForm from '@/components/review/profile-form'
 import ShootSummary from '@/components/review/shoot-summary'
 
 export default function ReviewPage() {
-  const { t } = useTranslation('review')
+  const { t } = useTranslation('review')  
   const { user } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
   const { updateProgress } = useUserProgress()
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [uploadedImages, setUploadedImages] = useState<ImageType[]>([])
+  const [uploadedImages, setUploadedImages] = useState<string[]>([])
   const [draftOrderId, setDraftOrderId] = useState<string | null>(null)
   const [userGender, setUserGender] = useState<string>('male') // Default to male
 
@@ -90,7 +89,7 @@ export default function ReviewPage() {
             throw new Error("Invalid image data received from API.")
         }
         
-        setUploadedImages(imagesWithUrls as ImageType[])
+        setUploadedImages(imagesWithUrls)
 
       } catch (error) {
         console.error("Error fetching review data:", error)
