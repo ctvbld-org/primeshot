@@ -1,0 +1,114 @@
+.fieldContainer {
+  position: relative;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  width: 100px;
+  flex-shrink: 0;
+}
+
+.fieldValue {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  padding: 0 16px;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex: 1;
+}
+
+.fieldValue:hover:not(.disabled) {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.fieldValue.open {
+  border-color: #00BFA5;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.disabled {
+  opacity: 0.8;
+  cursor: default;
+}
+
+.selectedValue {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+}
+
+.fieldIcon {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.lockIcon {
+  color: rgba(255, 255, 255, 0.6);
+  margin-right: 8px;
+}
+
+.colorDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dropdown {
+  position: absolute;
+  z-index: 10;
+  width: calc(100% - 116px);
+  left: 116px;
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: rgba(28, 33, 40, 0.95);
+  backdrop-filter: blur(8px);
+  border-radius: 8px;
+  margin-top: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.9);
+  transition: background-color 0.2s;
+  font-size: 14px;
+}
+
+.option:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.option .colorDot {
+  margin-right: 12px;
+}
+
+.checkIcon, .checkIconOption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00BFA5;
+}
+
+.checkIconOption {
+  margin-left: auto;
+}

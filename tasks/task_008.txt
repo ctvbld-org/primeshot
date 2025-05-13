@@ -1,11 +1,11 @@
 # Task ID: 8
-# Title: Build User albums
+# Title: Integrate AI Generation Pipeline
 # Status: pending
-# Dependencies: 6
-# Priority: medium
-# Description: Create a comprehensive user albums for managing compositions, tracking generation progress, and viewing/downloading generated headshots.
+# Dependencies: 5, 4
+# Priority: high
+# Description: Implement the AI generation pipeline with Replicate API integration for headshot generation using the specified models and workflows.
 # Details:
-Design and implement albums UI with sections for active compositions, generation progress, and completed headshots. Create real-time status updates using Supabase subscriptions or polling. Implement image gallery view with filtering and sorting options. Develop image preview functionality with zoom and pan controls. Create batch download options for headshots. Implement favorite/tagging system for organizing headshots. Add email notification system for completion alerts.
+Set up Replicate API integration with authentication and error handling. Implement the training pipeline using 'ostris/flux-dev-lora-trainer' for processing user photos. Create ComfyUI workflow configuration for inference using Flux-dev, trained LoRAs, and upscalers. Develop a queuing system for processing multiple compositions. Implement progress tracking and status updates. Set up webhook handlers for completion notifications. Store generated images in S3 and update references in the database.
 
 # Test Strategy:
-Test albums rendering with various user scenarios (new user, returning user with in-progress generations, user with completed headshots). Verify real-time updates work correctly. Test image gallery with large numbers of images. Validate that download functionality works for single and batch operations. Test email notifications for reliability and content accuracy.
+Test the AI pipeline with sample images to verify generation quality. Validate error handling and retry mechanisms. Test the queuing system with multiple simultaneous requests. Verify that progress tracking accurately reflects the generation status. Ensure generated images meet quality standards and match selected styles.

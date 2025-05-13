@@ -334,6 +334,7 @@ export async function POST(request: Request) {
       const imageData = {
         id: uuidv4(),
         user_id: user.id,
+        order_id: metadata.orderId,
         url: url,
         file_name: `${cleanOriginalName}.webp`,
         file_size: processedBuffer.length,

@@ -89,8 +89,15 @@ export async function middleware(request: NextRequest) {
       const currentStageIndex = stageOrder.indexOf(currentStage);
       const pathStageIndex = stageOrder.indexOf(pathStage);
       
-      // After payment is completed, enforce staying on current stage
+      // After payment is completed:
       if (isPaymentCompleted) {
+        // Allow movement between upload and review stages
+        if ((pathStage === 'upload' && currentStage === 'review') || 
+            (pathStage === 'review' && currentStage === 'upload')) {
+          return response;
+        }
+        
+        // For other stages, enforce staying on current stage
         if (pathStage !== currentStage) {
           return NextResponse.redirect(new URL(`/app/${currentStage}`, request.url));
         }

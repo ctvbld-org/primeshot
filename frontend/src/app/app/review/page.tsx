@@ -5,44 +5,15 @@ import { useAuth } from '@/contexts/auth-context'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/ui/use-toast'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useForm, Controller } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import Image from 'next/image'
 import { useUserProgress } from '@/lib/hooks/use-user-progress'
-import { ArrowRightIcon } from 'lucide-react'
 import { Image as ImageType } from '@/lib/types'
 import { useTranslation } from 'react-i18next'
+import styles from './page.module.css'
 
-// --- Zod Schema for Validation ---
-const demographicsSchema = z.object({
-  ethnicity: z.string().min(1, 'Ethnicity is required'),
-  eyeColor: z.string().min(1, 'Eye color is required'),
-  hairColor: z.string().min(1, 'Hair color is required'),
-  hairLength: z.string().min(1, 'Hair length is required'),
-  bodyType: z.string().min(1, 'Body type is required'),
-})
-
-type DemographicsFormData = z.infer<typeof demographicsSchema>
-
-// --- Dropdown Options (Define actual options needed) ---
-const ethnicityOptions = ['Asian', 'Black/African Descent', 'Hispanic/Latino', 'Middle Eastern', 'Native American', 'Pacific Islander', 'White/Caucasian', 'Mixed', 'Prefer not to say']
-const eyeColorOptions = ['Brown', 'Blue', 'Green', 'Hazel', 'Grey', 'Amber', 'Other']
-const hairColorOptions = ['Black', 'Brown', 'Blonde', 'Red', 'Grey', 'White', 'Dyed/Other']
-const hairLengthOptions = ['Bald/Shaved', 'Short', 'Medium', 'Long', 'Other']
-const bodyTypeOptions = ['Slim', 'Average', 'Athletic', 'Heavy-set', 'Prefer not to say']
-
-console.log(ethnicityOptions);
-console.log(eyeColorOptions);
-console.log(hairColorOptions);
-console.log(hairLengthOptions);
-console.log(bodyTypeOptions);
-
-type ImageRecord = ImageType
+// Import the new components
+import ProfileForm from '@/components/review/profile-form'
+import ShootSummary from '@/components/review/shoot-summary'
 
 export default function ReviewPage() {
   const { t } = useTranslation('review')
@@ -50,28 +21,30 @@ export default function ReviewPage() {
   const router = useRouter()
   const { toast } = useToast()
   const { updateProgress } = useUserProgress()
-  const [uploadedImages, setUploadedImages] = useState<ImageRecord[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [uploadedImages, setUploadedImages] = useState<ImageType[]>([])
   const [draftOrderId, setDraftOrderId] = useState<string | null>(null)
+  const [userGender, setUserGender] = useState<string>('male') // Default to male
 
-  const { control, handleSubmit, formState: { errors } } = useForm<DemographicsFormData>({
-    resolver: zodResolver(demographicsSchema),
-    defaultValues: {
-      ethnicity: '',
-      eyeColor: '',
-      hairColor: '',
-      hairLength: '',
-      bodyType: '',
-    },
-  })
-
+  // Fetch user data, order, and images
   useEffect(() => {
     async function fetchData() {
       if (!user) return
 
       try {
         const supabase = createClient()
+        
+        // Fetch user profile data to get gender
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('gender')
+          .eq('id', user.id)
+          .single()
+          
+        if (!userError && userData?.gender) {
+          setUserGender(userData.gender.toLowerCase())
+        }
         
         // Get the most recent paid order
         const { data: orderData, error: orderError } = await supabase
@@ -87,8 +60,8 @@ export default function ReviewPage() {
 
         if (!orderData) {
           toast({
-            title: t('errors.noActiveOrder', { ns: 'upload' }),
-            description: t('errors.paymentRequired', { ns: 'upload' }),
+            title: "No active order",
+            description: "You need to complete payment first",
             variant: 'destructive'
           })
           router.push('/app/shoot')
@@ -97,8 +70,13 @@ export default function ReviewPage() {
 
         const currentOrderId = orderData.id
         setDraftOrderId(currentOrderId)
-        console.log("Paid Order ID:", currentOrderId)
-
+        
+        // If order has gender in metadata, use that
+        if (orderData.metadata?.demographics?.gender) {
+          setUserGender(orderData.metadata.demographics.gender.toLowerCase())
+        }
+        
+        // Fetch user images
         const response = await fetch(`/api/user-images?orderId=${currentOrderId}`)
         
         if (!response.ok) {
@@ -112,14 +90,13 @@ export default function ReviewPage() {
             throw new Error("Invalid image data received from API.")
         }
         
-        setUploadedImages(imagesWithUrls as ImageRecord[])
-        console.log("Images received from /api/user-images:", imagesWithUrls)
+        setUploadedImages(imagesWithUrls as ImageType[])
 
       } catch (error) {
         console.error("Error fetching review data:", error)
         toast({
-          title: t('submit.toast.error.title'),
-          description: error instanceof Error ? error.message : t('submit.toast.error.description'),
+          title: "Error",
+          description: error instanceof Error ? error.message : "Failed to load data",
           variant: 'destructive',
         })
       } finally {
@@ -128,17 +105,19 @@ export default function ReviewPage() {
     }
 
     fetchData()
-  }, [user, toast, t, router])
+  }, [user, toast, router])
 
-  const onSubmit = async (data: DemographicsFormData) => {
+  // Handle form submission
+  const handleFormSubmit = async (formData: any) => {
     if (!user) {
       toast({ 
-        title: t('submit.toast.error.title'), 
-        description: t('submit.toast.error.userNotLoggedIn'), 
+        title: "Error", 
+        description: "You must be logged in to continue", 
         variant: 'destructive' 
       });
       return;
     }
+    
     setIsSubmitting(true);
     const supabase = createClient();
 
@@ -154,25 +133,21 @@ export default function ReviewPage() {
 
           const { error: updateError } = await supabase
             .from('orders')
-            .update({ metadata: { ...existingMetadata, demographics: data } })
+            .update({ metadata: { ...existingMetadata, demographics: formData } })
             .eq('id', draftOrderId);
           if (updateError) throw updateError;
-          console.log("Order metadata updated with demographics.");
       } else {
-          console.warn("Draft Order ID not available, attempting to save to user metadata.");
           const { error: updateUserError } = await supabase.auth.updateUser({
-            data: { demographics: data } 
+            data: { demographics: formData } 
           });
           if (updateUserError) throw updateUserError;
-          console.log("User auth metadata updated with demographics.");
       }
 
       await updateProgress('review');
-      console.log("User progress updated to review stage complete.");
-
+      
       toast({
-        title: t('submit.toast.success.title'),
-        description: t('submit.toast.success.description'),
+        title: "Success",
+        description: "Your profile information has been saved",
       });
         
       router.push('/app/albums'); 
@@ -180,8 +155,8 @@ export default function ReviewPage() {
     } catch (error: unknown) {
       console.error('Error submitting demographics:', error);
       toast({
-        title: t('submit.toast.error.title'),
-        description: error instanceof Error ? error.message : t('submit.toast.error.description'),
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to save profile information",
         variant: 'destructive',
       });
     } finally {
@@ -189,94 +164,26 @@ export default function ReviewPage() {
     }
   };
 
-  const renderSelectField = (
-    fieldName: keyof DemographicsFormData,
-    options: { [key: string]: string }
-  ) => (
-    <div>
-      <Label htmlFor={fieldName}>{t(`aboutYou.fields.${fieldName}.label`)}</Label>
-      <Controller
-        name={fieldName}
-        control={control}
-        render={({ field }) => (
-          <Select onValueChange={field.onChange} value={field.value}>
-            <SelectTrigger id={fieldName}>
-              <SelectValue placeholder={t(`aboutYou.fields.${fieldName}.placeholder`)} />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(options).map(([key, value]) => (
-                <SelectItem key={key} value={value}>{value}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-      />
-      {errors[fieldName] && (
-        <p className="text-sm text-destructive mt-1">
-          {t(`aboutYou.fields.${fieldName}.error`)}
-        </p>
-      )}
-    </div>
-  );
-
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
-        <p className="text-muted-foreground">{t('description')}</p>
+    <div className={styles.container}>
+      <div className={styles.content}>
+        {/* Left Column - Profile Form */}
+        <div className={styles.formSection}>
+          <ProfileForm 
+            onSubmit={handleFormSubmit}
+            isSubmitting={isSubmitting}
+            gender={userGender}
+          />
+        </div>
+        
+        {/* Right Column - Shoot Summary */}
+        <div className={styles.sidebarSection}>
+          <ShootSummary 
+            isLoading={isLoading}
+            images={uploadedImages}
+          />
+        </div>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('uploadedPhotos.title')}</CardTitle>
-          <CardDescription>{t('uploadedPhotos.description')}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <p>{t('uploadedPhotos.loading')}</p>
-          ) : uploadedImages.length === 0 ? (
-            <p>{t('uploadedPhotos.noPhotos')}</p>
-          ) : (
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
-              {uploadedImages.map((image) => (
-                <div key={image.id} className="aspect-square relative overflow-hidden rounded-md border">
-                  <Image 
-                    src={image.url} 
-                    alt={image.file_name || 'Uploaded image'} 
-                    fill 
-                    sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, (max-width: 1024px) 16vw, 12.5vw"
-                    className="object-cover"
-                    priority={uploadedImages.indexOf(image) < 8}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('aboutYou.title')}</CardTitle>
-          <CardDescription>{t('aboutYou.description')}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {renderSelectField('ethnicity', t('aboutYou.fields.ethnicity.options', { returnObjects: true }))}
-            {renderSelectField('eyeColor', t('aboutYou.fields.eyeColor.options', { returnObjects: true }))}
-            {renderSelectField('hairColor', t('aboutYou.fields.hairColor.options', { returnObjects: true }))}
-            {renderSelectField('hairLength', t('aboutYou.fields.hairLength.options', { returnObjects: true }))}
-            {renderSelectField('bodyType', t('aboutYou.fields.bodyType.options', { returnObjects: true }))}
-
-            <div className="flex justify-end pt-4">
-              <Button type="submit" disabled={isSubmitting || isLoading || uploadedImages.length === 0}>
-                {isSubmitting ? t('submit.button.saving') : t('submit.button.default')}
-                <ArrowRightIcon className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
     </div>
   )
 } 
