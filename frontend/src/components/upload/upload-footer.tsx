@@ -6,18 +6,17 @@ import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 import styles from './upload-footer.module.css'
 import { ImageTooltip } from './image-tooltip'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { ImageQualityResult } from '@/lib/image-quality'
 import { Loader } from '@/components/ui/loader'
 import { Icon } from '../icons/icon'
+import type { FileWithScore } from '@/lib/types'
 
 interface UploadFooterProps {
-  acceptedFiles?: File[]
+  acceptedFiles?: FileWithScore[]
   minImages: number
   maxImages: number
   onReviewClick: () => void
   isUploading: boolean
   onRemoveFile: (index: number) => void
-  qualityResults: Record<string, ImageQualityResult>
   isAnalyzing: boolean
   currentAnalyzingIndex: number
   currentUploadingIndex?: number | null
@@ -37,7 +36,6 @@ export function UploadFooter({
   onReviewClick,
   isUploading,
   onRemoveFile,
-  qualityResults,
   isAnalyzing,
   currentAnalyzingIndex,
   currentUploadingIndex = null,
@@ -103,7 +101,6 @@ export function UploadFooter({
   // 6. Render helpers
   const renderSquare = useCallback((index: number, isRequired: boolean) => {
     const file = acceptedFiles[index]
-    const result = file ? qualityResults[file.name] : null
     const isCurrentlyAnalyzing = isAnalyzing && index === currentAnalyzingIndex
     const isCurrentlyUploading = isUploading && index === currentUploadingIndex
     const isUploaded = file && uploadedFiles.includes(file.name)
@@ -111,15 +108,13 @@ export function UploadFooter({
     
     let qualityClass = ''
     let qualityLabel = ''
-    if (result) {
-      if (result.score >= 80) {
+    if (file?.score && file.score > 79) {
         qualityClass = styles.qualityIndicatorHigh
         qualityLabel = t('quality.high')
       } else {
         qualityClass = styles.qualityIndicatorMedium
         qualityLabel = t('quality.medium')
       }
-    }
 
     // Disable tooltip interaction when uploading
     const popoverTriggerProps = isUploading
@@ -151,7 +146,7 @@ export function UploadFooter({
               t('accessibility.emptyPhotoSlot', { number: index + 1 })
             }
           >
-            {file && result?.isAcceptable ? (
+            {file ? (
               <>
                 <img 
                   src={URL.createObjectURL(file)}
@@ -163,7 +158,7 @@ export function UploadFooter({
                   )}
                   onLoad={(e) => URL.revokeObjectURL((e.target as HTMLImageElement).src)}
                 />
-                {result && !isUploading && (
+                {!isUploading && (
                   <div 
                     className={cn(styles.qualityIndicator, qualityClass)}
                     aria-hidden="true"
@@ -187,7 +182,7 @@ export function UploadFooter({
             )}
           </div>
         </PopoverTrigger>
-        {file && result?.isAcceptable && !isCurrentlyAnalyzing && !isCurrentlyUploading && !isUploading && (
+        {file && !isCurrentlyAnalyzing && !isCurrentlyUploading && !isUploading && (
           <PopoverContent 
             className="w-auto p-0 border-none shadow-none bg-transparent" 
             align="center"
@@ -196,7 +191,6 @@ export function UploadFooter({
           >
             <ImageTooltip
               file={file}
-              result={result}
               fileUrl={URL.createObjectURL(file)}
               onClose={() => setOpenTooltipIndex(null)}
               onDelete={() => handleRemoveFile(index)}
@@ -205,7 +199,7 @@ export function UploadFooter({
         )}
       </Popover>
     )
-  }, [acceptedFiles, qualityResults, openTooltipIndex, handleTooltipOpenChange, handleRemoveFile, t, isAnalyzing, currentAnalyzingIndex, isUploading, currentUploadingIndex, uploadedFiles])
+  }, [acceptedFiles, openTooltipIndex, handleTooltipOpenChange, handleRemoveFile, t, isAnalyzing, currentAnalyzingIndex, isUploading, currentUploadingIndex, uploadedFiles])
 
   const generateSquares = useCallback((count: number, isRequired: boolean, startIndex: number = 0) => {
     return Array.from({ length: count }).map((_, i) => renderSquare(startIndex + i, isRequired))

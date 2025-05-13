@@ -19,6 +19,7 @@ import { useOrder } from '@/lib/hooks/use-order'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 import { useAuth } from '@/contexts/auth-context'
 import { UploadPageSkeleton } from '@/components/skeleton/upload/page'
+import type { FileWithScore } from '@/lib/types'
 
 // Import Confetti dynamically to avoid SSR issues
 const ReactConfetti = dynamic(() => import('react-confetti'), { ssr: false })
@@ -89,12 +90,22 @@ export default function UploadPage() {
 
   // 7. Memoized values
   const acceptedFiles = useMemo(() => 
-    selectedFiles.filter(file => qualityResults[file.name]?.isAcceptable),
+    selectedFiles.filter(file => qualityResults[file.name]?.isAcceptable).map(file => {
+      // Create a FileWithScore object that properly includes both File and score
+      const fileWithScore = file as FileWithScore;
+      fileWithScore.score = Math.round(qualityResults[file.name]?.score);
+      return fileWithScore;
+    }),
     [selectedFiles, qualityResults]
   )
 
   const rejectedFiles = useMemo(() => 
-    selectedFiles.filter(file => !qualityResults[file.name]?.isAcceptable),
+    selectedFiles.filter(file => !qualityResults[file.name]?.isAcceptable).map(file => {
+      // Create a FileWithScore object that properly includes both File and score
+      const fileWithScore = file as FileWithScore;
+      fileWithScore.score = Math.round(qualityResults[file.name]?.score);
+      return fileWithScore;
+    }),
     [selectedFiles, qualityResults]
   )
 
@@ -392,7 +403,6 @@ export default function UploadPage() {
         onReviewClick={() => handleUpload(acceptedFiles)}
         isUploading={uploadState.isUploading}
         onRemoveFile={removeFile}
-        qualityResults={qualityResults}
         isAnalyzing={isAnalyzing}
         currentAnalyzingIndex={currentFileIndex}
         currentUploadingIndex={uploadState.currentUploadingIndex}

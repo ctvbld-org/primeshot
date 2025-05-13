@@ -41,7 +41,8 @@ const chunkMetadataSchema = z.object({
     }),
   fileType: z.enum(ALLOWED_MIME_TYPES, {
     errorMap: () => ({ message: `Only ${ALLOWED_MIME_TYPES.join(', ')} files are allowed` })
-  })
+  }),
+  qualityScore: z.number().int().min(0).max(100).optional()
 }).refine(data => data.chunkIndex < data.totalChunks, {
   message: "chunkIndex must be less than totalChunks"
 });
@@ -280,6 +281,7 @@ export async function POST(request: Request) {
           file_size: metadata.fileSize,
           file_type: metadata.fileType,
           total_chunks: metadata.totalChunks,
+          quality_score: metadata.qualityScore,
           status: 'pending'
         })
         .select()
@@ -340,7 +342,8 @@ export async function POST(request: Request) {
         file_size: processedBuffer.length,
         mime_type: mimeType,
         dimensions: { width: safeWidth, height: safeHeight },
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        quality_score: metadata.qualityScore
       };
 
       const validatedData = imageSchema.parse(imageData);

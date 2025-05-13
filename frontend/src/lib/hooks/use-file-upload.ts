@@ -30,6 +30,7 @@ interface FileState {
   qualityResult?: ImageQualityResult
   uploadProgress: FileProgress
   isAnalyzing?: boolean
+  uploadedUrl?: string
 }
 
 export function useFileUpload(options: UseFileUploadOptions = {}) {
@@ -172,7 +173,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
         
         try {
           // Random delay between 400ms and 800ms
-          await delay(Math.floor(Math.random() * (800 - 400 + 1)) + 400)
+          //await delay(Math.floor(Math.random() * (800 - 400 + 1)) + 400)
           const result = await analyzeImageQuality(file, gender || undefined)
           results[file.name] = result
           
@@ -396,7 +397,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
         ? { ...state, uploadProgress: { progress: 0, isUploading: true } }
         : state
     ))
-
+    
     try {
       const url = await uploadFileInChunks(
         file,
@@ -412,15 +413,20 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
 
       setFileStates(prev => prev.map((state, i) => 
         i === index 
-          ? { ...state, uploadProgress: { progress: 100, isUploading: false } }
+          ? { 
+              ...state, 
+              uploadProgress: { progress: 100, isUploading: false },
+              uploadedUrl: url
+            }
           : state
       ))
 
       return url
     } catch (error) {
+      console.error('Error uploading file:', error)
       setFileStates(prev => prev.map((state, i) => 
         i === index 
-          ? { ...state, uploadProgress: { progress: 0, isUploading: false, error: error instanceof Error ? error.message : 'Upload failed' } }
+          ? { ...state, uploadProgress: { progress: 0, isUploading: false } }
           : state
       ))
       throw error

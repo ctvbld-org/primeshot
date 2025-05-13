@@ -63,6 +63,7 @@ export const imageSchema = z.object({
     height: z.number().min(1, 'Invalid height'),
   }),
   created_at: z.string().datetime('Invalid creation date'),
+  quality_score: z.number().int().min(0).max(100).optional()
 });
 
 // API Request/Response schemas

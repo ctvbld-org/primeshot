@@ -82,6 +82,10 @@ export type Image = {
   created_at: string
 }
 
+export interface FileWithScore extends File {
+  score?: number;
+}
+
 export type HeadshotInfo = {
   styleCount: number
   totalHeadshots: number

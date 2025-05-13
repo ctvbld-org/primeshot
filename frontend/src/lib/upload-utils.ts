@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { FileWithScore } from './types';
 
 // Size of each chunk in bytes (2MB)
 export const CHUNK_SIZE = 2 * 1024 * 1024;
@@ -11,9 +12,10 @@ export interface ChunkMetadata {
   fileType: string;
   uploadId: string;
   orderId: string;
+  qualityScore?: number;
 }
 
-export function* createChunks(file: File, orderId: string, chunkSize: number = CHUNK_SIZE) {
+export function* createChunks(file: FileWithScore, orderId: string, chunkSize: number = CHUNK_SIZE) {
   // Handle empty files
   if (file.size === 0) {
     const metadata: ChunkMetadata = {
@@ -23,7 +25,8 @@ export function* createChunks(file: File, orderId: string, chunkSize: number = C
       fileName: file.name,
       fileType: file.type,
       uploadId: uuidv4(),
-      orderId
+      orderId,
+      qualityScore: 0
     };
     yield { chunk: new Blob(), metadata };
     return;
@@ -44,7 +47,8 @@ export function* createChunks(file: File, orderId: string, chunkSize: number = C
       fileName: file.name,
       fileType: file.type,
       uploadId,
-      orderId
+      orderId,
+      qualityScore: file.score
     };
 
     yield { chunk, metadata };
@@ -96,12 +100,13 @@ export async function uploadChunk(
 export async function uploadFileInChunks(
   file: File,
   orderId: string,
-  onProgress?: (progress: number) => void
+  onProgress?: (progress: number) => void,
 ): Promise<string> {
   const chunks = createChunks(file, orderId);
   let uploadedChunks = 0;
 
   for (const { chunk, metadata } of chunks) {
+
     let retries = 0;
     const maxRetries = 3;
     
