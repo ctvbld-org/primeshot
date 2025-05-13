@@ -70,20 +70,28 @@ export type ImageDimensions = {
   height: number
 }
 
-export type Image = {
-  id: string
-  style_id: string
-  user_id: string
-  url: string
-  file_name: string
-  file_size: number
-  mime_type: 'image/jpeg' | 'image/png' | 'image/webp'
-  dimensions: ImageDimensions
-  created_at: string
+export interface Image {
+  id: string;
+  style_id: string;
+  user_id: string;
+  url: string;
+  file_name: string;
+  file_size: number;
+  mime_type: 'image/jpeg' | 'image/png' | 'image/webp';
+  dimensions: ImageDimensions;
+  created_at: string;
+  updated_at: string;
+  order_id?: string;
+  quality_score?: number;
 }
 
-export interface FileWithScore extends File {
+export interface FileWithScore extends Partial<File> {
+  name: string;
   score?: number;
+  url?: string;
+  isExisting?: boolean;
+  order_id?: string;
+  id?: string;
 }
 
 export type HeadshotInfo = {

@@ -5,7 +5,7 @@ import { useToast } from '@/components/ui/use-toast'
 import { formatFileSize } from '@/lib/utils'
 import { uploadFileInChunks, CHUNK_SIZE } from '@/lib/upload-utils'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
-import { analyzeImageQuality, loadModels, checkBodyPercentageRequirements } from '@/lib/image-quality'
+import { analyzeImageQuality, loadModels } from '@/lib/image-quality'
 import { useUserGender } from '@/lib/hooks/use-user-gender'
 
 // Add delay helper

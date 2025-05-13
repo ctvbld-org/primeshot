@@ -6,9 +6,10 @@ import Image from 'next/image'
 import { FileIcon } from 'lucide-react'
 import { formatFileSize } from '@/lib/utils'
 import styles from './image-quality-score.module.css'
+import type { FileWithScore } from '@/lib/types'
 
 interface ImageQualityScoreProps {
-  file: File
+  file: FileWithScore
   result: ImageQualityResult
   onRemove?: () => void
   isUploading: boolean
@@ -27,9 +28,13 @@ export function ImageQualityScore({
   const [fileUrl, setFileUrl] = useState<string>('')
 
   useEffect(() => {
-    const url = URL.createObjectURL(file)
-    setFileUrl(url)
-    return () => URL.revokeObjectURL(url)
+    if (file.isExisting && file.url) {
+      setFileUrl(file.url)
+    } else if (!file.isExisting) {
+      const url = URL.createObjectURL(file as File)
+      setFileUrl(url)
+      return () => URL.revokeObjectURL(url)
+    }
   }, [file])
 
   if (!result) {
@@ -68,7 +73,7 @@ export function ImageQualityScore({
           <div className={styles.headerContainer}>
             <div className={styles.fileInfo}>
               <p className={styles.fileName}>{file.name}</p>
-              <p className={styles.fileSize}>{formatFileSize(file.size)}</p>
+              <p className={styles.fileSize}>{file.size ? formatFileSize(file.size) : ''}</p>
             </div>
             <span className={styles.qualityScore}>{Math.round(result.score)}%</span>
           </div>

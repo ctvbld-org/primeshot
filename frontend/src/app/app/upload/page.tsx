@@ -20,6 +20,7 @@ import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 import { useAuth } from '@/contexts/auth-context'
 import { UploadPageSkeleton } from '@/components/skeleton/upload/page'
 import type { FileWithScore } from '@/lib/types'
+import { useOrderImages } from '@/lib/hooks/use-order-images'
 
 // Import Confetti dynamically to avoid SSR issues
 const ReactConfetti = dynamic(() => import('react-confetti'), { ssr: false })
@@ -55,6 +56,8 @@ export default function UploadPage() {
     loadStyles: false
   })
 
+  const { images: existingImages, isLoading: isLoadingImages } = useOrderImages(order?.id)
+
   const [showConfetti, setShowConfetti] = useState<boolean | 'stopping'>(false)
   const [isTransitioningToReview, setIsTransitioningToReview] = useState(false)
 
@@ -89,15 +92,18 @@ export default function UploadPage() {
   } = useFileUpload()
 
   // 7. Memoized values
-  const acceptedFiles = useMemo(() => 
-    selectedFiles.filter(file => qualityResults[file.name]?.isAcceptable).map(file => {
-      // Create a FileWithScore object that properly includes both File and score
-      const fileWithScore = file as FileWithScore;
-      fileWithScore.score = Math.round(qualityResults[file.name]?.score);
-      return fileWithScore;
-    }),
-    [selectedFiles, qualityResults]
-  )
+  const acceptedFiles = useMemo(() => {
+    const newFiles = selectedFiles
+      .filter(file => qualityResults[file.name]?.isAcceptable)
+      .map(file => {
+        const fileWithScore = file as FileWithScore;
+        fileWithScore.score = Math.round(qualityResults[file.name]?.score);
+        return fileWithScore;
+      });
+    console.log('existingImages', existingImages)
+    // Combine with existing images if any
+    return [...(existingImages || []), ...newFiles];
+  }, [selectedFiles, qualityResults, existingImages])
 
   const rejectedFiles = useMemo(() => 
     selectedFiles.filter(file => !qualityResults[file.name]?.isAcceptable).map(file => {
@@ -170,8 +176,18 @@ export default function UploadPage() {
     }
   }, [updateProgress, router, toast, t])
 
-  const handleUpload = useCallback(async (filesToUpload: File[]) => {
-    if (!order || filesToUpload.length === 0) {
+  const handleUpload = useCallback(async (filesToUpload: FileWithScore[]) => {
+    // Filter out existing images from the upload
+    const newFilesToUpload = filesToUpload.filter(file => !file.isExisting)
+    
+    if (!order || newFilesToUpload.length === 0) {
+      // If we only have existing images, we can proceed directly to review
+      if (filesToUpload.length > newFilesToUpload.length) {
+        setIsTransitioningToReview(true)
+        await handleUploadSuccess(existingImages.map(img => ({ url: img.url })))
+        return
+      }
+      
       toast({
         title: t('errors.noActiveOrder'),
         description: t('errors.paymentRequired'),
@@ -197,8 +213,8 @@ export default function UploadPage() {
 
     try {
       // Upload files one by one
-      for (let i = 0; i < filesToUpload.length; i++) {
-        const file = filesToUpload[i]
+      for (let i = 0; i < newFilesToUpload.length; i++) {
+        const file = newFilesToUpload[i]
         currentUploadingIndex = i
         
         // Only one setUploadState per iteration
@@ -211,7 +227,7 @@ export default function UploadPage() {
         }))
         
         try {
-          const url = await uploadFile(file, order.id)
+          const url = await uploadFile(file as File, order.id)
           results.push({ originalName: file.name, url })
           uploadedFiles.push(file.name)
           uploadedCount++
@@ -282,7 +298,7 @@ export default function UploadPage() {
         currentUploadingIndex: null
       }))
     }
-  }, [order, uploadFile, removeFile, handleUploadSuccess, toast, t, selectedFiles])
+  }, [order, uploadFile, removeFile, handleUploadSuccess, toast, t, selectedFiles, existingImages])
 
   // Confetti timer refs to prevent leaks
   const stopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -332,7 +348,7 @@ export default function UploadPage() {
   }, [acceptedFiles.length, rejectedFiles, uploadState.shownRejectedFiles, isAnalyzing])
 
   // 10. Conditional returns - after all hooks
-  if (isLoadingOrder || isVerifying) {
+  if (isLoadingOrder || isVerifying || isLoadingImages) {
     return <UploadPageSkeleton />
   }
 

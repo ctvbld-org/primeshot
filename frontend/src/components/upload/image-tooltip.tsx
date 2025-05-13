@@ -90,7 +90,7 @@ export function ImageTooltip({
               {file.name}
             </p>
             <p className={styles.fileSize}>
-              {formatFileSize(file.size)}
+              {file.size ? formatFileSize(file.size) : ''}
             </p>
           </div>
           <Button

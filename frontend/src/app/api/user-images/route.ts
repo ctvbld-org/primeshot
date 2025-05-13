@@ -5,10 +5,29 @@ import { Image as ImageType } from '@/lib/types'
 
 type ImageRecord = ImageType
 
+// Helper to convert mime types
+const getMimeType = (path: string): string => {
+  const extension = path.split('.').pop()?.toLowerCase();
+  
+  switch (extension) {
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'png':
+      return 'image/png';
+    case 'webp':
+      return 'image/webp';
+    case 'svg':
+      return 'image/svg+xml';
+    default:
+      return 'application/octet-stream';
+  }
+};
+
 /**
  * API Route: /api/user-images
  * 
- * Retrieves user-uploaded images from the database with presigned S3 URLs.
+ * Returns signed URLs for user-uploaded images from S3.
  * Requires authentication and returns images filtered by user ID and optional
  * image ID or order ID parameters.
  */

@@ -98,6 +98,35 @@ export function UploadFooter({
     }
   }, [checkScroll])
 
+  // Add state for signed URLs
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({})
+
+  // Add function to fetch signed URL
+  const fetchSignedUrl = useCallback(async (fileId: string) => {
+    try {
+      const response = await fetch(`/api/user-images?imageId=${fileId}`)
+      if (!response.ok) throw new Error('Failed to fetch signed URL')
+      const data = await response.json()
+      setSignedUrls(prev => ({ ...prev, [fileId]: data.url }))
+    } catch (error) {
+      console.error('Error fetching signed URL:', error)
+    }
+  }, [])
+
+  // Effect to fetch signed URLs for uploaded files
+  useEffect(() => {
+    acceptedFiles.forEach(file => {
+      if (file.id && !signedUrls[file.id]) {
+        fetchSignedUrl(file.id)
+      }
+    })
+  }, [acceptedFiles, fetchSignedUrl])
+
+  const getImageUrl = useCallback((file: FileWithScore) => {
+    if (!file.id) return URL.createObjectURL(file as Blob)
+    return signedUrls[file.id] || null
+  }, [signedUrls])
+
   // 6. Render helpers
   const renderSquare = useCallback((index: number, isRequired: boolean) => {
     const file = acceptedFiles[index]
@@ -109,12 +138,14 @@ export function UploadFooter({
     let qualityClass = ''
     let qualityLabel = ''
     if (file?.score && file.score > 79) {
-        qualityClass = styles.qualityIndicatorHigh
-        qualityLabel = t('quality.high')
-      } else {
-        qualityClass = styles.qualityIndicatorMedium
-        qualityLabel = t('quality.medium')
-      }
+      qualityClass = styles.qualityIndicatorHigh
+      qualityLabel = t('quality.high')
+    } else {
+      qualityClass = styles.qualityIndicatorMedium
+      qualityLabel = t('quality.medium')
+    }
+
+    const imageUrl = file ? getImageUrl(file) : null
 
     // Disable tooltip interaction when uploading
     const popoverTriggerProps = isUploading
@@ -148,16 +179,27 @@ export function UploadFooter({
           >
             {file ? (
               <>
-                <img 
-                  src={URL.createObjectURL(file)}
-                  alt={t('accessibility.photoPreview', { number: index + 1 })}
-                  className={cn(
-                    "w-full h-full object-cover rounded-lg transition-all duration-300",
-                    isUploading && !isUploaded && !isCurrentlyUploading && "opacity-60",
-                    isCurrentlyUploading && "opacity-70"
-                  )}
-                  onLoad={(e) => URL.revokeObjectURL((e.target as HTMLImageElement).src)}
-                />
+                {imageUrl ? (
+                  <img 
+                    src={imageUrl}
+                    alt={t('accessibility.photoPreview', { number: index + 1 })}
+                    className={cn(
+                      "w-full h-full object-cover rounded-lg transition-all duration-300",
+                      isUploading && !isUploaded && !isCurrentlyUploading && "opacity-60",
+                      isCurrentlyUploading && "opacity-70"
+                    )}
+                    onLoad={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      if (target.src.startsWith('blob:')) {
+                        URL.revokeObjectURL(target.src);
+                      }
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Loader className="w-6 h-6" />
+                  </div>
+                )}
                 {!isUploading && (
                   <div 
                     className={cn(styles.qualityIndicator, qualityClass)}
@@ -191,7 +233,7 @@ export function UploadFooter({
           >
             <ImageTooltip
               file={file}
-              fileUrl={URL.createObjectURL(file)}
+              fileUrl={imageUrl || ''}
               onClose={() => setOpenTooltipIndex(null)}
               onDelete={() => handleRemoveFile(index)}
             />
@@ -199,7 +241,7 @@ export function UploadFooter({
         )}
       </Popover>
     )
-  }, [acceptedFiles, openTooltipIndex, handleTooltipOpenChange, handleRemoveFile, t, isAnalyzing, currentAnalyzingIndex, isUploading, currentUploadingIndex, uploadedFiles])
+  }, [acceptedFiles, openTooltipIndex, handleTooltipOpenChange, handleRemoveFile, t, isAnalyzing, currentAnalyzingIndex, isUploading, currentUploadingIndex, uploadedFiles, getImageUrl])
 
   const generateSquares = useCallback((count: number, isRequired: boolean, startIndex: number = 0) => {
     return Array.from({ length: count }).map((_, i) => renderSquare(startIndex + i, isRequired))
