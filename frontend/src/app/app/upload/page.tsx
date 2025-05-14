@@ -89,32 +89,30 @@ export default function UploadPage() {
     isAnalyzing,
     analyzingCount,
     currentFileIndex,
-  } = useFileUpload()
-
+  } = useFileUpload({
+    existingImages: existingImages
+  })
+  
   // 7. Memoized values
   const acceptedFiles = useMemo(() => {
-    const newFiles = selectedFiles
+    return selectedFiles
       .filter(file => qualityResults[file.name]?.isAcceptable)
       .map(file => {
         const fileWithScore = file as FileWithScore;
         fileWithScore.score = Math.round(qualityResults[file.name]?.score);
         return fileWithScore;
       });
-      
-    // Combine with existing images if any
-    return [...(existingImages || []), ...newFiles];
-  }, [selectedFiles, qualityResults, existingImages])
+  }, [selectedFiles, qualityResults])
 
   const rejectedFiles = useMemo(() => 
     selectedFiles.filter(file => !qualityResults[file.name]?.isAcceptable).map(file => {
-      // Create a FileWithScore object that properly includes both File and score
       const fileWithScore = file as FileWithScore;
       fileWithScore.score = Math.round(qualityResults[file.name]?.score);
       return fileWithScore;
     }),
     [selectedFiles, qualityResults]
   )
-
+  
   const titleContent = useMemo(() => {
     if (acceptedFiles.length >= UPLOAD_CONSTANTS.MIN_IMAGES) {
       return (
@@ -178,13 +176,14 @@ export default function UploadPage() {
 
   const handleUpload = useCallback(async (filesToUpload: FileWithScore[]) => {
     // Filter out existing images from the upload
-    const newFilesToUpload = filesToUpload.filter(file => !file.isExisting)
+    const newFilesToUpload = filesToUpload.filter(file => !('isExisting' in file))
+    const existingFilesToUpload = filesToUpload.filter(file => 'isExisting' in file)
     
-    if (!order || newFilesToUpload.length === 0) {
+    if (!order && newFilesToUpload.length === 0) {
       // If we only have existing images, we can proceed directly to review
-      if (filesToUpload.length > newFilesToUpload.length) {
+      if (existingFilesToUpload.length > 0) {
         setIsTransitioningToReview(true)
-        await handleUploadSuccess(existingImages.map(img => ({ url: img.url })))
+        await handleUploadSuccess(existingFilesToUpload.map(img => ({ url: img.url })))
         return
       }
       
@@ -196,16 +195,26 @@ export default function UploadPage() {
       return
     }
 
-    // Use local variables to track progress
-    const uploadedFiles: string[] = []
-    let uploadedCount = 0
-    let currentUploadingIndex: number | null = null
+    if (!order) {
+      toast({
+        title: t('errors.noActiveOrder'),
+        description: t('errors.paymentRequired'),
+        variant: 'destructive'
+      })
+      return
+    }
 
+    // Initialize uploadedFiles with existing images
+    const uploadedFiles: string[] = existingImages?.map(img => img.name).filter((name): name is string => name !== undefined) || []
+    let uploadedCount = existingImages?.length || 0
+    let currentUploadingIndex: number | null = uploadedCount // Start from after existing images
+    const startingUploadingIndex = existingImages?.length || 0
+  
     setUploadState(prev => ({ 
       ...prev, 
-      uploadedCount: 0,
-      uploadedFiles: [],
-      currentUploadingIndex: 0, // Start with the first file
+      uploadedCount: uploadedCount,
+      uploadedFiles: uploadedFiles,
+      currentUploadingIndex: uploadedCount, // Start with the first new file
       isUploading: true // Set uploading state to true
     }))
     
@@ -215,14 +224,14 @@ export default function UploadPage() {
       // Upload files one by one
       for (let i = 0; i < newFilesToUpload.length; i++) {
         const file = newFilesToUpload[i]
-        currentUploadingIndex = i
+        currentUploadingIndex = startingUploadingIndex + i
         
         // Only one setUploadState per iteration
         setUploadState(prev => ({
           ...prev,
           uploadedFiles: [...uploadedFiles],
           uploadedCount: uploadedCount,
-          currentUploadingIndex,
+          currentUploadingIndex: currentUploadingIndex,
           isUploading: true
         }))
         
@@ -264,24 +273,21 @@ export default function UploadPage() {
       }
 
       // Handle successful uploads
-      if (successfulUploads.length > 0) {
-        toast({
-          title: t('status.successful'),
-          description: t('status.uploadComplete', { count: successfulUploads.length })
-        })
+      if (successfulUploads.length > 0 || existingFilesToUpload.length > 0) {
+        if (successfulUploads.length > 0) {
+          toast({
+            title: t('status.successful'),
+            description: t('status.uploadComplete', { count: successfulUploads.length })
+          })
+        }
 
-        // DEFERRED: Remove successfully uploaded files after navigation to review page
-        // const successfulFileNames = new Set(successfulUploads.map(r => r.originalName))
-        // selectedFiles
-        //   .map((file, index) => successfulFileNames.has(file.name) ? index : -1)
-        //   .filter(index => index !== -1)
-        //   .sort((a, b) => b - a)
-        //   .forEach(removeFile)
-        // TODO: Remove files after navigation if needed
-
-        // Handle completion
+        // Handle completion - combine successful uploads with existing files
         if (failedUploads.length === 0) {
-          await handleUploadSuccess(successfulUploads)
+          const allUploads = [
+            ...successfulUploads,
+            ...existingFilesToUpload.map(img => ({ url: img.url }))
+          ]
+          await handleUploadSuccess(allUploads)
         }
       }
     } catch (error) {
@@ -298,7 +304,7 @@ export default function UploadPage() {
         currentUploadingIndex: null
       }))
     }
-  }, [order, uploadFile, removeFile, handleUploadSuccess, toast, t, selectedFiles, existingImages])
+  }, [order, uploadFile, handleUploadSuccess, toast, t])
 
   // Confetti timer refs to prevent leaks
   const stopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
