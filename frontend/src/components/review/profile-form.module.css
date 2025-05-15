@@ -1,8 +1,10 @@
 .container {
+  background-color: #0C1013;
   flex: 1;
   display: flex;
   flex-direction: column;
   min-width: 0;
+  padding: 40px 32px;
 }
 
 .header {
@@ -10,21 +12,25 @@
 }
 
 .title {
+  color: #44E3C9;
   font-size: 24px;
-  font-weight: 600;
-  margin: 0 0 8px 0;
-  color: #00BFA5;
+  font-weight: 400;
+  line-height: 28px;
+  letter-spacing: -0.48px;
+  margin-bottom: 8px;
 }
 
 .subtitle {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.7);
-  margin: 0;
-  line-height: 1.5;
+  color: rgba(192, 206, 216, 0.80);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
+  max-width: 286px;
 }
 
 .form {
-  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
 }
 
 .footer {

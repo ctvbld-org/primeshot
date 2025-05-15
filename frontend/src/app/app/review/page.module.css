@@ -1,16 +1,10 @@
-/* Review Page Styles */
-
-/* Main container */
-.container {
-}
-
 /* Two-column layout container */
 .content {
   display: flex;
   flex-direction: row;
-  gap: 2rem;
   width: 100%;
-  margin-top: 2rem;
+  min-height: calc(100vh - 120px);
+  height: auto;
 }
 
 /* Switch to column on mobile */
@@ -28,12 +22,35 @@
 
 /* Right column - Sidebar */
 .sidebarSection {
-  width: 380px;
-  flex-shrink: 0;
+  background: linear-gradient(180deg, rgba(68, 227, 201, 0.00) 0%, rgba(68, 227, 201, 0.10) 100%), #0C1013;
+  flex: 1 0 auto;
+  max-width: 400px;
+  position: relative;
+}
+
+.sidebarSection::before {
+  background: linear-gradient(180deg, rgba(68, 227, 201, 0.00) 0%, rgba(68, 227, 201, 0.20) 100%);
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  height: 100%;
+}
+
+@media (min-width: 768px) and (max-width: 900px) {
+  .sidebarSection {
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 320px;
+  }
 }
 
 @media (max-width: 768px) {
   .sidebarSection {
-    width: 100%;
+    max-width: 100%;
+  }
+
+  .sidebarSection::before {
+    display: none;
   }
 }

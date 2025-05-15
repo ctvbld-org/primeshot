@@ -1,6 +1,7 @@
 import { updateSession } from '@/lib/supabase/middleware'
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 
 export async function middleware(request: NextRequest) {
   // Update session using our shared middleware function
@@ -91,6 +92,32 @@ export async function middleware(request: NextRequest) {
       
       // After payment is completed:
       if (isPaymentCompleted) {
+        // Check minimum image requirement for review page
+        if (pathStage === 'review') {
+          // Get the most recent paid order
+          const { data: orderData, error: orderError } = await supabase
+            .from('orders')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('status', 'paid')
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single()
+
+          if (!orderError && orderData) {
+            // Count images for this order
+            const { count, error: imageError } = await supabase
+              .from('images')
+              .select('id', { count: 'exact' })
+              .eq('order_id', orderData.id)
+
+            if (!imageError && count !== null && count < UPLOAD_CONSTANTS.MIN_IMAGES) {
+              // Redirect back to upload if not enough images
+              return NextResponse.redirect(new URL('/app/upload', request.url))
+            }
+          }
+        }
+
         // Allow movement between upload and review stages
         if ((pathStage === 'upload' && currentStage === 'review') || 
             (pathStage === 'review' && currentStage === 'upload')) {

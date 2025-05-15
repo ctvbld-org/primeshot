@@ -2,12 +2,13 @@
 
 import React from 'react';
 import styles from './shoot-summary.module.css';
-import { Edit2, Image as ImageIcon, CheckCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Image as ImageType, Style } from '@/lib/types';
 import { useOrder } from '@/lib/hooks/use-order';
-import { useOption, useOptions } from '@/hooks/useConfig';
+import { useOrderImages } from '@/lib/hooks/use-order-images';
+import { useOption } from '@/hooks/useConfig';
 import { useTranslatedOption } from '@/hooks/useTranslatedOption';
+import Link from 'next/link';
+import { Icon } from '@/components/icons/icon';
+import { calculatePricing } from '@/lib/pricing';
 
 interface ShootSummaryProps {
   isLoading?: boolean;
@@ -17,6 +18,9 @@ interface ShootSummaryProps {
 const ShootSummary: React.FC<ShootSummaryProps> = ({ isLoading: externalLoading = false, images = [] }) => {
   // Use the order hook to get the latest paid order and its styles
   const { order, styles: orderStyles, isLoading: orderLoading } = useOrder({ loadStyles: true });
+  
+  // Get images with quality scores
+  const { images: orderImages, isLoading: imagesLoading } = useOrderImages(order?.id);
   
   // Get style options and their translations
   const { data: rawBackgroundOptions } = useOption('background');
@@ -28,10 +32,18 @@ const ShootSummary: React.FC<ShootSummaryProps> = ({ isLoading: externalLoading 
   const clothingColorOptions = useTranslatedOption(rawClothingColorOptions);
   
   // Combine external and internal loading states
-  const isLoading = externalLoading || orderLoading;
-  
-  // Calculate total photos from styles
-  const totalPhotos = orderStyles?.reduce((total, style) => total + 20, 0) || 0;
+  const isLoading = externalLoading || orderLoading || imagesLoading;
+  // Calculate pricing info and total photos based on number of styles
+  const pricingInfo = orderStyles && orderStyles.length > 0 ? calculatePricing(orderStyles.length) : null;
+  const totalPhotos = pricingInfo?.totalHeadshots || 0;
+  const headshotsPerStyle = pricingInfo?.headshotsPerStyle || 0;
+
+  // Calculate average quality score
+  const averageScore = React.useMemo(() => {
+    if (!orderImages?.length) return 0;
+    const totalScore = orderImages.reduce((sum, img) => sum + (img.score || 0), 0);
+    return Math.round((totalScore / orderImages.length));
+  }, [orderImages]);
   
   // Helper function to get translated label for a style option
   const getTranslatedLabel = (optionType: 'background' | 'clothing' | 'clothingColor', optionId: string | undefined): string => {
@@ -54,16 +66,16 @@ const ShootSummary: React.FC<ShootSummaryProps> = ({ isLoading: externalLoading 
         <div className={styles.sectionHeader}>
           <div className={styles.sectionTitle}>
             <span className={styles.label}>Photos</span>
-            <button className={styles.editButton}>
+            <Link href="/app/upload" className={styles.editButton}>
               <span>Edit</span>
-            </button>
+            </Link>
           </div>
           
           <div className={styles.averageScore}>
             <span className={styles.label}>AVG.</span>
             <div className={styles.scoreTag}>
-              <CheckCircle size={14} className={styles.checkIcon} />
-              <span>81%</span>
+              <Icon variant="check" size={16} className={styles.scoreIcon} />
+              <span>{averageScore}%</span>
             </div>
           </div>
         </div>
@@ -96,14 +108,16 @@ const ShootSummary: React.FC<ShootSummaryProps> = ({ isLoading: externalLoading 
             <div key={style.id} className={styles.styleItem}>
               <div className={styles.styleNumber}>{index + 1}</div>
               <div className={styles.styleInfo}>
-                <h3 className={styles.styleName}>{style.name}</h3>
+                <h3 className={styles.styleName}>
+                  <span className={styles.name}>{style.name}</span>
+                  <div className={styles.styleCount}>
+                    <Icon variant="camera" size={14} />
+                    <span>{headshotsPerStyle || 0}</span>
+                  </div>
+                </h3>
                 <p className={styles.styleDetails}>
                   {getTranslatedLabel('background', style.settings?.background)} · {getTranslatedLabel('clothing', style.settings?.clothing)} · {getTranslatedLabel('clothingColor', style.settings?.clothingColor)}
                 </p>
-              </div>
-              <div className={styles.styleCount}>
-                <ImageIcon size={14} />
-                <span>20</span>
               </div>
             </div>
           ))}

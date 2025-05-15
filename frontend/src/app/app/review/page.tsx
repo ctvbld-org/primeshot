@@ -13,7 +13,7 @@ import styles from './page.module.css'
 // Import the new components
 import ProfileForm from '@/components/review/profile-form'
 import ShootSummary from '@/components/review/shoot-summary'
-
+import { ReviewFooter } from '@/components/review/review-footer'
 export default function ReviewPage() {
   const { t } = useTranslation('review')  
   const { user } = useAuth()
@@ -69,11 +69,6 @@ export default function ReviewPage() {
 
         const currentOrderId = orderData.id
         setDraftOrderId(currentOrderId)
-        
-        // If order has gender in metadata, use that
-        if (orderData.metadata?.demographics?.gender) {
-          setUserGender(orderData.metadata.demographics.gender.toLowerCase())
-        }
         
         // Fetch user images
         const response = await fetch(`/api/user-images?orderId=${currentOrderId}`)
@@ -164,25 +159,26 @@ export default function ReviewPage() {
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.content}>
-        {/* Left Column - Profile Form */}
-        <div className={styles.formSection}>
-          <ProfileForm 
-            onSubmit={handleFormSubmit}
-            isSubmitting={isSubmitting}
-            gender={userGender}
-          />
+    <>
+        <div className={styles.content}>
+          {/* Left Column - Profile Form */}
+          <div className={styles.formSection}>
+            <ProfileForm 
+              onSubmit={handleFormSubmit}
+              isSubmitting={isSubmitting}
+              gender={userGender}
+            />
+          </div>
+          
+          {/* Right Column - Shoot Summary */}
+          <div className={styles.sidebarSection}>
+            <ShootSummary 
+              isLoading={isLoading}
+              images={uploadedImages}
+            />
+          </div>
         </div>
-        
-        {/* Right Column - Shoot Summary */}
-        <div className={styles.sidebarSection}>
-          <ShootSummary 
-            isLoading={isLoading}
-            images={uploadedImages}
-          />
-        </div>
-      </div>
-    </div>
+      <ReviewFooter />
+    </>
   )
 } 

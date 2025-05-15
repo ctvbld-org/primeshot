@@ -1,7 +1,7 @@
 interface IconProps extends React.SVGProps<SVGSVGElement> {
   size?: number
   className?: string
-  variant: 'background' | 'clothing' | 'camera' | 'dizzyFace' | 'plusFill' | 'arrowLeft' | 'arrowRight' | 'clothingColor' | 'cross' | 'check' | 'bin' | 'basket' | 'sun' | 'crop' | 'smilyFace' | 'insights' | 'tshirt' | 'multitask' | 'idea' | 'chevronRight'
+  variant: 'background' | 'clothing' | 'camera' | 'dizzyFace' | 'plusFill' | 'arrowLeft' | 'arrowRight' | 'clothingColor' | 'cross' | 'check' | 'bin' | 'basket' | 'sun' | 'crop' | 'smilyFace' | 'insights' | 'tshirt' | 'multitask' | 'idea' | 'chevronRight' | 'checkOutline' | 'lock' | 'chevronDown'
 }
 
 export function Icon({ size = 28, className, variant, ...props }: IconProps) {
@@ -25,7 +25,10 @@ export function Icon({ size = 28, className, variant, ...props }: IconProps) {
     tshirt: "0 0 32 32",
     multitask: "0 0 32 32",
     idea: "0 0 24 24",
-    chevronRight: "0 0 17 16"
+    chevronRight: "0 0 17 16",
+    checkOutline: "0 0 16 16",
+    lock: " 0 0 16 16",
+    chevronDown: "0 0 16 16"
   }
 
   const icons = {
@@ -157,6 +160,18 @@ export function Icon({ size = 28, className, variant, ...props }: IconProps) {
     ),
     chevronRight: (
       <path d="M11.5008 8L6.50078 13L5.80078 12.3L10.1008 8L5.80078 3.7L6.50078 3L11.5008 8Z" fill="currentColor"/>
+    ),
+    chevronDown: (  
+      <path d="M8 10.9998L3 5.9998L3.7 5.2998L8 9.5998L12.3 5.2998L13 5.9998L8 10.9998Z" fill="currentColor"/>
+    ),
+    checkOutline: (
+      <>
+        <path d="M7 10.707L4.5 8.2065L5.2065 7.5L7 9.293L10.7925 5.5L11.5 6.2075L7 10.707Z" fill="currentColor"/>
+        <path d="M8 1C6.61553 1 5.26216 1.41054 4.11101 2.17971C2.95987 2.94888 2.06266 4.04213 1.53285 5.32122C1.00303 6.6003 0.86441 8.00776 1.13451 9.36563C1.4046 10.7235 2.07129 11.9708 3.05026 12.9497C4.02922 13.9287 5.2765 14.5954 6.63437 14.8655C7.99224 15.1356 9.3997 14.997 10.6788 14.4672C11.9579 13.9373 13.0511 13.0401 13.8203 11.889C14.5895 10.7378 15 9.38447 15 8C15 6.14348 14.2625 4.36301 12.9497 3.05025C11.637 1.7375 9.85652 1 8 1ZM8 14C6.81332 14 5.65328 13.6481 4.66658 12.9888C3.67989 12.3295 2.91085 11.3925 2.45673 10.2961C2.0026 9.19974 1.88378 7.99334 2.11529 6.82946C2.3468 5.66557 2.91825 4.59647 3.75736 3.75736C4.59648 2.91824 5.66558 2.3468 6.82946 2.11529C7.99335 1.88378 9.19975 2.0026 10.2961 2.45672C11.3925 2.91085 12.3295 3.67988 12.9888 4.66658C13.6481 5.65327 14 6.81331 14 8C14 9.5913 13.3679 11.1174 12.2426 12.2426C11.1174 13.3679 9.5913 14 8 14Z" fill="currentColor"/>
+      </>
+    ),
+    lock: (
+      <path d="M12 7H11V4C11 3.20435 10.6839 2.44129 10.1213 1.87868C9.55871 1.31607 8.79565 1 8 1C7.20435 1 6.44129 1.31607 5.87868 1.87868C5.31607 2.44129 5 3.20435 5 4V7H4C3.73478 7 3.48043 7.10536 3.29289 7.29289C3.10536 7.48043 3 7.73478 3 8V14C3 14.2652 3.10536 14.5196 3.29289 14.7071C3.48043 14.8946 3.73478 15 4 15H12C12.2652 15 12.5196 14.8946 12.7071 14.7071C12.8946 14.5196 13 14.2652 13 14V8C13 7.73478 12.8946 7.48043 12.7071 7.29289C12.5196 7.10536 12.2652 7 12 7ZM6 4C6 3.46957 6.21071 2.96086 6.58579 2.58579C6.96086 2.21071 7.46957 2 8 2C8.53043 2 9.03914 2.21071 9.41421 2.58579C9.78929 2.96086 10 3.46957 10 4V7H6V4ZM12 14H4V8H12V14Z" fill="currentColor"/>
     )
   }
 
