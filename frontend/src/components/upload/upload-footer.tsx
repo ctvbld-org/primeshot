@@ -101,11 +101,11 @@ export function UploadFooter({
 
   // Function to fetch signed URL
   const fetchSignedUrl = useCallback(async (file: FileWithScore) => {
-    if (!file.url) return null
+    if (!file.url || !file.id) return null
     
     try {
       const params = new URLSearchParams()
-      params.append('s3_url', file.url)
+      params.append('imageId', file.id)
       const response = await fetch(`/api/user-images?${params.toString()}`)
       if (!response.ok) throw new Error('Failed to fetch signed URL')
       const data = await response.json()

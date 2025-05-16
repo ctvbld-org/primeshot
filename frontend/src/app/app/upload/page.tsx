@@ -240,7 +240,7 @@ export default function UploadPage() {
       for (let i = 0; i < newFilesToUpload.length; i++) {
         const file = newFilesToUpload[i]
         currentUploadingIndex = startingUploadingIndex + i
-        console.log('currentUploadingIndex', currentUploadingIndex)
+        
         // Only one setUploadState per iteration
         setUploadState(prev => ({
           ...prev,

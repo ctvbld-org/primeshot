@@ -29,7 +29,6 @@ const getMimeType = (path: string): string => {
  * 
  * Returns signed URLs for user-uploaded images from S3.
  * Accepts either:
- * - s3_url: Direct S3 URL to generate signed URL for
  * - imageId: ID of the image to look up
  * - orderId: ID of the order to get images for
  * 
@@ -39,7 +38,6 @@ export async function GET(request: NextRequest) {
   try {
     // Parse query parameters
     const url = new URL(request.url)
-    const s3Url = url.searchParams.get('s3_url')
     const imageId = url.searchParams.get('imageId')
     const orderId = url.searchParams.get('orderId')
 
@@ -50,13 +48,6 @@ export async function GET(request: NextRequest) {
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     if (userError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-    
-    // If direct S3 URL is provided, generate signed URL
-    if (s3Url) {
-      // No need to decode as URLSearchParams handles it automatically
-      const signedUrl = await createPresignedGetUrl(s3Url)
-      return NextResponse.json({ url: signedUrl })
     }
 
     // If imageId is provided, look up the image
@@ -96,7 +87,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: 'Missing required parameter: s3_url, imageId, or orderId' }, 
+      { error: 'Missing required parameter: imageId or orderId' }, 
       { status: 400 }
     )
   } catch (error) {

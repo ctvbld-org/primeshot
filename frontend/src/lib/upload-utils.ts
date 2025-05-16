@@ -15,15 +15,15 @@ export interface ChunkMetadata {
   qualityScore?: number;
 }
 
-export function* createChunks(file: FileWithScore, orderId: string, chunkSize: number = CHUNK_SIZE) {
+export function* createChunks(file: FileWithScore & { size: number; slice: Blob['slice'] }, orderId: string, chunkSize: number = CHUNK_SIZE) {
   // Handle empty files
   if (file.size === 0) {
     const metadata: ChunkMetadata = {
       chunkIndex: 0,
       totalChunks: 1,
       fileSize: 0,
-      fileName: file.name,
-      fileType: file.type,
+      fileName: file.name || 'unnamed',
+      fileType: file.type || 'application/octet-stream',
       uploadId: uuidv4(),
       orderId,
       qualityScore: 0
@@ -44,8 +44,8 @@ export function* createChunks(file: FileWithScore, orderId: string, chunkSize: n
       chunkIndex,
       totalChunks,
       fileSize: file.size,
-      fileName: file.name,
-      fileType: file.type,
+      fileName: file.name || 'unnamed',
+      fileType: file.type || 'application/octet-stream',
       uploadId,
       orderId,
       qualityScore: file.score
