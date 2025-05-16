@@ -57,41 +57,54 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
   // Handle existing images
   useEffect(() => {
     if (existingImages && existingImages.length > 0) {
-      const existingFileStates = existingImages.map((file: FileWithScore) => {
-        return {
-          file: file as unknown as File,
-          previewUrl: file.url,
-          qualityResult: {
-            width: 0,
-            height: 0,
-            faceCount: 1,
-            score: file.score || 0,
-            faceScore: 100,
-            bodyScore: 100,
-            brightnessScore: 100,
-            contrastScore: 100,
-            blurScore: 100,
-            resolutionScore: 100,
-            hasSingleFace: true,
-            hasGoodResolution: true,
-            hasGoodScore: true,
-            isAcceptable: true,
-            hasFace: true,
-            hasBody: true,
-            faceDetectionSkipped: false,
-            genderDetectionSkipped: false,
-            genderMatchesUser: true,
-            eyesVisible: true,
-            eyeDetectionSkipped: false,
-            issues: []
-          },
-          uploadProgress: { progress: 100, isUploading: false },
-          uploadedUrl: file.url
-        };
+      // Convert existing images to FileState format
+      const existingFileStates = existingImages.map((file: FileWithScore) => ({
+        file: file as unknown as File,
+        previewUrl: file.url,
+        qualityResult: {
+          width: 0,
+          height: 0,
+          faceCount: 1,
+          score: file.score || 0,
+          faceScore: 100,
+          bodyScore: 100,
+          brightnessScore: 100,
+          contrastScore: 100,
+          blurScore: 100,
+          resolutionScore: 100,
+          hasSingleFace: true,
+          hasGoodResolution: true,
+          hasGoodScore: true,
+          isAcceptable: true,
+          hasFace: true,
+          hasBody: true,
+          faceDetectionSkipped: false,
+          genderDetectionSkipped: false,
+          genderMatchesUser: true,
+          eyesVisible: true,
+          eyeDetectionSkipped: false,
+          issues: []
+        },
+        uploadProgress: { progress: 100, isUploading: false },
+        uploadedUrl: file.url
+      }));
+
+      // Preserve any non-existing files in the current state
+      setFileStates(prev => {
+        const nonExistingFiles = prev.filter(state => {
+          const fileAsScore = state.file as unknown as FileWithScore;
+          return !fileAsScore.id; // Keep files that don't have an id (newly added files)
+        });
+        return [...existingFileStates, ...nonExistingFiles];
       });
-      setFileStates(existingFileStates);
+    } else {
+      // If no existing images, only clear existing images from state
+      setFileStates(prev => prev.filter(state => {
+        const fileAsScore = state.file as unknown as FileWithScore;
+        return !fileAsScore.id; // Keep files that don't have an id (newly added files)
+      }));
     }
-  }, [existingImages]);
+  }, [existingImages.length]); // Only run when the number of existing images changes
   
   const [analysisState, setAnalysisState] = useState({
     isAnalyzing: false,

@@ -56,15 +56,15 @@ export default function UploadPage() {
     loadStyles: false
   })
 
-  const { images: existingImagesFromHook, isLoading: isLoadingImages } = useOrderImages(order?.id)
+  const { images: existingImagesFromHook, isLoading: isLoadingImages, removeImage } = useOrderImages(order?.id)
   const [existingImages, setExistingImages] = useState<FileWithScore[]>([])
 
   // Sync existingImages with the hook result
   useEffect(() => {
-    if (existingImagesFromHook) {
-      setExistingImages(existingImagesFromHook)
+    if (existingImagesFromHook?.length !== existingImages.length) {
+      setExistingImages(existingImagesFromHook || [])
     }
-  }, [existingImagesFromHook])
+  }, [existingImagesFromHook?.length])
 
   const [showConfetti, setShowConfetti] = useState<boolean | 'stopping'>(false)
   const [isTransitioningToReview, setIsTransitioningToReview] = useState(false)
@@ -100,28 +100,25 @@ export default function UploadPage() {
   } = useFileUpload({
     existingImages: existingImages,
     onRemoveExistingImage: useCallback((imageId: string) => {
-      // Update the existingImages state by filtering out the removed image
-      setExistingImages(prev => prev?.filter(img => img.id !== imageId) || [])
-    }, [])
+      removeImage(imageId)
+    }, [removeImage])
   })
   
   // 7. Memoized values
   const acceptedFiles = useMemo(() => {
     return selectedFiles
       .filter(file => qualityResults[file.name]?.isAcceptable)
-      .map(file => {
-        const fileWithScore = file as FileWithScore;
-        fileWithScore.score = Math.round(qualityResults[file.name]?.score);
-        return fileWithScore;
-      });
+      .map(file => Object.assign(file, {
+        score: Math.round(qualityResults[file.name]?.score)
+      }));
   }, [selectedFiles, qualityResults])
 
   const rejectedFiles = useMemo(() => 
-    selectedFiles.filter(file => !qualityResults[file.name]?.isAcceptable).map(file => {
-      const fileWithScore = file as FileWithScore;
-      fileWithScore.score = Math.round(qualityResults[file.name]?.score);
-      return fileWithScore;
-    }),
+    selectedFiles
+      .filter(file => !qualityResults[file.name]?.isAcceptable)
+      .map(file => Object.assign(file, {
+        score: Math.round(qualityResults[file.name]?.score)
+      })),
     [selectedFiles, qualityResults]
   )
 

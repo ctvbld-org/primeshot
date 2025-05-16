@@ -140,7 +140,13 @@ export function UploadFooter({
 
   const getImageUrl = useCallback((file: FileWithScore) => {
     if (!file.id || !file.url) {
-      return URL.createObjectURL(file as Blob)
+      // Check if file is actually a File object
+      if (file instanceof File) {
+        return URL.createObjectURL(file)
+      }
+      // Fallback if somehow we get an invalid file
+      console.warn('Invalid file object received:', file)
+      return ''
     }
     
     return signedUrls[file.url] || ''
