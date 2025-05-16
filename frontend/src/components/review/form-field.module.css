@@ -75,9 +75,20 @@
   background-color: rgba(255, 255, 255, 0.05);
 }
 
+
 .disabled {
-  opacity: 0.8;
-  cursor: not-allowed;
+  background: none !important;
+}
+
+.disabled svg {
+  opacity: 0.5;
+}
+.disabled button:disabled {
+  opacity: 0.4;
+}
+
+.disabled :global(.chevronDown) {
+  display: none;
 }
 
 .selectedValue {
@@ -193,7 +204,7 @@
 }
 
 .selectTrigger[data-disabled] {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 

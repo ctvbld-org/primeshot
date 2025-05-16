@@ -183,7 +183,7 @@ export function Icon({ size = 28, className, variant, ...props }: IconProps) {
       viewBox={viewBoxes[variant]}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={className}
+      className={className + ` ${variant}`}
       {...props}
     >
       {icons[variant]}

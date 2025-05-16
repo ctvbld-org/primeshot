@@ -200,6 +200,11 @@
   height: 1rem;
 }
 
+.chevronDownIcon {
+  color: rgba(192, 206, 216, 0.4);
+  transition: transform 0.2s;
+}
+
 /* Animations */
 @keyframes contentShow {
   from {

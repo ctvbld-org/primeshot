@@ -24,14 +24,18 @@ interface FormFieldProps {
   options?: Option[];
   disabled?: boolean;
   onChange?: (value: string) => void;
+  name: string;
+  onFieldUpdate?: (name: string, value: string) => void;
 }
 
 const FormField: React.FC<FormFieldProps> = ({
   label,
-  value: initialValue,
+  value: initialValue = '',
   options = [],
   disabled = false,
   onChange,
+  name,
+  onFieldUpdate,
 }) => {
   const [selectedValue, setSelectedValue] = useState(initialValue);
 
@@ -40,9 +44,14 @@ const FormField: React.FC<FormFieldProps> = ({
   }, [initialValue]);
 
   const handleSelectOption = (value: string) => {
+    if (disabled) return;
+    
     setSelectedValue(value);
     if (onChange) {
       onChange(value);
+    }
+    if (onFieldUpdate) {
+      onFieldUpdate(name, value);
     }
   };
 
@@ -50,10 +59,12 @@ const FormField: React.FC<FormFieldProps> = ({
     <>
       <label className={styles.label}>{label}</label>
       
-      <div className={styles.fieldContainer}>
+      <div className={`${styles.fieldContainer} ${disabled ? styles.disabled : ''}`}>
         {options.length > 0 ? (
           <>
-            {selectedValue ? (
+            {disabled ? (
+              <Icon variant='lock' size={16} className={styles.lockIcon} />
+            ) : selectedValue ? (
               <div className={styles.checkIcon}>
                 <Icon variant="checkOutline" size={16} />
               </div>
@@ -62,51 +73,53 @@ const FormField: React.FC<FormFieldProps> = ({
             )}
             <Select
               disabled={disabled}
-              value={selectedValue}
+              value={selectedValue || ''}
               onValueChange={handleSelectOption}
             >
-              <SelectTrigger className={styles.fieldValue} data-placeholder="Select...">
+              <SelectTrigger className={`${styles.fieldValue} ${disabled ? styles.disabled : ''}`} data-placeholder="Select...">
                 <SelectValue placeholder="Select...">
                   {selectedValue && (
                     <div className={styles.selectedOption}>
-                      {options.find(opt => opt.label === selectedValue)?.color && (
+                      {options.find(opt => opt.value === selectedValue)?.color && (
                         <span 
                           className={styles.colorDot}
                           style={
-                            options.find(opt => opt.label === selectedValue)?.gradient
-                              ? { background: options.find(opt => opt.label === selectedValue)?.gradient }
-                              : { backgroundColor: options.find(opt => opt.label === selectedValue)?.color }
+                            options.find(opt => opt.value === selectedValue)?.gradient
+                              ? { background: options.find(opt => opt.value === selectedValue)?.gradient }
+                              : { backgroundColor: options.find(opt => opt.value === selectedValue)?.color }
                           }
                         />
                       )}
-                      {selectedValue}
+                      {options.find(opt => opt.value === selectedValue)?.label}
                     </div>
                   )}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent position="item-aligned">
-                {options.map((option) => (
-                  <SelectItem 
-                    key={option.value} 
-                    value={option.label}
-                    className={styles.selectItem}
-                  >
-                    <div className={styles.option}>
-                      {(option.color || option.gradient) && (
-                        <span 
-                          className={styles.colorDot} 
-                          style={
-                            option.gradient 
-                              ? { background: option.gradient } 
-                              : { backgroundColor: option.color }
-                          }
-                        />
-                      )}
-                      <span>{option.label}</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
+              {!disabled && (
+                <SelectContent position="item-aligned">
+                  {options.map((option) => (
+                    <SelectItem 
+                      key={option.value} 
+                      value={option.value}
+                      className={styles.selectItem}
+                    >
+                      <div className={styles.option}>
+                        {(option.color || option.gradient) && (
+                          <span 
+                            className={styles.colorDot} 
+                            style={
+                              option.gradient 
+                                ? { background: option.gradient } 
+                                : { backgroundColor: option.color }
+                            }
+                          />
+                        )}
+                        <span>{option.label}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              )}
             </Select>
           </>
         ) : (

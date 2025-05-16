@@ -1,59 +1,122 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef } from 'react';
 import styles from './profile-form.module.css';
 import FormField from './form-field';
-import { ArrowRightIcon } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
+import { useAuth } from '@/contexts/auth-context';
 import {
-  EYE_COLOR_OPTIONS,
-  HAIR_COLOR_OPTIONS,
-  HAIR_LENGTH_OPTIONS,
-  MALE_HAIRSTYLE_OPTIONS,
+  PROFILE_FORM_FIELDS,
+  FormFieldConfig,
   FEMALE_HAIRSTYLE_OPTIONS,
-  AGE_RANGE_OPTIONS,
-  BODY_TYPE_OPTIONS,
-  HEIGHT_RANGE_OPTIONS,
-  WEIGHT_RANGE_OPTIONS,
-  ETHNICITY_OPTIONS,
-  GLASSES_OPTIONS,
+  MALE_HAIRSTYLE_OPTIONS,
 } from '@/constants/profile-options';
+import { useTranslation } from 'react-i18next';
 
 interface ProfileFormProps {
   onSubmit: (formData: any) => Promise<void>;
   isSubmitting: boolean;
   gender?: string;
+  onFieldUpdate?: (fieldName: string, value: string) => void;
+  profileComplete?: boolean;
 }
 
-const ProfileForm: React.FC<ProfileFormProps> = ({ onSubmit, isSubmitting, gender = 'male' }) => {
+type FormData = {
+  [K in FormFieldConfig['name']]: string;
+}
+
+const ProfileForm = forwardRef<HTMLFormElement, ProfileFormProps>(({ 
+  onSubmit, 
+  isSubmitting, 
+  gender = 'male',
+  onFieldUpdate,
+  profileComplete = false 
+}, ref) => {
+  const { t } = useTranslation('profile');
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const supabase = createClient();
+  
   // Convert gender to lowercase for consistency in comparisons
   const userGender = gender.toLowerCase();
   
-  // Select the appropriate hairstyle options based on gender
-  const hairstyleOptions = userGender === 'female' ? FEMALE_HAIRSTYLE_OPTIONS : MALE_HAIRSTYLE_OPTIONS;
-  
-  // Set a default hairstyle based on gender
-  const defaultHairstyle = userGender === 'female' ? 'Straight Hair' : 'Straight Hair';
+  const [formData, setFormData] = useState<FormData>(() => {
+    // Initialize all fields with empty strings first
+    const initialData = PROFILE_FORM_FIELDS.reduce((acc, field) => ({
+      ...acc,
+      [field.name]: ''
+    }), {} as FormData);
+    
+    // Set gender explicitly
+    initialData.gender = userGender;
+    
+    return initialData;
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Add effect to update gender when prop changes
+  useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      gender: userGender
+    }));
+  }, [userGender]);
+
+  const handleFieldChange = (name: string, value: string) => {
+    const newValue = name === 'gender' ? userGender : value;
+    setFormData(prev => ({ ...prev, [name]: newValue }));
+    if (onFieldUpdate) {
+      onFieldUpdate(name, newValue);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Create a mock form data object with all the field values
-    // In a real implementation, you'd collect actual values from form fields
-    const formData = {
-      gender: userGender === 'female' ? 'Female' : 'Male',
-      eyeColor: 'Blue', 
-      hairColor: 'Brown',
-      hairLength: 'Short',
-      hairStyle: defaultHairstyle,
-      age: '26-30',
-      bodyType: 'Athletic',
-      height: '180-190',
-      weight: '81-90',
-      ethnicity: 'Caucasian',
-      glasses: 'No glasses'
-    };
-    
-    onSubmit(formData);
+    if (!user) {
+      toast({
+        title: t('completionModal.toast.error.title'),
+        description: t('completionModal.toast.error.notLoggedIn'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      // Update user profile in Supabase
+      const { error } = await supabase
+        .from('users')
+        .update({
+          eye_color: formData.eyeColor,
+          hair_color: formData.hairColor,
+          hair_length: formData.hairLength,
+          hair_style: formData.hairStyle,
+          age: formData.age,
+          body_type: formData.bodyType,
+          height: formData.height,
+          weight: formData.weight,
+          ethnicity: formData.ethnicity,
+          glasses: formData.glasses,
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      // Call the onSubmit prop with the form data
+      await onSubmit(formData);
+
+      toast({
+        title: t('completionModal.toast.success.title'),
+        description: t('completionModal.toast.success.description'),
+      });
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: t('completionModal.toast.error.title'),
+        description: t('completionModal.toast.error.updateFailed'),
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
@@ -65,65 +128,29 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ onSubmit, isSubmitting, gende
         </p>
       </div>
       
-      <form className={styles.form} onSubmit={handleSubmit}>
-        <FormField
-          label="GENDER"
-          value={userGender === 'female' ? 'Female' : 'Male'}
-          disabled={true}
-        />
-        
-        <FormField
-          label="EYE COLOR"
-          options={EYE_COLOR_OPTIONS}
-        />
-        
-        <FormField
-          label="HAIR COLOR"
-          options={HAIR_COLOR_OPTIONS}
-        />
-        
-        <FormField
-          label="HAIR LENGTH"
-          options={HAIR_LENGTH_OPTIONS}
-        />
-        
-        <FormField
-          label="HAIR STYLE"
-          options={hairstyleOptions}
-        />
-        
-        <FormField
-          label="AGE"
-          options={AGE_RANGE_OPTIONS}
-        />
-        
-        <FormField
-          label="BODY TYPE"
-          options={BODY_TYPE_OPTIONS}
-        />
-        
-        <FormField
-          label="HEIGHT"
-          options={HEIGHT_RANGE_OPTIONS}
-        />
-        
-        <FormField
-          label="WEIGHT"
-          options={WEIGHT_RANGE_OPTIONS}
-        />
-        
-        <FormField
-          label="ETHNICITY"
-          options={ETHNICITY_OPTIONS}
-        />
-        
-        <FormField
-          label="GLASSES"
-          options={GLASSES_OPTIONS}
-        />
+      <form ref={ref} className={styles.form} onSubmit={handleSubmit}>
+        {PROFILE_FORM_FIELDS.map(field => {
+          // Handle gender-specific options (like hairstyles)
+          let options = field.options;
+          if (field.genderSpecific) {
+            options = userGender === 'female' ? FEMALE_HAIRSTYLE_OPTIONS : MALE_HAIRSTYLE_OPTIONS;
+          }
+
+          return (
+            <FormField
+              key={field.name}
+              name={field.name}
+              label={field.label}
+              options={options}
+              onFieldUpdate={handleFieldChange}
+              value={field.name === 'gender' ? userGender : formData[field.name]}
+              disabled={field.name === 'gender'}
+            />
+          );
+        })}
       </form>
     </div>
   );
-};
+});
 
 export default ProfileForm;

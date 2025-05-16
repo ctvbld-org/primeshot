@@ -56,7 +56,15 @@ export default function UploadPage() {
     loadStyles: false
   })
 
-  const { images: existingImages, isLoading: isLoadingImages } = useOrderImages(order?.id)
+  const { images: existingImagesFromHook, isLoading: isLoadingImages } = useOrderImages(order?.id)
+  const [existingImages, setExistingImages] = useState<FileWithScore[]>([])
+
+  // Sync existingImages with the hook result
+  useEffect(() => {
+    if (existingImagesFromHook) {
+      setExistingImages(existingImagesFromHook)
+    }
+  }, [existingImagesFromHook])
 
   const [showConfetti, setShowConfetti] = useState<boolean | 'stopping'>(false)
   const [isTransitioningToReview, setIsTransitioningToReview] = useState(false)
@@ -90,7 +98,11 @@ export default function UploadPage() {
     analyzingCount,
     currentFileIndex,
   } = useFileUpload({
-    existingImages: existingImages
+    existingImages: existingImages,
+    onRemoveExistingImage: useCallback((imageId: string) => {
+      // Update the existingImages state by filtering out the removed image
+      setExistingImages(prev => prev?.filter(img => img.id !== imageId) || [])
+    }, [])
   })
   
   // 7. Memoized values
@@ -112,7 +124,7 @@ export default function UploadPage() {
     }),
     [selectedFiles, qualityResults]
   )
-  
+
   const titleContent = useMemo(() => {
     if (acceptedFiles.length >= UPLOAD_CONSTANTS.MIN_IMAGES) {
       return (
@@ -160,8 +172,11 @@ export default function UploadPage() {
     try {
       setIsTransitioningToReview(true)
       await updateProgress('review', { 
-        uploadedFiles: successfulUploads.map(r => r.url).filter(Boolean),
-        lastUploadAt: new Date().toISOString()
+        upload: {
+          uploadedFiles: successfulUploads.map(r => r.url).filter((url): url is string => url !== undefined),
+          uploadProgress: 100,
+          lastUploadAt: new Date().toISOString()
+        }
       })
       router.push('/app/review')
     } catch (error) {
@@ -176,8 +191,8 @@ export default function UploadPage() {
 
   const handleUpload = useCallback(async (filesToUpload: FileWithScore[]) => {
     // Filter out existing images from the upload
-    const newFilesToUpload = filesToUpload.filter(file => !('isExisting' in file))
-    const existingFilesToUpload = filesToUpload.filter(file => 'isExisting' in file)
+    const newFilesToUpload = filesToUpload.filter(file => !('id' in file))
+    const existingFilesToUpload = filesToUpload.filter(file => 'id' in file)
     
     if (!order && newFilesToUpload.length === 0) {
       // If we only have existing images, we can proceed directly to review
@@ -205,11 +220,11 @@ export default function UploadPage() {
     }
 
     // Initialize uploadedFiles with existing images
-    const uploadedFiles: string[] = existingImages?.map(img => img.name).filter((name): name is string => name !== undefined) || []
-    let uploadedCount = existingImages?.length || 0
+    const uploadedFiles: string[] = existingFilesToUpload.map(img => img.name).filter((name): name is string => name !== undefined) || []
+    let uploadedCount = existingFilesToUpload.length
     let currentUploadingIndex: number | null = uploadedCount // Start from after existing images
-    const startingUploadingIndex = existingImages?.length || 0
-  
+    const startingUploadingIndex = existingFilesToUpload.length
+    
     setUploadState(prev => ({ 
       ...prev, 
       uploadedCount: uploadedCount,
@@ -225,7 +240,7 @@ export default function UploadPage() {
       for (let i = 0; i < newFilesToUpload.length; i++) {
         const file = newFilesToUpload[i]
         currentUploadingIndex = startingUploadingIndex + i
-        
+        console.log('currentUploadingIndex', currentUploadingIndex)
         // Only one setUploadState per iteration
         setUploadState(prev => ({
           ...prev,

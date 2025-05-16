@@ -231,7 +231,7 @@ export function ShootFooter({
               </>
             ) : (
               <>
-                <div className="flex items-center mr-10 flex-nowrap flex-[1_1_80%]">
+                <div className="flex items-center mr-10 flex-nowrap flex-[1_1_80%] text-[14px]">
                   <Icon variant="dizzyFace" size={22} className="mr-2" />
                   <div className={styles['footer-content']}>
                     <span>{t('footer.emptyState')}</span>

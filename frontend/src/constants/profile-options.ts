@@ -1,8 +1,16 @@
-interface OptionType {
+export interface OptionType {
   value: string;
   label: string;
   color?: string;
   gradient?: string;
+}
+
+export interface FormFieldConfig {
+  name: string;
+  label: string;
+  options: OptionType[];
+  isRequired?: boolean;
+  genderSpecific?: boolean;
 }
 
 export const EYE_COLOR_OPTIONS: OptionType[] = [
@@ -126,4 +134,77 @@ export const GLASSES_OPTIONS: OptionType[] = [
   { value: 'no', label: 'No glasses' },
   { value: 'yes', label: 'Glasses' },
   { value: 'sun', label: 'Sunglasses' },
+];
+
+export const PROFILE_FORM_FIELDS: FormFieldConfig[] = [
+  {
+    name: 'gender',
+    label: 'GENDER',
+    options: [
+      { value: 'male', label: 'Male' },
+      { value: 'female', label: 'Female' }
+    ],
+    isRequired: false,
+  },
+  {
+    name: 'eyeColor',
+    label: 'EYE COLOR',
+    options: EYE_COLOR_OPTIONS,
+    isRequired: true,
+  },
+  {
+    name: 'hairColor',
+    label: 'HAIR COLOR',
+    options: HAIR_COLOR_OPTIONS,
+    isRequired: true,
+  },
+  {
+    name: 'hairLength',
+    label: 'HAIR LENGTH',
+    options: HAIR_LENGTH_OPTIONS,
+    isRequired: true,
+  },
+  {
+    name: 'hairStyle',
+    label: 'HAIR STYLE',
+    options: MALE_HAIRSTYLE_OPTIONS,
+    isRequired: true,
+    genderSpecific: true,
+  },
+  {
+    name: 'age',
+    label: 'AGE',
+    options: AGE_RANGE_OPTIONS,
+    isRequired: true,
+  },
+  {
+    name: 'bodyType',
+    label: 'BODY TYPE',
+    options: BODY_TYPE_OPTIONS,
+    isRequired: true,
+  },
+  {
+    name: 'height',
+    label: 'HEIGHT',
+    options: HEIGHT_RANGE_OPTIONS,
+    isRequired: true,
+  },
+  {
+    name: 'weight',
+    label: 'WEIGHT',
+    options: WEIGHT_RANGE_OPTIONS,
+    isRequired: true,
+  },
+  {
+    name: 'ethnicity',
+    label: 'ETHNICITY',
+    options: ETHNICITY_OPTIONS,
+    isRequired: true,
+  },
+  {
+    name: 'glasses',
+    label: 'GLASSES',
+    options: GLASSES_OPTIONS,
+    isRequired: true,
+  },
 ]; 

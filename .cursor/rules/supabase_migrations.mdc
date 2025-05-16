@@ -1,7 +1,7 @@
 ---
-description: Guidelines for managing Supabase migrations and database schema changes
-globs: frontend/supabase/migrations/*.sql
-alwaysApply: true
+description: 
+globs: supabase/migrations/*.sql
+alwaysApply: false
 ---
 - **Working Directory**
   - ⚠️ IMPORTANT: All Supabase commands MUST be run from the root directory

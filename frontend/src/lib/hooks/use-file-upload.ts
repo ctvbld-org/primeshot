@@ -18,6 +18,7 @@ interface UseFileUploadOptions {
   maxFiles?: number
   chunkSize?: number
   existingImages?: FileWithScore[]
+  onRemoveExistingImage?: (imageId: string) => void
 }
 
 interface FileProgress {
@@ -417,10 +418,11 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     const state = fileStates[index]
     
     // Check if this is an existing file with an ID
-    if ((state?.file as unknown as FileWithScore)?.id) {
+    const existingFile = state?.file as unknown as FileWithScore
+    if (existingFile?.id) {
       // This is an existing file, delete it from S3 and database
       try {
-        const response = await fetch(`/api/user-images?imageId=${(state.file as unknown as FileWithScore).id}`, {
+        const response = await fetch(`/api/user-images?imageId=${existingFile.id}`, {
           method: 'DELETE',
         })
         
@@ -432,6 +434,11 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
             variant: 'destructive',
           })
           return
+        }
+
+        // Call the callback to update existingImages in the parent
+        if (existingFile.id) {
+          options.onRemoveExistingImage?.(existingFile.id)
         }
       } catch (error) {
         console.error('Error deleting image:', error)
@@ -451,7 +458,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     if (state?.uploadedUrl) {
       URL.revokeObjectURL(state.uploadedUrl)
     }
-  }, [fileStates, t, toast])
+  }, [fileStates, t, toast, options.onRemoveExistingImage])
 
   const clearFiles = () => {
     fileStates.forEach(state => {

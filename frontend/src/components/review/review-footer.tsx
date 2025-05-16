@@ -7,19 +7,27 @@ import { useAuth } from '@/contexts/auth-context';
 import { useToast } from "@/components/ui/use-toast"
 import { useState } from "react";
 
-export function ReviewFooter() {
+interface ReviewFooterProps {
+  isLoading: boolean;
+  profileComplete: boolean;
+  onGenerate: () => Promise<void>;
+}
+
+export function ReviewFooter({ isLoading, profileComplete, onGenerate }: ReviewFooterProps) {
   const [loading, setLoading] = useState(false)
   const { t } = useTranslation(['styles', 'payment'])
 
   const handleGenerate = async () => {
+    if (loading) return; // Prevent multiple clicks
     
     setLoading(true);
     try {
-     
+      await onGenerate();
+      // Don't set loading to false - let the parent component handle this
+      // through redirection or explicit state reset
     } catch (error) {
-      
-    } finally {
-      setLoading(false);
+      console.error('Error generating:', error);
+      setLoading(false); // Only reset loading on error
     }
   };
 
@@ -41,8 +49,8 @@ export function ReviewFooter() {
           onClick={handleGenerate}
           variant="secondary"
           className={styles.checkoutButton}
-          disabled={loading}
-          loading={loading}
+          disabled={!profileComplete || loading}
+          loading={isLoading || loading}
         >
           Generate
         </Button>
