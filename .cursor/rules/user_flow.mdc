@@ -66,9 +66,9 @@ alwaysApply: true
 - **4. Style Creation (Route: /app/style)**
   - Uses style_configs table for available options
   - Style configuration includes:
-    - Photography Style (studio, natural, dramatic)
-    - Outfit (professional, casual, creative)
-    - Background (plain, office, outdoor, custom)
+    - Photography Style
+    - Outfit
+    - Background
     - Gender-specific options
     - Clothing colors
   - Can save or go back to shoot page
@@ -95,14 +95,7 @@ alwaysApply: true
   paymentStatus, paymentError
   ```
 
-- **6. Payment Success (Route: /app/payment/success)**
-  - Only accessible after successful payment
-  - Shows success message
-  - Provides button to proceed to upload
-  - Cannot go back to previous stages
-  - Updates order status in orders table
-
-- **7. Photo Upload (Route: /app/upload)**
+- **6. Photo Upload (Route: /app/upload)**
   - Only accessible after successful payment
   - Cannot go back to previous stages
   - Uses upload_sessions and upload_chunks tables for chunked upload
@@ -124,7 +117,7 @@ alwaysApply: true
   uploadProgress, uploadStatus
   ```
 
-- **8. Upload Review (Route: /app/review)**
+- **7. Upload Review (Route: /app/review)**
   - Shows upload results with quality ratings from images table
   - Can go back to upload page only
   - Allows re-upload of rejected images
@@ -138,7 +131,7 @@ alwaysApply: true
   disabled={hasRejectedImages}
   ```
 
-- **9. Albums (Route: /app/albums)**
+- **8. Albums (Route: /app/albums)**
   - Shows all generated images grouped by style
   - Uses generated_images table to track:
     - Processing status

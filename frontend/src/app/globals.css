@@ -144,18 +144,16 @@
   }
 }
 
-.page-upload {
-  background: 
-    radial-gradient(circle at 50% 50%, rgba(12, 16, 19, 0.00) 0%, #0C1013 100%),
-    url(/bg_tile.webp) repeat 0 0;
-  background-size: 34px;
-}
-
+.page-upload, 
+.page-profile, 
 .page-review {
   background: 
     radial-gradient(circle at 50% 50%, rgba(12, 16, 19, 0.00) 0%, #0C1013 100%),
     url(/bg_tile.webp) repeat 0 0, #0C1013;
   background-size: 34px;
+}
+
+.page-review {
   justify-content: flex-start;
 }
 

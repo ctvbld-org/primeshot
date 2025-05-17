@@ -11,7 +11,7 @@
 
 .card {
     display: flex;
-    padding: 56px 64px;
+    padding: 56px 44px;
     align-items: center;
     border-radius: 36px;
     min-width: 360px;
