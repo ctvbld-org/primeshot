@@ -2,6 +2,7 @@ import { updateSession } from '@/lib/supabase/middleware'
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
+import { verifyPaymentHash } from '@/lib/server/hash-verification'
 
 export async function middleware(request: NextRequest) {
   // Update session using our shared middleware function
@@ -52,6 +53,54 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/app/settings/profile', request.url))
       }
       return response;
+    }
+
+    // Special case: Check for upload page with session_id
+    if (currentPath === '/app/upload') {
+      const searchParams = request.nextUrl.searchParams;
+      const sessionId = searchParams.get('session_id');
+      const orderId = searchParams.get('order_id');
+      const hash = searchParams.get('hash');
+
+      if (sessionId && orderId && hash) {
+        // First verify the hash
+        const isValidHash = await verifyPaymentHash(sessionId, orderId, hash);
+        if (!isValidHash) {
+          console.error('Invalid payment hash detected');
+          return NextResponse.redirect(new URL('/app/shoot', request.url));
+        }
+
+        // Verify the order and session
+        const { data: order, error: orderError } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('id', orderId)
+          .eq('user_id', user.id)
+          .eq('checkout_session_id', sessionId)
+          .in('payment_status', ['checkout_started', 'pending_payment'])
+          .single();
+
+        if (!orderError && order) {
+          // Valid order found, update user progress
+          await supabase
+            .from('user_progress')
+            .upsert({
+              user_id: user.id,
+              current_stage: 'upload',
+              completed_stages: ['shoot', 'payment'],
+              last_active_at: new Date().toISOString(),
+              stage_data: {
+                payment: {
+                  completedAt: new Date().toISOString(),
+                  orderId: orderId,
+                  sessionId: sessionId
+                }
+              }
+            }, { onConflict: 'user_id' });
+
+          return response;
+        }
+      }
     }
 
     // Get user progress

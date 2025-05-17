@@ -41,9 +41,6 @@ export default function StylesPage() {
   // Headshot calculation state
   const { headshotInfo, setHeadshotInfo } = useHeadshotStore()
 
-  // Add useUserProgress at component level
-  const { canModifyStyles } = useUserProgress()
-
   // Function to load styles
   const loadStyles = useCallback(async () => {
     if (!user) return;

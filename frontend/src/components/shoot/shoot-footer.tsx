@@ -41,7 +41,6 @@ export function ShootFooter({
   const [loading, setLoading] = useState(false)
   const { t } = useTranslation(['styles', 'payment'])
   const { user } = useAuth()
-  const { updateProgress } = useUserProgress()
   const { toast } = useToast()
   const wrapperRef = useRef<HTMLDivElement>(null)
   

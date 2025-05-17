@@ -114,6 +114,7 @@ export function useOrder({ loadStyles = false, sessionId = null }: UseOrderOptio
           const url = new URL(window.location.href)
           url.searchParams.delete('session_id')
           url.searchParams.delete('order_id')
+          url.searchParams.delete('hash')
           router.replace(url.pathname + url.search)
         }
 

@@ -138,19 +138,35 @@ export function UploadFooter({
     fetchUrls()
   }, [acceptedFiles, fetchSignedUrl])
 
+  // Add URL cache using WeakMap and track URLs for cleanup
+  const objectUrlCache = useRef(new WeakMap<File, string>()).current
+  const urlsToCleanup = useRef(new Set<string>()).current
+
   const getImageUrl = useCallback((file: FileWithScore) => {
     if (!file.id || !file.url) {
       // Check if file is actually a File object
       if (file instanceof File) {
-        return URL.createObjectURL(file)
+        if (!objectUrlCache.has(file)) {
+          const url = URL.createObjectURL(file)
+          objectUrlCache.set(file, url)
+          urlsToCleanup.add(url)
+        }
+        return objectUrlCache.get(file)!
       }
       // Fallback if somehow we get an invalid file
       console.warn('Invalid file object received:', file)
       return ''
     }
     
-    return signedUrls[file.url] || ''
+    return signedUrls[file.url] ?? ''
   }, [signedUrls])
+
+  // Add cleanup effect for Object URLs
+  useEffect(() => {
+    return () => {
+      urlsToCleanup.forEach((url: string) => URL.revokeObjectURL(url))
+    }
+  }, [urlsToCleanup])
 
   // 6. Render helpers
   const renderSquare = useCallback((index: number, isRequired: boolean) => {
@@ -214,9 +230,8 @@ export function UploadFooter({
                   )}
                   onLoad={(e) => {
                     const target = e.target as HTMLImageElement;
-                    if (target.src.startsWith('blob:')) {
-                      URL.revokeObjectURL(target.src);
-                    }
+                    // Remove URL revocation since we're now caching URLs
+                    // and cleaning up on unmount
                   }}
                 />
                 {!isUploading && (

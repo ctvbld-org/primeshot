@@ -7,6 +7,7 @@ import { getCheckoutSessionIdempotencyKey, getRetryIdempotencyKey } from '@/lib/
 import { calculatePricing, getTierDisplayText } from '@/lib/pricing';
 import { getOptionByCategory } from '@/lib/api/config';
 import { PRICING } from '@/lib/constants/pricing';
+import { generatePaymentHash } from '@/lib/server/hash-verification';
 
 // Check if STRIPE_SECRET_KEY is set
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
@@ -244,7 +245,7 @@ export async function POST(request: Request) {
           customerName,
           ...enhancedMetadata,
         },
-        success_url: `${APP_URL}/app/upload?session_id={CHECKOUT_SESSION_ID}&order_id=${order.id}`,
+        success_url: `${APP_URL}/app/upload?session_id={CHECKOUT_SESSION_ID}&order_id=${order.id}&hash=${await generatePaymentHash('{CHECKOUT_SESSION_ID}', order.id)}`,
         cancel_url: `${APP_URL}/app/shoot`,
       },
       {
@@ -285,23 +286,6 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
-
-    // Get current progress first
-    const { data: currentProgress } = await supabase
-      .from('user_progress')
-      .select('completed_stages')
-      .eq('user_id', user.id)
-      .single()
-
-    // Update user progress to mark payment stage
-    await supabase
-      .from('user_progress')
-      .upsert({
-        user_id: user.id,
-        current_stage: 'upload',
-        completed_stages: [...(currentProgress?.completed_stages || []), 'payment'],
-        last_active_at: new Date().toISOString()
-      }, { onConflict: 'user_id' })
 
     return NextResponse.json({ sessionId: checkoutSession.id });
   } catch (error) {

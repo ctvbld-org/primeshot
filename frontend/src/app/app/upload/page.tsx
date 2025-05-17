@@ -39,11 +39,10 @@ export default function UploadPage() {
   // 1. All hooks must be called before any conditional returns
   const { width, height } = useWindowSize()
   const { t } = useTranslation(['upload', 'payment'])
-  const { user } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
-  const { updateProgress, clearProgress } = useUserProgress()
+  const { updateProgress } = useUserProgress()
   
   const { 
     order,
