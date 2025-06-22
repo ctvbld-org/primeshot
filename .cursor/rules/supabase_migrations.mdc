@@ -1,6 +1,6 @@
 ---
-description: 
-globs: supabase/migrations/*.sql
+description: Database migration patterns and best practices for Supabase, covering working directory requirements, file naming conventions, migration commands, type generation, and security considerations.
+globs: 
 alwaysApply: false
 ---
 - **Working Directory**

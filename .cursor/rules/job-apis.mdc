@@ -1,0 +1,200 @@
+---
+description: Patterns for AI job processing using Supabase Edge Functions, centralized job API clients, and real-time progress tracking for training and inference operations.
+globs: 
+alwaysApply: false
+---
+- **Use Supabase Edge Functions for Job Processing**
+  - All training and inference jobs must use edge functions to avoid overloading Next.js server
+  - Reference [training-start](mdc:supabase/functions/training-start/index.ts) and [inference-start](mdc:supabase/functions/inference-start/index.ts) for implementation patterns
+  - Use service role key for database operations in edge functions
+  - Always validate user ownership before processing jobs
+
+- **Job API Client Usage**
+  - Use the centralized [jobs API client](mdc:frontend/src/lib/api/jobs.ts) for all job operations
+  - Import types from [jobs.ts](mdc:frontend/src/types/jobs.ts) for type safety
+  ```typescript
+  // ✅ DO: Use the jobs API client
+  import { useJobsApi } from '@/lib/api/jobs';
+  import type { TrainingStartRequest, InferenceStartRequest } from '@/types/jobs';
+  
+  const jobsApi = useJobsApi();
+  const result = await jobsApi.startTraining({
+    user_id: userId,
+    face_model_id: faceModelId,
+    image_metadata: { urls: imageUrls, total_images: imageUrls.length }
+  });
+  
+  // ❌ DON'T: Make direct fetch calls to edge functions
+  const response = await fetch('/functions/v1/training-start', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+  ```
+
+- **Real-time Progress Tracking**
+  - Always use [progress hooks](mdc:frontend/src/hooks/useJobProgress.ts) for real-time updates
+  - Enable Supabase realtime subscriptions by default with polling fallback
+  - Handle completion and error states properly
+  ```typescript
+  // ✅ DO: Use specialized progress hooks
+  import { useTrainingProgress, useInferenceProgress } from '@/hooks/useJobProgress';
+  
+  const { data, progress, isComplete, error } = useTrainingProgress(jobId, userId, {
+    onComplete: (data) => {
+      toast.success('Training completed!');
+      router.push('/models');
+    },
+    onError: (error) => {
+      toast.error(`Training failed: ${error.message}`);
+    }
+  });
+  
+  // ❌ DON'T: Use manual polling or useState for progress
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const response = await fetch(`/api/progress/${jobId}`);
+      const data = await response.json();
+      setProgress(data.progress);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [jobId]);
+  ```
+
+- **Job Status Management**
+  - Follow the defined status flows: pending → processing → completed/failed
+  - For inference jobs, handle queued status when face models aren't ready
+  - Use the `is_complete` flag to determine when to stop tracking
+  ```typescript
+  // ✅ DO: Handle all job statuses
+  const renderJobStatus = (status: string, progress: number) => {
+    switch (status) {
+      case 'queued':
+        return <Badge variant="secondary">Queued - waiting for face model</Badge>;
+      case 'pending':
+        return <Badge variant="default">Starting...</Badge>;
+      case 'processing':
+        return <Progress value={progress} className="w-full" />;
+      case 'completed':
+        return <Badge variant="success">Completed</Badge>;
+      case 'failed':
+        return <Badge variant="destructive">Failed</Badge>;
+      default:
+        return <Badge variant="outline">Unknown</Badge>;
+    }
+  };
+  
+  // ❌ DON'T: Only handle basic status without considering queue states
+  const status = job.status === 'completed' ? 'Done' : 'Processing';
+  ```
+
+- **Error Handling and User Feedback**
+  - Always provide user feedback for job operations using toast notifications
+  - Handle network errors, authentication failures, and job-specific errors
+  - Show loading states during job creation and progress tracking
+  ```typescript
+  // ✅ DO: Comprehensive error handling with user feedback
+  const handleStartTraining = async () => {
+    setIsLoading(true);
+    try {
+      const result = await jobsApi.startTraining(requestData);
+      toast.success(`Training started! Estimated time: ${result.estimated_duration}s`);
+      setCurrentJobId(result.job_id);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to start training';
+      toast.error(message);
+      console.error('Training start error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // ❌ DON'T: Silent failures or generic error handling
+  try {
+    await jobsApi.startTraining(data);
+  } catch (error) {
+    console.log('Error occurred');
+  }
+  ```
+
+- **Job Queue Management**
+  - Use [useJobQueue](mdc:frontend/src/hooks/useJobProgress.ts) hook for managing multiple jobs
+  - Show queue position for inference jobs when face models aren't ready
+  - Provide clear information about job dependencies
+  ```typescript
+  // ✅ DO: Use job queue hook for comprehensive job management
+  const { 
+    jobs, 
+    activeJobs, 
+    queuedJobs, 
+    processingJobs, 
+    completedJobs 
+  } = useJobQueue(userId, 'inference');
+  
+  return (
+    <div>
+      <Section title="Active Jobs" jobs={activeJobs} />
+      <Section title="Queue" jobs={queuedJobs} />
+      <Section title="Completed" jobs={completedJobs} />
+    </div>
+  );
+  
+  // ❌ DON'T: Track jobs manually with individual state
+  const [trainingJobs, setTrainingJobs] = useState([]);
+  const [inferenceJobs, setInferenceJobs] = useState([]);
+  ```
+
+- **Database Integration**
+  - Reference [job tables migration](mdc:supabase/migrations/20241227_create_job_tables.sql) for schema
+  - Use proper UUID types for job IDs and foreign keys
+  - Leverage RLS policies - users can only access their own jobs
+  - Use JSONB for flexible settings storage in inference jobs
+
+- **Progress UI Components**
+  - Show elapsed time and estimated remaining time
+  - Display meaningful progress messages (preprocessing, training epochs, etc.)
+  - Use progress bars for visual feedback
+  - Handle indeterminate progress for queued jobs
+  ```typescript
+  // ✅ DO: Rich progress display with time estimates
+  const ProgressDisplay = ({ data }: { data: TrainingProgressResponse }) => (
+    <div className="space-y-2">
+      <div className="flex justify-between text-sm">
+        <span>{data.status}: {data.progress}%</span>
+        <span>
+          {data.elapsed_time}s elapsed, ~{data.estimated_remaining}s remaining
+        </span>
+      </div>
+      <Progress value={data.progress} />
+      <p className="text-xs text-muted-foreground">
+        Processing {data.image_count} images for face model training
+      </p>
+    </div>
+  );
+  
+  // ❌ DON'T: Basic progress bar without context
+  <Progress value={progress} />
+  ```
+
+- **Authentication and Security**
+  - Always pass user_id in job requests for validation
+  - Use Supabase session tokens for edge function authentication
+  - Validate face model ownership before starting jobs
+  - Never expose service role keys in frontend code
+
+- **Performance Considerations**
+  - Use realtime subscriptions instead of frequent polling when possible
+  - Implement proper cleanup for subscriptions and polling intervals
+  - Set reasonable timeouts for long-running operations (5 minutes default)
+  - Use debouncing for UI updates to prevent excessive re-renders
+
+- **Mock vs Production**
+  - Current implementation uses mock Modal API calls for testing
+  - All timing and progress steps are simulated
+  - When migrating to real Modal API, update edge functions only
+  - Frontend code should work unchanged with real API
+
+- **Documentation References**
+  - See [Job API Documentation](mdc:docs/JOB_APIS.md) for complete implementation guide
+  - Reference edge function implementations for API patterns
+  - Follow TypeScript interfaces for request/response structures

@@ -20,10 +20,10 @@ export const s3Client = new S3Client({
 
 // Allowed file types and max size
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4MB - Edge Function payload limit is 4.5MB
+const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB - Increased limit for larger images
 
 // Folder paths
-const SOURCE_IMAGES_FOLDER = 'source-images/';
+const SOURCE_IMAGES_FOLDER = 'user-images/';
 const APP_IMAGES_FOLDER = 'app-images/';
 
 // Error classes
@@ -63,7 +63,7 @@ const validateUpload = async (buffer: Buffer, mimeType: string) => {
 export const uploadToS3 = async (buffer: Buffer, key: string, mimeType: string) => {
   await validateUpload(buffer, mimeType);
 
-  // Ensure the file is uploaded to the source-images folder
+  // Ensure the file is uploaded to the user-images folder
   const finalKey = key.startsWith(SOURCE_IMAGES_FOLDER) 
     ? key 
     : `${SOURCE_IMAGES_FOLDER}${key}`;

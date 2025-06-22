@@ -19,6 +19,7 @@ type StageData = {
     uploadedFiles: string[]
     uploadProgress: number
     lastUploadAt?: string
+    faceModelId?: string
   }
   review?: {
     reviewedImages: string[]

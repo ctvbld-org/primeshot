@@ -95,7 +95,7 @@
       "id": 6,
       "title": "Redesign Review Page",
       "description": "Redesign and implement the Review page according to the new design mockups with improved user interface and experience.",
-      "status": "in-progress",
+      "status": "done",
       "dependencies": [
         5
       ],
@@ -131,7 +131,7 @@
             2
           ],
           "details": "Implementation details:\n1. Create form component with all required fields from mockup\n2. Implement appropriate input types for each field (dropdowns, radio buttons, etc.)\n3. Add validation for required fields and proper input formats\n4. Style form elements according to design (fonts, spacing, colors)\n5. Implement responsive behavior for the form\n6. Add state management for form data\n7. Testing approach: Test form validation, responsive layout, and proper state management for all input fields",
-          "status": "pending",
+          "status": "done",
           "parentTaskId": 6
         },
         {
@@ -142,7 +142,7 @@
             2
           ],
           "details": "Implementation details:\n1. Create a responsive grid component for displaying uploaded photos\n2. Implement the quality indicator UI element showing percentage (81%)\n3. Add appropriate styling for the photo containers\n4. Implement the tabbed interface for Photos/Edit sections\n5. Add hover states and interactions for the photos\n6. Ensure proper responsive behavior for different screen sizes\n7. Testing approach: Test grid layout with different numbers of photos, verify quality indicator displays correctly, and check tab switching functionality",
-          "status": "pending",
+          "status": "done",
           "parentTaskId": 6
         },
         {
@@ -153,7 +153,7 @@
             2
           ],
           "details": "Implementation details:\n1. Create a new Style Card component matching the design mockup\n2. Implement the layout for displaying style information and thumbnails\n3. Add proper styling for fonts, colors, and spacing according to design\n4. Create hover states and interactions for the style cards\n5. Implement responsive behavior for different screen sizes\n6. Add functionality to display the correct style information from the user's selections\n7. Testing approach: Test display with different style selections, verify responsive behavior, and check all interactive elements work correctly",
-          "status": "pending",
+          "status": "done",
           "parentTaskId": 6
         },
         {
@@ -167,7 +167,7 @@
             5
           ],
           "details": "Implementation details:\n1. Create footer component with disclaimer text and requirements links\n2. Implement the Generate button with proper styling and hover effects\n3. Add appropriate click handlers for the Generate button\n4. Implement loading state for the Generate button\n5. Add animations for button interactions\n6. Ensure proper responsive behavior for the footer and button\n7. Testing approach: Test button interactions, verify links work correctly, and check responsive layout of footer across different screen sizes",
-          "status": "pending",
+          "status": "done",
           "parentTaskId": 6
         }
       ]

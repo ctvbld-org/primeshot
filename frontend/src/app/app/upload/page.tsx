@@ -21,6 +21,9 @@ import { useAuth } from '@/contexts/auth-context'
 import { UploadPageSkeleton } from '@/components/skeleton/upload/page'
 import type { FileWithScore } from '@/lib/types'
 import { useOrderImages } from '@/lib/hooks/use-order-images'
+import { useFaceModel } from '@/lib/hooks/use-face-model'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 // Import Confetti dynamically to avoid SSR issues
 const ReactConfetti = dynamic(() => import('react-confetti'), { ssr: false })
@@ -43,6 +46,7 @@ export default function UploadPage() {
   const searchParams = useSearchParams()
   const { toast } = useToast()
   const { updateProgress } = useUserProgress()
+  const { user } = useAuth()
   
   const { 
     order,
@@ -57,6 +61,25 @@ export default function UploadPage() {
 
   const { images: existingImagesFromHook, isLoading: isLoadingImages, removeImage } = useOrderImages(order?.id)
   const [existingImages, setExistingImages] = useState<FileWithScore[]>([])
+
+  // Face model management
+  const [faceModelName, setFaceModelName] = useState('')
+  const { 
+    faceModel, 
+    isLoading: isFaceModelLoading, 
+    error: faceModelError,
+    createFaceModel,
+    updateStatus: updateFaceModelStatus,
+    isCreating: isCreatingFaceModel
+  } = useFaceModel({ autoCreate: false }) // Don't auto-create, we'll create with user-provided name
+
+  // Set default face model name suggestion
+  useEffect(() => {
+    if (!faceModel && !faceModelName && user) {
+      const defaultName = `Face Model`;
+      setFaceModelName(defaultName);
+    }
+  }, [user, faceModel, faceModelName])
 
   // Sync existingImages with the hook result
   useEffect(() => {
@@ -167,6 +190,17 @@ export default function UploadPage() {
   const handleUploadSuccess = useCallback(async (successfulUploads: { url?: string }[]) => {
     try {
       setIsTransitioningToReview(true)
+      
+      // Update face model status to ready (uploaded and ready for training)
+      if (faceModel) {
+        try {
+          await updateFaceModelStatus('ready');
+        } catch (faceModelStatusError) {
+          console.error('Failed to update face model status:', faceModelStatusError);
+          // Don't block the flow if face model status update fails
+        }
+      }
+      
       await updateProgress('review', { 
         upload: {
           uploadedFiles: successfulUploads.map(r => r.url).filter((url): url is string => url !== undefined),
@@ -183,7 +217,7 @@ export default function UploadPage() {
       })
       router.push('/app/review')
     }
-  }, [updateProgress, router, toast, t])
+  }, [updateProgress, router, toast, t, faceModel, updateFaceModelStatus])
 
   const handleUpload = useCallback(async (filesToUpload: FileWithScore[]) => {
     // Filter out existing images from the upload
@@ -232,6 +266,19 @@ export default function UploadPage() {
     const results: { originalName: string; url?: string; error?: string }[] = []
 
     try {
+      // Create face model once before uploading any files
+      let currentFaceModel = faceModel;
+      if (!currentFaceModel && newFilesToUpload.length > 0) {
+        const modelName = faceModelName.trim() || `Upload Session ${new Date().toLocaleDateString()}`;
+        currentFaceModel = await createFaceModel(modelName);
+      }
+      
+      // Get the face model ID to use for all uploads
+      const faceModelId = currentFaceModel?.id;
+      if (!faceModelId && newFilesToUpload.length > 0) {
+        throw new Error('Face model not available');
+      }
+
       // Upload files one by one
       for (let i = 0; i < newFilesToUpload.length; i++) {
         const file = newFilesToUpload[i]
@@ -247,7 +294,8 @@ export default function UploadPage() {
         }))
         
         try {
-          const url = await uploadFile(file as File, order.id)
+          
+          const url = await uploadFile(file as File, order.id, faceModelId!)
           results.push({ originalName: file.name, url })
           uploadedFiles.push(file.name)
           uploadedCount++
@@ -365,7 +413,7 @@ export default function UploadPage() {
   }, [acceptedFiles.length, rejectedFiles, uploadState.shownRejectedFiles, isAnalyzing])
 
   // 10. Conditional returns - after all hooks
-  if (isLoadingOrder || isVerifying || isLoadingImages) {
+  if (isLoadingOrder || isVerifying || isLoadingImages || isFaceModelLoading) {
     return <UploadPageSkeleton />
   }
 
@@ -397,6 +445,32 @@ export default function UploadPage() {
       </div>
 
       <UploadRequirements />
+
+      {/* Face Model Name Input */}
+      <div className="max-w-md mx-auto space-y-2">
+        <Label htmlFor="faceModelName" className="text-sm font-medium text-[#C0CED8]">
+          Face Model Name {faceModel ? '(Created)' : '(Optional)'}
+        </Label>
+        <Input
+          id="faceModelName"
+          type="text"
+          placeholder="e.g., My Professional Headshots"
+          value={faceModelName}
+          onChange={(e) => setFaceModelName(e.target.value)}
+          disabled={!!faceModel || uploadState.isUploading}
+          className="bg-background/50 border-border text-foreground placeholder:text-muted-foreground"
+        />
+        {faceModel && (
+          <p className="text-xs text-[#44E3C9]">
+            ✓ Face model "{faceModel.name}" is ready
+          </p>
+        )}
+        {!faceModel && faceModelName.trim() && (
+          <p className="text-xs text-muted-foreground">
+            Face model will be created as "{faceModelName.trim()}"
+          </p>
+        )}
+      </div>
     
       <div className="flex justify-center mt-[32px]">        
         <FileUploader 

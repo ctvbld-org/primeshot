@@ -44,7 +44,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
   // Split options into separate constants for better memoization
   const {
     maxSize = 100 * 1024 * 1024,
-    allowedTypes = ['image/jpeg', 'image/png', 'image/webp'],
+    allowedTypes = ['image/jpeg', 'image/png'],
     maxFiles = UPLOAD_CONSTANTS.MAX_IMAGES,
     existingImages = []
   } = useMemo(() => {
@@ -482,7 +482,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     setFileStates([])
   }
 
-  const uploadFile = async (file: File, orderId: string) => {
+  const uploadFile = async (file: File, orderId: string, faceModelId: string) => {
     const index = fileStates.findIndex(state => state.file === file)
     if (index === -1) return
 
@@ -496,6 +496,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
       const url = await uploadFileInChunks(
         file,
         orderId,
+        faceModelId,
         (progress: number) => {
           setFileStates(prev => prev.map((state, i) => 
             i === index 

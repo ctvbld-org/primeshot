@@ -1,5 +1,5 @@
 ---
-description: 
+description: Supabase client creation patterns using @supabase/ssr for browser and server contexts, covering centralized client management, cookie handling, type safety, and deprecation of auth-helpers-nextjs.
 globs: 
 alwaysApply: false
 ---

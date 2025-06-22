@@ -52,7 +52,7 @@ export const styleSchema = z.object({
 export const imageSchema = z.object({
   id: z.string().uuid('Invalid image ID'),
   user_id: z.string().uuid('Invalid user ID'),
-  order_id: z.string().uuid('Invalid order ID').optional().nullable(),
+  face_model_id: z.string().uuid('Invalid face model ID').optional().nullable(),
   style_id: z.string().uuid('Invalid style ID').optional().nullable(),
   url: z.string().url('Invalid URL format'),
   file_name: z.string().min(1, 'Filename is required'),

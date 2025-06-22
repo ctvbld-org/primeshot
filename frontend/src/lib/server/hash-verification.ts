@@ -1,4 +1,4 @@
-const HASH_SECRET = process.env.HASH_SECRET || process.env.NEXTAUTH_SECRET || 'default-secret-key';
+const HASH_SECRET = process.env.HASH_SECRET || process.env.NEXTAUTH_SECRET;
 
 async function stringToBuffer(str: string): Promise<Uint8Array> {
   const encoder = new TextEncoder();

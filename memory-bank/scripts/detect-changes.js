@@ -9,7 +9,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const MEMORY_BANK_DIR = path.join(path.dirname(__dirname), 'memory-bank');
+const MEMORY_BANK_DIR = path.dirname(__dirname);
 const BASELINE_FILE = path.join(MEMORY_BANK_DIR, '.baseline');
 
 // Parse command line arguments

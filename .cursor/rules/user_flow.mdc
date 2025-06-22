@@ -1,7 +1,7 @@
 ---
-description: User flow and state transitions for the headshot generation process
-globs: src/app/app/**/*.tsx, src/components/**/*.tsx
-alwaysApply: true
+description: User flow management patterns covering sequential stage progression from authentication through style creation, payment, upload, review, and albums, with session persistence, state recovery, and navigation validation.
+globs: 
+alwaysApply: false
 ---
 - **User Flow Stages**
   - Each stage corresponds to specific routes and components

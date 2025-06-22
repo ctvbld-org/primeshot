@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { uploadToS3 } from '@/lib/s3';
-import sharp from 'sharp';
 import { v4 as uuidv4 } from 'uuid';
 import { imageSchema } from '@/lib/schemas';
 import { ChunkMetadata } from '@/lib/upload-utils';
@@ -16,10 +15,7 @@ const MAX_CHUNKS = 1000;
 const MAX_CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
 
-// Constants for image processing
-const MAX_WIDTH = 2048;
-const MAX_HEIGHT = 2048;
-const WEBP_QUALITY = 85;
+
 
 // UUID v4 validation regex
 const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -28,6 +24,7 @@ const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[
 const chunkMetadataSchema = z.object({
   uploadId: z.string().uuid(),
   orderId: z.string().uuid(),
+  faceModelId: z.string().uuid(),
   chunkIndex: z.number().int().min(0),
   totalChunks: z.number().int().min(1).max(MAX_CHUNKS)
     .refine(val => val <= MAX_CHUNKS, {
@@ -58,41 +55,7 @@ const getTempDir = async (uploadId: string) => {
   return tempDir;
 };
 
-// Process image with sharp after all chunks are received
-async function processImage(buffer: Buffer) {
-  try {
-    console.log('Starting image processing...');
-    
-    const metadata = await sharp(buffer).metadata();
-    console.log('Image metadata:', metadata);
 
-    let sharpInstance = sharp(buffer);
-    sharpInstance = sharpInstance.rotate();
-
-    if (metadata.width && metadata.height) {
-      if (metadata.width > MAX_WIDTH || metadata.height > MAX_HEIGHT) {
-        sharpInstance = sharpInstance.resize(MAX_WIDTH, MAX_HEIGHT, {
-          fit: 'inside',
-          withoutEnlargement: true
-        });
-      }
-    }
-
-    const processedBuffer = await sharpInstance
-      .webp({ quality: WEBP_QUALITY })
-      .toBuffer();
-
-    console.log('Image processing completed successfully');
-    
-    return {
-      buffer: processedBuffer,
-      mimeType: 'image/webp'
-    };
-  } catch (error: unknown) {
-    console.error('Image processing error:', error);
-    throw new Error(`Image processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-  }
-}
 
 // Save chunk to temp directory
 async function saveChunk(chunk: Buffer, metadata: ChunkMetadata) {
@@ -254,6 +217,28 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
+    // Validate that the face model exists and belongs to the user
+    const { data: faceModel, error: faceModelError } = await supabase
+      .from('face_models')
+      .select('id, user_id, status')
+      .eq('id', metadata.faceModelId)
+      .eq('user_id', user.id)
+      .single();
+
+    if (faceModelError || !faceModel) {
+      console.error('Face model validation failed:', faceModelError);
+      return NextResponse.json({ 
+        error: 'Face model not found or does not belong to user' 
+      }, { status: 403 });
+    }
+
+    // Check if face model is in appropriate status for uploading
+    if (faceModel.status !== 'queued') {
+      return NextResponse.json({ 
+        error: `Face model is in '${faceModel.status}' status and cannot accept uploads` 
+      }, { status: 400 });
+    }
+
     const chunkBuffer = Buffer.from(await chunkBlob.arrayBuffer());
 
     // Additional runtime chunk size validation as defense in depth
@@ -263,7 +248,7 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
     
-    // Check if upload session exists or create new one
+    // Check if upload session exists or create new one with race condition handling
     let { data: session } = await supabase
       .from('upload_sessions')
       .select()
@@ -271,6 +256,7 @@ export async function POST(request: Request) {
       .single();
 
     if (!session) {
+      // Try to create new session, but handle race condition if another request created it first
       const { data: newSession, error: createError } = await supabase
         .from('upload_sessions')
         .insert({
@@ -288,63 +274,120 @@ export async function POST(request: Request) {
         .single();
 
       if (createError) {
-        throw new Error(`Failed to create upload session: ${createError.message}`);
+        // If error is due to duplicate key (session already exists), fetch it
+        if (createError.code === '23505' || createError.message.includes('duplicate key')) {
+          const { data: existingSession } = await supabase
+            .from('upload_sessions')
+            .select()
+            .eq('id', metadata.uploadId)
+            .single();
+          
+          if (existingSession) {
+            session = existingSession;
+          } else {
+            throw new Error(`Failed to create or retrieve upload session: ${createError.message}`);
+          }
+        } else {
+          throw new Error(`Failed to create upload session: ${createError.message}`);
+        }
+      } else {
+        session = newSession;
       }
-      session = newSession;
     }
 
-    // Save chunk and update session
-    const { error: chunkError } = await supabase
+    // Face model stays in 'queued' status during uploads
+    // Status will only change when training starts
+
+    // Check if chunk already exists and upsert to prevent duplicates
+    const { data: existingChunk } = await supabase
       .from('upload_chunks')
-      .insert({
-        session_id: session.id,
-        chunk_index: metadata.chunkIndex,
-        chunk_size: chunkBuffer.length,
-        status: 'uploaded'
-      });
+      .select('id')
+      .eq('session_id', session.id)
+      .eq('chunk_index', metadata.chunkIndex)
+      .single();
 
-    if (chunkError) {
-      throw new Error(`Failed to save chunk: ${chunkError.message}`);
+    if (existingChunk) {
+      // Chunk already exists, update it
+      const { error: updateError } = await supabase
+        .from('upload_chunks')
+        .update({
+          chunk_size: chunkBuffer.length,
+          status: 'uploaded',
+          updated_at: new Date().toISOString()
+        })
+        .eq('session_id', session.id)
+        .eq('chunk_index', metadata.chunkIndex);
+
+      if (updateError) {
+        throw new Error(`Failed to update chunk: ${updateError.message}`);
+      }
+    } else {
+      // Chunk doesn't exist, insert it
+      const { error: insertError } = await supabase
+        .from('upload_chunks')
+        .insert({
+          session_id: session.id,
+          chunk_index: metadata.chunkIndex,
+          chunk_size: chunkBuffer.length,
+          status: 'uploaded'
+        });
+
+      if (insertError) {
+        throw new Error(`Failed to insert chunk: ${insertError.message}`);
+      }
     }
 
-    // Save chunk to temp storage
-    await saveChunk(chunkBuffer, metadata);
+    // Save chunk to temp storage (only if it doesn't already exist)
+    const tempDir = await getTempDir(metadata.uploadId);
+    const chunkPath = path.join(tempDir, `chunk-${metadata.chunkIndex}`);
+    
+    // Check if chunk file already exists to prevent overwriting
+    try {
+      await fs.access(chunkPath);
+      // File already exists, no need to save again
+      console.log(`Chunk ${metadata.chunkIndex} already exists in temp storage`);
+    } catch {
+      // File doesn't exist, save it
+      await saveChunk(chunkBuffer, metadata);
+    }
 
     // Check if all chunks are received
-    if (await areAllChunksReceived(metadata)) {
+    const allChunksReceived = await areAllChunksReceived(metadata);
+    console.log(`Upload ${metadata.uploadId}: All chunks received: ${allChunksReceived}, chunk ${metadata.chunkIndex}/${metadata.totalChunks}`);
+    
+    if (allChunksReceived) {
       // Update session status
       await supabase
         .from('upload_sessions')
         .update({ status: 'processing' })
         .eq('id', session.id);
 
-      // Combine chunks and process
+      // Combine chunks
       const finalBuffer = await combineChunks(metadata);
-      const { buffer: processedBuffer, mimeType } = await processImage(finalBuffer);
       
-      // Upload to S3
+      // Upload original file to S3
       const cleanOriginalName = metadata.fileName.replace(/\.[^/.]+$/, '');
-      const key = `source-images/${user.id}/${metadata.uploadId}-${cleanOriginalName}.webp`;
-      const url = await uploadToS3(processedBuffer, key, mimeType);
+      const fileExtension = metadata.fileName.split('.').pop() || 'jpg';
+      const key = `user-images/${user.id}/${metadata.faceModelId}/source/${metadata.uploadId}-${cleanOriginalName}.${fileExtension}`;
+      const url = await uploadToS3(finalBuffer, key, metadata.fileType);
 
-      // Get image dimensions
-      const { width, height } = await sharp(processedBuffer).metadata();
-      const safeWidth = width && width > 0 ? width : 1;
-      const safeHeight = height && height > 0 ? height : 1;
+      // Use original file dimensions (we'll set defaults since we're not processing)
+      const safeWidth = 1;
+      const safeHeight = 1;
 
-      // Save to images table
-      const imageData = {
-        id: uuidv4(),
-        user_id: user.id,
-        order_id: metadata.orderId,
-        url: url,
-        file_name: `${cleanOriginalName}.webp`,
-        file_size: processedBuffer.length,
-        mime_type: mimeType,
-        dimensions: { width: safeWidth, height: safeHeight },
-        created_at: new Date().toISOString(),
-        quality_score: metadata.qualityScore
-      };
+              // Save to images table
+        const imageData = {
+          id: uuidv4(),
+          user_id: user.id,
+          face_model_id: metadata.faceModelId,
+          url: url,
+          file_name: `${cleanOriginalName}.${fileExtension}`,
+          file_size: finalBuffer.length,
+          mime_type: metadata.fileType,
+          dimensions: { width: safeWidth, height: safeHeight },
+          created_at: new Date().toISOString(),
+          quality_score: metadata.qualityScore
+        };
 
       const validatedData = imageSchema.parse(imageData);
       const { error: dbError } = await supabase
@@ -355,25 +398,104 @@ export async function POST(request: Request) {
         throw new Error(`DB insert failed: ${dbError.message}`);
       }
 
-      // Clean up chunks and session from database
-      const { error: deleteChunksError } = await supabase
+      // Increment image_count in face_models table
+      const { error: updateCountError } = await supabase.rpc('increment_image_count', {
+        face_model_id: metadata.faceModelId
+      });
+
+      if (updateCountError) {
+        console.error('Failed to update face model image count:', updateCountError);
+        // Don't fail the upload, just log the error
+      }
+
+      // Check if face model needs a thumbnail (first image uploaded)
+      const { data: faceModel } = await supabase
+        .from('face_models')
+        .select('thumbnail_url')
+        .eq('id', metadata.faceModelId)
+        .single();
+
+      // If face model doesn't have a thumbnail yet, set it to this image's URL
+      if (faceModel && !faceModel.thumbnail_url) {
+        await supabase
+          .from('face_models')
+          .update({ thumbnail_url: url })
+          .eq('id', metadata.faceModelId);
+        
+        console.log(`Set thumbnail for face model ${metadata.faceModelId}: ${url}`);
+      }
+
+      // Update face model status to 'uploaded' since upload is complete
+      await supabase
+        .from('face_models')
+        .update({ status: 'uploaded' })
+        .eq('id', metadata.faceModelId);
+
+      // Clean up chunks and session from database after successful upload
+      console.log(`Starting cleanup for upload session: ${session.id}`);
+      
+      // Count chunks before cleanup for verification
+      const { count: chunkCount } = await supabase
+        .from('upload_chunks')
+        .select('*', { count: 'exact' })
+        .eq('session_id', session.id);
+        
+      console.log(`Found ${chunkCount} chunks to cleanup for session: ${session.id}`);
+      
+      // Method 1: Delete chunks first, then session
+      const { error: deleteChunksError, count: deletedChunksCount } = await supabase
         .from('upload_chunks')
         .delete()
         .eq('session_id', session.id);
 
       if (deleteChunksError) {
         console.error('Failed to cleanup chunks:', deleteChunksError);
-        // Don't throw here as the upload was successful
+      } else {
+        console.log(`Successfully deleted ${deletedChunksCount || 'unknown number of'} chunks for session: ${session.id}`);
       }
 
-      const { error: deleteSessionError } = await supabase
+      // Delete the session
+      const { error: deleteSessionError, count: deletedSessionsCount } = await supabase
         .from('upload_sessions')
         .delete()
         .eq('id', session.id);
 
       if (deleteSessionError) {
         console.error('Failed to cleanup session:', deleteSessionError);
-        // Don't throw here as the upload was successful
+        
+        // Fallback: Try method 2 - force cleanup with direct queries
+        console.log('Attempting fallback cleanup method for session:', session.id);
+        
+        try {
+          // Use raw SQL queries to force cleanup
+          await supabase.from('upload_chunks').delete().eq('session_id', session.id);
+          await supabase.from('upload_sessions').delete().eq('id', session.id);
+          console.log('Fallback cleanup completed for session:', session.id);
+        } catch (fallbackError) {
+          console.error('Fallback cleanup failed:', fallbackError);
+          // Log error details for debugging but don't fail the upload
+          console.error('Session ID:', session.id);
+          console.error('User ID:', user.id);
+        }
+      } else {
+        console.log(`Successfully cleaned up session: ${session.id} (deleted ${deletedSessionsCount || 1} session record)`);
+      }
+      
+      // Verify cleanup was successful
+      const { count: remainingChunks } = await supabase
+        .from('upload_chunks')
+        .select('*', { count: 'exact' })
+        .eq('session_id', session.id);
+        
+      const { count: remainingSessions } = await supabase
+        .from('upload_sessions')
+        .select('*', { count: 'exact' })
+        .eq('id', session.id);
+        
+      if ((remainingChunks ?? 0) > 0 || (remainingSessions ?? 0) > 0) {
+        console.error(`Cleanup verification failed! Remaining chunks: ${remainingChunks ?? 0}, remaining sessions: ${remainingSessions ?? 0}`);
+      } else {
+        console.log(`Cleanup verification successful - no remaining data for session: ${session.id}`);
       }
 
       // Clean up temp files

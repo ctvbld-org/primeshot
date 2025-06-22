@@ -8,16 +8,19 @@ alwaysApply: true
 ## Root Directory Structure
 ```
 /
-├── .cursor/          # Cursor IDE configuration and rules
+├── .cursor/         # Cursor IDE configuration and rules
 ├── .git/            # Git repository data
 ├── frontend/        # Next.js frontend application
+├── ai-container/    # Modal containers for training and inference
+│   ├── ai-toolkit-modal/      # Training LoRA project container on Modal
+│   └── comfyui-modal/         # ComfyUI project container for inference on Modal
 ├── scripts/         # Development and utility scripts
 ├── supabase/        # Supabase client configuration
 ├── tasks/           # Task management files
 ├── node_modules/    # Root-level dependencies
 ├── package.json     # Root-level package configuration
-├── .env            # Environment variables (gitignored)
-└── README.md       # Project documentation
+├── .env             # Environment variables (gitignored)
+└── README.md        # Project documentation
 ```
 
 ## Frontend Directory Structure
@@ -25,11 +28,11 @@ alwaysApply: true
 frontend/
 ├── .next/           # Next.js build output
 ├── public/          # Static assets
-├── src/              # Application source code
-├── docs/           # Project documentation
-├── scripts/        # Frontend-specific scripts
-├── .env.local      # Local environment variables
-└── package.json    # Frontend dependencies
+├── src/             # Application source code
+├── docs/            # Project documentation
+├── scripts/         # Frontend-specific scripts
+├── .env.local       # Local environment variables
+└── package.json     # Frontend dependencies
 ```
 
 ## Source Code Structure (src/)

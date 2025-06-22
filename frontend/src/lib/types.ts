@@ -81,7 +81,7 @@ export interface Image {
   dimensions: ImageDimensions;
   created_at: string;
   updated_at: string;
-  order_id?: string;
+  face_model_id?: string;
   quality_score?: number;
 }
 

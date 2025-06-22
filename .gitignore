@@ -32,3 +32,6 @@ node_modules/
 supabase/config/auth.json 
 .temp/
 .branches/
+
+# Runpod
+runpod/
