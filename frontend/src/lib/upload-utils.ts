@@ -119,6 +119,20 @@ export async function cleanupFailedUpload(uploadId: string): Promise<void> {
   }
 }
 
+// Helper to detect "duplicate chunk" errors coming from either response JSON or thrown Errors
+function isDuplicateChunkError(err: any): boolean {
+  if (!err) return false;
+  // Error instance check
+  if (err instanceof Error) {
+    return err.message?.toLowerCase().includes('duplicate');
+  }
+  // API error payload check
+  if (typeof err === 'object' && 'error' in err && typeof err.error === 'string') {
+    return (err.error as string).toLowerCase().includes('duplicate');
+  }
+  return false;
+}
+
 export async function uploadFileInChunks(
   file: File,
   orderId: string,
@@ -145,7 +159,7 @@ export async function uploadFileInChunks(
             const errorData = await response.json().catch(() => ({}));
             
             // Check if error is due to duplicate chunk (already uploaded)
-            if (errorData.error && errorData.error.includes('duplicate')) {
+            if (isDuplicateChunkError(errorData)) {
               console.log(`Chunk ${metadata.chunkIndex} already exists, continuing...`);
               chunkUploaded = true;
               uploadedChunks++;
@@ -180,7 +194,7 @@ export async function uploadFileInChunks(
           
         } catch (error) {
           // Check if error message indicates chunk already exists
-          if (error instanceof Error && error.message.includes('duplicate')) {
+          if (isDuplicateChunkError(error)) {
             console.log(`Chunk ${metadata.chunkIndex} already uploaded, continuing...`);
             chunkUploaded = true;
             uploadedChunks++;

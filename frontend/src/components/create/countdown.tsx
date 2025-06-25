@@ -30,6 +30,6 @@ export const Countdown: React.FC<CountdownProps> = ({ seconds, fallback = 'Calcu
   }, [remaining]);
 
   if (remaining === null) return <span>{fallback}</span>;
-  if (remaining === 0) return <span>Finishing up...</span>;
+  if (remaining === 0) return <span></span>;
   return <span>{formatTime(remaining)}</span>;
 }; 

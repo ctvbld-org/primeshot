@@ -208,6 +208,19 @@ Detected changes in:
 - frontend/src/lib/server/hash-verification.ts
 - frontend/src/lib/types.ts
 - frontend/src/lib/upload-utils.ts
+
+
+**Auto-update 2025-06-25**:
+Detected changes in:
+- frontend/src/app/api/user-images/route.ts
+- frontend/src/app/app/training/page.tsx
+- frontend/src/app/globals.css
+- frontend/src/components/create/countdown.tsx
+- frontend/src/components/create/face_models.tsx
+- frontend/src/components/create/progress_tracker.tsx
+- frontend/src/components/training/training-progress-card.tsx
+- frontend/src/components/training/training-progress-list.tsx
+- frontend/src/components/ui/circle-progress.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

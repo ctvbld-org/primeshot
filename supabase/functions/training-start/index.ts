@@ -16,6 +16,8 @@ interface TrainingJob {
   completed_at?: string;
   created_at: string;
   updated_at: string;
+  modal_job_id?: string;
+  error_message?: string;
 }
 
 serve(async (req) => {
@@ -23,6 +25,8 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
+
+  const env = Deno.env.get('ENV') ?? 'prod';
 
   try {
     const supabase = createClient(
@@ -101,9 +105,6 @@ serve(async (req) => {
       .select('*')
       .limit(1);
     
-    console.log(`🔍 Test query result:`, { testQuery, testError });
-    console.log(`📋 Available columns in training_jobs:`, testQuery ? Object.keys(testQuery[0] || {}) : 'No data');
-
     const { error: insertError } = await supabase
       .from('training_jobs')
       .insert(trainingJob);
@@ -136,14 +137,20 @@ serve(async (req) => {
     const modalPayload = {
       user_id,
       face_model_id,
-      job_id: jobId // Pass job ID for progress tracking
+      job_id: jobId,
+      env: env
     };
 
     console.log('🚀 Starting real Modal training job:', modalPayload);
 
     try {
       // Call real Modal API - using HTTPS endpoint
-      const trainingUrl = Deno.env.get('TRAINING_API_URL');
+      const trainingUrl = Deno.env.get('TRAINING_API_URL'); 
+
+      if (!trainingUrl) {  
+        throw new Error('TRAINING_API_URL env variable is not configured');  
+      } 
+      
       const modalResponse = await fetch(trainingUrl, {
         method: 'POST',
         headers: {

@@ -71,11 +71,20 @@ export function useFaceModel(options: UseFaceModelOptions = {}): UseFaceModelRet
   // Auto-create face model if enabled and user is available
   useEffect(() => {
     if (autoCreate && user?.id && !faceModel && !isCreating && !isLoading) {
-      createFaceModel().catch(err => {
-        console.error('Auto-create face model failed:', err);
-      });
+      // Wrap in local async function to avoid adding createFaceModel to deps
+      const run = async () => {
+        try {
+          await createFaceModel();
+        } catch (err) {
+          console.error('Auto-create face model failed:', err);
+        }
+      };
+
+      run();
     }
-  }, [autoCreate, user?.id, faceModel, isCreating, isLoading, createFaceModel]);
+    // We intentionally omit createFaceModel from dependencies to prevent effect loops
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoCreate, user?.id, faceModel, isCreating, isLoading]);
 
   return {
     faceModel,

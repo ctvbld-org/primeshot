@@ -463,14 +463,20 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
         return
       }
     }
-
-    // Remove the file from state
-    setFileStates(prev => prev.filter((_, i) => i !== index))
     
     // If there was a URL created, revoke it
     if (state?.uploadedUrl) {
       URL.revokeObjectURL(state.uploadedUrl)
     }
+
+    // Revoke any blob URL we created  
+    if (state?.previewUrl?.startsWith('blob:')) {  
+      URL.revokeObjectURL(state.previewUrl)  
+    }  
+    
+    // Remove the file from state
+    setFileStates(prev => prev.filter((_, i) => i !== index))
+
   }, [fileStates, t, toast, options.onRemoveExistingImage])
 
   const clearFiles = () => {

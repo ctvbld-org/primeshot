@@ -120,11 +120,21 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Failed to fetch sessions' }, { status: 500 });
     }
 
-    // Get total chunk count
-    const { count: totalChunks } = await supabase
+    // Get total chunk count – use join filter so Postgres does the work server-side
+    // head:true avoids returning row data, we only need the count header
+    const {
+      count: totalChunks,
+      error: chunksCountError
+    } = await supabase
       .from('upload_chunks')
-      .select('*', { count: 'exact' })
-      .in('session_id', allSessions?.map(s => s.id) || []);
+      .select('id', { count: 'exact', head: true })
+      // Join on upload_sessions via FK to filter by the current user
+      .eq('upload_sessions!inner.user_id', user.id);
+
+    if (chunksCountError) {
+      console.error('Error counting chunks:', chunksCountError);
+      return NextResponse.json({ error: 'Failed to count chunks' }, { status: 500 });
+    }
 
     const analysis = {
       totalSessions: allSessions?.length || 0,

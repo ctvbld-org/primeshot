@@ -54,7 +54,11 @@ export function UploadFooter({
   const [openTooltipIndex, setOpenTooltipIndex] = useState<number | null>(null)
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({})
 
-  // 3. Memoized values
+  // 3a. Refs for Object URL caching / cleanup (moved up so callbacks can reference them)
+  const objectUrlCache = useRef(new WeakMap<File, string>()).current
+  const urlsToCleanup = useRef(new Set<string>()).current
+
+  // 3b. Memoized values
   const count = useMemo(() => acceptedFiles.length, [acceptedFiles])
 
   // 4. Callbacks
@@ -62,10 +66,20 @@ export function UploadFooter({
     setOpenTooltipIndex(open ? index : null)
   }, [])
 
+  // Immediately revoke object URL if the user removes a file mid-session to avoid memory leaks
   const handleRemoveFile = useCallback((index: number) => {
     setOpenTooltipIndex(null)
+
+    const file = acceptedFiles[index]
+    if (file instanceof File && objectUrlCache.has(file)) {
+      const url = objectUrlCache.get(file)!
+      URL.revokeObjectURL(url)
+      urlsToCleanup.delete(url)
+      objectUrlCache.delete(file)
+    }
+
     onRemoveFile(index)
-  }, [onRemoveFile])
+  }, [acceptedFiles, onRemoveFile, objectUrlCache, urlsToCleanup])
 
   const checkScroll = useCallback(() => {
     const wrapper = wrapperRef.current
@@ -137,10 +151,6 @@ export function UploadFooter({
 
     fetchUrls()
   }, [acceptedFiles, fetchSignedUrl])
-
-  // Add URL cache using WeakMap and track URLs for cleanup
-  const objectUrlCache = useRef(new WeakMap<File, string>()).current
-  const urlsToCleanup = useRef(new Set<string>()).current
 
   const getImageUrl = useCallback((file: FileWithScore) => {
     if (!file.id || !file.url) {

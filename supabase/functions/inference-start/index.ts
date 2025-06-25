@@ -37,6 +37,8 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders });
   }
 
+  const env = Deno.env.get('ENV') ?? 'prod';
+
   try {
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -160,7 +162,8 @@ serve(async (req) => {
           guidance_scale: inferenceJob.settings?.guidance_scale || 7.5,
           num_inference_steps: inferenceJob.settings?.num_inference_steps || 30,
           resolution: '1024x1024', // Default resolution
-          seed: -1 // Random seed
+          seed: -1, // Random seed
+          env: env
         }
       };
 

@@ -155,9 +155,7 @@ export interface Style {
 export interface JobApiClient {
   // Training
   startTraining: (request: TrainingStartRequest) => Promise<TrainingStartResponse>;
-  getTrainingProgress: (jobId: string, userId: string) => Promise<TrainingProgressResponse>;
   
   // Inference
   startInference: (request: InferenceStartRequest) => Promise<InferenceStartResponse>;
-  getInferenceProgress: (jobId: string, userId: string) => Promise<InferenceProgressResponse>;
 } 

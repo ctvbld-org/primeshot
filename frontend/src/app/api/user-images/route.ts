@@ -135,45 +135,41 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get the image record to verify ownership and get S3 URL
-    const { data: image, error: imageError } = await supabase
-      .from('images')
-      .select('url')
-      .eq('id', imageId)
-      .eq('user_id', user.id)
-      .single()
-
-    if (imageError || !image) {
-      return NextResponse.json({ error: 'Image not found' }, { status: 404 })
-    }
-
-    // Delete from S3 first
-    try {
-      // Extract the key from the full S3 URL and decode it
-      const url = new URL(decodeURIComponent(image.url));
-      // Remove leading slash and bucket name if present
-      let key = decodeURIComponent(url.pathname.substring(1));
-      const bucketName = process.env.AWS_S3_BUCKET;
-      if (bucketName && key.startsWith(`${bucketName}/`)) {
-        key = key.substring(bucketName.length + 1);
-      }
-      
-      await deleteFromS3(key);
-    } catch (error) {
-      console.error('Error deleting from S3:', error);
-      return NextResponse.json({ error: 'Failed to delete image from storage' }, { status: 500 });
-    }
-
-    // Delete from Supabase
-    const { error: deleteError } = await supabase
+    // Get the image record to verify ownership and then delete it while returning its URL
+    const { data: deleted, error: deleteError } = await supabase
       .from('images')
       .delete()
       .eq('id', imageId)
       .eq('user_id', user.id)
+      .select('url')
+      .single()
 
-    if (deleteError) {
-      console.error('Error deleting from database:', deleteError)
+    if (deleteError || !deleted) {
+      // If nothing was deleted, treat as not found; otherwise log the DB error
+      if (!deleted) {
+        return NextResponse.json({ error: 'Image not found' }, { status: 404 })
+      }
+      console.error('Error deleting image record:', deleteError)
       return NextResponse.json({ error: 'Failed to delete image record' }, { status: 500 })
+    }
+
+    // Now delete from S3
+    try {
+      const urlObj = new URL(decodeURIComponent(deleted.url))
+      // Remove leading slash and bucket name if present
+      let key = decodeURIComponent(urlObj.pathname.substring(1))
+      const bucketName = process.env.AWS_S3_BUCKET
+      if (bucketName && key.startsWith(`${bucketName}/`)) {
+        key = key.substring(bucketName.length + 1)
+      }
+      await deleteFromS3(key)
+    } catch (error) {
+      console.error('Error deleting from S3:', error)
+      // At this point the DB record is already removed
+      return NextResponse.json(
+        { error: 'Failed to delete image from storage but record removed' },
+        { status: 500 }
+      )
     }
 
     return NextResponse.json({ success: true })

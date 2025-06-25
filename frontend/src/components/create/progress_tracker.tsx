@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useWebSocketProgress } from '@/hooks/useWebSocketProgress';
+import { useTrainingProgress } from '@/hooks/useTrainingProgress';
 
 export interface ProgressTrackerProps {
   modelId: string;
@@ -16,7 +16,7 @@ export interface ProgressTrackerProps {
       getLiveCountdownSeconds: () => number;
     }
   ) => void;
-  onComplete: () => void;
+  onComplete: (modelId: string) => void;
 }
 
 export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
@@ -33,11 +33,11 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
     getProgressPercentage,
     getEstimatedTimeRemaining,
     getLiveCountdownSeconds,
-  } = useWebSocketProgress({
+  } = useTrainingProgress({
     jobId,
     websocketUrl: process.env.NEXT_PUBLIC_TRAINING_WEBSOCKET_URL || '',
     onComplete: () => {
-      onComplete();
+      onComplete(modelId);
     },
     onError: (error) => {
       console.error(`WebSocket error for face model ${modelId}:`, error);
@@ -57,27 +57,6 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [progress, isConnected, isConnecting, connectionError]);
-
-  // Emit countdown updates every second while running
-  useEffect(() => {
-    if (!progress || progress.status !== 'running') return;
-
-    const interval = setInterval(() => {
-      onProgressUpdate(modelId, {
-        progress,
-        isConnected,
-        isConnecting,
-        error: connectionError ? String(connectionError) : null,
-        getProgressPercentage,
-        getEstimatedTimeRemaining,
-        getLiveCountdownSeconds,
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-    // We intentionally omit deps to keep interval stable; updates come via above effect
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [progress?.status]);
 
   return null;
 }; 

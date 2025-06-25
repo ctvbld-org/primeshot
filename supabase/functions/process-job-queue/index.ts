@@ -27,6 +27,15 @@ Deno.serve(async (req: Request) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
+    // Resolve the base URL for the inference API from an environment variable instead of relying on
+    // string replacement so that it works with custom domains and local development setups.
+    const inferenceApiBase = Deno.env.get('INFERENCE_API_BASE_URL')
+    if (!inferenceApiBase) {
+      throw new Error('INFERENCE_API_BASE_URL environment variable not set')
+    }
+    // Ensure no trailing slash before we append the path.
+    const inferenceUrl = `${inferenceApiBase.replace(/\/$/, '')}/api/inference/start`
+
     // Parse request body
     const { face_model_id, action = 'process_queued' }: JobQueueRequest = 
       req.method === 'POST' ? await req.json() : {}
@@ -110,8 +119,6 @@ Deno.serve(async (req: Request) => {
         }
 
         // Call the inference API endpoint to trigger Modal
-        const inferenceUrl = `${supabaseUrl.replace('supabase.co', 'vercel.app')}/api/inference/start`
-        
         const response = await fetch(inferenceUrl, {
           method: 'POST',
           headers: {

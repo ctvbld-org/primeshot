@@ -252,23 +252,20 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
   }, []);
 
   // Refresh logic after a training job signals completion
-  const handleTrainingComplete = useCallback(() => {
-    // Immediate refresh
-    loadFaceModels();
+  const handleTrainingComplete = useCallback((modelId: string) => {
+    // Remove stale progress entry for this model
+    setTrainingProgress(prev => {
+      const { [modelId]: _removed, ...rest } = prev;
+      return rest;
+    });
 
-    // Poll a few additional times to catch the "ready" state once backend finishes post-processing
-    // let attempts = 0;
-    // const maxAttempts = 5; // ~15 s with 3 s interval
-    // const poll = () => {
-    //   attempts += 1;
-    //   loadFaceModels();
-    //   if (attempts < maxAttempts) {
-    //     setTimeout(poll, 3000);
-    //   }
-    // };
-    // setTimeout(poll, 3000);
-//   }, [loadFaceModels]);
-  }, []);
+    // Optimistically set model status to ready so UI updates immediately
+    setFaceModels(prev => prev.map(m => (m.id === modelId ? { ...m, status: 'ready' } : m)));
+
+    // Fetch fresh data to confirm backend status
+    //loadFaceModels();
+
+  }, [loadFaceModels]);
 
   const getStatusDisplay = (model: FaceModelWithTraining): React.ReactNode => {
     if (model.status === 'queued') {
@@ -277,6 +274,7 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
     if (model.status === 'training') {
       const progress = trainingProgress[model.id];
       const seconds = progress?.progress ? progress.getLiveCountdownSeconds?.() : null;
+
       return <Countdown seconds={seconds} />;
     }
     if (model.status === 'ready') {
@@ -292,8 +290,8 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
     }
     if (model.status === 'training') {
       const progress = trainingProgress[model.id];
-      if (progress?.progress?.phase) {
-        return progress.progress.phase;
+      if (progress?.progress?.message) {
+        return progress.progress.message;
       }
       return 'Training...';
     }
@@ -408,26 +406,27 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
         </SelectContent>
       </Select>
 
-      {/* Training Info for queued/training Models - appears to the right */}
-      {['queued', 'training'].includes(selectedModel?.status || '') && (
-        <div className="flex flex-col space-y-1">
-          {selectedModel?.status === 'queued' && (
-            <div className="text-sm">
+      {selectedModel && ['queued', 'training'].includes(selectedModel.status || '') && (
+        <div className="flex space-x-1">
+          <div className="text-sm">
+            {selectedModel.status === 'queued' && (
               <span className="text-yellow-400">Queued</span>
-            </div>
-          )}
-          {selectedModel?.status === 'training' && selectedModel && trainingProgress[selectedModel.id]?.progress && (
-            <>
-              {trainingProgress[selectedModel.id]?.progress?.phase && (
-                <div className="text-sm">
-                  <span className="text-cyan-400">{trainingProgress[selectedModel.id].progress.phase}</span>
-                </div>
-              )}
-              <div className="text-sm text-gray-400">
-                <Countdown seconds={trainingProgress[selectedModel.id]?.getLiveCountdownSeconds?.()} />
-              </div>
-            </>
-          )}
+            )}
+            {selectedModel.status === 'training' && (
+              trainingProgress[selectedModel.id]?.progress ? (
+                <span className="text-cyan-400">{trainingProgress[selectedModel.id].progress.message}</span>
+              ) : (
+                <span className="text-cyan-400">Initializing</span>
+              )
+            )}
+          </div>
+          <div className="text-sm text-gray-400">
+            {selectedModel.status === 'training' ? (
+              <><span>About </span><Countdown seconds={trainingProgress[selectedModel.id]?.getLiveCountdownSeconds?.()} /><span> remaining</span></>
+            ) : (
+              <span>Calculating remaining time</span>
+            )}
+          </div>
         </div>
       )}
     </div>

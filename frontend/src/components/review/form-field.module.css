@@ -5,6 +5,7 @@
   align-items: center;
   height: 48px;
   padding: 0 16px;
+  transition: all 0.3s;
 }
 
 .unchecked {
@@ -26,6 +27,7 @@
   letter-spacing: 0.22px;
   text-transform: uppercase;
   width: 100%;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .fieldContainer .fieldValue {
@@ -44,15 +46,6 @@
   font-weight: 400;
   line-height: 20px;
   border-radius: 0;
-}
-
-.label {
-  width: 100%;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.fieldContainer {
-  transition: all 0.3s;
 }
 
 .fieldContainer:hover {

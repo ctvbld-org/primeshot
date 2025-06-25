@@ -2,10 +2,8 @@ import { createClient } from '@/lib/supabase/client';
 import type {
   TrainingStartRequest,
   TrainingStartResponse,
-  TrainingProgressResponse,
   InferenceStartRequest,
   InferenceStartResponse,
-  InferenceProgressResponse,
   JobApiClient
 } from '@/types/jobs';
 
@@ -56,13 +54,6 @@ class JobsApiClient implements JobApiClient {
     });
   }
 
-  async getTrainingProgress(jobId: string, userId: string): Promise<TrainingProgressResponse> {
-    const params = new URLSearchParams({ job_id: jobId, user_id: userId });
-    return this.makeRequest<TrainingProgressResponse>(`training-progress?${params}`, {
-      method: 'GET',
-    });
-  }
-
   async startInference(request: InferenceStartRequest): Promise<InferenceStartResponse> {
     return this.makeRequest<InferenceStartResponse>('inference-start', {
       method: 'POST',
@@ -70,12 +61,6 @@ class JobsApiClient implements JobApiClient {
     });
   }
 
-  async getInferenceProgress(jobId: string, userId: string): Promise<InferenceProgressResponse> {
-    const params = new URLSearchParams({ job_id: jobId, user_id: userId });
-    return this.makeRequest<InferenceProgressResponse>(`inference-progress?${params}`, {
-      method: 'GET',
-    });
-  }
 }
 
 // Export singleton instance
@@ -92,15 +77,6 @@ export function useJobsApi() {
     }
   };
 
-  const getTrainingProgress = async (jobId: string, userId: string): Promise<TrainingProgressResponse> => {
-    try {
-      return await jobsApi.getTrainingProgress(jobId, userId);
-    } catch (error) {
-      console.error('Failed to get training progress:', error);
-      throw error;
-    }
-  };
-
   const startInference = async (request: InferenceStartRequest): Promise<InferenceStartResponse> => {
     try {
       return await jobsApi.startInference(request);
@@ -110,81 +86,8 @@ export function useJobsApi() {
     }
   };
 
-  const getInferenceProgress = async (jobId: string, userId: string): Promise<InferenceProgressResponse> => {
-    try {
-      return await jobsApi.getInferenceProgress(jobId, userId);
-    } catch (error) {
-      console.error('Failed to get inference progress:', error);
-      throw error;
-    }
-  };
-
   return {
     startTraining,
-    getTrainingProgress,
     startInference,
-    getInferenceProgress,
   };
 }
-
-// Utility function for polling job progress
-export function createJobProgressPoller(
-  getProgress: () => Promise<{ is_complete: boolean; progress: number }>,
-  onUpdate: (data: any) => void,
-  options: {
-    interval?: number;
-    maxDuration?: number;
-    onComplete?: () => void;
-    onError?: (error: Error) => void;
-  } = {}
-) {
-  const { 
-    interval = 2000, 
-    maxDuration = 300000, // 5 minutes max
-    onComplete,
-    onError 
-  } = options;
-
-  let timeoutId: NodeJS.Timeout;
-  const startTime = Date.now();
-  let isPolling = true;
-
-  const poll = async () => {
-    if (!isPolling) return;
-
-    try {
-      const data = await getProgress();
-      onUpdate(data);
-
-      if (data.is_complete) {
-        isPolling = false;
-        onComplete?.();
-        return;
-      }
-
-      // Check if we've exceeded max duration
-      if (Date.now() - startTime > maxDuration) {
-        isPolling = false;
-        onError?.(new Error('Polling timeout exceeded'));
-        return;
-      }
-
-      // Schedule next poll
-      timeoutId = setTimeout(poll, interval);
-    } catch (error) {
-      isPolling = false;
-      onError?.(error instanceof Error ? error : new Error('Polling failed'));
-    }
-  };
-
-  // Start polling
-  poll();
-
-  // Return cleanup function
-  return () => {
-    isPolling = false;
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-  };
-} 
