@@ -6,18 +6,17 @@ import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 import styles from './upload-footer.module.css'
 import { ImageTooltip } from './image-tooltip'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { ImageQualityResult } from '@/lib/image-quality'
 import { Loader } from '@/components/ui/loader'
 import { Icon } from '../icons/icon'
+import type { FileWithScore } from '@/lib/types'
 
 interface UploadFooterProps {
-  acceptedFiles?: File[]
+  acceptedFiles?: FileWithScore[]
   minImages: number
   maxImages: number
   onReviewClick: () => void
   isUploading: boolean
   onRemoveFile: (index: number) => void
-  qualityResults: Record<string, ImageQualityResult>
   isAnalyzing: boolean
   currentAnalyzingIndex: number
   currentUploadingIndex?: number | null
@@ -37,7 +36,6 @@ export function UploadFooter({
   onReviewClick,
   isUploading,
   onRemoveFile,
-  qualityResults,
   isAnalyzing,
   currentAnalyzingIndex,
   currentUploadingIndex = null,
@@ -54,8 +52,13 @@ export function UploadFooter({
     noScroll: true
   })
   const [openTooltipIndex, setOpenTooltipIndex] = useState<number | null>(null)
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({})
 
-  // 3. Memoized values
+  // 3a. Refs for Object URL caching / cleanup (moved up so callbacks can reference them)
+  const objectUrlCache = useRef(new WeakMap<File, string>()).current
+  const urlsToCleanup = useRef(new Set<string>()).current
+
+  // 3b. Memoized values
   const count = useMemo(() => acceptedFiles.length, [acceptedFiles])
 
   // 4. Callbacks
@@ -63,10 +66,20 @@ export function UploadFooter({
     setOpenTooltipIndex(open ? index : null)
   }, [])
 
+  // Immediately revoke object URL if the user removes a file mid-session to avoid memory leaks
   const handleRemoveFile = useCallback((index: number) => {
     setOpenTooltipIndex(null)
+
+    const file = acceptedFiles[index]
+    if (file instanceof File && objectUrlCache.has(file)) {
+      const url = objectUrlCache.get(file)!
+      URL.revokeObjectURL(url)
+      urlsToCleanup.delete(url)
+      objectUrlCache.delete(file)
+    }
+
     onRemoveFile(index)
-  }, [onRemoveFile])
+  }, [acceptedFiles, onRemoveFile, objectUrlCache, urlsToCleanup])
 
   const checkScroll = useCallback(() => {
     const wrapper = wrapperRef.current
@@ -100,10 +113,74 @@ export function UploadFooter({
     }
   }, [checkScroll])
 
+  // Function to fetch signed URL
+  const fetchSignedUrl = useCallback(async (file: FileWithScore) => {
+    if (!file.url || !file.id) return null
+    
+    try {
+      const params = new URLSearchParams()
+      params.append('imageId', file.id)
+      const response = await fetch(`/api/user-images?${params.toString()}`)
+      if (!response.ok) throw new Error('Failed to fetch signed URL')
+      const data = await response.json()
+      return data.url
+    } catch (error) {
+      console.error('Error fetching signed URL:', error)
+      return null
+    }
+  }, [])
+
+  // Effect to fetch signed URLs for uploaded files
+  useEffect(() => {
+    const fetchUrls = async () => {
+      const newSignedUrls: Record<string, string> = {}
+      
+      for (const file of acceptedFiles) {
+        if (file.id && file.url && !signedUrls[file.url]) {
+          const signedUrl = await fetchSignedUrl(file)
+          if (signedUrl) {
+            newSignedUrls[file.url] = signedUrl
+          }
+        }
+      }
+      
+      if (Object.keys(newSignedUrls).length > 0) {
+        setSignedUrls(prev => ({ ...prev, ...newSignedUrls }))
+      }
+    }
+
+    fetchUrls()
+  }, [acceptedFiles, fetchSignedUrl])
+
+  const getImageUrl = useCallback((file: FileWithScore) => {
+    if (!file.id || !file.url) {
+      // Check if file is actually a File object
+      if (file instanceof File) {
+        if (!objectUrlCache.has(file)) {
+          const url = URL.createObjectURL(file)
+          objectUrlCache.set(file, url)
+          urlsToCleanup.add(url)
+        }
+        return objectUrlCache.get(file)!
+      }
+      // Fallback if somehow we get an invalid file
+      console.warn('Invalid file object received:', file)
+      return ''
+    }
+    
+    return signedUrls[file.url] ?? ''
+  }, [signedUrls])
+
+  // Add cleanup effect for Object URLs
+  useEffect(() => {
+    return () => {
+      urlsToCleanup.forEach((url: string) => URL.revokeObjectURL(url))
+    }
+  }, [urlsToCleanup])
+
   // 6. Render helpers
   const renderSquare = useCallback((index: number, isRequired: boolean) => {
     const file = acceptedFiles[index]
-    const result = file ? qualityResults[file.name] : null
     const isCurrentlyAnalyzing = isAnalyzing && index === currentAnalyzingIndex
     const isCurrentlyUploading = isUploading && index === currentUploadingIndex
     const isUploaded = file && uploadedFiles.includes(file.name)
@@ -111,16 +188,16 @@ export function UploadFooter({
     
     let qualityClass = ''
     let qualityLabel = ''
-    if (result) {
-      if (result.score >= 80) {
-        qualityClass = styles.qualityIndicatorHigh
-        qualityLabel = t('quality.high')
-      } else {
-        qualityClass = styles.qualityIndicatorMedium
-        qualityLabel = t('quality.medium')
-      }
+    if (file?.score && file.score > 79) {
+      qualityClass = styles.qualityIndicatorHigh
+      qualityLabel = t('quality.high')
+    } else {
+      qualityClass = styles.qualityIndicatorMedium
+      qualityLabel = t('quality.medium')
     }
 
+    const imageUrl = file ? getImageUrl(file) : null
+    
     // Disable tooltip interaction when uploading
     const popoverTriggerProps = isUploading
       ? { tabIndex: -1, style: { pointerEvents: 'none' as React.CSSProperties['pointerEvents'], cursor: 'not-allowed' as React.CSSProperties['cursor'] } }
@@ -151,19 +228,23 @@ export function UploadFooter({
               t('accessibility.emptyPhotoSlot', { number: index + 1 })
             }
           >
-            {file && result?.isAcceptable ? (
+            {file && imageUrl ? (
               <>
                 <img 
-                  src={URL.createObjectURL(file)}
+                  src={imageUrl}
                   alt={t('accessibility.photoPreview', { number: index + 1 })}
                   className={cn(
                     "w-full h-full object-cover rounded-lg transition-all duration-300",
                     isUploading && !isUploaded && !isCurrentlyUploading && "opacity-60",
                     isCurrentlyUploading && "opacity-70"
                   )}
-                  onLoad={(e) => URL.revokeObjectURL((e.target as HTMLImageElement).src)}
+                  onLoad={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    // Remove URL revocation since we're now caching URLs
+                    // and cleaning up on unmount
+                  }}
                 />
-                {result && !isUploading && (
+                {!isUploading && (
                   <div 
                     className={cn(styles.qualityIndicator, qualityClass)}
                     aria-hidden="true"
@@ -187,7 +268,7 @@ export function UploadFooter({
             )}
           </div>
         </PopoverTrigger>
-        {file && result?.isAcceptable && !isCurrentlyAnalyzing && !isCurrentlyUploading && !isUploading && (
+        {file && !isCurrentlyAnalyzing && !isCurrentlyUploading && !isUploading && (
           <PopoverContent 
             className="w-auto p-0 border-none shadow-none bg-transparent" 
             align="center"
@@ -196,8 +277,7 @@ export function UploadFooter({
           >
             <ImageTooltip
               file={file}
-              result={result}
-              fileUrl={URL.createObjectURL(file)}
+              fileUrl={imageUrl || ''}
               onClose={() => setOpenTooltipIndex(null)}
               onDelete={() => handleRemoveFile(index)}
             />
@@ -205,11 +285,7 @@ export function UploadFooter({
         )}
       </Popover>
     )
-  }, [acceptedFiles, qualityResults, openTooltipIndex, handleTooltipOpenChange, handleRemoveFile, t, isAnalyzing, currentAnalyzingIndex, isUploading, currentUploadingIndex, uploadedFiles])
-
-  const generateSquares = useCallback((count: number, isRequired: boolean, startIndex: number = 0) => {
-    return Array.from({ length: count }).map((_, i) => renderSquare(startIndex + i, isRequired))
-  }, [renderSquare])
+  }, [acceptedFiles, openTooltipIndex, handleTooltipOpenChange, handleRemoveFile, t, isAnalyzing, currentAnalyzingIndex, isUploading, currentUploadingIndex, uploadedFiles, getImageUrl])
 
   // 7. Render
   return (
@@ -243,13 +319,13 @@ export function UploadFooter({
             <div className={styles.squaresContainer}>
               {/* Required photos */}
               <div className={styles.squareGroup}>
-                {generateSquares(minImages, true)}
+                {Array.from({ length: minImages }).map((_, i) => renderSquare(i, true))}
               </div>
               {/* Line separator */}
               <span className={styles.separatorImg} />
               {/* Optional additional photos */}
               <div className={styles.squareGroup}>
-                {generateSquares(maxImages - minImages, false, minImages)}
+                {Array.from({ length: maxImages - minImages }).map((_, i) => renderSquare(i + minImages, false))}
               </div>
             </div>
           </div>

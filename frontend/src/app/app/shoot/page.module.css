@@ -128,7 +128,7 @@
 
 .fake-card {
     border-radius: 36px;
-    background: linear-gradient(180deg, rgba(68, 227, 201, 0.01) 0%, rgba(68, 227, 201, 0.00) 100%);
+    background: linear-gradient(180deg, rgba(68, 227, 201, 0.04) 0%, rgba(68, 227, 201, 0.00) 100%);
     flex: 1 0 386px;
     max-width: 386px;
     height: calc(var(--image-style-card-height) + 32px);

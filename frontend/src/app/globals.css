@@ -46,7 +46,7 @@
 
 :root {
   --radius: 0.625rem;
-  --background: #001514;
+  --background: #0C1013;
   --foreground: #ffffff99;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -144,11 +144,22 @@
   }
 }
 
-.page-upload {
+.page-upload, 
+.page-profile, 
+.page-review {
   background: 
     radial-gradient(circle at 50% 50%, rgba(12, 16, 19, 0.00) 0%, #0C1013 100%),
-    url(/bg_tile.webp) repeat 0 0;
+    url(/bg_tile.webp) repeat 0 0, #0C1013;
   background-size: 34px;
+}
+
+.page-review {
+  justify-content: flex-start;
+}
+
+.page-review main {
+  min-height: calc(100vh - 120px);
+  height: auto;
 }
 
 /* Hide scrollbar utility */
@@ -211,4 +222,23 @@
   0% { opacity: 1; }
   50% { opacity: 0.6; }
   100% { opacity: 1; }
+}
+
+/* ----------------------------------------
+   Circle Progress (pure CSS)
+-------------------------------------------*/
+.circle-progress{
+  --size:64px;
+  --thickness:2px;
+  --value:0;
+  --color:#2ADED8;
+  width:var(--size);
+  height:var(--size);
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  pointer-events:none;
+  background: conic-gradient(transparent calc(var(--value)*1%), var(--color) 0);
+  border: var(--thickness) solid var(--color);
+  mix-blend-mode: plus-lighter;
 }

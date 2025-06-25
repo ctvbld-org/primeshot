@@ -1,0 +1,71 @@
+.container {
+  background-color: #0C1013;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 40px 32px;
+}
+
+.header {
+  margin-bottom: 32px;
+}
+
+.title {
+  color: #44E3C9;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 28px;
+  letter-spacing: -0.48px;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: rgba(192, 206, 216, 0.80);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 18px;
+  max-width: 286px;
+}
+
+.form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.footer {
+  margin-top: 32px;
+}
+
+.terms {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.link {
+  color: #FF9F4A;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.generateButton {
+  width: 100%;
+  background-color: #FF9F4A;
+  color: #000;
+  border: none;
+  border-radius: 25px;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.generateButton:hover {
+  background-color: #FFA857;
+}

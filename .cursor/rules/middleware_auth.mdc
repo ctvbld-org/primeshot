@@ -1,6 +1,6 @@
 ---
-description: Authentication patterns and best practices for Next.js middleware using Supabase SSR
-globs: src/middleware.ts, src/lib/supabase/middleware.ts
+description: Authentication patterns and best practices for Next.js middleware using Supabase SSR, covering session verification, cookie management, route protection, and security considerations.
+globs: 
 alwaysApply: false
 ---
 

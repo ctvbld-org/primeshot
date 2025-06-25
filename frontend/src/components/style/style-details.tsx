@@ -259,7 +259,7 @@ export function StyleDetails({
             <>
               <Button 
                 className={styles['customize-button']}
-                variant="secondary"
+                variant="primary"
                 onClick={() => {
                   setIsNavigating(false);
                   onCustomize(index);

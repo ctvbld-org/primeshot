@@ -1,5 +1,5 @@
 ---
-description: 
+description: Image URL handling patterns for option images using the getOptionsImage utility to properly process relative paths from options.json and ensure Next.js Image component compatibility.
 globs: 
 alwaysApply: false
 ---

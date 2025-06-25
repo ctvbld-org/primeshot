@@ -39,7 +39,7 @@ export default function AppLayout({
   }
 
   return (
-    <div className={`flex flex-col flex-1 justify-center pt-[56px] pb-[64px] min-h-screen overflow-hidden page-${pageName}`}>
+    <div className={`flex flex-col flex-1 justify-center pt-[56px] pb-[72px] min-h-screen overflow-hidden page-${pageName}`}>
       {!pathname.includes('/settings/profile') && (
         <AppHeader user={user} />
       )}

@@ -1,7 +1,7 @@
 ---
-description: User flow and state transitions for the headshot generation process
-globs: src/app/app/**/*.tsx, src/components/**/*.tsx
-alwaysApply: true
+description: User flow management patterns covering sequential stage progression from authentication through style creation, payment, upload, review, and albums, with session persistence, state recovery, and navigation validation.
+globs: 
+alwaysApply: false
 ---
 - **User Flow Stages**
   - Each stage corresponds to specific routes and components
@@ -15,7 +15,7 @@ alwaysApply: true
     | 'payment'       // Payment processing
     | 'upload'        // Uploading user photos
     | 'review'        // Image quality review
-    | 'shoots'        // Results viewing
+    | 'albums'        // Results viewing
   ```
 
 - **1. Authentication (Route: /auth)**
@@ -34,6 +34,17 @@ alwaysApply: true
   - Required before accessing any app features
   - If user has gender = null, redirects to profile settings
   - Must complete profile before accessing other pages
+  - Profile includes:
+    - eye_color
+    - hair_color
+    - hair_length
+    - hair_style
+    - age
+    - body_type
+    - height
+    - weight
+    - ethnicity
+    - glasses
   ```typescript
   // ✅ DO: Check profile completion
   if (!user.gender) return <RedirectToProfile />
@@ -53,12 +64,15 @@ alwaysApply: true
   ```
 
 - **4. Style Creation (Route: /app/style)**
-  - Three main selectors:
-    - Photography Style (studio, natural, dramatic)
-    - Outfit (professional, casual, creative)
-    - Background (plain, office, outdoor, custom)
+  - Uses style_configs table for available options
+  - Style configuration includes:
+    - Photography Style
+    - Outfit
+    - Background
+    - Gender-specific options
+    - Clothing colors
   - Can save or go back to shoot page
-  - Saves as draft status
+  - Saves as draft status in styles table
   ```typescript
   // ✅ DO: Save with draft status
   status: 'draft' as StyleStatus
@@ -70,8 +84,8 @@ alwaysApply: true
 - **5. Payment (Route: /app/payment)**
   - Only accessible with at least one style
   - Shows order summary with selected styles
-  - Can go back to shoot or style pages
-  - Handles payment processing
+  - Creates order record in orders table
+  - Handles payment processing via Stripe
   - Updates style status on successful payment
   ```typescript
   // ✅ DO: Update all styles on payment
@@ -81,34 +95,34 @@ alwaysApply: true
   paymentStatus, paymentError
   ```
 
-- **6. Payment Success (Route: /app/payment/success)**
-  - Only accessible after successful payment
-  - Shows success message
-  - Provides button to proceed to upload
-  - Cannot go back to previous stages
-
-- **7. Photo Upload (Route: /app/upload)**
+- **6. Photo Upload (Route: /app/upload)**
   - Only accessible after successful payment
   - Cannot go back to previous stages
-  - Handles multiple photo uploads
+  - Uses upload_sessions and upload_chunks tables for chunked upload
   - Validates image requirements:
     - Minimum resolution
     - Face detection
     - Image quality checks
   ```typescript
-  // ✅ DO: Validate images before upload
-  validateImageRequirements(file)
+  // ✅ DO: Create upload session
+  await supabase.from('upload_sessions').insert({
+    user_id: user.id,
+    order_id: orderId,
+    file_name: file.name,
+    file_size: file.size,
+    total_chunks: calculateChunks(file.size)
+  })
   
-  // ✅ DO: Show clear upload feedback
+  // ✅ DO: Show upload progress
   uploadProgress, uploadStatus
   ```
 
-- **8. Upload Review (Route: /app/review)**
-  - Shows upload results with quality ratings
+- **7. Upload Review (Route: /app/review)**
+  - Shows upload results with quality ratings from images table
   - Can go back to upload page only
   - Allows re-upload of rejected images
   - Requires all images to pass quality check
-  - Provides button to start AI generation
+  - Initiates AI generation process
   ```typescript
   // ✅ DO: Show clear rejection reasons
   image.rejectionReasons.map(reason => ...)
@@ -117,17 +131,19 @@ alwaysApply: true
   disabled={hasRejectedImages}
   ```
 
-- **9. My Shoots (Route: /app/shoots)**
-  - Shows all compositions grouped by status:
-    - Completed: Ready for viewing
-    - Processing: Being generated
-    - Draft: Not yet submitted
+- **8. Albums (Route: /app/albums)**
+  - Shows all generated images grouped by style
+  - Uses generated_images table to track:
+    - Processing status
+    - Storage paths
+    - Error messages
+    - Metadata
   - Cannot go back to any previous stages
   ```typescript
-  // ✅ DO: Group compositions by status
-  groupBy(compositions, 'status')
+  // ✅ DO: Group by style and status
+  const groupedImages = groupBy(generatedImages, ['style_id', 'status'])
   
-  // ✅ DO: Sort by creation date within groups
+  // ✅ DO: Sort by creation date
   orderBy(group, 'created_at', 'desc')
   ```
 
@@ -146,6 +162,7 @@ alwaysApply: true
     - Validation failures
     - Payment failures
     - Processing errors
+    - Upload failures
   ```typescript
   // ✅ DO: Show user-friendly error messages
   toast({
@@ -158,24 +175,20 @@ alwaysApply: true
 - **Navigation Rules**
   - Forward progression requires completion of previous steps
   - Back navigation allowed to any previous step
-  - Composition editing only allowed in draft status
+  - Style editing only allowed in draft status
   ```typescript
   // ✅ DO: Check step completion
-  if (!hasCompletedPrp) redirect('/previous-step')
+  if (!hasCompletedStep) redirect('/previous-step')
   
-  //nly in draft
-  disabled={compos}
+  // ✅ DO: Disable editing for non-draft styles
+  disabled={style.status !== 'draft'}
   ```
-
-- **Related Rules**
-  - See [auth.mdc](mdc:.cursor/rules/auth.mdc) for authentication patterns
-  - See [project_structure.mdc](mdc:.cursor/rules/project_structure.mdc) for file organization
-  - See [supabase_migrations.mdc](mdc:.cursor/rules/supabase_migrations.mdc) for database schema
 
 - **Session Persistence and State Recovery**
   - Track and restore user's progress through the flow
   - Persist state for users who haven't completed payment
   - Automatically redirect to last active step on return
+  - Uses user_progress table with flow_stage type
 
   ```typescript
   // Flow progress tracking type
@@ -213,7 +226,7 @@ alwaysApply: true
     .upsert({
       user_id: user.id,
       current_stage: 'upload',
-      completed_stages: ['compositions'],
+      completed_stages: ['shoot'],
       stage_data: stageData,
       last_active_at: new Date().toISOString()
     })
@@ -232,23 +245,23 @@ alwaysApply: true
   }, [user])
 
   // ❌ DON'T: Allow skipping to future stages
-  if (!progress.completedStages.includes('compositions')) {
-    return redirect('/app/compositions')
+  if (!progress.completedStages.includes('shoot')) {
+    return redirect('/app/shoot')
   }
   ```
 
 - **Progress Persistence Points**
-  1. **Compositions Stage**
-     - After landing on empty compositions page
-     - After each composition save
-     - Before proceeding to upload
+  1. **Shoot Stage**
+     - After landing on empty shoot page
+     - After each style save
+     - Before proceeding to payment
      ```typescript
-     // ✅ DO: Update progress after composition save
+     // ✅ DO: Update progress after style save
      await updateProgress({
-       currentStage: 'compositions',
+       currentStage: 'shoot',
        stageData: {
          compositions: {
-           savedCount: compositions.length,
+           savedCount: styles.length,
            lastSavedAt: new Date().toISOString()
          }
        }
@@ -276,7 +289,7 @@ alwaysApply: true
   3. **Review Stage**
      - Initial image review status
      - After each image rejection/approval
-     - Before proceeding to payment
+     - Before proceeding to generation
      ```typescript
      // ✅ DO: Save review decisions
      await updateProgress({
@@ -309,7 +322,7 @@ alwaysApply: true
 
 - **Progress Cleanup**
   - Clear progress data after successful payment
-  - Retain historical data for analytics
+  - Retain historical data in completed_user_journeys table
   ```typescript
   // ✅ DO: Clear progress after payment
   if (paymentSuccess) {
@@ -341,11 +354,11 @@ alwaysApply: true
     progress: FlowProgress
   ) {
     const stageOrder = [
-      'compositions',
+      'shoot',
       'payment',
       'upload',
       'review',
-      'shoots'
+      'albums'
     ]
     
     const currentIndex = stageOrder.indexOf(currentStage)
@@ -358,3 +371,8 @@ alwaysApply: true
     return currentIndex <= completedIndex + 1
   }
   ```
+
+- **Related Rules**
+  - See [auth.mdc](mdc:.cursor/rules/auth.mdc) for authentication patterns
+  - See [project_structure.mdc](mdc:.cursor/rules/project_structure.mdc) for file organization
+  - See [supabase_migrations.mdc](mdc:.cursor/rules/supabase_migrations.mdc) for database schema

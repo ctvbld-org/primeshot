@@ -1,26 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { createPresignedGetUrl } from '@/lib/s3'
+import { createPresignedGetUrl, deleteFromS3 } from '@/lib/s3'
 import { Image as ImageType } from '@/lib/types'
 
 type ImageRecord = ImageType
 
+// Helper to convert mime types
+const getMimeType = (path: string): string => {
+  const extension = path.split('.').pop()?.toLowerCase();
+  
+  switch (extension) {
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'png':
+      return 'image/png';
+    case 'webp':
+      return 'image/webp';
+    case 'svg':
+      return 'image/svg+xml';
+    default:
+      return 'application/octet-stream';
+  }
+};
+
 /**
  * API Route: /api/user-images
  * 
- * Retrieves user-uploaded images from the database with presigned S3 URLs.
- * Requires authentication and returns images filtered by user ID and optional
- * image ID or order ID parameters.
+ * Returns signed URLs for user-uploaded images from S3.
+ * Accepts either:
+ * - imageId: ID of the image to look up
+ * - orderId: ID of the order to get images for
+ * - url: Direct S3 URL to generate presigned URL for (for thumbnails)
+ * 
+ * Requires authentication and validates user access.
  */
 export async function GET(request: NextRequest) {
   try {
     // Parse query parameters
     const url = new URL(request.url)
     const imageId = url.searchParams.get('imageId')
-    const orderId = url.searchParams.get('orderId') // Get potential orderId param
-    // const userId = url.searchParams.get('userId') // userId param likely not needed as we use authenticated user
+    const orderId = url.searchParams.get('orderId')
+    const directUrl = url.searchParams.get('url')
 
-    // Create Supabase client
+    // Create Supabase client for auth check
     const supabase = await createClient()
 
     // Get current user for authorization
@@ -29,85 +52,129 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Set up query based on parameters
-    let query = supabase.from('images').select('*');
-    
-    // Always filter by the authenticated user
-    query = query.eq('user_id', user.id);
-
+    // If imageId is provided, look up the image
     if (imageId) {
-      // If imageId is provided, filter by that specific image
-      query = query.eq('id', imageId);
-    } else if (orderId) {
-      // If orderId is provided, filter by that order
-      query = query.eq('order_id', orderId);
-    } 
-    // If neither imageId nor orderId is provided, it implicitly fetches all images for the user (due to the user_id filter)
-    // Consider if this fallback (fetching *all* user images) is desired or if an orderId should be required for listing.
-    // For now, keeping the fallback.
+      const { data: image, error: imageError } = await supabase
+        .from('images')
+        .select('url')
+        .eq('id', imageId)
+        .eq('user_id', user.id)
+        .single()
 
-    // Add sorting
-    query = query.order('created_at', { ascending: false });
+      if (imageError || !image) {
+        return NextResponse.json({ error: 'Image not found' }, { status: 404 })
+      }
 
-    // Execute query
-    const { data: images, error } = await query
-
-    if (error) {
-      console.error('Database error fetching images:', error)
-      return NextResponse.json({ error: 'Failed to fetch images' }, { status: 500 })
+      const signedUrl = await createPresignedGetUrl(image.url)
+      return NextResponse.json({ url: signedUrl })
     }
 
-    if (!images || images.length === 0) {
-      // If no images found, return empty array but not an error
-      return NextResponse.json([])
+    // If orderId is provided, look up all images for the order
+    if (orderId) {
+      const { data: images, error: imagesError } = await supabase
+        .from('images')
+        .select('url')
+        .eq('order_id', orderId)
+        .eq('user_id', user.id)
+
+      if (imagesError) {
+        return NextResponse.json({ error: 'Failed to fetch order images' }, { status: 500 })
+      }
+
+      const signedUrls = await Promise.all(
+        images.map(image => createPresignedGetUrl(image.url))
+      )
+
+      return NextResponse.json(signedUrls)
     }
 
-    // Generate presigned URLs for each image
-    const imagesWithPresignedUrls = await Promise.all(
-      (images || []).map(async (image: ImageRecord) => {
-        try {
-          console.log(`Processing image ${image.id}: Original URL = ${image.url}`);
-          
-          // Try to create a presigned URL for the image
-          try {
-            const presignedUrl = await createPresignedGetUrl(image.url);
-            console.log(`Generated presigned URL for image ${image.id}`);
-            return {
-              ...image,
-              url: presignedUrl
-            };
-          } catch (presignError) {
-            console.error(`Error generating presigned URL for ${image.id}:`, presignError);
-            
-            // If this fails, try to use the original URL directly
-            // This handles cases where the URL is already public
-            if (image.url.startsWith('http')) {
-              console.log(`Falling back to original URL for image ${image.id}`);
-              return { ...image };
-            }
-            
-            // If that doesn't work either, return placeholder
-            return { 
-              ...image, 
-              url: '/images/placeholder-error.png',
-              error: presignError instanceof Error ? presignError.message : 'Unknown error' 
-            };
-          }
-        } catch (error) {
-          console.error(`Failed to process image ${image.id}:`, error);
-          // Return the original image record but with a placeholder/error URL
-          return { 
-            ...image, 
-            url: '/images/placeholder-error.png',
-            error: error instanceof Error ? error.message : 'Unknown error'
-          }; 
-        }
-      })
+    // If direct URL is provided, generate presigned URL for it
+    if (directUrl) {
+      try {
+        const signedUrl = await createPresignedGetUrl(directUrl)
+        return NextResponse.json({ url: signedUrl })
+      } catch (error) {
+        console.error('Error creating presigned URL for direct URL:', error)
+        return NextResponse.json({ error: 'Failed to create presigned URL' }, { status: 500 })
+      }
+    }
+
+    return NextResponse.json(
+      { error: 'Missing required parameter: imageId, orderId, or url' }, 
+      { status: 400 }
     )
-
-    return NextResponse.json(imagesWithPresignedUrls)
   } catch (error) {
-    console.error('API /api/user-images error:', error)
+    console.error('Error in user-images API route:', error)
+    const message = error instanceof Error ? error.message : 'Internal server error'
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
+}
+
+/**
+ * DELETE /api/user-images
+ * 
+ * Deletes an image from both S3 and the Supabase database.
+ * Requires imageId parameter and validates user ownership.
+ */
+export async function DELETE(request: NextRequest) {
+  try {
+    // Parse query parameters
+    const url = new URL(request.url)
+    const imageId = url.searchParams.get('imageId')
+
+    if (!imageId) {
+      return NextResponse.json({ error: 'Missing required parameter: imageId' }, { status: 400 })
+    }
+
+    // Create Supabase client for auth check
+    const supabase = await createClient()
+
+    // Get current user for authorization
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Get the image record to verify ownership and then delete it while returning its URL
+    const { data: deleted, error: deleteError } = await supabase
+      .from('images')
+      .delete()
+      .eq('id', imageId)
+      .eq('user_id', user.id)
+      .select('url')
+      .single()
+
+    if (deleteError || !deleted) {
+      // If nothing was deleted, treat as not found; otherwise log the DB error
+      if (!deleted) {
+        return NextResponse.json({ error: 'Image not found' }, { status: 404 })
+      }
+      console.error('Error deleting image record:', deleteError)
+      return NextResponse.json({ error: 'Failed to delete image record' }, { status: 500 })
+    }
+
+    // Now delete from S3
+    try {
+      const urlObj = new URL(decodeURIComponent(deleted.url))
+      // Remove leading slash and bucket name if present
+      let key = decodeURIComponent(urlObj.pathname.substring(1))
+      const bucketName = process.env.AWS_S3_BUCKET
+      if (bucketName && key.startsWith(`${bucketName}/`)) {
+        key = key.substring(bucketName.length + 1)
+      }
+      await deleteFromS3(key)
+    } catch (error) {
+      console.error('Error deleting from S3:', error)
+      // At this point the DB record is already removed
+      return NextResponse.json(
+        { error: 'Failed to delete image from storage but record removed' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Error in user-images DELETE route:', error)
     const message = error instanceof Error ? error.message : 'Internal server error'
     return NextResponse.json({ error: message }, { status: 500 })
   }

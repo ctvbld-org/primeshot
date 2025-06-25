@@ -1,5 +1,5 @@
 ---
-description: 
+description: Internationalization patterns for translation file organization, database translation storage, translation key naming conventions, and type-safe component usage with TypeScript integration.
 globs: 
 alwaysApply: false
 ---

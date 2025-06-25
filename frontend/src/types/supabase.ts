@@ -7,31 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          operationName?: string
-          query?: string
-          variables?: Json
-          extensions?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       completed_user_journeys: {
@@ -69,46 +44,181 @@ export type Database = {
           },
         ]
       }
+      face_models: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          status: string
+          thumbnail_url: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          status?: string
+          thumbnail_url?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          status?: string
+          thumbnail_url?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      generated_images: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          metadata: Json | null
+          status: string
+          storage_path: string
+          style_id: string | null
+          updated_at: string
+          upload_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          status: string
+          storage_path: string
+          style_id?: string | null
+          updated_at?: string
+          upload_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          status?: string
+          storage_path?: string
+          style_id?: string | null
+          updated_at?: string
+          upload_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generated_images_style_id_fkey"
+            columns: ["style_id"]
+            isOneToOne: false
+            referencedRelation: "styles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_images_upload_id_fkey"
+            columns: ["upload_id"]
+            isOneToOne: false
+            referencedRelation: "images"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      image_processing_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          error_message: string | null
+          id: string
+          order_id: string
+          original_filename: string
+          processed_file_path: string | null
+          raw_file_path: string
+          retry_count: number | null
+          started_at: string | null
+          status: string
+          updated_at: string | null
+          upload_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          order_id: string
+          original_filename: string
+          processed_file_path?: string | null
+          raw_file_path: string
+          retry_count?: number | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string | null
+          upload_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          order_id?: string
+          original_filename?: string
+          processed_file_path?: string | null
+          raw_file_path?: string
+          retry_count?: number | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string | null
+          upload_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       images: {
         Row: {
           created_at: string | null
           dimensions: Json | null
+          face_model_id: string | null
           file_name: string | null
           file_size: number | null
           id: string
           mime_type: string | null
-          order_id: string | null
+          quality_score: number | null
           url: string
           user_id: string | null
         }
         Insert: {
           created_at?: string | null
           dimensions?: Json | null
+          face_model_id?: string | null
           file_name?: string | null
           file_size?: number | null
           id?: string
           mime_type?: string | null
-          order_id?: string | null
+          quality_score?: number | null
           url: string
           user_id?: string | null
         }
         Update: {
           created_at?: string | null
           dimensions?: Json | null
+          face_model_id?: string | null
           file_name?: string | null
           file_size?: number | null
           id?: string
           mime_type?: string | null
-          order_id?: string | null
+          quality_score?: number | null
           url?: string
           user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "images_order_id_fkey"
-            columns: ["order_id"]
+            foreignKeyName: "fk_images_face_model_id"
+            columns: ["face_model_id"]
             isOneToOne: false
-            referencedRelation: "orders"
+            referencedRelation: "face_models"
             referencedColumns: ["id"]
           },
           {
@@ -116,6 +226,63 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inference_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          error_message: string | null
+          face_model_id: string
+          id: string
+          image_url: string | null
+          progress: number | null
+          status: string
+          style_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          face_model_id: string
+          id?: string
+          image_url?: string | null
+          progress?: number | null
+          status?: string
+          style_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          face_model_id?: string
+          id?: string
+          image_url?: string | null
+          progress?: number | null
+          status?: string
+          style_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inference_jobs_face_model_id_fkey"
+            columns: ["face_model_id"]
+            isOneToOne: false
+            referencedRelation: "face_models"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inference_jobs_style_id_fkey"
+            columns: ["style_id"]
+            isOneToOne: false
+            referencedRelation: "styles"
             referencedColumns: ["id"]
           },
         ]
@@ -131,7 +298,6 @@ export type Database = {
           metadata: Json | null
           payment_intent_id: string | null
           payment_status: string | null
-          shoot_number: number
           status: string
           updated_at: string | null
           user_id: string | null
@@ -146,7 +312,6 @@ export type Database = {
           metadata?: Json | null
           payment_intent_id?: string | null
           payment_status?: string | null
-          shoot_number: number
           status: string
           updated_at?: string | null
           user_id?: string | null
@@ -161,7 +326,6 @@ export type Database = {
           metadata?: Json | null
           payment_intent_id?: string | null
           payment_status?: string | null
-          shoot_number?: number
           status?: string
           updated_at?: string | null
           user_id?: string | null
@@ -179,7 +343,7 @@ export type Database = {
       sessions: {
         Row: {
           created_at: string | null
-          expires_at: string
+          expires_at: string | null
           id: string
           last_accessed_at: string | null
           updated_at: string | null
@@ -187,7 +351,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
-          expires_at: string
+          expires_at?: string | null
           id?: string
           last_accessed_at?: string | null
           updated_at?: string | null
@@ -195,7 +359,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
-          expires_at?: string
+          expires_at?: string | null
           id?: string
           last_accessed_at?: string | null
           updated_at?: string | null
@@ -223,6 +387,7 @@ export type Database = {
           name: string
           preview_images: Json
           tagline: string | null
+          translations: Json
           updated_at: string | null
         }
         Insert: {
@@ -236,6 +401,7 @@ export type Database = {
           name: string
           preview_images?: Json
           tagline?: string | null
+          translations?: Json
           updated_at?: string | null
         }
         Update: {
@@ -249,6 +415,7 @@ export type Database = {
           name?: string
           preview_images?: Json
           tagline?: string | null
+          translations?: Json
           updated_at?: string | null
         }
         Relationships: []
@@ -261,6 +428,7 @@ export type Database = {
           id: string
           label: string
           options: Json
+          translations: Json
           updated_at: string | null
         }
         Insert: {
@@ -270,6 +438,7 @@ export type Database = {
           id?: string
           label: string
           options?: Json
+          translations?: Json
           updated_at?: string | null
         }
         Update: {
@@ -279,6 +448,7 @@ export type Database = {
           id?: string
           label?: string
           options?: Json
+          translations?: Json
           updated_at?: string | null
         }
         Relationships: []
@@ -289,6 +459,7 @@ export type Database = {
           id: string
           name: string
           order_id: string | null
+          prompt: string | null
           settings: Json
           status: string
           updated_at: string | null
@@ -299,8 +470,9 @@ export type Database = {
           id: string
           name: string
           order_id?: string | null
-          settings: Json
-          status: string
+          prompt?: string | null
+          settings?: Json
+          status?: string
           updated_at?: string | null
           user_id?: string | null
         }
@@ -309,12 +481,20 @@ export type Database = {
           id?: string
           name?: string
           order_id?: string | null
+          prompt?: string | null
           settings?: Json
           status?: string
           updated_at?: string | null
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "styles_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "styles_user_id_fkey"
             columns: ["user_id"]
@@ -323,6 +503,174 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      training_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          face_model_id: string
+          id: string
+          log_url: string | null
+          message: string | null
+          progress: number | null
+          started_at: string | null
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          face_model_id: string
+          id?: string
+          log_url?: string | null
+          message?: string | null
+          progress?: number | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          face_model_id?: string
+          id?: string
+          log_url?: string | null
+          message?: string | null
+          progress?: number | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_jobs_face_model_id_fkey"
+            columns: ["face_model_id"]
+            isOneToOne: false
+            referencedRelation: "face_models"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      upload_chunks: {
+        Row: {
+          chunk_index: number
+          chunk_size: number
+          created_at: string
+          id: string
+          session_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          chunk_index: number
+          chunk_size: number
+          created_at?: string
+          id?: string
+          session_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          chunk_index?: number
+          chunk_size?: number
+          created_at?: string
+          id?: string
+          session_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "upload_chunks_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "upload_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      upload_sessions: {
+        Row: {
+          completed_chunks: number | null
+          created_at: string
+          file_name: string
+          file_size: number
+          file_type: string
+          final_url: string | null
+          id: string
+          metadata: Json | null
+          order_id: string
+          quality_score: number | null
+          status: string
+          total_chunks: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_chunks?: number | null
+          created_at?: string
+          file_name: string
+          file_size: number
+          file_type: string
+          final_url?: string | null
+          id?: string
+          metadata?: Json | null
+          order_id: string
+          quality_score?: number | null
+          status?: string
+          total_chunks: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_chunks?: number | null
+          created_at?: string
+          file_name?: string
+          file_size?: number
+          file_type?: string
+          final_url?: string | null
+          id?: string
+          metadata?: Json | null
+          order_id?: string
+          quality_score?: number | null
+          status?: string
+          total_chunks?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "upload_sessions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_language_preferences: {
+        Row: {
+          created_at: string | null
+          preferred_language: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          preferred_language?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          preferred_language?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       user_progress: {
         Row: {
@@ -367,31 +715,61 @@ export type Database = {
       }
       users: {
         Row: {
+          age: string | null
           avatar_url: string | null
+          body_type: string | null
           created_at: string | null
-          email: string | null
+          email: string
+          ethnicity: string | null
+          eye_color: string | null
           full_name: string | null
           gender: string | null
+          glasses: boolean | null
+          hair_color: string | null
+          hair_length: string | null
+          hair_style: string | null
+          height: number | null
           id: string
           updated_at: string | null
+          weight: number | null
         }
         Insert: {
+          age?: string | null
           avatar_url?: string | null
+          body_type?: string | null
           created_at?: string | null
-          email?: string | null
+          email: string
+          ethnicity?: string | null
+          eye_color?: string | null
           full_name?: string | null
           gender?: string | null
+          glasses?: boolean | null
+          hair_color?: string | null
+          hair_length?: string | null
+          hair_style?: string | null
+          height?: number | null
           id: string
           updated_at?: string | null
+          weight?: number | null
         }
         Update: {
+          age?: string | null
           avatar_url?: string | null
+          body_type?: string | null
           created_at?: string | null
-          email?: string | null
+          email?: string
+          ethnicity?: string | null
+          eye_color?: string | null
           full_name?: string | null
           gender?: string | null
+          glasses?: boolean | null
+          hair_color?: string | null
+          hair_length?: string | null
+          hair_style?: string | null
+          height?: number | null
           id?: string
           updated_at?: string | null
+          weight?: number | null
         }
         Relationships: []
       }
@@ -400,10 +778,43 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      array_distinct: {
+        Args: { arr: string[] } | { arr: unknown }
+        Returns: unknown
+      }
+      create_or_update_user_progress: {
+        Args: {
+          p_user_id: string
+          p_current_stage: string
+          p_completed_stages: string[]
+          p_stage_data?: Json
+        }
+        Returns: {
+          completed_stages: Database["public"]["Enums"]["flow_stage"][]
+          created_at: string | null
+          current_stage: Database["public"]["Enums"]["flow_stage"]
+          id: string
+          last_active_at: string | null
+          stage_data: Json | null
+          updated_at: string | null
+          user_id: string | null
+        }[]
+      }
+      force_cleanup_upload_session: {
+        Args: { session_id: string }
+        Returns: undefined
+      }
+      get_language_preference: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      update_language_preference: {
+        Args: { new_language: string }
+        Returns: undefined
+      }
     }
     Enums: {
-      flow_stage: "shoot" | "payment" | "upload" | "review" | "albums"
+      flow_stage: "shoot" | "payment" | "upload" | "review" | "dashboard"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -517,13 +928,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
-      flow_stage: ["shoot", "payment", "upload", "review", "albums"],
+      flow_stage: ["shoot", "payment", "upload", "review", "dashboard"],
     },
   },
 } as const
-

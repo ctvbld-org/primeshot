@@ -8,11 +8,12 @@ import clsx from 'clsx'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 import { Loader } from '@/components/ui/loader'
 import { toast } from '@/components/ui/use-toast'
+import type { FileWithScore } from '@/lib/types'
 
 interface FileUploaderProps {
   handleNewFiles: (files: File[]) => File[]
   addFiles: (files: File[]) => Promise<FileState[]>
-  acceptedFiles?: File[]
+  acceptedFiles?: FileWithScore[]
   isReady: boolean  
   isAnalyzing: boolean
   isUploading: boolean
@@ -251,7 +252,7 @@ export function FileUploader({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/jpeg, image/png"
         multiple
         className={styles.hiddenInput}
         onChange={handleFileInputChange}

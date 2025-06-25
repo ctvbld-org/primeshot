@@ -1,5 +1,5 @@
 ---
-description: 
+description: Guidelines for consistent data fetching patterns using centralized custom hooks, covering style configurations, loading states, error handling, caching, and proper hook organization in React components.
 globs: 
 alwaysApply: false
 ---

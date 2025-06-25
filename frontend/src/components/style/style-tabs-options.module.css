@@ -128,10 +128,6 @@ button[data-state="inactive"]:hover .footer-icon-button {
     background: rgba(0, 0, 0, 0.05);
 }
 
-.saveButton {
-    box-shadow: none !important;
-}
-
 .backButton {
     background: rgba(0, 0, 0, 0.15);
     color: black;

@@ -1,0 +1,166 @@
+---
+description: Supabase client creation patterns using @supabase/ssr for browser and server contexts, covering centralized client management, cookie handling, type safety, and deprecation of auth-helpers-nextjs.
+globs: 
+alwaysApply: false
+---
+- **Supabase Client Creation**
+  - ✅ DO: Use @supabase/ssr for ALL client creation
+    ```typescript
+    // Client-side
+    import { createBrowserClient } from '@supabase/ssr'
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+
+    // Server-side
+    import { createServerClient } from '@supabase/ssr'
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          // Cookie management configuration
+        }
+      }
+    )
+    ```
+  
+  - ❌ DON'T: Use deprecated @supabase/auth-helpers-nextjs
+    ```typescript
+    // ❌ NEVER use auth-helpers-nextjs
+    import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+    import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+    ```
+
+- **Client Types**
+  - Use createBrowserClient for client-side components
+  - Use createServerClient for server-side components and API routes
+  - Always include proper Database type parameter:
+    ```typescript
+    const supabase = createBrowserClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+    ```
+
+- **Best Practices**
+  - Always use proper error handling with Supabase operations
+  - Type all Supabase responses properly
+  - Use environment variables for Supabase configuration
+  - Keep client creation consistent across the application
+
+- **Related Rules**
+  - See [middleware_auth.mdc](mdc:.cursor/rules/middleware_auth.mdc) for authentication patterns
+  - See [project_structure.mdc](mdc:.cursor/rules/project_structure.mdc) for file organization
+
+- **Client Creation Pattern**
+  - ✅ DO: Use centralized client creation from lib/supabase/client
+    ```typescript
+    // lib/supabase/client.ts
+    import { createBrowserClient } from '@supabase/ssr'
+    
+    export function createClient() {
+      return createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
+    }
+
+    // Usage in components/hooks
+    import { createClient } from '@/lib/supabase/client'
+    const supabase = createClient()
+    ```
+  
+  - ❌ DON'T: Create clients directly in components
+    ```typescript
+    // ❌ DON'T: Create client directly in components
+    import { createBrowserClient } from '@supabase/ssr'
+    const supabase = createBrowserClient(...)
+
+    // ❌ DON'T: Use deprecated auth-helpers-nextjs
+    import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+    const supabase = createClientComponentClient()
+    ```
+
+- **Server vs Client Components**
+  - Use `createClient()` for client-side components and hooks
+  - Use `createServerActionClient()` for server components with proper cookie handling
+    ```typescript
+    // lib/supabase/server.ts
+    import { createServerClient } from '@supabase/ssr'
+    import { cookies } from 'next/headers'
+
+    export async function createServerActionClient() {
+      const cookieStore = cookies()
+      
+      return createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          cookies: {
+            get(name) {
+              return cookieStore.get(name)?.value
+            },
+            set(name, value, options) {
+              try {
+                cookieStore.set(name, value, options)
+              } catch (error) {
+                // Handle cookie error
+              }
+            },
+            remove(name, options) {
+              try {
+                cookieStore.set(name, '', { ...options, maxAge: 0 })
+              } catch (error) {
+                // Handle cookie error
+              }
+            }
+          }
+        }
+      )
+    }
+    ```
+
+- **Cookie Management**
+  - Handle chunked cookies properly in server components
+  - Use proper cookie options for security
+  - Clear cookies by setting maxAge to 0
+  - Example cookie state:
+    ```typescript
+    // Chunked cookie state
+    {
+      'sb-token.0': 'part1',
+      'sb-token.1': 'part2'
+    }
+    ```
+
+- **Error Handling**
+  ```typescript
+  try {
+    const { data, error } = await supabase.from('table').select()
+    if (error) throw error
+    // Handle data
+  } catch (err) {
+    // Handle error appropriately
+  }
+  ```
+
+- **Type Safety**
+  ```typescript
+  // Use Database type from generated types
+  import type { Database } from '@/lib/types/supabase'
+  const supabase = createClient<Database>()
+  ```
+
+- **Best Practices**
+  - Keep client creation logic centralized in lib/supabase/
+  - Use proper error handling with Supabase operations
+  - Type all Supabase responses properly
+  - Maintain consistent client usage across the application
+  - Handle cookie management properly in server components
+  - Never expose sensitive data or keys in client code
+
+- **Related Rules**
+  - See [middleware_auth.mdc](mdc:.cursor/rules/middleware_auth.mdc) for authentication patterns
+  - See [project_structure.mdc](mdc:.cursor/rules/project_structure.mdc) for file organization

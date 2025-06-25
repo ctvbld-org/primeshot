@@ -94,7 +94,9 @@
     "duplicateFile": "A file with this name already exists.",
     "uploadFailedCount": "{{count}} file(s) could not be added",
     "orderIdRequired": "Order ID is required for file upload",
-    "invalidResponse": "Invalid response: missing or invalid URL"
+    "invalidResponse": "Invalid response: missing or invalid URL",
+    "deleteFailed": "Failed to delete image",
+    "genericError": "An error occurred. Please try again."
   },
   "buttons": {
     "upload_one": "Upload {{count}} Style",
@@ -107,7 +109,7 @@
     "dragDropMessage": "Drag and drop files here, or",
     "maxImagesReached": "You've reached the maximum number of images.",
     "browse": "browse",
-    "supportedFormats": "Supports JPEG, PNG and WebP up to 4Mb each"
+    "supportedFormats": "Supports JPEG, PNG up to 8Mb each"
   },
   "quality": {
     "high": "High quality",

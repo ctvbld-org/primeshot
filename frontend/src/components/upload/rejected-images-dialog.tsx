@@ -5,11 +5,11 @@ import { ImageQualityScore } from './image-quality-score'
 import { ImageQualityResult } from '@/lib/image-quality'
 import { useTranslation } from 'react-i18next'
 import styles from './rejected-images-dialog.module.css'
-
+import type { FileWithScore } from '@/lib/types'
 interface RejectedImagesDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  files: File[]
+  files: FileWithScore[]
   totalFiles: number
   qualityResults: Record<string, ImageQualityResult>
   onRemoveFile: (index: number) => void

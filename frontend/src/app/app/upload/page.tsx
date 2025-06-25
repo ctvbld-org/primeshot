@@ -19,6 +19,11 @@ import { useOrder } from '@/lib/hooks/use-order'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 import { useAuth } from '@/contexts/auth-context'
 import { UploadPageSkeleton } from '@/components/skeleton/upload/page'
+import type { FileWithScore } from '@/lib/types'
+import { useOrderImages } from '@/lib/hooks/use-order-images'
+import { useFaceModel } from '@/lib/hooks/use-face-model'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 // Import Confetti dynamically to avoid SSR issues
 const ReactConfetti = dynamic(() => import('react-confetti'), { ssr: false })
@@ -37,11 +42,11 @@ export default function UploadPage() {
   // 1. All hooks must be called before any conditional returns
   const { width, height } = useWindowSize()
   const { t } = useTranslation(['upload', 'payment'])
-  const { user } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
-  const { updateProgress, clearProgress } = useUserProgress()
+  const { updateProgress } = useUserProgress()
+  const { user } = useAuth()
   
   const { 
     order,
@@ -53,6 +58,35 @@ export default function UploadPage() {
     sessionId: searchParams.get('session_id'),
     loadStyles: false
   })
+
+  const { images: existingImagesFromHook, isLoading: isLoadingImages, removeImage } = useOrderImages(order?.id)
+  const [existingImages, setExistingImages] = useState<FileWithScore[]>([])
+
+  // Face model management
+  const [faceModelName, setFaceModelName] = useState('')
+  const { 
+    faceModel, 
+    isLoading: isFaceModelLoading, 
+    error: faceModelError,
+    createFaceModel,
+    updateStatus: updateFaceModelStatus,
+    isCreating: isCreatingFaceModel
+  } = useFaceModel({ autoCreate: false }) // Don't auto-create, we'll create with user-provided name
+
+  // Set default face model name suggestion
+  useEffect(() => {
+    if (!faceModel && !faceModelName && user) {
+      const defaultName = `Face Model`;
+      setFaceModelName(defaultName);
+    }
+  }, [user, faceModel, faceModelName])
+
+  // Sync existingImages with the hook result
+  useEffect(() => {
+    if (existingImagesFromHook?.length !== existingImages.length) {
+      setExistingImages(existingImagesFromHook || [])
+    }
+  }, [existingImagesFromHook?.length])
 
   const [showConfetti, setShowConfetti] = useState<boolean | 'stopping'>(false)
   const [isTransitioningToReview, setIsTransitioningToReview] = useState(false)
@@ -85,16 +119,28 @@ export default function UploadPage() {
     isAnalyzing,
     analyzingCount,
     currentFileIndex,
-  } = useFileUpload()
-
+  } = useFileUpload({
+    existingImages: existingImages,
+    onRemoveExistingImage: useCallback((imageId: string) => {
+      removeImage(imageId)
+    }, [removeImage])
+  })
+  
   // 7. Memoized values
-  const acceptedFiles = useMemo(() => 
-    selectedFiles.filter(file => qualityResults[file.name]?.isAcceptable),
-    [selectedFiles, qualityResults]
-  )
+  const acceptedFiles = useMemo(() => {
+    return selectedFiles
+      .filter(file => qualityResults[file.name]?.isAcceptable)
+      .map(file => Object.assign(file, {
+        score: Math.round(qualityResults[file.name]?.score)
+      }));
+  }, [selectedFiles, qualityResults])
 
   const rejectedFiles = useMemo(() => 
-    selectedFiles.filter(file => !qualityResults[file.name]?.isAcceptable),
+    selectedFiles
+      .filter(file => !qualityResults[file.name]?.isAcceptable)
+      .map(file => Object.assign(file, {
+        score: Math.round(qualityResults[file.name]?.score)
+      })),
     [selectedFiles, qualityResults]
   )
 
@@ -144,9 +190,23 @@ export default function UploadPage() {
   const handleUploadSuccess = useCallback(async (successfulUploads: { url?: string }[]) => {
     try {
       setIsTransitioningToReview(true)
+      
+      // Update face model status to ready (uploaded and ready for training)
+      if (faceModel) {
+        try {
+          await updateFaceModelStatus('ready');
+        } catch (faceModelStatusError) {
+          console.error('Failed to update face model status:', faceModelStatusError);
+          // Don't block the flow if face model status update fails
+        }
+      }
+      
       await updateProgress('review', { 
-        uploadedFiles: successfulUploads.map(r => r.url).filter(Boolean),
-        lastUploadAt: new Date().toISOString()
+        upload: {
+          uploadedFiles: successfulUploads.map(r => r.url).filter((url): url is string => url !== undefined),
+          uploadProgress: 100,
+          lastUploadAt: new Date().toISOString()
+        }
       })
       router.push('/app/review')
     } catch (error) {
@@ -157,10 +217,21 @@ export default function UploadPage() {
       })
       router.push('/app/review')
     }
-  }, [updateProgress, router, toast, t])
+  }, [updateProgress, router, toast, t, faceModel, updateFaceModelStatus])
 
-  const handleUpload = useCallback(async (filesToUpload: File[]) => {
-    if (!order || filesToUpload.length === 0) {
+  const handleUpload = useCallback(async (filesToUpload: FileWithScore[]) => {
+    // Filter out existing images from the upload
+    const newFilesToUpload = filesToUpload.filter(file => !('id' in file))
+    const existingFilesToUpload = filesToUpload.filter(file => 'id' in file)
+    
+    if (!order && newFilesToUpload.length === 0) {
+      // If we only have existing images, we can proceed directly to review
+      if (existingFilesToUpload.length > 0) {
+        setIsTransitioningToReview(true)
+        await handleUploadSuccess(existingFilesToUpload.map(img => ({ url: img.url })))
+        return
+      }
+      
       toast({
         title: t('errors.noActiveOrder'),
         description: t('errors.paymentRequired'),
@@ -169,38 +240,62 @@ export default function UploadPage() {
       return
     }
 
-    // Use local variables to track progress
-    const uploadedFiles: string[] = []
-    let uploadedCount = 0
-    let currentUploadingIndex: number | null = null
+    if (!order) {
+      toast({
+        title: t('errors.noActiveOrder'),
+        description: t('errors.paymentRequired'),
+        variant: 'destructive'
+      })
+      return
+    }
 
+    // Initialize uploadedFiles with existing images
+    const uploadedFiles: string[] = existingFilesToUpload.map(img => img.name).filter((name): name is string => name !== undefined) || []
+    let uploadedCount = existingFilesToUpload.length
+    let currentUploadingIndex: number | null = uploadedCount // Start from after existing images
+    const startingUploadingIndex = existingFilesToUpload.length
+    
     setUploadState(prev => ({ 
       ...prev, 
-      uploadedCount: 0,
-      uploadedFiles: [],
-      currentUploadingIndex: 0, // Start with the first file
+      uploadedCount: uploadedCount,
+      uploadedFiles: uploadedFiles,
+      currentUploadingIndex: uploadedCount, // Start with the first new file
       isUploading: true // Set uploading state to true
     }))
     
     const results: { originalName: string; url?: string; error?: string }[] = []
 
     try {
+      // Create face model once before uploading any files
+      let currentFaceModel = faceModel;
+      if (!currentFaceModel && newFilesToUpload.length > 0) {
+        const modelName = faceModelName.trim() || `Upload Session ${new Date().toLocaleDateString()}`;
+        currentFaceModel = await createFaceModel(modelName);
+      }
+      
+      // Get the face model ID to use for all uploads
+      const faceModelId = currentFaceModel?.id;
+      if (!faceModelId && newFilesToUpload.length > 0) {
+        throw new Error('Face model not available');
+      }
+
       // Upload files one by one
-      for (let i = 0; i < filesToUpload.length; i++) {
-        const file = filesToUpload[i]
-        currentUploadingIndex = i
+      for (let i = 0; i < newFilesToUpload.length; i++) {
+        const file = newFilesToUpload[i]
+        currentUploadingIndex = startingUploadingIndex + i
         
         // Only one setUploadState per iteration
         setUploadState(prev => ({
           ...prev,
           uploadedFiles: [...uploadedFiles],
           uploadedCount: uploadedCount,
-          currentUploadingIndex,
+          currentUploadingIndex: currentUploadingIndex,
           isUploading: true
         }))
         
         try {
-          const url = await uploadFile(file, order.id)
+          
+          const url = await uploadFile(file as File, order.id, faceModelId!)
           results.push({ originalName: file.name, url })
           uploadedFiles.push(file.name)
           uploadedCount++
@@ -237,24 +332,21 @@ export default function UploadPage() {
       }
 
       // Handle successful uploads
-      if (successfulUploads.length > 0) {
-        toast({
-          title: t('status.successful'),
-          description: t('status.uploadComplete', { count: successfulUploads.length })
-        })
+      if (successfulUploads.length > 0 || existingFilesToUpload.length > 0) {
+        if (successfulUploads.length > 0) {
+          toast({
+            title: t('status.successful'),
+            description: t('status.uploadComplete', { count: successfulUploads.length })
+          })
+        }
 
-        // DEFERRED: Remove successfully uploaded files after navigation to review page
-        // const successfulFileNames = new Set(successfulUploads.map(r => r.originalName))
-        // selectedFiles
-        //   .map((file, index) => successfulFileNames.has(file.name) ? index : -1)
-        //   .filter(index => index !== -1)
-        //   .sort((a, b) => b - a)
-        //   .forEach(removeFile)
-        // TODO: Remove files after navigation if needed
-
-        // Handle completion
+        // Handle completion - combine successful uploads with existing files
         if (failedUploads.length === 0) {
-          await handleUploadSuccess(successfulUploads)
+          const allUploads = [
+            ...successfulUploads,
+            ...existingFilesToUpload.map(img => ({ url: img.url }))
+          ]
+          await handleUploadSuccess(allUploads)
         }
       }
     } catch (error) {
@@ -271,7 +363,7 @@ export default function UploadPage() {
         currentUploadingIndex: null
       }))
     }
-  }, [order, uploadFile, removeFile, handleUploadSuccess, toast, t, selectedFiles])
+  }, [order, uploadFile, handleUploadSuccess, toast, t])
 
   // Confetti timer refs to prevent leaks
   const stopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -321,7 +413,7 @@ export default function UploadPage() {
   }, [acceptedFiles.length, rejectedFiles, uploadState.shownRejectedFiles, isAnalyzing])
 
   // 10. Conditional returns - after all hooks
-  if (isLoadingOrder || isVerifying) {
+  if (isLoadingOrder || isVerifying || isLoadingImages || isFaceModelLoading) {
     return <UploadPageSkeleton />
   }
 
@@ -353,6 +445,32 @@ export default function UploadPage() {
       </div>
 
       <UploadRequirements />
+
+      {/* Face Model Name Input */}
+      <div className="max-w-md mx-auto space-y-2">
+        <Label htmlFor="faceModelName" className="text-sm font-medium text-[#C0CED8]">
+          Face Model Name {faceModel ? '(Created)' : '(Optional)'}
+        </Label>
+        <Input
+          id="faceModelName"
+          type="text"
+          placeholder="e.g., My Professional Headshots"
+          value={faceModelName}
+          onChange={(e) => setFaceModelName(e.target.value)}
+          disabled={!!faceModel || uploadState.isUploading}
+          className="bg-background/50 border-border text-foreground placeholder:text-muted-foreground"
+        />
+        {faceModel && (
+          <p className="text-xs text-[#44E3C9]">
+            ✓ Face model "{faceModel.name}" is ready
+          </p>
+        )}
+        {!faceModel && faceModelName.trim() && (
+          <p className="text-xs text-muted-foreground">
+            Face model will be created as "{faceModelName.trim()}"
+          </p>
+        )}
+      </div>
     
       <div className="flex justify-center mt-[32px]">        
         <FileUploader 
@@ -392,7 +510,6 @@ export default function UploadPage() {
         onReviewClick={() => handleUpload(acceptedFiles)}
         isUploading={uploadState.isUploading}
         onRemoveFile={removeFile}
-        qualityResults={qualityResults}
         isAnalyzing={isAnalyzing}
         currentAnalyzingIndex={currentFileIndex}
         currentUploadingIndex={uploadState.currentUploadingIndex}

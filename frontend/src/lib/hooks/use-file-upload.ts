@@ -3,10 +3,11 @@ import { useTranslation } from 'react-i18next'
 import { ImageQualityResult } from '@/lib/image-quality'
 import { useToast } from '@/components/ui/use-toast'
 import { formatFileSize } from '@/lib/utils'
-import { uploadFileInChunks, CHUNK_SIZE } from '@/lib/upload-utils'
+import { uploadFileInChunks } from '@/lib/upload-utils'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
-import { analyzeImageQuality, loadModels, checkBodyPercentageRequirements } from '@/lib/image-quality'
+import { analyzeImageQuality, loadModels } from '@/lib/image-quality'
 import { useUserGender } from '@/lib/hooks/use-user-gender'
+import type { FileWithScore } from '@/lib/types'
 
 // Add delay helper
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
@@ -16,6 +17,8 @@ interface UseFileUploadOptions {
   allowedTypes?: string[]
   maxFiles?: number
   chunkSize?: number
+  existingImages?: FileWithScore[]
+  onRemoveExistingImage?: (imageId: string) => void
 }
 
 interface FileProgress {
@@ -30,6 +33,7 @@ interface FileState {
   qualityResult?: ImageQualityResult
   uploadProgress: FileProgress
   isAnalyzing?: boolean
+  uploadedUrl?: string
 }
 
 export function useFileUpload(options: UseFileUploadOptions = {}) {
@@ -40,13 +44,68 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
   // Split options into separate constants for better memoization
   const {
     maxSize = 100 * 1024 * 1024,
-    allowedTypes = ['image/jpeg', 'image/png', 'image/webp'],
+    allowedTypes = ['image/jpeg', 'image/png'],
     maxFiles = UPLOAD_CONSTANTS.MAX_IMAGES,
-    chunkSize = CHUNK_SIZE
-  } = useMemo(() => options, [options])
-
+    existingImages = []
+  } = useMemo(() => {
+    return options;
+  }, [options]);
+  
   // Split state into logical groups
-  const [fileStates, setFileStates] = useState<FileState[]>([])
+  const [fileStates, setFileStates] = useState<FileState[]>([]);
+
+  // Handle existing images
+  useEffect(() => {
+    if (existingImages && existingImages.length > 0) {
+      // Convert existing images to FileState format
+      const existingFileStates = existingImages.map((file: FileWithScore) => ({
+        file: file as unknown as File,
+        previewUrl: file.url,
+        qualityResult: {
+          width: 0,
+          height: 0,
+          faceCount: 1,
+          score: file.score || 0,
+          faceScore: 100,
+          bodyScore: 100,
+          brightnessScore: 100,
+          contrastScore: 100,
+          blurScore: 100,
+          resolutionScore: 100,
+          hasSingleFace: true,
+          hasGoodResolution: true,
+          hasGoodScore: true,
+          isAcceptable: true,
+          hasFace: true,
+          hasBody: true,
+          faceDetectionSkipped: false,
+          genderDetectionSkipped: false,
+          genderMatchesUser: true,
+          eyesVisible: true,
+          eyeDetectionSkipped: false,
+          issues: []
+        },
+        uploadProgress: { progress: 100, isUploading: false },
+        uploadedUrl: file.url
+      }));
+
+      // Preserve any non-existing files in the current state
+      setFileStates(prev => {
+        const nonExistingFiles = prev.filter(state => {
+          const fileAsScore = state.file as unknown as FileWithScore;
+          return !fileAsScore.id; // Keep files that don't have an id (newly added files)
+        });
+        return [...existingFileStates, ...nonExistingFiles];
+      });
+    } else {
+      // If no existing images, only clear existing images from state
+      setFileStates(prev => prev.filter(state => {
+        const fileAsScore = state.file as unknown as FileWithScore;
+        return !fileAsScore.id; // Keep files that don't have an id (newly added files)
+      }));
+    }
+  }, [existingImages.length]); // Only run when the number of existing images changes
+  
   const [analysisState, setAnalysisState] = useState({
     isAnalyzing: false,
     analyzingCount: 0,
@@ -368,15 +427,57 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     return fileStates
   }, [validateFiles, computedValues.acceptedCount, maxFiles, analyzeImages, t, toast, clearRejectedFiles])
 
-  const removeFile = (index: number) => {
-    setFileStates(prev => {
-      const state = prev[index]
-      if (state?.previewUrl) {
-        URL.revokeObjectURL(state.previewUrl)
+  const removeFile = useCallback(async (index: number) => {
+    const state = fileStates[index]
+    
+    // Check if this is an existing file with an ID
+    const existingFile = state?.file as unknown as FileWithScore
+    if (existingFile?.id) {
+      // This is an existing file, delete it from S3 and database
+      try {
+        const response = await fetch(`/api/user-images?imageId=${existingFile.id}`, {
+          method: 'DELETE',
+        })
+        
+        if (!response.ok) {
+          const error = await response.json()
+          toast({
+            title: t('errors.deleteFailed'),
+            description: error.error || t('errors.genericError'),
+            variant: 'destructive',
+          })
+          return
+        }
+
+        // Call the callback to update existingImages in the parent
+        if (existingFile.id) {
+          options.onRemoveExistingImage?.(existingFile.id)
+        }
+      } catch (error) {
+        console.error('Error deleting image:', error)
+        toast({
+          title: t('errors.deleteFailed'),
+          description: t('errors.genericError'),
+          variant: 'destructive',
+        })
+        return
       }
-      return prev.filter((_, i) => i !== index)
-    })
-  }
+    }
+    
+    // If there was a URL created, revoke it
+    if (state?.uploadedUrl) {
+      URL.revokeObjectURL(state.uploadedUrl)
+    }
+
+    // Revoke any blob URL we created  
+    if (state?.previewUrl?.startsWith('blob:')) {  
+      URL.revokeObjectURL(state.previewUrl)  
+    }  
+    
+    // Remove the file from state
+    setFileStates(prev => prev.filter((_, i) => i !== index))
+
+  }, [fileStates, t, toast, options.onRemoveExistingImage])
 
   const clearFiles = () => {
     fileStates.forEach(state => {
@@ -387,7 +488,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     setFileStates([])
   }
 
-  const uploadFile = async (file: File, orderId: string) => {
+  const uploadFile = async (file: File, orderId: string, faceModelId: string) => {
     const index = fileStates.findIndex(state => state.file === file)
     if (index === -1) return
 
@@ -396,11 +497,12 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
         ? { ...state, uploadProgress: { progress: 0, isUploading: true } }
         : state
     ))
-
+    
     try {
       const url = await uploadFileInChunks(
         file,
         orderId,
+        faceModelId,
         (progress: number) => {
           setFileStates(prev => prev.map((state, i) => 
             i === index 
@@ -412,15 +514,20 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
 
       setFileStates(prev => prev.map((state, i) => 
         i === index 
-          ? { ...state, uploadProgress: { progress: 100, isUploading: false } }
+          ? { 
+              ...state, 
+              uploadProgress: { progress: 100, isUploading: false },
+              uploadedUrl: url
+            }
           : state
       ))
 
       return url
     } catch (error) {
+      console.error('Error uploading file:', error)
       setFileStates(prev => prev.map((state, i) => 
         i === index 
-          ? { ...state, uploadProgress: { progress: 0, isUploading: false, error: error instanceof Error ? error.message : 'Upload failed' } }
+          ? { ...state, uploadProgress: { progress: 0, isUploading: false } }
           : state
       ))
       throw error

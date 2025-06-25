@@ -41,7 +41,6 @@ export function ShootFooter({
   const [loading, setLoading] = useState(false)
   const { t } = useTranslation(['styles', 'payment'])
   const { user } = useAuth()
-  const { updateProgress } = useUserProgress()
   const { toast } = useToast()
   const wrapperRef = useRef<HTMLDivElement>(null)
   
@@ -231,7 +230,7 @@ export function ShootFooter({
               </>
             ) : (
               <>
-                <div className="flex items-center mr-10 flex-nowrap flex-[1_1_80%]">
+                <div className="flex items-center mr-10 flex-nowrap flex-[1_1_80%] text-[14px]">
                   <Icon variant="dizzyFace" size={22} className="mr-2" />
                   <div className={styles['footer-content']}>
                     <span>{t('footer.emptyState')}</span>

@@ -135,18 +135,18 @@
     opacity: 0.6;
 }
 
-.deleteButton {
+.infoContent .deleteButton {
   position: absolute;
   right: 0;
   bottom: 0;
 }
 
-.deleteButton,
-.deleteButtonConfirm {
+.infoContent .deleteButton,
+.infoContent .deleteButtonConfirm {
     background: rgba(255, 255, 255, 0.05);
     color: rgba(255, 66, 66, 1);
     font-size: 12px;
-    font-weight: 300;
+    font-weight: 400;
     line-height: 16px;
     display: flex;
     height: 32px;
@@ -158,13 +158,13 @@
     overflow: hidden;
 }
 
-.deleteButton:hover,
-.deleteButtonConfirm:hover {
+.infoContent .deleteButton:hover,
+.infoContent .deleteButtonConfirm:hover {
     background: rgba(255, 66, 66, 0.1);
     color: #ffffff !important;
 }
 
-.deleteButtonConfirm {
+.infoContent .deleteButtonConfirm {
     max-width: fit-content;
     padding: 0 16px;
     color: #ffffff !important;
@@ -177,20 +177,20 @@
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.deleteButtonConfirm .deleteIcon {
+.infoContent .deleteButtonConfirm .deleteIcon {
     opacity: 0;
     transform: scale(0);
     position: absolute;
 }
 
-.deleteText {
+.infoContent .deleteText {
     opacity: 0;
     transform: translateX(10px);
     transition: opacity 0.3s ease-in-out 0.1s, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     visibility: hidden;
 }
 
-.deleteButtonConfirm .deleteText {
+.infoContent .deleteButtonConfirm .deleteText {
     opacity: 1;
     transform: translateX(0);
     visibility: visible;

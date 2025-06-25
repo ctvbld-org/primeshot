@@ -1,14 +1,13 @@
 import React, { useState, useCallback, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { formatFileSize } from '@/lib/utils'
-import { ImageQualityResult } from '@/lib/image-quality'
 import { cn } from '@/lib/utils'
 import { Icon } from '@/components/icons/icon'
 import styles from './image-tooltip.module.css'
+import type { FileWithScore } from '@/lib/types'
 
 interface ImageTooltipProps {
-  file: File
-  result: ImageQualityResult
+  file: FileWithScore
   fileUrl: string
   onClose: () => void
   onDelete: () => void
@@ -16,7 +15,6 @@ interface ImageTooltipProps {
 
 export function ImageTooltip({
   file,
-  result,
   fileUrl,
   onClose,
   onDelete
@@ -25,7 +23,7 @@ export function ImageTooltip({
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   // 2. Memoized values
-  const score = useMemo(() => Math.round(result?.score || 0), [result?.score])
+  const score = useMemo(() => Math.round(file.score || 0), [file.score])
   const isHighScore = useMemo(() => score >= 80, [score])
 
   const scoreContainerClasses = useMemo(() => 
@@ -92,7 +90,7 @@ export function ImageTooltip({
               {file.name}
             </p>
             <p className={styles.fileSize}>
-              {formatFileSize(file.size)}
+              {file.size ? formatFileSize(file.size) : ''}
             </p>
           </div>
           <Button

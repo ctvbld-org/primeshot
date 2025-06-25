@@ -1,6 +1,8 @@
 import { updateSession } from '@/lib/supabase/middleware'
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
+import { verifyPaymentHash } from '@/lib/server/hash-verification'
 
 export async function middleware(request: NextRequest) {
   // Update session using our shared middleware function
@@ -53,6 +55,54 @@ export async function middleware(request: NextRequest) {
       return response;
     }
 
+    // Special case: Check for upload page with session_id
+    if (currentPath === '/app/upload') {
+      const searchParams = request.nextUrl.searchParams;
+      const sessionId = searchParams.get('session_id');
+      const orderId = searchParams.get('order_id');
+      const hash = searchParams.get('hash');
+
+      if (sessionId && orderId && hash) {
+        // First verify the hash
+        const isValidHash = await verifyPaymentHash(sessionId, orderId, hash);
+        if (!isValidHash) {
+          console.error('Invalid payment hash detected');
+          return NextResponse.redirect(new URL('/app/shoot', request.url));
+        }
+
+        // Verify the order and session
+        const { data: order, error: orderError } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('id', orderId)
+          .eq('user_id', user.id)
+          .eq('checkout_session_id', sessionId)
+          .in('payment_status', ['checkout_started', 'pending_payment'])
+          .single();
+
+        if (!orderError && order) {
+          // Valid order found, update user progress
+          await supabase
+            .from('user_progress')
+            .upsert({
+              user_id: user.id,
+              current_stage: 'upload',
+              completed_stages: ['shoot', 'payment'],
+              last_active_at: new Date().toISOString(),
+              stage_data: {
+                payment: {
+                  completedAt: new Date().toISOString(),
+                  orderId: orderId,
+                  sessionId: sessionId
+                }
+              }
+            }, { onConflict: 'user_id' });
+
+          return response;
+        }
+      }
+    }
+
     // Get user progress
     const { data: progressData, error: progressError } = await supabase
       .from('user_progress')
@@ -89,8 +139,41 @@ export async function middleware(request: NextRequest) {
       const currentStageIndex = stageOrder.indexOf(currentStage);
       const pathStageIndex = stageOrder.indexOf(pathStage);
       
-      // After payment is completed, enforce staying on current stage
+      // After payment is completed:
       if (isPaymentCompleted) {
+        // Check minimum image requirement for review page
+        if (pathStage === 'review') {
+          // Get the most recent paid order
+          const { data: orderData, error: orderError } = await supabase
+            .from('orders')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('status', 'paid')
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single()
+
+          if (!orderError && orderData) {
+            // Count images for this order
+            const { count, error: imageError } = await supabase
+              .from('images')
+              .select('id', { count: 'exact' })
+              .eq('order_id', orderData.id)
+
+            if (!imageError && count !== null && count < UPLOAD_CONSTANTS.MIN_IMAGES) {
+              // Redirect back to upload if not enough images
+              return NextResponse.redirect(new URL('/app/upload', request.url))
+            }
+          }
+        }
+
+        // Allow movement between upload and review stages
+        if ((pathStage === 'upload' && currentStage === 'review') || 
+            (pathStage === 'review' && currentStage === 'upload')) {
+          return response;
+        }
+        
+        // For other stages, enforce staying on current stage
         if (pathStage !== currentStage) {
           return NextResponse.redirect(new URL(`/app/${currentStage}`, request.url));
         }
