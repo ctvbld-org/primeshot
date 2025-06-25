@@ -12,8 +12,6 @@ interface TrainingJob {
   user_id: string;
   face_model_id: string;
   status: 'queued' | 'running' | 'completed' | 'failed';
-  progress: number;
-  log_url?: string;
   started_at?: string;
   completed_at?: string;
   created_at: string;
@@ -91,7 +89,6 @@ serve(async (req) => {
       user_id,
       face_model_id,
       status: 'queued',
-      progress: 0,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
@@ -179,11 +176,7 @@ serve(async (req) => {
 
       return new Response(
         JSON.stringify({
-          job_id: jobId,
-          modal_job_id: modalJobId,
-          status: 'queued',
-          message: 'Training job started successfully on Modal',
-          modal_response: modalResult
+          ...modalResult
         }),
         {
           status: 200,

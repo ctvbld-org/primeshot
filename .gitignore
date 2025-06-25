@@ -33,5 +33,5 @@ supabase/config/auth.json
 .temp/
 .branches/
 
-# Runpod
-runpod/
+# Claude
+.claude/

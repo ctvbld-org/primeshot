@@ -31,6 +31,7 @@ const getMimeType = (path: string): string => {
  * Accepts either:
  * - imageId: ID of the image to look up
  * - orderId: ID of the order to get images for
+ * - url: Direct S3 URL to generate presigned URL for (for thumbnails)
  * 
  * Requires authentication and validates user access.
  */
@@ -40,6 +41,7 @@ export async function GET(request: NextRequest) {
     const url = new URL(request.url)
     const imageId = url.searchParams.get('imageId')
     const orderId = url.searchParams.get('orderId')
+    const directUrl = url.searchParams.get('url')
 
     // Create Supabase client for auth check
     const supabase = await createClient()
@@ -86,8 +88,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(signedUrls)
     }
 
+    // If direct URL is provided, generate presigned URL for it
+    if (directUrl) {
+      try {
+        const signedUrl = await createPresignedGetUrl(directUrl)
+        return NextResponse.json({ url: signedUrl })
+      } catch (error) {
+        console.error('Error creating presigned URL for direct URL:', error)
+        return NextResponse.json({ error: 'Failed to create presigned URL' }, { status: 500 })
+      }
+    }
+
     return NextResponse.json(
-      { error: 'Missing required parameter: imageId or orderId' }, 
+      { error: 'Missing required parameter: imageId, orderId, or url' }, 
       { status: 400 }
     )
   } catch (error) {

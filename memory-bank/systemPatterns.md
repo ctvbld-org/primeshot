@@ -182,6 +182,32 @@ Detected changes in:
 - frontend/src/lib/utils/get-options-image.ts
 - frontend/src/lib/utils/get-styles-images.ts
 - frontend/src/lib/utils/style-validation.ts
+
+
+**Auto-update 2025-06-23**:
+Detected changes in:
+- frontend/src/app/api/cleanup-orphaned-uploads/route.ts
+- frontend/src/app/api/cleanup-upload/route.ts
+- frontend/src/app/api/upload-chunk/route.ts
+- frontend/src/app/app/training/page.tsx
+- frontend/src/app/app/upload/page.tsx
+- frontend/src/app/favicon.ico
+- frontend/src/components/training/index.ts
+- frontend/src/components/training/training-progress-card.tsx
+- frontend/src/components/training/training-progress-list.tsx
+- frontend/src/components/upload/file-uploader.tsx
+- frontend/src/contexts/realtime-context.tsx
+- frontend/src/lib/api/face-models.ts
+- frontend/src/lib/api/jobs.ts
+- frontend/src/lib/hooks/use-face-model-images.ts
+- frontend/src/lib/hooks/use-face-model.ts
+- frontend/src/lib/hooks/use-file-upload.ts
+- frontend/src/lib/hooks/use-user-progress.ts
+- frontend/src/lib/s3.ts
+- frontend/src/lib/schemas.ts
+- frontend/src/lib/server/hash-verification.ts
+- frontend/src/lib/types.ts
+- frontend/src/lib/upload-utils.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

@@ -29,6 +29,7 @@ export function useWebSocketProgress({
   const [progress, setProgress] = useState<WebSocketTrainingProgress | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
   const [liveEstimatedRemaining, setLiveEstimatedRemaining] = useState<number | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -114,6 +115,8 @@ export function useWebSocketProgress({
     }
 
     isConnectingRef.current = true;
+    setIsConnecting(true);
+    setConnectionError(null); // Clear any previous errors
     connectionStartTimeRef.current = Date.now();
 
     // Clean up existing connection
@@ -140,6 +143,7 @@ export function useWebSocketProgress({
         console.log(`✅ WebSocket connected for job: ${jobId}`);
         setIsConnected(true);
         setConnectionError(null);
+        setIsConnecting(false);
         reconnectAttempts.current = 0;
         isConnectingRef.current = false;
       };
@@ -155,9 +159,17 @@ export function useWebSocketProgress({
           // Handle completion using refs to avoid dependency issues
           if (progressData.status === 'completed') {
             onCompleteRef.current?.(true);
+            // Proactively close the WebSocket now that training is finished
+            if (ws.readyState === WebSocket.OPEN) {
+              ws.close(1000, 'Training completed');
+            }
           } else if (progressData.status === 'failed') {
             console.log(`❌ Training failed for job ${jobId}:`, progressData.error_message);
             onCompleteRef.current?.(false, progressData.error_message);
+            // Close the connection as training has ended with failure
+            if (ws.readyState === WebSocket.OPEN) {
+              ws.close(1000, 'Training failed');
+            }
           }
         } catch (error) {
           console.error(`❌ Error parsing WebSocket message for job ${jobId}:`, error);
@@ -175,6 +187,7 @@ export function useWebSocketProgress({
         });
         
         setIsConnected(false);
+        setIsConnecting(false);
         isConnectingRef.current = false;
         wsRef.current = null;
 
@@ -221,12 +234,14 @@ export function useWebSocketProgress({
         });
         
         isConnectingRef.current = false;
+        setIsConnecting(false);
         setConnectionError('WebSocket connection error');
       };
 
     } catch (error) {
       console.error(`❌ Failed to create WebSocket connection for job ${jobId}:`, error);
       isConnectingRef.current = false;
+      setIsConnecting(false);
       setConnectionError(`Failed to connect: ${error}`);
       onErrorRef.current?.(`Connection failed: ${error}`);
     }
@@ -238,7 +253,9 @@ export function useWebSocketProgress({
     
     if (jobId && websocketUrl) {
       console.log(`🚀 Initializing WebSocket for job ${jobId}`);
-      connect();
+      setTimeout(() => {
+        connect();
+      }, 3000);
     } else {
       console.log(`⏭️ Skipping WebSocket connection - jobId: ${jobId}, websocketUrl: ${websocketUrl}`);
     }
@@ -274,6 +291,7 @@ export function useWebSocketProgress({
     console.log(`🔄 Manual reconnect requested for job ${jobId}`);
     reconnectAttempts.current = 0;
     setConnectionError(null);
+    setIsConnecting(true);
     
     // Clear any pending reconnection
     if (reconnectTimeoutRef.current) {
@@ -317,6 +335,7 @@ export function useWebSocketProgress({
   return {
     progress,
     isConnected,
+    isConnecting,
     connectionError,
     reconnect,
     getProgressPercentage,

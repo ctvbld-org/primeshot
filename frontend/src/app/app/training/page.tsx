@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { TrainingProgressList } from '@/components/training/training-progress-list';
+import { FaceModelSelector } from '@/components/create/face_models';
 import { RealtimeProvider } from '@/contexts/realtime-context';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -82,6 +82,9 @@ export default function TrainingDashboard() {
       });
 
       console.log(`Training started successfully! Job ID: ${result.job_id}`);
+
+      // Remove model selection from local storage to auto select the newest model
+      localStorage.removeItem(`face-model-selection`);
       
       // Store the job ID for tracking
       setLastStartedJobId(result.job_id);
@@ -252,14 +255,9 @@ export default function TrainingDashboard() {
           </CardContent>
         </Card>
 
-        {/* Active Training Jobs */}
+        {/* Face Models */}
         <div>
-          <h2 className="text-xl font-semibold mb-4">Active Training Jobs</h2>
-          <TrainingProgressList 
-            maxItems={10}
-            onJobComplete={handleJobComplete}
-            refreshTrigger={refreshTrigger}
-          />
+          <FaceModelSelector refreshTrigger={refreshTrigger} />
         </div>
       </div>
     </RealtimeProvider>
