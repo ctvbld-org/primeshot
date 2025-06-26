@@ -23,5 +23,14 @@
     "gradient-string": "^2.0.2",
     "openai": "^4.86.1",
     "ora": "^7.0.1"
-  }
+  },
+  "devDependencies": {
+    "turbo": "^2.5.4"
+  },
+  "private": true,
+  "workspaces": [
+    "webapp",
+    "website",
+    "packages/*"
+  ]
 }
