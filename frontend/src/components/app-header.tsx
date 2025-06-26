@@ -1,6 +1,5 @@
 import Image from 'next/image'
 import { UserNav } from '@/components/user-nav'
-import { User } from '@supabase/supabase-js'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import styles from './app-header.module.css'
@@ -9,10 +8,7 @@ import { Icon } from '@/components/icons/icon'
 import { useTranslation } from 'react-i18next'
 import { MoreVertical } from 'lucide-react'
 import { useHeadshotStore } from '@/store/headshot'
-
-interface AppHeaderProps {
-  user: User | null
-}
+import { useAuth } from '@/contexts/auth-context'
 
 const NAVIGATION_STEPS = [
   { id: 'shoot', label: 'navigation.addStyles' as const, paths: ['/app/shoot', '/app/styles'] },
@@ -21,7 +17,8 @@ const NAVIGATION_STEPS = [
   { id: 'generate', label: 'navigation.generate' as const, paths: ['/app/generate', '/app/review'] }
 ] as const
 
-export function AppHeader({ user }: AppHeaderProps) {
+export function AppHeader() {
+  const { user } = useAuth()
   const pathname = usePathname()
   const router = useRouter()
   const { t } = useTranslation()

@@ -1,11 +1,11 @@
 # Task ID: 1
-# Title: Setup Project Foundation
-# Status: done
+# Title: Set up single-page layout structure
+# Status: in-progress
 # Dependencies: None
 # Priority: high
-# Description: Initialize the Next.js project with TypeScript, configure Tailwind CSS, Shadcn UI components, and set up the basic folder structure.
+# Description: Create the foundational layout for the new single-page UX with responsive design for mobile and desktop.
 # Details:
-Create a new Next.js project with TypeScript support using 'npx create-next-app@latest --typescript'. Install and configure Tailwind CSS, Shadcn UI, and Zod for validation. Set up the project structure with folders for components, pages, hooks, utils, and types. Initialize Git repository and create the initial commit.
+Create a new page component at `src/pages/index.tsx` that implements the layout structure from the PRD. Include placeholder sections for: Styles Carousel, Floating Option Buttons, LoRA Selector, Generation Controls, and Gallery. Ensure responsive behavior with mobile-first approach where components stack vertically on smaller screens. Set up the necessary context providers for state management across components. Implement feature flag to toggle between old and new UX.
 
 # Test Strategy:
-Verify successful project creation by running the development server and confirming all dependencies are correctly installed. Create a simple test page to ensure Tailwind CSS and Shadcn UI components render correctly.
+Visual testing across multiple device sizes (mobile, tablet, desktop). Verify layout matches design spec with correct component placement and stacking behavior.

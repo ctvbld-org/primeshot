@@ -13,7 +13,7 @@ import { QueryProvider } from '@/components/providers/query-provider'
 import { Toaster } from "@/components/ui/toaster"
 import { LanguageProvider } from '@/contexts/language-context'
 import { BannerProvider } from "@/components/ui/use-banner"
-import { Banner } from "@/components/ui/banner"
+import { AppHeader } from '@/components/app-header'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -48,9 +48,9 @@ export default function RootLayout({
             <LanguageProvider>
               <QueryProvider>
                 <BannerProvider>
+                  <AppHeader />
                   {children}
                   <Toaster />
-                  <Banner />
                 </BannerProvider>
               </QueryProvider>
             </LanguageProvider>

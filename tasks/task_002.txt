@@ -1,11 +1,11 @@
 # Task ID: 2
-# Title: Implement Authentication System
-# Status: done
+# Title: Refactor Styles Carousel component
+# Status: pending
 # Dependencies: 1
 # Priority: high
-# Description: Set up Supabase authentication with Google and email sign-up options, create user data models, and implement authentication flows.
+# Description: Extract and adapt the existing styles carousel to work as a standalone component with event emission.
 # Details:
-Initialize Supabase client and configure environment variables. Create authentication UI components (sign-up, login, password reset). Implement authentication context provider for React. Set up protected routes and middleware for authentication checks. Create the Users table in Supabase with required fields: id, email, created_at, subscription_status.
+Extract carousel from `/styles` page into a reusable component. Remove the 'Customize' button. Add swipe events and implement a context provider that emits style change events. Make sure the carousel maintains the current style selection state. Ensure carousel is responsive and anchors the floating option buttons to the current slide. Reuse existing styling but adapt for the new layout context.
 
 # Test Strategy:
-Test user registration, login, and logout flows. Verify authentication persistence across page refreshes. Test protected routes to ensure they redirect unauthenticated users. Validate that user data is correctly stored in the Supabase database.
+Unit test style selection events. Visual regression testing to ensure carousel appears and behaves identically to the existing one. Test swipe and scroll behaviors on touch and non-touch devices.

@@ -2,6 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
+- **2025-06-26 12:22:08** (David): checkpoint: before monorepo restructure
 ## [Unreleased]
 
 - **Initial Release**

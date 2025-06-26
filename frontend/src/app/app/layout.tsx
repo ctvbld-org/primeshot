@@ -13,7 +13,7 @@ export default function AppLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { isAuthenticated, isLoading, user } = useAuth()
+  const { isAuthenticated, isLoading } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
   
@@ -41,7 +41,7 @@ export default function AppLayout({
   return (
     <div className={`flex flex-col flex-1 justify-center pt-[56px] pb-[72px] min-h-screen overflow-hidden page-${pageName}`}>
       {!pathname.includes('/settings/profile') && (
-        <AppHeader user={user} />
+        <AppHeader />
       )}
       <main className="h-full pt-0">
         {children}
