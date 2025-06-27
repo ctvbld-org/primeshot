@@ -1,4 +1,4 @@
-import type { AuthError } from '@/types/auth'
+import type { AuthError } from '../../types/auth'
 
 interface ErrorWithCode extends Error {
   code?: string

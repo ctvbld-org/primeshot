@@ -1,7 +1,7 @@
 {
-  "name": "primeshot",
+  "name": "Primeshot",
   "version": "0.1.0",
-  "description": "AI Profesional Headshot Generator",
+  "description": "AI Profesional Photographer",
   "author": "David",
   "type": "module",
   "scripts": {
@@ -32,7 +32,6 @@
   "workspaces": [
     "webapp",
     "website",
-    "common",
-    "packages/*"
+    "common"
   ]
 }

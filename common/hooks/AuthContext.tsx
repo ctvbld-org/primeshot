@@ -1,9 +1,9 @@
 'use client'
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import type { AuthContextType, AuthState, User } from '@/types/auth'
-import { formatAuthError } from '@/lib/utils/auth'
+import { createClient } from '../lib/supabase/client'
+import type { AuthContextType, AuthState, User } from '../types/auth'
+import { formatAuthError } from '../lib/utils/auth'
 
 const initialState: AuthState = {
   user: null,

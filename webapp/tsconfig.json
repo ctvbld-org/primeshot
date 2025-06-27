@@ -20,6 +20,9 @@
     ],
     "paths": {
       "@/*": ["src/*"],
+      "@/lib/*": ["src/lib/*"],         
+      "@/hooks/*": ["src/hooks/*"],
+      "@/constants/*": ["src/components/constants/*"],
       "@primeshot/common": ["../common/index.ts"],
       "@primeshot/common/*": ["../common/*"]
     },

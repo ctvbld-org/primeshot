@@ -14,9 +14,12 @@
     "react-i18next": ">=15"
   },
   "exports": {
-    "./hooks/*": "./hooks/*",
+    "./hooks/*": "./hooks/*", 
+    "./lib/*": "./lib/*", 
     "./web/*": "./web/*",
     "./hooks": "./hooks/index.ts",
+    "./lib": "./lib/index.ts",
+    "./web": "./web/index.ts",
     ".": "./index.ts"
   }
 } 

@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
+const path = require('path')
+const isProd = process.env.NODE_ENV === 'production'
+
 const nextConfig = {
+  basePath: isProd ? '/create' : '',
+  assetPrefix: isProd ? '/create' : '',
   webpack: (config, { isServer }) => {
     // Ignore Node.js specific modules in face-api.js
     config.resolve.fallback = {
@@ -9,6 +14,10 @@ const nextConfig = {
       path: false,
       stream: false,
     }
+
+    // Path alias so imports like "@/constants/profile-options" work in monorepo
+    config.resolve.alias['@/constants'] = path.join(__dirname, 'src/components/constants')
+
     return config
   },
   images: {
@@ -19,7 +28,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'studio.primeshot.ai',
+        hostname: 'primeshot.ai',
       },
       {
         protocol: 'http',

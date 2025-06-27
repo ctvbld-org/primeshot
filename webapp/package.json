@@ -1,16 +1,15 @@
 {
-  "name": "primeshot",
+  "name": "Webapp",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "predev": "node ../memory-bank/scripts/detect-changes.js --auto",
-    "dev": "next dev",
-    "dev:no-types": "next dev",
+    "dev": "next dev --port 3001",
+    "dev:no-types": "next dev --port 3001",
     "build": "next build",
     "build:no-types": "next build",
     "start": "next start",
     "lint": "next lint",
-    "sync-pricing": "node scripts/sync-pricing.js",
     "configure-s3-cors": "npx tsx src/scripts/configure-s3-cors.ts",
     "generate-types": "npx tsx --tsconfig tsconfig.scripts.json src/scripts/generate-types.ts",
     "detect-changes": "node ../memory-bank/scripts/detect-changes.js"
@@ -24,6 +23,7 @@
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^5.0.0",
     "@primeshot/common": "*",
+    "@primeshot/common-ui": "*",
     "@radix-ui/react-accordion": "^1.2.4",
     "@radix-ui/react-alert-dialog": "^1.1.6",
     "@radix-ui/react-aspect-ratio": "^1.1.3",
