@@ -1,89 +1,11 @@
 # Task ID: 6
-# Title: Redesign Review Page
-# Status: done
-# Dependencies: 5
-# Priority: high
-# Description: Redesign and implement the Review page according to the new design mockups with improved user interface and experience.
+# Title: Integrate gallery with WebSocket updates
+# Status: pending
+# Dependencies: 1
+# Priority: medium
+# Description: Adapt the existing album gallery to show generated images with live updates via WebSocket.
 # Details:
-Update the page layout to match the design's card-less appearance. Implement progress tracker showing completed steps (Add Styles, Checkout, Upload Photos) and current step (Generate). Update the form fields to match the design (gender, eye color, age, body type, height, weight, ethnicity, glasses). Create responsive photo grid with quality indicator (81%). Implement tabbed interface for Photos/Edit. Style the Style Cards based on the design mockup. Create footer area with disclaimer text and links to requirements documents. Implement the Generate button with proper styling and hover states.
+Reuse the existing album card grid from `/albums` page. Implement placeholder states for empty gallery and unauthenticated users. Set up WebSocket listener to receive real-time updates from inference jobs. Implement masonry grid layout that updates dynamically as new images arrive. Add loading states and error handling for failed generations. Include functionality to download or share generated images.
 
 # Test Strategy:
-Test the redesigned page across multiple screen sizes to verify responsive behavior. Verify all form fields save and load correctly. Test the tabs functionality for Photos/Edit. Ensure the progress tracker correctly shows the appropriate step. Validate that the Generate button properly submits the form and navigates to the next step. Test accessibility for all UI components.
-
-# Subtasks:
-## 1. Implement Progress Tracker Component [done]
-### Dependencies: None
-### Description: Create a responsive progress tracker component that shows completed steps (Add Styles, Checkout, Upload Photos) and current step (Generate).
-### Details:
-Implementation details:
-1. Create a new React component called ProgressTracker
-2. Implement the UI with step indicators showing completed and current steps
-3. Style each step with appropriate icons and colors (completed steps in green with checkmarks, current step highlighted)
-4. Make the component responsive for different screen sizes
-5. Add appropriate animations for step transitions
-6. Testing approach: Verify correct display on different viewport sizes and that the correct step is highlighted based on the current page
-
-## 2. Restructure Page Layout [done]
-### Dependencies: 6.1
-### Description: Update the overall page layout to match the new card-less design and prepare the container structure for all components.
-### Details:
-Implementation details:
-1. Remove existing card-based containers from the Review page
-2. Create a clean, modern layout with proper spacing according to mockups
-3. Set up grid/flex layouts for responsive behavior
-4. Implement container divs for each major section (progress tracker, form fields, photo grid, style cards, footer)
-5. Add appropriate CSS variables for consistent styling
-6. Testing approach: Verify layout matches design across different screen sizes and that container structure properly accommodates all components
-
-## 3. Build User Profile Form [done]
-### Dependencies: 6.2
-### Description: Create the updated form fields for user profile information including gender, eye color, age, body type, height, weight, ethnicity, and glasses.
-### Details:
-Implementation details:
-1. Create form component with all required fields from mockup
-2. Implement appropriate input types for each field (dropdowns, radio buttons, etc.)
-3. Add validation for required fields and proper input formats
-4. Style form elements according to design (fonts, spacing, colors)
-5. Implement responsive behavior for the form
-6. Add state management for form data
-7. Testing approach: Test form validation, responsive layout, and proper state management for all input fields
-
-## 4. Develop Photo Grid with Quality Indicator [done]
-### Dependencies: 6.2
-### Description: Implement the responsive photo grid that displays uploaded photos with a quality indicator showing the overall quality percentage (81%).
-### Details:
-Implementation details:
-1. Create a responsive grid component for displaying uploaded photos
-2. Implement the quality indicator UI element showing percentage (81%)
-3. Add appropriate styling for the photo containers
-4. Implement the tabbed interface for Photos/Edit sections
-5. Add hover states and interactions for the photos
-6. Ensure proper responsive behavior for different screen sizes
-7. Testing approach: Test grid layout with different numbers of photos, verify quality indicator displays correctly, and check tab switching functionality
-
-## 5. Create Style Cards Component [done]
-### Dependencies: 6.2
-### Description: Implement the redesigned Style Cards component based on the mockup that displays the user's selected styles.
-### Details:
-Implementation details:
-1. Create a new Style Card component matching the design mockup
-2. Implement the layout for displaying style information and thumbnails
-3. Add proper styling for fonts, colors, and spacing according to design
-4. Create hover states and interactions for the style cards
-5. Implement responsive behavior for different screen sizes
-6. Add functionality to display the correct style information from the user's selections
-7. Testing approach: Test display with different style selections, verify responsive behavior, and check all interactive elements work correctly
-
-## 6. Implement Footer and Generate Button [done]
-### Dependencies: 6.2, 6.3, 6.4, 6.5
-### Description: Create the footer area with disclaimer text and links to requirements documents, and implement the Generate button with proper styling and hover states.
-### Details:
-Implementation details:
-1. Create footer component with disclaimer text and requirements links
-2. Implement the Generate button with proper styling and hover effects
-3. Add appropriate click handlers for the Generate button
-4. Implement loading state for the Generate button
-5. Add animations for button interactions
-6. Ensure proper responsive behavior for the footer and button
-7. Testing approach: Test button interactions, verify links work correctly, and check responsive layout of footer across different screen sizes
-
+Test WebSocket connection establishment and reconnection logic. Verify gallery updates correctly when new images arrive. Test placeholder states and transitions. Ensure responsive behavior of gallery grid on different screen sizes.

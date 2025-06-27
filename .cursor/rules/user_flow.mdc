@@ -20,8 +20,8 @@ alwaysApply: false
 
 - **1. Authentication (Route: /auth)**
   - Required before accessing any app features
-  - Handled by Supabase authentication
-  - Redirects to shoot page on success
+  - Handled by Supabase authentication (`AuthProvider` from `@primeshot/common`)
+  - On success the user is redirected to `process.env.NEXT_PUBLIC_POST_LOGIN_PATH` (defaults to `/`, production sets it to `/create`)
   ```typescript
   // ✅ DO: Check auth state before rendering protected routes
   if (!user) return <RedirectToAuth />

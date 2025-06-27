@@ -10,7 +10,9 @@ alwaysApply: true
 /
 ├── .cursor/         # Cursor IDE configuration and rules
 ├── .git/            # Git repository data
-├── frontend/        # Next.js frontend application
+├── webapp/          # Main SPA Next.js application (Next.js)
+├── website/         # Marketing site (Next.js, mostly static)
+├── common/          # Shared package published as @primeshot/common (components, hooks, utils)
 ├── ai-container/    # Modal containers for training and inference
 │   ├── ai-toolkit-modal/      # Training LoRA project container on Modal
 │   └── comfyui-modal/         # ComfyUI project container for inference on Modal
@@ -23,9 +25,9 @@ alwaysApply: true
 └── README.md        # Project documentation
 ```
 
-## Frontend Directory Structure
+## Webapp Directory Structure
 ```
-frontend/
+webapp/
 ├── .next/           # Next.js build output
 ├── public/          # Static assets
 ├── src/             # Application source code
@@ -72,7 +74,7 @@ src/
   - `rules/` - Project-specific coding rules and guidelines
   - `settings/` - IDE settings and configurations
 
-- **`frontend/`**: Main Next.js application
+- **`webapp/`**: Main Next.js application
   - Contains all frontend-related code and configurations
   - Follows Next.js 13+ app directory structure
 

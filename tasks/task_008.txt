@@ -1,11 +1,11 @@
 # Task ID: 8
-# Title: Integrate AI Generation Pipeline
+# Title: Develop credit-based payment system
 # Status: pending
-# Dependencies: 5, 4
+# Dependencies: 7
 # Priority: high
-# Description: Implement the AI generation pipeline with Replicate API integration for headshot generation using the specified models and workflows.
+# Description: Implement the credit system for monetizing image generation with Stripe integration.
 # Details:
-Set up Replicate API integration with authentication and error handling. Implement the training pipeline using 'ostris/flux-dev-lora-trainer' for processing user photos. Create ComfyUI workflow configuration for inference using Flux-dev, trained LoRAs, and upscalers. Develop a queuing system for processing multiple compositions. Implement progress tracking and status updates. Set up webhook handlers for completion notifications. Store generated images in S3 and update references in the database.
+Design Stripe products for credit packs and subscription options. Implement purchase flow using Stripe Checkout. Set up Stripe webhooks to handle successful payments. Create Supabase `credits` table with proper RLS policies. Implement middleware to check credit availability before generation. Add credit deduction logic that executes immediately on generation request. Implement refund mechanism for failed generations. Create admin dashboard for monitoring credit usage.
 
 # Test Strategy:
-Test the AI pipeline with sample images to verify generation quality. Validate error handling and retry mechanisms. Test the queuing system with multiple simultaneous requests. Verify that progress tracking accurately reflects the generation status. Ensure generated images meet quality standards and match selected styles.
+Test complete purchase flow in Stripe test mode. Verify webhooks correctly update user credits. Test credit deduction and refund logic. Ensure proper error handling for insufficient credits and failed payments.

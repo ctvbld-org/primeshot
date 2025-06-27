@@ -1,11 +1,11 @@
 # Task ID: 9
-# Title: Build User Dashboard
+# Title: Connect frontend to inference and payment backends
 # Status: pending
-# Dependencies: 7
+# Dependencies: 5, 6, 7, 8
 # Priority: medium
-# Description: Create a comprehensive user dashboard for managing compositions, tracking generation progress, and viewing/downloading generated headshots.
+# Description: Integrate the single-page UI with the inference and payment systems.
 # Details:
-Design and implement dashboard UI with sections for active compositions, generation progress, and completed headshots. Create real-time status updates using Supabase subscriptions or polling. Implement image gallery view with filtering and sorting options. Develop image preview functionality with zoom and pan controls. Create batch download options for headshots. Implement favorite/tagging system for organizing headshots. Add email notification system for completion alerts.
+Connect generation button to the inference API endpoint. Implement credit check before generation. Set up WebSocket connection to receive generation progress and results. Update UI to show remaining credits and generation status. Implement error handling for various failure scenarios. Add buy credits flow when user has insufficient credits. Create smooth transitions between states (selecting options, generating, viewing results).
 
 # Test Strategy:
-Test dashboard rendering with various user scenarios (new user, returning user with in-progress generations, user with completed headshots). Verify real-time updates work correctly. Test image gallery with large numbers of images. Validate that download functionality works for single and batch operations. Test email notifications for reliability and content accuracy.
+End-to-end testing of the complete generation flow. Verify credit deduction and WebSocket updates work correctly. Test error scenarios and ensure appropriate messages are displayed. Verify buy credits flow redirects correctly to Stripe.
