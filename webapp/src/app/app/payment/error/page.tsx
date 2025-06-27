@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@primeshot/common/web/ui/card';
+import { Button } from '@primeshot/common/web/ui/button';
 import { AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 

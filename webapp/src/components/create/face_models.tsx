@@ -1,14 +1,14 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@primeshot/common/web/ui/select';
 import { useAuth } from '@/contexts/auth-context';
 import { useFaceModelsApi } from '@/lib/api/face-models';
 import { createClient } from '@/lib/supabase/client';
 import { ProgressTracker } from './progress_tracker';
 import { Countdown } from './countdown';
 import { cn } from '@/lib/utils';
-import { CircleProgress } from '@/components/ui/circle-progress';
+import { CircleProgress } from '@primeshot/common/web/ui/circle-progress';
 import Image from 'next/image';
 
 interface FaceModelWithTraining {

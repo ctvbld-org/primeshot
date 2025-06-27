@@ -10,9 +10,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Button } from '@/components/ui/button'
-import { Avatar } from '@/components/ui/avatar'
+} from '@primeshot/common/web/ui/dropdown-menu'
+import { Button } from '@primeshot/common/web/ui/button'
+import { Avatar } from '@primeshot/common/web/ui/avatar'
 import { User } from '@/types/auth'
 import style from 'styled-jsx/style'
 import { LanguageSwitcher } from './language-switcher'

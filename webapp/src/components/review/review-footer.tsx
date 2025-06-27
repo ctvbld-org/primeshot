@@ -1,10 +1,10 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@primeshot/common/web/ui/button"
 import styles from './review-footer.module.css'
 import { Icon } from "../icons/icon"
 import { useTranslation } from 'react-i18next'
 import { useUserProgress } from '@/lib/hooks/use-user-progress';
 import { useAuth } from '@/contexts/auth-context';
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@primeshot/common/web/ui/use-toast"
 import { useState } from "react";
 
 interface ReviewFooterProps {

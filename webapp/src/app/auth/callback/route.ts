@@ -101,14 +101,11 @@ export async function GET(request: Request) {
         }
 
         // Create a new response with the redirect
-        const response = NextResponse.redirect(
-          new URL(
-            progress && !progress.completed_stages.includes('payment')
-              ? `/app/${progress.current_stage}`
-              : '/app/shoot',
-            requestUrl.origin
-          )
-        )
+        const targetPath = progress && !progress.completed_stages.includes('payment')
+          ? `/${progress.current_stage}`
+          : (process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/')
+
+        const response = NextResponse.redirect(new URL(targetPath, requestUrl.origin))
         
         // Copy over the cookies from the cookie store
         const allCookies = cookieStore.getAll()

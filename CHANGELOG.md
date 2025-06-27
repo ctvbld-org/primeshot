@@ -2,6 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
+- **2025-06-26 12:25:43** (David): monorepo step: rename to webapp, scaffold website, add turbo
 - **2025-06-26 12:22:08** (David): checkpoint: before monorepo restructure
 ## [Unreleased]
 

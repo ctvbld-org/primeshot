@@ -55,11 +55,11 @@ alwaysApply: false
   - See [project_structure.mdc](mdc:.cursor/rules/project_structure.mdc) for file organization
 
 - **Client Creation Pattern**
-  - ✅ DO: Use centralized client creation from lib/supabase/client
+  - ✅ DO: Use centralized client creation
+    - Shared usage across monorepo lives in `common/lib/supabase/client.ts` (exported via `@primeshot/common`).
     ```typescript
-    // lib/supabase/client.ts
+    // common/lib/supabase/client.ts (importable from any workspace)
     import { createBrowserClient } from '@supabase/ssr'
-    
     export function createClient() {
       return createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -68,7 +68,7 @@ alwaysApply: false
     }
 
     // Usage in components/hooks
-    import { createClient } from '@/lib/supabase/client'
+    import { createClient } from '@primeshot/common/lib/supabase/client'
     const supabase = createClient()
     ```
   

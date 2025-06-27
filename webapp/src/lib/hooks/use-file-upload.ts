@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ImageQualityResult } from '@/lib/image-quality'
-import { useToast } from '@/components/ui/use-toast'
+import { useToast } from '@primeshot/common/web/ui/use-toast'
 import { formatFileSize } from '@/lib/utils'
 import { uploadFileInChunks } from '@/lib/upload-utils'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'

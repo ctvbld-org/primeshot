@@ -7,14 +7,14 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
+} from '@primeshot/common/web/ui/popover';
 import {
   Dialog,
   DialogContent,
   DialogTitle,
   DialogTrigger
-} from '@/components/ui/dialog';
-import { useLanguage } from '@/contexts/language-context';
+} from '@primeshot/common/web/ui/dialog';
+import { useLanguage } from '@primeshot/common/hooks';
 import React from 'react';
 
 // Language name mapping

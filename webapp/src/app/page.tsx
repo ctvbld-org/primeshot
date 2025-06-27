@@ -7,7 +7,7 @@ import { GenerationControls } from '@/components/home/GenerationControls'
 import { GalleryPlaceholder } from '@/components/home/GalleryPlaceholder'
 import { FaceModelSelector } from '@/components/create/face_models'
 import Link from 'next/link'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Skeleton } from '@primeshot/common/web/ui/skeleton'
 
 export default function Home() {
   const { isAuthenticated, isLoading } = useAuth()

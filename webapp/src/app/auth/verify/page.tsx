@@ -1,7 +1,7 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@primeshot/common/web/ui/card";
+import { Button } from "@primeshot/common/web/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { useState } from "react";
 import { toast } from "sonner";

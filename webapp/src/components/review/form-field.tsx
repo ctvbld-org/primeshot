@@ -9,7 +9,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@primeshot/common/web/ui/select";
 
 interface Option {
   value: string;

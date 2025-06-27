@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { Button } from '@/components/ui/button'
+import { Button } from '@primeshot/common/web/ui/button'
 import styles from './new-style-card.module.css'
 import { Icon } from '@/components/icons/icon'
 import { useTranslation } from 'react-i18next'

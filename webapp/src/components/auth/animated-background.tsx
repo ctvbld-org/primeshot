@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { usePageReady } from '@/lib/hooks/use-page-ready';
-import { LoadingContent } from '@/components/ui/loading-content';
 import styles from './animated-background.module.css';
 
 interface AnimatedBackgroundProps {

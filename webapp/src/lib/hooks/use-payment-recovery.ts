@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { createClient } from '@/lib/supabase/client'
-import { useToast } from '@/components/ui/use-toast'
+import { useToast } from '@primeshot/common/web/ui/use-toast'
 import { useUserProgress } from '@/lib/hooks/use-user-progress'
 import { getStripe, createCheckoutSession } from '@/lib/stripe'
 

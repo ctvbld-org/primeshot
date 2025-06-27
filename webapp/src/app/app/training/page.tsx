@@ -3,11 +3,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { FaceModelSelector } from '@/components/create/face_models';
 import { RealtimeProvider } from '@/contexts/realtime-context';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@primeshot/common/web/ui/card';
+import { Badge } from '@primeshot/common/web/ui/badge';
+import { Button } from '@primeshot/common/web/ui/button';
+import { Input } from '@primeshot/common/web/ui/input';
+import { Label } from '@primeshot/common/web/ui/label';
 import { useAuth } from '@/contexts/auth-context';
 import { useJobsApi } from '@/lib/api/jobs';
 import { useFaceModelsApi } from '@/lib/api/face-models';

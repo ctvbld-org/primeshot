@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { useToast } from '@/components/ui/use-toast'
+import { useToast } from '@primeshot/common/web/ui/use-toast'
 import { useAuth } from '@/contexts/auth-context'
 import { Style } from '@/lib/types'
 import { StyleCard } from '@/components/style/style-card'
@@ -12,8 +12,8 @@ import { ShootFooter } from '@/components/shoot/shoot-footer'
 import { PRICING } from '@/lib/constants/pricing'
 import stylesCSS from './page.module.css'
 import { motion } from 'framer-motion'
-import { type CarouselApi } from "@/components/ui/carousel"
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
+import { type CarouselApi } from "@primeshot/common/web/ui/carousel"
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@primeshot/common/web/ui/carousel'
 import React from 'react'
 import { cn } from '@/lib/utils'
 import { useTranslation } from 'react-i18next'

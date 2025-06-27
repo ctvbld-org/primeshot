@@ -4,7 +4,7 @@ import React, { useState, useEffect, forwardRef } from 'react';
 import styles from './profile-form.module.css';
 import FormField from './form-field';
 import { createClient } from '@/lib/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@primeshot/common/web/ui/use-toast';
 import { useAuth } from '@/contexts/auth-context';
 import {
   PROFILE_FORM_FIELDS,

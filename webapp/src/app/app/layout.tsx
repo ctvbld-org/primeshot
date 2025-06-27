@@ -1,12 +1,11 @@
 'use client'
 
-import { Toaster } from '@/components/ui/toaster'
-import { useAuth } from '@/contexts/auth-context'
+import { Toaster } from '@primeshot/common/web/ui/toaster'
+import { useAuth, Header } from '@primeshot/common'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
-import { AppHeader } from '@/components/app-header'
-import { Loader } from "@/components/ui/loader"
+import { Loader } from "@primeshot/common/web/ui/loader"
 
 export default function AppLayout({
   children,
@@ -41,7 +40,7 @@ export default function AppLayout({
   return (
     <div className={`flex flex-col flex-1 justify-center pt-[56px] pb-[72px] min-h-screen overflow-hidden page-${pageName}`}>
       {!pathname.includes('/settings/profile') && (
-        <AppHeader />
+        <Header />
       )}
       <main className="h-full pt-0">
         {children}

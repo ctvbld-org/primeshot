@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { createClient } from '@/lib/supabase/client'
-import { useToast } from '@/components/ui/use-toast'
-import { useBanner } from '@/components/ui/use-banner'
+import { useToast } from '@primeshot/common/web/ui/use-toast'
+import { useBanner } from '@primeshot/common/web/ui/use-banner'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import type { Order, Style } from '@/lib/types'
 import { UPLOAD_STATUS } from '@/lib/constants/upload'
-import bannerStyles from '@/components/ui/top-banner.module.css'
+import bannerStyles from '@primeshot/common/web/ui/top-banner.module.css'
 import { paymentEvents, PAYMENT_EVENTS } from '@/lib/events/payment'
 
 interface UseOrderOptions {

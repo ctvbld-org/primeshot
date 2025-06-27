@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card";
+import { Card } from "@primeshot/common/web/ui/card";
 import { forwardRef, useState, useEffect, useRef, HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 

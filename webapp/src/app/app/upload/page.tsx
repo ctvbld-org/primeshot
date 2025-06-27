@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation, Trans } from 'react-i18next'
-import { useToast } from '@/components/ui/use-toast'
+import { useToast } from '@primeshot/common/web/ui/use-toast'
 import dynamic from 'next/dynamic'
 import { useWindowSize } from '@/lib/hooks/use-window-size'
 import { paymentEvents, PAYMENT_EVENTS } from '@/lib/events/payment'
@@ -22,8 +22,8 @@ import { UploadPageSkeleton } from '@/components/skeleton/upload/page'
 import type { FileWithScore } from '@/lib/types'
 import { useOrderImages } from '@/lib/hooks/use-order-images'
 import { useFaceModel } from '@/lib/hooks/use-face-model'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Input } from '@primeshot/common/web/ui/input'
+import { Label } from '@primeshot/common/web/ui/label'
 
 // Import Confetti dynamically to avoid SSR issues
 const ReactConfetti = dynamic(() => import('react-confetti'), { ssr: false })

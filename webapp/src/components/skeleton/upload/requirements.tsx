@@ -1,6 +1,6 @@
 'use client'
 
-import { Skeleton } from '@/components/ui/skeleton'
+import { Skeleton } from '@primeshot/common/web/ui/skeleton'
 import styles from './requirements.module.css'
 
 export function UploadRequirementsSkeleton() {

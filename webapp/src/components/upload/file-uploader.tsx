@@ -2,12 +2,12 @@
 
 import React, { useCallback, useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent } from '@primeshot/common/web/ui/card'
 import styles from './file-uploader.module.css'
 import clsx from 'clsx'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
-import { Loader } from '@/components/ui/loader'
-import { toast } from '@/components/ui/use-toast'
+import { Loader } from '@primeshot/common/web/ui/loader'
+import { toast } from '@primeshot/common/web/ui/use-toast'
 import type { FileWithScore } from '@/lib/types'
 
 interface FileUploaderProps {

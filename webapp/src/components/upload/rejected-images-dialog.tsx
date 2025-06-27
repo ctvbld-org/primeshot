@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogBody } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogBody } from '@primeshot/common/web/ui/dialog'
+import { Button } from '@primeshot/common/web/ui/button'
 import { ImageQualityScore } from './image-quality-score'
 import { ImageQualityResult } from '@/lib/image-quality'
 import { useTranslation } from 'react-i18next'

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@primeshot/common/web/ui/button'
 import { formatFileSize } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import { Icon } from '@/components/icons/icon'

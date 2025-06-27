@@ -1,0 +1,18 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "./",
+    "declaration": true,
+    "declarationDir": "dist",
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "noImplicitAny": false,
+    "paths": {
+      "@/*": ["./*"],
+      "@primeshot/common/*": ["./*"],
+      "@/components/*": ["web/*"]
+    }
+  },
+  "include": ["hooks", "web", "lib", "types", "index.ts", "global.d.ts"]
+} 
