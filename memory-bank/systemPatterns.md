@@ -493,6 +493,12 @@ Detected changes in:
 - website/src/components/WebGLBackground.tsx
 - website/src/components/WebGLImageTransition.tsx
 - website/src/lib/supabase.ts
+
+
+**Auto-update 2025-06-28**:
+Detected changes in:
+- webapp/src/app/auth/callback/route.ts
+- webapp/src/app/auth/signout/route.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

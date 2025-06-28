@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import { z } from 'zod';
 import { Resend } from 'resend';
 
@@ -13,6 +13,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { email } = emailSchema.parse(body);
+    const supabase = createClient()
 
     const { error: supabaseError } = await supabase
       .from('waitlist')
