@@ -13,7 +13,6 @@ import { UploadRequirements } from '@/components/upload/upload-requirements'
 import { UploadFooter } from '@/components/upload/upload-footer'
 import { RejectedImagesDialog } from '@/components/upload/rejected-images-dialog'
 
-import { useUserProgress } from '@/lib/hooks/use-user-progress'
 import { useFileUpload } from '@/lib/hooks/use-file-upload'
 import { useOrder } from '@/lib/hooks/use-order'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
@@ -45,7 +44,6 @@ export default function UploadPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
-  const { updateProgress } = useUserProgress()
   const { user } = useAuth()
   
   const { 
@@ -201,13 +199,6 @@ export default function UploadPage() {
         }
       }
       
-      await updateProgress('review', { 
-        upload: {
-          uploadedFiles: successfulUploads.map(r => r.url).filter((url): url is string => url !== undefined),
-          uploadProgress: 100,
-          lastUploadAt: new Date().toISOString()
-        }
-      })
       router.push('/app/review')
     } catch (error) {
       toast({
@@ -217,7 +208,7 @@ export default function UploadPage() {
       })
       router.push('/app/review')
     }
-  }, [updateProgress, router, toast, t, faceModel, updateFaceModelStatus])
+  }, [router, toast, t, faceModel, updateFaceModelStatus])
 
   const handleUpload = useCallback(async (filesToUpload: FileWithScore[]) => {
     // Filter out existing images from the upload

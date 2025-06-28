@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@primeshot/common/web/ui/use-toast'
-import { useUserProgress } from '@/lib/hooks/use-user-progress'
 import { getStripe, createCheckoutSession } from '@/lib/stripe'
 
 interface PaymentRecoveryState {
@@ -32,7 +31,6 @@ interface StageData {
 export function usePaymentRecovery(): PaymentRecoveryState {
   const { user } = useAuth()
   const { toast } = useToast()
-  const { progress } = useUserProgress()
   const [isLoading, setIsLoading] = useState(true)
   const [orderId, setOrderId] = useState<string | null>(null)
   const [hasInterruptedPayment, setHasInterruptedPayment] = useState(false)
@@ -42,15 +40,7 @@ export function usePaymentRecovery(): PaymentRecoveryState {
     if (!user) {
       setIsLoading(false)
       return
-    }
-    
-    // Check if we already have payment data in user progress
-    const stageData = progress?.stage_data as StageData | undefined
-    if (stageData?.payment?.orderId) {
-      setOrderId(stageData.payment.orderId)
-      checkInterruptedPayment(stageData.payment.orderId)
-      return
-    }
+    } 
     
     async function checkInterruptedPayment(knownOrderId?: string) {
       try {
@@ -102,7 +92,7 @@ export function usePaymentRecovery(): PaymentRecoveryState {
     }
     
     checkInterruptedPayment()
-  }, [user, progress, toast])
+  }, [user, toast])
   
   // Resume the interrupted payment flow by creating a new checkout session
   const resumePayment = async () => {
@@ -152,29 +142,6 @@ export function usePaymentRecovery(): PaymentRecoveryState {
     if (!user || !orderId) return
     
     setHasInterruptedPayment(false)
-    
-    try {
-      // Mark in user_progress that user declined to resume this payment
-      const supabase = createClient()
-      const stageData = progress?.stage_data as StageData | undefined || {}
-      
-      await supabase
-        .from('user_progress')
-        .update({
-          stage_data: {
-            ...stageData,
-            payment: {
-              ...(stageData.payment || {}),
-              declined_recovery: true,
-              declined_order_id: orderId,
-              declined_at: new Date().toISOString()
-            }
-          }
-        })
-        .eq('user_id', user.id)
-    } catch (error) {
-      console.error('Error updating payment recovery status:', error)
-    }
   }
   
   return {
