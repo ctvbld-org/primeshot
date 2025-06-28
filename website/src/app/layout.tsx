@@ -18,7 +18,7 @@ const inter = Inter({
 async function getBaseUrl() {
   const headersList = await headers();
   const host = headersList.get("host") || "primeshot.ai";
-  const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
+  const protocol = process.env.VERCEL_TARGET_ENV === "local" ? "http" : "https";
   return `${protocol}://${host}`;
 }
 
