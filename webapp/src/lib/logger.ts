@@ -20,7 +20,7 @@ interface LogEntry {
 }
 
 class Logger {
-  private isDevelopment = process.env.NODE_ENV !== 'production';
+  private isDevelopment = process.env.VERCEL_TARGET_ENV !== 'production';
 
   /**
    * Log an informational message

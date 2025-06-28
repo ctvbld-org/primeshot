@@ -16,16 +16,18 @@ if (!STRIPE_SECRET_KEY) {
   throw new Error('Missing required environment variable: STRIPE_SECRET_KEY');
 }
 
-// Check if NEXT_PUBLIC_APP_URL is set
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL;
+// Check if VERCEL_PROJECT_PRODUCTION_URL is set
+const url_prefix = process.env.VERCEL_TARGET_ENV === 'local' ? 'http://' : 'https://'
+const APP_URL = new URL(url_prefix + process.env.VERCEL_PROJECT_PRODUCTION_URL + process.env.NEXT_PUBLIC_POST_LOGIN_PATH);
+  
 if (!APP_URL) {
-  console.error('CRITICAL ERROR: NEXT_PUBLIC_APP_URL is not set. Payment redirects will fail.');
-  throw new Error('Missing required environment variable: NEXT_PUBLIC_APP_URL');
+  console.error('CRITICAL ERROR: VERCEL_PROJECT_PRODUCTION_URL is not set. Payment redirects will fail.');
+  throw new Error('Missing required environment variable: VERCEL_PROJECT_PRODUCTION_URL');
 }
 
 // Initialize Stripe with latest API version
 const stripe = new Stripe(STRIPE_SECRET_KEY, {
-  apiVersion: '2025-03-31.basil',
+  apiVersion: '2025-05-28.basil',
 });
 
 export async function POST(request: Request) {

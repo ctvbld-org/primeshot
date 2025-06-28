@@ -11,7 +11,10 @@
     "paths": {
       "@/*": ["./*"],
       "@primeshot/common/*": ["./*"],
-      "@/components/*": ["web/*"]
+      "@/components/*": ["web/*"],
+      "@/hooks/*": ["hooks/*"],
+      "@/lib/*": ["lib/*"],
+      "@/types/*": ["types/*"]
     }
   },
   "include": ["hooks", "web", "lib", "types", "index.ts", "global.d.ts"]

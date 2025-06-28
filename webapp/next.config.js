@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
+const path = require('path')
+const isProd = process.env.VERCEL_TARGET_ENV !== 'local'
+
 const nextConfig = {
+  basePath: isProd ? '/create' : '',
+  assetPrefix: isProd ? '/create' : '',
   webpack: (config, { isServer }) => {
     // Ignore Node.js specific modules in face-api.js
     config.resolve.fallback = {
@@ -9,6 +14,10 @@ const nextConfig = {
       path: false,
       stream: false,
     }
+
+    // Path alias so imports like "@/constants/profile-options" work in monorepo
+    config.resolve.alias['@/constants'] = path.join(__dirname, 'src/components/constants')
+
     return config
   },
   images: {
@@ -19,7 +28,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'studio.primeshot.ai',
+        hostname: 'primeshot.ai',
       },
       {
         protocol: 'http',
@@ -43,9 +52,10 @@ const nextConfig = {
 }
 
 // Add dynamic hostname from environment variable if available
-if (process.env.NEXT_PUBLIC_APP_URL) {
+if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
   try {
-    const appUrl = new URL(process.env.NEXT_PUBLIC_APP_URL);
+    const url_prefix = process.env.VERCEL_TARGET_ENV === 'local' ? 'http://' : 'https://'
+    const appUrl = new URL(url_prefix + process.env.VERCEL_PROJECT_PRODUCTION_URL + process.env.NEXT_PUBLIC_POST_LOGIN_PATH);
     // Check if the hostname isn't already in the patterns
     const hostnameExists = nextConfig.images.remotePatterns.some(
       pattern => pattern.hostname === appUrl.hostname
@@ -58,7 +68,7 @@ if (process.env.NEXT_PUBLIC_APP_URL) {
       });
     }
   } catch (error) {
-    console.warn('Invalid NEXT_PUBLIC_APP_URL format:', process.env.NEXT_PUBLIC_APP_URL);
+    console.warn('Invalid VERCEL_PROJECT_PRODUCTION_URL format:', process.env.VERCEL_PROJECT_PRODUCTION_URL);
   }
 }
 

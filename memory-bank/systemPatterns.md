@@ -423,6 +423,82 @@ Detected changes in:
 - website/src/app/globals.css
 - website/src/app/layout.tsx
 - website/src/app/page.tsx
+
+
+**Auto-update 2025-06-27**:
+Detected changes in:
+- webapp/src/app/app/albums/page.tsx
+- webapp/src/app/app/layout.tsx
+- webapp/src/app/app/payment/error/page.tsx
+- webapp/src/app/app/review/page.tsx
+- webapp/src/app/app/settings/profile/page.tsx
+- webapp/src/app/app/settings/settings-form.tsx
+- webapp/src/app/app/shoot/page.tsx
+- webapp/src/app/app/styles/page.tsx
+- webapp/src/app/app/training/page.tsx
+- webapp/src/app/app/upload/page.tsx
+- webapp/src/app/auth/callback/route.ts
+- webapp/src/app/auth/signin/google/route.ts
+- webapp/src/app/auth/signin/page.tsx
+- webapp/src/app/auth/signout/route.ts
+- webapp/src/app/auth/verify/page.tsx
+- webapp/src/app/layout.tsx
+- webapp/src/app/page.tsx
+- webapp/src/components/animations/TiltCard.tsx
+- webapp/src/components/app-header.tsx
+- webapp/src/components/auth/animated-background.tsx
+- webapp/src/components/constants/animations.ts
+- webapp/src/components/constants/profile-options.ts
+- webapp/src/components/create/face_models.tsx
+- webapp/src/components/language-switcher.tsx
+- webapp/src/components/review/form-field.tsx
+- webapp/src/components/review/profile-form.tsx
+- webapp/src/components/review/review-footer.tsx
+- webapp/src/components/shoot/shoot-footer.tsx
+- webapp/src/components/skeleton/upload/page.tsx
+- webapp/src/components/skeleton/upload/requirements.tsx
+- webapp/src/components/style/clothing-color-selector.tsx
+- webapp/src/components/style/new-style-card.tsx
+- webapp/src/components/style/style-card.tsx
+- webapp/src/components/style/style-details.tsx
+- webapp/src/components/style/style-tabs-options.tsx
+- webapp/src/components/ui/loading-content.tsx
+- webapp/src/components/upload/file-uploader.tsx
+- webapp/src/components/upload/image-tooltip.tsx
+- webapp/src/components/upload/rejected-images-dialog.tsx
+- webapp/src/components/upload/upload-footer.tsx
+- webapp/src/components/upload/upload-requirements.tsx
+- webapp/src/components/user-nav.tsx
+- webapp/src/contexts/auth-context.tsx
+- webapp/src/contexts/language-context.tsx
+- webapp/src/lib/hooks/use-file-upload.ts
+- webapp/src/lib/hooks/use-order.ts
+- webapp/src/lib/hooks/use-payment-recovery.ts
+- website/src/app/layout.tsx
+
+
+**Auto-update 2025-06-28**:
+Detected changes in:
+- webapp/src/app/api/payment/create-checkout-session/route.ts
+- webapp/src/app/layout.tsx
+- webapp/src/lib/logger.ts
+- website/src/app/api/waitlist/route.ts
+- website/src/app/favicon.ico
+- website/src/app/globals.css
+- website/src/app/layout.tsx
+- website/src/app/page.tsx
+- website/src/components/SiteHeader.tsx
+- website/src/components/SocialIcons.tsx
+- website/src/components/WaitlistForm.tsx
+- website/src/components/WebGLBackground.tsx
+- website/src/components/WebGLImageTransition.tsx
+- website/src/lib/supabase.ts
+
+
+**Auto-update 2025-06-28**:
+Detected changes in:
+- webapp/src/app/auth/callback/route.ts
+- webapp/src/app/auth/signout/route.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

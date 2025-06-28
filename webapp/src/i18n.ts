@@ -16,11 +16,11 @@ import reviewDe from '@/locales/de/review.json';
 import settingsDe from '@/locales/de/settings.json';    
 
 // English
-import commonEn from '@/locales/en/common.json';
+import commonEn from '@primeshot/common/locales/en/common.json';
 import paymentEn from '@/locales/en/payment.json';
 import albumsEn from '@/locales/en/albums.json'; 
 import stylesEn from '@/locales/en/styles.json';
-import authEn from '@/locales/en/auth.json';
+import authEn from '@primeshot/common/locales/en/auth.json';
 import profileEn from '@/locales/en/profile.json';
 import uploadEn from '@/locales/en/upload.json';
 import reviewEn from '@/locales/en/review.json';

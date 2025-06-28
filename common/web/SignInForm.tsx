@@ -10,7 +10,7 @@ import Link from 'next/link'
 import { Icon } from './Icon'
 
 export function SignInForm() {
-  const { t } = useTranslation()
+  const { t } = useTranslation('auth')
   const { signIn, signInWithGoogle, signInWithLinkedIn, isLoading, error } = useAuth()
   const [email, setEmail] = useState('')
 
