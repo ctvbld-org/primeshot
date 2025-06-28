@@ -475,6 +475,24 @@ Detected changes in:
 - webapp/src/lib/hooks/use-order.ts
 - webapp/src/lib/hooks/use-payment-recovery.ts
 - website/src/app/layout.tsx
+
+
+**Auto-update 2025-06-28**:
+Detected changes in:
+- webapp/src/app/api/payment/create-checkout-session/route.ts
+- webapp/src/app/layout.tsx
+- webapp/src/lib/logger.ts
+- website/src/app/api/waitlist/route.ts
+- website/src/app/favicon.ico
+- website/src/app/globals.css
+- website/src/app/layout.tsx
+- website/src/app/page.tsx
+- website/src/components/SiteHeader.tsx
+- website/src/components/SocialIcons.tsx
+- website/src/components/WaitlistForm.tsx
+- website/src/components/WebGLBackground.tsx
+- website/src/components/WebGLImageTransition.tsx
+- website/src/lib/supabase.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

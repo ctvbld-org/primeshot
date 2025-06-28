@@ -65,45 +65,8 @@ export async function GET(request: Request) {
           console.error('Error creating user in database:', dbError)
         }
 
-        // Check for user progress - select all needed fields
-        const { data: progress, error: progressError } = await supabase
-          .from('user_progress')
-          .select('*') // Select all fields needed for logic below
-          .eq('user_id', user.id)
-          .maybeSingle()
-
-        if (progressError) {
-             console.error('Error checking user progress on login:', progressError)
-             // Handle potential DB errors here
-        }
-
-        // Create initial progress using UPSERT if no progress exists
-        if (!progress) {
-          console.log(`No progress found for user ${user.id}, creating initial record...`)
-          const { error: createError } = await supabase
-            .from('user_progress')
-            .upsert({
-              user_id: user.id,
-              current_stage: 'shoot', // Start at shoot
-              completed_stages: [], // No stages completed yet
-              stage_data: {},
-              last_active_at: new Date().toISOString()
-            }, { onConflict: 'user_id' }) // IMPORTANT: Use onConflict
-            
-          if (createError) {
-            console.error('Error creating initial user progress:', createError)
-            // Handle this failure - maybe user can't proceed?
-          } else {
-             console.log(`Initial progress created for user ${user.id}.`)
-          }
-        } else {
-           console.log(`Existing progress found for user ${user.id}.`)
-        }
-
         // Create a new response with the redirect
-        const targetPath = progress && !progress.completed_stages.includes('payment')
-          ? `/${progress.current_stage}`
-          : (process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/')
+        const targetPath = (process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/')
 
         const response = NextResponse.redirect(new URL(targetPath, requestUrl.origin))
         

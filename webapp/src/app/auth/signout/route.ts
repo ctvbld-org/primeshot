@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
+const login_path = process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/'
+
 // We can't use the auth context here because this is a server route
 // Instead, we'll use the server client but with proper error handling
 export async function GET(request: Request) {
@@ -8,10 +10,10 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL(login_path, request.url));
   } catch (error) {
     console.error('Sign out error:', error);
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL(login_path, request.url));
   }
 }
 
@@ -21,9 +23,9 @@ export async function POST(request: Request) {
     const supabase = await createClient();
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL(login_path, request.url));
   } catch (error) {
     console.error('Sign out error:', error);
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL(login_path, request.url));
   }
 } 
