@@ -4,6 +4,6 @@ export const fadeAnimation = {
   exit: { opacity: 0, y: 20 },
   transition: { 
     duration: 0.5,
-    ease: [0.32, 0.72, 0, 1] // Custom easing for smoother motion
+    ease: [0.32, 0.72, 0, 1] as [number, number, number, number]
   }
 } 
