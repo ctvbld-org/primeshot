@@ -1,2 +1,0 @@
--- This file intentionally left empty.
--- Style configurations and options are managed in migrations/20250428214535_seed_style_data.sql 

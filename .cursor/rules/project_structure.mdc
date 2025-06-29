@@ -12,7 +12,7 @@ alwaysApply: true
 ├── .git/            # Git repository data
 ├── webapp/          # Main SPA Next.js application (Next.js)
 ├── website/         # Marketing site (Next.js, mostly static)
-├── common/          # Shared package published as @primeshot/common (components, hooks, utils)
+├── common/          # Shared package published as @primeshot/common (components, hooks, utils, shared locales)
 ├── ai-container/    # Modal containers for training and inference
 │   ├── ai-toolkit-modal/      # Training LoRA project container on Modal
 │   └── comfyui-modal/         # ComfyUI project container for inference on Modal
@@ -77,6 +77,12 @@ src/
 - **`webapp/`**: Main Next.js application
   - Contains all frontend-related code and configurations
   - Follows Next.js 13+ app directory structure
+
+- **`common/`**: Shared yarn/npm workspace published as `@primeshot/common`
+  - Houses **reusable React pieces** (components, hooks, utilities)
+  - Exposes a `locales/` directory that stores **shared translation namespaces** (`common.json`, `auth.json`, etc.) for every supported language
+  - Consumed by both `webapp` and `website` via the TypeScript path alias `@primeshot/common/*`
+  - Keeps wording consistent across projects and prevents duplicate translations
 
 - **`supabase/`**: Supabase backend configuration
   - `functions/` - Edge Functions
@@ -193,6 +199,11 @@ src/
    }
    ```
 
+4. **Component Organization**
+   - Place small, related components in the same file
+   - Extract large components into separate files
+   - Use `index.ts` files for cleaner imports and simpler import paths
+
 ## Best Practices
 
 1. **File Naming**
@@ -222,107 +233,32 @@ src/
    import styles from './Component.module.css'
    ```
 
-4. **Component Organization**
-   - Place small, related components in the same file
-   - Extract large components into separate files
-   - Use index.ts files for cleaner imports
-
 ## Related Rules
 - See [auth.mdc](mdc:.cursor/rules/auth.mdc) for authentication patterns
 - See [supabase_migrations.mdc](mdc:.cursor/rules/supabase_migrations.mdc) for database management
 - See [user_flow.mdc](mdc:.cursor/rules/user_flow.mdc) for user flow organization
 
-- **Working Directory**
-  - ⚠️ IMPORTANT: All Supabase commands MUST be run from the root directory
+### Supabase Workflow Cheatsheet
+
+- **Working Directory**  – always run Supabase CLI commands from the project root
   ```bash
-  # ✅ DO: Run commands from root directory
+  # ✅ Correct
   supabase db push
 
-  # ❌ DON'T: Run from frontend directory
-  cd frontend && supabase db push  # This will fail
+  # ❌ Incorrect (inside webapp)
+  cd webapp && supabase db push
   ```
 
 - **Migration File Naming**
-  - Use timestamp-based naming to ensure uniqueness
   ```bash
-  # ✅ DO: Use timestamp-based names
-  YYYYMMDDHHMMSS_descriptive_name.sql
+  # ✅ Timestamp-based names prevent collisions
   20240403143022_add_user_profile_fields.sql
-  
-  # ❌ DON'T: Use date-only names (can cause conflicts)
-  20240403_add_user_profile_fields.sql
   ```
-
-- **Migration Commands**
-  - Use `supabase db push` to apply migrations (from frontend directory)
-  ```bash
-  # ✅ DO: Use db push
-  cd frontend && supabase db push
-  
-  # ❌ DON'T: Use migration up (deprecated)
-  supabase migration up
-  ```
-
-- **Migration File Structure**
-  ```sql
-  -- ✅ DO: Include clear section comments
-  -- Add new columns
-  ALTER TABLE public.users
-  ADD COLUMN IF NOT EXISTS new_column TEXT;
-  
-  -- Update policies
-  DROP POLICY IF EXISTS "Policy name" ON public.table_name;
-  CREATE POLICY "Policy name" ON public.table_name
-    FOR operation USING (condition);
-  ```
-
-- **Best Practices**
-  - Always use `IF NOT EXISTS` / `IF EXISTS` in DDL statements
-  - Drop policies before recreating them
-  - Include rollback statements as comments
-  - Test migrations locally before pushing
-  - Keep migrations atomic and focused
-  - Add descriptive comments for each change
-
-- **Common Issues**
-  - **Duplicate Migration Error**
-    ```bash
-    # If you get: "duplicate key value violates unique constraint"
-    # Delete the migration and create a new one with current timestamp
-    cd frontend
-    rm supabase/migrations/old_migration.sql
-    # Create new migration with current timestamp
-    touch supabase/migrations/$(date +%Y%m%d%H%M%S)_description.sql
-    ```
 
 - **Type Generation**
-  - Always regenerate types after migrations (from frontend directory)
   ```bash
-  # Update TypeScript types
-  cd frontend
+  cd webapp
   supabase gen types typescript --local > src/types/supabase.ts
   ```
 
-- **Migration Workflow**
-  1. Ensure you're in the frontend directory (`cd frontend`)
-  2. Create new migration with timestamp name
-  3. Write migration SQL with proper guards
-  4. Test locally with `supabase db push`
-  5. Generate updated types
-  6. Commit both migration and type files
-
-- **Security Considerations**
-  - Always include RLS policies for new tables
-  - Review and update existing policies when modifying tables
-  - Test policy effectiveness after migration
-  - Consider data privacy implications
-
-- **Related Rules**
-  - See [auth.mdc](mdc:.cursor/rules/auth.mdc) for authentication-related policies
-  - See [cursor_rules.mdc](mdc:.cursor/rules/cursor_rules.mdc) for rule formatting
-  - See [project_structure.mdc](mdc:.cursor/rules/project_structure.mdc) for directory organization
-
-- **Related Rules**
-  - See [auth.mdc](mdc:.cursor/rules/auth.mdc) for authentication-related policies
-  - See [cursor_rules.mdc](mdc:.cursor/rules/cursor_rules.mdc) for rule formatting
-  - See [project_structure.mdc](mdc:.cursor/rules/project_structure.mdc) for directory organization
+Refer to `supabase_migrations.mdc` for the full checklist (rollback strategy, RLS policies, etc.).

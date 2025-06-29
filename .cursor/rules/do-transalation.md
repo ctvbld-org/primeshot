@@ -1,6 +1,10 @@
 # Search all the natural english sentence(s) in the targeted file(s) to translate them in English, French, Spanish, Italian, Portugese, German, Dutch, Chinese, Japanese and perform the following:
 
-## 1. Create translation key(s) into the related locales file(s). For example, if the page is in a folder called upload then add the translation(s) into frontend/src/locales/en/upload.json, if a component is in an upload folder then add the translation(s) into frontend/src/locales/en/upload.json. If the locale file doesn't exist create it.
+## 1. Create translation key(s) in the appropriate **namespace file**.
+   * **Feature-specific copy** → `webapp/src/locales/{lang}/{namespace}.json` (or the equivalent `website/` path).
+   * **Shared copy used by more than one project** → `common/locales/{lang}/{namespace}.json` (published as `@primeshot/common`).
+   
+   Example: a new **upload** page string that is only used in the SPA goes to `webapp/src/locales/en/upload.json`; a string that is reused by both the SPA and the marketing site goes to `common/locales/en/common.json`.
 
 ## 2. Replace all the sentence(s) with the newly created translation key(s).
 
