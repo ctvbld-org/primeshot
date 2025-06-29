@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+- **2025-06-29 23:05:16** (David): Update Vercel rewrites for improved routing and mark comfyui-modal submodule as dirty
+- **2025-06-29 23:02:46** (David): Update Vercel rewrites for improved routing and mark comfyui-modal submodule as dirty
+- **2025-06-29 22:52:19** (David): Update Vercel rewrites for improved routing and mark comfyui-modal submodule as dirty
 - **2025-06-29 22:49:17** (David): Update Vercel rewrites for improved routing and mark comfyui-modal submodule as dirty
 - **2025-06-29 22:38:03** (David): Mark comfyui-modal submodule as dirty to indicate local changes
 - **2025-06-29 01:46:24** (David): Update CHANGELOG, refine animation easing type in style-details, and add new package dependencies

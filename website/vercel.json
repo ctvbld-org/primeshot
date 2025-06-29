@@ -1,5 +1,9 @@
 {
     "rewrites": [
+        {
+          "source": "/create",
+          "destination": "https://primeshot-webapp.vercel.app/create"
+        },
       {
         "source": "/create/:path*",
         "destination": "https://primeshot-webapp.vercel.app/create/:path*"
