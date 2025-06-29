@@ -23,7 +23,7 @@ export default function RootLayout({
           <LanguageProvider>
             <QueryProvider>
               <BannerProvider>
-                <Header />
+                <Header logoSrc="/create/logo-primeshot.svg" />
                 {children}
                 <Toaster />
               </BannerProvider>

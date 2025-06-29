@@ -10,9 +10,11 @@ import { AccountDialog } from './AccountDialog';
 interface HeaderProps {
   /** Optional element rendered on the right side (e.g. login button). */
   rightSlot?: React.ReactNode;
+  /** Path to logo image, defaults to '/logo-primeshot.svg'. */
+  logoSrc?: string;
 }
 
-export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
+export const Header: React.FC<HeaderProps> = ({ rightSlot, logoSrc = '/logo-primeshot.svg' }) => {
   const { isAuthenticated } = useAuth();
 
   return (
@@ -20,7 +22,7 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
       <div className="flex items-center gap-8 w-full max-w-6xl mx-auto">
         {/* logo */}
         <a href="/">
-          <Image src="/logo-primeshot.svg" alt="Primeshot" width={32} height={32} />
+          <Image src={logoSrc} alt="Primeshot" width={32} height={32} />
         </a>
 
         {/* nav */}

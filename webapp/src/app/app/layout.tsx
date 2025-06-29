@@ -40,7 +40,7 @@ export default function AppLayout({
   return (
     <div className={`flex flex-col flex-1 justify-center pt-[56px] pb-[72px] min-h-screen overflow-hidden page-${pageName}`}>
       {!pathname.includes('/settings/profile') && (
-        <Header />
+        <Header logoSrc="/create/logo-primeshot.svg" />
       )}
       <main className="h-full pt-0">
         {children}
