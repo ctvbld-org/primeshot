@@ -19,7 +19,6 @@ import { cn } from '@/lib/utils'
 import { useTranslation } from 'react-i18next'
 import { WheelGesturesPlugin } from 'embla-carousel-wheel-gestures'
 import { useHeadshotStore } from '@/store/headshot'
-import { useUserProgress } from '@/lib/hooks/use-user-progress'
 
 export default function StylesPage() {
   const router = useRouter()

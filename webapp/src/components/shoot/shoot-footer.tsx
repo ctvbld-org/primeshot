@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next'
 import { getStripe, createCheckoutSession } from '@/lib/stripe';
 import { calculatePricing } from '@/lib/pricing';
 import { getOrCreateDraftOrder } from '@/lib/api/orders';
-import { useUserProgress } from '@/lib/hooks/use-user-progress';
 import { useAuth } from '@/contexts/auth-context';
 import { useToast } from "@primeshot/common/web/ui/use-toast"
 import { createClient } from '@/lib/supabase/client';

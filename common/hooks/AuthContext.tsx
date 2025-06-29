@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setState(prev => ({ ...prev, isLoading: true, error: null }))
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: `${window.location.origin}/auth/callback` }
+        options: { emailRedirectTo: getCallbackUrl() }
       })
       if (error) throw error
       window.location.href = `/auth/verify?email=${encodeURIComponent(email)}`
@@ -86,13 +86,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }
 
+  // Helper to build redirect URL respecting optional base path
+  const getCallbackUrl = () => {
+    const callbackUrl = process.env.NEXT_PUBLIC_APP_URL + '/auth/callback'
+    alert(callbackUrl)
+    return callbackUrl
+  }
+
   const signInWithGoogle = async () => {
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }))
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: getCallbackUrl(),
           queryParams: { access_type: 'offline', prompt: 'consent' }
         }
       })
@@ -110,7 +117,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'linkedin_oidc',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: getCallbackUrl(),
           scopes: 'openid profile email'
         }
       })

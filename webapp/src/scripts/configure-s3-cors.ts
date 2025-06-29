@@ -45,10 +45,7 @@ async function configureCORS() {
     } catch (corsError) {
       console.log('No existing CORS configuration found');
     }
-
-    const url_prefix = process.env.VERCEL_TARGET_ENV === 'local' ? 'http://' : 'https://'
-    const APP_URL = new URL(url_prefix + process.env.VERCEL_PROJECT_PRODUCTION_URL);
- 
+    
     // Set up CORS configuration
     const corsConfig = {
       Bucket: process.env.AWS_S3_BUCKET!,
@@ -58,7 +55,7 @@ async function configureCORS() {
             AllowedHeaders: ['*'],
             AllowedMethods: ['GET', 'PUT', 'POST', 'DELETE', 'HEAD'],
             AllowedOrigins: [
-              APP_URL.toString()
+              process.env.NEXT_PUBLIC_APP_URL?.toString()
             ],
             ExposeHeaders: ['ETag'],
             MaxAgeSeconds: 3600

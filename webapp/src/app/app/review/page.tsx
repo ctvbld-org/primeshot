@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@primeshot/common/web/ui/use-toast'
 import type { ToastActionElement } from '@primeshot/common/web/ui/toast'
-import { useUserProgress } from '@/lib/hooks/use-user-progress'
 import { Image as ImageType } from '@/lib/types'
 import { useTranslation } from 'react-i18next'
 import styles from './page.module.css'
@@ -48,7 +47,6 @@ export default function ReviewPage() {
   const router = useRouter()
   const supabase = createClient()
   const { toast } = useToast()
-  const { updateProgress } = useUserProgress()
   const formRef = useRef<HTMLFormElement>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -172,9 +170,6 @@ export default function ReviewPage() {
   const handleFormSubmit = async (formData: any) => {
     setIsSubmitting(true);
     try {
-      // Update progress after successful profile update
-      await updateProgress('albums');
-
       // Redirect to the next page
       router.push('/app/albums');
       

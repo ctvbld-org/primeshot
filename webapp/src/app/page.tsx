@@ -50,7 +50,6 @@ export default function Home() {
         ) : (
           <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-500 rounded-md p-12 text-center text-gray-400">
             <p className="mb-4">Please sign in to generate images.</p>
-            <Link href="/auth/signin" className="bg-teal-500 hover:bg-teal-600 px-4 py-2 text-white rounded-md text-sm">Sign in</Link>
           </div>
         )}
       </section>

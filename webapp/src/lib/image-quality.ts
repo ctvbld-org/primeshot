@@ -1,5 +1,38 @@
 'use client';
 
+// Early guard to detect server-side environment
+const isServer = typeof window === 'undefined';
+
+// If we are running on the server, we short-circuit the heavy browser-only logic
+// with safe fallbacks so that static prerendering and other SSR phases don't
+// crash when `window` or other DOM APIs are unavailable.
+
+// Stubbed result for server usage
+const SERVER_STUB_RESULT = {
+  width: 0,
+  height: 0,
+  faceCount: 0,
+  score: 100,
+  faceScore: 100,
+  bodyScore: 100,
+  brightnessScore: 100,
+  contrastScore: 100,
+  blurScore: 100,
+  resolutionScore: 100,
+  hasSingleFace: false,
+  hasGoodResolution: true,
+  hasGoodScore: true,
+  isAcceptable: true,
+  hasFace: false,
+  hasBody: false,
+  faceDetectionSkipped: true,
+  genderMatchesUser: true,
+  genderDetectionSkipped: true,
+  issues: [] as string[],
+  eyesVisible: true,
+  eyeDetectionSkipped: true,
+} as const;
+
 // Using dynamic import for face-api.js to ensure it only loads on the client side
 let faceapi: any = null;
 
@@ -45,6 +78,10 @@ let modelsLoading = false;
 let modelLoadError = false;
 
 export async function loadModels() {
+  if (isServer) {
+    // Skip model loading during SSR/prerendering
+    return false;
+  }
   if (modelsLoaded) return true;
   if (modelsLoading) {
     // Wait for loading to complete
@@ -147,6 +184,11 @@ export interface ImageQualityResult {
 
 // Analyze image quality using face-api.js and browser canvas
 export async function analyzeImageQuality(file: File, userGender?: 'male' | 'female'): Promise<ImageQualityResult> {
+  if (isServer) {
+    // Return a stubbed "acceptable" result so server code relying on the
+    // structure still works without errors.
+    return SERVER_STUB_RESULT as any;
+  }
   let modelsReady = false;
   
   try {
@@ -717,6 +759,7 @@ function calculateOverallScore(result: ImageQualityResult): number {
 
 // Add function to check body percentage requirements
 export function checkBodyPercentageRequirements(results: Record<string, ImageQualityResult>): boolean {
+  if (isServer) return true;
   const totalImages = Object.keys(results).length;
   if (totalImages === 0) return false;
   

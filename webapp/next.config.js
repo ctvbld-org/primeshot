@@ -52,10 +52,9 @@ const nextConfig = {
 }
 
 // Add dynamic hostname from environment variable if available
-if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+if (process.env.NEXT_PUBLIC_APP_URL) {
   try {
-    const url_prefix = process.env.VERCEL_TARGET_ENV === 'local' ? 'http://' : 'https://'
-    const appUrl = new URL(url_prefix + process.env.VERCEL_PROJECT_PRODUCTION_URL + process.env.NEXT_PUBLIC_POST_LOGIN_PATH);
+    const appUrl = new URL(process.env.NEXT_PUBLIC_APP_URL);
     // Check if the hostname isn't already in the patterns
     const hostnameExists = nextConfig.images.remotePatterns.some(
       pattern => pattern.hostname === appUrl.hostname
@@ -68,7 +67,7 @@ if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
       });
     }
   } catch (error) {
-    console.warn('Invalid VERCEL_PROJECT_PRODUCTION_URL format:', process.env.VERCEL_PROJECT_PRODUCTION_URL);
+    console.warn('Invalid NEXT_PUBLIC_APP_URL format:', process.env.NEXT_PUBLIC_APP_URL);
   }
 }
 

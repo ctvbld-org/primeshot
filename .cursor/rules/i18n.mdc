@@ -5,19 +5,34 @@ alwaysApply: false
 ---
 - **Translation File Structure**
   ```
-  frontend/src/
+  # Shared package
+  common/
+  └── locales/
+      ├── en/
+      │   └── common.json     # Strings reused across projects (auth, common, etc.)
+      └── es/
+          └── common.json
+
+  # Web-app (Next.js SPA)
+  webapp/src/
   ├── locales/
   │   ├── en/
-  │   │   ├── common.json     # Shared translations
-  │   │   ├── payment.json    # Payment-related translations
-  │   │   └── feature.json    # Example naming for feature-specific translations
+  │   │   ├── payment.json    # Payment page only
+  │   │   └── upload.json     # Feature-specific namespace
   │   └── es/
-  │       ├── common.json
   │       ├── payment.json
-  │       └── feature.json
-  ├── i18n.ts                 # i18n configuration
-  └── types/
-      └── i18next.d.ts       # Type declarations
+  │       └── upload.json
+  └── i18n.ts                 # app-specific i18n config
+
+  # Marketing site
+  website/src/
+  └── locales/
+      ├── en/
+      │   └── hero.json       # Landing-page copy only
+      └── es/
+          └── hero.json
+
+  types/i18next.d.ts          # Root-level type declarations (maps all namespaces)
   ```
 
 - **Database Translation Patterns**

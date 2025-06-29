@@ -12,7 +12,6 @@ import { useAuth } from '@/contexts/auth-context'
 import { useToast } from '@primeshot/common/web/ui/use-toast'
 import { saveStyle } from '@/lib/api/styles'
 import { getOrCreateDraftOrder } from '@/lib/api/orders'
-import { ensureUserProgress } from '@/lib/api/progress'
 import { useStyleStore } from '@/store/style'
 import { motion, AnimatePresence } from 'framer-motion'
 import stylesCSS from './page.module.css'
@@ -207,7 +206,6 @@ export default function Page() {
       }
 
       await saveStyle(styleData)
-      await ensureUserProgress(user.id)
 
       toast({
         title: t('toast.successAddedStyle.title', { ns: 'styles' }),
