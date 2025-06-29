@@ -1,5 +1,16 @@
 {
     "rewrites": [
-      { "source": "/create", "destination": "https://primeshot-webapp.vercel.app/create" }
+      {
+        "source": "/create/:path*",
+        "destination": "https://primeshot-webapp.vercel.app/create/:path*"
+      },
+      {
+        "source": "/_next/:path*",
+        "destination": "https://primeshot-webapp.vercel.app/_next/:path*"
+      },
+      {
+        "source": "/logo-primeshot.svg",
+        "destination": "https://primeshot-webapp.vercel.app/logo-primeshot.svg"
+      }
     ]
   }
