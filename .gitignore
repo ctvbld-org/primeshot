@@ -35,7 +35,3 @@ supabase/config/auth.json
 
 # Claude
 .claude/
-
-# AI projects
-ai_containers/ai-toolkit-modal
-ai_containers/comfyui-modal

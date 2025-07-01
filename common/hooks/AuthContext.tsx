@@ -89,7 +89,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Helper to build redirect URL respecting optional base path
   const getCallbackUrl = () => {
     const callbackUrl = process.env.NEXT_PUBLIC_APP_URL + '/auth/callback'
-    alert(callbackUrl)
+    
     return callbackUrl
   }
 

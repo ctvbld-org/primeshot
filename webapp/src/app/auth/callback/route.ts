@@ -67,8 +67,9 @@ export async function GET(request: Request) {
 
         // Create a new response with the redirect
         const targetPath = (process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/')
+        const app_url = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
-        const response = NextResponse.redirect(new URL(targetPath, requestUrl.origin))
+        const response = NextResponse.redirect(new URL(targetPath, app_url))
         
         // Copy over the cookies from the cookie store
         const allCookies = cookieStore.getAll()
@@ -87,5 +88,5 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.redirect(`${origin}/app`)
+  return NextResponse.redirect(`${origin}/create`)
 } 

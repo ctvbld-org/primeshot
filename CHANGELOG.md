@@ -2,6 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
+- **2025-07-01 18:17:31** (David): Add Vercel configuration for unified routing and builds
 - **2025-06-29 23:13:14** (David): Update Vercel rewrites for improved routing and mark comfyui-modal submodule as dirty
 - **2025-06-29 23:05:16** (David): Update Vercel rewrites for improved routing and mark comfyui-modal submodule as dirty
 - **2025-06-29 23:02:46** (David): Update Vercel rewrites for improved routing and mark comfyui-modal submodule as dirty
