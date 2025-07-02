@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "predev": "node ../memory-bank/scripts/detect-changes.js --auto",
-    "dev": "next dev --port 3001",
-    "dev:no-types": "next dev --port 3001",
+    "dev": "next dev --port 3000",
+    "dev:no-types": "next dev --port 3000",
     "build": "next build",
     "build:no-types": "next build",
     "start": "next start",

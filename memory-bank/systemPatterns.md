@@ -528,6 +528,17 @@ Detected changes in:
 **Auto-update 2025-07-01**:
 Detected changes in:
 - webapp/src/components/home/StylesCarousel.tsx
+
+
+**Auto-update 2025-07-02**:
+Detected changes in:
+- webapp/src/app/auth/callback/route.ts
+- webapp/src/app/page.tsx
+- webapp/src/components/create/face_models.tsx
+- webapp/src/components/home/OptionButtons.tsx
+- webapp/src/components/home/StylesCarousel.module.css
+- webapp/src/components/home/StylesCarousel.tsx
+- webapp/src/components/home/styles-carousel.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

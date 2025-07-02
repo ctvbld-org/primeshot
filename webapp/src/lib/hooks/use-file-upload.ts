@@ -6,7 +6,6 @@ import { formatFileSize } from '@/lib/utils'
 import { uploadFileInChunks } from '@/lib/upload-utils'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 import { analyzeImageQuality, loadModels } from '@/lib/image-quality'
-import { useUserGender } from '@/lib/hooks/use-user-gender'
 import type { FileWithScore } from '@/lib/types'
 
 // Add delay helper
@@ -39,7 +38,6 @@ interface FileState {
 export function useFileUpload(options: UseFileUploadOptions = {}) {
   const { t } = useTranslation('upload')
   const { toast } = useToast()
-  const { gender } = useUserGender()
 
   // Split options into separate constants for better memoization
   const {
@@ -232,7 +230,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
         try {
           // Random delay between 400ms and 800ms
           await delay(Math.floor(Math.random() * (800 - 400 + 1)) + 400)
-          const result = await analyzeImageQuality(file, gender || undefined)
+          const result = await analyzeImageQuality(file)
           results[file.name] = result
           
           if (result.isAcceptable) {
@@ -303,7 +301,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
       for (let i = currentIndex; i < files.length; i++) {
         const file = files[i]
         try {
-          const result = await analyzeImageQuality(file, gender || undefined)
+          const result = await analyzeImageQuality(file)
           results[file.name] = result
           
           // Collect rejected file state but don't add it yet

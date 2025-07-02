@@ -4,7 +4,6 @@ import { useEffect, useMemo, useCallback, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { StylePhotographyStyle, Gender, StyleStatus } from '@/lib/types'
 import { getStyleImages } from '@/lib/utils/get-styles-images'
-import { useUserGender } from '@/lib/hooks/use-user-gender'
 import { useGenderFilter } from '@/lib/hooks/use-gender-filter'
 import { cn } from '@/lib/utils'
 import useEmblaCarousel from 'embla-carousel-react'
@@ -82,7 +81,6 @@ export default function Page() {
   const { toast } = useToast()
   const { t } = useTranslation(['common', 'styles'])
   const [isSaving, setIsSaving] = useState(false)
-  const { gender, isLoading: isGenderLoading } = useUserGender();
   const [selectedIndex, setSelectedIndex] = useState(0)
   const { data: styleConfigs = [] } = useStyleConfigs();
   const [previousIndex, setPreviousIndex] = useState(selectedIndex)
@@ -120,7 +118,7 @@ export default function Page() {
     }
   }, [styleConfigs]);
 
-  const filteredStyles = useGenderFilter(photographyStyleOptions, gender || undefined)
+  const filteredStyles = useGenderFilter(photographyStyleOptions)
   
   // Use our custom hook
   const { getStore, } = useStyleStores(filteredStyles);
@@ -128,10 +126,10 @@ export default function Page() {
   const stylesWithImages = useMemo(() => {
     return filteredStyles.map(style => ({
       ...style,
-      genderSpecificImages: getStyleImages(style.preview_images, gender || undefined),
+      genderSpecificImages: getStyleImages(style.preview_images),
       translations: style.translations
     }));
-  }, [filteredStyles, gender]);
+  }, [filteredStyles]);
 
   // Reset settings when selectedIndex changes
   useEffect(() => {
@@ -312,7 +310,7 @@ export default function Page() {
   }), [isTransitioning])
 
 
-  if (isGenderLoading || stylesWithImages.length === 0) {
+  if (stylesWithImages.length === 0) {
     return null;
   }
 

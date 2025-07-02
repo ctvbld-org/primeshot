@@ -5,7 +5,6 @@ import { Style } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { StyleDetails } from './style-details'
 import { getStyleImages } from '@/lib/utils/get-styles-images'
-import { useUserGender } from '@/lib/hooks/use-user-gender'
 import { useStyleConfigs } from '@/hooks/useConfig'
 import { FlipCard } from './flip-card'
 import { useState, useCallback, useRef } from 'react'
@@ -39,7 +38,6 @@ export function StyleCard({
 }: StyleCardProps) {
   // All hooks declarations first
   const { t } = useTranslation('styles')
-  const { gender } = useUserGender();
   const { data: styleConfigs } = useStyleConfigs();
   const [isFlipped, setIsFlipped] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -126,7 +124,7 @@ export function StyleCard({
     tagline: styleConfig.tagline || undefined,
     description: styleConfig.description || '',
     translations: styleConfig.translations,
-    genderSpecificImages: getStyleImages(styleConfig.preview_images || [], gender || undefined)
+    genderSpecificImages: getStyleImages(styleConfig.preview_images || [])
   };
 
   return (
