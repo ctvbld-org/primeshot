@@ -21,7 +21,8 @@
     "discard": "Discard",
     "confirm": "Confirm",
     "remove": "Remove",
-    "add": "Add"
+    "add": "Add",
+    "explore": "Explore"
   },
   "navigation": {
     "addStyles": "Add Styles",

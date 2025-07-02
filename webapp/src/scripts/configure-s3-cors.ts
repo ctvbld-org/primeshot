@@ -55,7 +55,7 @@ async function configureCORS() {
             AllowedHeaders: ['*'],
             AllowedMethods: ['GET', 'PUT', 'POST', 'DELETE', 'HEAD'],
             AllowedOrigins: [
-              process.env.NEXT_PUBLIC_APP_URL?.toString()
+              process.env.NEXT_PUBLIC_APP_URL?.toString() || 'http://localhost:3001'
             ],
             ExposeHeaders: ['ETag'],
             MaxAgeSeconds: 3600

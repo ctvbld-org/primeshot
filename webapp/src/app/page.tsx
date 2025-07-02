@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/auth-context'
 import { StylesCarousel } from '@/components/home/StylesCarousel'
-import { FloatingOptionButtons } from '@/components/home/FloatingOptionButtons'
+import { OptionButtons } from '@/components/home/OptionButtons'
 import { GenerationControls } from '@/components/home/GenerationControls'
 import { GalleryPlaceholder } from '@/components/home/GalleryPlaceholder'
 import { FaceModelSelector } from '@/components/create/face_models'
@@ -26,16 +26,15 @@ export default function Home() {
   }
 
   return (
-    <main className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+    <main className="max-w-6xl mx-auto py-8 space-y-6">
       {/* Styles carousel */}
       <section className="relative">
         <StylesCarousel />
-        {/* Floating buttons anchored on the carousel */}
-        <FloatingOptionButtons />
       </section>
 
       {/* Generation section */}
-      <section className="flex flex-col md:flex-row md:items-start md:space-x-6 space-y-4 md:space-y-0">
+      <section className="flex flex-col md:flex-row items-center justify-between md:space-x-6 max-w-[1080px] mx-auto space-y-4 md:space-y-0">
+        <OptionButtons />
         {/* Left – LoRA selector */}
         <FaceModelSelector className="flex-shrink-0" />
 
