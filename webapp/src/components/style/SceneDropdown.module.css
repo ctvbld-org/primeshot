@@ -1,0 +1,82 @@
+/* SceneDropdown component styles - extends base dropdown styles */
+
+/* Import and compose base styles */
+.container {
+  composes: container from './BaseDropdown.module.css';
+}
+
+.loading {
+  composes: loading from './BaseDropdown.module.css';
+}
+
+.trigger {
+  composes: trigger from './BaseDropdown.module.css';
+}
+
+.triggerOpen {
+  composes: triggerOpen from './BaseDropdown.module.css';
+}
+
+.thumbnail {
+  composes: thumbnail from './BaseDropdown.module.css';
+}
+
+.thumbnailImage {
+  composes: thumbnailImage from './BaseDropdown.module.css';
+}
+
+.textContainer {
+  composes: textContainer from './BaseDropdown.module.css';
+}
+
+.primaryText {
+  composes: primaryText from './BaseDropdown.module.css';
+}
+
+.secondaryText {
+  composes: secondaryText from './BaseDropdown.module.css';
+}
+
+.arrow {
+  composes: arrow from './BaseDropdown.module.css';
+}
+
+.arrowOpen {
+  composes: arrowOpen from './BaseDropdown.module.css';
+}
+
+.dropdown {
+  composes: dropdown from './BaseDropdown.module.css';
+}
+
+.dropdownHeader {
+  composes: dropdownHeader from './BaseDropdown.module.css';
+}
+
+.dropdownTitle {
+  composes: dropdownTitle from './BaseDropdown.module.css';
+}
+
+.optionsContainer {
+  composes: optionsContainer from './BaseDropdown.module.css';
+}
+
+.option {
+  composes: option from './BaseDropdown.module.css';
+}
+
+.optionSelected {
+  composes: optionSelected from './BaseDropdown.module.css';
+}
+
+.optionLabel {
+  composes: optionLabel from './BaseDropdown.module.css';
+}
+
+.selectedIndicator {
+  composes: selectedIndicator from './BaseDropdown.module.css';
+}
+
+.overlay {
+  composes: overlay from './BaseDropdown.module.css';
+} 

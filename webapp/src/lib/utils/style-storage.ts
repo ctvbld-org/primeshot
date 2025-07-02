@@ -10,6 +10,7 @@ export interface ClothingColorSelections {
 
 const STYLE_SELECTIONS_KEY = 'primeshot_style_selections'
 const CLOTHING_COLOR_KEY = 'primeshot_clothing_colors'
+const SELECTED_STYLE_INDEX_KEY = 'primeshot_selected_style_index'
 
 /**
  * Check if localStorage is available (SSR-safe)
@@ -26,6 +27,38 @@ function isLocalStorageAvailable(): boolean {
     return true
   } catch {
     return false
+  }
+}
+
+/**
+ * Get stored selected style index
+ */
+export function getStoredSelectedStyleIndex(): number | null {
+  if (typeof window === 'undefined' || !window.localStorage) {
+    return null
+  }
+
+  try {
+    const stored = localStorage.getItem(SELECTED_STYLE_INDEX_KEY)
+    return stored ? parseInt(stored, 10) : null
+  } catch (error) {
+    console.error('Error reading selected style index from localStorage:', error)
+    return null
+  }
+}
+
+/**
+ * Store selected style index
+ */
+export function storeSelectedStyleIndex(styleIndex: number): void {
+  if (typeof window === 'undefined' || !window.localStorage) {
+    return
+  }
+
+  try {
+    localStorage.setItem(SELECTED_STYLE_INDEX_KEY, styleIndex.toString())
+  } catch (error) {
+    console.error('Error storing selected style index to localStorage:', error)
   }
 }
 

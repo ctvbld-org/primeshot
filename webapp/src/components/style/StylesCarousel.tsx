@@ -10,6 +10,7 @@ import { Button } from '@primeshot/common/web/ui/button'
 import { Icon } from '@/components/icons/icon'
 import { getStyleImages } from '@/lib/utils/get-styles-images'
 import { useStyleSelection } from '@/contexts/style-selection-context'
+import { getStoredSelectedStyleIndex, storeSelectedStyleIndex } from '@/lib/utils/style-storage'
 import styles from './StylesCarousel.module.css'
 
 export function StylesCarousel() {
@@ -19,12 +20,7 @@ export function StylesCarousel() {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [canScrollPrev, setCanScrollPrev] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(false)
-  const [emblaRef, emblaApi] = useEmblaCarousel({ 
-    startIndex: 0,
-    align: 'center',
-    containScroll: false,
-    duration: 30
-  })
+  const [initialIndexSet, setInitialIndexSet] = useState(false)
   
   // Import and use the style selection context
   const { setSelectedStyleIndex, setStylesData } = useStyleSelection()
@@ -51,6 +47,21 @@ export function StylesCarousel() {
     }
   }, [styleConfigs])
 
+  // Get initial index from localStorage or default to 0
+  const getInitialIndex = useCallback(() => {
+    const storedIndex = getStoredSelectedStyleIndex()
+    if (storedIndex !== null && storedIndex >= 0 && storedIndex < photographyStyleOptions.length) {
+      return storedIndex
+    }
+    return 0
+  }, [photographyStyleOptions.length])
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    startIndex: 0, // Will be updated when styles load
+    align: 'center',
+    containScroll: false,
+    duration: 30
+  })
 
   const stylesWithImages = useMemo(() => {
     return photographyStyleOptions.map(style => ({
@@ -60,6 +71,17 @@ export function StylesCarousel() {
     }));
   }, [photographyStyleOptions]);
 
+  // Load persisted selection and initialize carousel when styles are available
+  useEffect(() => {
+    if (photographyStyleOptions.length > 0 && emblaApi && !initialIndexSet) {
+      const initialIndex = getInitialIndex()
+      setSelectedIndex(initialIndex)
+      setSelectedStyleIndex(initialIndex)
+      emblaApi.scrollTo(initialIndex, true) // true = instant scroll
+      setInitialIndexSet(true)
+    }
+  }, [photographyStyleOptions.length, emblaApi, getInitialIndex, setSelectedStyleIndex, initialIndexSet])
+
   // Set up carousel events
   useEffect(() => {
     if (emblaApi) {
@@ -67,6 +89,7 @@ export function StylesCarousel() {
         const newIndex = emblaApi.selectedScrollSnap()
         setSelectedIndex(newIndex)
         setSelectedStyleIndex(newIndex) // Update context
+        storeSelectedStyleIndex(newIndex) // Persist selection
         setCanScrollPrev(emblaApi.canScrollPrev())
         setCanScrollNext(emblaApi.canScrollNext())
       }

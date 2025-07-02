@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useStyleSelection } from '@/contexts/style-selection-context'
 import { useStyleConfigs, useOption } from '@/hooks/useConfig'
 import { useTranslatedOption } from '@/hooks/useTranslatedOption'
@@ -29,13 +29,15 @@ export function SceneDropdown({ onSelect }: SceneDropdownProps) {
   const currentStyleConfig = styleConfigs?.find(style => style.id === selectedStyleId)
   const availableBackgroundIds = currentStyleConfig?.available_backgrounds || []
   
-  const filteredBackgroundOptions = (backgroundOptions?.options || [])
-    .filter(option => availableBackgroundIds.includes(option.id))
-    .map(option => ({
-      id: option.id,
-      label: option.label,
-      imageUrl: option.imageUrl ? getOptionsImage(option.imageUrl) : ''
-    }))
+  const filteredBackgroundOptions = useMemo(() => {
+    return (backgroundOptions?.options || [])
+      .filter(option => availableBackgroundIds.includes(option.id))
+      .map(option => ({
+        id: option.id,
+        label: option.label,
+        imageUrl: option.imageUrl ? getOptionsImage(option.imageUrl) : ''
+      }))
+  }, [backgroundOptions?.options, availableBackgroundIds])
 
   // Load selection from localStorage when style changes
   useEffect(() => {

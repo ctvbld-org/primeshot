@@ -1,4 +1,4 @@
-/* SceneDropdown component styles */
+/* Base Dropdown component styles - shared across all dropdowns */
 
 .container {
   position: relative;
@@ -8,7 +8,7 @@
 .loading {
   width: 14rem; /* w-56 */
   height: 4rem; /* h-16 */
-  background-color: #f3f4f6; /* bg-gray-100 */
+  background-color: #232323; /* bg-gray-100 */
   border-radius: 0.375rem; /* rounded-md */
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
@@ -26,9 +26,9 @@
 .trigger {
   width: 14rem; /* w-56 */
   height: 4rem; /* h-16 */
-  background-color: #ffffff; /* bg-white */
-  border: 1px solid #e5e7eb; /* border-gray-200 */
-  border-radius: 0.375rem; /* rounded-md */
+  background-color: transparent; /* Remove white background */
+  border: none;
+  border-radius: 99px; /* rounded-md */
   display: flex;
   align-items: center;
   padding: 0.5rem; /* p-2 */
@@ -38,21 +38,22 @@
 }
 
 .trigger:hover {
-  background-color: #f9fafb; /* hover:bg-gray-50 */
+  background-color: rgba(229, 251, 250, 0.1); /* hover with theme color */
 }
 
 .triggerOpen {
   ring: 2px solid #3b82f6; /* ring-2 ring-blue-500 */
 }
 
-/* Thumbnail image container */
+/* Thumbnail - now fully round */
 .thumbnail {
   width: 3rem; /* w-12 */
   height: 3rem; /* h-12 */
-  border-radius: 0.375rem; /* rounded-md */
+  border-radius: 50%; /* Fully round */
   overflow: hidden;
   flex-shrink: 0;
   background-color: #f3f4f6; /* bg-gray-100 */
+  position: relative;
 }
 
 .thumbnailImage {
@@ -70,19 +71,20 @@
 .primaryText {
   font-weight: 500; /* font-medium */
   font-size: 0.875rem; /* text-sm */
-  color: #111827; /* text-gray-900 */
+  color: #E5FBFA; /* New text color */
 }
 
 .secondaryText {
   font-size: 0.75rem; /* text-xs */
-  color: #6b7280; /* text-gray-500 */
+  color: #E5FBFA; /* New text color */
+  opacity: 0.8;
 }
 
 /* Chevron arrow */
 .arrow {
   width: 1rem; /* w-4 */
   height: 1rem; /* h-4 */
-  color: #9ca3af; /* text-gray-400 */
+  color: #E5FBFA; /* New arrow color */
   transition: transform 0.15s ease-in-out;
 }
 
@@ -97,25 +99,30 @@
   left: 0;
   margin-top: 0.25rem; /* mt-1 */
   width: 20rem; /* w-80 */
-  background-color: #ffffff; /* bg-white */
-  border: 1px solid #e5e7eb; /* border-gray-200 */
+  background-color: #083533; /* New dark green background */
+  border: 1px solid rgba(229, 251, 250, 0.2); /* Subtle border with theme color */
   border-radius: 0.375rem; /* rounded-md */
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.1); /* Enhanced shadow */
   z-index: 50;
   max-height: 24rem; /* max-h-96 */
-  overflow-y: auto;
+  overflow: hidden;
 }
 
-/* Dropdown header */
+.dropdownInner {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Headers */
 .dropdownHeader {
   padding: 0.75rem; /* p-3 */
-  border-bottom: 1px solid #f3f4f6; /* border-b border-gray-100 */
+  border-bottom: 1px solid rgba(229, 251, 250, 0.2); /* Subtle border */
 }
 
 .dropdownTitle {
   font-weight: 500; /* font-medium */
   font-size: 0.875rem; /* text-sm */
-  color: #111827; /* text-gray-900 */
+  color: #E5FBFA; /* New text color */
 }
 
 /* Options container */
@@ -137,18 +144,18 @@
 }
 
 .option:hover {
-  background-color: #f9fafb; /* hover:bg-gray-50 */
+  background-color: rgba(229, 251, 250, 0.1); /* Hover with theme color */
 }
 
 .optionSelected {
-  background-color: #eff6ff; /* bg-blue-50 */
-  border-color: #bfdbfe; /* border-blue-200 */
+  background-color: rgba(229, 251, 250, 0.15); /* Selected with theme color */
+  border-color: rgba(229, 251, 250, 0.3);
 }
 
 /* Option label */
 .optionLabel {
   font-size: 0.875rem; /* text-sm */
-  color: #111827; /* text-gray-900 */
+  color: #E5FBFA; /* New text color */
 }
 
 /* Selected indicator dot */
@@ -156,7 +163,7 @@
   margin-left: auto;
   width: 0.5rem; /* w-2 */
   height: 0.5rem; /* h-2 */
-  background-color: #3b82f6; /* bg-blue-500 */
+  background-color: #E5FBFA; /* New indicator color */
   border-radius: 50%;
 }
 

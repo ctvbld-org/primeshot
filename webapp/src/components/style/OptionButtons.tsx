@@ -6,7 +6,7 @@ import { WardrobeDropdown } from './WardrobeDropdown'
 
 export function OptionButtons() {
   return (
-    <div className="space-y-3">
+    <div className="gap-3 flex flex-row justify-center items-center">
       <SceneDropdown />
       <WardrobeDropdown />
     </div>

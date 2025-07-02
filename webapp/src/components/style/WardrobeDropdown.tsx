@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useStyleSelection } from '@/contexts/style-selection-context'
 import { useStyleConfigs, useOption } from '@/hooks/useConfig'
 import { useTranslatedOption } from '@/hooks/useTranslatedOption'
@@ -31,6 +31,7 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
   const [currentView, setCurrentView] = useState<'clothing' | 'color'>('clothing')
   const [selectedClothing, setSelectedClothing] = useState<string | null>(null)
   const [selectedColor, setSelectedColor] = useState<string | null>(null)
+  const [tempClothingSelection, setTempClothingSelection] = useState<string | null>(null)
   const [tempColorSelection, setTempColorSelection] = useState<string | null>(null)
   const { selectedStyleId } = useStyleSelection()
   
@@ -46,64 +47,98 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
   const availableClothingIds = currentStyleConfig?.available_clothing || []
   const availableColorIds = currentStyleConfig?.available_clothing_colors || []
   
-  const filteredClothingOptions: ClothingOption[] = (clothingOptions?.options || [])
-    .filter(option => availableClothingIds.includes(option.id))
-    .map(option => ({
-      id: option.id,
-      label: option.label,
-      imageUrl: option.imageUrl ? getOptionsImage(option.imageUrl) : ''
-    }))
+  const filteredClothingOptions: ClothingOption[] = useMemo(() => {
+    return (clothingOptions?.options || [])
+      .filter(option => availableClothingIds.includes(option.id))
+      .map(option => ({
+        id: option.id,
+        label: option.label,
+        imageUrl: option.imageUrl ? getOptionsImage(option.imageUrl) : ''
+      }))
+  }, [clothingOptions?.options, availableClothingIds])
 
-  const filteredColorOptions: ColorOption[] = (colorOptions?.options || [])
-    .filter(option => availableColorIds.includes(option.id))
+  const filteredColorOptions: ColorOption[] = useMemo(() => {
+    return (colorOptions?.options || [])
+      .filter(option => availableColorIds.includes(option.id))
+  }, [colorOptions?.options, availableColorIds])
 
-  // Load selections when style changes
-  useEffect(() => {
-    if (!selectedStyleId || filteredClothingOptions.length === 0) return
-
+  // Helper functions for selection management
+  const loadStoredClothingSelection = useCallback(() => {
+    if (!selectedStyleId) return null
     const stored = getStoredStyleSelections(selectedStyleId)
+    return stored.clothing && filteredClothingOptions.some(opt => opt.id === stored.clothing) 
+      ? stored.clothing 
+      : null
+  }, [selectedStyleId, filteredClothingOptions])
+
+  const loadStoredColorSelection = useCallback((clothingId: string) => {
+    const storedColor = getStoredClothingColor(clothingId)
+    return storedColor && filteredColorOptions.some(opt => opt.id === storedColor)
+      ? storedColor
+      : null
+  }, [filteredColorOptions])
+
+  const getDefaultClothing = useCallback(() => {
+    return filteredClothingOptions[0]?.id || null
+  }, [filteredClothingOptions])
+
+  const getDefaultColor = useCallback(() => {
+    return filteredColorOptions[0]?.id || null
+  }, [filteredColorOptions])
+
+  const initializationKey = useRef<string>('')
+
+  // Single initialization effect to prevent cascading updates
+  useEffect(() => {
+    if (!selectedStyleId || filteredClothingOptions.length === 0 || filteredColorOptions.length === 0) return
+
+    // Create a key to track if we need to reinitialize
+    const currentKey = `${selectedStyleId}-${filteredClothingOptions.length}-${filteredColorOptions.length}`
+    if (initializationKey.current === currentKey) return
     
-    // Set clothing
-    if (stored.clothing && filteredClothingOptions.some(opt => opt.id === stored.clothing)) {
-      setSelectedClothing(stored.clothing)
+    initializationKey.current = currentKey
+
+    // Load stored clothing
+    const storedClothing = loadStoredClothingSelection()
+    const finalClothing = storedClothing || getDefaultClothing()
+    
+    if (finalClothing) {
+      // Load stored color for the clothing
+      const storedColor = loadStoredColorSelection(finalClothing)
+      const finalColor = storedColor || getDefaultColor()
       
-      // Load color for this clothing
-      const storedColor = getStoredClothingColor(stored.clothing)
-      if (storedColor && filteredColorOptions.some(opt => opt.id === storedColor)) {
-        setSelectedColor(storedColor)
-      } else {
-        // Default to first color
-        const defaultColor = filteredColorOptions[0]?.id
-        if (defaultColor) {
-          setSelectedColor(defaultColor)
-          storeClothingColor(stored.clothing, defaultColor)
-        }
+      // Update state in a single batch
+      setSelectedClothing(finalClothing)
+      if (finalColor) {
+        setSelectedColor(finalColor)
       }
-    } else {
-      // Default to first clothing and its color
-      const defaultClothing = filteredClothingOptions[0]?.id
-      if (defaultClothing) {
-        setSelectedClothing(defaultClothing)
-        
-        const storedColor = getStoredClothingColor(defaultClothing)
-        if (storedColor && filteredColorOptions.some(opt => opt.id === storedColor)) {
-          setSelectedColor(storedColor)
-        } else {
-          const defaultColor = filteredColorOptions[0]?.id
-          if (defaultColor) {
-            setSelectedColor(defaultColor)
-            storeClothingColor(defaultClothing, defaultColor)
-          }
-        }
-        
-        storeStyleSelections(selectedStyleId, { clothing: defaultClothing })
+      
+      // Store to localStorage
+      if (selectedStyleId && finalColor) {
+        storeStyleSelections(selectedStyleId, { 
+          clothing: finalClothing,
+          clothingColor: finalColor 
+        })
+        storeClothingColor(finalClothing, finalColor)
       }
     }
-  }, [selectedStyleId, filteredClothingOptions, filteredColorOptions])
+  }, [selectedStyleId, filteredClothingOptions, filteredColorOptions, loadStoredClothingSelection, getDefaultClothing, loadStoredColorSelection, getDefaultColor])
+
+  // Separate effect for syncing changes to storage (only for user interactions)
+  useEffect(() => {
+    // Only sync if we have a valid initialization key (prevents initial sync)
+    if (selectedClothing && selectedColor && selectedStyleId && initializationKey.current) {
+      storeStyleSelections(selectedStyleId, { 
+        clothing: selectedClothing,
+        clothingColor: selectedColor 
+      })
+      storeClothingColor(selectedClothing, selectedColor)
+    }
+  }, [selectedStyleId, selectedClothing, selectedColor])
 
   const handleClothingSelect = (clothingId: string) => {
     setCurrentView('color')
-    setSelectedClothing(clothingId)
+    setTempClothingSelection(clothingId)
     
     // Load stored color for this clothing or default to first
     const storedColor = getStoredClothingColor(clothingId)
@@ -122,7 +157,9 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
   }
 
   const handleConfirm = () => {
-    if (selectedClothing && tempColorSelection) {
+    if (tempClothingSelection && tempColorSelection) {
+      // Commit temporary selections to actual state
+      setSelectedClothing(tempClothingSelection)
       setSelectedColor(tempColorSelection)
       setIsOpen(false)
       setCurrentView('clothing')
@@ -130,18 +167,23 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
       // Store selections
       if (selectedStyleId) {
         storeStyleSelections(selectedStyleId, { 
-          clothing: selectedClothing,
+          clothing: tempClothingSelection,
           clothingColor: tempColorSelection 
         })
-        storeClothingColor(selectedClothing, tempColorSelection)
+        storeClothingColor(tempClothingSelection, tempColorSelection)
       }
       
-      onSelect?.(selectedClothing, tempColorSelection)
+      onSelect?.(tempClothingSelection, tempColorSelection)
+      
+      // Clear temporary selections
+      setTempClothingSelection(null)
+      setTempColorSelection(null)
     }
   }
 
   const handleBack = () => {
     setCurrentView('clothing')
+    setTempClothingSelection(null)
     setTempColorSelection(null)
   }
 
@@ -158,7 +200,14 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
     <div className={styles.container}>
       {/* Dropdown trigger */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          if (!isOpen) {
+            // Initialize temp selections with current selections when opening
+            setTempClothingSelection(selectedClothing)
+            setTempColorSelection(selectedColor)
+          }
+          setIsOpen(!isOpen)
+        }}
         className={`${styles.trigger} ${isOpen ? styles.triggerOpen : ''}`}
       >
         {/* Thumbnail with color overlay */}
@@ -209,7 +258,7 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
                     <button
                       key={option.id}
                       onClick={() => handleClothingSelect(option.id)}
-                      className={`${styles.clothingOption} ${selectedClothing === option.id ? styles.clothingOptionSelected : ''}`}
+                      className={`${styles.clothingOption} ${(tempClothingSelection || selectedClothing) === option.id ? styles.clothingOptionSelected : ''}`}
                     >
                       {/* Thumbnail */}
                       <div className={styles.thumbnail}>
@@ -226,7 +275,7 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
                       <span className={styles.clothingOptionLabel}>{option.label}</span>
                       
                       {/* Selected indicator */}
-                      {selectedClothing === option.id && (
+                      {(tempClothingSelection || selectedClothing) === option.id && (
                         <div className={styles.selectedIndicator} />
                       )}
                     </button>
@@ -249,16 +298,20 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
                 
                 {/* Background clothing image */}
                 <div className={styles.colorSelectionArea}>
-                  {selectedClothingOption && (
-                    <div className={styles.backgroundImage}>
-                      <Image
-                        src={selectedClothingOption.imageUrl}
-                        alt={selectedClothingOption.label}
-                        fill
-                        className={styles.backgroundImageInner}
-                      />
-                    </div>
-                  )}
+                  {(() => {
+                    const displayClothingId = tempClothingSelection || selectedClothing
+                    const displayClothingOption = filteredClothingOptions.find(opt => opt.id === displayClothingId)
+                    return displayClothingOption && (
+                      <div className={styles.backgroundImage}>
+                        <Image
+                          src={displayClothingOption.imageUrl}
+                          alt={displayClothingOption.label}
+                          fill
+                          className={styles.backgroundImageInner}
+                        />
+                      </div>
+                    )
+                  })()}
                   
                   {/* Color options */}
                   <div className={styles.colorGrid}>
@@ -285,7 +338,7 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
                 <div className={styles.footer}>
                   <button
                     onClick={handleConfirm}
-                    disabled={!tempColorSelection}
+                    disabled={!tempClothingSelection || !tempColorSelection}
                     className={styles.confirmButton}
                   >
                     Confirm Selection
@@ -304,6 +357,7 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
           onClick={() => {
             setIsOpen(false)
             setCurrentView('clothing')
+            setTempClothingSelection(null)
             setTempColorSelection(null)
           }}
         />

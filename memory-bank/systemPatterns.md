@@ -539,6 +539,39 @@ Detected changes in:
 - webapp/src/components/home/StylesCarousel.module.css
 - webapp/src/components/home/StylesCarousel.tsx
 - webapp/src/components/home/styles-carousel.tsx
+
+
+**Auto-update 2025-07-02**:
+Detected changes in:
+- webapp/src/app/page.tsx
+- webapp/src/components/home/OptionButtons.tsx
+- webapp/src/components/home/SceneDropdown.module.css
+- webapp/src/components/home/SceneDropdown.tsx
+- webapp/src/components/home/StylesCarousel.tsx
+- webapp/src/components/home/WardrobeDropdown.module.css
+- webapp/src/components/home/WardrobeDropdown.tsx
+- webapp/src/contexts/style-selection-context.tsx
+- webapp/src/lib/utils/style-storage.ts
+
+
+**Auto-update 2025-07-02**:
+Detected changes in:
+- webapp/src/app/app/training/page.tsx
+- webapp/src/app/page.tsx
+- webapp/src/components/face_model/countdown.tsx
+- webapp/src/components/face_model/face_models.tsx
+- webapp/src/components/face_model/progress_tracker.tsx
+- webapp/src/components/home/WardrobeDropdown.module.css
+- webapp/src/components/home/floating-options.tsx
+- webapp/src/components/style/BaseDropdown.module.css
+- webapp/src/components/style/OptionButtons.tsx
+- webapp/src/components/style/SceneDropdown.module.css
+- webapp/src/components/style/SceneDropdown.tsx
+- webapp/src/components/style/StylesCarousel.module.css
+- webapp/src/components/style/StylesCarousel.tsx
+- webapp/src/components/style/WardrobeDropdown.module.css
+- webapp/src/components/style/WardrobeDropdown.tsx
+- webapp/src/lib/utils/style-storage.ts
 ## Component Organization
 
 Components are organized by feature and reusability:
