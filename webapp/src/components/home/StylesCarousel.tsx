@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@primeshot/common/web/ui/button'
 import { Icon } from '@/components/icons/icon'
 import { getStyleImages } from '@/lib/utils/get-styles-images'
+import { useStyleSelection } from '@/contexts/style-selection-context'
 import styles from './StylesCarousel.module.css'
 
 export function StylesCarousel() {
@@ -24,6 +25,9 @@ export function StylesCarousel() {
     containScroll: false,
     duration: 30
   })
+  
+  // Import and use the style selection context
+  const { setSelectedStyleIndex, setStylesData } = useStyleSelection()
 
   // Validate style configs and transform to expected format (no gender filtering)
   const photographyStyleOptions = useMemo(() => {
@@ -60,7 +64,9 @@ export function StylesCarousel() {
   useEffect(() => {
     if (emblaApi) {
       const onSelect = () => {
-        setSelectedIndex(emblaApi.selectedScrollSnap())
+        const newIndex = emblaApi.selectedScrollSnap()
+        setSelectedIndex(newIndex)
+        setSelectedStyleIndex(newIndex) // Update context
         setCanScrollPrev(emblaApi.canScrollPrev())
         setCanScrollNext(emblaApi.canScrollNext())
       }
@@ -76,7 +82,14 @@ export function StylesCarousel() {
         emblaApi.off('select', onSelect)
       }
     }
-  }, [emblaApi])
+  }, [emblaApi, setSelectedStyleIndex])
+
+  // Update styles data in context when it changes
+  useEffect(() => {
+    if (photographyStyleOptions.length > 0) {
+      setStylesData(photographyStyleOptions)
+    }
+  }, [photographyStyleOptions, setStylesData])
 
   const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev()
