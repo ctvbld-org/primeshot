@@ -313,7 +313,7 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
     fetchJobIds();
   }, [faceModels, getTrainingJobIds]);
 
-  if (!user || isLoading || error || faceModels.length === 0) {
+  if (!user || isLoading || error) {
     return null;
   }
 

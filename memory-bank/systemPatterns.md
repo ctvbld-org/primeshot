@@ -499,6 +499,35 @@ Detected changes in:
 Detected changes in:
 - webapp/src/app/auth/callback/route.ts
 - webapp/src/app/auth/signout/route.ts
+
+
+**Auto-update 2025-07-01**:
+Detected changes in:
+- webapp/src/app/api/payment/create-checkout-session/route.ts
+- webapp/src/app/api/payment/webhook/route.ts
+- webapp/src/app/app/review/page.tsx
+- webapp/src/app/app/shoot/page.tsx
+- webapp/src/app/app/styles/page.tsx
+- webapp/src/app/app/upload/page.tsx
+- webapp/src/app/auth/callback/route.ts
+- webapp/src/app/page.tsx
+- webapp/src/components/constants/animations.ts
+- webapp/src/components/home/StylesCarousel.tsx
+- webapp/src/components/review/review-footer.tsx
+- webapp/src/components/shoot/shoot-footer.tsx
+- webapp/src/components/style/style-details.tsx
+- webapp/src/lib/api/progress.ts
+- webapp/src/lib/hooks/use-payment-recovery.ts
+- webapp/src/lib/hooks/use-user-progress.ts
+- webapp/src/lib/image-quality.ts
+- website/src/app/api/waitlist/route.ts
+- website/src/lib/supabase.ts
+- website/src/lib/supabase/client.ts
+
+
+**Auto-update 2025-07-01**:
+Detected changes in:
+- webapp/src/components/home/StylesCarousel.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

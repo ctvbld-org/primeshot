@@ -55,7 +55,7 @@
     "date-fns": "^4.1.0",
     "embla-carousel-react": "^8.6.0",
     "embla-carousel-wheel-gestures": "^8.0.2",
-    "face-api.js": "^0.20.0",
+    "face-api.js": "^0.22.0",
     "framer-motion": "^12.7.4",
     "i18next": "^25.0.1",
     "i18next-browser-languagedetector": "^8.0.5",

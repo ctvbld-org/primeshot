@@ -67,7 +67,7 @@ export async function GET(request: Request) {
 
         // Create a new response with the redirect
         const targetPath = (process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/')
-        const app_url = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+        const app_url = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'
 
         const response = NextResponse.redirect(new URL(targetPath, app_url))
         
