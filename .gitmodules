@@ -1,3 +1,6 @@
 [submodule "ai_containers/ai-toolkit-modal"]
 	path = ai_containers/ai-toolkit-modal
-	url = git@github.com:ctvbld/ai-toolkit-modal.git
+	url = git@github.com:ctvbld/primeshot-ai-toolkit-modal.git
+[submodule "ai_containers/comfyui-modal"]
+	path = ai_containers/comfyui-modal
+	url = git@github.com:ctvbld/primeshot-comfyui-modal.git
