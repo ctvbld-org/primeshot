@@ -18,7 +18,6 @@ interface StyleState {
   setClothing: (clothing: StyleClothing, validOptions: ValidStyleOptions) => Promise<void>
   setPhotographyStyle: (style: StylePhotographyStyle, validOptions: ValidStyleOptions) => Promise<void>
   setClothingColor: (color: StyleClothingColor, validOptions: ValidStyleOptions) => Promise<void>
-  setGender: (gender: Gender) => void
   reset: () => void
 }
 
@@ -30,9 +29,8 @@ const getDefaultSettings = async (photographyStyle: StylePhotographyStyle): Prom
   return {
     photographyStyle,
     background: styleConfig?.available_backgrounds[0] || 'plain-light',
-    clothing: styleConfig?.available_clothing[0] || 'shirt',
-    gender: 'male',
-    clothingColor: styleConfig?.available_clothing_colors?.[0] || '#FFFFFF',
+    clothing: styleConfig?.available_clothing[0] || 'shirt',  
+    clothingColor: styleConfig?.available_clothing_colors?.[0] || 'white',
   }
 }
 
@@ -41,8 +39,7 @@ const initialSettings: StyleSettings = {
   photographyStyle: 'studio',
   background: 'plain-light',
   clothing: 'shirt',
-  gender: 'male',
-  clothingColor: '#FFFFFF',
+  clothingColor: 'white',
 }
 
 type StyleStore = UseBoundStore<StoreApi<StyleState>>
@@ -104,9 +101,6 @@ export const useStyleStore = (photographyStyle: StylePhotographyStyle = 'studio'
           settings: { ...state.settings, clothingColor }
         }))
       },
-      setGender: (gender) => set((state) => ({
-        settings: { ...state.settings, gender }
-      })),
       reset: async () => {
         try {
           const defaultSettings = await getDefaultSettings(photographyStyle);

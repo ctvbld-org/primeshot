@@ -4,12 +4,7 @@ export interface StyleSelections {
   clothingColor: string | null
 }
 
-export interface ClothingColorSelections {
-  [clothingId: string]: string
-}
-
 const STYLE_SELECTIONS_KEY = 'primeshot_style_selections'
-const CLOTHING_COLOR_KEY = 'primeshot_clothing_colors'
 const SELECTED_STYLE_INDEX_KEY = 'primeshot_selected_style_index'
 
 /**
@@ -111,62 +106,3 @@ export function storeStyleSelections(styleId: string, selections: Partial<StyleS
   }
 }
 
-/**
- * Get stored color for a specific clothing item
- */
-export function getStoredClothingColor(clothingId: string): string | null {
-  if (!isLocalStorageAvailable()) {
-    return null
-  }
-
-  try {
-    const stored = localStorage.getItem(CLOTHING_COLOR_KEY)
-    if (!stored) return null
-    
-    const colorSelections: ClothingColorSelections = JSON.parse(stored)
-    return colorSelections[clothingId] || null
-  } catch (error) {
-    console.error('Error reading clothing colors from localStorage:', error)
-    return null
-  }
-}
-
-/**
- * Store color for a specific clothing item
- */
-export function storeClothingColor(clothingId: string, colorId: string): void {
-  if (!isLocalStorageAvailable()) {
-    return
-  }
-
-  try {
-    const stored = localStorage.getItem(CLOTHING_COLOR_KEY)
-    let colorSelections: ClothingColorSelections = {}
-    
-    if (stored) {
-      colorSelections = JSON.parse(stored)
-    }
-    
-    colorSelections[clothingId] = colorId
-    localStorage.setItem(CLOTHING_COLOR_KEY, JSON.stringify(colorSelections))
-  } catch (error) {
-    console.error('Error storing clothing color to localStorage:', error)
-  }
-}
-
-/**
- * Get all stored clothing color selections
- */
-export function getAllStoredClothingColors(): ClothingColorSelections {
-  if (!isLocalStorageAvailable()) {
-    return {}
-  }
-
-  try {
-    const stored = localStorage.getItem(CLOTHING_COLOR_KEY)
-    return stored ? JSON.parse(stored) : {}
-  } catch (error) {
-    console.error('Error reading all clothing colors from localStorage:', error)
-    return {}
-  }
-}

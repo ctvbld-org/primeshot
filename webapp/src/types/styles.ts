@@ -56,6 +56,7 @@ export interface StyleWithSettings extends Style {
 export interface OptionItem {
   id: string;
   label: string;
+  color?: string;
   imageUrl?: string;
   translations: {
     [lang: string]: {

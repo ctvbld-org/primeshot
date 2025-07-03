@@ -1,12 +1,12 @@
 'use client'
 
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useMemo, useCallback, useRef, type FC, type KeyboardEvent } from 'react'
 import { useStyleSelection } from '@/contexts/style-selection-context'
 import { useStyleConfigs, useOption } from '@/hooks/useConfig'
 import { useTranslatedOption } from '@/hooks/useTranslatedOption'
 import { useValidStyleOptions } from '@/lib/utils/style-validation'
 import { getOptionsImage } from '@/lib/utils/get-options-image'
-import { getStoredStyleSelections, storeStyleSelections, getStoredClothingColor, storeClothingColor } from '@/lib/utils/style-storage'
+import { getStoredStyleSelections, storeStyleSelections } from '@/lib/utils/style-storage'
 import Image from 'next/image'
 import { ChevronDown, ArrowLeft } from 'lucide-react'
 import styles from './WardrobeDropdown.module.css'
@@ -24,16 +24,19 @@ interface ClothingOption {
 interface ColorOption {
   id: string
   label: string
+  color: string
 }
 
-export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
+export const WardrobeDropdown: FC<WardrobeDropdownProps> = ({ onSelect }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [currentView, setCurrentView] = useState<'clothing' | 'color'>('clothing')
   const [selectedClothing, setSelectedClothing] = useState<string | null>(null)
   const [selectedColor, setSelectedColor] = useState<string | null>(null)
   const [tempClothingSelection, setTempClothingSelection] = useState<string | null>(null)
   const [tempColorSelection, setTempColorSelection] = useState<string | null>(null)
+  const [focusedOptionIndex, setFocusedOptionIndex] = useState<number>(-1)
   const { selectedStyleId } = useStyleSelection()
+  const dropdownRef = useRef<HTMLDivElement>(null)
   
   const { data: styleConfigs, isLoading: isLoadingStyles } = useStyleConfigs()
   const { data: rawClothingOptions, isLoading: isLoadingClothing } = useOption('clothing')
@@ -60,6 +63,11 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
   const filteredColorOptions: ColorOption[] = useMemo(() => {
     return (colorOptions?.options || [])
       .filter(option => availableColorIds.includes(option.id))
+      .map(option => ({
+        id: option.id,
+        label: option.label,
+        color: option.color || '#FFFFFF'
+      }))
   }, [colorOptions?.options, availableColorIds])
 
   // Helper functions for selection management
@@ -71,12 +79,13 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
       : null
   }, [selectedStyleId, filteredClothingOptions])
 
-  const loadStoredColorSelection = useCallback((clothingId: string) => {
-    const storedColor = getStoredClothingColor(clothingId)
-    return storedColor && filteredColorOptions.some(opt => opt.id === storedColor)
-      ? storedColor
+  const loadStoredColorSelection = useCallback(() => {
+    if (!selectedStyleId) return null
+    const stored = getStoredStyleSelections(selectedStyleId)
+    return stored.clothingColor && filteredColorOptions.some(opt => opt.id === stored.clothingColor)
+      ? stored.clothingColor
       : null
-  }, [filteredColorOptions])
+  }, [selectedStyleId, filteredColorOptions])
 
   const getDefaultClothing = useCallback(() => {
     return filteredClothingOptions[0]?.id || null
@@ -104,7 +113,7 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
     
     if (finalClothing) {
       // Load stored color for the clothing
-      const storedColor = loadStoredColorSelection(finalClothing)
+      const storedColor = loadStoredColorSelection()
       const finalColor = storedColor || getDefaultColor()
       
       // Update state in a single batch
@@ -119,7 +128,6 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
           clothing: finalClothing,
           clothingColor: finalColor 
         })
-        storeClothingColor(finalClothing, finalColor)
       }
     }
   }, [selectedStyleId, filteredClothingOptions, filteredColorOptions, loadStoredClothingSelection, getDefaultClothing, loadStoredColorSelection, getDefaultColor])
@@ -132,7 +140,6 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
         clothing: selectedClothing,
         clothingColor: selectedColor 
       })
-      storeClothingColor(selectedClothing, selectedColor)
     }
   }, [selectedStyleId, selectedClothing, selectedColor])
 
@@ -140,9 +147,9 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
     setCurrentView('color')
     setTempClothingSelection(clothingId)
     
-    // Load stored color for this clothing or default to first
-    const storedColor = getStoredClothingColor(clothingId)
-    if (storedColor && filteredColorOptions.some(opt => opt.id === storedColor)) {
+    // Load stored color for this style or default to first
+    const storedColor = loadStoredColorSelection()
+    if (storedColor) {
       setTempColorSelection(storedColor)
     } else {
       const defaultColor = filteredColorOptions[0]?.id
@@ -170,7 +177,6 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
           clothing: tempClothingSelection,
           clothingColor: tempColorSelection 
         })
-        storeClothingColor(tempClothingSelection, tempColorSelection)
       }
       
       onSelect?.(tempClothingSelection, tempColorSelection)
@@ -186,6 +192,73 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
     setTempClothingSelection(null)
     setTempColorSelection(null)
   }
+
+  // Keyboard navigation handler
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    if (!isOpen) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        setIsOpen(true)
+        setTempClothingSelection(selectedClothing)
+        setTempColorSelection(selectedColor)
+      }
+      return
+    }
+
+    switch (event.key) {
+      case 'Escape':
+        event.preventDefault()
+        setIsOpen(false)
+        setCurrentView('clothing')
+        setTempClothingSelection(null)
+        setTempColorSelection(null)
+        setFocusedOptionIndex(-1)
+        break
+      
+      case 'ArrowDown':
+        event.preventDefault()
+        if (currentView === 'clothing') {
+          const nextIndex = Math.min(focusedOptionIndex + 1, filteredClothingOptions.length - 1)
+          setFocusedOptionIndex(nextIndex)
+        }
+        break
+      
+      case 'ArrowUp':
+        event.preventDefault()
+        if (currentView === 'clothing') {
+          const prevIndex = Math.max(focusedOptionIndex - 1, 0)
+          setFocusedOptionIndex(prevIndex)
+        }
+        break
+      
+      case 'Enter':
+      case ' ':
+        event.preventDefault()
+        if (currentView === 'clothing' && focusedOptionIndex >= 0) {
+          const selectedOption = filteredClothingOptions[focusedOptionIndex]
+          if (selectedOption) {
+            handleClothingSelect(selectedOption.id)
+            setFocusedOptionIndex(-1)
+          }
+        } else if (currentView === 'color' && tempClothingSelection && tempColorSelection) {
+          handleConfirm()
+        }
+        break
+    }
+  }, [isOpen, currentView, focusedOptionIndex, filteredClothingOptions, tempClothingSelection, tempColorSelection, selectedClothing, selectedColor])
+
+  // Reset focused index when view changes
+  useEffect(() => {
+    setFocusedOptionIndex(-1)
+  }, [currentView])
+
+  // Focus management when dropdown opens
+  useEffect(() => {
+    if (isOpen && currentView === 'clothing') {
+      // Focus the first clothing option when dropdown opens
+      setFocusedOptionIndex(0)
+    }
+  }, [isOpen, currentView])
 
   const selectedClothingOption = filteredClothingOptions.find(opt => opt.id === selectedClothing)
   const selectedColorOption = filteredColorOptions.find(opt => opt.id === selectedColor)
@@ -208,6 +281,10 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
           }
           setIsOpen(!isOpen)
         }}
+        onKeyDown={handleKeyDown}
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
+        aria-label="Select wardrobe item"
         className={`${styles.trigger} ${isOpen ? styles.triggerOpen : ''}`}
       >
         {/* Thumbnail with color overlay */}
@@ -238,7 +315,12 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
 
       {/* Dropdown menu */}
       {isOpen && (
-        <div className={styles.dropdown}>
+        <div 
+          ref={dropdownRef}
+          role="listbox"
+          aria-label="Wardrobe options"
+          className={styles.dropdown}
+        >
           <div className={styles.dropdownInner}>
             {/* Sliding container */}
             <div 
@@ -254,11 +336,16 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
                 
                 {/* Clothing options */}
                 <div className={styles.clothingOptionsContainer}>
-                  {filteredClothingOptions.map((option) => (
+                  {filteredClothingOptions.map((option, index) => (
                     <button
                       key={option.id}
                       onClick={() => handleClothingSelect(option.id)}
-                      className={`${styles.clothingOption} ${(tempClothingSelection || selectedClothing) === option.id ? styles.clothingOptionSelected : ''}`}
+                      onKeyDown={handleKeyDown}
+                      role="option"
+                      aria-selected={(tempClothingSelection || selectedClothing) === option.id}
+                      aria-label={`Select ${option.label}`}
+                      tabIndex={focusedOptionIndex === index ? 0 : -1}
+                      className={`${styles.clothingOption} ${(tempClothingSelection || selectedClothing) === option.id ? styles.clothingOptionSelected : ''} ${focusedOptionIndex === index ? styles.clothingOptionFocused : ''}`}
                     >
                       {/* Thumbnail */}
                       <div className={styles.thumbnail}>
@@ -289,6 +376,7 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
                 <div className={styles.colorHeader}>
                   <button 
                     onClick={handleBack}
+                    aria-label="Go back to clothing selection"
                     className={styles.backButton}
                   >
                     <ArrowLeft className={styles.backIcon} />
@@ -314,17 +402,24 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
                   })()}
                   
                   {/* Color options */}
-                  <div className={styles.colorGrid}>
+                  <div 
+                    role="radiogroup"
+                    aria-label="Color options"
+                    className={styles.colorGrid}
+                  >
                     {filteredColorOptions.map((option) => (
                       <button
                         key={option.id}
                         onClick={() => handleColorSelect(option.id)}
+                        role="radio"
+                        aria-checked={tempColorSelection === option.id}
+                        aria-label={`Select color ${option.label}`}
                         className={`${styles.colorSwatch} ${tempColorSelection === option.id ? styles.colorSwatchSelected : ''}`}
                         style={{ 
-                          backgroundColor: option.id === '#FFFFFF' 
+                          backgroundColor: option.color === '#FFFFFF' 
                             ? '#FFFFFF' 
-                            : option.id,
-                          backgroundImage: option.id === '#FFFFFF' 
+                            : option.color,
+                          backgroundImage: option.color === '#FFFFFF' 
                             ? 'linear-gradient(153deg, rgba(0, 0, 0, 0.10) 0%, rgba(0, 0, 0, 0.00) 83.33%), linear-gradient(0deg, #FFF 0%, #FFF 100%), linear-gradient(180deg, rgba(0, 0, 0, 0.00) 0%, rgba(0, 0, 0, 0.10) 100%)'
                             : undefined
                         }}
@@ -339,6 +434,7 @@ export function WardrobeDropdown({ onSelect }: WardrobeDropdownProps) {
                   <button
                     onClick={handleConfirm}
                     disabled={!tempClothingSelection || !tempColorSelection}
+                    aria-label="Confirm wardrobe selection"
                     className={styles.confirmButton}
                   >
                     Confirm Selection
