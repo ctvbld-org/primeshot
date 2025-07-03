@@ -1,7 +1,7 @@
 # Task ID: 10
 # Title: Implement route migration and feature flag rollout
 # Status: pending
-# Dependencies: 2, 3, 4, 5, 6, 9
+# Dependencies: 2, 4, 5, 6, 7, 9
 # Priority: low
 # Description: Set up route redirections and gradual rollout of the new single-page experience.
 # Details:

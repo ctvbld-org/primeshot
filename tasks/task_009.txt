@@ -1,7 +1,7 @@
 # Task ID: 9
 # Title: Connect frontend to inference and payment backends
 # Status: pending
-# Dependencies: 5, 6, 7, 8
+# Dependencies: 6, 7, 8, 3
 # Priority: medium
 # Description: Integrate the single-page UI with the inference and payment systems.
 # Details:

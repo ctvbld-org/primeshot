@@ -1,6 +1,6 @@
 # Task ID: 1
 # Title: Set up single-page layout structure
-# Status: in-progress
+# Status: done
 # Dependencies: None
 # Priority: high
 # Description: Create the foundational layout for the new single-page UX with responsive design for mobile and desktop.

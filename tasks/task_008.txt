@@ -1,11 +1,11 @@
 # Task ID: 8
-# Title: Develop credit-based payment system
+# Title: Implement ComfyUI inference backend on Modal
 # Status: pending
-# Dependencies: 7
+# Dependencies: None
 # Priority: high
-# Description: Implement the credit system for monetizing image generation with Stripe integration.
+# Description: Set up the serverless inference backend using ComfyUI workflows on Modal.
 # Details:
-Design Stripe products for credit packs and subscription options. Implement purchase flow using Stripe Checkout. Set up Stripe webhooks to handle successful payments. Create Supabase `credits` table with proper RLS policies. Implement middleware to check credit availability before generation. Add credit deduction logic that executes immediately on generation request. Implement refund mechanism for failed generations. Create admin dashboard for monitoring credit usage.
+Finalize ComfyUI workflows (*.json) for each combination of style/ratio/quality. Build Modal HTTP endpoint `/inference/start` that accepts generation parameters. Implement WebSocket channel for job progress and partial output streaming. Create Supabase function `inference-start` to trigger Modal. Set up proper error handling and retry logic. Ensure efficient resource utilization with container pre-warming and auto-scaling.
 
 # Test Strategy:
-Test complete purchase flow in Stripe test mode. Verify webhooks correctly update user credits. Test credit deduction and refund logic. Ensure proper error handling for insufficient credits and failed payments.
+Load test inference endpoint with various parameter combinations. Measure cold start and warm execution times. Verify WebSocket streaming works correctly. Test error cases and ensure proper error messages are returned.

@@ -1,6 +1,6 @@
 # Task ID: 2
 # Title: Refactor Styles Carousel component
-# Status: pending
+# Status: done
 # Dependencies: 1
 # Priority: high
 # Description: Extract and adapt the existing styles carousel to work as a standalone component with event emission.

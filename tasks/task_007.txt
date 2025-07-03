@@ -1,11 +1,11 @@
 # Task ID: 7
-# Title: Implement ComfyUI inference backend on Modal
+# Title: Integrate gallery with WebSocket updates
 # Status: pending
-# Dependencies: None
-# Priority: high
-# Description: Set up the serverless inference backend using ComfyUI workflows on Modal.
+# Dependencies: 1
+# Priority: medium
+# Description: Adapt the existing album gallery to show generated images with live updates via WebSocket.
 # Details:
-Finalize ComfyUI workflows (*.json) for each combination of style/ratio/quality. Build Modal HTTP endpoint `/inference/start` that accepts generation parameters. Implement WebSocket channel for job progress and partial output streaming. Create Supabase function `inference-start` to trigger Modal. Set up proper error handling and retry logic. Ensure efficient resource utilization with container pre-warming and auto-scaling.
+Reuse the existing album card grid from `/albums` page. Implement placeholder states for empty gallery and unauthenticated users. Set up WebSocket listener to receive real-time updates from inference jobs. Implement masonry grid layout that updates dynamically as new images arrive. Add loading states and error handling for failed generations. Include functionality to download or share generated images.
 
 # Test Strategy:
-Load test inference endpoint with various parameter combinations. Measure cold start and warm execution times. Verify WebSocket streaming works correctly. Test error cases and ensure proper error messages are returned.
+Test WebSocket connection establishment and reconnection logic. Verify gallery updates correctly when new images arrive. Test placeholder states and transitions. Ensure responsive behavior of gallery grid on different screen sizes.
