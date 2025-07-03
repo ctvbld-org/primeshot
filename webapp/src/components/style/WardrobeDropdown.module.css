@@ -1,0 +1,241 @@
+/* WardrobeDropdown component styles - extends base dropdown styles */
+
+/* Import and compose base styles */
+.container {
+  composes: container from './BaseDropdown.module.css';
+}
+
+.loading {
+  composes: loading from './BaseDropdown.module.css';
+}
+
+.trigger {
+  composes: trigger from './BaseDropdown.module.css';
+}
+
+.triggerOpen {
+  composes: triggerOpen from './BaseDropdown.module.css';
+}
+
+.thumbnail {
+  composes: thumbnail from './BaseDropdown.module.css';
+}
+
+.thumbnailImage {
+  composes: thumbnailImage from './BaseDropdown.module.css';
+}
+
+.textContainer {
+  composes: textContainer from './BaseDropdown.module.css';
+}
+
+.primaryText {
+  composes: primaryText from './BaseDropdown.module.css';
+}
+
+.secondaryText {
+  composes: secondaryText from './BaseDropdown.module.css';
+}
+
+.arrow {
+  composes: arrow from './BaseDropdown.module.css';
+}
+
+.arrowOpen {
+  composes: arrowOpen from './BaseDropdown.module.css';
+}
+
+.dropdown {
+  composes: dropdown from './BaseDropdown.module.css';
+}
+
+.dropdownHeader {
+  composes: dropdownHeader from './BaseDropdown.module.css';
+}
+
+.dropdownTitle {
+  composes: dropdownTitle from './BaseDropdown.module.css';
+}
+
+.optionsContainer {
+  composes: optionsContainer from './BaseDropdown.module.css';
+}
+
+.option {
+  composes: option from './BaseDropdown.module.css';
+}
+
+.optionSelected {
+  composes: optionSelected from './BaseDropdown.module.css';
+}
+
+.optionLabel {
+  composes: optionLabel from './BaseDropdown.module.css';
+}
+
+.selectedIndicator {
+  composes: selectedIndicator from './BaseDropdown.module.css';
+}
+
+.overlay {
+  composes: overlay from './BaseDropdown.module.css';
+}
+
+/* Component-specific styles for WardrobeDropdown */
+
+/* Color indicator for clothing thumbnails */
+.colorIndicator {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 0.75rem; /* w-3 */
+  height: 0.75rem; /* h-3 */
+  border-radius: 50%;
+  border: 1px solid #ffffff;
+}
+
+.dropdownInner {
+  composes: dropdownInner from './BaseDropdown.module.css';
+}
+
+/* Sliding container */
+.slidingContainer {
+  display: flex;
+  transition: transform 0.3s ease-in-out;
+}
+
+/* View containers */
+.clothingView {
+  width: 20rem; /* w-80 */
+  flex-shrink: 0;
+}
+
+.colorView {
+  width: 20rem; /* w-80 */
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.colorHeader {
+  padding: 0.75rem; /* p-3 */
+  border-bottom: 1px solid rgba(229, 251, 250, 0.2); /* Subtle border with theme color */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* gap-2 */
+}
+
+.backButton {
+  padding: 0.25rem; /* p-1 */
+  border-radius: 0.25rem;
+  transition: background-color 0.15s ease-in-out;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+.backButton:hover {
+  background-color: rgba(229, 251, 250, 0.1); /* Hover with theme color */
+}
+
+.backIcon {
+  width: 1rem; /* w-4 */
+  height: 1rem; /* h-4 */
+  color: #E5FBFA; /* Theme color for icon */
+}
+
+/* Clothing options */
+.clothingOptionsContainer {
+  padding: 0.5rem; /* p-2 */
+  max-height: 18rem; /* max-h-72 */
+  overflow-y: auto;
+}
+
+.clothingOption {
+  composes: option from './BaseDropdown.module.css';
+}
+
+.clothingOptionSelected {
+  composes: optionSelected from './BaseDropdown.module.css';
+}
+
+.clothingOptionLabel {
+  composes: optionLabel from './BaseDropdown.module.css';
+}
+
+/* Color selection area */
+.colorSelectionArea {
+  flex: 1;
+  position: relative;
+}
+
+.backgroundImage {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  opacity: 0.1;
+}
+
+.backgroundImageInner {
+  object-fit: cover;
+}
+
+/* Color options grid */
+.colorGrid {
+  position: relative;
+  padding: 1rem; /* p-4 */
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem; /* gap-3 */
+  max-height: 16rem; /* max-h-64 */
+  overflow-y: auto;
+}
+
+.colorSwatch {
+  width: 3rem; /* w-12 */
+  height: 3rem; /* h-12 */
+  border-radius: 50%;
+  border: 2px solid rgba(229, 251, 250, 0.3); /* Theme border color */
+  transition: all 0.15s ease-in-out;
+  cursor: pointer;
+}
+
+.colorSwatch:hover {
+  border-color: rgba(229, 251, 250, 0.5); /* Hover border with theme color */
+}
+
+.colorSwatchSelected {
+  border-color: #E5FBFA; /* Selected border with theme color */
+  ring: 2px solid rgba(229, 251, 250, 0.3); /* Ring with theme color */
+}
+
+/* Footer with confirm button */
+.footer {
+  padding: 0.75rem; /* p-3 */
+  border-top: 1px solid rgba(229, 251, 250, 0.2); /* Border with theme color */
+}
+
+.confirmButton {
+  width: 100%;
+  padding: 0.5rem 1rem; /* py-2 px-4 */
+  background-color: #E5FBFA; /* Theme color background */
+  color: #083533; /* Dark text on light background */
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500; /* font-medium */
+  border-radius: 0.375rem; /* rounded-md */
+  transition: background-color 0.15s ease-in-out;
+  cursor: pointer;
+  border: none;
+}
+
+.confirmButton:hover:not(:disabled) {
+  background-color: rgba(229, 251, 250, 0.9); /* Slightly transparent on hover */
+}
+
+.confirmButton:disabled {
+  background-color: rgba(229, 251, 250, 0.3); /* Disabled with theme color */
+  color: rgba(8, 53, 51, 0.5); /* Muted text */
+  cursor: not-allowed;
+} 

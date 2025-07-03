@@ -1,11 +1,12 @@
 'use client'
 
 import { useAuth } from '@/contexts/auth-context'
-import { StylesCarousel } from '@/components/home/StylesCarousel'
-import { OptionButtons } from '@/components/home/OptionButtons'
+import { StylesCarousel } from '@/components/style/StylesCarousel'
+import { OptionButtons } from '@/components/style/OptionButtons'
 import { GenerationControls } from '@/components/home/GenerationControls'
 import { GalleryPlaceholder } from '@/components/home/GalleryPlaceholder'
-import { FaceModelSelector } from '@/components/create/face_models'
+import { FaceModelSelector } from '@/components/face_model/face_models'
+import { StyleSelectionProvider } from '@/contexts/style-selection-context'
 import Link from 'next/link'
 import { Skeleton } from '@primeshot/common/web/ui/skeleton'
 
@@ -26,32 +27,34 @@ export default function Home() {
   }
 
   return (
-    <main className="w-full mx-auto py-8 space-y-6">
-      {/* Styles carousel */}
-      <section className="relative">
-        <StylesCarousel />
-      </section>
+    <StyleSelectionProvider>
+      <main className="w-full mx-auto py-8 space-y-6">
+        {/* Styles carousel */}
+        <section className="relative">
+          <StylesCarousel />
+        </section>
 
-      {/* Generation section */}
-      <section className="flex flex-col md:flex-row items-center justify-between md:space-x-6 max-w-[1080px] mx-auto space-y-4 md:space-y-0">
-        <OptionButtons />
-        {/* Left – LoRA selector */}
-        <FaceModelSelector className="flex-shrink-0" />
+        {/* Generation section */}
+        <section className="flex flex-col md:flex-row items-center justify-between md:space-x-6 max-w-[1080px] mx-auto space-y-4 md:space-y-0">
+          <OptionButtons />
+          {/* Left – LoRA selector */}
+          <FaceModelSelector className="flex-shrink-0" />
 
-        {/* Right – Generation controls */}
-        <GenerationControls />
-      </section>
+          {/* Right – Generation controls */}
+          <GenerationControls />
+        </section>
 
-      {/* Gallery or placeholder */}
-      <section>
-        {isAuthenticated ? (
-          <GalleryPlaceholder />
-        ) : (
-          <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-500 rounded-md p-12 text-center text-gray-400">
-            <p className="mb-4">Please sign in to generate images.</p>
-          </div>
-        )}
-      </section>
-    </main>
+        {/* Gallery or placeholder */}
+        <section>
+          {isAuthenticated ? (
+            <GalleryPlaceholder />
+          ) : (
+            <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-500 rounded-md p-12 text-center text-gray-400">
+              <p className="mb-4">Please sign in to generate images.</p>
+            </div>
+          )}
+        </section>
+      </main>
+    </StyleSelectionProvider>
   )
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { FaceModelSelector } from '@/components/create/face_models';
+import { FaceModelSelector } from '@/components/face_model/face_models';
 import { RealtimeProvider } from '@/contexts/realtime-context';
 import { Card, CardContent, CardHeader, CardTitle } from '@primeshot/common/web/ui/card';
 import { Badge } from '@primeshot/common/web/ui/badge';
