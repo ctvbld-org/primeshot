@@ -572,6 +572,18 @@ Detected changes in:
 - webapp/src/components/style/WardrobeDropdown.module.css
 - webapp/src/components/style/WardrobeDropdown.tsx
 - webapp/src/lib/utils/style-storage.ts
+
+
+**Auto-update 2025-07-03**:
+Detected changes in:
+- webapp/src/app/app/styles/page.tsx
+- webapp/src/app/auth/callback/route.ts
+- webapp/src/components/style/SceneDropdown.tsx
+- webapp/src/components/style/WardrobeDropdown.tsx
+- webapp/src/components/style/style-card.tsx
+- webapp/src/contexts/style-selection-context.tsx
+- webapp/src/lib/hooks/use-file-upload.ts
+- webapp/src/lib/utils/style-storage.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

@@ -2,6 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
+- **2025-07-03 13:37:17** (David): Update submodule URLs and add comfyui-modal as a new submodule
 - **2025-07-03 13:25:54** (David): Convert ai_containers/ai-toolkit-modal to proper git submodule
 - **2025-07-01 18:17:31** (David): Add Vercel configuration for unified routing and builds
 - **2025-06-29 23:13:14** (David): Update Vercel rewrites for improved routing and mark comfyui-modal submodule as dirty
