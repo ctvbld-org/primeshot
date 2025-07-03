@@ -1,0 +1,3 @@
+[submodule "ai_containers/ai-toolkit-modal"]
+	path = ai_containers/ai-toolkit-modal
+	url = git@github.com:ctvbld/ai-toolkit-modal.git
