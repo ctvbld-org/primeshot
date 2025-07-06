@@ -7,8 +7,8 @@ import { GenerationControls } from '@/components/home/GenerationControls'
 import { GalleryPlaceholder } from '@/components/home/GalleryPlaceholder'
 import { FaceModelSelector } from '@/components/face_model/face_models'
 import { StyleSelectionProvider } from '@/contexts/style-selection-context'
-import Link from 'next/link'
 import { Skeleton } from '@primeshot/common/web/ui/skeleton'
+import { CreditDashboard } from '@/components/dashboard/CreditDashboard'
 
 export default function Home() {
   const { isAuthenticated, isLoading } = useAuth()
@@ -27,27 +27,25 @@ export default function Home() {
   }
 
   return (
-    <StyleSelectionProvider>
       <main className="w-full mx-auto py-8 space-y-6">
-        {/* Styles carousel */}
-        <section className="relative">
-          <StylesCarousel />
-        </section>
 
-        {/* Generation section */}
-        <section className="flex flex-col md:flex-row items-center justify-between md:space-x-6 max-w-[1080px] mx-auto space-y-4 md:space-y-0">
-          <OptionButtons />
-          {/* Left – LoRA selector */}
-          <FaceModelSelector className="flex-shrink-0" />
+        <StyleSelectionProvider>
+          <section className="relative">
+            <StylesCarousel />
+          </section>
+          <section className="flex flex-col md:flex-row items-center justify-between md:space-x-6 max-w-[1080px] mx-auto space-y-4 md:space-y-0">
+            <OptionButtons />
+            <FaceModelSelector className="flex-shrink-0" />
+            <GenerationControls />
+          </section>
+        </StyleSelectionProvider>
 
-          {/* Right – Generation controls */}
-          <GenerationControls />
-        </section>
-
-        {/* Gallery or placeholder */}
         <section>
           {isAuthenticated ? (
-            <GalleryPlaceholder />
+            <>
+              <CreditDashboard />
+              <GalleryPlaceholder />
+            </>
           ) : (
             <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-500 rounded-md p-12 text-center text-gray-400">
               <p className="mb-4">Please sign in to generate images.</p>
@@ -55,6 +53,5 @@ export default function Home() {
           )}
         </section>
       </main>
-    </StyleSelectionProvider>
   )
 }

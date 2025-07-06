@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+- **2025-07-05 01:20:47** (David): feat: add calculate_user_credit_balance RPC and RLS policies; regenerate Supabase types
+- **2025-07-04 10:25:46** (David): fix: reorder credit_system migration for local DB
+- **2025-07-03 15:37:21** (David): Update tasks and CHANGELOG to reflect recent progress on task statuses and dependencies. Mark tasks 1 and 2 as done, update task 3 to develop a credit-based payment system, and adjust dependencies for tasks 9 and 10 accordingly.
 - **2025-07-03 13:39:52** (David): Update CHANGELOG with recent submodule changes and document auto-detected updates in systemPatterns.md
 - **2025-07-03 13:37:17** (David): Update submodule URLs and add comfyui-modal as a new submodule
 - **2025-07-03 13:25:54** (David): Convert ai_containers/ai-toolkit-modal to proper git submodule
