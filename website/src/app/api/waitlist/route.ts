@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/client';
+import { createAdminClient } from '@/lib/supabase/admin-client';
 import { z } from 'zod';
 import { Resend } from 'resend';
+
+export const runtime = 'nodejs';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -13,13 +15,15 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { email } = emailSchema.parse(body);
-    const supabase = createClient()
+    
+    const supabase = createAdminClient()
 
     const { error: supabaseError } = await supabase
       .from('waitlist')
       .insert([{ email }]);
 
     if (supabaseError) {
+      console.error('Supabase error details:', supabaseError);
       // Handle unique constraint violation
       if (supabaseError.code === '23505') {
         return NextResponse.json(
@@ -40,7 +44,7 @@ export async function POST(request: Request) {
           <img src="https://primeshot.ai/email/logo.png" alt="Primeshot" style="width: 64px; height: 64px; margin-bottom: 20px; margin-top: 20px;" />
           <h1 style="color: #052322; text-align: left;">You're on the waitlist!</h1>
           <p style="color: #666; font-size: 16px;">
-            Great news! You’ve secured early access to Primeshot, our AI headshot generator that transforms everyday photos into studio quality results, no photoshoot required.
+            Great news! You've secured early access to Primeshot, our AI headshot generator that transforms everyday photos into studio quality results, no photoshoot required.
           </p>
           <div style="background: #E5FBFA; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <p style="margin: 0; color: #000; font-size: 14px;">
