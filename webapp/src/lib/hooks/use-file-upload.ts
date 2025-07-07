@@ -7,6 +7,7 @@ import { uploadFileInChunks } from '@/lib/upload-utils'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 import { analyzeImageQuality, loadModels } from '@/lib/image-quality'
 import type { FileWithScore } from '@/lib/types'
+import { getApiUrl } from '@/lib/api/client'
 
 // Add delay helper
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
@@ -433,7 +434,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     if (existingFile?.id) {
       // This is an existing file, delete it from S3 and database
       try {
-        const response = await fetch(`/api/user-images?imageId=${existingFile.id}`, {
+        const response = await fetch(getApiUrl(`/api/user-images?imageId=${existingFile.id}`), {
           method: 'DELETE',
         })
         

@@ -5,6 +5,7 @@ import { RadioGroup, RadioGroupItem } from '@primeshot/common/web/ui/radio-group
 import { SUBSCRIPTION_TIERS, type SubscriptionTier } from '@/lib/constants/pricing'
 import { toast } from 'sonner'
 import { useAuth } from '@primeshot/common/hooks/AuthContext'
+import { getApiUrl } from '@/lib/api/client'
 
 function formatPrice(price:number){return `$${price.toFixed(2)}`}
 
@@ -20,7 +21,7 @@ export function SubscriptionDialogContent(){
     setLoading(true)
     try{
       const successPath = process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/'
-      const res=await fetch('/api/payment/subscription-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({priceId,successUrl:`${window.location.origin}${successPath}?subscription=success`,cancelUrl:`${window.location.origin}/pricing`})})
+      const res=await fetch(getApiUrl('/api/payment/subscription-checkout'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({priceId,successUrl:`${window.location.origin}${successPath}?subscription=success`,cancelUrl:`${window.location.origin}/pricing`})})
       if(!res.ok){const e=await res.json();throw new Error(e.error||'Checkout failed')}
       const {url}=await res.json();window.location.href=url
     }catch(e){toast.error(e instanceof Error?e.message:'Checkout failed')}finally{setLoading(false)}

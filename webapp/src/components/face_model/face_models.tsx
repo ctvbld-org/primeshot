@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { CircleProgress } from '@primeshot/common/web/ui/circle-progress';
 import { Plus } from 'lucide-react';
 import Image from 'next/image';
+import { getApiUrl } from '@/lib/api/client';
 
 interface FaceModelWithTraining {
   id: string;
@@ -159,7 +160,7 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
         .filter(model => model.thumbnail_url)
         .map(async (model) => {
           try {
-            const response = await fetch(`/api/user-images?url=${encodeURIComponent(model.thumbnail_url!)}`);
+            const response = await fetch(getApiUrl(`/api/user-images?url=${encodeURIComponent(model.thumbnail_url!)}`));
             if (response.ok) {
               const { url } = await response.json();
               return { [model.id]: url };

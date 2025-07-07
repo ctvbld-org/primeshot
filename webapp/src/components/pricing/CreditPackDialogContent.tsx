@@ -6,6 +6,7 @@ import { Coins, Package, Wallet } from 'lucide-react'
 import { CREDIT_PACKS, type CreditPack } from '@/lib/constants/pricing'
 import { useAuth } from '@primeshot/common/hooks/AuthContext'
 import { toast } from 'sonner'
+import { getApiUrl } from '@/lib/api/client'
 
 interface CreditPackDialogContentProps {
   requiredCredits?: number
@@ -24,7 +25,7 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
     setIsLoading(creditPack.id)
 
     try {
-      const response = await fetch('/api/payment/credit-pack-checkout', {
+      const response = await fetch(getApiUrl('/api/payment/credit-pack-checkout'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -5,8 +5,6 @@ import { useAuth } from '@/contexts/auth-context'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@primeshot/common/web/ui/use-toast'
-import type { ToastActionElement } from '@primeshot/common/web/ui/toast'
-import { Image as ImageType } from '@/lib/types'
 import { useTranslation } from 'react-i18next'
 import styles from './page.module.css'
 
@@ -15,6 +13,7 @@ import ProfileForm from '@/components/review/profile-form'
 import ShootSummary from '@/components/review/shoot-summary'
 import { ReviewFooter } from '@/components/review/review-footer'
 import { PROFILE_FORM_FIELDS } from '@/constants/profile-options'
+import { getApiUrl } from '@/lib/api/client'
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000;
@@ -121,7 +120,7 @@ export default function ReviewPage() {
         }      
 
         // Fetch user images
-        const response = await fetch(`/api/user-images?orderId=${orderData.id}`)
+        const response = await fetch(getApiUrl(`/api/user-images?orderId=${orderData.id}`))
 
         if (!response.ok) {
             const errorData = await response.json()

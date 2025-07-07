@@ -4,6 +4,7 @@ import React, { useCallback, useState, useEffect } from 'react'
 import { useCreditGuard } from '@/hooks/useCreditGuard'
 import { BATCH_PRICING, CREDIT_COSTS, ResolutionType } from '@/lib/constants/pricing'
 import type { GenerationIntent } from '@/hooks/useGenerationIntent'
+import { getApiUrl } from '@/lib/api/client'
 
 export function GenerationControls() {
   // Local UI state
@@ -25,7 +26,7 @@ export function GenerationControls() {
   const handleGenerate = async () => {
     // Mock inference API call
     try {
-      await fetch('/api/inference/mock', {
+      await fetch(getApiUrl('/api/inference/mock'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ batchSize, resolution })

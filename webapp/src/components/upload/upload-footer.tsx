@@ -9,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@primeshot/common/web/u
 import { Loader } from '@primeshot/common/web/ui/loader'
 import { Icon } from '../icons/icon'
 import type { FileWithScore } from '@/lib/types'
+import { getApiUrl } from '@/lib/api/client'
 
 interface UploadFooterProps {
   acceptedFiles?: FileWithScore[]
@@ -120,7 +121,7 @@ export function UploadFooter({
     try {
       const params = new URLSearchParams()
       params.append('imageId', file.id)
-      const response = await fetch(`/api/user-images?${params.toString()}`)
+      const response = await fetch(getApiUrl(`/api/user-images?${params.toString()}`))
       if (!response.ok) throw new Error('Failed to fetch signed URL')
       const data = await response.json()
       return data.url
