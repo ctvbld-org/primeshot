@@ -8,6 +8,10 @@
     "build": "tsc -p tsconfig.json",
     "watch": "tsc -w -p tsconfig.json --preserveWatchOutput"
   },
+  "dependencies": {
+    "dotenv": "^17.0.1",
+    "stripe": "^18.3.0"
+  },
   "peerDependencies": {
     "react": ">=18",
     "react-dom": ">=18",
@@ -16,6 +20,7 @@
   "exports": {
     "./hooks/*": "./hooks/*", 
     "./lib/*": "./lib/*", 
+    "./lib/stripe/*": "./lib/stripe/*",
     "./web/*": "./web/*",
     "./hooks": "./hooks/index.ts",
     "./lib": "./lib/index.ts",

@@ -8,7 +8,7 @@ import { useOption } from '@/hooks/useConfig';
 import { useTranslatedOption } from '@/hooks/useTranslatedOption';
 import Link from 'next/link';
 import { Icon } from '@/components/icons/icon';
-import { calculatePricing } from '@/lib/pricing';
+// import { calculatePricing } from '@/lib/pricing'; // Temporarily disabled - migrating to credit-based system
 
 interface ShootSummaryProps {
   isLoading?: boolean;
@@ -33,10 +33,9 @@ const ShootSummary: React.FC<ShootSummaryProps> = ({ isLoading: externalLoading 
   
   // Combine external and internal loading states
   const isLoading = externalLoading || orderLoading || imagesLoading;
-  // Calculate pricing info and total photos based on number of styles
-  const pricingInfo = orderStyles && orderStyles.length > 0 ? calculatePricing(orderStyles.length) : null;
-  const totalPhotos = pricingInfo?.totalHeadshots || 0;
-  const headshotsPerStyle = pricingInfo?.headshotsPerStyle || 0;
+  // Temporarily simplified during migration to credit-based system
+  const totalPhotos = 0; // Disabled during migration
+  const headshotsPerStyle = 0; // Disabled during migration
 
   // Calculate average quality score
   const averageScore = React.useMemo(() => {

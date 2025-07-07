@@ -61,7 +61,7 @@ export const CREDIT_COSTS: CreditCosts = {
 
 /**
  * Subscription tiers configuration
- * Note: These are kept in sync with scripts/pricing-config.js
+ * Note: These are kept in sync with @primeshot/common/lib/pricing-config
  */
 export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
   {
@@ -134,7 +134,7 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = [
 
 /**
  * Credit packs configuration
- * Note: These are kept in sync with scripts/pricing-config.js
+ * Note: These are kept in sync with @primeshot/common/lib/pricing-config
  */
 export const CREDIT_PACKS: CreditPack[] = [
   {

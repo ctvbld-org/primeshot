@@ -1,7 +1,7 @@
 /**
  * FRONTEND PRICING CONSTANTS
  * 
- * This file imports from the single source of truth: scripts/pricing-config.js
+ * This file imports from the single source of truth: @primeshot/common/lib/pricing-config
  * NO DUPLICATION - all configuration comes from that file!
  * 
  * Stripe price IDs are environment-aware (test vs production)
@@ -15,7 +15,7 @@ import {
   getLaunchDiscount,
   getYearlyDiscount,
   calculateImageCredits as calculateImageCreditsBase
-} from '../../../../scripts/pricing-config.js'
+} from '@primeshot/common/lib/pricing-config'
 import { STRIPE_REFERENCE } from './stripe-reference'
 
 // Environment detection
@@ -153,6 +153,7 @@ export const YEARLY_DISCOUNT = {
   tier_2: getYearlyDiscount('tier_2'),
   tier_3: getYearlyDiscount('tier_3')
 }
+
 
 // Plan comparison features
 export const PLAN_FEATURES = {
