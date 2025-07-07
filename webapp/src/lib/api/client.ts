@@ -6,8 +6,25 @@ export function getApiUrl(path: string): string {
   // Remove leading slash if present to avoid double slashes
   const cleanPath = path.startsWith('/') ? path.slice(1) : path
   
-  // In production (when basePath is set), Next.js automatically handles the prefix
-  // We don't need to manually add it - Next.js will resolve relative paths correctly
+  // Detect if we need the basePath prefix
+  // Method 1: Check if we're in browser and current path includes /create
+  // Method 2: Use environment variable detection
+  let needsBasePath = false
+  
+  if (typeof window !== 'undefined') {
+    // We're in the browser - check current URL
+    needsBasePath = window.location.pathname.startsWith('/create')
+  } else {
+    // We're on server side - use same logic as next.config.js
+    // VERCEL_TARGET_ENV !== 'local' OR NODE_ENV === 'production'
+    needsBasePath = process.env.VERCEL_TARGET_ENV !== 'local' 
+  }
+  
+  // In production, we need to manually add the basePath prefix for client-side requests
+  if (needsBasePath) {
+    return `/create/${cleanPath}`
+  }
+  
   return `/${cleanPath}`
 }
 

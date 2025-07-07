@@ -678,6 +678,16 @@ Detected changes in:
 - webapp/src/lib/stripe.ts
 - website/src/app/api/waitlist/route.ts
 - website/src/lib/supabase/admin-client.ts
+
+
+**Auto-update 2025-07-07**:
+Detected changes in:
+- webapp/src/app/api/credits/balance/route.ts
+- webapp/src/app/api/credits/transactions/route.ts
+- webapp/src/app/api/styles/route.ts
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/lib/api/client.ts
+- webapp/src/lib/upload-utils.ts
 ## Component Organization
 
 Components are organized by feature and reusability:
