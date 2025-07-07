@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import Stripe from 'stripe';
-import { createClient as createSupabaseClient, type SupabaseClient } from '@supabase/supabase-js';
+import { type SupabaseClient } from '@supabase/supabase-js';
+import { createServiceClient } from '@/lib/supabase/server';
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-05-28.basil',
+  apiVersion: '2025-06-30.basil' as any,
 });
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -68,11 +69,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create Supabase client with service role key for webhook operations
-    const supabase = createSupabaseClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    // Use centralized service client creation
+    const supabase = createServiceClient();
 
     // Handle different event types
     try {

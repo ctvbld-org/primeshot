@@ -287,18 +287,23 @@ serve(async (req) => {
     if (insertError) {
       console.error('❌ Failed to create training job:', insertError);
       
-      // Refund credits if job creation failed
-      await supabase
-        .from('user_credits')
-        .insert({
-          user_id,
-          credits: LORA_TRAINING_COST,
-          transaction_type: 'earned',
-          source_type: 'refund',
-          source_id: jobId,
-          description: `Refund for failed LoRA training job creation`,
-          metadata: { original_job_id: jobId, reason: 'job_creation_failed' }
+      // Refund credits if job creation failed with idempotency protection
+      const idempotencyKey = `refund_${jobId}`;
+      const { data: refundResult, error: refundError } = await supabase
+        .rpc('refund_credits_with_idempotency', {
+          p_user_id: user_id,
+          p_job_id: jobId,
+          p_amount: LORA_TRAINING_COST,
+          p_reason: `Refund for failed LoRA training job creation`,
+          p_idempotency_key: idempotencyKey
         });
+
+      if (refundError) {
+        console.error('Failed to process refund:', refundError);
+        // Continue with error response even if refund failed - this is logged for manual review
+      } else if (refundResult?.[0]?.success) {
+        console.log(`Refund processed for training job ${jobId}: ${refundResult[0].refund_created ? 'new' : 'duplicate'} refund`);
+      }
 
       return new Response(
         JSON.stringify({ 

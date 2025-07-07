@@ -1,7 +1,7 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies'
+import { createServerServiceClient } from '@/lib/supabase/server'
+import { cookies } from 'next/headers'
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
@@ -10,27 +10,7 @@ export async function GET(request: Request) {
 
   if (code) {
     const cookieStore = await cookies()
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      {
-        cookies: {
-          async getAll() {
-            const allCookies = cookieStore.getAll()
-            return allCookies.map((cookie: RequestCookie) => ({
-              name: cookie.name,
-              value: cookie.value
-            }))
-          },
-          async setAll(cookiesToSet) {
-            const cookieStore = await cookies()
-            for (const cookie of cookiesToSet) {
-              cookieStore.set(cookie.name, cookie.value, cookie.options)
-            }
-          },
-        },
-      }
-    )
+    const supabase = await createServerServiceClient()
 
     try {
       // Exchange the code for a session using the service role client

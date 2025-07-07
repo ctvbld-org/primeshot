@@ -130,7 +130,19 @@ serve(async (req) => {
 
     // Extract settings
     const resolution = settings?.resolution || '1K';
-    const batchSize = settings?.batch_size || 1;
+    const batchSize = settings?.batch_size || 5;
+
+    // Validate batch_size limits
+    if (!Number.isInteger(batchSize) || batchSize < 5 || batchSize > 20) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid batch_size',
+          details: 'batch_size must be an integer between 5 and 20',
+          provided_batch_size: batchSize
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Calculate credit cost for this operation
     const creditCost = calculateImageCreditCost(resolution as Resolution, batchSize);
@@ -279,18 +291,23 @@ serve(async (req) => {
     if (insertError) {
       console.error('Failed to create inference job:', insertError);
       
-      // Refund credits if job creation failed
-      await supabase
-        .from('user_credits')
-        .insert({
-          user_id,
-          credits: creditCost,
-          transaction_type: 'earned',
-          source_type: 'refund',
-          source_id: jobId,
-          description: `Refund for failed job creation - ${resolution} resolution`,
-          metadata: { original_job_id: jobId, reason: 'job_creation_failed' }
+      // Refund credits if job creation failed with idempotency protection
+      const idempotencyKey = `refund_${jobId}`;
+      const { data: refundResult, error: refundError } = await supabase
+        .rpc('refund_credits_with_idempotency', {
+          p_user_id: user_id,
+          p_job_id: jobId,
+          p_amount: creditCost,
+          p_reason: `Refund for failed job creation - ${resolution} resolution`,
+          p_idempotency_key: idempotencyKey
         });
+
+      if (refundError) {
+        console.error('Failed to process refund:', refundError);
+        // Continue with error response even if refund failed - this is logged for manual review
+      } else if (refundResult?.[0]?.success) {
+        console.log(`Refund processed for job ${jobId}: ${refundResult[0].refund_created ? 'new' : 'duplicate'} refund`);
+      }
 
       return new Response(
         JSON.stringify({ error: 'Failed to create inference job' }),

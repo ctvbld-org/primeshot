@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 import Stripe from 'stripe'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-05-28.basil'
+  apiVersion: '2025-06-30.basil' as any
 })
 
 export async function GET() {
@@ -67,6 +67,10 @@ export async function GET() {
 
     if (usageError) {
       console.error('Error fetching credit usage:', usageError)
+      return NextResponse.json(  
+        { error: 'Failed to fetch usage data' },  
+        { status: 500 }  
+      )  
     }
 
     const creditsUsedThisPeriod = creditsUsed?.reduce((total, credit) => total + credit.credits, 0) || 0

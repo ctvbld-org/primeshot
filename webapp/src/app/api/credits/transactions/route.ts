@@ -29,9 +29,17 @@ export async function GET(request: NextRequest) {
 
     // Get query parameters
     const searchParams = request.nextUrl.searchParams
-    const limit = parseInt(searchParams.get('limit') || '20')
-    const offset = parseInt(searchParams.get('offset') || '0')
+    const limit = Math.min(Math.max(1, parseInt(searchParams.get('limit') || '20')), 100)
+    const offset = Math.max(0, parseInt(searchParams.get('offset') || '0'))
     const transactionType = searchParams.get('type') // 'earned', 'spent', 'expired'
+
+    // Validate parsed values
+    if (isNaN(limit) || isNaN(offset)) {
+      return NextResponse.json(
+        { error: 'Invalid pagination parameters' },
+        { status: 400 }
+      )
+    }
 
     // Build query
     let query = supabase
@@ -71,10 +79,17 @@ export async function GET(request: NextRequest) {
     })) || []
 
     // Get total count for pagination
-    const { count, error: countError } = await supabase
+    let countQuery = supabase
       .from('user_credits')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id)
+
+    // Apply the same transaction type filter to count query
+    if (transactionType && ['earned', 'spent', 'expired'].includes(transactionType)) {
+      countQuery = countQuery.eq('transaction_type', transactionType)
+    }
+
+    const { count, error: countError } = await countQuery
 
     if (countError) {
       console.error('Error counting credit transactions:', countError)
