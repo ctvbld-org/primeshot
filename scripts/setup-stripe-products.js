@@ -2,18 +2,106 @@
 
 /**
  * Script to programmatically create Stripe products and prices
- * Run with: node scripts/setup-stripe-products.js
  * 
- * Requires STRIPE_SECRET_KEY environment variable
+ * Usage:
+ *   node setup-stripe-products.js                    # Uses .env.local (test mode)
+ *   node setup-stripe-products.js --prod             # Uses .env (production mode)
+ *   node setup-stripe-products.js --skip-cleanup     # Keep existing products
+ *   node setup-stripe-products.js --prod --skip-cleanup  # Production + keep existing
+ * 
+ * Requires STRIPE_SECRET_KEY environment variable in the appropriate .env file
  */
 
 import Stripe from 'stripe'
 import { SUBSCRIPTION_TIERS_CONFIG, CREDIT_PACKS_CONFIG } from './pricing-config.js'
+import dotenv from 'dotenv'
+
+// Parse command line arguments
+const args = process.argv.slice(2)
+const environment = args.includes('--prod') ? 'prod' : 'test'
+const skipCleanup = args.includes('--skip-cleanup')
+
+// Load appropriate environment file
+if (environment === 'prod') {
+  console.log('🔴 PRODUCTION MODE - Using .env file')
+  dotenv.config({ path: '.env' })
+} else {
+  console.log('🟡 TEST MODE - Using .env.local file')
+  dotenv.config({ path: '.env.local' })
+}
+
+console.log(`Environment: ${environment}`)
+console.log(`Stripe Key: ${process.env.STRIPE_SECRET_KEY ? 'Found' : 'Missing'}\n`)
+
+if (!process.env.STRIPE_SECRET_KEY) {
+  console.error('❌ STRIPE_SECRET_KEY not found in environment variables')
+  console.error(`Please create a ${environment === 'prod' ? '.env' : '.env.local'} file with:`)
+  console.error('STRIPE_SECRET_KEY=sk_test_your_key_here')
+  process.exit(1)
+}
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2024-12-18.acacia'
+  apiVersion: '2025-05-28.basil'
 })
+
+// Cleanup existing products before creating new ones
+async function cleanupExistingProducts() {
+  console.log('🧹 Cleaning up existing Primeshot products...\n')
+  
+  try {
+    // Get all products (including archived ones)
+    const products = await stripe.products.list({ limit: 100 })
+    
+    // Filter for Primeshot products (by name pattern or metadata)
+    const primeshotProducts = products.data.filter(product => 
+      product.active && ( // Only target active products
+        product.name.includes('Primeshot') || 
+        product.name.includes('Credits') ||
+        (product.metadata && (product.metadata.tier_type === 'subscription' || product.metadata.tier_type === 'credit_pack'))
+      )
+    )
+    
+    if (primeshotProducts.length === 0) {
+      console.log('✅ No existing active Primeshot products found to clean up\n')
+      return
+    }
+    
+    console.log(`Found ${primeshotProducts.length} existing active Primeshot products to archive:`)
+    
+    let cleanedCount = 0
+    
+    // Archive each product and its prices
+    for (const product of primeshotProducts) {
+      try {
+        console.log(`  📦 Archiving: ${product.name} (${product.id})`)
+        
+        // First, deactivate all prices for this product
+        const prices = await stripe.prices.list({ product: product.id, limit: 100 })
+        for (const price of prices.data) {
+          if (price.active) {
+            await stripe.prices.update(price.id, { active: false })
+            console.log(`    🚫 Deactivated price: ${price.id}`)
+          }
+        }
+        
+        // Then archive the product (makes it inactive but preserves it)
+        await stripe.products.update(product.id, { active: false })
+        console.log(`    ✅ Archived product: ${product.id}`)
+        cleanedCount++
+        
+      } catch (error) {
+        console.warn(`    ⚠️  Failed to archive ${product.name}: ${error.message}`)
+      }
+    }
+    
+    console.log(`\n✅ Cleanup completed - archived ${cleanedCount} products and their prices\n`)
+    
+  } catch (error) {
+    console.warn(`⚠️  Cleanup failed: ${error.message}`)
+    console.log('Continuing with product creation...\n')
+  }
+}
 
 // Convert pricing.ts data to Stripe-compatible format
 function convertTierForStripe(tier) {
@@ -22,7 +110,7 @@ function convertTierForStripe(tier) {
     name: tier.name,
     description: tier.description,
     monthlyPrice: tier.monthlyPrice,
-    yearlyPrice: tier.yearlyPrice ? Math.round(tier.yearlyPrice / 12) : null,
+    yearlyPrice: tier.yearlyPrice,
     credits: tier.credits,
     maxResolution: tier.maxResolution,
     loraTrainingIncluded: tier.loraTrainingIncluded,
@@ -84,8 +172,8 @@ async function createSubscriptionProducts() {
       // Create yearly price (if available)
       let yearlyPrice = null
       if (tier.yearlyPrice) {
-        const yearlyTotal = tierData.yearlyPrice
-        console.log(`Creating yearly price: $${yearlyTotal}`)
+        const yearlyTotal = tierData.yearlyPrice * 12 // yearlyPrice is per month, multiply by 12
+        console.log(`Creating yearly price: $${yearlyTotal} (${tierData.yearlyPrice}/month × 12)`)
         yearlyPrice = await stripe.prices.create({
           product: product.id,
           unit_amount: yearlyTotal * 100, // Convert to cents
@@ -128,7 +216,7 @@ async function createCreditPackProducts() {
       // Create product
       console.log(`Creating credit pack: ${pack.name}`)
       const product = await stripe.products.create({
-        name: `${pack.credits} Credits - ${pack.name}`,
+        name: `${pack.name}`,
         description: `${pack.credits.toLocaleString()} credits for image generation and Face Model training. Valid for ${pack.validityDays} days.`,
         type: 'service',
         metadata: {
@@ -168,7 +256,7 @@ async function createCreditPackProducts() {
 }
 
 async function updatePricingFile(subscriptionResults, creditPackResults) {
-  console.log('📝 Updating pricing.ts with Stripe price IDs...\n')
+  console.log('📝 Updating stripe-reference.ts with Stripe price IDs...\n')
   
   const fs = await import('fs')
   const path = await import('path')
@@ -177,68 +265,100 @@ async function updatePricingFile(subscriptionResults, creditPackResults) {
   const __filename = fileURLToPath(import.meta.url)
   const __dirname = path.dirname(__filename)
   
-  const pricingPath = path.join(__dirname, '../webapp/src/lib/constants/pricing.ts')
-  let content = fs.readFileSync(pricingPath, 'utf8')
+  const stripeRefPath = path.join(__dirname, '../webapp/src/lib/constants/stripe-reference.ts')
   
-  // Update subscription price IDs
-  for (const result of subscriptionResults) {
-    // Replace monthly price ID
-    const monthlyPattern = new RegExp(
-      `(id: '${result.tier}'[\\s\\S]*?stripePriceIds: {[\\s\\S]*?monthly: ')([^']*)'`,
-      'g'
-    )
-    content = content.replace(monthlyPattern, `$1${result.monthlyPrice}'`)
+  // Determine which environment we're updating
+  const isProduction = process.argv.includes('--prod')
+  const envKey = isProduction ? 'production' : 'test'
+  
+  console.log(`📝 Updating ${envKey} environment price IDs...`)
+  
+  let content
+  if (fs.existsSync(stripeRefPath)) {
+    content = fs.readFileSync(stripeRefPath, 'utf8')
     
-    // Replace yearly price ID (if available)
-    if (result.yearlyPrice) {
-      const yearlyPattern = new RegExp(
-        `(id: '${result.tier}'[\\s\\S]*?stripePriceIds: {[\\s\\S]*?yearly: ')([^']*)'`,
+    // Update existing file - replace the specific environment
+    for (const result of subscriptionResults) {
+      // Replace monthly price ID
+      const monthlyPattern = new RegExp(
+        `(${envKey}:[\\s\\S]*?subscriptions:[\\s\\S]*?${result.tier}:[\\s\\S]*?monthly: ')([^']*)'`,
         'g'
       )
-      content = content.replace(yearlyPattern, `$1${result.yearlyPrice}'`)
+      content = content.replace(monthlyPattern, `$1${result.monthlyPrice}'`)
+      
+      // Replace yearly price ID (if available)
+      if (result.yearlyPrice) {
+        const yearlyPattern = new RegExp(
+          `(${envKey}:[\\s\\S]*?subscriptions:[\\s\\S]*?${result.tier}:[\\s\\S]*?yearly: ')([^']*)'`,
+          'g'
+        )
+        content = content.replace(yearlyPattern, `$1${result.yearlyPrice}'`)
+      }
+      
+      // Replace product ID
+      const productPattern = new RegExp(
+        `(${envKey}:[\\s\\S]*?subscriptions:[\\s\\S]*?${result.tier}:[\\s\\S]*?product: ')([^']*)'`,
+        'g'
+      )
+      content = content.replace(productPattern, `$1${result.product}'`)
     }
-  }
+    
+    // Update credit pack price IDs for the current environment
+    for (const result of creditPackResults) {
+      // Replace price ID
+      const pricePattern = new RegExp(
+        `(${envKey}:[\\s\\S]*?creditPacks:[\\s\\S]*?${result.pack}:[\\s\\S]*?price: ')([^']*)'`,
+        'g'
+      )
+      content = content.replace(pricePattern, `$1${result.price}'`)
+      
+      // Replace product ID
+      const productPattern = new RegExp(
+        `(${envKey}:[\\s\\S]*?creditPacks:[\\s\\S]*?${result.pack}:[\\s\\S]*?product: ')([^']*)'`,
+        'g'
+      )
+      content = content.replace(productPattern, `$1${result.product}'`)
+    }
+  } else {
+    // Create new file with both environments
+    console.log('📝 Creating new stripe-reference.ts file...')
+    
+    const createEnvironmentData = (env) => {
+      const isCurrentEnv = env === envKey
+      return `  ${env}: {
+    subscriptions: {
+${subscriptionResults.map(tier => `      ${tier.tier}: {
+        product: '${isCurrentEnv ? tier.product : `prod_${env.toUpperCase()}_PLACEHOLDER_${tier.tier.split('_')[1]}`}',
+        monthly: '${isCurrentEnv ? tier.monthlyPrice : `price_${env.toUpperCase()}_PLACEHOLDER_${tier.tier.split('_')[1]}_MONTHLY`}',
+        yearly: '${isCurrentEnv && tier.yearlyPrice ? tier.yearlyPrice : `price_${env.toUpperCase()}_PLACEHOLDER_${tier.tier.split('_')[1]}_YEARLY`}'
+      }`).join(',\n')}
+    },
+    
+    creditPacks: {
+${creditPackResults.map(pack => `      ${pack.pack}: {
+        product: '${isCurrentEnv ? pack.product : `prod_${env.toUpperCase()}_${pack.pack.toUpperCase()}`}',
+        price: '${isCurrentEnv ? pack.price : `price_${env.toUpperCase()}_${pack.pack.toUpperCase()}`}'
+      }`).join(',\n')}
+    }
+  }`
+    }
+    
+    content = `// Stripe Price and Product ID Reference
+// Generated on ${new Date().toISOString()}
+// This is the SINGLE SOURCE OF TRUTH for all Stripe price and product IDs
+
+export const STRIPE_REFERENCE = {
+${createEnvironmentData('test')},
   
-  // Update credit pack price IDs
-  for (const result of creditPackResults) {
-    const packPattern = new RegExp(
-      `(id: '${result.pack}'[\\s\\S]*?stripePriceId: ')([^']*)'`,
-      'g'
-    )
-    content = content.replace(packPattern, `$1${result.price}'`)
+${createEnvironmentData('production')}
+}
+`
   }
   
   // Write updated content back to file
-  fs.writeFileSync(pricingPath, content)
+  fs.writeFileSync(stripeRefPath, content)
   
-  console.log(`✅ Updated pricing.ts with Stripe price IDs`)
-  
-  // Also create a backup reference file
-  const backupContent = `// Stripe Price and Product ID Reference
-// Generated on ${new Date().toISOString()}
-// This is a backup reference file - actual IDs are in pricing.ts
-
-export const STRIPE_REFERENCE = {
-  subscriptions: {
-${subscriptionResults.map(tier => `    ${tier.tier}: {
-      product: '${tier.product}',
-      monthly: '${tier.monthlyPrice}'${tier.yearlyPrice ? `,\n      yearly: '${tier.yearlyPrice}'` : ''}
-    }`).join(',\n')}
-  },
-  
-  creditPacks: {
-${creditPackResults.map(pack => `    ${pack.pack}: {
-      product: '${pack.product}',
-      price: '${pack.price}'
-    }`).join(',\n')}
-  }
-}
-`
-  
-  const backupPath = path.join(__dirname, '../webapp/src/lib/constants/stripe-reference.ts')
-  fs.writeFileSync(backupPath, backupContent)
-  
-  console.log(`✅ Created backup reference file: stripe-reference.ts`)
+  console.log(`✅ Updated stripe-reference.ts with ${envKey} Stripe price IDs`)
 }
 
 async function main() {
@@ -248,6 +368,13 @@ async function main() {
     // Check for API key
     if (!process.env.STRIPE_SECRET_KEY) {
       throw new Error('STRIPE_SECRET_KEY environment variable is required')
+    }
+    
+    // Clean up existing products first (unless skipped)
+    if (!skipCleanup) {
+      await cleanupExistingProducts()
+    } else {
+      console.log('⏭️  Skipping cleanup - existing products will remain\n')
     }
     
     // Create subscription products
@@ -260,17 +387,23 @@ async function main() {
     await updatePricingFile(subscriptionResults, creditPackResults)
     
     console.log('\n🎉 Stripe setup completed successfully!')
+    const envMode = process.argv.includes('--prod') ? 'production' : 'test'
     console.log('\n📋 Summary:')
+    if (!skipCleanup) {
+      console.log('✅ Archived existing active Primeshot products')
+    }
     console.log(`✅ Created ${subscriptionResults.length} subscription tiers`)
     console.log(`✅ Created ${creditPackResults.length} credit packs`)
-    console.log('✅ Updated pricing.ts with Stripe price IDs')
-    console.log('✅ Created backup reference file')
+    console.log(`✅ Updated stripe-reference.ts with ${envMode} Stripe price IDs`)
     
     console.log('\n🔗 Next steps:')
     console.log('1. Test the checkout flows with real Stripe price IDs')
     console.log('2. Set up webhook endpoints in Stripe Dashboard')
     console.log('3. Add STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET to environment')
     console.log('4. Deploy Edge Functions with updated pricing')
+    if (!skipCleanup) {
+      console.log('\n💡 Tip: Use --skip-cleanup flag to keep existing products for testing')
+    }
     
   } catch (error) {
     console.error('\n❌ Setup failed:', error.message)

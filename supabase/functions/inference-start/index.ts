@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
+import { calculateImageCreditCost, type Resolution } from "../_shared/pricing.ts";
 
 interface InferenceRequest {
   user_id: string;
@@ -34,16 +35,7 @@ interface InferenceJob {
   credits_spent?: number;
 }
 
-// Credit calculation function based on PRICING.md
-function calculateCreditCost(resolution: '1K' | '2K' | '4K' = '1K', batchSize: number = 1): number {
-  const baseCosts = {
-    '1K': 1,
-    '2K': 2,
-    '4K': 3
-  };
-  
-  return baseCosts[resolution] * batchSize;
-}
+// Credit calculation function - now uses shared configuration
 
 // Check if user can generate at requested resolution based on their subscription
 async function checkResolutionPermission(
@@ -141,7 +133,7 @@ serve(async (req) => {
     const batchSize = settings?.batch_size || 1;
 
     // Calculate credit cost for this operation
-    const creditCost = calculateCreditCost(resolution, batchSize);
+    const creditCost = calculateImageCreditCost(resolution as Resolution, batchSize);
 
     // Check user's credit balance
     const { data: balanceData, error: balanceError } = await supabase

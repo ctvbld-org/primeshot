@@ -1,29 +1,60 @@
 /**
- * SHARED PRICING CONSTANTS
+ * FRONTEND PRICING CONSTANTS
  * 
- * This file serves as the single source of truth for pricing information
- * across both frontend and Supabase Edge Functions.
+ * This file imports from the single source of truth: scripts/pricing-config.js
+ * NO DUPLICATION - all configuration comes from that file!
  * 
- * IMPORTANT: When updating pricing, edit scripts/pricing-config.js and
- * remember to deploy both frontend and Edge Functions to maintain consistency.
+ * Stripe price IDs are environment-aware (test vs production)
+ * Environment detection: VERCEL_TARGET_ENV or NODE_ENV
  */
 
 import { 
   SUBSCRIPTION_TIERS_CONFIG, 
-  CREDIT_PACKS_CONFIG, 
-  CREDIT_COSTS_CONFIG 
+  CREDIT_PACKS_CONFIG,
+  CREDIT_COSTS_CONFIG,
+  getLaunchDiscount,
+  getYearlyDiscount,
+  calculateImageCredits as calculateImageCreditsBase
 } from '../../../../scripts/pricing-config.js'
+import { STRIPE_REFERENCE } from './stripe-reference'
 
-// Credit-based subscription pricing configuration
-// This maps to Stripe products and metadata defined in Stripe Dashboard
+// Environment detection
+function getEnvironment(): 'test' | 'production' {
+  // Check Vercel environment first
+  if (typeof process !== 'undefined' && process.env.VERCEL_TARGET_ENV) {
+    return process.env.VERCEL_TARGET_ENV === 'production' ? 'production' : 'test'
+  }
+  
+  // Fallback to NODE_ENV
+  if (typeof process !== 'undefined' && process.env.NODE_ENV === 'production') {
+    return 'production'
+  }
+  
+  // Default to test for safety
+  return 'test'
+}
 
+// Get current environment config
+const STRIPE_ENV_CONFIG = STRIPE_REFERENCE[getEnvironment()]
+
+// Helper functions
+function getSubscriptionPriceIds(tierId: string) {
+  return STRIPE_ENV_CONFIG.subscriptions[tierId as keyof typeof STRIPE_ENV_CONFIG.subscriptions]
+}
+
+function getCreditPackPriceId(packId: string) {
+  return STRIPE_ENV_CONFIG.creditPacks[packId as keyof typeof STRIPE_ENV_CONFIG.creditPacks]
+}
+
+// Re-export types for TypeScript
 export interface SubscriptionTier {
   id: string
   name: string
   displayName: string
   description: string
-  monthlyPrice: number // in dollars
-  yearlyPrice?: number // in dollars
+  originalPrice: number // in dollars (non-discounted price)
+  monthlyPrice: number // in dollars (discounted price)
+  yearlyPrice: number // in dollars (discounted yearly price per month)
   credits: number
   maxResolution: '1K' | '2K' | '4K'
   loraTrainingIncluded: number
@@ -48,27 +79,13 @@ export interface CreditPack {
   stripePriceId: string
 }
 
-// Subscription Tiers - Enhanced with real Stripe price IDs
+// Subscription tiers with environment-aware Stripe price IDs
 export const SUBSCRIPTION_TIERS: SubscriptionTier[] = SUBSCRIPTION_TIERS_CONFIG.map(tier => {
-  const stripePriceIds: { monthly: string; yearly?: string } = {
-    monthly: '',
-    yearly: tier.yearlyPrice ? '' : undefined
-  }
-
-  // Add real Stripe price IDs based on tier ID
-  switch (tier.id) {
-    case 'tier_1':
-      stripePriceIds.monthly = 'price_1Rh4C0ENpyFv1vJe4Cu4PBF6'
-      stripePriceIds.yearly = 'price_1Rh4C1ENpyFv1vJema77VrLN'
-      break
-    case 'tier_2':
-      stripePriceIds.monthly = 'price_1Rh4C1ENpyFv1vJeyiW6hmCB'
-      stripePriceIds.yearly = 'price_1Rh4C2ENpyFv1vJeyYZzgfaJ'
-      break
-    case 'tier_3':
-      stripePriceIds.monthly = 'price_1Rh4C2ENpyFv1vJeYzFFstf9'
-      stripePriceIds.yearly = 'price_1Rh4C3ENpyFv1vJeYx5nVsUK'
-      break
+  // Get environment-specific price IDs
+  const priceConfig = getSubscriptionPriceIds(tier.id)
+  const stripePriceIds = {
+    monthly: priceConfig?.monthly || '',
+    yearly: priceConfig?.yearly || ''
   }
 
   return {
@@ -78,22 +95,11 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = SUBSCRIPTION_TIERS_CONFIG.
   }
 })
 
-// Credit Packs - Enhanced with real Stripe price IDs
+// Credit Packs - Enhanced with environment-aware Stripe price IDs
 export const CREDIT_PACKS: CreditPack[] = CREDIT_PACKS_CONFIG.map(pack => {
-  let stripePriceId = ''
-
-  // Add real Stripe price IDs based on pack ID
-  switch (pack.id) {
-    case 'credits_90':
-      stripePriceId = 'price_1Rh4C3ENpyFv1vJesxkBqqgL'
-      break
-    case 'credits_180':
-      stripePriceId = 'price_1Rh4C4ENpyFv1vJeFHcPL4S0'
-      break
-    case 'credits_360':
-      stripePriceId = 'price_1Rh4C5ENpyFv1vJeuelpXnVe'
-      break
-  }
+  // Get environment-specific price ID
+  const priceConfig = getCreditPackPriceId(pack.id)
+  const stripePriceId = priceConfig?.price || ''
 
   return {
     ...pack,
@@ -101,29 +107,29 @@ export const CREDIT_PACKS: CreditPack[] = CREDIT_PACKS_CONFIG.map(pack => {
   }
 })
 
-// Credit costs for different operations - imported from shared config
+// Import credit costs from single source - NO DUPLICATION!
 export const CREDIT_COSTS = CREDIT_COSTS_CONFIG
 
-// Batch size pricing (no discounts)
+// Batch size pricing calculated from single source
 export const BATCH_PRICING = {
   '1K': [
-    { size: 5, credits: 5 },
-    { size: 10, credits: 10 },
-    { size: 20, credits: 20 }
+    { size: 5, credits: 5 * CREDIT_COSTS.IMAGE_GENERATION['1K'] },
+    { size: 10, credits: 10 * CREDIT_COSTS.IMAGE_GENERATION['1K'] },
+    { size: 20, credits: 20 * CREDIT_COSTS.IMAGE_GENERATION['1K'] }
   ],
   '2K': [
-    { size: 5, credits: 10 },
-    { size: 10, credits: 20 },
-    { size: 20, credits: 40 }
+    { size: 5, credits: 5 * CREDIT_COSTS.IMAGE_GENERATION['2K'] },
+    { size: 10, credits: 10 * CREDIT_COSTS.IMAGE_GENERATION['2K'] },
+    { size: 20, credits: 20 * CREDIT_COSTS.IMAGE_GENERATION['2K'] }
   ],
   '4K': [
-    { size: 5, credits: 15 },
-    { size: 10, credits: 30 },
-    { size: 20, credits: 60 }
+    { size: 5, credits: 5 * CREDIT_COSTS.IMAGE_GENERATION['4K'] },
+    { size: 10, credits: 10 * CREDIT_COSTS.IMAGE_GENERATION['4K'] },
+    { size: 20, credits: 20 * CREDIT_COSTS.IMAGE_GENERATION['4K'] }
   ]
 } as const
 
-// Helper functions
+// Helper functions - imported from single source
 export function getTierById(tierId: string): SubscriptionTier | undefined {
   return SUBSCRIPTION_TIERS.find(tier => tier.id === tierId)
 }
@@ -132,32 +138,20 @@ export function getPackById(packId: string): CreditPack | undefined {
   return CREDIT_PACKS.find(pack => pack.id === packId)
 }
 
-export function calculateImageCredits(resolution: '1K' | '2K' | '4K', batchSize: number): number {
-  return CREDIT_COSTS.IMAGE_GENERATION[resolution] * batchSize
-}
+// Use the function from single source
+export const calculateImageCredits = calculateImageCreditsBase
 
-export function canGenerateAtResolution(userTier: string, requestedResolution: '1K' | '2K' | '4K'): boolean {
-  const tier = getTierById(userTier)
-  if (!tier) return false
-
-  const resolutionHierarchy = { '1K': 1, '2K': 2, '4K': 3 }
-  const userMaxLevel = resolutionHierarchy[tier.maxResolution]
-  const requestedLevel = resolutionHierarchy[requestedResolution]
-
-  return requestedLevel <= userMaxLevel
-}
-
-// Discount information
+// Discount information - calculated from single source
 export const LAUNCH_DISCOUNT = {
-  tier_1: { originalPrice: 14, discountedPrice: 9, savings: 5 },
-  tier_2: { originalPrice: 39, discountedPrice: 29, savings: 10 },
-  tier_3: { originalPrice: 89, discountedPrice: 69, savings: 20 }
+  tier_1: getLaunchDiscount('tier_1'),
+  tier_2: getLaunchDiscount('tier_2'),
+  tier_3: getLaunchDiscount('tier_3')
 }
 
 export const YEARLY_DISCOUNT = {
-  tier_1: { monthlyPrice: 9, yearlyPrice: 9, savings: '36%' },
-  tier_2: { monthlyPrice: 29, yearlyPrice: 18, savings: '55%' },
-  tier_3: { monthlyPrice: 69, yearlyPrice: 39, savings: '55%' }
+  tier_1: getYearlyDiscount('tier_1'),
+  tier_2: getYearlyDiscount('tier_2'),
+  tier_3: getYearlyDiscount('tier_3')
 }
 
 // Plan comparison features
@@ -175,7 +169,13 @@ export type PlanTierType = 'tier_1' | 'tier_2' | 'tier_3'
  * Version string to help with tracking pricing changes
  * Increment this when modifying pricing structure
  */
-export const PRICING_VERSION = '1.0.1';
+export const PRICING_VERSION = '1.1.0';
+
+/**
+ * Current Stripe environment being used
+ * Useful for debugging and confirming correct environment
+ */
+export const STRIPE_ENVIRONMENT = getEnvironment();
 
 /**
  * Use this comment block when copying to Edge Functions:

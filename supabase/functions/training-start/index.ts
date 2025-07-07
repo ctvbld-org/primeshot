@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
+import { getLoraTrainingCost } from "../_shared/pricing.ts";
 
 interface TrainingRequest {
   user_id: string;
@@ -21,8 +22,8 @@ interface TrainingJob {
   credits_spent?: number;
 }
 
-// LoRA training cost - 30 credits per training according to PRICING.md
-const LORA_TRAINING_COST = 30;
+// LoRA training cost - now uses shared configuration
+const LORA_TRAINING_COST = getLoraTrainingCost();
 
 // Check user's subscription and training limits
 async function checkTrainingLimits(

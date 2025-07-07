@@ -13,7 +13,7 @@
 - **4K Images**: 3 credits each
 
 ### LoRA Training Cost per Face Model
-- **30 credits**: $4.80 per training (Tier 2) / $4.50 per training (Tier 3)
+- **30 credits**: $6.90 per training (Tier 1) / $4.80 per training (Tier 2) / $4.50 per training (Tier 3)
 
 ---
 
@@ -38,7 +38,7 @@
 ## Detailed Subscription Plans
 
 #### Tier 1
-- ~~**Monthly Price**: $14~~ **Discounted Price**: $9
+- ~~**Monthly Price**: $14~~ **Monthly Discounted Price**: $9 **Yearly Discounted Price**: $9
 - **Credits Included**: 40 credits
 - **Max Resolution**: 1K only
 - **LoRA Training**: 1 included
@@ -47,7 +47,7 @@
 - **Value**: Up to 40 images (40×1K images)
 
 #### Tier 2 (All Resolutions)
-- ~~**Monthly Price**: $39~~ **Discounted Price**: $29
+- ~~**Monthly Price**: $39~~ **Monthly Discounted Price**: $29 **Yearly Discounted Price**: $18
 - **Credits Included**: 180 credits
 - **Max Resolution**: Up to 4K
 - **LoRA Training**: 1 included
@@ -56,7 +56,7 @@
 - **Value**: Up to 180 images (180×1K or 90×2K or 60×4K images)
 
 #### Tier 3 (All Resolutions)
-- ~~**Monthly Price**: $89~~ **Monthly Price**: $69
+- ~~**Monthly Price**: $89~~ **Monthly Discounted Price**: $69 **Yearly Discounted Price**: $39
 - **Credits Included**: 450 credits
 - **Max Resolution**: Up to 4K
 - **LoRA Training**: 3 included

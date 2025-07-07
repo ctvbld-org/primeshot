@@ -1,7 +1,13 @@
 -- Migration: create RPC calculate_user_credit_balance and RLS policies for new credit tables
+-- Rollback: 
+-- DROP FUNCTION IF EXISTS public.calculate_user_credit_balance(uuid);
+-- REVOKE EXECUTE ON FUNCTION public.calculate_user_credit_balance(uuid) FROM authenticated;
+-- ALTER TABLE public.user_credits DISABLE ROW LEVEL SECURITY;
+-- ALTER TABLE public.credit_pack_purchases DISABLE ROW LEVEL SECURITY;
+-- ALTER TABLE public.user_subscriptions DISABLE ROW LEVEL SECURITY;
 
 -- 1. RPC Helper -----------------------------------------------------------
-create or replace function public.calculate_user_credit_balance(user_uuid uuid)
+CREATE OR REPLACE FUNCTION public.calculate_user_credit_balance(user_uuid uuid)
 returns integer
 language sql
 security definer
@@ -21,27 +27,27 @@ as $$
 $$;
 
 -- Grant execute to authenticated users (frontend) -------------------------
-grant execute on function public.calculate_user_credit_balance(uuid) to authenticated;
+GRANT EXECUTE ON FUNCTION public.calculate_user_credit_balance(uuid) TO authenticated;
 
 -- 2. RLS Policies ---------------------------------------------------------
 -- user_credits ------------------------------------------------------------
-alter table public.user_credits enable row level security;
+ALTER TABLE IF EXISTS public.user_credits ENABLE ROW LEVEL SECURITY;
 
 -- Select own rows
-create policy "Select own credits" on public.user_credits
+CREATE POLICY IF NOT EXISTS "Select own credits" ON public.user_credits
 for select
 using (auth.uid() = user_id);
 
--- Insert: only service role (handled by backend code), no policy
+-- Service role policies will be handled in subsequent migration
 
 -- credit_pack_purchases ---------------------------------------------------
-alter table public.credit_pack_purchases enable row level security;
-create policy "Select own credit pack purchases" on public.credit_pack_purchases
+ALTER TABLE IF EXISTS public.credit_pack_purchases ENABLE ROW LEVEL SECURITY;
+CREATE POLICY IF NOT EXISTS "Select own credit pack purchases" ON public.credit_pack_purchases
 for select
 using (auth.uid() = user_id);
 
 -- user_subscriptions ------------------------------------------------------
-alter table public.user_subscriptions enable row level security;
-create policy "Select own subscription" on public.user_subscriptions
+ALTER TABLE IF EXISTS public.user_subscriptions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY IF NOT EXISTS "Select own subscription" ON public.user_subscriptions
 for select
 using (auth.uid() = user_id); 

@@ -9,6 +9,13 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 });
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+const isDev = process.env.NODE_ENV === 'development';
+
+function devLog(...args: any[]) {
+  if (isDev) {
+    console.log(...args);
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -46,10 +53,10 @@ export async function POST(request: Request) {
     let event: Stripe.Event;
     try {
       event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
-      console.log(`✅ Webhook signature verified for event type: ${event.type}`);
+      devLog(`Webhook: ${event.type} - ${event.id}`);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      console.error('⚠️ Webhook signature verification failed:', errorMessage);
+      console.error('Webhook signature verification failed:', errorMessage);
       
       // Return explicit 401 for authentication failures
       return NextResponse.json(
@@ -67,18 +74,13 @@ export async function POST(request: Request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    console.log(`🔧 Supabase client created with service role key for webhook operations`);
-
-    // Log event information for debugging
-    console.log(`Processing webhook event: ${event.id}, type: ${event.type}`);
-
     // Handle different event types
     try {
       switch (event.type) {
         case 'invoice.payment_succeeded': {
           const invoice = event.data.object as Stripe.Invoice;
           await handleSubscriptionPaymentSucceeded(invoice, supabase);
-          console.log(`✅ Successfully processed invoice.payment_succeeded for invoice: ${invoice.id}`);
+          devLog(`Processed invoice.payment_succeeded: ${invoice.id}`);
           break;
         }
 
@@ -86,51 +88,46 @@ export async function POST(request: Request) {
         case 'customer.subscription.updated': {
           const subscription = event.data.object as Stripe.Subscription;
           await handleSubscriptionEvent(subscription, supabase);
-          console.log(`✅ Successfully processed ${event.type} for subscription: ${subscription.id}`);
+          devLog(`Processed ${event.type}: ${subscription.id}`);
           break;
         }
 
         case 'customer.subscription.deleted': {
           const subscription = event.data.object as Stripe.Subscription;
           await handleSubscriptionDeleted(subscription, supabase);
-          console.log(`✅ Successfully processed subscription deleted for subscription: ${subscription.id}`);
+          devLog(`Processed subscription deleted: ${subscription.id}`);
           break;
         }
 
         case 'payment_intent.succeeded': {
           const paymentIntent = event.data.object as Stripe.PaymentIntent;
           await handleCreditPackPurchase(paymentIntent, supabase);
-          console.log(`✅ Successfully processed payment_intent.succeeded for intent: ${paymentIntent.id}`);
+          devLog(`Processed payment_intent.succeeded: ${paymentIntent.id}`);
           break;
         }
 
         case 'product.updated':
         case 'price.updated': {
           // Clear cache when Stripe data changes
-          console.log(`✅ Cleared cache due to ${event.type}`);
+          devLog(`Cache cleared due to ${event.type}`);
           // Note: CreditService.clearCache() would be called here if accessible
           break;
         }
 
         default:
-          console.log(`Ignored unhandled event type: ${event.type}`);
+          devLog(`Ignored unhandled event type: ${event.type}`);
       }
     } catch (eventError) {
       // Log the error but don't fail the webhook - this prevents Stripe from retrying
-      // Ideally, this should be sent to an error monitoring service
       const errorMessage = eventError instanceof Error ? eventError.message : 'Unknown error';
-      console.error(`⚠️ Error processing webhook event ${event.type}:`, errorMessage);
+      console.error(`Error processing webhook event ${event.type}:`, errorMessage);
       
       if (eventError instanceof Error && eventError.stack) {
         console.error(eventError.stack);
       }
-      
-      // Consider adding custom error tracking here
-      // await logErrorToMonitoringService(event.id, event.type, errorMessage);
     }
 
     // Return a 200 success response to acknowledge receipt of the event
-    // We do this even if processing failed to prevent Stripe from retrying valid but unprocessable webhooks
     return NextResponse.json({ 
       received: true, 
       eventId: event.id, 
@@ -139,7 +136,7 @@ export async function POST(request: Request) {
   } catch (error) {
     // This is for unexpected errors in the overall webhook handling
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('🚨 Critical error handling webhook:', errorMessage);
+    console.error('Critical error handling webhook:', errorMessage);
     
     if (error instanceof Error && error.stack) {
       console.error(error.stack);
@@ -163,23 +160,16 @@ export const config = {
 /**
  * Handle subscription payment succeeded (invoice.payment_succeeded)
  * Awards credits when subscription renews
- * Enhanced to handle cases where invoice doesn't include subscription ID
  */
 async function handleSubscriptionPaymentSucceeded(
   invoice: Stripe.Invoice,
   supabase: SupabaseClient
 ) {
-  console.log(`🔍 Processing invoice.payment_succeeded - Invoice ID: ${invoice.id}`);
-  console.log(`📊 Invoice billing_reason: ${invoice.billing_reason}`);
-  console.log(`💰 Invoice total: ${invoice.total}`);
-  console.log(`👤 Customer ID: ${invoice.customer}`);
-  console.log(`📝 Subscription ID: ${(invoice as any).subscription}`);
-
   const customerId = (invoice as any).customer as string;
   let subscriptionId = (invoice as any).subscription as string;
 
   if (!customerId) {
-    console.error(`❌ No customer ID in invoice ${invoice.id}`);
+    console.error(`No customer ID in invoice ${invoice.id}`);
     return;
   }
 
@@ -193,16 +183,12 @@ async function handleSubscriptionPaymentSucceeded(
   ];
 
   if (!validBillingReasons.includes(invoice.billing_reason as string)) {
-    console.log(`⏭️  Skipping invoice ${invoice.id} - billing reason: ${invoice.billing_reason} (not a subscription payment)`);
+    devLog(`Skipping invoice ${invoice.id} - billing reason: ${invoice.billing_reason}`);
     return;
   }
 
-  console.log(`✅ Invoice ${invoice.id} is a subscription payment (billing_reason: ${invoice.billing_reason})`);
-
   // If no subscription ID in invoice, try to find by customer
   if (!subscriptionId) {
-    console.log(`🔍 No subscription ID in invoice, looking up by customer ${customerId}...`);
-    
     const { data: subscriptions, error: lookupError } = await supabase
       .from('user_subscriptions')
       .select('stripe_subscription_id, user_id, stripe_price_id, plan_name, status')
@@ -212,15 +198,12 @@ async function handleSubscriptionPaymentSucceeded(
       .limit(1);
 
     if (lookupError || !subscriptions || subscriptions.length === 0) {
-      console.error(`❌ No active subscription found for customer ${customerId}:`, lookupError?.message);
+      console.error(`No active subscription found for customer ${customerId}:`, lookupError?.message);
       return;
     }
 
     subscriptionId = subscriptions[0].stripe_subscription_id;
-    console.log(`✅ Found subscription ${subscriptionId} for customer ${customerId}`);
   }
-
-  console.log(`🔍 Looking up subscription ${subscriptionId} in database...`);
 
   // Get user ID from subscription
   const { data: subscription, error: subError } = await supabase
@@ -230,19 +213,15 @@ async function handleSubscriptionPaymentSucceeded(
     .single();
 
   if (subError || !subscription) {
-    console.error(`❌ Error finding subscription ${subscriptionId}:`, subError?.message);
+    console.error(`Error finding subscription ${subscriptionId}:`, subError?.message);
     return;
   }
-
-  console.log(`✅ Found subscription for user ${subscription.user_id}, plan: ${subscription.plan_name}`);
 
   // Update subscription periods if they're missing
   if ((invoice as any).lines?.data?.[0]?.period) {
     const period = (invoice as any).lines.data[0].period;
     const periodStart = new Date(period.start * 1000).toISOString();
     const periodEnd = new Date(period.end * 1000).toISOString();
-    
-    console.log(`🔄 Updating subscription periods: ${periodStart} to ${periodEnd}`);
     
     const { error: updateError } = await supabase
       .from('user_subscriptions')
@@ -254,36 +233,24 @@ async function handleSubscriptionPaymentSucceeded(
       .eq('stripe_subscription_id', subscriptionId);
 
     if (updateError) {
-      console.error(`⚠️ Failed to update subscription periods:`, updateError.message);
-      // Don't fail, continue with credit awarding
-    } else {
-      console.log(`✅ Updated subscription periods successfully`);
+      console.error(`Failed to update subscription periods:`, updateError.message);
     }
   }
 
   // Get plan details from Stripe
   try {
-    console.log(`🔍 Fetching plan details from Stripe for price ${subscription.stripe_price_id}...`);
-    
     const price = await stripe.prices.retrieve(subscription.stripe_price_id, {
       expand: ['product']
     });
 
     const product = price.product as Stripe.Product;
-    console.log(`📋 Product metadata:`, product.metadata);
-
     const creditsIncluded = parseInt(product.metadata.credits_included || '0');
-    console.log(`💳 Credits included in plan: ${creditsIncluded}`);
 
     if (creditsIncluded > 0) {
-      console.log(`🎯 Awarding ${creditsIncluded} credits to user ${subscription.user_id}...`);
-      
       // Award credits that expire at the end of current billing period
       const expiresAt = (invoice as any).lines?.data?.[0]?.period?.end 
         ? new Date((invoice as any).lines.data[0].period.end * 1000) 
         : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Default 30 days
-        
-      console.log(`⏰ Credits will expire at: ${expiresAt.toISOString()}`);
 
       const creditRecord = {
         user_id: subscription.user_id,
@@ -303,30 +270,20 @@ async function handleSubscriptionPaymentSucceeded(
         }
       };
 
-      console.log(`💾 Inserting credit record:`, creditRecord);
-
       const { error: creditError } = await supabase
         .from('user_credits')
         .insert(creditRecord);
 
       if (creditError) {
-        console.error(`❌ Error awarding subscription credits:`, creditError);
-        console.error(`   - Error message: ${creditError.message}`);
-        console.error(`   - Error details: ${creditError.details}`);
-        console.error(`   - Error hint: ${creditError.hint}`);
-        console.error(`   - Error code: ${creditError.code}`);
+        console.error(`Error awarding subscription credits:`, creditError.message);
         throw new Error(`Failed to award subscription credits: ${creditError.message}`);
       }
 
-      console.log(`✅ SUCCESS: Awarded ${creditsIncluded} credits to user ${subscription.user_id} for subscription ${subscriptionId}`);
-      console.log(`🎉 CREDIT AWARD COMPLETE - User: ${subscription.user_id}, Credits: ${creditsIncluded}, Invoice: ${invoice.id}`);
-    } else {
-      console.log(`⚠️  No credits to award - plan has 0 credits_included`);
+      devLog(`Awarded ${creditsIncluded} credits to user ${subscription.user_id}`);
     }
 
   } catch (stripeError) {
-    console.error('❌ Error fetching plan details from Stripe:', stripeError);
-    console.error('   - Stripe error details:', stripeError instanceof Error ? stripeError.message : String(stripeError));
+    console.error('Error fetching plan details from Stripe:', stripeError);
     throw new Error('Failed to process subscription payment');
   }
 }
@@ -399,8 +356,6 @@ async function handleSubscriptionEvent(
     console.error('Error upserting subscription:', error.message);
     throw new Error(`Failed to update subscription: ${error.message}`);
   }
-
-  console.log(`✅ Updated subscription ${subscription.id} for user ${userId}`);
 }
 
 /**
@@ -423,8 +378,6 @@ async function handleSubscriptionDeleted(
     console.error('Error updating canceled subscription:', error.message);
     throw new Error(`Failed to update canceled subscription: ${error.message}`);
   }
-
-  console.log(`✅ Marked subscription ${subscription.id} as canceled`);
 }
 
 /**
@@ -436,7 +389,7 @@ async function handleCreditPackPurchase(
 ) {
   // Check if this is a credit pack purchase
   if (paymentIntent.metadata?.pack_type !== 'credit_pack') {
-    console.log(`Skipping payment intent ${paymentIntent.id} - not a credit pack purchase`);
+    devLog(`Skipping payment intent ${paymentIntent.id} - not a credit pack purchase`);
     return;
   }
 
@@ -494,5 +447,5 @@ async function handleCreditPackPurchase(
     throw new Error(`Failed to award credit pack credits: ${creditError.message}`);
   }
 
-  console.log(`✅ Awarded ${credits} credits to user ${userId} from credit pack purchase ${paymentIntent.id}`);
+  devLog(`Awarded ${credits} credits to user ${userId} from credit pack purchase`);
 } 

@@ -28,7 +28,8 @@ CREATE TABLE IF NOT EXISTS user_credits (
     expires_at TIMESTAMP WITH TIME ZONE,
     description TEXT,
     metadata JSONB DEFAULT '{}',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Credit pack purchases (references Stripe data)

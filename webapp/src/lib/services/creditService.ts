@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Stripe from 'stripe'
+import { CREDIT_COSTS, calculateImageCredits } from '@/lib/constants/pricing'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-05-28.basil'
@@ -66,30 +67,17 @@ export class CreditService {
 
   /**
    * Calculate credit cost based on operation type and parameters
-   * According to PRICING.md:
-   * - 1K images: 1 credit each
-   * - 2K images: 2 credits each  
-   * - 4K images: 3 credits each
-   * - LoRA training: 30 credits
+   * Uses centralized CREDIT_COSTS configuration from pricing constants
    */
   calculateCreditCost(operation: CreditOperation): number {
     switch (operation.type) {
       case 'image_generation':
-        return this.getImageCreditCost(operation.resolution!, operation.batchSize || 1)
+        return calculateImageCredits(operation.resolution!, operation.batchSize || 1)
       case 'lora_training':
-        return 30 // Fixed cost for LoRA training
+        return CREDIT_COSTS.LORA_TRAINING
       default:
         throw new Error(`Unknown operation type: ${operation.type}`)
     }
-  }
-
-  private getImageCreditCost(resolution: '1K' | '2K' | '4K', batchSize: number): number {
-    const costPerImage = {
-      '1K': 1,
-      '2K': 2,
-      '4K': 3
-    }
-    return costPerImage[resolution] * batchSize
   }
 
   /**
