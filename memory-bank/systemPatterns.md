@@ -626,6 +626,16 @@ Detected changes in:
 - webapp/src/lib/constants/stripe-reference.ts
 - webapp/src/lib/services/creditService.ts
 - webapp/src/lib/supabase/server.ts
+
+
+**Auto-update 2025-07-07**:
+Detected changes in:
+- webapp/src/app/api/payment/webhook/route.ts
+- webapp/src/app/api/payment/webhook/route.ts.backup
+- webapp/src/components/dashboard/CreditDashboard.tsx
+- webapp/src/components/pricing/CreditPackDialogContent.tsx
+- webapp/src/components/pricing/CreditPackPricing.tsx
+- webapp/src/lib/services/creditService.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

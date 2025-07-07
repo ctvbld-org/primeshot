@@ -184,7 +184,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           error: 'Insufficient credits for LoRA training',
-          details: `Required: ${LORA_TRAINING_COST} credits, Available: ${currentBalance} credits`,
+          details: `Required: ${LORA_TRAINING_COST} credits.`,
           required_credits: LORA_TRAINING_COST,
           available_credits: currentBalance
         }),
