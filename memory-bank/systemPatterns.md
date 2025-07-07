@@ -584,6 +584,58 @@ Detected changes in:
 - webapp/src/contexts/style-selection-context.tsx
 - webapp/src/lib/hooks/use-file-upload.ts
 - webapp/src/lib/utils/style-storage.ts
+
+
+**Auto-update 2025-07-07**:
+Detected changes in:
+- webapp/src/app/api/credits/balance/route.ts
+- webapp/src/app/api/credits/transactions/route.ts
+- webapp/src/app/api/payment/credit-pack-checkout/route.ts
+- webapp/src/app/api/payment/subscription-checkout/route.ts
+- webapp/src/app/api/payment/webhook/debug/route.ts
+- webapp/src/app/api/payment/webhook/route.ts
+- webapp/src/app/api/payment/webhook/route.ts.backup
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/app/globals.css
+- webapp/src/app/layout.tsx
+- webapp/src/app/page.tsx
+- webapp/src/components/dashboard/CreditDashboard.tsx
+- webapp/src/components/face_model/face_models.tsx
+- webapp/src/components/home/GenerationControls.tsx
+- webapp/src/components/pricing/CreditPackDialogContent.tsx
+- webapp/src/components/pricing/CreditPackPricing.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/providers/intent-handler.tsx
+- webapp/src/contexts/DialogServiceContext.tsx
+- webapp/src/lib/constants/pricing.ts
+- webapp/src/lib/constants/stripe-reference.ts
+- webapp/src/lib/services/creditService.ts
+
+
+**Auto-update 2025-07-07**:
+Detected changes in:
+- webapp/src/app/api/credits/transactions/route.ts
+- webapp/src/app/api/payment/create-checkout-session/route.ts
+- webapp/src/app/api/payment/credit-pack-checkout/route.ts
+- webapp/src/app/api/payment/subscription-checkout/route.ts
+- webapp/src/app/api/payment/webhook/debug/route.ts
+- webapp/src/app/api/payment/webhook/route.ts
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/app/auth/callback/route.ts
+- webapp/src/lib/constants/pricing.ts
+- webapp/src/lib/constants/stripe-reference.ts
+- webapp/src/lib/services/creditService.ts
+- webapp/src/lib/supabase/server.ts
+
+
+**Auto-update 2025-07-07**:
+Detected changes in:
+- webapp/src/app/api/payment/webhook/route.ts
+- webapp/src/app/api/payment/webhook/route.ts.backup
+- webapp/src/components/dashboard/CreditDashboard.tsx
+- webapp/src/components/pricing/CreditPackDialogContent.tsx
+- webapp/src/components/pricing/CreditPackPricing.tsx
+- webapp/src/lib/services/creditService.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

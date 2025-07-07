@@ -34,6 +34,94 @@ export type Database = {
   }
   public: {
     Tables: {
+      credit_pack_purchases: {
+        Row: {
+          amount_paid: number
+          created_at: string | null
+          credits_purchased: number
+          expires_at: string
+          id: string
+          status: string
+          stripe_payment_intent_id: string
+          stripe_price_id: string
+          user_id: string
+        }
+        Insert: {
+          amount_paid: number
+          created_at?: string | null
+          credits_purchased: number
+          expires_at: string
+          id?: string
+          status: string
+          stripe_payment_intent_id: string
+          stripe_price_id: string
+          user_id: string
+        }
+        Update: {
+          amount_paid?: number
+          created_at?: string | null
+          credits_purchased?: number
+          expires_at?: string
+          id?: string
+          status?: string
+          stripe_payment_intent_id?: string
+          stripe_price_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_pack_purchases_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credit_usage: {
+        Row: {
+          batch_size: number | null
+          created_at: string | null
+          credits_used: number
+          id: string
+          job_id: string | null
+          metadata: Json | null
+          resolution: string | null
+          usage_type: string
+          user_id: string
+        }
+        Insert: {
+          batch_size?: number | null
+          created_at?: string | null
+          credits_used: number
+          id?: string
+          job_id?: string | null
+          metadata?: Json | null
+          resolution?: string | null
+          usage_type: string
+          user_id: string
+        }
+        Update: {
+          batch_size?: number | null
+          created_at?: string | null
+          credits_used?: number
+          id?: string
+          job_id?: string | null
+          metadata?: Json | null
+          resolution?: string | null
+          usage_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_usage_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       face_models: {
         Row: {
           created_at: string | null
@@ -235,6 +323,7 @@ export type Database = {
           amount: number | null
           checkout_session_id: string | null
           created_at: string | null
+          credits_used: number | null
           currency: string | null
           id: string
           idempotency_key: string | null
@@ -242,6 +331,7 @@ export type Database = {
           payment_intent_id: string | null
           payment_status: string | null
           status: string
+          subscription_id: string | null
           updated_at: string | null
           user_id: string | null
         }
@@ -249,6 +339,7 @@ export type Database = {
           amount?: number | null
           checkout_session_id?: string | null
           created_at?: string | null
+          credits_used?: number | null
           currency?: string | null
           id?: string
           idempotency_key?: string | null
@@ -256,6 +347,7 @@ export type Database = {
           payment_intent_id?: string | null
           payment_status?: string | null
           status: string
+          subscription_id?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
@@ -263,6 +355,7 @@ export type Database = {
           amount?: number | null
           checkout_session_id?: string | null
           created_at?: string | null
+          credits_used?: number | null
           currency?: string | null
           id?: string
           idempotency_key?: string | null
@@ -270,10 +363,18 @@ export type Database = {
           payment_intent_id?: string | null
           payment_status?: string | null
           status?: string
+          subscription_id?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "orders_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "user_subscriptions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orders_user_id_fkey"
             columns: ["user_id"]
@@ -591,6 +692,56 @@ export type Database = {
           },
         ]
       }
+      user_credits: {
+        Row: {
+          created_at: string | null
+          credits: number
+          description: string | null
+          expires_at: string | null
+          id: string
+          metadata: Json | null
+          source_id: string | null
+          source_type: string
+          transaction_type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          credits: number
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          metadata?: Json | null
+          source_id?: string | null
+          source_type: string
+          transaction_type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          credits?: number
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          metadata?: Json | null
+          source_id?: string | null
+          source_type?: string
+          transaction_type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_credits_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_settings: {
         Row: {
           created_at: string | null
@@ -611,6 +762,59 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean | null
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          plan_name: string
+          status: string
+          stripe_customer_id: string
+          stripe_price_id: string
+          stripe_subscription_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cancel_at_period_end?: boolean | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_name: string
+          status: string
+          stripe_customer_id: string
+          stripe_price_id: string
+          stripe_subscription_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cancel_at_period_end?: boolean | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_name?: string
+          status?: string
+          stripe_customer_id?: string
+          stripe_price_id?: string
+          stripe_subscription_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       users: {
         Row: {
@@ -666,6 +870,27 @@ export type Database = {
         Args: { arr: string[] } | { arr: unknown }
         Returns: string[]
       }
+      award_subscription_credits: {
+        Args: {
+          p_user_id: string
+          p_subscription_id: string
+          p_credits: number
+          p_expires_at: string
+          p_period_start: string
+          p_period_end: string
+          p_description: string
+          p_metadata: Json
+        }
+        Returns: undefined
+      }
+      calculate_user_credit_balance: {
+        Args: { user_uuid: string }
+        Returns: number
+      }
+      expire_credits: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       force_cleanup_upload_session: {
         Args: { session_id: string }
         Returns: undefined
@@ -674,12 +899,82 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_user_credit_balance: {
+        Args: { user_uuid: string }
+        Returns: number
+      }
       increment_image_count: {
         Args: { face_model_id: string }
         Returns: undefined
       }
+      process_credit_pack_purchase: {
+        Args: {
+          p_user_id: string
+          p_payment_intent_id: string
+          p_price_id: string
+          p_credits: number
+          p_amount_paid: number
+          p_expires_at: string
+          p_description: string
+          p_metadata: Json
+        }
+        Returns: undefined
+      }
+      refund_credits_with_idempotency: {
+        Args: {
+          p_user_id: string
+          p_job_id: string
+          p_amount: number
+          p_reason: string
+          p_idempotency_key: string
+        }
+        Returns: {
+          success: boolean
+          refund_created: boolean
+          error_message: string
+        }[]
+      }
+      spend_credits_with_job_tracking: {
+        Args: {
+          p_user_id: string
+          p_job_id: string
+          p_amount: number
+          p_usage_type: string
+          p_description?: string
+          p_metadata?: Json
+        }
+        Returns: {
+          success: boolean
+          current_balance: number
+          error_message: string
+        }[]
+      }
+      spend_user_credits: {
+        Args: {
+          p_user_id: string
+          p_amount: number
+          p_usage_type: string
+          p_description?: string
+          p_metadata?: Json
+        }
+        Returns: boolean
+      }
       update_language_preference: {
         Args: { new_language: string }
+        Returns: undefined
+      }
+      upsert_subscription: {
+        Args: {
+          p_user_id: string
+          p_stripe_subscription_id: string
+          p_stripe_customer_id: string
+          p_stripe_price_id: string
+          p_plan_name: string
+          p_status: string
+          p_current_period_start: string
+          p_current_period_end: string
+          p_cancel_at_period_end: boolean
+        }
         Returns: undefined
       }
     }

@@ -9,6 +9,7 @@ import { ProgressTracker } from './progress_tracker';
 import { Countdown } from './countdown';
 import { cn } from '@/lib/utils';
 import { CircleProgress } from '@primeshot/common/web/ui/circle-progress';
+import { Plus } from 'lucide-react';
 import Image from 'next/image';
 
 interface FaceModelWithTraining {
@@ -62,8 +63,9 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
 
   // Get the selected model
   const selectedModel = useMemo(() => {
+    if (!user?.id) return null;
     return faceModels.find(model => model.id === selectedModelId);
-  }, [faceModels, selectedModelId]);
+  }, [faceModels, selectedModelId, user?.id]);
 
   // Helper function to get training job IDs for models
   const getTrainingJobIds = useCallback(async (models: FaceModelWithTraining[]) => {
@@ -100,11 +102,16 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
   }, []);
 
   const loadFaceModels = useCallback(async () => {
-    if (!user?.id) return;
+    setIsLoading(true);
+    setError(null);
+    
+    if (!user?.id) {
+      setIsLoading(false);
+      setFaceModels([]);
+      return;
+    }
 
     try {
-      setError(null);
-      setIsLoading(true);
 
       // Get face models with relevant statuses (including queued for new training)
       const models = await getUserFaceModels(user.id);
@@ -211,8 +218,27 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
     loadFaceModels();
   }, [loadFaceModels, refreshTrigger]);
 
+  // Clear selected model when user logs out
+  useEffect(() => {
+    if (!user?.id) {
+      setSelectedModelId('');
+    }
+  }, [user?.id]);
+
   // Handle manual selection changes
   const handleModelSelected = useCallback((newModelId: string) => {
+    // Handle "create" selection for unauthenticated users
+    if (newModelId === 'create' && !user?.id) {
+      // TODO: Trigger authentication flow or redirect to sign in
+      console.log('User needs to sign in to create a face model');
+      return;
+    }
+    
+    // Handle other special cases
+    if (newModelId === 'loading' || newModelId === 'empty') {
+      return;
+    }
+    
     setSelectedModelId(newModelId);
     
     // Persist manual selection
@@ -222,7 +248,7 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
     
     // Notify parent component
     onModelSelected?.(newModelId);
-  }, [onModelSelected]);
+  }, [user?.id, onModelSelected]);
 
   // Handler passed to ProgressTracker to update central progress state without recreating tracker type
   const handleProgressUpdate = useCallback((modelId: string, data: TrainingProgressState) => {
@@ -313,9 +339,7 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
     fetchJobIds();
   }, [faceModels, getTrainingJobIds]);
 
-  if (!user || isLoading || error) {
-    return null;
-  }
+
 
   return (
     <div className={cn('flex items-center space-x-4', className)}>
@@ -333,76 +357,146 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
       <Select value={selectedModelId} onValueChange={handleModelSelected}>
         <SelectTrigger className="w-auto min-w-fit bg-gray-800 border-gray-700 text-white">
           <div className="flex items-center space-x-3">
-            {selectedModel && (
-              <div className="relative w-8 h-8 rounded-full overflow-hidden bg-gray-600 flex-shrink-0">
-                {(selectedModel.status === 'training' || selectedModel.status === 'queued') && (
-                  <CircleProgress value={trainingProgress[selectedModel.id]?.getProgressPercentage?.() ?? 0} size={32} thickness={3} />
-                )}
-                {thumbnailUrls[selectedModel.id] ? (
-                  <Image
-                    src={thumbnailUrls[selectedModel.id]}
-                    alt={selectedModel.name}
-                    width={64}
-                    height={64}
-                    className="w-full h-full object-cover"
-                    sizes="64px"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-medium">
-                    {selectedModel.name.charAt(0).toUpperCase()}
-                  </div>
-                )}
-              </div>
+            {!user?.id ? (
+              <>
+                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+                  <Plus className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="text-xs text-gray-400">Face Model</span>
+                  <span className="font-medium text-white">Create Model</span>
+                </div>
+              </>
+            ) : selectedModel ? (
+              <>
+                <div className="relative w-8 h-8 rounded-full overflow-hidden bg-gray-600 flex-shrink-0">
+                  {(selectedModel.status === 'training' || selectedModel.status === 'queued') && (
+                    <CircleProgress value={trainingProgress[selectedModel.id]?.getProgressPercentage?.() ?? 0} size={32} thickness={3} />
+                  )}
+                  {thumbnailUrls[selectedModel.id] ? (
+                    <Image
+                      src={thumbnailUrls[selectedModel.id]}
+                      alt={selectedModel.name}
+                      width={64}
+                      height={64}
+                      className="w-full h-full object-cover"
+                      sizes="64px"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-medium">
+                      {selectedModel.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="text-xs text-gray-400">Face Model</span>
+                  <span className="font-medium text-white">{selectedModel.name}</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0">
+                  <Plus className="w-4 h-4 text-gray-400" />
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="text-xs text-gray-400">Face Model</span>
+                  <span className="font-medium text-white">Select face model</span>
+                </div>
+              </>
             )}
-            <div className="flex flex-col items-start">
-              <span className="text-xs text-gray-400">Face Model</span>
-              <span className="font-medium text-white">
-                {selectedModel ? selectedModel.name : 'Select face model'}
-              </span>
-            </div>
           </div>
         </SelectTrigger>
         <SelectContent className="bg-gray-900 border-gray-700 w-80">
-          {faceModels && faceModels.map((model) => (
-            <SelectItem
-              key={model.id}
-              value={model.id}
-              className="text-white hover:bg-gray-800 focus:bg-gray-800 p-3"
-            >
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center space-x-3">
-                  <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-600 flex-shrink-0">
-                    {(model.status === 'training' || model.status === 'queued') && (
-                      <CircleProgress value={trainingProgress[model.id]?.getProgressPercentage?.() ?? 0} size={40} thickness={3} />
-                    )}
-                    {thumbnailUrls[model.id] ? (
-                      <Image
-                        src={thumbnailUrls[model.id]}
-                        alt={model.name}
-                        width={80}
-                        height={80}
-                        className="w-full h-full object-cover"
-                        sizes="80px"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-sm font-medium">
-                        {model.name.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <div className="font-medium text-white">{model.name}</div>
-                    <div className="text-sm text-gray-400">
-                      {getImageCount(model)}
-                    </div>
-                  </div>
+          {!user?.id ? (
+            // Show "Create" button when not authenticated
+            <SelectItem value="create" className="text-white hover:bg-gray-800 focus:bg-gray-800 p-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+                  <Plus className="w-5 h-5 text-white" />
                 </div>
-                <div className="text-sm text-gray-400">
-                  {getStatusDisplay(model)}
+                <div>
+                  <div className="font-medium text-white">Create Face Model</div>
+                  <div className="text-sm text-gray-400">Sign in to get started</div>
                 </div>
               </div>
             </SelectItem>
-          ))}
+          ) : isLoading ? (
+            // Show loading state
+            <SelectItem value="loading" disabled className="text-gray-400 p-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full bg-gray-600 animate-pulse flex-shrink-0"></div>
+                <div>Loading face models...</div>
+              </div>
+            </SelectItem>
+          ) : error ? (
+            // Show error state
+            <SelectItem value="error" disabled className="text-red-400 p-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
+                  !
+                </div>
+                <div>
+                  <div className="font-medium text-red-400">Error loading models</div>
+                  <div className="text-sm text-gray-400">{error}</div>
+                </div>
+              </div>
+            </SelectItem>
+          ) : faceModels.length === 0 ? (
+            // Show empty state for authenticated users
+            <SelectItem value="empty" className="text-white hover:bg-gray-800 focus:bg-gray-800 p-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+                  <Plus className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <div className="font-medium text-white">Create Your First Face Model</div>
+                  <div className="text-sm text-gray-400">Upload photos to get started</div>
+                </div>
+              </div>
+            </SelectItem>
+          ) : (
+            // Show face models for authenticated users
+            faceModels.map((model) => (
+              <SelectItem
+                key={model.id}
+                value={model.id}
+                className="text-white hover:bg-gray-800 focus:bg-gray-800 p-3"
+              >
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center space-x-3">
+                    <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-600 flex-shrink-0">
+                      {(model.status === 'training' || model.status === 'queued') && (
+                        <CircleProgress value={trainingProgress[model.id]?.getProgressPercentage?.() ?? 0} size={40} thickness={3} />
+                      )}
+                      {thumbnailUrls[model.id] ? (
+                        <Image
+                          src={thumbnailUrls[model.id]}
+                          alt={model.name}
+                          width={80}
+                          height={80}
+                          className="w-full h-full object-cover"
+                          sizes="80px"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-sm font-medium">
+                          {model.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <div className="font-medium text-white">{model.name}</div>
+                      <div className="text-sm text-gray-400">
+                        {getImageCount(model)}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-400">
+                    {getStatusDisplay(model)}
+                  </div>
+                </div>
+              </SelectItem>
+            ))
+          )}
         </SelectContent>
       </Select>
 

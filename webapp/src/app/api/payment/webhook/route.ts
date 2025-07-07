@@ -1,15 +1,22 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import Stripe from 'stripe';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { type SupabaseClient } from '@supabase/supabase-js';
+import { createServiceClient } from '@/lib/supabase/server';
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-05-28.basil',
+  apiVersion: '2025-06-30.basil' as any,
 });
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+const isDev = process.env.NODE_ENV === 'development';
+
+function devLog(...args: any[]) {
+  if (isDev) {
+    console.log(...args);
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -18,6 +25,15 @@ export async function POST(request: Request) {
       console.error('Missing Stripe webhook secret. Please set STRIPE_WEBHOOK_SECRET environment variable.');
       return NextResponse.json(
         { error: 'Webhook secret not configured' },
+        { status: 500 }
+      );
+    }
+
+    // Ensure service role key is configured for webhook operations
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('Missing Supabase service role key. Please set SUPABASE_SERVICE_ROLE_KEY environment variable.');
+      return NextResponse.json(
+        { error: 'Service role key not configured' },
         { status: 500 }
       );
     }
@@ -38,10 +54,10 @@ export async function POST(request: Request) {
     let event: Stripe.Event;
     try {
       event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
-      console.log(`✅ Webhook signature verified for event type: ${event.type}`);
+      devLog(`Webhook: ${event.type} - ${event.id}`);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      console.error('⚠️ Webhook signature verification failed:', errorMessage);
+      console.error('Webhook signature verification failed:', errorMessage);
       
       // Return explicit 401 for authentication failures
       return NextResponse.json(
@@ -53,65 +69,63 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create Supabase client for database operations
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get: async name => (await cookies()).get(name)?.value,
-          set: () => {}, // We don't need to set cookies in this route handler
-          remove: () => {}, // We don't need to remove cookies in this route handler
-        },
-      }
-    );
-
-    // Log event information for debugging
-    console.log(`Processing webhook event: ${event.id}, type: ${event.type}`);
+    // Use centralized service client creation
+    const supabase = createServiceClient();
 
     // Handle different event types
     try {
       switch (event.type) {
+        case 'invoice.payment_succeeded': {
+          const invoice = event.data.object as Stripe.Invoice;
+          await handleSubscriptionPaymentSucceeded(invoice, supabase);
+          devLog(`Processed invoice.payment_succeeded: ${invoice.id}`);
+          break;
+        }
+
+        case 'customer.subscription.created':
+        case 'customer.subscription.updated': {
+          const subscription = event.data.object as Stripe.Subscription;
+          await handleSubscriptionEvent(subscription, supabase);
+          devLog(`Processed ${event.type}: ${subscription.id}`);
+          break;
+        }
+
+        case 'customer.subscription.deleted': {
+          const subscription = event.data.object as Stripe.Subscription;
+          await handleSubscriptionDeleted(subscription, supabase);
+          devLog(`Processed subscription deleted: ${subscription.id}`);
+          break;
+        }
+
         case 'payment_intent.succeeded': {
           const paymentIntent = event.data.object as Stripe.PaymentIntent;
-          await handlePaymentIntentSucceeded(paymentIntent, supabase);
-          console.log(`✅ Successfully processed payment_intent.succeeded for intent: ${paymentIntent.id}`);
+          await handleCreditPackPurchase(paymentIntent, supabase);
+          devLog(`Processed payment_intent.succeeded: ${paymentIntent.id}`);
           break;
         }
 
-        case 'payment_intent.payment_failed': {
-          const failedPaymentIntent = event.data.object as Stripe.PaymentIntent;
-          await handlePaymentIntentFailed(failedPaymentIntent, supabase);
-          console.log(`✅ Successfully processed payment_intent.payment_failed for intent: ${failedPaymentIntent.id}`);
-          break;
-        }
-
-        case 'checkout.session.completed': {
-          const session = event.data.object as Stripe.Checkout.Session;
-          await handleCheckoutSessionCompleted(session, supabase);
-          console.log(`✅ Successfully processed checkout.session.completed for session: ${session.id}`);
+        case 'product.updated':
+        case 'price.updated': {
+          // Clear cache when Stripe data changes
+          devLog(`Cache cleared due to ${event.type}`);
+          // Note: CreditService.clearCache() would be called here if accessible
           break;
         }
 
         default:
-          console.log(`Ignored unhandled event type: ${event.type}`);
+          devLog(`Ignored unhandled event type: ${event.type}`);
       }
     } catch (eventError) {
       // Log the error but don't fail the webhook - this prevents Stripe from retrying
-      // Ideally, this should be sent to an error monitoring service
       const errorMessage = eventError instanceof Error ? eventError.message : 'Unknown error';
-      console.error(`⚠️ Error processing webhook event ${event.type}:`, errorMessage);
+      console.error(`Error processing webhook event ${event.type}:`, errorMessage);
       
       if (eventError instanceof Error && eventError.stack) {
         console.error(eventError.stack);
       }
-      
-      // Consider adding custom error tracking here
-      // await logErrorToMonitoringService(event.id, event.type, errorMessage);
     }
 
     // Return a 200 success response to acknowledge receipt of the event
-    // We do this even if processing failed to prevent Stripe from retrying valid but unprocessable webhooks
     return NextResponse.json({ 
       received: true, 
       eventId: event.id, 
@@ -120,7 +134,7 @@ export async function POST(request: Request) {
   } catch (error) {
     // This is for unexpected errors in the overall webhook handling
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('🚨 Critical error handling webhook:', errorMessage);
+    console.error('Critical error handling webhook:', errorMessage);
     
     if (error instanceof Error && error.stack) {
       console.error(error.stack);
@@ -142,158 +156,279 @@ export const config = {
 };
 
 /**
- * Unified function to update payment status to succeeded
- * This eliminates duplicate code between different webhook handlers
+ * Handle subscription payment succeeded (invoice.payment_succeeded)
+ * Awards credits when subscription renews
  */
-async function updatePaymentToSucceeded(
-  orderId: string,
-  eventSourceId: string,
-  eventType: string,
-  supabase: ReturnType<typeof createServerClient>
+async function handleSubscriptionPaymentSucceeded(
+  invoice: Stripe.Invoice,
+  supabase: SupabaseClient
 ) {
-  console.log(`Processing successful payment for order: ${orderId}, event: ${eventType}, id: ${eventSourceId}`);
+  const customerId = (invoice as any).customer as string;
+  let subscriptionId = (invoice as any).subscription as string;
 
-  // Update order status to paid
-  const { error: orderError } = await supabase
-    .from('orders')
-    .update({
-      status: 'paid',
-      payment_status: 'succeeded',
-      updated_at: new Date().toISOString(),
-      metadata: {
-        last_payment_event: eventType,
-        payment_event_id: eventSourceId,
-        payment_processed_at: new Date().toISOString()
-      }
-    })
-    .eq('id', orderId);
-
-  if (orderError) {
-    console.error(`Error updating order status for order ${orderId}:`, orderError.message);
-    throw new Error(`Failed to update order status: ${orderError.message}`);
+  if (!customerId) {
+    console.error(`No customer ID in invoice ${invoice.id}`);
+    return;
   }
 
-  // Update styles in this order to processing
-  const { error: stylesError } = await supabase
-    .from('styles')
-    .update({
-      status: 'processing',
-      updated_at: new Date().toISOString(),
-    })
-    .eq('order_id', orderId);
+  // Process subscription payments (both initial and renewal)
+  const validBillingReasons = [
+    'subscription_create',
+    'subscription_cycle', 
+    'subscription_update',
+    'subscription_threshold',
+    'subscription'
+  ];
 
-  if (stylesError) {
-    console.error(`Error updating styles for order ${orderId}:`, stylesError.message);
-    // Continue despite style update error - it's less critical than the order status
+  if (!validBillingReasons.includes(invoice.billing_reason as string)) {
+    devLog(`Skipping invoice ${invoice.id} - billing reason: ${invoice.billing_reason}`);
+    return;
   }
 
-  // Get user ID from the order
-  const { data: order, error: fetchOrderError } = await supabase
-    .from('orders')
-    .select('user_id')
-    .eq('id', orderId)
+  // If no subscription ID in invoice, try to find by customer
+  if (!subscriptionId) {
+    const { data: subscriptions, error: lookupError } = await supabase
+      .from('user_subscriptions')
+      .select('stripe_subscription_id, user_id, stripe_price_id, plan_name, status')
+      .eq('stripe_customer_id', customerId)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (lookupError || !subscriptions || subscriptions.length === 0) {
+      console.error(`No active subscription found for customer ${customerId}:`, lookupError?.message);
+      return;
+    }
+
+    subscriptionId = subscriptions[0].stripe_subscription_id;
+  }
+
+  // Get user ID from subscription
+  const { data: subscription, error: subError } = await supabase
+    .from('user_subscriptions')
+    .select('user_id, stripe_price_id, plan_name')
+    .eq('stripe_subscription_id', subscriptionId)
     .single();
 
-  if (fetchOrderError) {
-    console.error(`Error fetching user_id for order ${orderId}:`, fetchOrderError.message);
-    return; // Skip user progress update if we can't get the user ID
-  }
-
-  if (order) {
-    // Update user progress to mark payment as completed
-    const { error: progressError } = await supabase
-      .from('user_progress')
-      .update({
-        completed_stages: supabase.sql`array_append(completed_stages, 'payment')`,
-        current_stage: 'albums',
-        last_active_at: new Date().toISOString(),
-      })
-      .eq('user_id', order.user_id);
-      
-    if (progressError) {
-      console.error(`Error updating user progress for user ${order.user_id}:`, progressError.message);
-    }
-  }
-}
-
-/**
- * Handle successful payment intent
- */
-async function handlePaymentIntentSucceeded(
-  paymentIntent: Stripe.PaymentIntent,
-  supabase: ReturnType<typeof createServerClient>
-) {
-  const orderId = paymentIntent.metadata?.orderId;
-  if (!orderId) {
-    console.error('No orderId found in payment intent metadata', paymentIntent.id);
+  if (subError || !subscription) {
+    console.error(`Error finding subscription ${subscriptionId}:`, subError?.message);
     return;
   }
 
-  await updatePaymentToSucceeded(
-    orderId, 
-    paymentIntent.id, 
-    'payment_intent.succeeded',
-    supabase
-  );
-}
+  // Get plan details from Stripe and process atomically
+  try {
+    const price = await stripe.prices.retrieve(subscription.stripe_price_id, {
+      expand: ['product']
+    });
 
-/**
- * Handle failed payment intent
- */
-async function handlePaymentIntentFailed(
-  paymentIntent: Stripe.PaymentIntent,
-  supabase: ReturnType<typeof createServerClient>
-) {
-  const orderId = paymentIntent.metadata?.orderId;
-  if (!orderId) {
-    console.error('No orderId found in failed payment intent metadata', paymentIntent.id);
-    return;
-  }
+    const product = price.product as Stripe.Product;
+    const creditsIncluded = parseInt(product.metadata.credits_included || '0');
 
-  console.log(`Processing failed payment for order: ${orderId}, payment intent: ${paymentIntent.id}`);
+    if (creditsIncluded > 0) {
+      // Calculate billing period dates
+      const period = (invoice as any).lines?.data?.[0]?.period;
+      const periodStart = period?.start 
+        ? new Date(period.start * 1000) 
+        : new Date();
+      const periodEnd = period?.end 
+        ? new Date(period.end * 1000) 
+        : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Default 30 days
 
-  // Get the error information
-  const lastPaymentError = paymentIntent.last_payment_error;
-  const errorMessage = lastPaymentError ? lastPaymentError.message : 'Unknown payment failure';
-  const errorCode = lastPaymentError?.code || 'unknown';
+      const description = `Credits from subscription ${invoice.billing_reason === 'subscription_create' ? 'activation' : 'renewal'} - ${subscription.plan_name}`;
+      const metadata = {
+        invoice_id: invoice.id,
+        billing_reason: invoice.billing_reason,
+        billing_period_start: periodStart.toISOString(),
+        billing_period_end: periodEnd.toISOString()
+      };
 
-  // Update order status to payment_failed
-  const { error: updateError } = await supabase
-    .from('orders')
-    .update({
-      payment_status: 'failed',
-      updated_at: new Date().toISOString(),
-      metadata: {
-        ...paymentIntent.metadata,
-        payment_error: errorMessage,
-        payment_error_code: errorCode,
-        payment_failure_timestamp: new Date().toISOString()
+      // Use atomic RPC function to update subscription and award credits
+      const { error: atomicError } = await supabase.rpc('award_subscription_credits', {
+        p_user_id: subscription.user_id,
+        p_subscription_id: subscriptionId,
+        p_credits: creditsIncluded,
+        p_expires_at: periodEnd.toISOString(),
+        p_period_start: periodStart.toISOString(),
+        p_period_end: periodEnd.toISOString(),
+        p_description: description,
+        p_metadata: metadata
+      });
+
+      if (atomicError) {
+        console.error(`Error in atomic subscription credit operation:`, atomicError.message);
+        throw new Error(`Failed to process subscription credits atomically: ${atomicError.message}`);
       }
-    })
-    .eq('id', orderId);
-    
-  if (updateError) {
-    console.error(`Error updating order status for failed payment ${orderId}:`, updateError.message);
+
+      devLog(`Atomically awarded ${creditsIncluded} credits to user ${subscription.user_id}`);
+    } else {
+      // Still update subscription periods even if no credits to award
+      const period = (invoice as any).lines?.data?.[0]?.period;
+      if (period) {
+        const periodStart = new Date(period.start * 1000).toISOString();
+        const periodEnd = new Date(period.end * 1000).toISOString();
+        
+        const { error: updateError } = await supabase
+          .from('user_subscriptions')
+          .update({
+            current_period_start: periodStart,
+            current_period_end: periodEnd,
+            updated_at: new Date().toISOString()
+          })
+          .eq('stripe_subscription_id', subscriptionId);
+
+        if (updateError) {
+          console.error(`Failed to update subscription periods:`, updateError.message);
+        }
+      }
+    }
+
+  } catch (stripeError) {
+    console.error('Error fetching plan details from Stripe:', stripeError);
+    throw new Error('Failed to process subscription payment');
   }
 }
 
 /**
- * Handle completed checkout session
+ * Handle subscription creation/update events
  */
-async function handleCheckoutSessionCompleted(
-  session: Stripe.Checkout.Session,
-  supabase: ReturnType<typeof createServerClient>
+async function handleSubscriptionEvent(
+  subscription: Stripe.Subscription,
+  supabase: SupabaseClient
 ) {
-  const orderId = session.metadata?.orderId;
-  if (!orderId) {
-    console.error('No orderId found in checkout session metadata', session.id);
+  if (!subscription.customer) {
+    console.error('Missing customer in subscription', subscription.id);
     return;
   }
 
-  await updatePaymentToSucceeded(
-    orderId,
-    session.id,
-    'checkout.session.completed',
-    supabase
-  );
+  const customerId = typeof subscription.customer === 'string'
+    ? subscription.customer
+    : subscription.customer.id;
+
+  // Get user ID from customer metadata
+  const customer = await stripe.customers.retrieve(customerId);
+  const userId = (customer as Stripe.Customer).metadata?.user_id;
+
+  if (!userId) {
+    console.error(`No user_id found in customer metadata for customer: ${customerId}`);
+    return;
+  }
+
+  const priceId = subscription.items.data[0]?.price.id;
+  if (!priceId) {
+    console.error('No price ID found in subscription items');
+    return;
+  }
+
+  // Get plan name from Stripe
+  const price = await stripe.prices.retrieve(priceId, {
+    expand: ['product']
+  });
+  const product = price.product as Stripe.Product;
+
+  // Use type-safe access to subscription period properties
+  const subscriptionWithPeriods = subscription as Stripe.Subscription & {
+    current_period_start?: number;
+    current_period_end?: number;
+  };
+
+  const currentPeriodStart = subscriptionWithPeriods.current_period_start 
+    ? new Date(subscriptionWithPeriods.current_period_start * 1000).toISOString() 
+    : null;
+
+  const currentPeriodEnd = subscriptionWithPeriods.current_period_end 
+    ? new Date(subscriptionWithPeriods.current_period_end * 1000).toISOString() 
+    : null;
+
+  // Use atomic RPC function to upsert subscription record
+  const { error } = await supabase.rpc('upsert_subscription', {
+    p_user_id: userId,
+    p_stripe_subscription_id: subscription.id,
+    p_stripe_customer_id: customerId,
+    p_stripe_price_id: priceId,
+    p_plan_name: product.metadata.plan_name || '',
+    p_status: subscription.status,
+    p_current_period_start: currentPeriodStart,
+    p_current_period_end: currentPeriodEnd,
+    p_cancel_at_period_end: subscription.cancel_at_period_end || false
+  });
+
+  if (error) {
+    console.error('Error in atomic subscription upsert:', error.message);
+    throw new Error(`Failed to update subscription atomically: ${error.message}`);
+  }
+}
+
+/**
+ * Handle subscription deletion
+ */
+async function handleSubscriptionDeleted(
+  subscription: Stripe.Subscription,
+  supabase: SupabaseClient
+) {
+  // Update subscription status to canceled
+  const { error } = await supabase
+    .from('user_subscriptions')
+    .update({
+      status: 'canceled',
+      updated_at: new Date().toISOString()
+    })
+    .eq('stripe_subscription_id', subscription.id);
+
+  if (error) {
+    console.error('Error updating canceled subscription:', error.message);
+    throw new Error(`Failed to update canceled subscription: ${error.message}`);
+  }
+}
+
+/**
+ * Handle credit pack purchase (payment_intent.succeeded)
+ */
+async function handleCreditPackPurchase(
+  paymentIntent: Stripe.PaymentIntent,
+  supabase: SupabaseClient
+) {
+  // Check if this is a credit pack purchase
+  if (paymentIntent.metadata?.pack_type !== 'credit_pack') {
+    devLog(`Skipping payment intent ${paymentIntent.id} - not a credit pack purchase`);
+    return;
+  }
+
+  const userId = paymentIntent.metadata?.user_id;
+  const credits = parseInt(paymentIntent.metadata?.credits || '0');
+  const validityDays = parseInt(paymentIntent.metadata?.validity_days || '60');
+
+  if (!userId || !credits) {
+    console.error('Missing user_id or credits in payment intent metadata', paymentIntent.id);
+    return;
+  }
+
+  // Calculate expiry date (60 days from purchase)
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + validityDays);
+
+  const description = `Credits from credit pack purchase - ${credits} credits`;
+  const metadata = {
+    payment_intent_id: paymentIntent.id,
+    amount_paid: paymentIntent.amount,
+    validity_days: validityDays
+  };
+
+  // Use atomic RPC function to record purchase and award credits
+  const { error: atomicError } = await supabase.rpc('process_credit_pack_purchase', {
+    p_user_id: userId,
+    p_payment_intent_id: paymentIntent.id,
+    p_price_id: paymentIntent.metadata?.price_id || '',
+    p_credits: credits,
+    p_amount_paid: paymentIntent.amount,
+    p_expires_at: expiresAt.toISOString(),
+    p_description: description,
+    p_metadata: metadata
+  });
+
+  if (atomicError) {
+    console.error('Error in atomic credit pack purchase operation:', atomicError.message);
+    throw new Error(`Failed to process credit pack purchase atomically: ${atomicError.message}`);
+  }
+
+  devLog(`Atomically processed credit pack purchase: ${credits} credits awarded to user ${userId}`);
 } 

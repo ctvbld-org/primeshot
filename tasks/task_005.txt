@@ -1,11 +1,11 @@
 # Task ID: 5
-# Title: Build generation controls panel
+# Title: Refactor LoRA selector component
 # Status: pending
 # Dependencies: 1
 # Priority: medium
-# Description: Create the unified control panel for generation parameters and the primary generation button.
+# Description: Extract and adapt the face model selector to work in the new single-page layout with status indicators.
 # Details:
-Build a control panel component with dropdowns for batch size (takes), aspect ratio, and quality settings. Implement the primary 'Generate' button that shows cost in credits. Add validation logic to disable the button when prerequisites aren't met (not logged in, no LoRA ready, insufficient credits). Reuse existing UI primitives for dropdowns and buttons. Connect controls to application state to prepare for generation API calls.
+Extract `FaceModelSelector` from `components/create/face_models.tsx`. Maintain WebSocket progress logic for LoRA training status. Implement dropdown with avatar and live progress indicators. Add 'Create/manage models' link that navigates to LoRA creation flow. Ensure automatic selection of default/last used LoRA persists. Handle edge cases like no available LoRAs or in-progress training.
 
 # Test Strategy:
-Test button state under various user conditions (logged out, no credits, etc.). Verify parameter selection correctly updates state. Test responsive behavior of control panel on different screen sizes.
+Unit test selection behavior and WebSocket connection handling. Verify status indicators update correctly. Test edge cases including no available models and models in various states (training, failed, ready).

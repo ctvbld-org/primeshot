@@ -26,11 +26,14 @@ Start every workspace that has a `dev` script (webapp, website **and** the TypeS
 npx turbo run dev          # parallel, cached, cross-workspace
 ```
 
+**Note**: The webapp dev server now automatically starts the Stripe webhook listener alongside Next.js for complete local development.
+
 Common scenarios:
 
 | Command                                   | What it does                                   |
 |-------------------------------------------|------------------------------------------------|
-| `npx turbo run dev --filter=webapp`       | Run only the webapp Next.js dev server         |
+| `npx turbo run dev --filter=webapp`       | Run webapp with Next.js + Stripe webhook listener |
+| `npm run dev:no-stripe --workspace=webapp` | Run only webapp Next.js dev server (no webhooks) |
 | `npm run watch --workspace=@primeshot/common` | Re-compile `common` on file save               |
 | `npx turbo run build`                     | Production build for every package             |
 

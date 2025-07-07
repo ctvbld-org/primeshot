@@ -1,11 +1,11 @@
 # Task ID: 4
-# Title: Refactor LoRA selector component
-# Status: pending
-# Dependencies: 1
-# Priority: medium
-# Description: Extract and adapt the face model selector to work in the new single-page layout with status indicators.
+# Title: Implement floating option buttons and modals
+# Status: in-progress
+# Dependencies: 2
+# Priority: high
+# Description: Create the floating button system that anchors to the current carousel slide and opens modal option pickers.
 # Details:
-Extract `FaceModelSelector` from `components/create/face_models.tsx`. Maintain WebSocket progress logic for LoRA training status. Implement dropdown with avatar and live progress indicators. Add 'Create/manage models' link that navigates to LoRA creation flow. Ensure automatic selection of default/last used LoRA persists. Handle edge cases like no available LoRAs or in-progress training.
+Create a generic `OptionModal` component that can be reused for different option types. Refactor existing selectors (`background-image-selector.tsx`, `clothing-image-selector.tsx`, `clothing-color-selector.module.css`) to work as uncontrolled components within the modal. Implement the floating button UI that stays anchored to the current carousel slide. Connect modal state to application state store to update when modal closes. Ensure proper z-index management and animation transitions.
 
 # Test Strategy:
-Unit test selection behavior and WebSocket connection handling. Verify status indicators update correctly. Test edge cases including no available models and models in various states (training, failed, ready).
+Test modal opening/closing behavior. Verify option selection correctly updates application state. Test button anchoring during carousel swipes. Ensure accessibility standards are met for modal dialogs.

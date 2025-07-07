@@ -1,134 +1,136 @@
 {
-  "tasks": [
-    {
-      "id": 1,
-      "title": "Set up single-page layout structure",
-      "description": "Create the foundational layout for the new single-page UX with responsive design for mobile and desktop.",
-      "status": "in-progress",
-      "dependencies": [],
-      "priority": "high",
-      "details": "Create a new page component at `src/pages/index.tsx` that implements the layout structure from the PRD. Include placeholder sections for: Styles Carousel, Floating Option Buttons, LoRA Selector, Generation Controls, and Gallery. Ensure responsive behavior with mobile-first approach where components stack vertically on smaller screens. Set up the necessary context providers for state management across components. Implement feature flag to toggle between old and new UX.",
-      "testStrategy": "Visual testing across multiple device sizes (mobile, tablet, desktop). Verify layout matches design spec with correct component placement and stacking behavior."
-    },
-    {
-      "id": 2,
-      "title": "Refactor Styles Carousel component",
-      "description": "Extract and adapt the existing styles carousel to work as a standalone component with event emission.",
-      "status": "pending",
-      "dependencies": [
-        1
-      ],
-      "priority": "high",
-      "details": "Extract carousel from `/styles` page into a reusable component. Remove the 'Customize' button. Add swipe events and implement a context provider that emits style change events. Make sure the carousel maintains the current style selection state. Ensure carousel is responsive and anchors the floating option buttons to the current slide. Reuse existing styling but adapt for the new layout context.",
-      "testStrategy": "Unit test style selection events. Visual regression testing to ensure carousel appears and behaves identically to the existing one. Test swipe and scroll behaviors on touch and non-touch devices."
-    },
-    {
-      "id": 3,
-      "title": "Implement floating option buttons and modals",
-      "description": "Create the floating button system that anchors to the current carousel slide and opens modal option pickers.",
-      "status": "pending",
-      "dependencies": [
-        2
-      ],
-      "priority": "high",
-      "details": "Create a generic `OptionModal` component that can be reused for different option types. Refactor existing selectors (`background-image-selector.tsx`, `clothing-image-selector.tsx`, `clothing-color-selector.module.css`) to work as uncontrolled components within the modal. Implement the floating button UI that stays anchored to the current carousel slide. Connect modal state to application state store to update when modal closes. Ensure proper z-index management and animation transitions.",
-      "testStrategy": "Test modal opening/closing behavior. Verify option selection correctly updates application state. Test button anchoring during carousel swipes. Ensure accessibility standards are met for modal dialogs."
-    },
-    {
-      "id": 4,
-      "title": "Refactor LoRA selector component",
-      "description": "Extract and adapt the face model selector to work in the new single-page layout with status indicators.",
-      "status": "pending",
-      "dependencies": [
-        1
-      ],
-      "priority": "medium",
-      "details": "Extract `FaceModelSelector` from `components/create/face_models.tsx`. Maintain WebSocket progress logic for LoRA training status. Implement dropdown with avatar and live progress indicators. Add 'Create/manage models' link that navigates to LoRA creation flow. Ensure automatic selection of default/last used LoRA persists. Handle edge cases like no available LoRAs or in-progress training.",
-      "testStrategy": "Unit test selection behavior and WebSocket connection handling. Verify status indicators update correctly. Test edge cases including no available models and models in various states (training, failed, ready)."
-    },
-    {
-      "id": 5,
-      "title": "Build generation controls panel",
-      "description": "Create the unified control panel for generation parameters and the primary generation button.",
-      "status": "pending",
-      "dependencies": [
-        1
-      ],
-      "priority": "medium",
-      "details": "Build a control panel component with dropdowns for batch size (takes), aspect ratio, and quality settings. Implement the primary 'Generate' button that shows cost in credits. Add validation logic to disable the button when prerequisites aren't met (not logged in, no LoRA ready, insufficient credits). Reuse existing UI primitives for dropdowns and buttons. Connect controls to application state to prepare for generation API calls.",
-      "testStrategy": "Test button state under various user conditions (logged out, no credits, etc.). Verify parameter selection correctly updates state. Test responsive behavior of control panel on different screen sizes."
-    },
-    {
-      "id": 6,
-      "title": "Integrate gallery with WebSocket updates",
-      "description": "Adapt the existing album gallery to show generated images with live updates via WebSocket.",
-      "status": "pending",
-      "dependencies": [
-        1
-      ],
-      "priority": "medium",
-      "details": "Reuse the existing album card grid from `/albums` page. Implement placeholder states for empty gallery and unauthenticated users. Set up WebSocket listener to receive real-time updates from inference jobs. Implement masonry grid layout that updates dynamically as new images arrive. Add loading states and error handling for failed generations. Include functionality to download or share generated images.",
-      "testStrategy": "Test WebSocket connection establishment and reconnection logic. Verify gallery updates correctly when new images arrive. Test placeholder states and transitions. Ensure responsive behavior of gallery grid on different screen sizes."
-    },
-    {
-      "id": 7,
-      "title": "Implement ComfyUI inference backend on Modal",
-      "description": "Set up the serverless inference backend using ComfyUI workflows on Modal.",
-      "status": "pending",
-      "dependencies": [],
-      "priority": "high",
-      "details": "Finalize ComfyUI workflows (*.json) for each combination of style/ratio/quality. Build Modal HTTP endpoint `/inference/start` that accepts generation parameters. Implement WebSocket channel for job progress and partial output streaming. Create Supabase function `inference-start` to trigger Modal. Set up proper error handling and retry logic. Ensure efficient resource utilization with container pre-warming and auto-scaling.",
-      "testStrategy": "Load test inference endpoint with various parameter combinations. Measure cold start and warm execution times. Verify WebSocket streaming works correctly. Test error cases and ensure proper error messages are returned."
-    },
-    {
-      "id": 8,
-      "title": "Develop credit-based payment system",
-      "description": "Implement the credit system for monetizing image generation with Stripe integration.",
-      "status": "pending",
-      "dependencies": [
-        7
-      ],
-      "priority": "high",
-      "details": "Design Stripe products for credit packs and subscription options. Implement purchase flow using Stripe Checkout. Set up Stripe webhooks to handle successful payments. Create Supabase `credits` table with proper RLS policies. Implement middleware to check credit availability before generation. Add credit deduction logic that executes immediately on generation request. Implement refund mechanism for failed generations. Create admin dashboard for monitoring credit usage.",
-      "testStrategy": "Test complete purchase flow in Stripe test mode. Verify webhooks correctly update user credits. Test credit deduction and refund logic. Ensure proper error handling for insufficient credits and failed payments."
-    },
-    {
-      "id": 9,
-      "title": "Connect frontend to inference and payment backends",
-      "description": "Integrate the single-page UI with the inference and payment systems.",
-      "status": "pending",
-      "dependencies": [
-        5,
-        6,
-        7,
-        8
-      ],
-      "priority": "medium",
-      "details": "Connect generation button to the inference API endpoint. Implement credit check before generation. Set up WebSocket connection to receive generation progress and results. Update UI to show remaining credits and generation status. Implement error handling for various failure scenarios. Add buy credits flow when user has insufficient credits. Create smooth transitions between states (selecting options, generating, viewing results).",
-      "testStrategy": "End-to-end testing of the complete generation flow. Verify credit deduction and WebSocket updates work correctly. Test error scenarios and ensure appropriate messages are displayed. Verify buy credits flow redirects correctly to Stripe."
-    },
-    {
-      "id": 10,
-      "title": "Implement route migration and feature flag rollout",
-      "description": "Set up route redirections and gradual rollout of the new single-page experience.",
-      "status": "pending",
-      "dependencies": [
-        2,
-        3,
-        4,
-        5,
-        6,
-        9
-      ],
-      "priority": "low",
-      "details": "Implement redirects from existing routes (`/styles`, `/upload`, etc.) to the new home page (`/`). Ensure redirects maintain state and pass necessary parameters. Set up feature flag system to gradually roll out the new UI to users. Implement canary release strategy with percentage-based rollout. Add analytics to track key metrics (time-to-first-image, support ticket reduction). Create rollback mechanism in case of critical issues. Conduct performance optimization to meet Lighthouse score targets (≥90 desktop, ≥80 mobile).",
-      "testStrategy": "Test all redirect routes to ensure they maintain proper state. Verify feature flag system correctly shows new or old UI based on configuration. Run Lighthouse audits to verify performance metrics. Conduct cross-browser and cross-device testing to ensure consistent experience."
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Set up single-page layout structure",
+        "description": "Create the foundational layout for the new single-page UX with responsive design for mobile and desktop.",
+        "status": "done",
+        "dependencies": [],
+        "priority": "high",
+        "details": "Create a new page component at `src/pages/index.tsx` that implements the layout structure from the PRD. Include placeholder sections for: Styles Carousel, Floating Option Buttons, LoRA Selector, Generation Controls, and Gallery. Ensure responsive behavior with mobile-first approach where components stack vertically on smaller screens. Set up the necessary context providers for state management across components. Implement feature flag to toggle between old and new UX.",
+        "testStrategy": "Visual testing across multiple device sizes (mobile, tablet, desktop). Verify layout matches design spec with correct component placement and stacking behavior."
+      },
+      {
+        "id": 2,
+        "title": "Refactor Styles Carousel component",
+        "description": "Extract and adapt the existing styles carousel to work as a standalone component with event emission.",
+        "status": "done",
+        "dependencies": [
+          1
+        ],
+        "priority": "high",
+        "details": "Extract carousel from `/styles` page into a reusable component. Remove the 'Customize' button. Add swipe events and implement a context provider that emits style change events. Make sure the carousel maintains the current style selection state. Ensure carousel is responsive and anchors the floating option buttons to the current slide. Reuse existing styling but adapt for the new layout context.",
+        "testStrategy": "Unit test style selection events. Visual regression testing to ensure carousel appears and behaves identically to the existing one. Test swipe and scroll behaviors on touch and non-touch devices."
+      },
+      {
+        "id": 3,
+        "title": "Develop credit-based payment system",
+        "description": "Implement the credit system for monetizing image generation with Stripe integration.",
+        "status": "pending",
+        "dependencies": [
+          8
+        ],
+        "priority": "high",
+        "details": "Design Stripe products for credit packs and subscription options. Implement purchase flow using Stripe Checkout. Set up Stripe webhooks to handle successful payments. Create Supabase `credits` table with proper RLS policies. Implement middleware to check credit availability before generation. Add credit deduction logic that executes immediately on generation request. Implement refund mechanism for failed generations. Create admin dashboard for monitoring credit usage.",
+        "testStrategy": "Test complete purchase flow in Stripe test mode. Verify webhooks correctly update user credits. Test credit deduction and refund logic. Ensure proper error handling for insufficient credits and failed payments."
+      },
+      {
+        "id": 4,
+        "title": "Implement floating option buttons and modals",
+        "description": "Create the floating button system that anchors to the current carousel slide and opens modal option pickers.",
+        "status": "in-progress",
+        "dependencies": [
+          2
+        ],
+        "priority": "high",
+        "details": "Create a generic `OptionModal` component that can be reused for different option types. Refactor existing selectors (`background-image-selector.tsx`, `clothing-image-selector.tsx`, `clothing-color-selector.module.css`) to work as uncontrolled components within the modal. Implement the floating button UI that stays anchored to the current carousel slide. Connect modal state to application state store to update when modal closes. Ensure proper z-index management and animation transitions.",
+        "testStrategy": "Test modal opening/closing behavior. Verify option selection correctly updates application state. Test button anchoring during carousel swipes. Ensure accessibility standards are met for modal dialogs."
+      },
+      {
+        "id": 5,
+        "title": "Refactor LoRA selector component",
+        "description": "Extract and adapt the face model selector to work in the new single-page layout with status indicators.",
+        "status": "pending",
+        "dependencies": [
+          1
+        ],
+        "priority": "medium",
+        "details": "Extract `FaceModelSelector` from `components/create/face_models.tsx`. Maintain WebSocket progress logic for LoRA training status. Implement dropdown with avatar and live progress indicators. Add 'Create/manage models' link that navigates to LoRA creation flow. Ensure automatic selection of default/last used LoRA persists. Handle edge cases like no available LoRAs or in-progress training.",
+        "testStrategy": "Unit test selection behavior and WebSocket connection handling. Verify status indicators update correctly. Test edge cases including no available models and models in various states (training, failed, ready)."
+      },
+      {
+        "id": 6,
+        "title": "Build generation controls panel",
+        "description": "Create the unified control panel for generation parameters and the primary generation button.",
+        "status": "pending",
+        "dependencies": [
+          1
+        ],
+        "priority": "medium",
+        "details": "Build a control panel component with dropdowns for batch size (takes), aspect ratio, and quality settings. Implement the primary 'Generate' button that shows cost in credits. Add validation logic to disable the button when prerequisites aren't met (not logged in, no LoRA ready, insufficient credits). Reuse existing UI primitives for dropdowns and buttons. Connect controls to application state to prepare for generation API calls.",
+        "testStrategy": "Test button state under various user conditions (logged out, no credits, etc.). Verify parameter selection correctly updates state. Test responsive behavior of control panel on different screen sizes."
+      },
+      {
+        "id": 7,
+        "title": "Integrate gallery with WebSocket updates",
+        "description": "Adapt the existing album gallery to show generated images with live updates via WebSocket.",
+        "status": "pending",
+        "dependencies": [
+          1
+        ],
+        "priority": "medium",
+        "details": "Reuse the existing album card grid from `/albums` page. Implement placeholder states for empty gallery and unauthenticated users. Set up WebSocket listener to receive real-time updates from inference jobs. Implement masonry grid layout that updates dynamically as new images arrive. Add loading states and error handling for failed generations. Include functionality to download or share generated images.",
+        "testStrategy": "Test WebSocket connection establishment and reconnection logic. Verify gallery updates correctly when new images arrive. Test placeholder states and transitions. Ensure responsive behavior of gallery grid on different screen sizes."
+      },
+      {
+        "id": 8,
+        "title": "Implement ComfyUI inference backend on Modal",
+        "description": "Set up the serverless inference backend using ComfyUI workflows on Modal.",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "details": "Finalize ComfyUI workflows (*.json) for each combination of style/ratio/quality. Build Modal HTTP endpoint `/inference/start` that accepts generation parameters. Implement WebSocket channel for job progress and partial output streaming. Create Supabase function `inference-start` to trigger Modal. Set up proper error handling and retry logic. Ensure efficient resource utilization with container pre-warming and auto-scaling.",
+        "testStrategy": "Load test inference endpoint with various parameter combinations. Measure cold start and warm execution times. Verify WebSocket streaming works correctly. Test error cases and ensure proper error messages are returned."
+      },
+      {
+        "id": 9,
+        "title": "Connect frontend to inference and payment backends",
+        "description": "Integrate the single-page UI with the inference and payment systems.",
+        "status": "pending",
+        "dependencies": [
+          6,
+          7,
+          8,
+          3
+        ],
+        "priority": "medium",
+        "details": "Connect generation button to the inference API endpoint. Implement credit check before generation. Set up WebSocket connection to receive generation progress and results. Update UI to show remaining credits and generation status. Implement error handling for various failure scenarios. Add buy credits flow when user has insufficient credits. Create smooth transitions between states (selecting options, generating, viewing results).",
+        "testStrategy": "End-to-end testing of the complete generation flow. Verify credit deduction and WebSocket updates work correctly. Test error scenarios and ensure appropriate messages are displayed. Verify buy credits flow redirects correctly to Stripe."
+      },
+      {
+        "id": 10,
+        "title": "Implement route migration and feature flag rollout",
+        "description": "Set up route redirections and gradual rollout of the new single-page experience.",
+        "status": "pending",
+        "dependencies": [
+          2,
+          4,
+          5,
+          6,
+          7,
+          9
+        ],
+        "priority": "low",
+        "details": "Implement redirects from existing routes (`/styles`, `/upload`, etc.) to the new home page (`/`). Ensure redirects maintain state and pass necessary parameters. Set up feature flag system to gradually roll out the new UI to users. Implement canary release strategy with percentage-based rollout. Add analytics to track key metrics (time-to-first-image, support ticket reduction). Create rollback mechanism in case of critical issues. Conduct performance optimization to meet Lighthouse score targets (≥90 desktop, ≥80 mobile).",
+        "testStrategy": "Test all redirect routes to ensure they maintain proper state. Verify feature flag system correctly shows new or old UI based on configuration. Run Lighthouse audits to verify performance metrics. Conduct cross-browser and cross-device testing to ensure consistent experience."
+      }
+    ],
+    "metadata": {
+      "projectName": "Single-Page Image Generation & LoRA Management Refactor",
+      "totalTasks": 10,
+      "sourceFile": "PRD.md",
+      "generatedAt": "2023-11-09"
     }
-  ],
-  "metadata": {
-    "projectName": "Single-Page Image Generation & LoRA Management Refactor",
-    "totalTasks": 10,
-    "sourceFile": "PRD.md",
-    "generatedAt": "2023-11-09"
   }
 }

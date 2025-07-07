@@ -1,11 +1,11 @@
 # Task ID: 6
-# Title: Integrate gallery with WebSocket updates
+# Title: Build generation controls panel
 # Status: pending
 # Dependencies: 1
 # Priority: medium
-# Description: Adapt the existing album gallery to show generated images with live updates via WebSocket.
+# Description: Create the unified control panel for generation parameters and the primary generation button.
 # Details:
-Reuse the existing album card grid from `/albums` page. Implement placeholder states for empty gallery and unauthenticated users. Set up WebSocket listener to receive real-time updates from inference jobs. Implement masonry grid layout that updates dynamically as new images arrive. Add loading states and error handling for failed generations. Include functionality to download or share generated images.
+Build a control panel component with dropdowns for batch size (takes), aspect ratio, and quality settings. Implement the primary 'Generate' button that shows cost in credits. Add validation logic to disable the button when prerequisites aren't met (not logged in, no LoRA ready, insufficient credits). Reuse existing UI primitives for dropdowns and buttons. Connect controls to application state to prepare for generation API calls.
 
 # Test Strategy:
-Test WebSocket connection establishment and reconnection logic. Verify gallery updates correctly when new images arrive. Test placeholder states and transitions. Ensure responsive behavior of gallery grid on different screen sizes.
+Test button state under various user conditions (logged out, no credits, etc.). Verify parameter selection correctly updates state. Test responsive behavior of control panel on different screen sizes.

@@ -1,23 +1,32 @@
 # Active Context
 
 ## Current Focus
-The project is in its initial setup phase, focusing on establishing the core infrastructure and development patterns.
+Implementing a subscription-based credit system to replace the pay-per-order model. This is a major architectural shift requiring database schema changes, new payment flows, and complete frontend redesign.
 
 ## Recent Changes
-1. **Project Structure**
-   - Established Next.js 13+ app directory structure
-   - Set up Supabase integration
-   - Implemented Shadcn/UI components
+1. **Credit System Implementation** ✅
+   - Created comprehensive database schema for subscriptions and credits
+   - Implemented centralized CreditService for all credit operations
+   - Built Stripe checkout integration for subscriptions and credit packs
+   - Updated webhook handlers for subscription and credit pack processing
 
-2. **Authentication**
-   - Implemented Supabase authentication
-   - Added protected routes
-   - Set up user context
+2. **Database Schema** ✅
+   - `user_subscriptions` table for tracking active subscriptions
+   - `user_credits` table for credit balance and transaction history
+   - SQL functions for credit management (spend, award, balance calculation)
+   - Comprehensive indexing and RLS policies
 
-3. **Development Environment**
-   - Configured Cursor IDE
-   - Established coding rules
-   - Set up memory bank structure
+3. **Backend Services** ✅
+   - CreditService with full CRUD operations
+   - Updated inference and training functions to use credit system
+   - Stripe price validation against metadata
+   - Credit expiration and FIFO consumption logic
+
+4. **Frontend Components** ✅
+   - SubscriptionPricing component with three tiers
+   - CreditPackPricing component for one-time purchases
+   - CreditDashboard for user credit management
+   - Integration with existing auth system
 
 ## Active Decisions
 
@@ -89,21 +98,21 @@ The project is in its initial setup phase, focusing on establishing the core inf
 
 ## Next Steps
 
-### Immediate Tasks
-1. **Infrastructure**
-   - Complete Supabase setup
-   - Configure deployment pipeline
-   - Set up monitoring
+### Immediate Tasks ⚠️ (Still Required)
+1. **Stripe Configuration**
+   - Create subscription products in Stripe Dashboard
+   - Configure pricing with metadata for credit allocation
+   - Set up webhook endpoints in Stripe
 
-2. **Frontend Development**
-   - Implement core components
-   - Set up routing structure
-   - Add authentication UI
+2. **API Routes** 
+   - `/api/credits/balance` - Get user credit balance
+   - `/api/credits/transactions` - Get credit transaction history
+   - `/api/subscription/current` - Get subscription info
 
-3. **Backend Development**
-   - Create database schema
-   - Implement RLS policies
-   - Set up Edge Functions
+3. **Integration Testing**
+   - Test full subscription flow end-to-end
+   - Verify credit consumption in inference/training
+   - Test credit expiration logic
 
 ### Upcoming Features
 1. **User Management**
