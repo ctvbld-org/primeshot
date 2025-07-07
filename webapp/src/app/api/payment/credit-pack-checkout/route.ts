@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     const product = price.product as Stripe.Product
 
     // Validate it's a credit pack
-    if (product.metadata.pack_type !== 'credit_pack') {
+    if (product.metadata.tier_type !== 'credit_pack') {
       return NextResponse.json(
         { error: 'Invalid credit pack product' },
         { status: 400 }

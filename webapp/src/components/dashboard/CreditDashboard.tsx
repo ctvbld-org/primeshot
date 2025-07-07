@@ -16,7 +16,7 @@ import {
   Plus
 } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
-import { useRouter } from 'next/navigation'
+import { useOpenCreditPackDialog } from '@/hooks/useOpenCreditPackDialog'
 
 interface CreditTransaction {
   id: string
@@ -48,7 +48,7 @@ export function CreditDashboard({ className }: CreditDashboardProps) {
   const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null)
   const [transactions, setTransactions] = useState<CreditTransaction[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
+  const openCreditPackDialog = useOpenCreditPackDialog()
 
   useEffect(() => {
     fetchCreditData()
@@ -146,7 +146,7 @@ export function CreditDashboard({ className }: CreditDashboardProps) {
   }
 
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div className={className}>
       {/* Credit Balance Card */}
       <Card>
         <CardHeader>
@@ -165,7 +165,7 @@ export function CreditDashboard({ className }: CreditDashboardProps) {
               <div className="text-sm text-muted-foreground">credits available</div>
             </div>
             <Button 
-              onClick={() => router.push('/pricing')}
+              onClick={() => openCreditPackDialog()}
               variant="outline"
               className="flex items-center gap-2"
             >

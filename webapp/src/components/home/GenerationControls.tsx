@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
 import { useCreditGuard } from '@/hooks/useCreditGuard'
 import { BATCH_PRICING, CREDIT_COSTS, ResolutionType } from '@/lib/constants/pricing'
+import type { GenerationIntent } from '@/hooks/useGenerationIntent'
 
 export function GenerationControls() {
   // Local UI state
@@ -35,8 +36,23 @@ export function GenerationControls() {
     }
   }
 
+  // Listen for generation intent events
+  useEffect(() => {
+    const handleGenerationIntent = (event: CustomEvent<GenerationIntent>) => {
+      console.log('Received generation intent event:', event.detail)
+      // Execute the generation with the saved intent parameters
+      handleGenerate()
+    }
+
+    window.addEventListener('execute-generation-intent', handleGenerationIntent as EventListener)
+
+    return () => {
+      window.removeEventListener('execute-generation-intent', handleGenerationIntent as EventListener)
+    }
+  }, [handleGenerate])
+
   return (
-    <div className="flex flex-col md:flex-row items-center md:space-x-4 space-y-2 md:space-y-0 border border-dashed border-gray-500 p-4 rounded-md w-full md:w-auto">
+    <div className="flex flex-col md:flex-row items-center md:space-x-4 space-y-2 md:space-y-0 w-full md:w-auto">
       {/* Batch size selection */}
       <select
         className="bg-gray-800 text-white p-2 rounded-md text-sm"

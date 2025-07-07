@@ -163,7 +163,6 @@ export const config = {
 /**
  * Handle subscription payment succeeded (invoice.payment_succeeded)
  * Awards credits when subscription renews
- * Enhanced to handle cases where invoice doesn't include subscription ID
  */
 async function handleSubscriptionPaymentSucceeded(
   invoice: Stripe.Invoice,
@@ -174,50 +173,40 @@ async function handleSubscriptionPaymentSucceeded(
   console.log(`💰 Invoice total: ${invoice.total}`);
   console.log(`👤 Customer ID: ${invoice.customer}`);
   console.log(`📝 Subscription ID: ${(invoice as any).subscription}`);
+  
+  // 🚨 ADD THESE DEBUG LINES
+  console.log(`🧾 Full invoice data:`, JSON.stringify({
+    id: invoice.id,
+    subscription: (invoice as any).subscription,
+    billing_reason: invoice.billing_reason,
+    payment_intent: (invoice as any).payment_intent,
+    lines: (invoice as any).lines?.data?.map((line: any) => ({
+      price_id: line.price?.id,
+      product_id: line.price?.product,
+      description: line.description,
+      type: line.price?.type
+    }))
+  }, null, 2));
+
+  const subscriptionId = (invoice as any).subscription as string;
+  
+  if (!subscriptionId) {
+    console.log(`🚨 CRITICAL: Invoice ${invoice.id} has NO subscription ID!`);
+    console.log(`   This is likely a ONE-TIME PAYMENT, not a subscription.`);
+    console.log(`   Billing reason: ${invoice.billing_reason}`);
+    
+    // If this is a credit pack purchase, it should be handled by payment_intent.succeeded instead
+    console.log(`💡 Suggestion: Check if this payment should be handled as a credit pack purchase`);
+    return;
+  }
 
   const customerId = (invoice as any).customer as string;
-  let subscriptionId = (invoice as any).subscription as string;
 
-  if (!customerId) {
-    console.error(`❌ No customer ID in invoice ${invoice.id}`);
+  if (!subscriptionId || !customerId) {
+    console.error(`❌ Missing subscription or customer in invoice ${invoice.id}`);
+    console.error(`   - Subscription ID: ${subscriptionId}`);
+    console.error(`   - Customer ID: ${customerId}`);
     return;
-  }
-
-  // Process subscription payments (both initial and renewal)
-  const validBillingReasons = [
-    'subscription_create',
-    'subscription_cycle', 
-    'subscription_update',
-    'subscription_threshold',
-    'subscription'
-  ];
-
-  if (!validBillingReasons.includes(invoice.billing_reason as string)) {
-    console.log(`⏭️  Skipping invoice ${invoice.id} - billing reason: ${invoice.billing_reason} (not a subscription payment)`);
-    return;
-  }
-
-  console.log(`✅ Invoice ${invoice.id} is a subscription payment (billing_reason: ${invoice.billing_reason})`);
-
-  // If no subscription ID in invoice, try to find by customer
-  if (!subscriptionId) {
-    console.log(`🔍 No subscription ID in invoice, looking up by customer ${customerId}...`);
-    
-    const { data: subscriptions, error: lookupError } = await supabase
-      .from('user_subscriptions')
-      .select('stripe_subscription_id, user_id, stripe_price_id, plan_name, status')
-      .eq('stripe_customer_id', customerId)
-      .eq('status', 'active')
-      .order('created_at', { ascending: false })
-      .limit(1);
-
-    if (lookupError || !subscriptions || subscriptions.length === 0) {
-      console.error(`❌ No active subscription found for customer ${customerId}:`, lookupError?.message);
-      return;
-    }
-
-    subscriptionId = subscriptions[0].stripe_subscription_id;
-    console.log(`✅ Found subscription ${subscriptionId} for customer ${customerId}`);
   }
 
   console.log(`🔍 Looking up subscription ${subscriptionId} in database...`);
@@ -231,35 +220,11 @@ async function handleSubscriptionPaymentSucceeded(
 
   if (subError || !subscription) {
     console.error(`❌ Error finding subscription ${subscriptionId}:`, subError?.message);
+    console.error(`   - Subscription data:`, subscription);
     return;
   }
 
   console.log(`✅ Found subscription for user ${subscription.user_id}, plan: ${subscription.plan_name}`);
-
-  // Update subscription periods if they're missing
-  if ((invoice as any).lines?.data?.[0]?.period) {
-    const period = (invoice as any).lines.data[0].period;
-    const periodStart = new Date(period.start * 1000).toISOString();
-    const periodEnd = new Date(period.end * 1000).toISOString();
-    
-    console.log(`🔄 Updating subscription periods: ${periodStart} to ${periodEnd}`);
-    
-    const { error: updateError } = await supabase
-      .from('user_subscriptions')
-      .update({
-        current_period_start: periodStart,
-        current_period_end: periodEnd,
-        updated_at: new Date().toISOString()
-      })
-      .eq('stripe_subscription_id', subscriptionId);
-
-    if (updateError) {
-      console.error(`⚠️ Failed to update subscription periods:`, updateError.message);
-      // Don't fail, continue with credit awarding
-    } else {
-      console.log(`✅ Updated subscription periods successfully`);
-    }
-  }
 
   // Get plan details from Stripe
   try {
@@ -279,26 +244,21 @@ async function handleSubscriptionPaymentSucceeded(
       console.log(`🎯 Awarding ${creditsIncluded} credits to user ${subscription.user_id}...`);
       
       // Award credits that expire at the end of current billing period
-      const expiresAt = (invoice as any).lines?.data?.[0]?.period?.end 
-        ? new Date((invoice as any).lines.data[0].period.end * 1000) 
-        : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Default 30 days
-        
+      const expiresAt = new Date(invoice.lines.data[0].period.end * 1000);
       console.log(`⏰ Credits will expire at: ${expiresAt.toISOString()}`);
 
       const creditRecord = {
         user_id: subscription.user_id,
         credits: creditsIncluded,
-        transaction_type: 'earned' as const,
-        source_type: 'subscription' as const,
+        transaction_type: 'earned',
+        source_type: 'subscription',
         source_id: subscriptionId,
         expires_at: expiresAt.toISOString(),
         description: `Credits from subscription ${invoice.billing_reason === 'subscription_create' ? 'activation' : 'renewal'} - ${subscription.plan_name}`,
         metadata: {
           invoice_id: invoice.id,
           billing_reason: invoice.billing_reason,
-          billing_period_start: (invoice as any).lines?.data?.[0]?.period?.start 
-            ? new Date((invoice as any).lines.data[0].period.start * 1000).toISOString()
-            : null,
+          billing_period_start: new Date(invoice.lines.data[0].period.start * 1000).toISOString(),
           billing_period_end: expiresAt.toISOString()
         }
       };
@@ -319,6 +279,8 @@ async function handleSubscriptionPaymentSucceeded(
       }
 
       console.log(`✅ SUCCESS: Awarded ${creditsIncluded} credits to user ${subscription.user_id} for subscription ${subscriptionId}`);
+      
+      // Log final success message for easy monitoring
       console.log(`🎉 CREDIT AWARD COMPLETE - User: ${subscription.user_id}, Credits: ${creditsIncluded}, Invoice: ${invoice.id}`);
     } else {
       console.log(`⚠️  No credits to award - plan has 0 credits_included`);

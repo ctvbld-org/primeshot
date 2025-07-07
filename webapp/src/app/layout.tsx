@@ -9,6 +9,7 @@ import { Header } from '@primeshot/common'
 import { AuthProvider } from '@primeshot/common'
 import { LanguageProvider } from '@primeshot/common'
 import { DialogServiceProvider } from '@/contexts/DialogServiceContext'
+import { IntentHandler } from '@/components/providers/intent-handler'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -25,6 +26,7 @@ export default function RootLayout({
             <QueryProvider>
               <BannerProvider>
                 <DialogServiceProvider>
+                  <IntentHandler />
                   <Header />
                   {children}
                   <Toaster />

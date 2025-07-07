@@ -2,7 +2,7 @@
 -- Implements subscription-based credit system with Stripe integration
 
 -- User subscriptions (references Stripe data only)
-CREATE TABLE user_subscriptions (
+CREATE TABLE IF NOT EXISTS user_subscriptions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     stripe_subscription_id TEXT UNIQUE NOT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE user_subscriptions (
 );
 
 -- Credit transactions and balance tracking
-CREATE TABLE user_credits (
+CREATE TABLE IF NOT EXISTS user_credits (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     credits INTEGER NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE user_credits (
 );
 
 -- Credit pack purchases (references Stripe data)
-CREATE TABLE credit_pack_purchases (
+CREATE TABLE IF NOT EXISTS credit_pack_purchases (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     stripe_payment_intent_id TEXT NOT NULL,
@@ -45,7 +45,7 @@ CREATE TABLE credit_pack_purchases (
 );
 
 -- Credit usage tracking for analytics and billing
-CREATE TABLE credit_usage (
+CREATE TABLE IF NOT EXISTS credit_usage (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     credits_used INTEGER NOT NULL,
@@ -62,18 +62,18 @@ ALTER TABLE orders ADD COLUMN IF NOT EXISTS credits_used INTEGER DEFAULT 0;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS subscription_id UUID REFERENCES user_subscriptions(id);
 
 -- Indexes for performance
-CREATE INDEX idx_user_subscriptions_user_id ON user_subscriptions(user_id);
-CREATE INDEX idx_user_subscriptions_stripe_id ON user_subscriptions(stripe_subscription_id);
-CREATE INDEX idx_user_credits_user_id ON user_credits(user_id);
-CREATE INDEX idx_user_credits_expires_at ON user_credits(expires_at);
-CREATE INDEX idx_user_credits_source ON user_credits(source_type, source_id);
-CREATE INDEX idx_credit_pack_purchases_user_id ON credit_pack_purchases(user_id);
-CREATE INDEX idx_credit_pack_purchases_stripe_id ON credit_pack_purchases(stripe_payment_intent_id);
-CREATE INDEX idx_credit_usage_user_id ON credit_usage(user_id);
-CREATE INDEX idx_credit_usage_created_at ON credit_usage(created_at);
+CREATE INDEX IF NOT EXISTS idx_user_subscriptions_user_id ON user_subscriptions(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_subscriptions_stripe_id ON user_subscriptions(stripe_subscription_id);
+CREATE INDEX IF NOT EXISTS idx_user_credits_user_id ON user_credits(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_credits_expires_at ON user_credits(expires_at);
+CREATE INDEX IF NOT EXISTS idx_user_credits_source ON user_credits(source_type, source_id);
+CREATE INDEX IF NOT EXISTS idx_credit_pack_purchases_user_id ON credit_pack_purchases(user_id);
+CREATE INDEX IF NOT EXISTS idx_credit_pack_purchases_stripe_id ON credit_pack_purchases(stripe_payment_intent_id);
+CREATE INDEX IF NOT EXISTS idx_credit_usage_user_id ON credit_usage(user_id);
+CREATE INDEX IF NOT EXISTS idx_credit_usage_created_at ON credit_usage(created_at);
 
 -- Function to get current credit balance for a user
-CREATE OR REPLACE FUNCTION get_user_credit_balance(p_user_id UUID)
+CREATE OR REPLACE FUNCTION get_user_credit_balance(user_uuid UUID)
 RETURNS INTEGER AS $$
 DECLARE
     balance INTEGER;
@@ -81,7 +81,7 @@ BEGIN
     SELECT COALESCE(SUM(credits), 0)
     INTO balance
     FROM user_credits
-    WHERE user_id = p_user_id
+    WHERE user_id = user_uuid
       AND (expires_at IS NULL OR expires_at > NOW())
       AND credits > 0;
     
@@ -180,34 +180,60 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Row Level Security
-ALTER TABLE user_subscriptions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE user_credits ENABLE ROW LEVEL SECURITY;
-ALTER TABLE credit_pack_purchases ENABLE ROW LEVEL SECURITY;
-ALTER TABLE credit_usage ENABLE ROW LEVEL SECURITY;
+-- Row Level Security (only enable if not already enabled)
+DO $$ 
+BEGIN
+    -- Enable RLS on user_subscriptions if not already enabled
+    IF NOT (SELECT rowsecurity FROM pg_tables WHERE schemaname = 'public' AND tablename = 'user_subscriptions') THEN
+        ALTER TABLE user_subscriptions ENABLE ROW LEVEL SECURITY;
+    END IF;
+    
+    -- Enable RLS on user_credits if not already enabled
+    IF NOT (SELECT rowsecurity FROM pg_tables WHERE schemaname = 'public' AND tablename = 'user_credits') THEN
+        ALTER TABLE user_credits ENABLE ROW LEVEL SECURITY;
+    END IF;
+    
+    -- Enable RLS on credit_pack_purchases if not already enabled
+    IF NOT (SELECT rowsecurity FROM pg_tables WHERE schemaname = 'public' AND tablename = 'credit_pack_purchases') THEN
+        ALTER TABLE credit_pack_purchases ENABLE ROW LEVEL SECURITY;
+    END IF;
+    
+    -- Enable RLS on credit_usage if not already enabled  
+    IF NOT (SELECT rowsecurity FROM pg_tables WHERE schemaname = 'public' AND tablename = 'credit_usage') THEN
+        ALTER TABLE credit_usage ENABLE ROW LEVEL SECURITY;
+    END IF;
+END $$;
 
 -- RLS Policies
+DROP POLICY IF EXISTS "Users can view their own subscriptions" ON user_subscriptions;
 CREATE POLICY "Users can view their own subscriptions" ON user_subscriptions
     FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can view their own credits" ON user_credits;
 CREATE POLICY "Users can view their own credits" ON user_credits
     FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can view their own credit pack purchases" ON credit_pack_purchases;
 CREATE POLICY "Users can view their own credit pack purchases" ON credit_pack_purchases
     FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can view their own credit usage" ON credit_usage;
 CREATE POLICY "Users can view their own credit usage" ON credit_usage
     FOR SELECT USING (auth.uid() = user_id);
 
 -- Service role policies for backend operations
+DROP POLICY IF EXISTS "Service role can manage subscriptions" ON user_subscriptions;
 CREATE POLICY "Service role can manage subscriptions" ON user_subscriptions
     FOR ALL USING (auth.role() = 'service_role');
 
+DROP POLICY IF EXISTS "Service role can manage credits" ON user_credits;
 CREATE POLICY "Service role can manage credits" ON user_credits
     FOR ALL USING (auth.role() = 'service_role');
 
+DROP POLICY IF EXISTS "Service role can manage credit pack purchases" ON credit_pack_purchases;
 CREATE POLICY "Service role can manage credit pack purchases" ON credit_pack_purchases
     FOR ALL USING (auth.role() = 'service_role');
 
+DROP POLICY IF EXISTS "Service role can manage credit usage" ON credit_usage;
 CREATE POLICY "Service role can manage credit usage" ON credit_usage
     FOR ALL USING (auth.role() = 'service_role'); 

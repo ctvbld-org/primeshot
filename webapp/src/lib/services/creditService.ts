@@ -219,7 +219,7 @@ export class CreditService {
       const packs: CreditPack[] = prices.data
         .filter(price => {
           const product = price.product as Stripe.Product
-          return product.metadata.pack_type === 'credit_pack'
+          return product.metadata.tier_type === 'credit_pack'
         })
         .map(price => {
           const product = price.product as Stripe.Product
