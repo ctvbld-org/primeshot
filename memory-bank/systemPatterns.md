@@ -636,6 +636,48 @@ Detected changes in:
 - webapp/src/components/pricing/CreditPackDialogContent.tsx
 - webapp/src/components/pricing/CreditPackPricing.tsx
 - webapp/src/lib/services/creditService.ts
+
+
+**Auto-update 2025-07-07**:
+Detected changes in:
+- webapp/src/app/api/payment/create-checkout-session/route.ts
+- webapp/src/app/api/proxy/update-order-amount/route.ts
+- webapp/src/app/app/albums/page.tsx
+- webapp/src/app/app/shoot/page.module.css
+- webapp/src/app/app/shoot/page.tsx
+- webapp/src/app/app/styles/page.module.css
+- webapp/src/app/app/styles/page.tsx
+- webapp/src/app/app/training/page.tsx
+- webapp/src/components/language-switcher.tsx
+- webapp/src/components/review/shoot-summary.tsx
+- webapp/src/components/shoot/shoot-footer.module.css
+- webapp/src/components/shoot/shoot-footer.tsx
+- webapp/src/components/style/background-image-selector.tsx
+- webapp/src/components/style/clothing-color-selector.module.css
+- webapp/src/components/style/clothing-color-selector.tsx
+- webapp/src/components/style/clothing-image-selector.tsx
+- webapp/src/components/style/flip-card.tsx
+- webapp/src/components/style/new-style-card.module.css
+- webapp/src/components/style/new-style-card.tsx
+- webapp/src/components/style/options-carousel.module.css
+- webapp/src/components/style/options-carousel.tsx
+- webapp/src/components/style/style-card.module.css
+- webapp/src/components/style/style-card.tsx
+- webapp/src/components/style/style-details.module.css
+- webapp/src/components/style/style-details.tsx
+- webapp/src/components/style/style-tabs-options.module.css
+- webapp/src/components/style/style-tabs-options.tsx
+- webapp/src/components/user-nav.tsx
+- webapp/src/lib/api/orders.ts
+- webapp/src/lib/api/styles.ts
+- webapp/src/lib/constants/api.ts
+- webapp/src/lib/constants/pricing.ts
+- webapp/src/lib/hooks/use-payment-recovery.ts
+- webapp/src/lib/pricing.ts
+- webapp/src/lib/server/price-verification.ts
+- webapp/src/lib/stripe.ts
+- website/src/app/api/waitlist/route.ts
+- website/src/lib/supabase/admin-client.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

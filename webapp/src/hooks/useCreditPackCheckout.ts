@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { getApiUrl } from '@/lib/api/client'
 
 interface CheckoutParams {
   priceId: string
@@ -10,7 +11,7 @@ interface CheckoutParams {
 export function useCreditPackCheckout() {
   return useMutation({
     mutationFn: async (params: CheckoutParams) => {
-      const response = await fetch('/api/payment/credit-pack-checkout', {
+      const response = await fetch(getApiUrl('api/payment/credit-pack-checkout'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(params)

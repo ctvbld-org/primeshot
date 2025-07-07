@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { useAuth } from '@primeshot/common/hooks/AuthContext'
 import { useQuery } from '@tanstack/react-query'
+import { getApiUrl } from '@/lib/api/client'
 import { useOpenSubscriptionDialog } from '@/hooks/useOpenSubscriptionDialog'
 import { useOpenSigninModal } from '@/hooks/useOpenSigninModal'
 import { useOpenCreditPackDialog } from '@/hooks/useOpenCreditPackDialog'
@@ -8,7 +9,7 @@ import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus'
 import { useGenerationIntent } from '@/hooks/useGenerationIntent'
 
 async function fetchCreditBalance(): Promise<number> {
-  const res = await fetch('/api/credits/balance')
+  const res = await fetch(getApiUrl('api/credits/balance'))
   if (!res.ok) {
     throw new Error('Failed to fetch credit balance')
   }

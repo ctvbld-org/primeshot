@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { getApiUrl } from '@/lib/api/client'
 
 export interface SubscriptionInfo {
   plan_name: string
@@ -15,7 +16,7 @@ export function useCurrentSubscription() {
   return useQuery({
     queryKey: ['currentSubscription'],
     queryFn: async (): Promise<SubscriptionInfo | null> => {
-      const response = await fetch('/api/subscription/current')
+      const response = await fetch(getApiUrl('api/subscription/current'))
       if (!response.ok) {
         // Return null if subscription doesn't exist or failed to fetch
         return null

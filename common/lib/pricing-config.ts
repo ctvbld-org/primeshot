@@ -6,16 +6,52 @@
  * 
  * Environment Variables (with fallbacks to defaults):
  * - CREDIT_COST_1K (default: 1)
- * - CREDIT_COST_2K (default: 2)
+ * - CREDIT_COST_2K (default: 2) 
  * - CREDIT_COST_4K (default: 3)
  * - CREDIT_COST_LORA_TRAINING (default: 30)
  */
 
+export type Resolution = '1K' | '2K' | '4K';
+
+export interface SubscriptionTierConfig {
+  id: string;
+  name: string;
+  displayName: string;
+  description: string;
+  originalPrice: number;
+  monthlyPrice: number;
+  yearlyPrice: number;
+  credits: number;
+  maxResolution: Resolution;
+  loraTrainingIncluded: number;
+  concurrentJobs: number;
+  maxLoras: number;
+  features: string[];
+  popular: boolean;
+}
+
+export interface CreditPackConfig {
+  id: string;
+  name: string;
+  credits: number;
+  price: number;
+  validityDays: number;
+  costPerCredit: number;
+  savings?: string;
+}
+
+export interface CreditCosts {
+  IMAGE_GENERATION: {
+    [K in Resolution]: number;
+  };
+  LORA_TRAINING: number;
+}
+
 // Function to get environment variable from multiple possible sources
-function getEnvVar(name, fallback) {
+function getEnvVar(name: string, fallback: string): string {
   // Check for Deno environment
-  if (typeof Deno !== 'undefined') {
-    return Deno.env.get(name) || fallback;
+  if (typeof globalThis !== 'undefined' && 'Deno' in globalThis) {
+    return (globalThis as any).Deno.env.get(name) || fallback;
   }
   
   // Check for Node.js environment
@@ -26,7 +62,7 @@ function getEnvVar(name, fallback) {
   return fallback;
 }
 
-export const SUBSCRIPTION_TIERS_CONFIG = [
+export const SUBSCRIPTION_TIERS_CONFIG: SubscriptionTierConfig[] = [
   {
     id: 'tier_1',
     name: 'Starter',
@@ -45,7 +81,7 @@ export const SUBSCRIPTION_TIERS_CONFIG = [
       '1K resolution max',
       '1 Face Model training included',
       '1 concurrent job',
-      '1 Face Model max',
+      '1 max Face Model',
       'Up to 40×1K images'
     ],
     popular: false
@@ -68,7 +104,7 @@ export const SUBSCRIPTION_TIERS_CONFIG = [
       'Up to 4K resolution',
       '1 Face Model training included',
       '2 concurrent jobs',
-      '1 Face Model max',
+      '3 max Face Models',
       'Up to 180×1K or 90×2K or 60×4K images'
     ],
     popular: true
@@ -96,9 +132,9 @@ export const SUBSCRIPTION_TIERS_CONFIG = [
     ],
     popular: false
   }
-]
+];
 
-export const CREDIT_PACKS_CONFIG = [
+export const CREDIT_PACKS_CONFIG: CreditPackConfig[] = [
   {
     id: 'credits_90',
     name: '90 Credits',
@@ -125,20 +161,20 @@ export const CREDIT_PACKS_CONFIG = [
     costPerCredit: 0.16,
     savings: 'Save 24%'
   }
-]
+];
 
 // Credit costs - configurable via environment variables
-export const CREDIT_COSTS_CONFIG = {
+export const CREDIT_COSTS_CONFIG: CreditCosts = {
   IMAGE_GENERATION: {
     '1K': parseInt(getEnvVar('CREDIT_COST_1K', '1')),
     '2K': parseInt(getEnvVar('CREDIT_COST_2K', '2')),
     '4K': parseInt(getEnvVar('CREDIT_COST_4K', '3'))
   },
   LORA_TRAINING: parseInt(getEnvVar('CREDIT_COST_LORA_TRAINING', '30'))
-}
+};
 
 // Helper functions to calculate savings (derived from SUBSCRIPTION_TIERS_CONFIG)
-export function getLaunchDiscount(tierId) {
+export function getLaunchDiscount(tierId: string) {
   const tier = SUBSCRIPTION_TIERS_CONFIG.find(t => t.id === tierId);
   if (!tier) return null;
   return {
@@ -148,7 +184,7 @@ export function getLaunchDiscount(tierId) {
   };
 }
 
-export function getYearlyDiscount(tierId) {
+export function getYearlyDiscount(tierId: string) {
   const tier = SUBSCRIPTION_TIERS_CONFIG.find(t => t.id === tierId);
   if (!tier) return null;
   const monthlySavings = tier.monthlyPrice - tier.yearlyPrice;
@@ -161,10 +197,10 @@ export function getYearlyDiscount(tierId) {
 }
 
 // Helper functions
-export function calculateImageCredits(resolution, batchSize = 1) {
+export function calculateImageCredits(resolution: Resolution, batchSize: number = 1): number {
   return CREDIT_COSTS_CONFIG.IMAGE_GENERATION[resolution] * batchSize;
 }
 
-export function getLoraTrainingCost() {
+export function getLoraTrainingCost(): number {
   return CREDIT_COSTS_CONFIG.LORA_TRAINING;
 } 

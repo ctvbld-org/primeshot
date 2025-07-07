@@ -5,9 +5,10 @@ import { useSubscriptionStatus } from './useSubscriptionStatus'
 import { useOpenSubscriptionDialog } from './useOpenSubscriptionDialog'
 import { useOpenCreditPackDialog } from './useOpenCreditPackDialog'
 import { useQuery } from '@tanstack/react-query'
+import { getApiUrl } from '@/lib/api/client'
 
 async function fetchCreditBalance(): Promise<number> {
-  const res = await fetch('/api/credits/balance')
+  const res = await fetch(getApiUrl('api/credits/balance'))
   if (!res.ok) {
     throw new Error('Failed to fetch credit balance')
   }

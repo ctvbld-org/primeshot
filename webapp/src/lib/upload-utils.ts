@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { getApiUrl } from '@/lib/api/client';
 import { FileWithScore } from './types';
 
 // Size of each chunk in bytes (2MB)
@@ -16,21 +17,14 @@ export interface ChunkMetadata {
   qualityScore?: number;
 }
 
-export function* createChunks(file: FileWithScore & { size: number; slice: Blob['slice'] }, orderId: string, faceModelId: string, chunkSize: number = CHUNK_SIZE) {
-  // Handle empty files
-  if (file.size === 0) {
-    const metadata: ChunkMetadata = {
-      chunkIndex: 0,
-      totalChunks: 1,
-      fileSize: 0,
-      fileName: file.name || 'unnamed',
-      fileType: file.type || 'application/octet-stream',
-      uploadId: uuidv4(),
-      orderId,
-      faceModelId,
-      qualityScore: 0
-    };
-    yield { chunk: new Blob(), metadata };
+export function* createChunks(
+  file: FileWithScore & { size: number; slice: File['slice'] },
+  orderId: string,
+  faceModelId: string,
+  chunkSize: number = CHUNK_SIZE
+): Generator<{ chunk: Blob; metadata: ChunkMetadata }> {
+  if (!file.size) {
+    console.warn('Empty file provided for chunked upload');
     return;
   }
 
@@ -70,7 +64,7 @@ export async function uploadChunk(
   return new Promise<Response>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     
-    xhr.open('POST', '/api/upload-chunk');
+    xhr.open('POST', getApiUrl('api/upload-chunk'));
     
     xhr.upload.addEventListener('progress', (event) => {
       if (event.lengthComputable && onProgress) {
@@ -102,7 +96,7 @@ export async function uploadChunk(
 
 export async function cleanupFailedUpload(uploadId: string): Promise<void> {
   try {
-    const response = await fetch('/api/cleanup-upload', {
+    const response = await fetch(getApiUrl('api/cleanup-upload'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -134,7 +128,7 @@ function isDuplicateChunkError(err: any): boolean {
 }
 
 export async function uploadFileInChunks(
-  file: File,
+  file: FileWithScore & { size: number; slice: File['slice'] },
   orderId: string,
   faceModelId: string,
   onProgress?: (progress: number) => void,

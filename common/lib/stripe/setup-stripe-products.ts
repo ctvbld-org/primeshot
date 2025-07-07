@@ -13,7 +13,7 @@
  */
 
 import Stripe from 'stripe'
-import { SUBSCRIPTION_TIERS_CONFIG, CREDIT_PACKS_CONFIG } from '../pricing-config.js'
+import { SUBSCRIPTION_TIERS_CONFIG, CREDIT_PACKS_CONFIG } from '../pricing-config'
 import dotenv from 'dotenv'
 
 // Parse command line arguments
@@ -90,14 +90,14 @@ async function cleanupExistingProducts() {
         console.log(`    ✅ Archived product: ${product.id}`)
         cleanedCount++
         
-      } catch (error) {
+      } catch (error: any) {
         console.warn(`    ⚠️  Failed to archive ${product.name}: ${error.message}`)
       }
     }
     
     console.log(`\n✅ Cleanup completed - archived ${cleanedCount} products and their prices\n`)
     
-  } catch (error) {
+  } catch (error: any) {
     console.warn(`⚠️  Cleanup failed: ${error.message}`)
     console.log('Continuing with product creation...\n')
   }
@@ -132,7 +132,12 @@ function convertPackForStripe(pack) {
 async function createSubscriptionProducts() {
   console.log('🚀 Creating subscription products...\n')
   
-  const results = []
+  const results: Array<{
+    tier: string;
+    product: string;
+    monthlyPrice: string;
+    yearlyPrice: string | null;
+  }> = []
   
   for (const tierData of SUBSCRIPTION_TIERS_CONFIG) {
     const tier = convertTierForStripe(tierData)
@@ -170,7 +175,7 @@ async function createSubscriptionProducts() {
       })
       
       // Create yearly price (if available)
-      let yearlyPrice = null
+      let yearlyPrice: Stripe.Price | null = null
       if (tier.yearlyPrice) {
         const yearlyTotal = tierData.yearlyPrice * 12 // yearlyPrice is per month, multiply by 12
         console.log(`Creating yearly price: $${yearlyTotal} (${tierData.yearlyPrice}/month × 12)`)
@@ -197,7 +202,7 @@ async function createSubscriptionProducts() {
       
       console.log(`✅ ${tier.name} created successfully\n`)
       
-    } catch (error) {
+    } catch (error: any) {
       console.error(`❌ Failed to create ${tier.name}:`, error.message)
     }
   }
@@ -208,7 +213,11 @@ async function createSubscriptionProducts() {
 async function createCreditPackProducts() {
   console.log('💳 Creating credit pack products...\n')
   
-  const results = []
+  const results: Array<{
+    pack: string;
+    product: string;
+    price: string;
+  }> = []
   
   for (const packData of CREDIT_PACKS_CONFIG) {
     const pack = convertPackForStripe(packData)
@@ -247,7 +256,7 @@ async function createCreditPackProducts() {
       
       console.log(`✅ ${pack.name} created successfully\n`)
       
-    } catch (error) {
+    } catch (error: any) {
       console.error(`❌ Failed to create ${pack.name}:`, error.message)
     }
   }
@@ -405,7 +414,7 @@ async function main() {
       console.log('\n💡 Tip: Use --skip-cleanup flag to keep existing products for testing')
     }
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('\n❌ Setup failed:', error.message)
     process.exit(1)
   }

@@ -1,4 +1,40 @@
+#!/usr/bin/env node
+
 /**
+ * Script to sync pricing configuration from common package to Supabase functions
+ * This eliminates duplication while avoiding Deno import issues
+ */
+
+import { readFileSync, writeFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+// Get current directory for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Read the common pricing config
+const commonPricingPath = join(__dirname, '../common/lib/pricing-config.ts');
+const supabasePricingPath = join(__dirname, '../supabase/functions/_shared/pricing.ts');
+
+console.log('🔄 Syncing pricing configuration...');
+
+// Read the common config
+const commonConfig = readFileSync(commonPricingPath, 'utf8');
+
+// Extract the data we need - more robust regex patterns
+const subscriptionTiersMatch = commonConfig.match(/export const SUBSCRIPTION_TIERS_CONFIG: SubscriptionTierConfig\[\] = (\[[\s\S]*?\]);/);
+const creditPacksMatch = commonConfig.match(/export const CREDIT_PACKS_CONFIG: CreditPackConfig\[\] = (\[[\s\S]*?\]);/);
+
+if (!subscriptionTiersMatch || !creditPacksMatch) {
+  console.error('❌ Failed to extract pricing data from common config');
+  console.error('Subscription tiers found:', !!subscriptionTiersMatch);
+  console.error('Credit packs found:', !!creditPacksMatch);
+  process.exit(1);
+}
+
+// Generate the new Supabase pricing file
+const newSupabasePricing = `/**
  * SUPABASE EDGE FUNCTIONS PRICING CONSTANTS
  * 
  * ⚠️  AUTO-GENERATED - DO NOT EDIT MANUALLY!
@@ -64,77 +100,7 @@ export const CREDIT_COSTS: CreditCosts = {
  * Subscription tiers configuration
  * ⚠️  AUTO-GENERATED from common/lib/pricing-config.ts
  */
-const SUBSCRIPTION_TIERS_CONFIG = [
-  {
-    id: 'tier_1',
-    name: 'Starter',
-    displayName: 'Starter',
-    description: 'Perfect for individuals getting started with AI image generation',
-    originalPrice: 14,
-    monthlyPrice: 9, // Discounted price
-    yearlyPrice: 9, // Discounted yearly price (per month)
-    credits: 40,
-    maxResolution: '1K',
-    loraTrainingIncluded: 1,
-    concurrentJobs: 1,
-    maxLoras: 1,
-    features: [
-      '40 credits per month',
-      '1K resolution max',
-      '1 Face Model training included',
-      '1 concurrent job',
-      '1 max Face Model',
-      'Up to 40×1K images'
-    ],
-    popular: false
-  },
-  {
-    id: 'tier_2',
-    name: 'Premium',
-    displayName: 'Premium',
-    description: 'Ideal for content creators and small businesses',
-    originalPrice: 39,
-    monthlyPrice: 29, // Discounted price
-    yearlyPrice: 18, // Discounted yearly price (per month)
-    credits: 180,
-    maxResolution: '4K',
-    loraTrainingIncluded: 1,
-    concurrentJobs: 2,
-    maxLoras: 3,
-    features: [
-      '180 credits per month',
-      'Up to 4K resolution',
-      '1 Face Model training included',
-      '2 concurrent jobs',
-      '3 max Face Models',
-      'Up to 180×1K or 90×2K or 60×4K images'
-    ],
-    popular: true
-  },
-  {
-    id: 'tier_3',
-    name: 'Pro',
-    displayName: 'Pro',
-    description: 'For agencies and high-volume users',
-    originalPrice: 89,
-    monthlyPrice: 69, // Discounted price
-    yearlyPrice: 39, // Discounted yearly price (per month)
-    credits: 450,
-    maxResolution: '4K',
-    loraTrainingIncluded: 3,
-    concurrentJobs: 4,
-    maxLoras: 8,
-    features: [
-      '450 credits per month',
-      'Up to 4K resolution',
-      '3 Face Model training included',
-      '4 concurrent jobs',
-      '8 max Face Models',
-      'Up to 450×1K or 225×2K or 150×4K images'
-    ],
-    popular: false
-  }
-];
+const SUBSCRIPTION_TIERS_CONFIG = ${subscriptionTiersMatch[1]};
 
 // Convert config format to match our SubscriptionTier interface
 export const SUBSCRIPTION_TIERS: SubscriptionTier[] = SUBSCRIPTION_TIERS_CONFIG.map(tier => ({
@@ -147,34 +113,7 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = SUBSCRIPTION_TIERS_CONFIG.
  * Credit packs configuration
  * ⚠️  AUTO-GENERATED from common/lib/pricing-config.ts
  */
-export const CREDIT_PACKS: CreditPack[] = [
-  {
-    id: 'credits_90',
-    name: '90 Credits',
-    credits: 90,
-    price: 19,
-    validityDays: 60,
-    costPerCredit: 0.211
-  },
-  {
-    id: 'credits_180',
-    name: '180 Credits',
-    credits: 180,
-    price: 32,
-    validityDays: 60,
-    costPerCredit: 0.177,
-    savings: 'Save 16%'
-  },
-  {
-    id: 'credits_360',
-    name: '360 Credits',
-    credits: 360,
-    price: 58,
-    validityDays: 60,
-    costPerCredit: 0.16,
-    savings: 'Save 24%'
-  }
-];
+export const CREDIT_PACKS: CreditPack[] = ${creditPacksMatch[1]};
 
 /**
  * Calculate credit cost for image generation
@@ -203,7 +142,7 @@ export function calculateCreditCost(
     case 'lora_training':
       return getLoraTrainingCost();
     default:
-      throw new Error(`Unknown operation type: ${operationType}`);
+      throw new Error(\`Unknown operation type: \${operationType}\`);
   }
 }
 
@@ -211,3 +150,15 @@ export function calculateCreditCost(
  * Version string to help with tracking pricing changes
  */
 export const PRICING_VERSION = '2.0.0'; 
+`;
+
+// Write the new file
+writeFileSync(supabasePricingPath, newSupabasePricing);
+
+console.log('✅ Pricing configuration synced successfully!');
+console.log('📄 Updated:', supabasePricingPath);
+console.log('');
+console.log('To update pricing in the future:');
+console.log('1. Edit common/lib/pricing-config.ts');
+console.log('2. Run: npm run sync-pricing');
+console.log('3. Deploy Supabase functions'); 

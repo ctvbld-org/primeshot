@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/contexts/auth-context'
+import { getApiUrl } from '@/lib/api/client'
 
 interface SubscriptionInfo {
   plan_name: string
@@ -18,7 +19,7 @@ interface SubscriptionInfo {
 }
 
 async function fetchSubscriptionStatus(): Promise<SubscriptionInfo | null> {
-  const res = await fetch('/api/subscription/current')
+  const res = await fetch(getApiUrl('api/subscription/current'))
   if (!res.ok) {
     if (res.status === 401) {
       throw new Error('Unauthorized')

@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { getApiUrl } from '@/lib/api/client'
 
 export interface CreditTransaction {
   id: string
@@ -14,7 +15,7 @@ export function useCreditTransactions(limit = 10) {
   return useQuery({
     queryKey: ['creditTransactions', limit],
     queryFn: async (): Promise<CreditTransaction[]> => {
-      const response = await fetch(`/api/credits/transactions?limit=${limit}`)
+      const response = await fetch(getApiUrl(`api/credits/transactions?limit=${limit}`))
       if (!response.ok) {
         throw new Error('Failed to fetch credit transactions')
       }
