@@ -68,7 +68,15 @@ export type Database = {
           stripe_price_id?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "credit_pack_purchases_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       credit_usage: {
         Row: {
@@ -104,7 +112,15 @@ export type Database = {
           usage_type?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "credit_usage_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       face_models: {
         Row: {
@@ -687,6 +703,7 @@ export type Database = {
           source_id: string | null
           source_type: string
           transaction_type: string
+          updated_at: string | null
           user_id: string
         }
         Insert: {
@@ -699,6 +716,7 @@ export type Database = {
           source_id?: string | null
           source_type: string
           transaction_type: string
+          updated_at?: string | null
           user_id: string
         }
         Update: {
@@ -711,9 +729,18 @@ export type Database = {
           source_id?: string | null
           source_type?: string
           transaction_type?: string
+          updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_credits_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_settings: {
         Row: {
@@ -779,7 +806,15 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       users: {
         Row: {
@@ -835,6 +870,23 @@ export type Database = {
         Args: { arr: string[] } | { arr: unknown }
         Returns: string[]
       }
+      award_subscription_credits: {
+        Args: {
+          p_user_id: string
+          p_subscription_id: string
+          p_credits: number
+          p_expires_at: string
+          p_period_start: string
+          p_period_end: string
+          p_description: string
+          p_metadata: Json
+        }
+        Returns: undefined
+      }
+      calculate_user_credit_balance: {
+        Args: { user_uuid: string }
+        Returns: number
+      }
       expire_credits: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -848,12 +900,54 @@ export type Database = {
         Returns: string
       }
       get_user_credit_balance: {
-        Args: { p_user_id: string }
+        Args: { user_uuid: string }
         Returns: number
       }
       increment_image_count: {
         Args: { face_model_id: string }
         Returns: undefined
+      }
+      process_credit_pack_purchase: {
+        Args: {
+          p_user_id: string
+          p_payment_intent_id: string
+          p_price_id: string
+          p_credits: number
+          p_amount_paid: number
+          p_expires_at: string
+          p_description: string
+          p_metadata: Json
+        }
+        Returns: undefined
+      }
+      refund_credits_with_idempotency: {
+        Args: {
+          p_user_id: string
+          p_job_id: string
+          p_amount: number
+          p_reason: string
+          p_idempotency_key: string
+        }
+        Returns: {
+          success: boolean
+          refund_created: boolean
+          error_message: string
+        }[]
+      }
+      spend_credits_with_job_tracking: {
+        Args: {
+          p_user_id: string
+          p_job_id: string
+          p_amount: number
+          p_usage_type: string
+          p_description?: string
+          p_metadata?: Json
+        }
+        Returns: {
+          success: boolean
+          current_balance: number
+          error_message: string
+        }[]
       }
       spend_user_credits: {
         Args: {
@@ -867,6 +961,20 @@ export type Database = {
       }
       update_language_preference: {
         Args: { new_language: string }
+        Returns: undefined
+      }
+      upsert_subscription: {
+        Args: {
+          p_user_id: string
+          p_stripe_subscription_id: string
+          p_stripe_customer_id: string
+          p_stripe_price_id: string
+          p_plan_name: string
+          p_status: string
+          p_current_period_start: string
+          p_current_period_end: string
+          p_cancel_at_period_end: boolean
+        }
         Returns: undefined
       }
     }

@@ -54,18 +54,18 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
 
   const getPackIcon = (packId: string) => {
     switch (packId) {
-      case 'credits_100': return <Coins className="w-5 h-5" />
-      case 'credits_300': return <Package className="w-5 h-5" />
-      case 'credits_600': return <Wallet className="w-5 h-5" />
+      case 'credits_90': return <Coins className="w-5 h-5" />
+      case 'credits_180': return <Package className="w-5 h-5" />
+      case 'credits_360': return <Wallet className="w-5 h-5" />
       default: return <Coins className="w-5 h-5" />
     }
   }
 
   const getPackColor = (packId: string) => {
     switch (packId) {
-      case 'credits_100': return 'text-green-500'
-      case 'credits_300': return 'text-blue-500'
-      case 'credits_600': return 'text-purple-500'
+      case 'credits_90': return 'text-green-500'
+      case 'credits_180': return 'text-blue-500'
+      case 'credits_360': return 'text-purple-500'
       default: return 'text-green-500'
     }
   }
@@ -79,7 +79,7 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
     return pack.credits >= requiredCredits && pack.credits <= requiredCredits * 2
   }
 
-  return (
+  return ( 
     <div className="space-y-6 max-w-4xl">
       <div className="text-center">
         <h2 className="text-xl font-bold">Insufficient Credits</h2>
@@ -135,21 +135,21 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
               <div className="text-xs text-muted-foreground text-center">
                 <p className="mb-2">Perfect for:</p>
                 <ul className="space-y-1">
-                  {pack.id === 'credits_100' && (
+                  {pack.id === 'credits_90' && (
                     <>
                       <li>• {Math.floor(pack.credits / 1)} x 1K images</li>
                       <li>• {Math.floor(pack.credits / 2)} x 2K images</li>
                       <li>• {Math.floor(pack.credits / 3)} x 4K images</li>
                     </>
                   )}
-                  {pack.id === 'credits_300' && (
+                  {pack.id === 'credits_180' && (
                     <>
                       <li>• {Math.floor(pack.credits / 1)} x 1K images</li>
                       <li>• {Math.floor(pack.credits / 30)} x LoRA trainings</li>
                       <li>• Mix of resolutions & training</li>
                     </>
                   )}
-                  {pack.id === 'credits_600' && (
+                  {pack.id === 'credits_360' && (
                     <>
                       <li>• {Math.floor(pack.credits / 30)} x LoRA trainings</li>
                       <li>• {Math.floor(pack.credits / 1)} x 1K images</li>

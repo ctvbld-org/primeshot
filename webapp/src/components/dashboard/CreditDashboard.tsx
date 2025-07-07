@@ -1,6 +1,5 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@primeshot/common/web/ui/card'
 import { Button } from '@primeshot/common/web/ui/button'
 import { Badge } from '@primeshot/common/web/ui/badge'
@@ -17,74 +16,23 @@ import {
 } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
 import { useOpenCreditPackDialog } from '@/hooks/useOpenCreditPackDialog'
+import { useCreditBalance } from '@/hooks/useCreditBalance'
+import { useCurrentSubscription, type SubscriptionInfo } from '@/hooks/useCurrentSubscription'
+import { useCreditTransactions, type CreditTransaction } from '@/hooks/useCreditTransactions'
 
-interface CreditTransaction {
-  id: string
-  credits: number
-  transaction_type: 'earned' | 'spent' | 'expired'
-  source_type: 'subscription' | 'credit_pack' | 'refund' | 'admin'
-  description: string
-  created_at: string
-  expires_at?: string
-}
 
-interface SubscriptionInfo {
-  plan_name: string
-  status: string
-  current_period_end: string
-  credits_included: number
-  credits_used_this_period: number
-  max_resolution: string
-  lora_training_included: number
-  lora_training_used: number
-}
 
 interface CreditDashboardProps {
   className?: string
 }
 
 export function CreditDashboard({ className }: CreditDashboardProps) {
-  const [creditBalance, setCreditBalance] = useState<number>(0)
-  const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null)
-  const [transactions, setTransactions] = useState<CreditTransaction[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const { data: creditBalance = 0, isLoading: balanceLoading } = useCreditBalance()
+  const { data: subscription, isLoading: subLoading } = useCurrentSubscription()
+  const { data: transactions = [], isLoading: transLoading } = useCreditTransactions(10)
   const openCreditPackDialog = useOpenCreditPackDialog()
 
-  useEffect(() => {
-    fetchCreditData()
-  }, [])
-
-  const fetchCreditData = async () => {
-    try {
-      setIsLoading(true)
-      
-      // Fetch credit balance
-      const balanceResponse = await fetch('/api/credits/balance')
-      if (balanceResponse.ok) {
-        const { balance } = await balanceResponse.json()
-        setCreditBalance(balance)
-      }
-
-      // Fetch subscription info
-      const subscriptionResponse = await fetch('/api/subscription/current')
-      if (subscriptionResponse.ok) {
-        const subscriptionData = await subscriptionResponse.json()
-        setSubscription(subscriptionData)
-      }
-
-      // Fetch recent transactions
-      const transactionsResponse = await fetch('/api/credits/transactions?limit=10')
-      if (transactionsResponse.ok) {
-        const { transactions } = await transactionsResponse.json()
-        setTransactions(transactions)
-      }
-
-    } catch (error) {
-      console.error('Failed to fetch credit data:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const isLoading = balanceLoading || subLoading || transLoading
 
   const getTransactionIcon = (transaction: CreditTransaction) => {
     switch (transaction.transaction_type) {

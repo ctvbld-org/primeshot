@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@primeshot/common/web/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@primeshot/common/web/ui/card'
@@ -8,14 +7,14 @@ import { Badge } from '@primeshot/common/web/ui/badge'
 import { Coins, Package, Wallet } from 'lucide-react'
 import { CREDIT_PACKS, type CreditPack } from '@/lib/constants/pricing'
 import { useAuth } from '@primeshot/common/hooks/AuthContext'
-import { toast } from 'sonner'
+import { useCreditPackCheckout } from '@/hooks/useCreditPackCheckout'
 
 interface CreditPackPricingProps {
   className?: string
 }
 
 export function CreditPackPricing({ className }: CreditPackPricingProps) {
-  const [isLoading, setIsLoading] = useState<string | null>(null)
+  const checkoutMutation = useCreditPackCheckout()
   const router = useRouter()
   const { user } = useAuth()
 
@@ -25,51 +24,27 @@ export function CreditPackPricing({ className }: CreditPackPricingProps) {
       return
     }
 
-    setIsLoading(creditPack.id)
-
-    try {
-      const response = await fetch('/api/payment/credit-pack-checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          priceId: creditPack.stripePriceId,
-          successUrl: `${window.location.origin}${process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/'}?credits=success`,
-          cancelUrl: `${window.location.origin}/pricing`
-        })
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to create checkout session')
-      }
-
-      const { url } = await response.json()
-      window.location.href = url
-
-    } catch (error) {
-      console.error('Credit pack purchase error:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to purchase credit pack')
-    } finally {
-      setIsLoading(null)
-    }
+    checkoutMutation.mutate({
+      priceId: creditPack.stripePriceId,
+      successUrl: `${window.location.origin}${process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/'}?credits=success`,
+      cancelUrl: `${window.location.origin}/pricing`
+    })
   }
 
   const getPackIcon = (packId: string) => {
     switch (packId) {
-      case 'credits_100': return <Coins className="w-6 h-6" />
-      case 'credits_300': return <Package className="w-6 h-6" />
-      case 'credits_600': return <Wallet className="w-6 h-6" />
+      case 'credits_90': return <Coins className="w-6 h-6" />
+      case 'credits_180': return <Package className="w-6 h-6" />
+      case 'credits_360': return <Wallet className="w-6 h-6" />
       default: return <Coins className="w-6 h-6" />
     }
   }
 
   const getPackColor = (packId: string) => {
     switch (packId) {
-      case 'credits_100': return 'text-green-500'
-      case 'credits_300': return 'text-blue-500'
-      case 'credits_600': return 'text-purple-500'
+      case 'credits_90': return 'text-green-500'
+      case 'credits_180': return 'text-blue-500'
+      case 'credits_360': return 'text-purple-500'
       default: return 'text-green-500'
     }
   }
@@ -151,21 +126,21 @@ export function CreditPackPricing({ className }: CreditPackPricingProps) {
                 <div className="text-xs text-muted-foreground">
                   <p className="mb-2">Perfect for:</p>
                   <ul className="space-y-1">
-                    {pack.id === 'credits_100' && (
+                    {pack.id === 'credits_90' && (
                       <>
                         <li>• {Math.floor(pack.credits / 1)} x 1K images</li>
                         <li>• {Math.floor(pack.credits / 2)} x 2K images</li>
                         <li>• {Math.floor(pack.credits / 3)} x 4K images</li>
                       </>
                     )}
-                    {pack.id === 'credits_300' && (
+                    {pack.id === 'credits_180' && (
                       <>
                         <li>• {Math.floor(pack.credits / 1)} x 1K images</li>
                         <li>• {Math.floor(pack.credits / 30)} x LoRA trainings</li>
                         <li>• Mix of resolutions & training</li>
                       </>
                     )}
-                    {pack.id === 'credits_600' && (
+                    {pack.id === 'credits_360' && (
                       <>
                         <li>• {Math.floor(pack.credits / 30)} x LoRA trainings</li>
                         <li>• {Math.floor(pack.credits / 1)} x 1K images</li>
@@ -180,12 +155,12 @@ export function CreditPackPricing({ className }: CreditPackPricingProps) {
             <CardFooter>
               <Button
                 onClick={() => handlePurchase(pack)}
-                disabled={isLoading === pack.id}
+                disabled={checkoutMutation.isPending}
                 className="w-full"
                 variant={pack.savings ? "primary" : "secondary"}
                 size="lg"
               >
-                {isLoading === pack.id ? (
+                {checkoutMutation.isPending ? (
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                     Processing...

@@ -610,6 +610,22 @@ Detected changes in:
 - webapp/src/lib/constants/pricing.ts
 - webapp/src/lib/constants/stripe-reference.ts
 - webapp/src/lib/services/creditService.ts
+
+
+**Auto-update 2025-07-07**:
+Detected changes in:
+- webapp/src/app/api/credits/transactions/route.ts
+- webapp/src/app/api/payment/create-checkout-session/route.ts
+- webapp/src/app/api/payment/credit-pack-checkout/route.ts
+- webapp/src/app/api/payment/subscription-checkout/route.ts
+- webapp/src/app/api/payment/webhook/debug/route.ts
+- webapp/src/app/api/payment/webhook/route.ts
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/app/auth/callback/route.ts
+- webapp/src/lib/constants/pricing.ts
+- webapp/src/lib/constants/stripe-reference.ts
+- webapp/src/lib/services/creditService.ts
+- webapp/src/lib/supabase/server.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

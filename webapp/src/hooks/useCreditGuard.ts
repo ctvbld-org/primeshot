@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { useAuth } from '@/contexts/auth-context'
+import { useAuth } from '@primeshot/common/hooks/AuthContext'
 import { useQuery } from '@tanstack/react-query'
 import { useOpenSubscriptionDialog } from '@/hooks/useOpenSubscriptionDialog'
 import { useOpenSigninModal } from '@/hooks/useOpenSigninModal'
@@ -42,7 +42,7 @@ export function useCreditGuard(requiredCredits: number = 1) {
     staleTime: 60 * 1000, // 1 minute
   })
 
-  return useCallback(
+  const guard = useCallback(
     (action: () => void | Promise<void>) => {
       return () => {
         // If not logged in, save intent and show signin modal
@@ -85,4 +85,6 @@ export function useCreditGuard(requiredCredits: number = 1) {
       openCreditPackDialog
     ]
   )
+
+  return guard
 } 

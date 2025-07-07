@@ -34,7 +34,8 @@ GRANT EXECUTE ON FUNCTION public.calculate_user_credit_balance(uuid) TO authenti
 ALTER TABLE IF EXISTS public.user_credits ENABLE ROW LEVEL SECURITY;
 
 -- Select own rows
-CREATE POLICY IF NOT EXISTS "Select own credits" ON public.user_credits
+DROP POLICY IF EXISTS "Select own credits" ON public.user_credits;
+CREATE POLICY "Select own credits" ON public.user_credits
 for select
 using (auth.uid() = user_id);
 
@@ -42,12 +43,14 @@ using (auth.uid() = user_id);
 
 -- credit_pack_purchases ---------------------------------------------------
 ALTER TABLE IF EXISTS public.credit_pack_purchases ENABLE ROW LEVEL SECURITY;
-CREATE POLICY IF NOT EXISTS "Select own credit pack purchases" ON public.credit_pack_purchases
+DROP POLICY IF EXISTS "Select own credit pack purchases" ON public.credit_pack_purchases;
+CREATE POLICY "Select own credit pack purchases" ON public.credit_pack_purchases
 for select
 using (auth.uid() = user_id);
 
 -- user_subscriptions ------------------------------------------------------
 ALTER TABLE IF EXISTS public.user_subscriptions ENABLE ROW LEVEL SECURITY;
-CREATE POLICY IF NOT EXISTS "Select own subscription" ON public.user_subscriptions
+DROP POLICY IF EXISTS "Select own subscription" ON public.user_subscriptions;
+CREATE POLICY "Select own subscription" ON public.user_subscriptions
 for select
 using (auth.uid() = user_id); 

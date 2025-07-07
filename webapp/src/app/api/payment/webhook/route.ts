@@ -215,27 +215,7 @@ async function handleSubscriptionPaymentSucceeded(
     return;
   }
 
-  // Update subscription periods if they're missing
-  if ((invoice as any).lines?.data?.[0]?.period) {
-    const period = (invoice as any).lines.data[0].period;
-    const periodStart = new Date(period.start * 1000).toISOString();
-    const periodEnd = new Date(period.end * 1000).toISOString();
-    
-    const { error: updateError } = await supabase
-      .from('user_subscriptions')
-      .update({
-        current_period_start: periodStart,
-        current_period_end: periodEnd,
-        updated_at: new Date().toISOString()
-      })
-      .eq('stripe_subscription_id', subscriptionId);
-
-    if (updateError) {
-      console.error(`Failed to update subscription periods:`, updateError.message);
-    }
-  }
-
-  // Get plan details from Stripe
+  // Get plan details from Stripe and process atomically
   try {
     const price = await stripe.prices.retrieve(subscription.stripe_price_id, {
       expand: ['product']
@@ -245,39 +225,61 @@ async function handleSubscriptionPaymentSucceeded(
     const creditsIncluded = parseInt(product.metadata.credits_included || '0');
 
     if (creditsIncluded > 0) {
-      // Award credits that expire at the end of current billing period
-      const expiresAt = (invoice as any).lines?.data?.[0]?.period?.end 
-        ? new Date((invoice as any).lines.data[0].period.end * 1000) 
+      // Calculate billing period dates
+      const period = (invoice as any).lines?.data?.[0]?.period;
+      const periodStart = period?.start 
+        ? new Date(period.start * 1000) 
+        : new Date();
+      const periodEnd = period?.end 
+        ? new Date(period.end * 1000) 
         : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Default 30 days
 
-      const creditRecord = {
-        user_id: subscription.user_id,
-        credits: creditsIncluded,
-        transaction_type: 'earned' as const,
-        source_type: 'subscription' as const,
-        source_id: subscriptionId,
-        expires_at: expiresAt.toISOString(),
-        description: `Credits from subscription ${invoice.billing_reason === 'subscription_create' ? 'activation' : 'renewal'} - ${subscription.plan_name}`,
-        metadata: {
-          invoice_id: invoice.id,
-          billing_reason: invoice.billing_reason,
-          billing_period_start: (invoice as any).lines?.data?.[0]?.period?.start 
-            ? new Date((invoice as any).lines.data[0].period.start * 1000).toISOString()
-            : null,
-          billing_period_end: expiresAt.toISOString()
-        }
+      const description = `Credits from subscription ${invoice.billing_reason === 'subscription_create' ? 'activation' : 'renewal'} - ${subscription.plan_name}`;
+      const metadata = {
+        invoice_id: invoice.id,
+        billing_reason: invoice.billing_reason,
+        billing_period_start: periodStart.toISOString(),
+        billing_period_end: periodEnd.toISOString()
       };
 
-      const { error: creditError } = await supabase
-        .from('user_credits')
-        .insert(creditRecord);
+      // Use atomic RPC function to update subscription and award credits
+      const { error: atomicError } = await supabase.rpc('award_subscription_credits', {
+        p_user_id: subscription.user_id,
+        p_subscription_id: subscriptionId,
+        p_credits: creditsIncluded,
+        p_expires_at: periodEnd.toISOString(),
+        p_period_start: periodStart.toISOString(),
+        p_period_end: periodEnd.toISOString(),
+        p_description: description,
+        p_metadata: metadata
+      });
 
-      if (creditError) {
-        console.error(`Error awarding subscription credits:`, creditError.message);
-        throw new Error(`Failed to award subscription credits: ${creditError.message}`);
+      if (atomicError) {
+        console.error(`Error in atomic subscription credit operation:`, atomicError.message);
+        throw new Error(`Failed to process subscription credits atomically: ${atomicError.message}`);
       }
 
-      devLog(`Awarded ${creditsIncluded} credits to user ${subscription.user_id}`);
+      devLog(`Atomically awarded ${creditsIncluded} credits to user ${subscription.user_id}`);
+    } else {
+      // Still update subscription periods even if no credits to award
+      const period = (invoice as any).lines?.data?.[0]?.period;
+      if (period) {
+        const periodStart = new Date(period.start * 1000).toISOString();
+        const periodEnd = new Date(period.end * 1000).toISOString();
+        
+        const { error: updateError } = await supabase
+          .from('user_subscriptions')
+          .update({
+            current_period_start: periodStart,
+            current_period_end: periodEnd,
+            updated_at: new Date().toISOString()
+          })
+          .eq('stripe_subscription_id', subscriptionId);
+
+        if (updateError) {
+          console.error(`Failed to update subscription periods:`, updateError.message);
+        }
+      }
     }
 
   } catch (stripeError) {
@@ -323,36 +325,36 @@ async function handleSubscriptionEvent(
   });
   const product = price.product as Stripe.Product;
 
-  const periodStartSec: number | undefined = (subscription as any).current_period_start
-  const periodEndSec: number | undefined = (subscription as any).current_period_end
+  // Use type-safe access to subscription period properties
+  const subscriptionWithPeriods = subscription as Stripe.Subscription & {
+    current_period_start?: number;
+    current_period_end?: number;
+  };
 
-  const currentPeriodStart = typeof periodStartSec === 'number' && periodStartSec > 0 
-    ? new Date(periodStartSec * 1000).toISOString() 
-    : null
+  const currentPeriodStart = subscriptionWithPeriods.current_period_start 
+    ? new Date(subscriptionWithPeriods.current_period_start * 1000).toISOString() 
+    : null;
 
-  const currentPeriodEnd = typeof periodEndSec === 'number' && periodEndSec > 0 
-    ? new Date(periodEndSec * 1000).toISOString() 
-    : null
+  const currentPeriodEnd = subscriptionWithPeriods.current_period_end 
+    ? new Date(subscriptionWithPeriods.current_period_end * 1000).toISOString() 
+    : null;
 
-  // Upsert subscription record
-  const { error } = await supabase
-    .from('user_subscriptions')
-    .upsert({
-      user_id: userId,
-      stripe_subscription_id: subscription.id,
-      stripe_customer_id: customerId,
-      stripe_price_id: priceId,
-      plan_name: product.metadata.plan_name || '',
-      status: subscription.status,
-      current_period_start: currentPeriodStart,
-      current_period_end: currentPeriodEnd,
-      cancel_at_period_end: subscription.cancel_at_period_end || false,
-      updated_at: new Date().toISOString()
-    });
+  // Use atomic RPC function to upsert subscription record
+  const { error } = await supabase.rpc('upsert_subscription', {
+    p_user_id: userId,
+    p_stripe_subscription_id: subscription.id,
+    p_stripe_customer_id: customerId,
+    p_stripe_price_id: priceId,
+    p_plan_name: product.metadata.plan_name || '',
+    p_status: subscription.status,
+    p_current_period_start: currentPeriodStart,
+    p_current_period_end: currentPeriodEnd,
+    p_cancel_at_period_end: subscription.cancel_at_period_end || false
+  });
 
   if (error) {
-    console.error('Error upserting subscription:', error.message);
-    throw new Error(`Failed to update subscription: ${error.message}`);
+    console.error('Error in atomic subscription upsert:', error.message);
+    throw new Error(`Failed to update subscription atomically: ${error.message}`);
   }
 }
 
@@ -404,46 +406,29 @@ async function handleCreditPackPurchase(
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + validityDays);
 
-  // Record credit pack purchase
-  const { error: purchaseError } = await supabase
-    .from('credit_pack_purchases')
-    .insert({
-      user_id: userId,
-      stripe_payment_intent_id: paymentIntent.id,
-      stripe_price_id: paymentIntent.metadata?.price_id || '',
-      credits_purchased: credits,
-      amount_paid: paymentIntent.amount,
-      status: 'completed',
-      expires_at: expiresAt.toISOString()
-    });
+  const description = `Credits from credit pack purchase - ${credits} credits`;
+  const metadata = {
+    payment_intent_id: paymentIntent.id,
+    amount_paid: paymentIntent.amount,
+    validity_days: validityDays
+  };
 
-  if (purchaseError) {
-    console.error('Error recording credit pack purchase:', purchaseError.message);
-    throw new Error(`Failed to record credit pack purchase: ${purchaseError.message}`);
+  // Use atomic RPC function to record purchase and award credits
+  const { error: atomicError } = await supabase.rpc('process_credit_pack_purchase', {
+    p_user_id: userId,
+    p_payment_intent_id: paymentIntent.id,
+    p_price_id: paymentIntent.metadata?.price_id || '',
+    p_credits: credits,
+    p_amount_paid: paymentIntent.amount,
+    p_expires_at: expiresAt.toISOString(),
+    p_description: description,
+    p_metadata: metadata
+  });
+
+  if (atomicError) {
+    console.error('Error in atomic credit pack purchase operation:', atomicError.message);
+    throw new Error(`Failed to process credit pack purchase atomically: ${atomicError.message}`);
   }
 
-  // Award credits
-  const { error: creditError } = await supabase
-    .from('user_credits')
-    .insert({
-      user_id: userId,
-      credits: credits,
-      transaction_type: 'earned',
-      source_type: 'credit_pack',
-      source_id: paymentIntent.id,
-      expires_at: expiresAt.toISOString(),
-      description: `Credits from credit pack purchase - ${credits} credits`,
-      metadata: {
-        payment_intent_id: paymentIntent.id,
-        amount_paid: paymentIntent.amount,
-        validity_days: validityDays
-      }
-    });
-
-  if (creditError) {
-    console.error('Error awarding credit pack credits:', creditError.message);
-    throw new Error(`Failed to award credit pack credits: ${creditError.message}`);
-  }
-
-  devLog(`Awarded ${credits} credits to user ${userId} from credit pack purchase`);
+  devLog(`Atomically processed credit pack purchase: ${credits} credits awarded to user ${userId}`);
 } 
