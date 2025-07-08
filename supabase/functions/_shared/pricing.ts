@@ -9,7 +9,7 @@
  * - CREDIT_COST_1K: Cost for 1K image generation (default: 1)
  * - CREDIT_COST_2K: Cost for 2K image generation (default: 2)
  * - CREDIT_COST_4K: Cost for 4K image generation (default: 3)
- * - CREDIT_COST_LORA_TRAINING: Cost for LoRA training (default: 30)
+ * - CREDIT_COST_FACE_MODEL_TRAINING: Cost for Face Model training (default: 30)
  */
 
 export type Resolution = '1K' | '2K' | '4K';
@@ -18,7 +18,7 @@ export interface CreditCosts {
   IMAGE_GENERATION: {
     [K in Resolution]: number;
   };
-  LORA_TRAINING: number;
+  FACE_MODEL_TRAINING: number;
 }
 
 export interface SubscriptionTier {
@@ -30,7 +30,7 @@ export interface SubscriptionTier {
   yearlyPrice: number;
   credits: number;
   maxResolution: Resolution;
-  loraTrainingIncluded: number;
+  faceModelTrainingIncluded: number;
   concurrentJobs: number;
   maxLoras: number;
   features: string[];
@@ -57,7 +57,7 @@ export const CREDIT_COSTS: CreditCosts = {
     '2K': parseInt(Deno.env.get('CREDIT_COST_2K') || '2'),
     '4K': parseInt(Deno.env.get('CREDIT_COST_4K') || '3')
   },
-  LORA_TRAINING: parseInt(Deno.env.get('CREDIT_COST_LORA_TRAINING') || '30')
+  FACE_MODEL_TRAINING: parseInt(Deno.env.get('CREDIT_COST_FACE_MODEL_TRAINING') || '30')
 };
 
 /**
@@ -67,47 +67,47 @@ export const CREDIT_COSTS: CreditCosts = {
 const SUBSCRIPTION_TIERS_CONFIG = [
   {
     id: 'tier_1',
-    name: 'Starter',
-    displayName: 'Starter',
-    description: 'Perfect for individuals getting started with AI image generation',
+    name: 'Basic',
+    displayName: 'Basic',
+    description: 'Includes 40 credits per month, plus 1 Face Model training (30 credits value).',
     originalPrice: 14,
     monthlyPrice: 9, // Discounted price
     yearlyPrice: 9, // Discounted yearly price (per month)
     credits: 40,
     maxResolution: '1K',
-    loraTrainingIncluded: 1,
+    faceModelTrainingIncluded: 1,
     concurrentJobs: 1,
-    maxLoras: 1,
+    maxFaceModels: 1,
     features: [
-      '40 credits per month',
-      '1K resolution max',
-      '1 Face Model training included',
+      '40 monthly credits',
+      'Standard image resolution (1K max)',
+      'Includes 1 Face Model training',
       '1 concurrent job',
-      '1 max Face Model',
-      'Up to 40×1K images'
+      '1 Face Model slot',
+      'Up to 40 images per month'
     ],
     popular: false
   },
   {
     id: 'tier_2',
-    name: 'Premium',
-    displayName: 'Premium',
-    description: 'Ideal for content creators and small businesses',
+    name: 'Standard',
+    displayName: 'Standard',
+    description: 'Includes 180 credits per month, plus 1 Face Model training (30 credits value).',
     originalPrice: 39,
     monthlyPrice: 29, // Discounted price
     yearlyPrice: 18, // Discounted yearly price (per month)
     credits: 180,
     maxResolution: '4K',
-    loraTrainingIncluded: 1,
+    faceModelTrainingIncluded: 1,
     concurrentJobs: 2,
-    maxLoras: 3,
+    maxFaceModels: 3,
     features: [
-      '180 credits per month',
-      'Up to 4K resolution',
-      '1 Face Model training included',
+      '180 monthly credits',
+      'Ultra high image resolution (up to 4K)',
+      'Includes 1 Face Model training',
       '2 concurrent jobs',
-      '3 max Face Models',
-      'Up to 180×1K or 90×2K or 60×4K images'
+      '3 Face Model slots',
+      'Up to 180×1K, 90×2K, or 60×4K images per month'
     ],
     popular: true
   },
@@ -115,22 +115,22 @@ const SUBSCRIPTION_TIERS_CONFIG = [
     id: 'tier_3',
     name: 'Pro',
     displayName: 'Pro',
-    description: 'For agencies and high-volume users',
+    description: 'Includes 450 credits per month, plus 3 Face Model trainings (90 credits value).',
     originalPrice: 89,
     monthlyPrice: 69, // Discounted price
     yearlyPrice: 39, // Discounted yearly price (per month)
     credits: 450,
     maxResolution: '4K',
-    loraTrainingIncluded: 3,
+    faceModelTrainingIncluded: 3,
     concurrentJobs: 4,
-    maxLoras: 8,
+    maxFaceModels: 8,
     features: [
-      '450 credits per month',
-      'Up to 4K resolution',
-      '3 Face Model training included',
+      '450 monthly credits',
+      'Ultra high image resolution (up to 4K)',
+      'Includes 3 Face Model trainings',
       '4 concurrent jobs',
-      '8 max Face Models',
-      'Up to 450×1K or 225×2K or 150×4K images'
+      '8 Face Model slots',
+      'Up to 450×1K, 225×2K, or 150×4K images per month'
     ],
     popular: false
   }
@@ -184,24 +184,24 @@ export function calculateImageCreditCost(resolution: Resolution = '1K', batchSiz
 }
 
 /**
- * Get credit cost for LoRA training
+ * Get credit cost for Face Model training
  */
-export function getLoraTrainingCost(): number {
-  return CREDIT_COSTS.LORA_TRAINING;
+export function getFaceModelTrainingCost(): number {
+  return CREDIT_COSTS.FACE_MODEL_TRAINING;
 }
 
 /**
  * Calculate total credit cost for any operation
  */
 export function calculateCreditCost(
-  operationType: 'image_generation' | 'lora_training',
+  operationType: 'image_generation' | 'face_model_training',
   options?: { resolution?: Resolution; batchSize?: number }
 ): number {
   switch (operationType) {
     case 'image_generation':
       return calculateImageCreditCost(options?.resolution || '1K', options?.batchSize || 1);
-    case 'lora_training':
-      return getLoraTrainingCost();
+    case 'face_model_training':
+      return getFaceModelTrainingCost();
     default:
       throw new Error(`Unknown operation type: ${operationType}`);
   }

@@ -57,9 +57,9 @@ export interface SubscriptionTier {
   yearlyPrice: number // in dollars (discounted yearly price per month)
   credits: number
   maxResolution: '1K' | '2K' | '4K'
-  loraTrainingIncluded: number
+  faceModelTrainingIncluded: number
   concurrentJobs: number
-  maxLoras: number
+  maxFaceModels: number
   features: string[]
   popular?: boolean
   stripePriceIds: {

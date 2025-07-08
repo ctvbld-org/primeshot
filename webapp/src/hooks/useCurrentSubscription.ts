@@ -8,8 +8,8 @@ export interface SubscriptionInfo {
   credits_included: number
   credits_used_this_period: number
   max_resolution: string
-  lora_training_included: number
-  lora_training_used: number
+  face_model_training_included: number
+  face_model_training_used: number
 }
 
 export function useCurrentSubscription() {

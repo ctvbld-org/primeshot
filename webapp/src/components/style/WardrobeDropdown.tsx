@@ -7,6 +7,7 @@ import { useTranslatedOption } from '@/hooks/useTranslatedOption'
 import { useValidStyleOptions } from '@/lib/utils/style-validation'
 import { getOptionsImage } from '@/lib/utils/get-options-image'
 import { getStoredStyleSelections, storeStyleSelections } from '@/lib/utils/style-storage'
+import { Popover, PopoverContent, PopoverTrigger } from '@primeshot/common/web/ui/popover'
 import Image from 'next/image'
 import { ChevronDown, ArrowLeft } from 'lucide-react'
 import styles from './WardrobeDropdown.module.css'
@@ -28,7 +29,6 @@ interface ColorOption {
 }
 
 export const WardrobeDropdown: FC<WardrobeDropdownProps> = ({ onSelect }) => {
-  const [isOpen, setIsOpen] = useState(false)
   const [currentView, setCurrentView] = useState<'clothing' | 'color'>('clothing')
   const [selectedClothing, setSelectedClothing] = useState<string | null>(null)
   const [selectedColor, setSelectedColor] = useState<string | null>(null)
@@ -168,7 +168,6 @@ export const WardrobeDropdown: FC<WardrobeDropdownProps> = ({ onSelect }) => {
       // Commit temporary selections to actual state
       setSelectedClothing(tempClothingSelection)
       setSelectedColor(tempColorSelection)
-      setIsOpen(false)
       setCurrentView('clothing')
       
       // Store selections
@@ -195,20 +194,9 @@ export const WardrobeDropdown: FC<WardrobeDropdownProps> = ({ onSelect }) => {
 
   // Keyboard navigation handler
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    if (!isOpen) {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault()
-        setIsOpen(true)
-        setTempClothingSelection(selectedClothing)
-        setTempColorSelection(selectedColor)
-      }
-      return
-    }
-
     switch (event.key) {
       case 'Escape':
         event.preventDefault()
-        setIsOpen(false)
         setCurrentView('clothing')
         setTempClothingSelection(null)
         setTempColorSelection(null)
@@ -245,7 +233,7 @@ export const WardrobeDropdown: FC<WardrobeDropdownProps> = ({ onSelect }) => {
         }
         break
     }
-  }, [isOpen, currentView, focusedOptionIndex, filteredClothingOptions, tempClothingSelection, tempColorSelection, selectedClothing, selectedColor])
+  }, [currentView, focusedOptionIndex, filteredClothingOptions, tempClothingSelection, tempColorSelection])
 
   // Reset focused index when view changes
   useEffect(() => {
@@ -254,11 +242,11 @@ export const WardrobeDropdown: FC<WardrobeDropdownProps> = ({ onSelect }) => {
 
   // Focus management when dropdown opens
   useEffect(() => {
-    if (isOpen && currentView === 'clothing') {
+    if (currentView === 'clothing') {
       // Focus the first clothing option when dropdown opens
       setFocusedOptionIndex(0)
     }
-  }, [isOpen, currentView])
+  }, [currentView])
 
   const selectedClothingOption = filteredClothingOptions.find(opt => opt.id === selectedClothing)
   const selectedColorOption = filteredColorOptions.find(opt => opt.id === selectedColor)
@@ -270,56 +258,54 @@ export const WardrobeDropdown: FC<WardrobeDropdownProps> = ({ onSelect }) => {
   }
 
   return (
-    <div className={styles.container}>
-      {/* Dropdown trigger */}
-      <button
-        onClick={() => {
-          if (!isOpen) {
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          onClick={() => {
             // Initialize temp selections with current selections when opening
             setTempClothingSelection(selectedClothing)
             setTempColorSelection(selectedColor)
-          }
-          setIsOpen(!isOpen)
-        }}
-        onKeyDown={handleKeyDown}
-        aria-expanded={isOpen}
-        aria-haspopup="listbox"
-        aria-label="Select wardrobe item"
-        className={`${styles.trigger} ${isOpen ? styles.triggerOpen : ''}`}
-      >
-        {/* Thumbnail with color overlay */}
-        <div className={styles.thumbnail}>
-          <Image
-            src={selectedClothingOption.imageUrl}
-            alt={selectedClothingOption.label}
-            width={48}
-            height={48}
-            className={styles.thumbnailImage}
-          />
-          {/* Color indicator */}
-          <div 
-            className={styles.colorIndicator}
-            style={{ backgroundColor: selectedColor || '#FFFFFF' }}
-          />
-        </div>
-        
-        {/* Text */}
-        <div className={styles.textContainer}>
-          <p className={styles.primaryText}>{selectedClothingOption.label}</p>
-          <p className={styles.secondaryText}>Wardrobe</p>
-        </div>
-        
-        {/* Arrow */}
-        <ChevronDown className={`${styles.arrow} ${isOpen ? styles.arrowOpen : ''}`} />
-      </button>
+            setCurrentView('clothing')
+          }}
+          onKeyDown={handleKeyDown}
+          aria-haspopup="listbox"
+          aria-label="Select wardrobe item"
+          className={styles.trigger}
+        >
+          {/* Thumbnail with color overlay */}
+          <div className={styles.thumbnail}>
+            <Image
+              src={selectedClothingOption.imageUrl}
+              alt={selectedClothingOption.label}
+              width={48}
+              height={48}
+              className={styles.thumbnailImage}
+            />
+            {/* Color indicator */}
+            <div 
+              className={styles.colorIndicator}
+              style={{ backgroundColor: selectedColor || '#FFFFFF' }}
+            />
+          </div>
+          
+          {/* Text */}
+          <div className={styles.textContainer}>
+            <p className={styles.primaryText}>{selectedClothingOption.label}</p>
+            <p className={styles.secondaryText}>Wardrobe</p>
+          </div>
+        </button>
+      </PopoverTrigger>
 
-      {/* Dropdown menu */}
-      {isOpen && (
+      <PopoverContent 
+        className="w-80 bg-[#083533] border-[rgba(229,251,250,0.2)] text-white p-0" 
+        align="start"
+        side="bottom"
+        sideOffset={8}
+      >
         <div 
           ref={dropdownRef}
           role="listbox"
           aria-label="Wardrobe options"
-          className={styles.dropdown}
         >
           <div className={styles.dropdownInner}>
             {/* Sliding container */}
@@ -444,20 +430,7 @@ export const WardrobeDropdown: FC<WardrobeDropdownProps> = ({ onSelect }) => {
             </div>
           </div>
         </div>
-      )}
-      
-      {/* Overlay to close dropdown */}
-      {isOpen && (
-        <div 
-          className={styles.overlay} 
-          onClick={() => {
-            setIsOpen(false)
-            setCurrentView('clothing')
-            setTempClothingSelection(null)
-            setTempColorSelection(null)
-          }}
-        />
-      )}
-    </div>
+      </PopoverContent>
+    </Popover>
   )
 }

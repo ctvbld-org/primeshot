@@ -688,6 +688,18 @@ Detected changes in:
 - webapp/src/app/api/subscription/current/route.ts
 - webapp/src/lib/api/client.ts
 - webapp/src/lib/upload-utils.ts
+
+
+**Auto-update 2025-07-08**:
+Detected changes in:
+- webapp/src/app/app/review/page.tsx
+- webapp/src/components/face_model/face_models.tsx
+- webapp/src/components/home/GenerationControls.tsx
+- webapp/src/components/pricing/CreditPackDialogContent.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/upload/upload-footer.tsx
+- webapp/src/lib/api/client.ts
+- webapp/src/lib/hooks/use-file-upload.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

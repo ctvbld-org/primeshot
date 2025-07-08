@@ -61,7 +61,7 @@ If environment variables are not set, the system uses these default values:
 
 ## Files Modified
 
-- `common/lib/pricing-config.js` - Single source of truth for all pricing configuration
+- `common/lib/pricing-config.ts` - Single source of truth for all pricing configuration
 - `supabase/functions/_shared/pricing.ts` - Reads from environment variables
 - `webapp/src/lib/constants/pricing.ts` - Imports from @primeshot/common/lib/pricing-config
 - `webapp/src/lib/services/creditService.ts` - Uses the configurable pricing

@@ -66,9 +66,9 @@ export function CreditDashboard({ className }: CreditDashboardProps) {
     return (subscription.credits_used_this_period / subscription.credits_included) * 100
   }
 
-  const getLoRAUsagePercentage = () => {
+      const getFaceModelUsagePercentage = () => {
     if (!subscription) return 0
-    return (subscription.lora_training_used / subscription.lora_training_included) * 100
+    return (subscription.face_model_training_used / subscription.face_model_training_included) * 100
   }
 
   const daysUntilReset = subscription 
@@ -171,10 +171,10 @@ export function CreditDashboard({ className }: CreditDashboardProps) {
             {/* LoRA Training Usage */}
             <div>
               <div className="flex justify-between text-sm mb-2">
-                <span>LoRA Training Used</span>
-                <span>{subscription.lora_training_used} / {subscription.lora_training_included}</span>
+                                  <span>Face Model Training Used</span>
+                <span>{subscription.face_model_training_used} / {subscription.face_model_training_included}</span>
               </div>
-              <Progress value={getLoRAUsagePercentage()} className="h-2" />
+                              <Progress value={getFaceModelUsagePercentage()} className="h-2" />
             </div>
 
             <div className="grid grid-cols-2 gap-4 pt-2 border-t text-sm">
