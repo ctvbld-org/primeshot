@@ -1,7 +1,7 @@
 /* GenerationControls component styles - extends base dropdown styles */
 
 /* Import and compose base styles */
-@import url("../style/BaseDropdown.module.css");
+@import "../style/BaseDropdown.module.css";
 
 /* Compose from BaseDropdown styles to maintain consistency */
 .container {

@@ -68,7 +68,7 @@ export interface SubscriptionTier {
   maxResolution: Resolution;
   faceModelTrainingIncluded: number;
   concurrentJobs: number;
-  maxLoras: number;
+  maxFaceModels: number;
   features: string[];
   popular?: boolean;
 }

@@ -243,7 +243,7 @@ serve(async (req) => {
     const { data: spendResult, error: spendError } = await supabase
       .rpc('spend_user_credits', {
         p_user_id: user_id,
-        p_amount: LORA_TRAINING_COST,
+        p_amount: FACE_MODEL_TRAINING_COST,
         p_usage_type: 'face_model_training',
         p_description: `Face model training`,
         p_metadata: {
@@ -273,7 +273,7 @@ serve(async (req) => {
       user_id,
       face_model_id,
       status: 'queued',
-      credits_spent: LORA_TRAINING_COST,
+      credits_spent: FACE_MODEL_TRAINING_COST,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
@@ -293,7 +293,7 @@ serve(async (req) => {
         .rpc('refund_credits_with_idempotency', {
           p_user_id: user_id,
           p_job_id: jobId,
-          p_amount: LORA_TRAINING_COST,
+          p_amount: FACE_MODEL_TRAINING_COST,
           p_reason: `Refund for failed LoRA training job creation`,
           p_idempotency_key: idempotencyKey
         });
@@ -378,8 +378,8 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({
           ...modalResult,
-          credits_spent: LORA_TRAINING_COST,
-          remaining_credits: currentBalance - LORA_TRAINING_COST,
+          credits_spent: FACE_MODEL_TRAINING_COST,
+          remaining_credits: currentBalance - FACE_MODEL_TRAINING_COST,
           training_limits: {
             used: trainingLimitsCheck.currentTrainingCount + 1,
             included: trainingLimitsCheck.faceModelTrainingIncluded,
@@ -422,7 +422,7 @@ serve(async (req) => {
           error: 'Failed to start training on Modal',
           details: modalError.message,
           job_id: jobId,
-          credits_spent: LORA_TRAINING_COST
+          credits_spent: FACE_MODEL_TRAINING_COST
         }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
