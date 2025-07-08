@@ -103,7 +103,7 @@ export function CreditDashboard({ className }: CreditDashboardProps) {
             Credit Balance
           </CardTitle>
           <CardDescription>
-            Your current available credits for image generation and LoRA training
+            Your current available credits for image generation and Face Model training
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -148,7 +148,7 @@ export function CreditDashboard({ className }: CreditDashboardProps) {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <div className="font-semibold capitalize">{subscription.plan_name.replace('_', ' ')}</div>
+                <div className="font-semibold capitalize">{subscription.plan_name}</div>
                 <Badge variant={subscription.status === 'active' ? 'default' : 'secondary'}>
                   {subscription.status}
                 </Badge>

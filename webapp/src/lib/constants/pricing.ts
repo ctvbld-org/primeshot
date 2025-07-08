@@ -143,15 +143,15 @@ export const calculateImageCredits = calculateImageCreditsBase
 
 // Discount information - calculated from single source
 export const LAUNCH_DISCOUNT = {
-  tier_1: getLaunchDiscount('tier_1'),
-  tier_2: getLaunchDiscount('tier_2'),
-  tier_3: getLaunchDiscount('tier_3')
+  basic: getLaunchDiscount('basic'),
+  standard: getLaunchDiscount('standard'),
+  pro: getLaunchDiscount('pro')
 }
 
 export const YEARLY_DISCOUNT = {
-  tier_1: getYearlyDiscount('tier_1'),
-  tier_2: getYearlyDiscount('tier_2'),
-  tier_3: getYearlyDiscount('tier_3')
+  basic: getYearlyDiscount('basic'),
+  standard: getYearlyDiscount('standard'),
+  pro: getYearlyDiscount('pro')
 }
 
 
@@ -164,7 +164,7 @@ export const PLAN_FEATURES = {
 
 // Export types for usage in components
 export type ResolutionType = '1K' | '2K' | '4K'
-export type PlanTierType = 'tier_1' | 'tier_2' | 'tier_3'
+export type PlanTierType = 'basic' | 'standard' | 'pro'
 
 /**
  * Version string to help with tracking pricing changes

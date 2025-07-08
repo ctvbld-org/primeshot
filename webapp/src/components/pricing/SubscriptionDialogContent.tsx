@@ -40,7 +40,7 @@ export function SubscriptionDialogContent(){
           return(
             <label key={tier.id} className={`border rounded-lg p-4 flex justify-between items-center cursor-pointer ${selectedTier.id===tier.id?'border-primary':'border-muted'}`}> 
               <div className="space-y-1">
-                <div className="flex items-center gap-2"><span className="font-medium capitalize">{tier.displayName}</span>{tier.id==='tier_2'&&<Badge variant="default">Recommended</Badge>}</div>
+                <div className="flex items-center gap-2"><span className="font-medium capitalize">{tier.displayName}</span>{tier.id==='standard'&&<Badge variant="default">Recommended</Badge>}</div>
                 <p className="text-sm text-muted-foreground">{tier.description}</p>
               </div>
               <div className="text-xl font-bold">{formatPrice(price)}</div>

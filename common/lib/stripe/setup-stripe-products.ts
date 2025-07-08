@@ -145,7 +145,7 @@ async function createSubscriptionProducts() {
       // Create product
       console.log(`Creating product: ${tier.name}`)
       const product = await stripe.products.create({
-        name: `Primeshot ${tier.name}`,
+        name: `${tier.name}`,
         description: tier.description,
         type: 'service',
         tax_code: 'txcd_10505002', // Correct tax code for subscription services

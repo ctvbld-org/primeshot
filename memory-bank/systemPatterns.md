@@ -715,6 +715,11 @@ Detected changes in:
 - webapp/src/lib/constants/pricing.ts
 - webapp/src/lib/constants/stripe-reference.ts
 - webapp/src/lib/services/creditService.ts
+
+
+**Auto-update 2025-07-08**:
+Detected changes in:
+- webapp/src/components/home/GenerationControls.module.css
 ## Component Organization
 
 Components are organized by feature and reusability:

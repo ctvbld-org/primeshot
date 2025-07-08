@@ -64,7 +64,7 @@ function getEnvVar(name: string, fallback: string): string {
 
 export const SUBSCRIPTION_TIERS_CONFIG: SubscriptionTierConfig[] = [
   {
-    id: 'tier_1',
+    id: 'basic',
     name: 'Basic',
     displayName: 'Basic',
     description: 'Includes 40 credits per month, plus 1 Face Model training (30 credits value).',
@@ -72,7 +72,7 @@ export const SUBSCRIPTION_TIERS_CONFIG: SubscriptionTierConfig[] = [
     monthlyPrice: 9, // Discounted price
     yearlyPrice: 9, // Discounted yearly price (per month)
     credits: 40,
-    maxResolution: '1K',
+    maxResolution: '1K' as const,
     faceModelTrainingIncluded: 1,
     concurrentJobs: 1,
     maxFaceModels: 1,
@@ -87,7 +87,7 @@ export const SUBSCRIPTION_TIERS_CONFIG: SubscriptionTierConfig[] = [
     popular: false
   },
   {
-    id: 'tier_2',
+    id: 'standard',
     name: 'Standard',
     displayName: 'Standard',
     description: 'Includes 180 credits per month, plus 1 Face Model training (30 credits value).',
@@ -95,7 +95,7 @@ export const SUBSCRIPTION_TIERS_CONFIG: SubscriptionTierConfig[] = [
     monthlyPrice: 29, // Discounted price
     yearlyPrice: 18, // Discounted yearly price (per month)
     credits: 180,
-    maxResolution: '4K',
+    maxResolution: '4K' as const,
     faceModelTrainingIncluded: 1,
     concurrentJobs: 2,
     maxFaceModels: 3,
@@ -110,7 +110,7 @@ export const SUBSCRIPTION_TIERS_CONFIG: SubscriptionTierConfig[] = [
     popular: true
   },
   {
-    id: 'tier_3',
+    id: 'pro',
     name: 'Pro',
     displayName: 'Pro',
     description: 'Includes 450 credits per month, plus 3 Face Model trainings (90 credits value).',
@@ -118,7 +118,7 @@ export const SUBSCRIPTION_TIERS_CONFIG: SubscriptionTierConfig[] = [
     monthlyPrice: 69, // Discounted price
     yearlyPrice: 39, // Discounted yearly price (per month)
     credits: 450,
-    maxResolution: '4K',
+    maxResolution: '4K' as const,
     faceModelTrainingIncluded: 3,
     concurrentJobs: 4,
     maxFaceModels: 8,
