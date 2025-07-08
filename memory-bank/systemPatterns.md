@@ -688,6 +688,33 @@ Detected changes in:
 - webapp/src/app/api/subscription/current/route.ts
 - webapp/src/lib/api/client.ts
 - webapp/src/lib/upload-utils.ts
+
+
+**Auto-update 2025-07-08**:
+Detected changes in:
+- webapp/src/app/app/review/page.tsx
+- webapp/src/components/face_model/face_models.tsx
+- webapp/src/components/home/GenerationControls.tsx
+- webapp/src/components/pricing/CreditPackDialogContent.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/upload/upload-footer.tsx
+- webapp/src/lib/api/client.ts
+- webapp/src/lib/hooks/use-file-upload.ts
+
+
+**Auto-update 2025-07-08**:
+Detected changes in:
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/components/dashboard/CreditDashboard.tsx
+- webapp/src/components/face_model/FaceModelSelector.module.css
+- webapp/src/components/face_model/face_models.tsx
+- webapp/src/components/home/GenerationControls.module.css
+- webapp/src/components/home/GenerationControls.tsx
+- webapp/src/components/style/SceneDropdown.tsx
+- webapp/src/components/style/WardrobeDropdown.tsx
+- webapp/src/lib/constants/pricing.ts
+- webapp/src/lib/constants/stripe-reference.ts
+- webapp/src/lib/services/creditService.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

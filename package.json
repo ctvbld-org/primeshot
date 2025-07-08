@@ -11,8 +11,8 @@
     "generate": "node scripts/dev.js generate",
     "parse-prd": "node scripts/dev.js parse-prd",
     "detect-changes": "node memory-bank/scripts/detect-changes.js",
-    "setup-stripe": "node --loader ts-node/esm common/lib/stripe/setup-stripe-products.ts",
-    "sync-pricing": "node --loader ts-node/esm scripts/sync-pricing.ts"
+    "setup-stripe": "tsx common/lib/stripe/setup-stripe-products.ts",
+    "sync-pricing": "tsx scripts/sync-pricing.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
@@ -29,6 +29,7 @@
   "devDependencies": {
     "@types/node": "^24.0.10",
     "ts-node": "^10.9.2",
+    "tsx": "^4.20.3",
     "turbo": "^2.5.4",
     "typescript": "^5.8.3"
   },

@@ -113,9 +113,9 @@ function convertTierForStripe(tier) {
     yearlyPrice: tier.yearlyPrice,
     credits: tier.credits,
     maxResolution: tier.maxResolution,
-    loraTrainingIncluded: tier.loraTrainingIncluded,
+    faceModelTrainingIncluded: tier.faceModelTrainingIncluded,
     concurrentJobs: tier.concurrentJobs,
-    maxLoras: tier.maxLoras
+    maxFaceModels: tier.maxFaceModels
   }
 }
 
@@ -148,13 +148,14 @@ async function createSubscriptionProducts() {
         name: `Primeshot ${tier.name}`,
         description: tier.description,
         type: 'service',
+        tax_code: 'txcd_10505002', // Correct tax code for subscription services
         metadata: {
           plan_name: tier.id,
           credits_included: tier.credits.toString(),
           max_resolution: tier.maxResolution,
-          lora_training_included: tier.loraTrainingIncluded.toString(),
+          face_model_training_included: tier.faceModelTrainingIncluded.toString(),
           concurrent_jobs: tier.concurrentJobs.toString(),
-          max_loras: tier.maxLoras.toString(),
+          max_face_models: tier.maxFaceModels.toString(),
           tier_type: 'subscription'
         }
       })
@@ -228,6 +229,7 @@ async function createCreditPackProducts() {
         name: `${pack.name}`,
         description: `${pack.credits.toLocaleString()} credits for image generation and Face Model training. Valid for ${pack.validityDays} days.`,
         type: 'service',
+        tax_code: 'txcd_10505001', // Correct tax code for credit pack services
         metadata: {
           credits: pack.credits.toString(),
           validity_days: pack.validityDays.toString(),

@@ -45,7 +45,7 @@ const newSupabasePricing = `/**
  * - CREDIT_COST_1K: Cost for 1K image generation (default: 1)
  * - CREDIT_COST_2K: Cost for 2K image generation (default: 2)
  * - CREDIT_COST_4K: Cost for 4K image generation (default: 3)
- * - CREDIT_COST_LORA_TRAINING: Cost for LoRA training (default: 30)
+ * - CREDIT_COST_FACE_MODEL_TRAINING: Cost for Face Model training (default: 30)
  */
 
 export type Resolution = '1K' | '2K' | '4K';
@@ -54,7 +54,7 @@ export interface CreditCosts {
   IMAGE_GENERATION: {
     [K in Resolution]: number;
   };
-  LORA_TRAINING: number;
+  FACE_MODEL_TRAINING: number;
 }
 
 export interface SubscriptionTier {
@@ -66,9 +66,9 @@ export interface SubscriptionTier {
   yearlyPrice: number;
   credits: number;
   maxResolution: Resolution;
-  loraTrainingIncluded: number;
+  faceModelTrainingIncluded: number;
   concurrentJobs: number;
-  maxLoras: number;
+  maxFaceModels: number;
   features: string[];
   popular?: boolean;
 }
@@ -93,7 +93,7 @@ export const CREDIT_COSTS: CreditCosts = {
     '2K': parseInt(Deno.env.get('CREDIT_COST_2K') || '2'),
     '4K': parseInt(Deno.env.get('CREDIT_COST_4K') || '3')
   },
-  LORA_TRAINING: parseInt(Deno.env.get('CREDIT_COST_LORA_TRAINING') || '30')
+  FACE_MODEL_TRAINING: parseInt(Deno.env.get('CREDIT_COST_FACE_MODEL_TRAINING') || '30')
 };
 
 /**
@@ -123,24 +123,24 @@ export function calculateImageCreditCost(resolution: Resolution = '1K', batchSiz
 }
 
 /**
- * Get credit cost for LoRA training
+ * Get credit cost for Face Model training
  */
-export function getLoraTrainingCost(): number {
-  return CREDIT_COSTS.LORA_TRAINING;
+export function getFaceModelTrainingCost(): number {
+  return CREDIT_COSTS.FACE_MODEL_TRAINING;
 }
 
 /**
  * Calculate total credit cost for any operation
  */
 export function calculateCreditCost(
-  operationType: 'image_generation' | 'lora_training',
+  operationType: 'image_generation' | 'face_model_training',
   options?: { resolution?: Resolution; batchSize?: number }
 ): number {
   switch (operationType) {
     case 'image_generation':
       return calculateImageCreditCost(options?.resolution || '1K', options?.batchSize || 1);
-    case 'lora_training':
-      return getLoraTrainingCost();
+    case 'face_model_training':
+      return getFaceModelTrainingCost();
     default:
       throw new Error(\`Unknown operation type: \${operationType}\`);
   }

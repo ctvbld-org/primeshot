@@ -7,7 +7,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 })
 
 export interface CreditOperation {
-  type: 'image_generation' | 'lora_training'
+  type: 'image_generation' | 'face_model_training'
   resolution?: '1K' | '2K' | '4K'
   batchSize?: number
   metadata?: Record<string, any>
@@ -21,9 +21,9 @@ export interface SubscriptionPlan {
   planName: string
   creditsIncluded: number
   maxResolution: string
-  loraTrainingIncluded: number
+  faceModelTrainingIncluded: number
   concurrentJobs: number
-  maxLoras: number
+  maxFaceModels: number
 }
 
 export interface CreditPack {
@@ -73,8 +73,8 @@ export class CreditService {
     switch (operation.type) {
       case 'image_generation':
         return calculateImageCredits(operation.resolution!, operation.batchSize || 1)
-      case 'lora_training':
-        return CREDIT_COSTS.LORA_TRAINING
+      case 'face_model_training':
+        return CREDIT_COSTS.FACE_MODEL_TRAINING
       default:
         throw new Error(`Unknown operation type: ${operation.type}`)
     }
@@ -175,9 +175,9 @@ export class CreditService {
           planName: product.metadata.plan_name || '',
           creditsIncluded: parseInt(product.metadata.credits_included || '0'),
           maxResolution: product.metadata.max_resolution || '1K',
-          loraTrainingIncluded: parseInt(product.metadata.lora_training_included || '0'),
+          faceModelTrainingIncluded: parseInt(product.metadata.face_model_training_included || '0'),
           concurrentJobs: parseInt(product.metadata.concurrent_jobs || '1'),
-          maxLoras: parseInt(product.metadata.max_loras || '1')
+          maxFaceModels: parseInt(product.metadata.max_face_models || '1')
         }
       })
 
@@ -277,9 +277,9 @@ export class CreditService {
   }
 
   /**
-   * Check if user is within LoRA model limits
+   * Check if user is within Face Model limits
    */
-  async checkLoRAModelLimit(userId: string): Promise<boolean> {
+  async checkFaceModelLimit(userId: string): Promise<boolean> {
     const planDetails = await this.getUserPlanDetails(userId)
     if (!planDetails) return false
 
@@ -291,7 +291,7 @@ export class CreditService {
       .eq('user_id', userId)
       .eq('status', 'completed')
 
-    return (count || 0) < planDetails.maxLoras
+    return (count || 0) < planDetails.maxFaceModels
   }
 
   /**
@@ -336,7 +336,7 @@ export class CreditService {
     return {
       totalCreditsUsed: data?.reduce((sum: number, usage: any) => sum + usage.credits_used, 0) || 0,
       imageGeneration: data?.filter((u: any) => u.usage_type === 'image_generation').length || 0,
-      loraTraining: data?.filter((u: any) => u.usage_type === 'lora_training').length || 0,
+      faceModelTraining: data?.filter((u: any) => u.usage_type === 'face_model_training').length || 0,
       byResolution: {
         '1K': data?.filter((u: any) => u.resolution === '1K').reduce((sum: number, u: any) => sum + u.credits_used, 0) || 0,
         '2K': data?.filter((u: any) => u.resolution === '2K').reduce((sum: number, u: any) => sum + u.credits_used, 0) || 0,

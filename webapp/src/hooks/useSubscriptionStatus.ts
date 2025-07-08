@@ -9,8 +9,8 @@ interface SubscriptionInfo {
   credits_included: number
   credits_used_this_period: number
   max_resolution: string
-  lora_training_included: number
-  lora_training_used: number
+  face_model_training_included: number
+  face_model_training_used: number
   cancel_at_period_end: boolean
   current_period_start: string
   stripe_subscription_id: string

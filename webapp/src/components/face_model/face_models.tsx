@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@primeshot/common/web/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@primeshot/common/web/ui/popover';
 import { useAuth } from '@/contexts/auth-context';
 import { useFaceModelsApi } from '@/lib/api/face-models';
 import { createClient } from '@/lib/supabase/client';
@@ -9,9 +9,12 @@ import { ProgressTracker } from './progress_tracker';
 import { Countdown } from './countdown';
 import { cn } from '@/lib/utils';
 import { CircleProgress } from '@primeshot/common/web/ui/circle-progress';
-import { Plus } from 'lucide-react';
+import { Plus, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
+import styles from './FaceModelSelector.module.css';
 import { getApiUrl } from '@/lib/api/client';
+import { useOpenSigninModal } from '@/hooks/useOpenSigninModal';
+import { Button } from '@primeshot/common/web/ui/button';
 
 interface FaceModelWithTraining {
   id: string;
@@ -51,6 +54,7 @@ interface TrainingProgressState {
 export function FaceModelSelector({ className, onModelSelected, refreshTrigger }: FaceModelSelectorProps) {
   const { user } = useAuth();
   const { getUserFaceModels } = useFaceModelsApi();
+  const openSigninModal = useOpenSigninModal();
   const [faceModels, setFaceModels] = useState<FaceModelWithTraining[]>([]);
   const [selectedModelId, setSelectedModelId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
@@ -227,19 +231,7 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
   }, [user?.id]);
 
   // Handle manual selection changes
-  const handleModelSelected = useCallback((newModelId: string) => {
-    // Handle "create" selection for unauthenticated users
-    if (newModelId === 'create' && !user?.id) {
-      // TODO: Trigger authentication flow or redirect to sign in
-      console.log('User needs to sign in to create a face model');
-      return;
-    }
-    
-    // Handle other special cases
-    if (newModelId === 'loading' || newModelId === 'empty') {
-      return;
-    }
-    
+  const handleModelSelected = useCallback((newModelId: string) => {    
     setSelectedModelId(newModelId);
     
     // Persist manual selection
@@ -355,22 +347,17 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
         />
       ))}
 
-      <Select value={selectedModelId} onValueChange={handleModelSelected}>
-        <SelectTrigger className="w-auto min-w-fit bg-gray-800 border-gray-700 text-white">
-          <div className="flex items-center space-x-3">
-            {!user?.id ? (
-              <>
-                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+      <Popover>
+        <PopoverTrigger asChild>
+          <button className={styles.trigger}>
+            {/* Thumbnail */}
+            <div className={styles.thumbnail}>
+              {!user?.id ? (
+                <div className={`${styles.createIcon} ${styles.modelThumbnail}`}>
                   <Plus className="w-4 h-4 text-white" />
                 </div>
-                <div className="flex flex-col items-start">
-                  <span className="text-xs text-gray-400">Face Model</span>
-                  <span className="font-medium text-white">Create Model</span>
-                </div>
-              </>
-            ) : selectedModel ? (
-              <>
-                <div className="relative w-8 h-8 rounded-full overflow-hidden bg-gray-600 flex-shrink-0">
+              ) : selectedModel ? (
+                <div className={styles.modelThumbnail}>
                   {(selectedModel.status === 'training' || selectedModel.status === 'queued') && (
                     <CircleProgress value={trainingProgress[selectedModel.id]?.getProgressPercentage?.() ?? 0} size={32} thickness={3} />
                   )}
@@ -378,128 +365,149 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
                     <Image
                       src={thumbnailUrls[selectedModel.id]}
                       alt={selectedModel.name}
-                      width={64}
-                      height={64}
+                      width={32}
+                      height={32}
                       className="w-full h-full object-cover"
-                      sizes="64px"
+                      sizes="32px"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-medium">
+                    <div className={styles.modelInitial}>
                       {selectedModel.name.charAt(0).toUpperCase()}
                     </div>
                   )}
                 </div>
-                <div className="flex flex-col items-start">
-                  <span className="text-xs text-gray-400">Face Model</span>
-                  <span className="font-medium text-white">{selectedModel.name}</span>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center flex-shrink-0">
+              ) : (
+                <div className={`${styles.createIconGray} ${styles.modelThumbnail}`}>
                   <Plus className="w-4 h-4 text-gray-400" />
                 </div>
-                <div className="flex flex-col items-start">
-                  <span className="text-xs text-gray-400">Face Model</span>
-                  <span className="font-medium text-white">Select face model</span>
-                </div>
-              </>
-            )}
+              )}
+            </div>
+            
+            {/* Text */}
+            <div className={styles.textContainer}>
+              <p className={styles.primaryText}>
+                {!user?.id ? "Create Model" : selectedModel ? selectedModel.name : "Select face model"}
+              </p>
+              <p className={styles.secondaryText}>Face Model</p>
+            </div>
+          </button>
+        </PopoverTrigger>
+        <PopoverContent 
+          className="w-80 bg-[#083533] border-[rgba(229,251,250,0.2)] text-white p-0" 
+          align="start"
+          side="bottom"
+          sideOffset={8}
+        >
+          <div className={styles.dropdownHeader}>
+            <h3 className={styles.dropdownTitle}>Face Model</h3>
           </div>
-        </SelectTrigger>
-        <SelectContent className="bg-gray-900 border-gray-700 w-80">
-          {!user?.id ? (
-            // Show "Create" button when not authenticated
-            <SelectItem value="create" className="text-white hover:bg-gray-800 focus:bg-gray-800 p-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
-                  <Plus className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <div className="font-medium text-white">Create Face Model</div>
-                  <div className="text-sm text-gray-400">Sign in to get started</div>
-                </div>
-              </div>
-            </SelectItem>
-          ) : isLoading ? (
-            // Show loading state
-            <SelectItem value="loading" disabled className="text-gray-400 p-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-full bg-gray-600 animate-pulse flex-shrink-0"></div>
-                <div>Loading face models...</div>
-              </div>
-            </SelectItem>
-          ) : error ? (
-            // Show error state
-            <SelectItem value="error" disabled className="text-red-400 p-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
-                  !
-                </div>
-                <div>
-                  <div className="font-medium text-red-400">Error loading models</div>
-                  <div className="text-sm text-gray-400">{error}</div>
+          
+          <div className={styles.optionsContainer}>
+            {!user?.id ? (
+              // Show "Sign in" dialog when not authenticated
+              <div className={styles.modelOption} onClick={() => handleModelSelected("signin")}>
+                <div className="flex items-center space-x-3">
+                  <div className={`${styles.createIcon} ${styles.modelThumbnailLarge}`}>
+                    <Plus className="w-5 h-5 text-white" />
+                  </div>
+                  <div className={styles.modelInfo}>
+                    <div className={styles.modelName}>Create Face Model</div>
+                    <div className={styles.modelMeta}>Sign in to get started</div>
+                  </div>
                 </div>
               </div>
-            </SelectItem>
-          ) : faceModels.length === 0 ? (
-            // Show empty state for authenticated users
-            <SelectItem value="empty" className="text-white hover:bg-gray-800 focus:bg-gray-800 p-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
-                  <Plus className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <div className="font-medium text-white">Create Your First Face Model</div>
-                  <div className="text-sm text-gray-400">Upload photos to get started</div>
+            ) : isLoading ? (
+              // Show loading state
+              <div className={styles.modelOption}>
+                <div className="flex items-center space-x-3">
+                  <div className={styles.loadingIndicator}></div>
+                  <div className={styles.modelMeta}>Loading face models...</div>
                 </div>
               </div>
-            </SelectItem>
-          ) : (
-            // Show face models for authenticated users
-            faceModels.map((model) => (
-              <SelectItem
-                key={model.id}
-                value={model.id}
-                className="text-white hover:bg-gray-800 focus:bg-gray-800 p-3"
-              >
-                <div className="flex items-center justify-between w-full">
-                  <div className="flex items-center space-x-3">
-                    <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-600 flex-shrink-0">
-                      {(model.status === 'training' || model.status === 'queued') && (
-                        <CircleProgress value={trainingProgress[model.id]?.getProgressPercentage?.() ?? 0} size={40} thickness={3} />
-                      )}
-                      {thumbnailUrls[model.id] ? (
-                        <Image
-                          src={thumbnailUrls[model.id]}
-                          alt={model.name}
-                          width={80}
-                          height={80}
-                          className="w-full h-full object-cover"
-                          sizes="80px"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-sm font-medium">
-                          {model.name.charAt(0).toUpperCase()}
+            ) : error ? (
+              // Show error state
+              <div className={styles.modelOption}>
+                <div className="flex items-center space-x-3">
+                  <div className={`${styles.errorIcon} ${styles.modelThumbnailLarge}`}>
+                    !
+                  </div>
+                  <div className={styles.modelInfo}>
+                    <div className="font-medium text-red-400">Error loading models</div>
+                    <div className={styles.modelMeta}>{error}</div>
+                  </div>
+                </div>
+              </div>
+            ) : faceModels.length === 0 ? (
+              // Show empty state for authenticated users
+              <div className={styles.modelOption} onClick={() => handleModelSelected("empty")}>
+                <div className="flex items-center space-x-3">
+                  <div className={`${styles.createIcon} ${styles.modelThumbnailLarge}`}>
+                    <Plus className="w-5 h-5 text-white" />
+                  </div>
+                  <div className={styles.modelInfo}>
+                    <div className={styles.modelName}>Create Your First Face Model</div>
+                    <div className={styles.modelMeta}>Upload photos to get started</div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              // Show face models for authenticated users
+              faceModels.map((model) => (
+                <div
+                  key={model.id}
+                  className={styles.modelOption}
+                  onClick={() => handleModelSelected(model.id)}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center space-x-3">
+                      <div className={styles.modelThumbnailLarge}>
+                        {(model.status === 'training' || model.status === 'queued') && (
+                          <CircleProgress value={trainingProgress[model.id]?.getProgressPercentage?.() ?? 0} size={48} thickness={3} />
+                        )}
+                        {thumbnailUrls[model.id] ? (
+                          <Image
+                            src={thumbnailUrls[model.id]}
+                            alt={model.name}
+                            width={48}
+                            height={48}
+                            className="w-full h-full object-cover"
+                            sizes="48px"
+                          />
+                        ) : (
+                          <div className={styles.modelInitial}>
+                            {model.name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      <div className={styles.modelInfo}>
+                        <div className={styles.modelName}>{model.name}</div>
+                        <div className={styles.modelMeta}>
+                          {getImageCount(model)}
                         </div>
-                      )}
-                    </div>
-                    <div>
-                      <div className="font-medium text-white">{model.name}</div>
-                      <div className="text-sm text-gray-400">
-                        {getImageCount(model)}
                       </div>
                     </div>
-                  </div>
-                  <div className="text-sm text-gray-400">
-                    {getStatusDisplay(model)}
+                    <div className={styles.statusIndicator}>
+                      {getStatusDisplay(model)}
+                    </div>
                   </div>
                 </div>
-              </SelectItem>
-            ))
-          )}
-        </SelectContent>
-      </Select>
+              ))
+            )}
+          </div>
+
+          <div className={styles.dropdownFooter}>
+            {!user?.id ? (
+              <Button variant="outline" className={styles.dropdownFooterButton} onClick={() => openSigninModal()}>
+                Sign in
+              </Button>
+            ) : (
+              <Button variant="outline" className={styles.dropdownFooterButton} onClick={() => {/* TODO: Add create face model upload logic */}}>
+                Create Face Model
+              </Button>
+            )}
+          </div>
+        </PopoverContent>
+      </Popover>
 
       {selectedModel && ['queued', 'training'].includes(selectedModel.status || '') && (
         <div className="flex space-x-1">

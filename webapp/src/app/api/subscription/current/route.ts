@@ -85,8 +85,8 @@ export async function GET() {
       credits_included: parseInt(product.metadata.credits_included || '0'),
       credits_used_this_period: creditsUsedThisPeriod,
       max_resolution: product.metadata.max_resolution || '1K',
-      lora_training_included: parseInt(product.metadata.lora_training_included || '0'),
-      lora_training_used: loraTrainingUsed,
+      face_model_training_included: parseInt(product.metadata.face_model_training_included || '0'),
+              face_model_training_used: loraTrainingUsed,
       cancel_at_period_end: subscription.cancel_at_period_end || false,
       // Additional useful fields
       current_period_start: subscription.current_period_start,

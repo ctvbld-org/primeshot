@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
-import { getLoraTrainingCost } from "../_shared/pricing.ts";
+import { getFaceModelTrainingCost } from "../_shared/pricing.ts";
 
 interface TrainingRequest {
   user_id: string;
@@ -22,8 +22,8 @@ interface TrainingJob {
   credits_spent?: number;
 }
 
-// LoRA training cost - now uses shared configuration
-const LORA_TRAINING_COST = getLoraTrainingCost();
+// Face Model training cost - now uses shared configuration
+const FACE_MODEL_TRAINING_COST = getFaceModelTrainingCost();
 
 // Check user's subscription and training limits
 async function checkTrainingLimits(
@@ -32,7 +32,7 @@ async function checkTrainingLimits(
 ): Promise<{ 
   allowed: boolean; 
   reason?: string; 
-  loraTrainingIncluded?: number;
+  faceModelTrainingIncluded?: number;
   currentTrainingCount?: number;
   concurrentJobs?: number;
   currentRunningJobs?: number;
@@ -76,7 +76,7 @@ async function checkTrainingLimits(
     const priceData = await response.json();
     const metadata = priceData.product.metadata;
     
-    const loraTrainingIncluded = parseInt(metadata.lora_training_included || '0');
+    const faceModelTrainingIncluded = parseInt(metadata.face_model_training_included || '0');
     const concurrentJobs = parseInt(metadata.concurrent_jobs || '1');
 
     // Check how many LoRA trainings user has used this billing cycle
@@ -91,11 +91,11 @@ async function checkTrainingLimits(
 
     const currentTrainingCount = trainingCount || 0;
 
-    if (currentTrainingCount >= loraTrainingIncluded) {
+    if (currentTrainingCount >= faceModelTrainingIncluded) {
       return {
         allowed: false,
-        reason: `Monthly LoRA training limit reached (${currentTrainingCount}/${loraTrainingIncluded})`,
-        loraTrainingIncluded,
+            reason: `Monthly Face Model training limit reached (${currentTrainingCount}/${faceModelTrainingIncluded})`,
+    faceModelTrainingIncluded,
         currentTrainingCount
       };
     }
@@ -120,7 +120,7 @@ async function checkTrainingLimits(
 
     return {
       allowed: true,
-      loraTrainingIncluded,
+      faceModelTrainingIncluded,
       currentTrainingCount,
       concurrentJobs,
       currentRunningJobs
@@ -180,12 +180,12 @@ serve(async (req) => {
 
     const currentBalance = balanceData || 0;
 
-    if (currentBalance < LORA_TRAINING_COST) {
+    if (currentBalance < FACE_MODEL_TRAINING_COST) {
       return new Response(
         JSON.stringify({ 
-          error: 'Insufficient credits for LoRA training',
-          details: `Required: ${LORA_TRAINING_COST} credits.`,
-          required_credits: LORA_TRAINING_COST,
+          error: 'Insufficient credits for Face Model training',
+          details: `Required: ${FACE_MODEL_TRAINING_COST} credits.`,
+          required_credits: FACE_MODEL_TRAINING_COST,
           available_credits: currentBalance
         }),
         { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -200,7 +200,7 @@ serve(async (req) => {
           error: 'Training not allowed',
           details: trainingLimitsCheck.reason,
           training_limits: {
-            lora_training_included: trainingLimitsCheck.loraTrainingIncluded,
+            face_model_training_included: trainingLimitsCheck.faceModelTrainingIncluded,
             current_training_count: trainingLimitsCheck.currentTrainingCount,
             concurrent_jobs: trainingLimitsCheck.concurrentJobs,
             current_running_jobs: trainingLimitsCheck.currentRunningJobs
@@ -243,9 +243,9 @@ serve(async (req) => {
     const { data: spendResult, error: spendError } = await supabase
       .rpc('spend_user_credits', {
         p_user_id: user_id,
-        p_amount: LORA_TRAINING_COST,
-        p_usage_type: 'lora_training',
-        p_description: `LoRA face model training`,
+        p_amount: FACE_MODEL_TRAINING_COST,
+        p_usage_type: 'face_model_training',
+        p_description: `Face model training`,
         p_metadata: {
           face_model_id,
           training_type: 'lora'
@@ -273,7 +273,7 @@ serve(async (req) => {
       user_id,
       face_model_id,
       status: 'queued',
-      credits_spent: LORA_TRAINING_COST,
+      credits_spent: FACE_MODEL_TRAINING_COST,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
@@ -293,7 +293,7 @@ serve(async (req) => {
         .rpc('refund_credits_with_idempotency', {
           p_user_id: user_id,
           p_job_id: jobId,
-          p_amount: LORA_TRAINING_COST,
+          p_amount: FACE_MODEL_TRAINING_COST,
           p_reason: `Refund for failed LoRA training job creation`,
           p_idempotency_key: idempotencyKey
         });
@@ -378,11 +378,11 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({
           ...modalResult,
-          credits_spent: LORA_TRAINING_COST,
-          remaining_credits: currentBalance - LORA_TRAINING_COST,
+          credits_spent: FACE_MODEL_TRAINING_COST,
+          remaining_credits: currentBalance - FACE_MODEL_TRAINING_COST,
           training_limits: {
             used: trainingLimitsCheck.currentTrainingCount + 1,
-            included: trainingLimitsCheck.loraTrainingIncluded,
+            included: trainingLimitsCheck.faceModelTrainingIncluded,
             concurrent_running: trainingLimitsCheck.currentRunningJobs + 1,
             concurrent_limit: trainingLimitsCheck.concurrentJobs
           }
@@ -422,7 +422,7 @@ serve(async (req) => {
           error: 'Failed to start training on Modal',
           details: modalError.message,
           job_id: jobId,
-          credits_spent: LORA_TRAINING_COST
+          credits_spent: FACE_MODEL_TRAINING_COST
         }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
