@@ -2,6 +2,7 @@
 
 import { createContext, useState, useContext, useCallback, useEffect, type ReactNode } from 'react'
 import { Dialog, DialogContent } from '@primeshot/common/web/ui/dialog'
+import { DialogHeader, DialogTitle } from '@primeshot/common/web/ui/dialog'
 
 interface DialogServiceValue {
   openDialog: (content: ReactNode) => void
@@ -36,7 +37,14 @@ export function DialogServiceProvider({ children }: { children: ReactNode }) {
     <DialogServiceContext.Provider value={{ openDialog, closeDialog }}>
       {children}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>{content}</DialogContent>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle style={{position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0}}>
+              Dialog
+            </DialogTitle>
+          </DialogHeader>
+          {content}
+        </DialogContent>
       </Dialog>
     </DialogServiceContext.Provider>
   )

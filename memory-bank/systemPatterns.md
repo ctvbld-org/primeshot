@@ -720,6 +720,25 @@ Detected changes in:
 **Auto-update 2025-07-08**:
 Detected changes in:
 - webapp/src/components/home/GenerationControls.module.css
+
+
+**Auto-update 2025-07-08**:
+Detected changes in:
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/components/dashboard/CreditDashboard.tsx
+- webapp/src/components/face_model/FaceModelSelector.tsx
+- webapp/src/components/face_model/FaceModelUploadDialog.tsx
+- webapp/src/components/face_model/steps/FaceModelNameStep.tsx
+- webapp/src/components/face_model/steps/ProfileFormStep.tsx
+- webapp/src/components/face_model/steps/TrainingProgressStep.tsx
+- webapp/src/components/face_model/steps/UploadPhotosStep.tsx
+- webapp/src/components/face_model/steps/UploadProgressStep.tsx
+- webapp/src/components/face_model/steps/UploadRequirementsStep.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/ui/confetti.tsx
+- webapp/src/lib/constants/pricing.ts
+- webapp/src/lib/constants/stripe-reference.ts
+- webapp/src/lib/constants/stripe-reference_old.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

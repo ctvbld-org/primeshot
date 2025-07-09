@@ -13,9 +13,12 @@ import { Plus, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import styles from './FaceModelSelector.module.css';
 import { getApiUrl } from '@/lib/api/client';
-import { useOpenSigninModal } from '@/hooks/useOpenSigninModal';
 import { Button } from '@primeshot/common/web/ui/button';
-import { openFaceModelUploadDialog } from './FaceModelUploadDialog';
+import { FaceModelUploadDialog } from './FaceModelUploadDialog';
+import { useCreditGuard } from '@/hooks/useCreditGuard';
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
+import { SUBSCRIPTION_TIERS_CONFIG } from '@primeshot/common/lib/pricing-config';
+import { useDialogService } from '@/contexts/DialogServiceContext';
 
 interface FaceModelWithTraining {
   id: string;
@@ -55,7 +58,9 @@ interface TrainingProgressState {
 export function FaceModelSelector({ className, onModelSelected, refreshTrigger }: FaceModelSelectorProps) {
   const { user } = useAuth();
   const { getUserFaceModels } = useFaceModelsApi();
-  const openSigninModal = useOpenSigninModal();
+  const { hasActiveSubscription, subscription } = useSubscriptionStatus();
+  const creditGuard = useCreditGuard(1); // Minimal credit requirement for face model creation
+  const dialogService = useDialogService();
   const [faceModels, setFaceModels] = useState<FaceModelWithTraining[]>([]);
   const [selectedModelId, setSelectedModelId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
@@ -64,6 +69,7 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
   const [userHasManuallySelected, setUserHasManuallySelected] = useState(false);
   const [trainingProgress, setTrainingProgress] = useState<Record<string, TrainingProgressState>>({});
   const [trainingJobIds, setTrainingJobIds] = useState<Record<string, string>>({});
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   const supabase = useMemo(() => createClient(), []);
 
@@ -72,6 +78,29 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
     if (!user?.id) return null;
     return faceModels.find(model => model.id === selectedModelId);
   }, [faceModels, selectedModelId, user?.id]);
+
+  // Get max face models allowed for user's subscription
+  const maxFaceModels = useMemo(() => {
+    if (!subscription?.plan_name) return 1; // Default for no subscription
+    const tier = SUBSCRIPTION_TIERS_CONFIG.find(t => t.id === subscription.plan_name);
+    return tier?.maxFaceModels || 1;
+  }, [subscription?.plan_name]);
+
+  // Determine if popover should be enabled (only when user is authenticated AND has active subscription)
+  const shouldEnablePopover = user?.id && hasActiveSubscription;
+
+  // Handle button click - either open popover or trigger guard function
+  const handleButtonClick = useCallback(() => {
+    if (shouldEnablePopover) {
+      setIsPopoverOpen(true);
+    } else {
+      // Use credit guard to handle authentication and subscription flow
+      creditGuard(() => {
+        // This will only execute if user is authenticated and has subscription
+        setIsPopoverOpen(true);
+      })();
+    }
+  }, [shouldEnablePopover, creditGuard]);
 
   // Helper function to get training job IDs for models
   const getTrainingJobIds = useCallback(async (models: FaceModelWithTraining[]) => {
@@ -234,6 +263,7 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
   // Handle manual selection changes
   const handleModelSelected = useCallback((newModelId: string) => {    
     setSelectedModelId(newModelId);
+    setIsPopoverOpen(false); // Close popover when model is selected
     
     // Persist manual selection
     localStorage.setItem(`face-model-selection`, JSON.stringify({
@@ -242,7 +272,7 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
     
     // Notify parent component
     onModelSelected?.(newModelId);
-  }, [user?.id, onModelSelected]);
+  }, [onModelSelected]);
 
   // Handler passed to ProgressTracker to update central progress state without recreating tracker type
   const handleProgressUpdate = useCallback((modelId: string, data: TrainingProgressState) => {
@@ -286,6 +316,18 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
     //loadFaceModels();
 
   }, [loadFaceModels]);
+
+  // Function to open face model upload dialog
+  const openFaceModelUploadDialog = useCallback(() => {
+    dialogService.openDialog(
+      <FaceModelUploadDialog 
+        onComplete={(faceModelId) => {
+          loadFaceModels(); // Refresh the face models list
+          onModelSelected?.(faceModelId); // Select the newly created model
+        }} 
+      />
+    );
+  }, [dialogService, loadFaceModels, onModelSelected]);
 
   const getStatusDisplay = (model: FaceModelWithTraining): React.ReactNode => {
     if (model.status === 'queued') {
@@ -348,10 +390,9 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
         />
       ))}
 
-      <Popover>
+      <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
         <PopoverTrigger asChild>
-          <button className={styles.trigger}>
-            {/* Thumbnail */}
+          <button className={styles.trigger} onClick={handleButtonClick}>
             <div className={styles.thumbnail}>
               {!user?.id ? (
                 <div className={`${styles.createIcon} ${styles.modelThumbnail}`}>
@@ -404,20 +445,7 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
           </div>
           
           <div className={styles.optionsContainer}>
-            {!user?.id ? (
-              // Show "Sign in" dialog when not authenticated
-              <div className={styles.modelOption} onClick={() => handleModelSelected("signin")}>
-                <div className="flex items-center space-x-3">
-                  <div className={`${styles.createIcon} ${styles.modelThumbnailLarge}`}>
-                    <Plus className="w-5 h-5 text-white" />
-                  </div>
-                  <div className={styles.modelInfo}>
-                    <div className={styles.modelName}>Create Face Model</div>
-                    <div className={styles.modelMeta}>Sign in to get started</div>
-                  </div>
-                </div>
-              </div>
-            ) : isLoading ? (
+            {isLoading ? (
               // Show loading state
               <div className={styles.modelOption}>
                 <div className="flex items-center space-x-3">
@@ -439,23 +467,11 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
                 </div>
               </div>
             ) : faceModels.length === 0 ? (
-              // Show empty state for authenticated users
-              <div className={styles.modelOption} onClick={() => {
-                handleModelSelected("empty");
-                openFaceModelUploadDialog();
-              }}>
-                <div className="flex items-center space-x-3">
-                  <div className={`${styles.createIcon} ${styles.modelThumbnailLarge}`}>
-                    <Plus className="w-5 h-5 text-white" />
-                  </div>
-                  <div className={styles.modelInfo}>
-                    <div className={styles.modelName}>Create Your First Face Model</div>
-                    <div className={styles.modelMeta}>Upload photos to get started</div>
-                  </div>
-                </div>
+              <div className={styles.modelOption}>
+                <p>Add up to {maxFaceModels} Face Model{maxFaceModels !== 1 ? 's' : ''}</p>
               </div>
             ) : (
-              // Show face models for authenticated users
+              // Show face models for authenticated users with subscription
               faceModels.map((model) => (
                 <div
                   key={model.id}
@@ -500,15 +516,12 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
           </div>
 
           <div className={styles.dropdownFooter}>
-            {!user?.id ? (
-              <Button variant="outline" className={styles.dropdownFooterButton} onClick={() => openSigninModal()}>
-                Sign in
-              </Button>
-            ) : (
-              <Button variant="outline" className={styles.dropdownFooterButton} onClick={() => openFaceModelUploadDialog()}>
-                Create Face Model
-              </Button>
-            )}
+            <Button variant="outline" className={styles.dropdownFooterButton} onClick={() => {
+              setIsPopoverOpen(false);
+              openFaceModelUploadDialog();
+            }}>
+              Create Face Model
+            </Button>
           </div>
         </PopoverContent>
       </Popover>

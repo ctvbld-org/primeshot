@@ -7,7 +7,7 @@ import { FileUploader } from '@/components/upload/file-uploader'
 import { RejectedImagesDialog } from '@/components/upload/rejected-images-dialog'
 import { useFileUpload } from '@/lib/hooks/use-file-upload'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
-import type { FileWithScore } from '@/lib/types'
+import { UploadFooter } from '@/components/upload/upload-footer'
 
 interface UploadPhotosStepProps {
   onFilesUpdate: (files: File[], qualityResults: Record<string, { isAcceptable: boolean; score: number }>) => void
@@ -162,29 +162,19 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
         onRemoveFile={removeFile}
         onContinue={handleDialogClose}
       />
-
-      {/* Photo thumbnails */}
-      <div className="flex flex-wrap gap-2 justify-center">
-        {acceptedFiles.map((file, index) => (
-          <div key={file.name} className="relative group">
-            <div className="w-[48px] h-[48px] rounded-full overflow-hidden bg-gray-800">
-              {file.preview && (
-                <img 
-                  src={file.preview} 
-                  alt={`Photo ${index + 1}`}
-                  className="w-full h-full object-cover"
-                />
-              )}
-            </div>
-            <button
-              onClick={() => removeFile(file)}
-              className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              ×
-            </button>
-          </div>
-        ))}
-      </div>
+      
+      <UploadFooter
+        acceptedFiles={acceptedFiles}
+        minImages={UPLOAD_CONSTANTS.MIN_IMAGES}
+        maxImages={UPLOAD_CONSTANTS.MAX_IMAGES}
+        onReviewClick={() => {}}
+        isUploading={false}
+        onRemoveFile={removeFile}
+        isAnalyzing={isAnalyzing}
+        currentAnalyzingIndex={currentFileIndex}
+        currentUploadingIndex={null}
+        uploadedFiles={[]}
+      />
     </div>
   )
 }

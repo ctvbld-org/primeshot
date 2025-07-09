@@ -279,7 +279,6 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
             hasBody: false,
             faceDetectionSkipped: true,
             genderDetectionSkipped: true,
-            genderMatchesUser: false,
             eyesVisible: false,
             eyeDetectionSkipped: true,
             issues: ['Analysis error']
@@ -335,7 +334,6 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
             hasBody: false,
             faceDetectionSkipped: true,
             genderDetectionSkipped: true,
-            genderMatchesUser: false,
             eyesVisible: false,
             eyeDetectionSkipped: true,
             issues: ['Analysis error']

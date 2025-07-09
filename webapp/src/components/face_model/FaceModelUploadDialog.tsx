@@ -8,12 +8,12 @@ import { useTranslation } from 'react-i18next'
 import { useCreditGuard } from '@/hooks/useCreditGuard'
 import { useCurrentSubscription } from '@/hooks/useCurrentSubscription'
 import { useAuth } from '@/contexts/auth-context'
-import { useOpenSigninModal } from '@/hooks/useOpenSigninModal'
 import { useFaceModel } from '@/lib/hooks/use-face-model'
 import { useJobsApi } from '@/lib/api/jobs'
 import { uploadFileInChunks } from '@/lib/upload-utils'
 import { cn } from '@/lib/utils'
 import { X } from 'lucide-react'
+import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 
 // Import step components
 import { UploadRequirementsStep } from './steps/UploadRequirementsStep'
@@ -95,7 +95,7 @@ export function FaceModelUploadDialog({ onComplete }: FaceModelUploadDialogProps
         }
         break
       case 'upload':
-        if (stepData.uploadedFiles.length >= 12) {
+        if (stepData.uploadedFiles.length >= UPLOAD_CONSTANTS.MIN_IMAGES) {
           setCurrentStep('profile')
         }
         break
@@ -219,6 +219,11 @@ export function FaceModelUploadDialog({ onComplete }: FaceModelUploadDialogProps
     }
   }, [stepData, createFaceModel, uploadImages, startTraining, updateFaceModelStatus])
 
+  // Handle profile data updates
+  const handleProfileUpdate = useCallback((data: any) => {
+    setStepData(prev => ({ ...prev, profileData: data }))
+  }, [])
+
   // Handle training complete
   const handleTrainingComplete = useCallback(() => {
     if (stepData.faceModelId) {
@@ -231,17 +236,17 @@ export function FaceModelUploadDialog({ onComplete }: FaceModelUploadDialogProps
   const getDialogTitle = () => {
     switch (currentStep) {
       case 'requirements':
-        return t('upload:requirements.title')
+        return 'Requirements'
       case 'upload':
-        return t('upload:common.title')
+        return 'Upload Photos'
       case 'profile':
-        return t('profile:title')
+        return 'Profile Information'
       case 'name':
-        return t('upload:faceModel.nameTitle')
+        return 'Name Your Face Model'
       case 'uploading':
-        return t('upload:status.uploading')
+        return 'Uploading Photos'
       case 'training':
-        return t('upload:faceModel.training')
+        return 'Training Model'
       default:
         return ''
     }
@@ -253,7 +258,7 @@ export function FaceModelUploadDialog({ onComplete }: FaceModelUploadDialogProps
       case 'requirements':
         return !hasScrolledRequirements
       case 'upload':
-        return stepData.uploadedFiles.length < 12
+        return stepData.uploadedFiles.length < UPLOAD_CONSTANTS.MIN_IMAGES
       case 'profile':
         return !stepData.profileData || Object.keys(stepData.profileData).length === 0
       case 'name':
@@ -275,7 +280,7 @@ export function FaceModelUploadDialog({ onComplete }: FaceModelUploadDialogProps
                   <Button
                     onClick={handleNext}
                     disabled={isNextDisabled()}
-                    variant="default"
+                    variant="primary"
                   >
                     {t('common:next')}
                   </Button>
@@ -284,9 +289,9 @@ export function FaceModelUploadDialog({ onComplete }: FaceModelUploadDialogProps
                   <Button
                     onClick={handleNext}
                     disabled={isNextDisabled()}
-                    variant="default"
+                    variant="primary"
                   >
-                    {needsCredits ? t('upload:faceModel.createWithCredits', { credits: FACE_MODEL_TRAINING_CREDITS }) : t('upload:faceModel.create')}
+                    {needsCredits ? `Create with ${FACE_MODEL_TRAINING_CREDITS} Credits` : 'Create'}
                   </Button>
                 )}
               </>
@@ -305,7 +310,7 @@ export function FaceModelUploadDialog({ onComplete }: FaceModelUploadDialogProps
         
         {currentStep === 'training' && (
           <div className="text-sm text-muted-foreground px-6">
-            {t('upload:faceModel.canClose')}
+            {'You can close this dialog while training runs in the background.'}
           </div>
         )}
 
@@ -319,16 +324,21 @@ export function FaceModelUploadDialog({ onComplete }: FaceModelUploadDialogProps
           {currentStep === 'upload' && (
             <UploadPhotosStep
               onFilesUpdate={(files, qualityResults) => {
-                setStepData(prev => ({ ...prev, uploadedFiles: files, qualityResults }))
+                setStepData(prev => {
+                  // Only update if files or qualityResults have actually changed
+                  const filesChanged = prev.uploadedFiles.length !== files.length ||
+                    prev.uploadedFiles.some((f, i) => f.name !== files[i].name);
+                  const qualityChanged = JSON.stringify(prev.qualityResults) !== JSON.stringify(qualityResults);
+                  if (!filesChanged && !qualityChanged) return prev;
+                  return { ...prev, uploadedFiles: files, qualityResults };
+                });
               }}
             />
           )}
           
           {currentStep === 'profile' && (
             <ProfileFormStep
-              onProfileUpdate={(data) => {
-                setStepData(prev => ({ ...prev, profileData: data }))
-              }}
+              onProfileUpdate={handleProfileUpdate}
             />
           )}
           
@@ -360,18 +370,4 @@ export function FaceModelUploadDialog({ onComplete }: FaceModelUploadDialogProps
       </DialogContent>
     </Dialog>
   )
-}
-
-// Export function to open the dialog
-export function openFaceModelUploadDialog() {
-  const dialogService = useDialogService()
-  const openSigninModal = useOpenSigninModal()
-  
-  // We'll need to access these inside the actual component
-  // This is just the trigger function
-  dialogService.openDialog({
-    id: 'face-model-upload',
-    component: FaceModelUploadDialog,
-    props: {}
-  })
 }

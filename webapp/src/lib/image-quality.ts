@@ -26,7 +26,6 @@ const SERVER_STUB_RESULT = {
   hasFace: false,
   hasBody: false,
   faceDetectionSkipped: true,
-  genderMatchesUser: true,
   genderDetectionSkipped: true,
   issues: [] as string[],
   eyesVisible: true,
@@ -56,8 +55,8 @@ const MIN_WIDTH = 1000;
 const MIN_HEIGHT = 1000;
 const MIN_BRIGHTNESS = 0.3;
 const MAX_BRIGHTNESS = 0.8;
-const MIN_CONTRAST = 0.4;
-const MAX_BLUR = 0.5;
+const MIN_CONTRAST = 0.15; // Reduced from 0.4 - more realistic threshold
+const MAX_BLUR = 0.15; // Reduced from 0.5 - more realistic threshold
 
 // Constants for body detection
 const MIN_BODY_PERCENTAGE = 0.10; // 10% of images should include body
@@ -71,6 +70,24 @@ const MAX_DARKNESS_RATIO = 0.6;
 const MIN_BRIGHTNESS_VARIANCE = 0.05;
 const MAX_COLOR_UNIFORMITY = 0.8; // Maximum allowed color uniformity (for detecting tinted lenses)
 const EYE_REGION_SIZE = 25;
+
+// NEW BLUR DETECTION:
+// - Multiple detection algorithms: Variance of Laplacian, Tenengrad, Brenner, Modified Laplacian
+// - Face-region focused analysis when face is detected
+// - Normalized 0-1 range with calibrated thresholds  
+// - Blur weight remains at 25% of total score
+// - Acceptance threshold remains at 0.75
+
+// Contrast detection constants
+const MIN_ACCEPTABLE_CONTRAST = 0.05; // Minimum contrast to avoid completely flat images
+const MIN_SUBJECT_BACKGROUND_SEPARATION = 0.1; // Minimum separation between subject and background
+const FACE_PERIMETER_SAMPLE_WIDTH = 20; // Width of sampling area around face perimeter
+
+// Subject-background separation penalty tiers (AGGRESSIVE penalties for portrait quality):
+// < 5%: Almost guaranteed failure (max score 0.35)
+// 5-7%: Major penalty (max score 0.45) 
+// 7-10%: Significant penalty (max score 0.55)
+// Also weighted at 45% of total contrast calculation
 
 // Initialize face-api models
 let modelsLoaded = false;
@@ -99,7 +116,7 @@ export async function loadModels() {
     // Dynamically import face-api.js
     if (!faceapi) {
       const faceApiModule = await import('face-api.js');
-      faceapi = faceApiModule.default || faceApiModule;
+      faceapi = faceApiModule as any; // Simplified assignment to avoid .default issues
     }
     
     console.log('Starting to load face detection models...');
@@ -171,7 +188,6 @@ export interface ImageQualityResult {
   
   // Gender detection
   detectedGender?: 'male' | 'female';
-  genderMatchesUser: boolean;
   genderDetectionSkipped: boolean;
   
   // Additional info
@@ -183,7 +199,7 @@ export interface ImageQualityResult {
 }
 
 // Analyze image quality using face-api.js and browser canvas
-export async function analyzeImageQuality(file: File, userGender?: 'male' | 'female'): Promise<ImageQualityResult> {
+export async function analyzeImageQuality(file: File): Promise<ImageQualityResult> {
   if (isServer) {
     // Return a stubbed "acceptable" result so server code relying on the
     // structure still works without errors.
@@ -206,16 +222,25 @@ export async function analyzeImageQuality(file: File, userGender?: 'male' | 'fem
   // Initialize result
   const result: ImageQualityResult = initializeResult(width, height);
   
-  // Check resolution
-  const resolutionScore = checkResolution(width, height);
-  result.resolutionScore = resolutionScore;
-  
-  if (resolutionScore < 0.7) {
+  // Check resolution - HARD REQUIREMENT (not part of scoring)
+  result.hasGoodResolution = width >= MIN_WIDTH && height >= MIN_HEIGHT;
+  if (!result.hasGoodResolution) {
+    // Early rejection for resolution - don't bother with other analysis
+    result.resolutionScore = 0; // Keep for compatibility but not used in scoring
     result.issues.push(`Low resolution image. Minimum size is ${MIN_WIDTH}x${MIN_HEIGHT}px.`);
+    result.isAcceptable = false;
+    
+    console.log('Image rejected due to insufficient resolution:', `${width}x${height} < ${MIN_WIDTH}x${MIN_HEIGHT}`);
+    
+    // Return early - no point analyzing other aspects
+    return result;
+  } else {
+    result.resolutionScore = 1; // Perfect score when requirements are met
   }
   
   // Face detection
   let faceDetectionPerformed = false;
+  let primaryFaceDetection: WithFaceLandmarks<{ detection: FaceDetection }> | null = null;
   
   if (modelsReady && faceapi) {
     try {
@@ -234,6 +259,11 @@ export async function analyzeImageQuality(file: File, userGender?: 'male' | 'fem
       
       // Set faceCount based on TinyFaceDetector results
       result.faceCount = faceDetections.length;
+      
+      // Store primary face detection for contrast analysis
+      if (faceDetections.length > 0) {
+        primaryFaceDetection = faceDetections[0];
+      }
       
       // Only proceed with body detection if we have at least one face
       if (faceDetections.length > 0) {
@@ -280,6 +310,9 @@ export async function analyzeImageQuality(file: File, userGender?: 'male' | 'fem
           faceDetectionPerformed = true;
           result.hasFace = true;
           result.faceCount = ssdDetections.length;
+          
+          // Store primary face detection for contrast analysis
+          primaryFaceDetection = ssdDetections[0];
           
           // Use the largest face if multiple are detected
           if (ssdDetections.length > 1) {
@@ -342,12 +375,7 @@ export async function analyzeImageQuality(file: File, userGender?: 'male' | 'fem
                 result.genderDetectionSkipped = false;
                 
                 // Compare with user's gender if provided
-                if (userGender) {
-                  result.genderMatchesUser = result.detectedGender === userGender;
-                  if (!result.genderMatchesUser) {
-                    result.issues.push(`Possible gender mismatch (you chose ${userGender}, detected ${result.detectedGender})`);
-                  }
-                }
+                // result.genderMatchesUser = result.detectedGender === userGender; // Removed as per edit hint
               } else {
                 result.genderDetectionSkipped = true;
               }
@@ -413,13 +441,7 @@ export async function analyzeImageQuality(file: File, userGender?: 'male' | 'fem
           result.genderDetectionSkipped = false;
           
           // Compare with user's gender if provided
-          if (userGender) {
-            result.genderMatchesUser = result.detectedGender === userGender;
-            if (!result.genderMatchesUser) {
-              result.issues.push(`Gender in photo (${result.detectedGender}) does not match selected gender (${userGender})`);
-              result.isAcceptable = false;
-            }
-          }
+          // result.genderMatchesUser = result.detectedGender === userGender; // Removed as per edit hint
         } else {
           result.genderDetectionSkipped = true;
         }
@@ -478,7 +500,7 @@ export async function analyzeImageQuality(file: File, userGender?: 'male' | 'fem
   }
   
   // Analyze image stats using canvas
-  const stats = await analyzeImageStats(img);
+  const stats = await analyzeImageStats(img, primaryFaceDetection);
   
   // Check brightness
   result.brightnessScore = calculateBrightnessScore(stats.brightness);
@@ -491,20 +513,48 @@ export async function analyzeImageQuality(file: File, userGender?: 'male' | 'fem
   }
   
   // Check contrast
-  result.contrastScore = calculateContrastScore(stats.contrast);
-  if (result.contrastScore < 0.7) {
-    result.issues.push('Image has poor contrast.');
+  result.contrastScore = calculateContrastScore(stats.contrast, stats.subjectBackgroundSeparation);
+  if (result.contrastScore < 0.6) { // Reduced from 0.7 to be more forgiving
+    // Check if the issue is specifically subject-background separation
+    if (stats.subjectBackgroundSeparation !== undefined && stats.subjectBackgroundSeparation < MIN_SUBJECT_BACKGROUND_SEPARATION) {
+      if (stats.subjectBackgroundSeparation < 0.05) {
+        result.issues.push('Subject and background are nearly identical in tone - use a strongly contrasting background.');
+      } else if (stats.subjectBackgroundSeparation < 0.07) {
+        result.issues.push('Subject and background are too similar in tone - consider using a contrasting background.');
+      } else {
+        result.issues.push('Subject and background could be more distinct - try a different background color.');
+      }
+    } else {
+      result.issues.push('Image has poor contrast or appears too flat.');
+    }
   }
   
- // Check blur
+
+  
+   // Check blur
   result.blurScore = calculateBlurScore(stats.blurValue);
-  if (result.blurScore < 0.7) {
-    result.issues.push('Image appears to be blurry.');
+  const passesBlurTest = result.blurScore >= 0.8; // INCREASED from 0.75 for more aggressive blur rejection
+  
+  // HARD REJECTION for severely blurred images (bypass overall scoring)
+  const HARD_BLUR_REJECTION_THRESHOLD = 0.2; // If blur score is below this, immediately reject
+  if (result.blurScore < HARD_BLUR_REJECTION_THRESHOLD) {
+    result.issues.push('Image is too blurry and does not meet minimum quality standards.');
+    result.isAcceptable = false; // Hard rejection - skip overall scoring
+    
+    // Clean up and return early
+    URL.revokeObjectURL(img.src);
+    return result;
   }
+  
+  if (!passesBlurTest) {
+    result.issues.push('Image appears to be blurry or lacks sufficient detail.');
+  }
+  
+
   
   // Calculate overall score
-  result.score = calculateOverallScore(result);
-  result.score = result.score * 100; // Convert to 0-100 scale
+  const rawOverallScore = calculateOverallScore(result);
+  result.score = rawOverallScore * 100; // Convert to 0-100 scale
   
   // Determine if image is acceptable
   result.isAcceptable = isAcceptable(result);
@@ -525,6 +575,8 @@ async function createImageElement(file: File): Promise<HTMLImageElement> {
   });
 }
 
+/* 
+// DEPRECATED: Resolution is now a binary pass/fail check, not scored
 function checkResolution(width: number, height: number): number {
   if (width < MIN_WIDTH || height < MIN_HEIGHT) {
     const widthRatio = width / MIN_WIDTH;
@@ -540,6 +592,7 @@ function checkResolution(width: number, height: number): number {
   }
   return 1;
 }
+*/
 
 function evaluateFacePosition(detection: WithFaceLandmarks<{ detection: FaceDetection }>, imgWidth: number, imgHeight: number): number {
   const face = detection.detection;
@@ -572,7 +625,7 @@ function evaluateFacePosition(detection: WithFaceLandmarks<{ detection: FaceDete
   return Math.min(1, Math.max(0, (sizeScore * 0.6 + positionScore * 0.4)));
 }
 
-async function analyzeImageStats(img: HTMLImageElement) {
+async function analyzeImageStats(img: HTMLImageElement, faceDetection: WithFaceLandmarks<{ detection: FaceDetection }> | null = null) {
   const canvas = document.createElement('canvas');
   canvas.width = img.width;
   canvas.height = img.height;
@@ -592,6 +645,11 @@ async function analyzeImageStats(img: HTMLImageElement) {
   let rSum = 0, gSum = 0, bSum = 0;
   let rSquaredSum = 0, gSquaredSum = 0, bSquaredSum = 0;
   
+  // For improved contrast calculation
+  const brightnessValues: number[] = [];
+  let minBrightness = 1;
+  let maxBrightness = 0;
+  
   // Loop through all pixels
   for (let i = 0; i < data.length; i += 4) {
     const r = data[i];
@@ -601,8 +659,13 @@ async function analyzeImageStats(img: HTMLImageElement) {
     // Calculate relative luminance
     const brightness = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
     totalBrightness += brightness;
+    brightnessValues.push(brightness);
     
-    // For variance calculations
+    // Track brightness range for better contrast calculation
+    minBrightness = Math.min(minBrightness, brightness);
+    maxBrightness = Math.max(maxBrightness, brightness);
+    
+    // For variance calculations (legacy method)
     rSum += r;
     gSum += g;
     bSum += b;
@@ -614,7 +677,7 @@ async function analyzeImageStats(img: HTMLImageElement) {
   
   const avgBrightness = totalBrightness / pixelCount;
   
-  // Calculate variance for each channel (for contrast)
+  // Legacy contrast calculation (variance-based)
   const rMean = rSum / pixelCount;
   const gMean = gSum / pixelCount;
   const bMean = bSum / pixelCount;
@@ -623,23 +686,137 @@ async function analyzeImageStats(img: HTMLImageElement) {
   const gVariance = gSquaredSum / pixelCount - (gMean * gMean);
   const bVariance = bSquaredSum / pixelCount - (bMean * bMean);
   
-  // Average variance (contrast)
+  // Average variance (legacy contrast)
   const avgVariance = (rVariance + gVariance + bVariance) / 3;
-  const contrast = Math.sqrt(avgVariance) / 255;
+  const legacyContrast = Math.sqrt(avgVariance) / 255;
   
-  // Calculate blur using Laplacian for edge detection
-  // This is a simplistic approach but should give us a relative measure
-  const blurValue = detectBlur(canvas);
+  // Improved contrast calculation: combination of range and standard deviation
+  const brightnessRange = maxBrightness - minBrightness;
+  
+  // Calculate brightness standard deviation
+  let brightnessVariance = 0;
+  for (const brightness of brightnessValues) {
+    brightnessVariance += Math.pow(brightness - avgBrightness, 2);
+  }
+  brightnessVariance /= pixelCount;
+  const brightnessStdDev = Math.sqrt(brightnessVariance);
+  
+  // Combine range and standard deviation for a more robust contrast measure
+  const improvedContrast = (brightnessRange * 0.6) + (brightnessStdDev * 0.4);
+  
+  // Calculate subject-background separation (portrait-specific contrast)
+  const subjectBackgroundSeparation = calculateSubjectBackgroundSeparation(canvas, faceDetection);
+  
+  // Combine all contrast measures with weighted importance
+  // For portraits, subject-background separation is crucial
+  const weights = {
+    improved: 0.4,    // Reduced from 0.5
+    legacy: 0.15,     // Reduced from 0.2
+    separation: 0.45  // Increased from 0.3 - now the dominant factor!
+  };
+  
+  const finalContrast = (
+    improvedContrast * weights.improved +
+    legacyContrast * weights.legacy +
+    subjectBackgroundSeparation * weights.separation
+  );
+  
+  // Use the maximum of individual methods vs weighted combination for robustness
+  const contrast = Math.max(finalContrast, Math.max(improvedContrast, legacyContrast));
+  
+
+  
+  // Calculate blur using multiple detection methods with face-region focus
+  const blurValue = detectBlur(canvas, faceDetection);
   
   return {
     brightness: avgBrightness,
     contrast: contrast,
-    blurValue: blurValue
+    blurValue: blurValue,
+    subjectBackgroundSeparation: subjectBackgroundSeparation
   };
 }
 
-// Detect blur using Laplacian variance
-function detectBlur(canvas: HTMLCanvasElement): number {
+// NEW: Multiple blur detection methods for better sensitivity
+function detectBlur(canvas: HTMLCanvasElement, faceDetection: WithFaceLandmarks<{ detection: FaceDetection }> | null = null): number {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return 0;
+  
+  const width = canvas.width;
+  const height = canvas.height;
+  
+  // Method 1: Face-focused blur detection if face is available
+  if (faceDetection) {
+    const faceBlur = detectFaceRegionBlur(canvas, faceDetection);
+    
+    // If face detection gives reasonable results, use it
+    if (faceBlur > 0.05) {
+      return faceBlur;
+    }
+  }
+  
+  // Method 2: Multiple full-image blur detection algorithms
+  const results = {
+    varianceOfLaplacian: detectBlurVarianceOfLaplacian(canvas),
+    tenengrad: detectBlurTenengrad(canvas),
+    brenner: detectBlurBrenner(canvas),
+    modifiedLaplacian: detectBlurModifiedLaplacian(canvas)
+  };
+  
+  // Combine multiple methods with weighting
+  // Weight more reliable methods higher
+  const combinedScore = (
+    results.varianceOfLaplacian * 0.3 +
+    results.tenengrad * 0.25 +
+    results.brenner * 0.25 +
+    results.modifiedLaplacian * 0.2
+  );
+  
+  // Don't cap the minimum - let the actual differences show through
+  return Math.min(0.95, combinedScore);
+}
+
+// Face-region focused blur detection
+function detectFaceRegionBlur(canvas: HTMLCanvasElement, faceDetection: WithFaceLandmarks<{ detection: FaceDetection }>): number {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return 0;
+  
+  const face = faceDetection.detection.box;
+  
+  // Add margin but stay within image bounds
+  const margin = 20;
+  const x = Math.max(0, face.x - margin);
+  const y = Math.max(0, face.y - margin);
+  const width = Math.min(canvas.width - x, face.width + 2 * margin);
+  const height = Math.min(canvas.height - y, face.height + 2 * margin);
+  
+  // Extract face region
+  const faceImageData = ctx.getImageData(x, y, width, height);
+  const faceCanvas = document.createElement('canvas');
+  faceCanvas.width = width;
+  faceCanvas.height = height;
+  const faceCtx = faceCanvas.getContext('2d');
+  if (!faceCtx) return 0;
+  
+  faceCtx.putImageData(faceImageData, 0, 0);
+  
+  // Apply multiple methods to face region
+  const faceResults = {
+    varianceOfLaplacian: detectBlurVarianceOfLaplacian(faceCanvas),
+    tenengrad: detectBlurTenengrad(faceCanvas),
+    brenner: detectBlurBrenner(faceCanvas)
+  };
+  
+  // Weight face-specific methods
+  return (
+    faceResults.varianceOfLaplacian * 0.4 +
+    faceResults.tenengrad * 0.35 +
+    faceResults.brenner * 0.25
+  );
+}
+
+// Method 1: Variance of Laplacian (improved version)
+function detectBlurVarianceOfLaplacian(canvas: HTMLCanvasElement): number {
   const ctx = canvas.getContext('2d');
   if (!ctx) return 0;
   
@@ -648,37 +825,158 @@ function detectBlur(canvas: HTMLCanvasElement): number {
   const width = canvas.width;
   const height = canvas.height;
   
-  // Convert to grayscale and calculate Laplacian
-  const grayScale = new Uint8Array(width * height);
+  // Convert to grayscale
+  const gray = new Float32Array(width * height);
   for (let i = 0, j = 0; i < data.length; i += 4, j++) {
-    grayScale[j] = (data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114);
+    gray[j] = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
   }
   
-  // Apply a simple Laplacian kernel to detect edges
-  // Kernel: [0, 1, 0, 1, -4, 1, 0, 1, 0]
+  // Apply Laplacian kernel: [0, -1, 0; -1, 4, -1; 0, -1, 0]
   let sum = 0;
   let count = 0;
   
   for (let y = 1; y < height - 1; y++) {
     for (let x = 1; x < width - 1; x++) {
-      const index = y * width + x;
+      const idx = y * width + x;
       const laplacian = 
-        grayScale[index - width] + 
-        grayScale[index - 1] + 
-        grayScale[index + 1] + 
-        grayScale[index + width] - 
-        4 * grayScale[index];
-      
+        -gray[idx - width] - gray[idx - 1] + 4 * gray[idx] - gray[idx + 1] - gray[idx + width];
       sum += laplacian * laplacian;
       count++;
     }
   }
   
-  // Normalize by pixel count
   const variance = count > 0 ? sum / count : 0;
   
-  // Return normalized value (higher means less blurry)
-  return Math.min(1, variance / 1000);
+  // Normalize to 0-1 range (recalibrated based on test data)
+  const normalized = Math.min(1, variance / 200);
+  
+  return normalized;
+}
+
+// Method 2: Tenengrad variance (gradient-based)
+function detectBlurTenengrad(canvas: HTMLCanvasElement): number {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return 0;
+  
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imageData.data;
+  const width = canvas.width;
+  const height = canvas.height;
+  
+  // Convert to grayscale
+  const gray = new Float32Array(width * height);
+  for (let i = 0, j = 0; i < data.length; i += 4, j++) {
+    gray[j] = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+  }
+  
+  // Sobel operators
+  let sum = 0;
+  let count = 0;
+  
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      const idx = y * width + x;
+      
+      // Sobel X
+      const gx = 
+        -1 * gray[idx - width - 1] + 1 * gray[idx - width + 1] +
+        -2 * gray[idx - 1]         + 2 * gray[idx + 1] +
+        -1 * gray[idx + width - 1] + 1 * gray[idx + width + 1];
+      
+      // Sobel Y  
+      const gy =
+        -1 * gray[idx - width - 1] - 2 * gray[idx - width] - 1 * gray[idx - width + 1] +
+         1 * gray[idx + width - 1] + 2 * gray[idx + width] + 1 * gray[idx + width + 1];
+      
+      const magnitude = Math.sqrt(gx * gx + gy * gy);
+      sum += magnitude * magnitude;
+      count++;
+    }
+  }
+  
+  const tenengrad = count > 0 ? sum / count : 0;
+  
+  // Normalize to 0-1 range (recalibrated)
+  const normalized = Math.min(1, tenengrad / 5000);
+  
+  return normalized;
+}
+
+// Method 3: Brenner gradient
+function detectBlurBrenner(canvas: HTMLCanvasElement): number {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return 0;
+  
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imageData.data;
+  const width = canvas.width;
+  const height = canvas.height;
+  
+  // Convert to grayscale
+  const gray = new Float32Array(width * height);
+  for (let i = 0, j = 0; i < data.length; i += 4, j++) {
+    gray[j] = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+  }
+  
+  let sum = 0;
+  let count = 0;
+  
+  // Brenner focus measure: (f(x+2,y) - f(x,y))^2
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width - 2; x++) {
+      const idx = y * width + x;
+      const diff = gray[idx + 2] - gray[idx];
+      sum += diff * diff;
+      count++;
+    }
+  }
+  
+  const brenner = count > 0 ? sum / count : 0;
+  
+  // Normalize to 0-1 range (recalibrated)
+  const normalized = Math.min(1, brenner / 200);
+  
+  return normalized;
+}
+
+// Method 4: Modified Laplacian
+function detectBlurModifiedLaplacian(canvas: HTMLCanvasElement): number {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return 0;
+  
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imageData.data;
+  const width = canvas.width;
+  const height = canvas.height;
+  
+  // Convert to grayscale
+  const gray = new Float32Array(width * height);
+  for (let i = 0, j = 0; i < data.length; i += 4, j++) {
+    gray[j] = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+  }
+  
+  let sum = 0;
+  let count = 0;
+  
+  // Modified Laplacian: |2*f(x,y) - f(x-1,y) - f(x+1,y)| + |2*f(x,y) - f(x,y-1) - f(x,y+1)|
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      const idx = y * width + x;
+      
+      const horizontal = Math.abs(2 * gray[idx] - gray[idx - 1] - gray[idx + 1]);
+      const vertical = Math.abs(2 * gray[idx] - gray[idx - width] - gray[idx + width]);
+      
+      sum += horizontal + vertical;
+      count++;
+    }
+  }
+  
+  const modifiedLaplacian = count > 0 ? sum / count : 0;
+  
+  // Normalize to 0-1 range (recalibrated) 
+  const normalized = Math.min(1, modifiedLaplacian / 20);
+  
+  return normalized;
 }
 
 function calculateBrightnessScore(brightness: number): number {
@@ -690,24 +988,134 @@ function calculateBrightnessScore(brightness: number): number {
   return 1;
 }
 
-function calculateContrastScore(contrast: number): number {
-  return Math.min(1, contrast / MIN_CONTRAST);
+function calculateContrastScore(contrast: number, subjectBackgroundSeparation?: number): number {
+  // More sophisticated contrast scoring based on improved calculation
+  // With the new method, contrast values typically range from 0.05 to 0.8+
+  
+
+  
+  // Handle edge cases
+  if (contrast < MIN_ACCEPTABLE_CONTRAST) {
+    // Very low contrast indicates a flat/uniform image
+    return 0.3;
+  }
+  
+  // Check for poor subject-background separation specifically
+  if (subjectBackgroundSeparation !== undefined && subjectBackgroundSeparation < MIN_SUBJECT_BACKGROUND_SEPARATION) {
+    // Even if overall contrast is decent, poor separation is a major issue for portraits
+    // Apply very aggressive penalty that significantly caps the score
+    
+    const separationRatio = subjectBackgroundSeparation / MIN_SUBJECT_BACKGROUND_SEPARATION;
+    
+    // Extremely aggressive penalty - poor separation should almost guarantee failure
+    let maxScoreWithPoorSeparation;
+    
+    if (subjectBackgroundSeparation < 0.05) {
+      // Very poor separation (< 5% difference) - severe penalty
+      maxScoreWithPoorSeparation = 0.35; // Almost guaranteed failure
+    } else if (subjectBackgroundSeparation < 0.07) {
+      // Poor separation (5-7% difference) - major penalty
+      maxScoreWithPoorSeparation = 0.45;
+    } else {
+      // Moderate separation issue (7-10% difference) - significant penalty
+      maxScoreWithPoorSeparation = 0.55;
+    }
+    
+    // Calculate base score then apply harsh separation penalty
+    let baseScore = 0.6; // Start with moderate score
+    if (contrast >= 0.2) {
+      baseScore = Math.min(1, 0.85 + (contrast - 0.2) * 0.375);
+    } else if (contrast >= 0.1) {
+      baseScore = 0.7 + (contrast - 0.1) * 1.5;
+    } else if (contrast >= MIN_ACCEPTABLE_CONTRAST) {
+      baseScore = 0.5 + (contrast - MIN_ACCEPTABLE_CONTRAST) / (0.1 - MIN_ACCEPTABLE_CONTRAST) * 0.2;
+    }
+    
+    const finalScore = Math.min(baseScore, maxScoreWithPoorSeparation);
+    return finalScore;
+  }
+  
+  // Good contrast range - most well-lit photos should fall here
+  if (contrast >= 0.2) {
+    // Scale from 0.2+ to high scores (0.85-1.0)
+    const normalizedScore = Math.min(1, 0.85 + (contrast - 0.2) * 0.375);
+    return normalizedScore;
+  }
+  
+  // Moderate contrast range
+  if (contrast >= 0.1) {
+    // Scale from 0.1-0.2 to 0.7-0.85
+    const normalizedScore = 0.7 + (contrast - 0.1) * 1.5;
+    return normalizedScore;
+  }
+  
+  // Low but acceptable contrast range
+  if (contrast >= MIN_ACCEPTABLE_CONTRAST) {
+    // Scale from MIN_ACCEPTABLE_CONTRAST to 0.1 as 0.5-0.7
+    const normalizedScore = 0.5 + (contrast - MIN_ACCEPTABLE_CONTRAST) / (0.1 - MIN_ACCEPTABLE_CONTRAST) * 0.2;
+    return normalizedScore;
+  }
+  
+  // Fallback for very low values
+  const normalizedScore = Math.max(0.3, contrast * 6);
+  return normalizedScore;
 }
 
 function calculateBlurScore(blur: number): number {
-  return Math.min(1, blur / MAX_BLUR);
+  // AGGRESSIVE blur scoring - much stricter thresholds
+  // Blur values typically range from 0.3 to 0.8 after our detection improvements
+  
+  // AGGRESSIVE blur thresholds - raised for stricter requirements  
+  const EXCELLENT_BLUR_THRESHOLD = 0.8;   // Only very sharp images get excellent scores
+  const GOOD_BLUR_THRESHOLD = 0.6;        // Raised threshold for good sharpness
+  const ACCEPTABLE_BLUR_THRESHOLD = 0.4;  // Raised minimum acceptable sharpness  
+  const POOR_BLUR_THRESHOLD = 0.15;        // Raised threshold for poor sharpness
+
+  // Excellent sharpness - only truly crisp images get high scores
+  if (blur >= EXCELLENT_BLUR_THRESHOLD) {
+    const normalizedScore = 1; // Scale 0.8-1.0 to 0.85-1.0
+    const finalScore = Math.min(1, normalizedScore);
+    return finalScore;
+  }
+  
+  // Good sharpness - reasonably sharp images but lower max scores
+  if (blur >= GOOD_BLUR_THRESHOLD) {
+    const normalizedScore = 0.95 + (blur - GOOD_BLUR_THRESHOLD) * 1.0; // Scale 0.6-0.8 to 0.65-0.85  
+    return normalizedScore;
+  }
+  
+  // Acceptable sharpness - lower scores, harder to pass
+  if (blur >= ACCEPTABLE_BLUR_THRESHOLD) {
+    const normalizedScore = 0.45 + (blur - ACCEPTABLE_BLUR_THRESHOLD) * 1.0; // Scale 0.4-0.6 to 0.45-0.65
+    return normalizedScore;
+  }
+  
+  // Poor sharpness - significantly reduced scores  
+  if (blur >= POOR_BLUR_THRESHOLD) {
+    const normalizedScore = 0.25 + (blur - POOR_BLUR_THRESHOLD) * 1.0; // Scale 0.2-0.4 to 0.25-0.45
+    return normalizedScore;
+  }
+  
+  // Very poor/blurry - harsh penalties
+  if (blur >= 0.05) {
+    const normalizedScore = 0.05 + (blur - 0.05) * 1.33; // Scale 0.05-0.2 to 0.05-0.25
+    return normalizedScore;
+  }
+  
+  // Extremely blurry or detection failed - almost zero score
+  return 0.02;
 }
 
 function calculateOverallScore(result: ImageQualityResult): number {
   // Weight factors for different aspects
+  // Resolution removed - now a hard requirement, not part of scoring
   const weights = {
-    face: 0.25,
+    face: 0.25,      // Increased from 0.25
     body: 0.05,
-    resolution: 0.20,
-    brightness: 0.15,
-    contrast: 0.15,
-    blur: 0.1,
-    eyes: 0.1 // New weight for eye visibility
+    brightness: 0.2, // Increased from 0.15  
+    contrast: 0.2,   // Increased from 0.15
+    blur: 0.2,      // Increased from 0.1
+    eyes: 0.1       // Eye visibility weight
   };
   
   // Binary face score: 1 for single face, 0 for no face or multiple faces
@@ -721,22 +1129,21 @@ function calculateOverallScore(result: ImageQualityResult): number {
     
     // Redistribute remaining face weight to other factors
     const weightToRedistribute = (weights.face - reducedFaceWeight);
-    const redistributionPerFactor = weightToRedistribute / 4; // Split among resolution, brightness, contrast, and blur
+    const redistributionPerFactor = weightToRedistribute / 4; // Split among brightness, contrast, blur, and eyes
     
     return (
       reducedFaceWeight * faceScore +
-      (weights.resolution + redistributionPerFactor) * result.resolutionScore +
       (weights.brightness + redistributionPerFactor) * result.brightnessScore +
       (weights.contrast + redistributionPerFactor) * result.contrastScore +
-      (weights.blur + redistributionPerFactor) * result.blurScore
+      (weights.blur + redistributionPerFactor) * result.blurScore +
+      (weights.eyes + redistributionPerFactor) * (result.eyesVisible ? 1 : 0)
     );
   }
 
-  // Calculate base score
+  // Calculate base score (resolution excluded)
   let score = (
     weights.face * faceScore +
     weights.body * result.bodyScore +
-    weights.resolution * result.resolutionScore +
     weights.brightness * result.brightnessScore +
     weights.contrast * result.contrastScore +
     weights.blur * result.blurScore +
@@ -749,10 +1156,7 @@ function calculateOverallScore(result: ImageQualityResult): number {
     score *= 0.5;
   }
 
-  if (!result.genderDetectionSkipped && !result.genderMatchesUser) {
-    // Significant penalty for gender mismatch (reduces score by 50%)
-    score *= 0.5;
-  }
+  // Gender matching removed - no longer penalizing gender detection
 
   return score;
 }
@@ -774,10 +1178,14 @@ function isAcceptable(result: ImageQualityResult): boolean {
   const criticalFailures: string[] = [];
   const warnings: string[] = [];
 
-  // Check for minimum dimensions
-  result.hasGoodResolution = result.width >= 1000 && result.height >= 1000;
+  // HARD REQUIREMENT: Check for minimum dimensions first
+  // This is a binary pass/fail - no gradual scoring
+  result.hasGoodResolution = result.width >= MIN_WIDTH && result.height >= MIN_HEIGHT;
   if (!result.hasGoodResolution) {
-    criticalFailures.push(`Image resolution too low. Minimum required is ${MIN_WIDTH}x${MIN_HEIGHT}px`);
+    // Immediate rejection for resolution - no other checks matter
+    result.isAcceptable = false;
+    result.issues.push(`Image resolution too low. Minimum required is ${MIN_WIDTH}x${MIN_HEIGHT}px`);
+    return false;
   }
   
   // Check for single face
@@ -797,11 +1205,7 @@ function isAcceptable(result: ImageQualityResult): boolean {
     criticalFailures.push('Eyes are not clearly visible (possibly covered by sunglasses or hair)');
   }
 
-  // Check gender match as a critical factor
-  const hasValidGender = result.genderDetectionSkipped || result.genderMatchesUser;
-  if (!result.genderDetectionSkipped && !result.genderMatchesUser) {
-    criticalFailures.push('Gender in photo does not match selected gender');
-  }
+  // Gender matching removed - no longer checking gender validation
   
   // Check for overall quality score
   result.hasGoodScore = result.score >= 0.55;
@@ -988,6 +1392,110 @@ async function checkEyesVisible(img: HTMLImageElement, landmarks: any, ctx: Canv
   }
 }
 
+// Calculate subject-background separation for detected faces
+function calculateSubjectBackgroundSeparation(
+  canvas: HTMLCanvasElement, 
+  faceDetection: WithFaceLandmarks<{ detection: FaceDetection }> | null
+): number {
+  if (!faceDetection) {
+    return 0.5; // Neutral score when no face detected
+  }
+
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  if (!ctx) return 0.5;
+
+  const face = faceDetection.detection.box;
+  const width = canvas.width;
+  const height = canvas.height;
+
+  // Define face area with small margin
+  const faceMargin = 10;
+  const faceArea = {
+    x: Math.max(0, face.x - faceMargin),
+    y: Math.max(0, face.y - faceMargin),
+    width: Math.min(width - (face.x - faceMargin), face.width + 2 * faceMargin),
+    height: Math.min(height - (face.y - faceMargin), face.height + 2 * faceMargin)
+  };
+
+  // Define background sampling areas around the face
+  const sampleWidth = FACE_PERIMETER_SAMPLE_WIDTH;
+  const backgroundAreas = [
+    // Left side
+    {
+      x: Math.max(0, faceArea.x - sampleWidth),
+      y: faceArea.y,
+      width: Math.min(sampleWidth, faceArea.x),
+      height: faceArea.height
+    },
+    // Right side
+    {
+      x: Math.min(width, faceArea.x + faceArea.width),
+      y: faceArea.y,
+      width: Math.min(sampleWidth, width - (faceArea.x + faceArea.width)),
+      height: faceArea.height
+    },
+    // Top
+    {
+      x: faceArea.x,
+      y: Math.max(0, faceArea.y - sampleWidth),
+      width: faceArea.width,
+      height: Math.min(sampleWidth, faceArea.y)
+    },
+    // Bottom
+    {
+      x: faceArea.x,
+      y: Math.min(height, faceArea.y + faceArea.height),
+      width: faceArea.width,
+      height: Math.min(sampleWidth, height - (faceArea.y + faceArea.height))
+    }
+  ].filter(area => area.width > 0 && area.height > 0);
+
+  // Calculate average brightness for face area
+  const faceImageData = ctx.getImageData(faceArea.x, faceArea.y, faceArea.width, faceArea.height);
+  const faceBrightness = calculateAreaBrightness(faceImageData);
+
+  // Calculate average brightness for background areas
+  let totalBackgroundBrightness = 0;
+  let backgroundPixelCount = 0;
+  
+  for (const bgArea of backgroundAreas) {
+    const bgImageData = ctx.getImageData(bgArea.x, bgArea.y, bgArea.width, bgArea.height);
+    const bgBrightness = calculateAreaBrightness(bgImageData);
+    const pixelCount = bgArea.width * bgArea.height;
+    
+    totalBackgroundBrightness += bgBrightness * pixelCount;
+    backgroundPixelCount += pixelCount;
+  }
+
+  if (backgroundPixelCount === 0) {
+    return 0.5; // Fallback if no background areas available
+  }
+
+  const avgBackgroundBrightness = totalBackgroundBrightness / backgroundPixelCount;
+  
+  // Calculate separation as absolute difference
+  const separation = Math.abs(faceBrightness - avgBackgroundBrightness);
+
+  return separation;
+}
+
+// Helper function to calculate average brightness of an image data area
+function calculateAreaBrightness(imageData: ImageData): number {
+  const data = imageData.data;
+  let totalBrightness = 0;
+  const pixelCount = data.length / 4;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+    const brightness = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    totalBrightness += brightness;
+  }
+
+  return totalBrightness / pixelCount;
+}
+
 // Initialize result with all required properties
 function initializeResult(width: number, height: number): ImageQualityResult {
   return {
@@ -1009,7 +1517,6 @@ function initializeResult(width: number, height: number): ImageQualityResult {
     hasBody: false,
     faceDetectionSkipped: false,
     genderDetectionSkipped: true,
-    genderMatchesUser: false,
     issues: [],
     eyesVisible: false,
     eyeDetectionSkipped: false
