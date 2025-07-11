@@ -7,12 +7,25 @@ import FormField from '@/components/review/form-field'
 import {
   PROFILE_FORM_FIELDS,
   FormFieldConfig,
-  FEMALE_HAIRSTYLE_OPTIONS,
-  MALE_HAIRSTYLE_OPTIONS,
 } from '@/constants/profile-options'
+import { 
+  useProfileAutoPopulation, 
+  getAutoPopulatedFormData,
+  isFieldAutoDetected,
+  getFieldConfidence 
+} from '@/hooks/useProfileAutoPopulation'
+import { ImageQualityResult } from '@/lib/image-quality'
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from '@primeshot/common/web/ui/tooltip'
 
 interface ProfileFormStepProps {
-  onProfileUpdate: (data: any) => void
+  onProfileUpdate: (data: any, isComplete: boolean) => void
+  imageAnalysisResult?: ImageQualityResult
+  enableAutoPopulation?: boolean
 }
 
 // Create a new set of fields with gender as editable
@@ -30,28 +43,51 @@ type FormData = {
   [K in FormFieldConfig['name']]: string;
 }
 
-export function ProfileFormStep({ onProfileUpdate }: ProfileFormStepProps) {
+export function ProfileFormStep({ 
+  onProfileUpdate, 
+  imageAnalysisResult,
+  enableAutoPopulation = true 
+}: ProfileFormStepProps) {
   const { t } = useTranslation('profile')
+  
+  // Get auto-populated values from image analysis
+  const autoPopulationResult = useProfileAutoPopulation({
+    imageAnalysisResult,
+    enableAutoPopulation,
+  })
   
   const [formData, setFormData] = useState<FormData>(() => {
     // Initialize all fields with empty strings first
     const initialData = FACE_MODEL_FORM_FIELDS.reduce((acc, field) => ({
       ...acc,
       [field.name]: ''
-    }), {} as FormData)
-    
-    // Set default gender
-    initialData.gender = 'male'
+    }), {} as FormData) 
     
     return initialData
   })
+  
+  // Function to check if all required fields are populated
+  const isFormComplete = (data: FormData): boolean => {
+    return FACE_MODEL_FORM_FIELDS.every(field => {
+      const value = data[field.name]
+      return value && value.trim() !== ''
+    })
+  }
+  
+  // Apply auto-populated values when they become available
+  useEffect(() => {
+    if (enableAutoPopulation && imageAnalysisResult) {
+      const autoFormData = getAutoPopulatedFormData(autoPopulationResult, 0.7) // Increased from 0.5 to 0.7 for higher confidence
+      if (Object.keys(autoFormData).length > 0) {
+        setFormData(prev => ({ ...prev, ...autoFormData }))
+      }
+    }
+  }, [autoPopulationResult, enableAutoPopulation, imageAnalysisResult])
 
   // Update parent component when form data changes
   useEffect(() => {
-    // Only update if we have at least gender selected
-    if (formData.gender) {
-      onProfileUpdate(formData)
-    }
+    const isComplete = isFormComplete(formData)
+    onProfileUpdate(formData, isComplete)
   }, [formData, onProfileUpdate])
 
   const handleFieldChange = (name: string, value: string) => {
@@ -69,18 +105,32 @@ export function ProfileFormStep({ onProfileUpdate }: ProfileFormStepProps) {
       
       <div className={styles.form}>
         {FACE_MODEL_FORM_FIELDS.map(field => {
-          // Handle gender-specific options (like hairstyles)
-          let options = field.options;
-          if (field.genderSpecific) {
-            options = formData.gender === 'female' ? FEMALE_HAIRSTYLE_OPTIONS : MALE_HAIRSTYLE_OPTIONS;
+          const isAutoDetected = isFieldAutoDetected(autoPopulationResult, field.name)
+          const confidence = getFieldConfidence(autoPopulationResult, field.name)
+          
+          // Enhanced label with auto-detection indicator
+          let enhancedLabel: React.ReactNode = field.label;
+          if (isAutoDetected && confidence > 0.7) {
+            enhancedLabel = (
+              <>
+                {field.label}{' '}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span style={{ cursor: 'pointer' }}>✨</span>
+                    </TooltipTrigger>
+                    <TooltipContent>Auto detected</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </>
+            );
           }
 
           return (
             <FormField
-              key={field.name}
               name={field.name}
-              label={field.label}
-              options={options}
+              label={enhancedLabel}
+              options={field.options}
               onFieldUpdate={handleFieldChange}
               value={formData[field.name]}
               disabled={false} // All fields are editable for face models

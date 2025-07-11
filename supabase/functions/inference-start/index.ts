@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
-import { calculateImageCreditCost, type Resolution } from "../_shared/pricing.ts";
+import { calculateImageCreditCost, getSubscriptionLimits, type Resolution } from "../_shared/pricing.ts";
 
 interface InferenceRequest {
   user_id: string;
@@ -46,7 +46,7 @@ async function checkResolutionPermission(
   // Get user's active subscription
   const { data: subscription, error } = await supabase
     .from('user_subscriptions')
-    .select('plan_name, stripe_price_id')
+    .select('plan_name')
     .eq('user_id', userId)
     .eq('status', 'active')
     .single();
@@ -56,28 +56,16 @@ async function checkResolutionPermission(
     return { allowed: requestedResolution === '1K', maxResolution: '1K', userTier: 'none' };
   }
 
-  // Get plan details from Stripe price metadata
+  // Get plan details from database instead of Stripe
   try {
-    const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY');
-    if (!stripeSecretKey) {
-      console.error('STRIPE_SECRET_KEY not found');
+    const limits = await getSubscriptionLimits(supabase, subscription.plan_name);
+    
+    if (!limits) {
+      console.error(`Failed to get subscription limits for plan: ${subscription.plan_name}`);
       return { allowed: false };
     }
 
-    const response = await fetch(`https://api.stripe.com/v1/prices/${subscription.stripe_price_id}?expand[]=product`, {
-      headers: {
-        'Authorization': `Bearer ${stripeSecretKey}`,
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    });
-
-    if (!response.ok) {
-      console.error('Failed to fetch Stripe price details');
-      return { allowed: false };
-    }
-
-    const priceData = await response.json();
-    const maxResolution = priceData.product.metadata.max_resolution || '1K';
+    const maxResolution = limits.max_resolution;
     
     const resolutionHierarchy = { '1K': 1, '2K': 2, '4K': 3 };
     const userMaxLevel = resolutionHierarchy[maxResolution as keyof typeof resolutionHierarchy] || 1;
@@ -145,17 +133,20 @@ serve(async (req) => {
     }
 
     // Calculate credit cost for this operation
-    const creditCost = calculateImageCreditCost(resolution as Resolution, batchSize);
+    const creditCost = await calculateImageCreditCost(supabase, resolution as Resolution, batchSize);
 
     // Check user's credit balance
     const { data: balanceData, error: balanceError } = await supabase
-      .rpc('get_user_credit_balance', { p_user_id: user_id });
+      .rpc('get_user_available_credits', { user_uuid: user_id });
 
     if (balanceError) {
       console.error('Error getting user credit balance:', balanceError);
       return new Response(
         JSON.stringify({ error: 'Failed to check credit balance' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
       );
     }
 

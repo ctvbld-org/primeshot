@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { getApiUrl } from '@/lib/api/client'
+import { useAuth } from '@/contexts/auth-context'
 
 export interface SubscriptionInfo {
   plan_name: string
@@ -13,6 +14,8 @@ export interface SubscriptionInfo {
 }
 
 export function useCurrentSubscription() {
+  const { isAuthenticated } = useAuth()
+
   return useQuery({
     queryKey: ['currentSubscription'],
     queryFn: async (): Promise<SubscriptionInfo | null> => {
@@ -23,6 +26,7 @@ export function useCurrentSubscription() {
       }
       return response.json()
     },
+    enabled: isAuthenticated, // Skip query when user is not authenticated
     staleTime: 60000, // Consider data stale after 1 minute
     gcTime: 300000, // Keep in cache for 5 minutes
   })

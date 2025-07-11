@@ -1,11 +1,15 @@
 /**
- * FRONTEND PRICING CONSTANTS
+ * DEPRECATED: FRONTEND PRICING CONSTANTS
  * 
- * This file imports from the single source of truth: @primeshot/common/lib/pricing-config
- * NO DUPLICATION - all configuration comes from that file!
+ * ⚠️ THIS FILE IS DEPRECATED! ⚠️
  * 
- * Stripe price IDs are environment-aware (test vs production)
- * Environment detection: VERCEL_TARGET_ENV or NODE_ENV
+ * Use the new DB-backed pricing hooks instead:
+ * - useSubscriptionTiers() from '@/hooks/usePricingConfig'
+ * - useCreditPacks() from '@/hooks/usePricingConfig'
+ * - useCreditCosts() from '@/hooks/usePricingConfig'
+ * 
+ * This file is kept for backward compatibility during migration.
+ * All new components should use the DB-backed hooks.
  */
 
 import { 
@@ -79,7 +83,7 @@ export interface CreditPack {
   stripePriceId: string
 }
 
-// Subscription tiers with environment-aware Stripe price IDs
+// DEPRECATED: Use useSubscriptionTiers() hook instead
 export const SUBSCRIPTION_TIERS: SubscriptionTier[] = SUBSCRIPTION_TIERS_CONFIG.map(tier => {
   // Get environment-specific price IDs
   const priceConfig = getSubscriptionPriceIds(tier.id)
@@ -95,7 +99,7 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = SUBSCRIPTION_TIERS_CONFIG.
   }
 })
 
-// Credit Packs - Enhanced with environment-aware Stripe price IDs
+// DEPRECATED: Use useCreditPacks() hook instead
 export const CREDIT_PACKS: CreditPack[] = CREDIT_PACKS_CONFIG.map(pack => {
   // Get environment-specific price ID
   const priceConfig = getCreditPackPriceId(pack.id)
@@ -107,10 +111,10 @@ export const CREDIT_PACKS: CreditPack[] = CREDIT_PACKS_CONFIG.map(pack => {
   }
 })
 
-// Import credit costs from single source - NO DUPLICATION!
+// DEPRECATED: Use useCreditCosts() hook instead
 export const CREDIT_COSTS = CREDIT_COSTS_CONFIG
 
-// Batch size pricing calculated from single source
+// DEPRECATED: Use calculateImageCredits() helper from usePricingConfig instead
 export const BATCH_PRICING = {
   '1K': [
     { size: 5, credits: 5 * CREDIT_COSTS.IMAGE_GENERATION['1K'] },
@@ -170,20 +174,10 @@ export type PlanTierType = 'basic' | 'standard' | 'pro'
  * Version string to help with tracking pricing changes
  * Increment this when modifying pricing structure
  */
-export const PRICING_VERSION = '1.1.0';
+export const PRICING_VERSION = '2.0.0-deprecated';
 
 /**
  * Current Stripe environment being used
  * Useful for debugging and confirming correct environment
  */
-export const STRIPE_ENVIRONMENT = getEnvironment();
-
-/**
- * Use this comment block when copying to Edge Functions:
- * 
- * ```ts
- * // PRICING_VERSION: 1.0.1
- * // This is a copy of the frontend/src/lib/constants/pricing.ts file
- * // Last synchronized: ${new Date().toISOString()}
- * ```
- */ 
+export const STRIPE_ENVIRONMENT = getEnvironment(); 

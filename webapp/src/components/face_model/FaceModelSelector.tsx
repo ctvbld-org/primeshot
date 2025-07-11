@@ -17,8 +17,11 @@ import { Button } from '@primeshot/common/web/ui/button';
 import { FaceModelUploadDialog } from './FaceModelUploadDialog';
 import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus';
-import { SUBSCRIPTION_TIERS_CONFIG } from '@primeshot/common/lib/pricing-config';
+import { useSubscriptionTiers, useCreditCosts, getFaceModelTrainingCost, getFaceModelLimit } from '@/hooks/usePricingConfig';
 import { useDialogService } from '@/contexts/DialogServiceContext';
+import { useCurrentSubscription } from '@/hooks/useCurrentSubscription';
+import { useOpenSubscriptionDialog } from '@/hooks/useOpenSubscriptionDialog';
+import { useOpenCreditPackDialog } from '@/hooks/useOpenCreditPackDialog';
 
 interface FaceModelWithTraining {
   id: string;
@@ -59,8 +62,13 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
   const { user } = useAuth();
   const { getUserFaceModels } = useFaceModelsApi();
   const { hasActiveSubscription, subscription } = useSubscriptionStatus();
-  const creditGuard = useCreditGuard(1); // Minimal credit requirement for face model creation
+  const { data: subscriptionTiers } = useSubscriptionTiers();
+  const { data: creditCosts } = useCreditCosts();
+  const faceModelTrainingCost = getFaceModelTrainingCost(creditCosts);
+  const creditGuard = useCreditGuard(faceModelTrainingCost);
   const dialogService = useDialogService();
+  const openSubscriptionDialog = useOpenSubscriptionDialog();
+  const openCreditPackDialog = useOpenCreditPackDialog();
   const [faceModels, setFaceModels] = useState<FaceModelWithTraining[]>([]);
   const [selectedModelId, setSelectedModelId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
@@ -70,6 +78,12 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
   const [trainingProgress, setTrainingProgress] = useState<Record<string, TrainingProgressState>>({});
   const [trainingJobIds, setTrainingJobIds] = useState<Record<string, string>>({});
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const { data: currentSubscription, isLoading: isSubLoading, isError: isSubError } = useCurrentSubscription();
+  const remainingTrainings = useMemo(() => {
+    if (!currentSubscription) return null;
+    return (currentSubscription.face_model_training_included ?? 0) - (currentSubscription.face_model_training_used ?? 0);
+  }, [currentSubscription]);
+  // Training cost is now available as faceModelTrainingCost from the hook above
 
   const supabase = useMemo(() => createClient(), []);
 
@@ -81,10 +95,76 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
 
   // Get max face models allowed for user's subscription
   const maxFaceModels = useMemo(() => {
-    if (!subscription?.plan_name) return 1; // Default for no subscription
-    const tier = SUBSCRIPTION_TIERS_CONFIG.find(t => t.id === subscription.plan_name);
-    return tier?.maxFaceModels || 1;
-  }, [subscription?.plan_name]);
+    if (!subscription?.plan_name || !subscriptionTiers) return 1; // Default for no subscription
+    return getFaceModelLimit(subscription.plan_name, subscriptionTiers);
+  }, [subscription?.plan_name, subscriptionTiers]);
+
+  // Check if user has reached face model limit
+  const hasReachedFaceModelLimit = useMemo(() => {
+    return faceModels.length >= maxFaceModels;
+  }, [faceModels.length, maxFaceModels]);
+
+  // Check if user is on the highest tier (Pro/Tier 3)
+  const isOnHighestTier = useMemo(() => {
+    if (!subscription?.plan_name || !subscriptionTiers) return false;
+    const tier = subscriptionTiers.find(t => t.name === subscription.plan_name);
+    // Pro tier has max_face_models: 8, which is the highest
+    return tier?.max_face_models === 8;
+  }, [subscription?.plan_name, subscriptionTiers]);
+
+  // Check if user needs credits for training (not within included quota)
+  const needsCreditsForTraining = useMemo(() => {
+    if (!currentSubscription) return true;
+    const remainingTrainings = (currentSubscription.face_model_training_included ?? 0) - (currentSubscription.face_model_training_used ?? 0);
+    return remainingTrainings <= 0;
+  }, [currentSubscription]);
+
+  // Check if user has sufficient credits for paid training
+  const hasSufficientCreditsForTraining = useMemo(() => {
+    if (!needsCreditsForTraining) return true;
+    if (!currentSubscription) return false;
+    const remainingCredits = (currentSubscription.credits_included ?? 0) - (currentSubscription.credits_used_this_period ?? 0);
+    return remainingCredits >= faceModelTrainingCost;
+  }, [needsCreditsForTraining, currentSubscription, faceModelTrainingCost]);
+
+  // Determine what should happen when Create Face Model button is clicked
+  const createFaceModelAction = useMemo(() => {
+    // First check authentication
+    if (!user?.id) {
+      return { type: 'auth', message: 'Sign in to create face models' };
+    }
+
+    // Check subscription
+    if (!hasActiveSubscription) {
+      return { type: 'subscription', message: 'Active subscription required' };
+    }
+
+    // Check face model limits
+    if (hasReachedFaceModelLimit) {
+      if (isOnHighestTier) {
+        return { type: 'limit_reached', message: 'Limit Reached' };
+      } else {
+        return { type: 'upgrade_subscription', message: `Face model limit reached (${maxFaceModels})` };
+      }
+    }
+
+    // Check credits for paid training
+    if (needsCreditsForTraining && !hasSufficientCreditsForTraining) {
+      return { type: 'credit_pack', message: `Need ${faceModelTrainingCost} credits for training`, credits: faceModelTrainingCost };
+    }
+
+    // All checks passed - allow creation
+    return { type: 'create', message: 'Create Face Model' };
+  }, [
+    user?.id, 
+    hasActiveSubscription, 
+    hasReachedFaceModelLimit, 
+    isOnHighestTier, 
+    maxFaceModels,
+    needsCreditsForTraining, 
+    hasSufficientCreditsForTraining, 
+    faceModelTrainingCost
+  ]);
 
   // Determine if popover should be enabled (only when user is authenticated AND has active subscription)
   const shouldEnablePopover = user?.id && hasActiveSubscription;
@@ -323,11 +403,57 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
       <FaceModelUploadDialog 
         onComplete={(faceModelId) => {
           loadFaceModels(); // Refresh the face models list
-          onModelSelected?.(faceModelId); // Select the newly created model
+          setSelectedModelId(faceModelId); // Auto-select the new model
+          localStorage.setItem(`face-model-selection`, JSON.stringify({ modelId: faceModelId }));
+          onModelSelected?.(faceModelId);
         }} 
       />
     );
   }, [dialogService, loadFaceModels, onModelSelected]);
+
+  // Handle Create Face Model button click with enhanced logic
+  const handleCreateFaceModelClick = useCallback(() => {
+    switch (createFaceModelAction.type) {
+      case 'auth':
+        // Use credit guard to handle authentication flow
+        creditGuard(() => {
+          // After authentication, the useMemo will recalculate and we'll get here again
+          setIsPopoverOpen(false);
+          openFaceModelUploadDialog();
+        })();
+        break;
+      
+      case 'subscription':
+        setIsPopoverOpen(false);
+        openSubscriptionDialog();
+        break;
+      
+      case 'upgrade_subscription':
+        setIsPopoverOpen(false);
+        // Use enhanced subscription dialog with face model limit context
+        openSubscriptionDialog({
+          context: 'face-model-limit',
+          currentPlan: subscription?.plan_name,
+          showOnlyUpgrades: true,
+          requiredFeature: 'max_face_models'
+        });
+        break;
+      
+      case 'credit_pack':
+        setIsPopoverOpen(false);
+        openCreditPackDialog(createFaceModelAction.credits);
+        break;
+      
+      case 'limit_reached':
+        // Do nothing - button should be disabled
+        break;
+      
+      case 'create':
+        setIsPopoverOpen(false);
+        openFaceModelUploadDialog();
+        break;
+    }
+  }, [createFaceModelAction, creditGuard, openFaceModelUploadDialog, openSubscriptionDialog, openCreditPackDialog, setIsPopoverOpen, subscription?.plan_name]);
 
   const getStatusDisplay = (model: FaceModelWithTraining): React.ReactNode => {
     if (model.status === 'queued') {
@@ -515,12 +641,23 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
             )}
           </div>
 
-          <div className={styles.dropdownFooter}>
-            <Button variant="outline" className={styles.dropdownFooterButton} onClick={() => {
-              setIsPopoverOpen(false);
-              openFaceModelUploadDialog();
-            }}>
-              Create Face Model
+          <div className={styles.dropdownFooter} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ minWidth: 120, textAlign: 'left', fontSize: 13, color: '#b6e3e2', fontWeight: 500 }}>
+              {isSubLoading ? (
+                <span style={{ opacity: 0.5 }}>...</span>
+              ) : isSubError || !currentSubscription ? null : remainingTrainings && remainingTrainings > 0 ? (
+                <span>{remainingTrainings} included in plan</span>
+              ) : (
+                                    <span>{faceModelTrainingCost} credits</span>
+              )}
+            </div>
+            <Button 
+              variant="ghost" 
+              className={styles.dropdownFooterButton} 
+              onClick={handleCreateFaceModelClick}
+              disabled={createFaceModelAction.type === 'limit_reached'}
+            >
+              {createFaceModelAction.message}
             </Button>
           </div>
         </PopoverContent>

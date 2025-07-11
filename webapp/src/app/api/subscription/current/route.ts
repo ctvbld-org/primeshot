@@ -60,7 +60,8 @@ export async function GET() {
       )  
     }
 
-    const creditsUsedThisPeriod = creditsUsed?.reduce((total, credit) => total + credit.credits, 0) || 0
+    // Fix: Spent credits are stored as negative values, so we need to use absolute values
+    const creditsUsedThisPeriod = creditsUsed?.reduce((total, credit) => total + Math.abs(credit.credits), 0) || 0
 
     // Calculate LoRA training usage in current billing period
     const { data: faceModelTraining, error: loraError } = await supabase
@@ -86,7 +87,7 @@ export async function GET() {
       credits_used_this_period: creditsUsedThisPeriod,
       max_resolution: product.metadata.max_resolution || '1K',
       face_model_training_included: parseInt(product.metadata.face_model_training_included || '0'),
-              face_model_training_used: faceModelTrainingUsed,
+      face_model_training_used: faceModelTrainingUsed,
       cancel_at_period_end: subscription.cancel_at_period_end || false,
       // Additional useful fields
       current_period_start: subscription.current_period_start,

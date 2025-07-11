@@ -47,7 +47,7 @@ export class CreditService {
   async getCurrentBalance(userId: string): Promise<number> {
     const supabase = await this.getSupabase()
     const { data, error } = await supabase
-      .rpc('get_user_credit_balance', { user_uuid: userId })
+      .rpc('get_user_available_credits', { user_uuid: userId })
 
     if (error) {
       console.error('Error getting credit balance:', error)

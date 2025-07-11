@@ -1,7 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
-import { getFaceModelTrainingCost } from "../_shared/pricing.ts";
+import { getFaceModelTrainingCost, getSubscriptionLimits } from "../_shared/pricing.ts";
+
+// S3 Client for cleanup operations
+import { S3Client, DeleteObjectsCommand, ListObjectsV2Command } from "https://esm.sh/@aws-sdk/client-s3@3";
 
 interface TrainingRequest {
   user_id: string;
@@ -22,8 +25,128 @@ interface TrainingJob {
   credits_spent?: number;
 }
 
-// Face Model training cost - now uses shared configuration
-const FACE_MODEL_TRAINING_COST = getFaceModelTrainingCost();
+// Initialize S3 client for cleanup operations
+function getS3Client() {
+  const accessKeyId = Deno.env.get('AWS_ACCESS_KEY_ID');
+  const secretAccessKey = Deno.env.get('AWS_SECRET_ACCESS_KEY');
+  const region = Deno.env.get('AWS_REGION') || 'us-east-1';
+  
+  if (!accessKeyId || !secretAccessKey) {
+    console.warn('AWS credentials not configured, S3 cleanup will be skipped');
+    return null;
+  }
+  
+  return new S3Client({
+    region,
+    credentials: {
+      accessKeyId,
+      secretAccessKey,
+    },
+    forcePathStyle: true, // Required for some S3-compatible services
+  });
+}
+
+// Cleanup function for failed face model training
+async function cleanupFailedFaceModel(supabase: any, faceModelId: string, userId: string): Promise<void> {
+  console.log(`🧹 Starting cleanup for failed face model: ${faceModelId}`);
+  
+  try {
+    // 1. Delete all images from S3 for this face model
+    await deleteS3FaceModelFolder(faceModelId);
+    
+    // 2. Delete all image records from database
+    const { error: imagesDeleteError } = await supabase
+      .from('images')
+      .delete()
+      .eq('face_model_id', faceModelId)
+      .eq('user_id', userId);
+    
+    if (imagesDeleteError) {
+      console.error('Failed to delete image records:', imagesDeleteError);
+      // Continue with cleanup even if this fails
+    } else {
+      console.log(`✅ Deleted image records for face model: ${faceModelId}`);
+    }
+    
+    // 3. Delete the face model record
+    const { error: faceModelDeleteError } = await supabase
+      .from('face_models')
+      .delete()
+      .eq('id', faceModelId)
+      .eq('user_id', userId);
+    
+    if (faceModelDeleteError) {
+      console.error('Failed to delete face model record:', faceModelDeleteError);
+      // Continue with cleanup even if this fails
+    } else {
+      console.log(`✅ Deleted face model record: ${faceModelId}`);
+    }
+    
+    console.log(`🧹 Cleanup completed for face model: ${faceModelId}`);
+    
+  } catch (error) {
+    console.error(`❌ Error during face model cleanup for ${faceModelId}:`, error);
+    // Don't throw - we want to continue with the error response
+  }
+}
+
+// Delete entire face model folder from S3
+async function deleteS3FaceModelFolder(faceModelId: string): Promise<void> {
+  const bucketName = Deno.env.get('AWS_S3_BUCKET');
+  if (!bucketName) {
+    console.error('AWS_S3_BUCKET environment variable not set');
+    return;
+  }
+  
+  const s3Client = getS3Client();
+  if (!s3Client) {
+    console.log('S3 client not available, skipping S3 cleanup');
+    return;
+  }
+  
+  const folderPrefix = `user-images/${faceModelId}/`;
+  
+  try {
+    // List all objects in the face model folder
+    const listCommand = new ListObjectsV2Command({
+      Bucket: bucketName,
+      Prefix: folderPrefix,
+    });
+    
+    const listResponse = await s3Client.send(listCommand);
+    
+    if (!listResponse.Contents || listResponse.Contents.length === 0) {
+      console.log(`No S3 objects found for face model folder: ${folderPrefix}`);
+      return;
+    }
+    
+    // Prepare objects for deletion
+    const objectsToDelete = listResponse.Contents.map(obj => ({ Key: obj.Key! }));
+    
+    // Delete all objects in the folder
+    const deleteCommand = new DeleteObjectsCommand({
+      Bucket: bucketName,
+      Delete: {
+        Objects: objectsToDelete,
+        Quiet: false,
+      },
+    });
+    
+    const deleteResponse = await s3Client.send(deleteCommand);
+    
+    if (deleteResponse.Deleted && deleteResponse.Deleted.length > 0) {
+      console.log(`✅ Deleted ${deleteResponse.Deleted.length} S3 objects for face model: ${faceModelId}`);
+    }
+    
+    if (deleteResponse.Errors && deleteResponse.Errors.length > 0) {
+      console.error(`❌ Failed to delete some S3 objects:`, deleteResponse.Errors);
+    }
+    
+  } catch (error) {
+    console.error(`❌ Error deleting S3 folder for face model ${faceModelId}:`, error);
+    // Don't throw - we want to continue with other cleanup
+  }
+}
 
 // Check user's subscription and training limits
 async function checkTrainingLimits(
@@ -36,69 +159,64 @@ async function checkTrainingLimits(
   currentTrainingCount?: number;
   concurrentJobs?: number;
   currentRunningJobs?: number;
+  noActiveSubscription?: boolean;
+  concurrentLimitReached?: boolean;
 }> {
-  // Get user's active subscription
+  // Get user's active subscription with billing period information
   const { data: subscription, error } = await supabase
     .from('user_subscriptions')
-    .select('plan_name, stripe_price_id')
+    .select('plan_name, current_period_start, current_period_end')
     .eq('user_id', userId)
     .eq('status', 'active')
     .single();
 
   if (error || !subscription) {
     // No active subscription - not allowed to train
+    console.log(`No active subscription found for user ${userId}:`, error);
     return { 
       allowed: false, 
-      reason: 'Active subscription required for LoRA training' 
+      reason: 'Active subscription required for Face Model training',
+      noActiveSubscription: true
     };
   }
 
-  // Get plan details from Stripe
+  // Get plan details from database instead of Stripe
   try {
-    const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY');
-    if (!stripeSecretKey) {
-      console.error('STRIPE_SECRET_KEY not found');
-      return { allowed: false, reason: 'Configuration error' };
+    const limits = await getSubscriptionLimits(supabase, subscription.plan_name);
+    
+    if (!limits) {
+      console.error(`Failed to get subscription limits for plan: ${subscription.plan_name}`);
+      return { allowed: false, reason: 'Failed to verify subscription limits' };
     }
 
-    const response = await fetch(`https://api.stripe.com/v1/prices/${subscription.stripe_price_id}?expand[]=product`, {
-      headers: {
-        'Authorization': `Bearer ${stripeSecretKey}`,
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
+    const faceModelTrainingIncluded = limits.face_model_training_included;
+    const concurrentJobs = limits.concurrent_jobs;
+
+    // Calculate current billing period start - use subscription data with fallback
+    const currentPeriodStart = subscription.current_period_start 
+      ? new Date(subscription.current_period_start)
+      : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // fallback to 30 days ago
+
+    console.log(`Face Model training limits check for user ${userId}:`, {
+      faceModelTrainingIncluded,
+      currentPeriodStart: currentPeriodStart.toISOString(),
+      billingPeriod: subscription.current_period_start ? 'from_subscription' : 'fallback',
+      plan: subscription.plan_name
     });
-
-    if (!response.ok) {
-      console.error('Failed to fetch Stripe price details');
-      return { allowed: false, reason: 'Failed to verify subscription' };
-    }
-
-    const priceData = await response.json();
-    const metadata = priceData.product.metadata;
     
-    const faceModelTrainingIncluded = parseInt(metadata.face_model_training_included || '0');
-    const concurrentJobs = parseInt(metadata.concurrent_jobs || '1');
-
-    // Check how many LoRA trainings user has used this billing cycle
-    const currentPeriodStart = subscription.current_period_start || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // fallback to 30 days ago
-    
+    // Check how many Face Model trainings user has used this billing cycle
     const { count: trainingCount } = await supabase
       .from('training_jobs')
       .select('id', { count: 'exact' })
       .eq('user_id', userId)
       .eq('status', 'completed')
-      .gte('created_at', currentPeriodStart);
+      .gte('created_at', currentPeriodStart.toISOString());
 
     const currentTrainingCount = trainingCount || 0;
 
-    if (currentTrainingCount >= faceModelTrainingIncluded) {
-      return {
-        allowed: false,
-            reason: `Monthly Face Model training limit reached (${currentTrainingCount}/${faceModelTrainingIncluded})`,
-    faceModelTrainingIncluded,
-        currentTrainingCount
-      };
-    }
+    console.log(`Training usage for user ${userId}: ${currentTrainingCount}/${faceModelTrainingIncluded} completed trainings in current billing period`);
+
+    // Do NOT block for quota here. Only block for concurrent jobs below.
 
     // Check concurrent job limits
     const { count: runningJobs } = await supabase
@@ -110,11 +228,15 @@ async function checkTrainingLimits(
     const currentRunningJobs = runningJobs || 0;
 
     if (currentRunningJobs >= concurrentJobs) {
+      console.log(`Concurrent job limit reached for user ${userId}: ${currentRunningJobs}/${concurrentJobs}`);
       return {
         allowed: false,
         reason: `Concurrent job limit reached (${currentRunningJobs}/${concurrentJobs})`,
+        faceModelTrainingIncluded,
+        currentTrainingCount,
         concurrentJobs,
-        currentRunningJobs
+        currentRunningJobs,
+        concurrentLimitReached: true
       };
     }
 
@@ -166,48 +288,97 @@ serve(async (req) => {
       );
     }
 
-    // Check user's credit balance for LoRA training
-    const { data: balanceData, error: balanceError } = await supabase
-      .rpc('get_user_credit_balance', { p_user_id: user_id });
-
-    if (balanceError) {
-      console.error('Error getting user credit balance:', balanceError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to check credit balance' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const currentBalance = balanceData || 0;
-
-    if (currentBalance < FACE_MODEL_TRAINING_COST) {
-      return new Response(
-        JSON.stringify({ 
-          error: 'Insufficient credits for Face Model training',
-          details: `Required: ${FACE_MODEL_TRAINING_COST} credits.`,
-          required_credits: FACE_MODEL_TRAINING_COST,
-          available_credits: currentBalance
-        }),
-        { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Check subscription training limits
+    // Check subscription training limits first to know if this training counts towards included quota
     const trainingLimitsCheck = await checkTrainingLimits(supabase, user_id);
     if (!trainingLimitsCheck.allowed) {
-      return new Response(
-        JSON.stringify({
-          error: 'Training not allowed',
-          details: trainingLimitsCheck.reason,
-          training_limits: {
-            face_model_training_included: trainingLimitsCheck.faceModelTrainingIncluded,
-            current_training_count: trainingLimitsCheck.currentTrainingCount,
-            concurrent_jobs: trainingLimitsCheck.concurrentJobs,
-            current_running_jobs: trainingLimitsCheck.currentRunningJobs
-          }
-        }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      // Only block if no subscription or concurrent job limit
+      if (trainingLimitsCheck.noActiveSubscription) {
+        return new Response(
+          JSON.stringify({
+            error: 'Training not allowed',
+            details: trainingLimitsCheck.reason,
+            training_limits: {
+              face_model_training_included: trainingLimitsCheck.faceModelTrainingIncluded,
+              current_training_count: trainingLimitsCheck.currentTrainingCount,
+              concurrent_jobs: trainingLimitsCheck.concurrentJobs,
+              current_running_jobs: trainingLimitsCheck.currentRunningJobs
+            }
+          }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      if (trainingLimitsCheck.concurrentLimitReached) {
+        return new Response(
+          JSON.stringify({
+            error: 'Concurrent job limit reached',
+            details: trainingLimitsCheck.reason,
+            training_limits: {
+              face_model_training_included: trainingLimitsCheck.faceModelTrainingIncluded,
+              current_training_count: trainingLimitsCheck.currentTrainingCount,
+              concurrent_jobs: trainingLimitsCheck.concurrentJobs,
+              current_running_jobs: trainingLimitsCheck.currentRunningJobs
+            }
+          }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
+    // Determine cost after considering included training quota
+    const baseFaceModelTrainingCost = await getFaceModelTrainingCost(supabase);
+    let trainingCost = baseFaceModelTrainingCost;
+    if (
+      typeof trainingLimitsCheck.faceModelTrainingIncluded === 'number' &&
+      typeof trainingLimitsCheck.currentTrainingCount === 'number' &&
+      trainingLimitsCheck.currentTrainingCount < trainingLimitsCheck.faceModelTrainingIncluded
+    ) {
+      // Within included allowance: this training is free
+      trainingCost = 0;
+    }
+
+    console.log(`Face Model training cost calculation for user ${user_id}:`, {
+      baseCost: baseFaceModelTrainingCost,
+      finalCost: trainingCost,
+      remainingIncluded: trainingLimitsCheck.faceModelTrainingIncluded! - trainingLimitsCheck.currentTrainingCount!,
+      isFree: trainingCost === 0
+    });
+
+    let currentBalance = 0;
+
+    if (trainingCost > 0) {
+      // Check user's credit balance for paid training
+      const { data: balanceData, error: balanceError } = await supabase.rpc(
+        'get_user_available_credits',
+        { user_uuid: user_id }
       );
+
+      if (balanceError) {
+        console.error('Error getting user credit balance:', balanceError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to check credit balance' }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+
+      currentBalance = balanceData || 0;
+
+      if (currentBalance < trainingCost) {
+        return new Response(
+          JSON.stringify({
+            error: 'Insufficient credits for Face Model training',
+            details: `Required: ${trainingCost} credits.`,
+            required_credits: trainingCost,
+            available_credits: currentBalance,
+          }),
+          {
+            status: 402,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
     }
 
     // Verify user owns the face model
@@ -239,28 +410,31 @@ serve(async (req) => {
       );
     }
 
-    // Spend credits BEFORE starting the training job (non-refundable)
-    const { data: spendResult, error: spendError } = await supabase
-      .rpc('spend_user_credits', {
-        p_user_id: user_id,
-        p_amount: FACE_MODEL_TRAINING_COST,
-        p_usage_type: 'face_model_training',
-        p_description: `Face model training`,
-        p_metadata: {
-          face_model_id,
-          training_type: 'lora'
-        }
-      });
-
-    if (spendError || !spendResult) {
-      console.error('Error spending credits:', spendError);
-      return new Response(
-        JSON.stringify({ 
-          error: 'Failed to spend credits',
-          details: 'Insufficient balance or system error'
-        }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    // Spend credits BEFORE starting the training job (non-refundable) if cost > 0
+    if (trainingCost > 0) {
+      const { data: spendResult, error: spendError } = await supabase.rpc(
+        'spend_user_credits',
+        {
+          p_user_id: user_id,
+          p_amount: trainingCost,
+          p_usage_type: 'face_model_training',
+          p_description: `Face model training`,
+          p_metadata: {
+            face_model_id,
+          },
+        },
       );
+
+      if (spendError || !spendResult) {
+        console.error('Failed to spend credits:', spendError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to spend credits' }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
     }
 
     // Generate job ID 
@@ -273,7 +447,7 @@ serve(async (req) => {
       user_id,
       face_model_id,
       status: 'queued',
-      credits_spent: FACE_MODEL_TRAINING_COST,
+      credits_spent: trainingCost,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
@@ -293,7 +467,7 @@ serve(async (req) => {
         .rpc('refund_credits_with_idempotency', {
           p_user_id: user_id,
           p_job_id: jobId,
-          p_amount: FACE_MODEL_TRAINING_COST,
+          p_amount: trainingCost,
           p_reason: `Refund for failed LoRA training job creation`,
           p_idempotency_key: idempotencyKey
         });
@@ -305,11 +479,15 @@ serve(async (req) => {
         console.log(`Refund processed for training job ${jobId}: ${refundResult[0].refund_created ? 'new' : 'duplicate'} refund`);
       }
 
+      // Clean up the failed face model since job creation failed
+      await cleanupFailedFaceModel(supabase, face_model_id, user_id);
+
       return new Response(
         JSON.stringify({ 
           error: 'Failed to create training job',
           details: insertError.message,
-          code: insertError.code
+          code: insertError.code,
+          cleanup_performed: true
         }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -377,9 +555,10 @@ serve(async (req) => {
 
       return new Response(
         JSON.stringify({
+          job_id: jobId,
           ...modalResult,
-          credits_spent: FACE_MODEL_TRAINING_COST,
-          remaining_credits: currentBalance - FACE_MODEL_TRAINING_COST,
+          credits_spent: trainingCost,
+          remaining_credits: currentBalance - trainingCost,
           training_limits: {
             used: trainingLimitsCheck.currentTrainingCount + 1,
             included: trainingLimitsCheck.faceModelTrainingIncluded,
@@ -406,14 +585,8 @@ serve(async (req) => {
         })
         .eq('id', jobId);
 
-      // Update face model status back to queued
-      await supabase
-        .from('face_models')
-        .update({ 
-          status: 'queued',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', face_model_id);
+      // Clean up the failed face model (S3 images, database records, face model)
+      await cleanupFailedFaceModel(supabase, face_model_id, user_id);
 
       // Note: We don't refund credits here as the training was attempted
 
@@ -422,7 +595,8 @@ serve(async (req) => {
           error: 'Failed to start training on Modal',
           details: modalError.message,
           job_id: jobId,
-          credits_spent: FACE_MODEL_TRAINING_COST
+          credits_spent: trainingCost,
+          cleanup_performed: true
         }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );

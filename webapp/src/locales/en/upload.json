@@ -56,6 +56,7 @@
     "error": "Error",
     "failed": "Failed",
     "successful": "Successful",
+    "uploading": "Uploading Photos",
     "uploadComplete": "Successfully uploaded {{count}} images.",
     "uploadingProgress": "Uploading image {{current}} of {{total}}...",
     "image_one": "{{count}} Image",
@@ -72,10 +73,17 @@
     "analyzing_other": "Analyzing {{count}} photos...",
     "checkingQuality": "Checking lighting, framing, and sharpness."
   },
+  "upload": {
+    "uploadingFiles": "Uploading {{uploaded}} of {{total}} photos...",
+    "uploadingInfo": "Please keep this page open until upload completes."
+  },
   "errors": {
-    "noActiveOrder": "No Active Order",
-    "paymentRequired": "Please complete payment before uploading photos.",
-    "loadOrderData": "Failed to load order data. Please try again.",
+    "noActiveSubscription": "Active subscription required",
+    "subscriptionRequired": "Please upgrade your subscription to create face models.",
+    "insufficientCredits": "Insufficient credits for face model training",
+    "creditPackRequired": "You need {{credits}} credits to train this face model. Please purchase a credit pack.",
+    "faceModelLimitReached": "Face model limit reached",
+    "faceModelLimitMessage": "Your plan allows {{limit}} face model(s). Please upgrade to create more.",
     "uploadFailed": "Failed to upload images..",
     "someUploadsFailed": "{{count}} uploads failed. Please try again.",
     "savingProgress": "Failed to save progress. Continuing to review.",
@@ -93,7 +101,6 @@
     "fileSizeExceeded": "File size exceeds maximum limit of {{size}}.",
     "duplicateFile": "A file with this name already exists.",
     "uploadFailedCount": "{{count}} file(s) could not be added",
-    "orderIdRequired": "Order ID is required for file upload",
     "invalidResponse": "Invalid response: missing or invalid URL",
     "deleteFailed": "Failed to delete image",
     "genericError": "An error occurred. Please try again."
@@ -126,5 +133,31 @@
     "photoWithQuality": "Photo {{number}} - {{quality}}",
     "emptyPhotoSlot": "Empty photo slot {{number}}",
     "photoPreview": "Preview of photo {{number}}"
+  },
+  "faceModel": {
+    "nameLabel": "Face Model Name",
+    "namePlaceholder": "Enter a name for your face model",
+    "nameDescription": "This will help you identify your face model later.",
+    "creditsRequired": "Training will use {{credits}} credits",
+    "creditsDescription": "Credits will be deducted when training starts.",
+    "training": "Training Face Model",
+    "trainingInitializing": "Initializing training process...",
+    "timeRemaining": "Estimated time remaining",
+    "trainingInfo": "Your face model is being trained. This process typically takes 10-15 minutes.",
+    "canCloseInfo": "You can safely close this dialog and check back later.",
+    "trainingError": "Training failed"
+  },
+  "confirmClose": {
+    "title": "Close Face Model Creation?",
+    "description": "Are you sure you want to close? All your progress will be lost and you'll need to start over.",
+    "progressMessages": {
+      "upload": "Your uploaded photos will be lost.",
+      "profile": "Your profile information will be lost.",
+      "name": "Your face model name will be lost."
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "confirm": "Close Anyway"
+    }
   }
 } 

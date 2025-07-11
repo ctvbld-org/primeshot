@@ -217,73 +217,73 @@ async function handleSubscriptionPaymentSucceeded(
 
   // Get plan details from Stripe and process atomically
   try {
-    const price = await stripe.prices.retrieve(subscription.stripe_price_id, {
-      expand: ['product']
-    });
+    // Retrieve full subscription to access reliable period dates and product metadata
+    const stripeSub = await stripe.subscriptions.retrieve(subscriptionId, {
+      expand: ['items.data.price.product']
+    }) as Stripe.Subscription;
 
-    const product = price.product as Stripe.Product;
-    const creditsIncluded = parseInt(product.metadata.credits_included || '0');
+    // Fallback to now / +30d if Stripe ever omits these (shouldn’t happen)
+    const currentPeriodStartUnix = (stripeSub as any).current_period_start as number | undefined;
+    const currentPeriodEndUnix = (stripeSub as any).current_period_end as number | undefined;
+
+    const periodStartDate = currentPeriodStartUnix
+      ? new Date(currentPeriodStartUnix * 1000)
+      : new Date();
+
+    const periodEndDate = currentPeriodEndUnix
+      ? new Date(currentPeriodEndUnix * 1000)
+      : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+    // Get credits included from the product metadata (defaults to 0)
+    const firstItem = stripeSub.items.data[0];
+    const product = firstItem?.price?.product as Stripe.Product | undefined;
+    const creditsIncluded = product ? parseInt(product.metadata?.credits_included || '0') : 0;
+
+    const description = `Credits from subscription ${invoice.billing_reason === 'subscription_create' ? 'activation' : 'renewal'} - ${subscription.plan_name}`;
+    const metadata = {
+      invoice_id: invoice.id,
+      billing_reason: invoice.billing_reason,
+      billing_period_start: periodStartDate.toISOString(),
+      billing_period_end: periodEndDate.toISOString()
+    };
 
     if (creditsIncluded > 0) {
-      // Calculate billing period dates
-      const period = (invoice as any).lines?.data?.[0]?.period;
-      const periodStart = period?.start 
-        ? new Date(period.start * 1000) 
-        : new Date();
-      const periodEnd = period?.end 
-        ? new Date(period.end * 1000) 
-        : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Default 30 days
-
-      const description = `Credits from subscription ${invoice.billing_reason === 'subscription_create' ? 'activation' : 'renewal'} - ${subscription.plan_name}`;
-      const metadata = {
-        invoice_id: invoice.id,
-        billing_reason: invoice.billing_reason,
-        billing_period_start: periodStart.toISOString(),
-        billing_period_end: periodEnd.toISOString()
-      };
-
-      // Use atomic RPC function to update subscription and award credits
+      // Atomically update periods and award credits
       const { error: atomicError } = await supabase.rpc('award_subscription_credits', {
         p_user_id: subscription.user_id,
         p_subscription_id: subscriptionId,
         p_credits: creditsIncluded,
-        p_expires_at: periodEnd.toISOString(),
-        p_period_start: periodStart.toISOString(),
-        p_period_end: periodEnd.toISOString(),
+        p_expires_at: periodEndDate.toISOString(),
+        p_period_start: periodStartDate.toISOString(),
+        p_period_end: periodEndDate.toISOString(),
         p_description: description,
         p_metadata: metadata
       });
 
       if (atomicError) {
-        console.error(`Error in atomic subscription credit operation:`, atomicError.message);
+        console.error('Error in atomic subscription credit operation:', atomicError.message);
         throw new Error(`Failed to process subscription credits atomically: ${atomicError.message}`);
       }
 
       devLog(`Atomically awarded ${creditsIncluded} credits to user ${subscription.user_id}`);
     } else {
-      // Still update subscription periods even if no credits to award
-      const period = (invoice as any).lines?.data?.[0]?.period;
-      if (period) {
-        const periodStart = new Date(period.start * 1000).toISOString();
-        const periodEnd = new Date(period.end * 1000).toISOString();
-        
-        const { error: updateError } = await supabase
-          .from('user_subscriptions')
-          .update({
-            current_period_start: periodStart,
-            current_period_end: periodEnd,
-            updated_at: new Date().toISOString()
-          })
-          .eq('stripe_subscription_id', subscriptionId);
+      // No credits to award, but still keep subscription periods up-to-date
+      const { error: updateError } = await supabase
+        .from('user_subscriptions')
+        .update({
+          current_period_start: periodStartDate.toISOString(),
+          current_period_end: periodEndDate.toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('stripe_subscription_id', subscriptionId);
 
-        if (updateError) {
-          console.error(`Failed to update subscription periods:`, updateError.message);
-        }
+      if (updateError) {
+        console.error('Failed to update subscription periods:', updateError.message);
       }
     }
 
   } catch (stripeError) {
-    console.error('Error fetching plan details from Stripe:', stripeError);
+    console.error('Error processing subscription payment:', stripeError);
     throw new Error('Failed to process subscription payment');
   }
 }

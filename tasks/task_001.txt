@@ -9,3 +9,18 @@ Create a new page component at `src/pages/index.tsx` that implements the layout 
 
 # Test Strategy:
 Visual testing across multiple device sizes (mobile, tablet, desktop). Verify layout matches design spec with correct component placement and stacking behavior.
+
+# Task ID: pricing-db-schema-design
+# Title: Design DB schema for dynamic pricing (subscriptions, credit_packs, credit_costs)
+# Status: pending
+# Dependencies: 
+# Priority: high
+# Description: Design the database schema for dynamic pricing, including tables for subscriptions (tiers), credit_packs, and credit_costs. Remove cost_per_credit and savings fields from credit_packs as per user instruction.
+# Details:
+- Create a 'subscriptions' table with fields: id (PK), name, display_name, description, original_price, monthly_price, yearly_price, credits, max_resolution, face_model_training_included, concurrent_jobs, max_face_models, features (JSONB or text[]), popular (boolean), created_at, updated_at
+- Create a 'credit_packs' table with fields: id (PK), name, credits, price, validity_days, created_at, updated_at
+- Create a 'credit_costs' table with fields: id (PK), type (e.g., 'IMAGE_GENERATION_1K', 'IMAGE_GENERATION_2K', 'FACE_MODEL_TRAINING'), value (int), created_at, updated_at
+# Test Strategy:
+- Review schema with team
+- Ensure all current pricing config can be represented in the new tables
+- Validate with sample data

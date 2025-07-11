@@ -8,9 +8,10 @@ import { RejectedImagesDialog } from '@/components/upload/rejected-images-dialog
 import { useFileUpload } from '@/lib/hooks/use-file-upload'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 import { UploadFooter } from '@/components/upload/upload-footer'
+import { ImageQualityResult } from '@/lib/image-quality'
 
 interface UploadPhotosStepProps {
-  onFilesUpdate: (files: File[], qualityResults: Record<string, { isAcceptable: boolean; score: number }>) => void
+  onFilesUpdate: (files: File[], qualityResults: Record<string, ImageQualityResult>) => void
 }
 
 export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {

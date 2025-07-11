@@ -13,7 +13,16 @@ interface UseFaceModelReturn {
   isLoading: boolean;
   error: string | null;
   createFaceModel: (name?: string) => Promise<FaceModel>;
-  updateStatus: (status: FaceModel['status']) => Promise<void>;
+  /**
+   * Update the status of a face model.
+   * If faceModelId is provided, it is used directly – this allows callers to
+   * update status immediately after creating a model before local state has
+   * re-rendered. Otherwise the hook’s current faceModel id is used.
+   */
+  updateStatus: (
+    status: FaceModel['status'],
+    faceModelId?: string
+  ) => Promise<void>;
   isCreating: boolean;
 }
 
@@ -53,20 +62,35 @@ export function useFaceModel(options: UseFaceModelOptions = {}): UseFaceModelRet
     }
   }, [user?.id, createFaceModelApi]);
 
-  const updateStatus = useCallback(async (status: FaceModel['status']): Promise<void> => {
-    if (!faceModel?.id) {
-      throw new Error('No face model to update');
-    }
+  const updateStatus = useCallback(
+    async (
+      status: FaceModel['status'],
+      faceModelId?: string
+    ): Promise<void> => {
+      const targetId = faceModelId ?? faceModel?.id;
 
-    try {
-      await updateFaceModelStatus(faceModel.id, status);
-      setFaceModel(prev => prev ? { ...prev, status } : null);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to update face model status';
-      setError(message);
-      throw new Error(message);
-    }
-  }, [faceModel?.id, updateFaceModelStatus]);
+      if (!targetId) {
+        throw new Error('No face model to update');
+      }
+
+      try {
+        await updateFaceModelStatus(targetId, status);
+
+        // Update local state only if we are updating the currently stored model
+        if (!faceModelId || faceModelId === faceModel?.id) {
+          setFaceModel(prev => (prev ? { ...prev, status } : prev));
+        }
+      } catch (err) {
+        const message =
+          err instanceof Error
+            ? err.message
+            : 'Failed to update face model status';
+        setError(message);
+        throw new Error(message);
+      }
+    },
+    [faceModel?.id, updateFaceModelStatus]
+  );
 
   // Auto-create face model if enabled and user is available
   useEffect(() => {
@@ -83,7 +107,7 @@ export function useFaceModel(options: UseFaceModelOptions = {}): UseFaceModelRet
       run();
     }
     // We intentionally omit createFaceModel from dependencies to prevent effect loops
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [autoCreate, user?.id, faceModel, isCreating, isLoading]);
 
   return {

@@ -9,11 +9,11 @@
  *   node setup-stripe-products.js --skip-cleanup     # Keep existing products
  *   node setup-stripe-products.js --prod --skip-cleanup  # Production + keep existing
  * 
- * Requires STRIPE_SECRET_KEY environment variable in the appropriate .env file
+ * Requires STRIPE_SECRET_KEY and SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY environment variables
  */
 
 import Stripe from 'stripe'
-import { SUBSCRIPTION_TIERS_CONFIG, CREDIT_PACKS_CONFIG } from '../pricing-config'
+import { createClient } from '@supabase/supabase-js'
 import dotenv from 'dotenv'
 
 // Parse command line arguments
@@ -31,19 +31,72 @@ if (environment === 'prod') {
 }
 
 console.log(`Environment: ${environment}`)
-console.log(`Stripe Key: ${process.env.STRIPE_SECRET_KEY ? 'Found' : 'Missing'}\n`)
+console.log(`Stripe Key: ${process.env.STRIPE_SECRET_KEY ? 'Found' : 'Missing'}`)
+console.log(`Supabase URL: ${process.env.SUPABASE_URL ? 'Found' : 'Missing'}`)
+console.log(`Supabase Service Key: ${process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Found' : 'Missing'}\n`)
 
 if (!process.env.STRIPE_SECRET_KEY) {
   console.error('❌ STRIPE_SECRET_KEY not found in environment variables')
-  console.error(`Please create a ${environment === 'prod' ? '.env' : '.env.local'} file with:`)
-  console.error('STRIPE_SECRET_KEY=sk_test_your_key_here')
   process.exit(1)
 }
 
-// Initialize Stripe
+if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  console.error('❌ SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required')
+  console.error(`Please add these to your ${environment === 'prod' ? '.env' : '.env.local'} file`)
+  process.exit(1)
+}
+
+// Initialize Stripe and Supabase
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2025-06-30.basil'
 })
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+)
+
+// Fetch subscription tiers from database
+async function fetchSubscriptionTiers() {
+  console.log('📊 Fetching subscription tiers from database...')
+  
+  const { data: subscriptions, error } = await supabase
+    .from('subscriptions')
+    .select('*')
+    .order('monthly_price', { ascending: true })
+
+  if (error) {
+    throw new Error(`Failed to fetch subscription tiers: ${error.message}`)
+  }
+
+  if (!subscriptions || subscriptions.length === 0) {
+    throw new Error('No subscription tiers found in database. Please run the pricing migrations first.')
+  }
+
+  console.log(`✅ Found ${subscriptions.length} subscription tiers`)
+  return subscriptions
+}
+
+// Fetch credit packs from database
+async function fetchCreditPacks() {
+  console.log('💳 Fetching credit packs from database...')
+  
+  const { data: creditPacks, error } = await supabase
+    .from('credit_packs')
+    .select('*')
+    .order('credits', { ascending: true })
+
+  if (error) {
+    throw new Error(`Failed to fetch credit packs: ${error.message}`)
+  }
+
+  if (!creditPacks || creditPacks.length === 0) {
+    throw new Error('No credit packs found in database. Please run the pricing migrations first.')
+  }
+
+  console.log(`✅ Found ${creditPacks.length} credit packs`)
+  return creditPacks
+}
 
 // Cleanup existing products before creating new ones
 async function cleanupExistingProducts() {
@@ -103,33 +156,7 @@ async function cleanupExistingProducts() {
   }
 }
 
-// Convert pricing.ts data to Stripe-compatible format
-function convertTierForStripe(tier) {
-  return {
-    id: tier.id,
-    name: tier.name,
-    description: tier.description,
-    monthlyPrice: tier.monthlyPrice,
-    yearlyPrice: tier.yearlyPrice,
-    credits: tier.credits,
-    maxResolution: tier.maxResolution,
-    faceModelTrainingIncluded: tier.faceModelTrainingIncluded,
-    concurrentJobs: tier.concurrentJobs,
-    maxFaceModels: tier.maxFaceModels
-  }
-}
-
-function convertPackForStripe(pack) {
-  return {
-    id: pack.id,
-    name: pack.name,
-    credits: pack.credits,
-    price: pack.price,
-    validityDays: pack.validityDays
-  }
-}
-
-async function createSubscriptionProducts() {
+async function createSubscriptionProducts(subscriptionTiers) {
   console.log('🚀 Creating subscription products...\n')
   
   const results: Array<{
@@ -139,79 +166,78 @@ async function createSubscriptionProducts() {
     yearlyPrice: string | null;
   }> = []
   
-  for (const tierData of SUBSCRIPTION_TIERS_CONFIG) {
-    const tier = convertTierForStripe(tierData)
+  for (const tier of subscriptionTiers) {
     try {
       // Create product
-      console.log(`Creating product: ${tier.name}`)
+      console.log(`Creating product: ${tier.display_name}`)
       const product = await stripe.products.create({
-        name: `${tier.name}`,
+        name: `${tier.display_name}`,
         description: tier.description,
         type: 'service',
         tax_code: 'txcd_10505002', // Correct tax code for subscription services
         metadata: {
-          plan_name: tier.id,
+          plan_name: tier.name,
           credits_included: tier.credits.toString(),
-          max_resolution: tier.maxResolution,
-          face_model_training_included: tier.faceModelTrainingIncluded.toString(),
-          concurrent_jobs: tier.concurrentJobs.toString(),
-          max_face_models: tier.maxFaceModels.toString(),
+          max_resolution: tier.max_resolution,
+          face_model_training_included: tier.face_model_training_included.toString(),
+          concurrent_jobs: tier.concurrent_jobs.toString(),
+          max_face_models: tier.max_face_models.toString(),
           tier_type: 'subscription'
         }
       })
       
       // Create monthly price
-      console.log(`Creating monthly price: $${tier.monthlyPrice}`)
+      console.log(`Creating monthly price: $${tier.monthly_price}`)
       const monthlyPrice = await stripe.prices.create({
         product: product.id,
-        unit_amount: tier.monthlyPrice * 100, // Convert to cents
+        unit_amount: Math.round(tier.monthly_price * 100), // Convert to cents
         currency: 'usd',
         recurring: {
           interval: 'month'
         },
         metadata: {
           billing_cycle: 'monthly',
-          plan_name: tier.id
+          plan_name: tier.name
         }
       })
       
       // Create yearly price (if available)
       let yearlyPrice: Stripe.Price | null = null
-      if (tier.yearlyPrice) {
-        const yearlyTotal = tierData.yearlyPrice * 12 // yearlyPrice is per month, multiply by 12
-        console.log(`Creating yearly price: $${yearlyTotal} (${tierData.yearlyPrice}/month × 12)`)
+      if (tier.yearly_price) {
+        const yearlyTotal = tier.yearly_price * 12 // yearly_price is per month, multiply by 12
+        console.log(`Creating yearly price: $${yearlyTotal} (${tier.yearly_price}/month × 12)`)
         yearlyPrice = await stripe.prices.create({
           product: product.id,
-          unit_amount: yearlyTotal * 100, // Convert to cents
+          unit_amount: Math.round(yearlyTotal * 100), // Convert to cents
           currency: 'usd', 
           recurring: {
             interval: 'year'
           },
           metadata: {
             billing_cycle: 'yearly',
-            plan_name: tier.id
+            plan_name: tier.name
           }
         })
       }
       
       results.push({
-        tier: tier.id,
+        tier: tier.name,
         product: product.id,
         monthlyPrice: monthlyPrice.id,
         yearlyPrice: yearlyPrice ? yearlyPrice.id : null
       })
       
-      console.log(`✅ ${tier.name} created successfully\n`)
+      console.log(`✅ ${tier.display_name} created successfully\n`)
       
     } catch (error: any) {
-      console.error(`❌ Failed to create ${tier.name}:`, error.message)
+      console.error(`❌ Failed to create ${tier.display_name}:`, error.message)
     }
   }
   
   return results
 }
 
-async function createCreditPackProducts() {
+async function createCreditPackProducts(creditPacks) {
   console.log('💳 Creating credit pack products...\n')
   
   const results: Array<{
@@ -220,20 +246,19 @@ async function createCreditPackProducts() {
     price: string;
   }> = []
   
-  for (const packData of CREDIT_PACKS_CONFIG) {
-    const pack = convertPackForStripe(packData)
+  for (const pack of creditPacks) {
     try {
       // Create product
       console.log(`Creating credit pack: ${pack.name}`)
       const product = await stripe.products.create({
         name: `${pack.name}`,
-        description: `${pack.credits.toLocaleString()} credits for image generation and Face Model training. Valid for ${pack.validityDays} days.`,
+        description: `${pack.credits.toLocaleString()} credits for image generation and Face Model training. Valid for ${pack.validity_days} days.`,
         type: 'service',
         tax_code: 'txcd_10505001', // Correct tax code for credit pack services
         metadata: {
           credits: pack.credits.toString(),
-          validity_days: pack.validityDays.toString(),
-          pack_id: pack.id,
+          validity_days: pack.validity_days.toString(),
+          pack_id: `credits_${pack.credits}`,
           tier_type: 'credit_pack'
         }
       })
@@ -242,16 +267,16 @@ async function createCreditPackProducts() {
       console.log(`Creating price: $${pack.price}`)
       const price = await stripe.prices.create({
         product: product.id,
-        unit_amount: pack.price * 100, // Convert to cents
+        unit_amount: Math.round(pack.price * 100), // Convert to cents
         currency: 'usd',
         metadata: {
-          pack_id: pack.id,
+          pack_id: `credits_${pack.credits}`,
           credits: pack.credits.toString()
         }
       })
       
       results.push({
-        pack: pack.id,
+        pack: `credits_${pack.credits}`,
         product: product.id,
         price: price.id
       })
@@ -388,11 +413,15 @@ async function main() {
       console.log('⏭️  Skipping cleanup - existing products will remain\n')
     }
     
+    // Fetch pricing data from DB
+    const subscriptionTiers = await fetchSubscriptionTiers()
+    const creditPacks = await fetchCreditPacks()
+
     // Create subscription products
-    const subscriptionResults = await createSubscriptionProducts()
+    const subscriptionResults = await createSubscriptionProducts(subscriptionTiers)
     
     // Create credit pack products  
-    const creditPackResults = await createCreditPackProducts()
+    const creditPackResults = await createCreditPackProducts(creditPacks)
     
     // Update pricing file with Stripe IDs
     await updatePricingFile(subscriptionResults, creditPackResults)

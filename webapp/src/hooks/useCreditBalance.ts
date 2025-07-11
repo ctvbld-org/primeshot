@@ -1,7 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 import { getApiUrl } from '@/lib/api/client'
+import { useAuth } from '@/contexts/auth-context'
 
 export function useCreditBalance() {
+  const { isAuthenticated } = useAuth()
+
   return useQuery({
     queryKey: ['creditBalance'],
     queryFn: async () => {
@@ -12,6 +15,7 @@ export function useCreditBalance() {
       const { balance } = await response.json()
       return balance as number
     },
+    enabled: isAuthenticated, // Skip when not logged in
     staleTime: 30000, // Consider data stale after 30 seconds
     gcTime: 300000, // Keep in cache for 5 minutes
   })

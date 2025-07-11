@@ -62,6 +62,29 @@ function getEnvVar(name: string, fallback: string): string {
   return fallback;
 }
 
+// DEPRECATED: All pricing config is now DB-driven. This file is a compatibility layer.
+// Remove all static config and replace with async DB-backed fetchers.
+
+export async function fetchSubscriptionTiers(supabaseClient: any) {
+  const { data, error } = await supabaseClient.from('subscriptions').select('*');
+  if (error) throw error;
+  return data;
+}
+
+export async function fetchCreditPacks(supabaseClient: any) {
+  const { data, error } = await supabaseClient.from('credit_packs').select('*');
+  if (error) throw error;
+  return data;
+}
+
+export async function fetchCreditCosts(supabaseClient: any) {
+  const { data, error } = await supabaseClient.from('credit_costs').select('*');
+  if (error) throw error;
+  return data;
+}
+
+// All static config below is deprecated and should be removed after migration is complete.
+
 export const SUBSCRIPTION_TIERS_CONFIG: SubscriptionTierConfig[] = [
   {
     id: 'basic',
@@ -203,4 +226,9 @@ export function calculateImageCredits(resolution: Resolution, batchSize: number 
 
 export function getFaceModelTrainingCost(): number {
   return CREDIT_COSTS_CONFIG.FACE_MODEL_TRAINING;
+}
+
+export function getFaceModelLimit(planName: string): number {
+  const tier = SUBSCRIPTION_TIERS_CONFIG.find(t => t.id === planName);
+  return tier?.maxFaceModels || 1; // Default to 1 if tier not found
 } 

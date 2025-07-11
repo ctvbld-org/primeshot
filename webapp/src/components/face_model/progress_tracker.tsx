@@ -55,7 +55,7 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
       getEstimatedTimeRemaining,
       getLiveCountdownSeconds,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [progress, isConnected, isConnecting, connectionError]);
 
   return null;

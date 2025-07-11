@@ -32,6 +32,15 @@ export function TrainingProgressStep({
     isConnected: false,
     isConnecting: true,
   })
+  const [showError, setShowError] = useState(false)
+  const [hasSettled, setHasSettled] = useState(false)
+
+  // Start a timer after mount or when job/model changes
+  useEffect(() => {
+    setHasSettled(false)
+    const timer = setTimeout(() => setHasSettled(true), 1000)
+    return () => clearTimeout(timer)
+  }, [faceModelId, trainingJobId])
 
   // Handler for progress updates
   const handleProgressUpdate = useCallback((modelId: string, data: TrainingProgressState) => {
@@ -42,6 +51,24 @@ export function TrainingProgressStep({
   const handleTrainingComplete = useCallback(() => {
     onComplete?.()
   }, [onComplete])
+
+  // Debounce error display: only show if not connecting, not connected, error exists, and hasSettled
+  useEffect(() => {
+    let timeout: NodeJS.Timeout | undefined
+    if (
+      hasSettled &&
+      trainingProgress.error &&
+      !trainingProgress.isConnecting &&
+      !trainingProgress.isConnected
+    ) {
+      timeout = setTimeout(() => setShowError(true), 500)
+    } else {
+      setShowError(false)
+    }
+    return () => {
+      if (timeout) clearTimeout(timeout)
+    }
+  }, [hasSettled, trainingProgress.error, trainingProgress.isConnecting, trainingProgress.isConnected])
 
   const progressPercentage = trainingProgress.getProgressPercentage?.() ?? 0
   const seconds = trainingProgress.progress ? trainingProgress.getLiveCountdownSeconds?.() : null
@@ -104,7 +131,7 @@ export function TrainingProgressStep({
         </div>
 
         {/* Error State */}
-        {trainingProgress.error && (
+        {showError && (
           <div className="text-center">
             <p className="text-sm text-red-400">
               {t('faceModel.trainingError')}: {trainingProgress.error}

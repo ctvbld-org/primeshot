@@ -23,7 +23,6 @@ const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[
 // Metadata validation schema
 const chunkMetadataSchema = z.object({
   uploadId: z.string().uuid(),
-  orderId: z.string().uuid(),
   faceModelId: z.string().uuid(),
   chunkIndex: z.number().int().min(0),
   totalChunks: z.number().int().min(1).max(MAX_CHUNKS)
@@ -239,6 +238,60 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
+    // Only validate subscription on first chunk (chunk 0) to avoid repeating validation for every chunk
+    if (metadata.chunkIndex === 0) {
+      console.log(`Validating subscription for face model training for user ${user.id}`);
+      
+      // Validate subscription and face model training permissions
+      const { data: subscription, error: subscriptionError } = await supabase
+        .from('user_subscriptions')
+        .select('plan_name, status, current_period_end')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .single();
+
+      console.log('Subscription query result:', { subscription, subscriptionError });
+
+      if (subscriptionError || !subscription) {
+        console.error('No active subscription found:', subscriptionError);
+        return NextResponse.json({ 
+          error: 'Active subscription required for face model training' 
+        }, { status: 403 });
+      }
+
+      // Get available credits using the credit balance function
+      const { data: creditBalance, error: creditError } = await supabase
+        .rpc('get_user_available_credits', { user_uuid: user.id });
+
+      console.log('Credit balance query result:', { creditBalance, creditError });
+
+      if (creditError) {
+        console.error('Failed to get credit balance:', creditError);
+        return NextResponse.json({ 
+          error: 'Failed to check credit balance' 
+        }, { status: 500 });
+      }
+
+             // Fetch pricing configuration from internal API
+       const baseUrl = process.env.VERCEL_URL 
+         ? `https://${process.env.VERCEL_URL}` 
+         : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+       const pricingRes = await fetch(`${baseUrl}/api/pricing/face-model-training-cost`);
+       if (!pricingRes.ok) {
+         console.error('Failed to fetch face model training cost:', pricingRes.status);
+         return NextResponse.json({ error: 'Failed to fetch pricing configuration' }, { status: 500 });
+       }
+       const { cost: FACE_MODEL_TRAINING_CREDITS } = await pricingRes.json();
+
+      if (creditBalance < FACE_MODEL_TRAINING_CREDITS) {
+        return NextResponse.json({ 
+          error: `Insufficient credits for face model training. Need ${FACE_MODEL_TRAINING_CREDITS} credits, but only ${creditBalance} available.` 
+        }, { status: 403 });
+      }
+
+      console.log('Subscription validation passed for face model upload');
+    }
+
     const chunkBuffer = Buffer.from(await chunkBlob.arrayBuffer());
 
     // Additional runtime chunk size validation as defense in depth
@@ -262,7 +315,7 @@ export async function POST(request: Request) {
         .insert({
           id: metadata.uploadId,
           user_id: user.id,
-          order_id: metadata.orderId,
+          face_model_id: metadata.faceModelId,
           file_name: metadata.fileName,
           file_size: metadata.fileSize,
           file_type: metadata.fileType,

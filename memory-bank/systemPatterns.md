@@ -739,6 +739,22 @@ Detected changes in:
 - webapp/src/lib/constants/pricing.ts
 - webapp/src/lib/constants/stripe-reference.ts
 - webapp/src/lib/constants/stripe-reference_old.ts
+
+
+**Auto-update 2025-07-10**:
+Detected changes in:
+- webapp/src/app/globals.css
+- webapp/src/app/page.tsx
+- webapp/src/components/face_model/FaceModelSelector.tsx
+- webapp/src/components/face_model/FaceModelUploadDialog.tsx
+- webapp/src/components/face_model/face_models.tsx
+- webapp/src/components/face_model/steps/UploadPhotosStep.tsx
+- webapp/src/components/upload/rejected-images-dialog.tsx
+- webapp/src/components/upload/upload-footer.tsx
+- webapp/src/components/upload/upload-requirements.tsx
+- webapp/src/contexts/DialogServiceContext.tsx
+- webapp/src/lib/hooks/use-file-upload.ts
+- webapp/src/lib/image-quality.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

@@ -9,3 +9,17 @@ Design Stripe products for credit packs and subscription options. Implement purc
 
 # Test Strategy:
 Test complete purchase flow in Stripe test mode. Verify webhooks correctly update user credits. Test credit deduction and refund logic. Ensure proper error handling for insufficient credits and failed payments.
+
+# Task ID: pricing-config-migration
+# Title: Refactor code to use DB-backed pricing config
+# Status: pending
+# Dependencies: pricing-db-migrations
+# Priority: high
+# Description: Refactor all code (frontend, backend, edge functions) to fetch pricing, tier, and credit config from the new DB tables via API or hooks. Remove or refactor @pricing-config.ts as needed.
+# Details:
+- Replace all usage of @pricing-config.ts and ENV pricing variables with DB/API calls
+- Update frontend hooks and backend logic to use new endpoints
+- Remove or convert @pricing-config.ts to a DB-backed cache (or eliminate it)
+# Test Strategy:
+- Test all pricing/tier/credit logic in the app for correctness
+- Change values in DB and verify app reflects changes without redeploy
