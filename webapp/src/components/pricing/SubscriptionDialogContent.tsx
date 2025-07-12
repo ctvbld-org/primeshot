@@ -8,6 +8,7 @@ import { STRIPE_REFERENCE } from '@/lib/constants/stripe-reference'
 import { toast } from 'sonner'
 import { useAuth } from '@primeshot/common/hooks/AuthContext'
 import { getApiUrl } from '@/lib/api/client'
+import { UpgradeConfirmationDialog } from './UpgradeConfirmationDialog'
 
 // Context types for different upgrade scenarios
 export type SubscriptionDialogContext = 
@@ -102,6 +103,9 @@ export function SubscriptionDialogContent({
 }: SubscriptionDialogContentProps = {}) {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly')
   const [loading, setLoading] = useState(false)
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [upgradePreview, setUpgradePreview] = useState<any>(null)
+  const [selectedPriceId, setSelectedPriceId] = useState<string>('')
   const { user } = useAuth()
   const { data: subscriptionTiers, isLoading: tiersLoading } = useSubscriptionTiers()
   const { data: currentSubscription } = useCurrentSubscription()
@@ -161,6 +165,61 @@ export function SubscriptionDialogContent({
       return
     }
 
+    // If this is an upgrade (user has current subscription), show confirmation dialog
+    if (showOnlyUpgrades && currentSubscription) {
+      await handleUpgradePreview(priceId)
+    } else {
+      await handleDirectPurchase(priceId)
+    }
+  }
+
+  const handleUpgradePreview = async (priceId: string) => {
+    setLoading(true)
+    try {
+      const res = await fetch(getApiUrl('/api/subscription/preview-upgrade'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId })
+      })
+      
+      if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.error || 'Failed to preview upgrade')
+      }
+      
+      const result = await res.json()
+      
+      // Handle redirect response (when preview fails)
+      if (result.redirect) {
+        toast.info(result.message || 'Opening Stripe customer portal...')
+        
+        // Call customer portal endpoint
+        const portalRes = await fetch(getApiUrl('/api/subscription/customer-portal'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        })
+        
+        if (portalRes.ok) {
+          const portalData = await portalRes.json()
+          window.location.href = portalData.url
+        } else {
+          throw new Error('Failed to open customer portal')
+        }
+        return
+      }
+      
+      // Handle normal preview response
+      setUpgradePreview(result)
+      setSelectedPriceId(priceId)
+      setShowConfirmation(true)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to preview upgrade')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDirectPurchase = async (priceId: string) => {
     setLoading(true)
     try {
       const successPath = process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/'
@@ -179,13 +238,31 @@ export function SubscriptionDialogContent({
         throw new Error(error.error || 'Checkout failed')
       }
       
-      const { url } = await res.json()
-      window.location.href = url
+      const result = await res.json()
+      
+      // Handle direct upgrade response
+      if (result.upgraded) {
+        toast.success(result.message || 'Subscription upgraded successfully!')
+        // Close dialog by triggering a page reload to refresh subscription data
+        window.location.reload()
+      } else if (result.url) {
+        // Handle regular checkout session response
+        window.location.href = result.url
+      } else {
+        throw new Error('Invalid response from checkout')
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Checkout failed')
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleConfirmUpgrade = async () => {
+    if (!selectedPriceId) return
+    
+    setShowConfirmation(false)
+    await handleDirectPurchase(selectedPriceId)
   }
 
   const contextMessage = getContextMessage(context)
@@ -216,6 +293,7 @@ export function SubscriptionDialogContent({
   }
 
   return (
+    <>
     <div className="space-y-6 max-w-4xl">
       {/* Context-specific header */}
       <div className="text-center">
@@ -309,5 +387,14 @@ export function SubscriptionDialogContent({
         </p>
       )}
     </div>
-  )
-} 
+
+    {/* Upgrade Confirmation Dialog */}
+    <UpgradeConfirmationDialog
+      isOpen={showConfirmation}
+      onClose={() => setShowConfirmation(false)}
+      onConfirm={handleConfirmUpgrade}
+      preview={upgradePreview}
+      isLoading={loading}
+    />
+  </>
+)} 

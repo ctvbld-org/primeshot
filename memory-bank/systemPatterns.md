@@ -755,6 +755,37 @@ Detected changes in:
 - webapp/src/contexts/DialogServiceContext.tsx
 - webapp/src/lib/hooks/use-file-upload.ts
 - webapp/src/lib/image-quality.ts
+
+
+**Auto-update 2025-07-12**:
+Detected changes in:
+- webapp/src/app/api/cleanup-face-model/route.ts
+- webapp/src/app/api/payment/webhook/route.ts
+- webapp/src/app/api/pricing/credit-costs/route.ts
+- webapp/src/app/api/pricing/credit-packs/route.ts
+- webapp/src/app/api/pricing/face-model-limit/[planName]/route.ts
+- webapp/src/app/api/pricing/face-model-training-cost/route.ts
+- webapp/src/app/api/pricing/subscriptions/route.ts
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/app/api/upload-chunk/route.ts
+- webapp/src/app/app/review/page.tsx
+- webapp/src/components/constants/profile-options.ts
+- webapp/src/components/dashboard/CreditDashboard.tsx
+- webapp/src/components/face_model/FaceModelSelector.tsx
+- webapp/src/components/face_model/FaceModelUploadDialog.tsx
+- webapp/src/components/face_model/progress_tracker.tsx
+- webapp/src/components/face_model/steps/ProfileFormStep.tsx
+- webapp/src/components/face_model/steps/TrainingProgressStep.tsx
+- webapp/src/components/face_model/steps/UploadPhotosStep.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/review/form-field.tsx
+- webapp/src/components/review/profile-form.module.css
+- webapp/src/components/review/profile-form.tsx
+- webapp/src/lib/constants/pricing.ts
+- webapp/src/lib/hooks/use-face-model.ts
+- webapp/src/lib/image-quality.ts
+- webapp/src/lib/services/creditService.ts
+- webapp/src/lib/upload-utils.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

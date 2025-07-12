@@ -205,11 +205,13 @@ async function checkTrainingLimits(
     });
     
     // Check how many Face Model trainings user has used this billing cycle
+    // Count all training jobs that have started (queued, running, completed)
+    // since the user has consumed their included quota once training begins
     const { count: trainingCount } = await supabase
       .from('training_jobs')
       .select('id', { count: 'exact' })
       .eq('user_id', userId)
-      .eq('status', 'completed')
+      .in('status', ['queued', 'running', 'completed'])
       .gte('created_at', currentPeriodStart.toISOString());
 
     const currentTrainingCount = trainingCount || 0;

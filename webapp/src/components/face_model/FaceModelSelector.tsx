@@ -22,6 +22,7 @@ import { useDialogService } from '@/contexts/DialogServiceContext';
 import { useCurrentSubscription } from '@/hooks/useCurrentSubscription';
 import { useOpenSubscriptionDialog } from '@/hooks/useOpenSubscriptionDialog';
 import { useOpenCreditPackDialog } from '@/hooks/useOpenCreditPackDialog';
+import { useCreditBalance } from '@/hooks/useCreditBalance';
 
 interface FaceModelWithTraining {
   id: string;
@@ -69,6 +70,7 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
   const dialogService = useDialogService();
   const openSubscriptionDialog = useOpenSubscriptionDialog();
   const openCreditPackDialog = useOpenCreditPackDialog();
+  const { data: creditBalance } = useCreditBalance();
   const [faceModels, setFaceModels] = useState<FaceModelWithTraining[]>([]);
   const [selectedModelId, setSelectedModelId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
@@ -122,39 +124,28 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
   // Check if user has sufficient credits for paid training
   const hasSufficientCreditsForTraining = useMemo(() => {
     if (!needsCreditsForTraining) return true;
-    if (!currentSubscription) return false;
-    const remainingCredits = (currentSubscription.credits_included ?? 0) - (currentSubscription.credits_used_this_period ?? 0);
-    return remainingCredits >= faceModelTrainingCost;
-  }, [needsCreditsForTraining, currentSubscription, faceModelTrainingCost]);
+    if (creditBalance === undefined) return false;
+    return creditBalance >= faceModelTrainingCost;
+  }, [needsCreditsForTraining, creditBalance, faceModelTrainingCost]);
 
   // Determine what should happen when Create Face Model button is clicked
   const createFaceModelAction = useMemo(() => {
-    // First check authentication
-    if (!user?.id) {
-      return { type: 'auth', message: 'Sign in to create face models' };
-    }
-
-    // Check subscription
-    if (!hasActiveSubscription) {
-      return { type: 'subscription', message: 'Active subscription required' };
-    }
-
     // Check face model limits
     if (hasReachedFaceModelLimit) {
       if (isOnHighestTier) {
         return { type: 'limit_reached', message: 'Limit Reached' };
       } else {
-        return { type: 'upgrade_subscription', message: `Face model limit reached (${maxFaceModels})` };
+        return { type: 'upgrade_subscription', message: 'Create'};
       }
     }
 
     // Check credits for paid training
     if (needsCreditsForTraining && !hasSufficientCreditsForTraining) {
-      return { type: 'credit_pack', message: `Need ${faceModelTrainingCost} credits for training`, credits: faceModelTrainingCost };
+      return { type: 'credit_pack', message: 'Create', credits: faceModelTrainingCost };
     }
 
     // All checks passed - allow creation
-    return { type: 'create', message: 'Create Face Model' };
+    return { type: 'create', message: 'Create' };
   }, [
     user?.id, 
     hasActiveSubscription, 
@@ -648,7 +639,7 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
               ) : isSubError || !currentSubscription ? null : remainingTrainings && remainingTrainings > 0 ? (
                 <span>{remainingTrainings} included in plan</span>
               ) : (
-                                    <span>{faceModelTrainingCost} credits</span>
+                <span>{faceModelTrainingCost} credits</span>
               )}
             </div>
             <Button 

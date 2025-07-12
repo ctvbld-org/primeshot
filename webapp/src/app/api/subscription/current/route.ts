@@ -63,12 +63,14 @@ export async function GET() {
     // Fix: Spent credits are stored as negative values, so we need to use absolute values
     const creditsUsedThisPeriod = creditsUsed?.reduce((total, credit) => total + Math.abs(credit.credits), 0) || 0
 
-    // Calculate LoRA training usage in current billing period
+    // Calculate Face Model training usage in current billing period
+    // Count all training jobs that have started (queued, running, completed)
+    // since the user has consumed their included quota once training begins
     const { data: faceModelTraining, error: loraError } = await supabase
       .from('training_jobs')
       .select('id')
       .eq('user_id', user.id)
-      .eq('status', 'completed')
+      .in('status', ['queued', 'running', 'completed'])
       .gte('created_at', periodStart.toISOString())
       .lt('created_at', periodEnd.toISOString())
 

@@ -498,7 +498,6 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     try {
       const url = await uploadFileInChunks(
         file,
-        orderId,
         faceModelId,
         (progress: number) => {
           setFileStates(prev => prev.map((state, i) => 

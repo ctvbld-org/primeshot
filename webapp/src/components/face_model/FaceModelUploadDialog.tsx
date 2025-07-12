@@ -27,6 +27,7 @@ import { Icon } from '@primeshot/common/web/Icon'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 import { ImageQualityResult } from '@/lib/image-quality'
 import { useCreditCosts, getFaceModelTrainingCost, useSubscriptionTiers } from '@/hooks/usePricingConfig'
+import { useCreditBalance } from '@/hooks/useCreditBalance'
 
 // Import step components
 import { UploadRequirementsStep } from './steps/UploadRequirementsStep'
@@ -66,6 +67,7 @@ export function FaceModelUploadDialog({ onComplete }: FaceModelUploadDialogProps
   const { data: subscription } = useCurrentSubscription()
   const { data: creditCosts } = useCreditCosts()
   const { data: subscriptionTiers } = useSubscriptionTiers()
+  const { data: creditBalance } = useCreditBalance()
   
   // Get face model training cost from DB
   const faceModelTrainingCost = getFaceModelTrainingCost(creditCosts)
@@ -147,10 +149,10 @@ export function FaceModelUploadDialog({ onComplete }: FaceModelUploadDialogProps
 
   // Check if user has sufficient credits when needed
   const hasSufficientCredits = useMemo(() => {
-    if (!subscription || !needsCredits) return true
-    const remainingCredits = subscription.credits_included - subscription.credits_used_this_period
-    return remainingCredits >= faceModelTrainingCost
-  }, [subscription, needsCredits, faceModelTrainingCost])
+    if (!needsCredits) return true
+    if (creditBalance === undefined) return false
+    return creditBalance >= faceModelTrainingCost
+  }, [needsCredits, creditBalance, faceModelTrainingCost])
 
   // Check subscription validity
   const subscriptionStatus = useMemo(() => {

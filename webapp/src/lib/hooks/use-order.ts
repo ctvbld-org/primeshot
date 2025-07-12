@@ -166,8 +166,8 @@ export function useOrder({ loadStyles = false, sessionId = null }: UseOrderOptio
 
           if (!orderData) {
             toast({
-              title: t('errors.noActiveOrder', { ns: 'upload' }),
-              description: t('errors.paymentRequired', { ns: 'upload' }),
+              title: t('errors.noActiveSubscription', { ns: 'upload' }),
+              description: t('errors.subscriptionRequired', { ns: 'upload' }),
               variant: 'destructive'
             })
             router.push('/app/shoot')
@@ -195,7 +195,7 @@ export function useOrder({ loadStyles = false, sessionId = null }: UseOrderOptio
         console.error('Error loading order data:', error)
         toast({
           title: t('status.error', { ns: 'upload' }),
-          description: t('errors.loadOrderData', { ns: 'upload' }),
+          description: t('errors.genericError', { ns: 'upload' }),
           variant: 'destructive'
         })
       } finally {

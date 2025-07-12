@@ -14,7 +14,7 @@ import {
   AlertTriangle,
   Plus
 } from 'lucide-react'
-import { formatDistanceToNow, format } from 'date-fns'
+import { formatDistanceToNow, format, differenceInCalendarDays } from 'date-fns'
 import { useOpenCreditPackDialog } from '@/hooks/useOpenCreditPackDialog'
 import { useCreditBalance } from '@/hooks/useCreditBalance'
 import { useCurrentSubscription, type SubscriptionInfo } from '@/hooks/useCurrentSubscription'
@@ -85,7 +85,7 @@ export function CreditDashboard({ className }: CreditDashboardProps) {
   }
 
   const daysUntilReset = subscription 
-    ? Math.ceil((new Date(subscription.current_period_end).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    ? differenceInCalendarDays(new Date(subscription.current_period_end), new Date())
     : 0
 
   if (isLoading) {
@@ -184,8 +184,13 @@ export function CreditDashboard({ className }: CreditDashboardProps) {
             {/* Face Model Training Usage */}
             <div>
               <div className="flex justify-between text-sm mb-2">
-                                  <span>Face Model Training Used</span>
-                <span>{subscription.face_model_training_used} / {subscription.face_model_training_included}</span>
+                <span>Face Model Training Used</span>
+                <span>
+                  {subscription.face_model_training_used >= subscription.face_model_training_included
+                    ? "You've used all your monthly included trainings"
+                    : `You've used ${subscription.face_model_training_used} out of your ${subscription.face_model_training_included} included monthly training`
+                  }
+                </span>
               </div>
               <Progress value={getFaceModelUsagePercentage()} className="h-2" />
             </div>
