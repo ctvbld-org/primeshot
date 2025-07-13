@@ -786,6 +786,24 @@ Detected changes in:
 - webapp/src/lib/image-quality.ts
 - webapp/src/lib/services/creditService.ts
 - webapp/src/lib/upload-utils.ts
+
+
+**Auto-update 2025-07-13**:
+Detected changes in:
+- webapp/src/app/api/payment/subscription-checkout/route.ts
+- webapp/src/app/api/payment/webhook/route.ts
+- webapp/src/app/api/pricing/face-model-limit/[planName]/route.ts
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/app/api/subscription/customer-portal/route.ts
+- webapp/src/app/api/subscription/preview-upgrade/route.ts
+- webapp/src/app/app/upload/page.tsx
+- webapp/src/components/dashboard/CreditDashboard.tsx
+- webapp/src/components/face_model/FaceModelSelector.tsx
+- webapp/src/components/face_model/FaceModelUploadDialog.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/pricing/UpgradeConfirmationDialog.tsx
+- webapp/src/lib/hooks/use-file-upload.ts
+- webapp/src/lib/hooks/use-order.ts
 ## Component Organization
 
 Components are organized by feature and reusability:
