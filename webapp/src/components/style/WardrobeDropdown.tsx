@@ -281,7 +281,7 @@ export const WardrobeDropdown: FC<WardrobeDropdownProps> = ({ onSelect }) => {
                 {/* Color indicator */}
                 <div 
                   className={styles.colorIndicator}
-                  style={{ backgroundColor: selectedColor || '#FFFFFF' }}
+                  style={{ backgroundColor: selectedColorOption?.color || '#FFFFFF' }}
                 />
               </div>
               
