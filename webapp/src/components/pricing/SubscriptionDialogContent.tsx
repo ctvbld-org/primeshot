@@ -240,13 +240,17 @@ export function SubscriptionDialogContent({
       
       const result = await res.json()
       
-      // Handle direct upgrade response
-      if (result.upgraded) {
-        toast.success(result.message || 'Subscription upgraded successfully!')
-        // Close dialog by triggering a page reload to refresh subscription data
-        window.location.reload()
+      // Handle direct upgrade response (new upgrade system)
+      if (result.success && result.subscription_id) {
+        toast.success('Subscription upgraded successfully!')
+        // Redirect to success page or reload to refresh subscription data
+        if (result.redirect_url) {
+          window.location.href = result.redirect_url
+        } else {
+          window.location.reload()
+        }
       } else if (result.url) {
-        // Handle regular checkout session response
+        // Handle regular checkout session response (for new subscriptions or users without payment methods)
         window.location.href = result.url
       } else {
         throw new Error('Invalid response from checkout')
@@ -380,10 +384,10 @@ export function SubscriptionDialogContent({
         {loading ? 'Processing…' : `${showOnlyUpgrades ? 'Upgrade to' : 'Purchase'} ${selectedTier?.display_name || 'Plan'}`}
       </Button>
 
-      {/* Pro-rata notice for upgrades */}
+      {/* Full price notice for upgrades */}
       {showOnlyUpgrades && (
         <p className="text-xs text-muted-foreground text-center">
-          You'll only pay the prorated difference for the remainder of your billing period.
+          Your current subscription will be canceled and replaced with the new plan. Existing credits will be preserved.
         </p>
       )}
     </div>

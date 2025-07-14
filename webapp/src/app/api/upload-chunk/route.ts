@@ -222,6 +222,7 @@ export async function POST(request: Request) {
       .select('id, user_id, status')
       .eq('id', metadata.faceModelId)
       .eq('user_id', user.id)
+      .neq('status', 'deleted') // Exclude soft-deleted face models
       .single();
 
     if (faceModelError || !faceModel) {

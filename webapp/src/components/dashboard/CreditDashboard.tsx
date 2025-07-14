@@ -21,6 +21,7 @@ import { useCurrentSubscription, type SubscriptionInfo } from '@/hooks/useCurren
 import { useCreditTransactions, type CreditTransaction } from '@/hooks/useCreditTransactions'
 import { useFaceModelCount } from '@/hooks/useFaceModelCount'
 import { useSubscriptionTiers, getFaceModelLimit } from '@/hooks/usePricingConfig'
+import { useFaceModelTrainingStatus } from '@/hooks/useFaceModelTrainingStatus'
 
 
 interface CreditDashboardProps {
@@ -34,6 +35,7 @@ export function CreditDashboard({ className }: CreditDashboardProps) {
   const { data: faceModelCount = 0, isLoading: faceModelCountLoading } = useFaceModelCount()
   const { data: subscriptionTiers } = useSubscriptionTiers()
   const openCreditPackDialog = useOpenCreditPackDialog()
+  const { statusMessage, usagePercentage: faceModelUsagePercentage } = useFaceModelTrainingStatus()
 
   const isLoading = balanceLoading || subLoading || transLoading
 
@@ -72,11 +74,6 @@ export function CreditDashboard({ className }: CreditDashboardProps) {
   const getSubscriptionUsagePercentage = () => {
     if (!subscription) return 0
     return (subscription.credits_used_this_period / subscription.credits_included) * 100
-  }
-
-      const getFaceModelUsagePercentage = () => {
-    if (!subscription) return 0
-    return (subscription.face_model_training_used / subscription.face_model_training_included) * 100
   }
 
   const getFaceModelCountUsagePercentage = () => {
@@ -185,14 +182,9 @@ export function CreditDashboard({ className }: CreditDashboardProps) {
             <div>
               <div className="flex justify-between text-sm mb-2">
                 <span>Face Model Training Used</span>
-                <span>
-                  {subscription.face_model_training_used >= subscription.face_model_training_included
-                    ? "You've used all your monthly included trainings"
-                    : `You've used ${subscription.face_model_training_used} out of your ${subscription.face_model_training_included} included monthly training`
-                  }
-                </span>
+                <span>{statusMessage}</span>
               </div>
-              <Progress value={getFaceModelUsagePercentage()} className="h-2" />
+              <Progress value={faceModelUsagePercentage} className="h-2" />
             </div>
 
             {/* Face Model Count Usage */}

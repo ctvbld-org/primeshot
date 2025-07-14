@@ -412,19 +412,23 @@ async function handleSubscriptionPaymentSucceeded(
       throw new Error(`Failed to check existing credits: ${existingCreditsError.message}`);
     }
 
-    // If there are existing earned credits from this subscription, this is likely an upgrade
-    if (existingCredits && existingCredits.length > 0) {
+    // Check if this is an upgrade - with new upgrade logic, we preserve existing credits
+    const isUpgrade = stripeSub.metadata?.is_upgrade === 'true';
+    
+    // If there are existing earned credits from this subscription, this was the old pro-rated upgrade system
+    // With the new upgrade system (cancel + create new), we don't expire credits anymore
+    if (existingCredits && existingCredits.length > 0 && !isUpgrade) {
       devLog(`Found ${existingCredits.length} existing credit entries for subscription ${subscriptionId}`);
       
-      // Mark existing credits as expired to cancel them out (no negative credits)
+      // Only expire credits if this is NOT an upgrade (legacy behavior for subscription renewals)
       const { error: expireError } = await supabase
         .from('user_credits')
         .update({
           transaction_type: 'expired',
-          description: `Subscription upgrade - ${subscription.plan_name} plan credits replaced previous plan`,
+          description: `Subscription renewal - ${subscription.plan_name} plan credits replaced previous period`,
           metadata: {
             ...existingCredits[0].metadata,
-            expired_reason: 'subscription_upgrade',
+            expired_reason: 'subscription_renewal',
             expired_at: new Date().toISOString(),
             invoice_id: invoice.id,
             new_plan_name: subscription.plan_name
@@ -441,15 +445,18 @@ async function handleSubscriptionPaymentSucceeded(
       }
 
       const totalExistingCredits = existingCredits.reduce((sum, credit) => sum + credit.credits, 0);
-      devLog(`Expired ${totalExistingCredits} credits from previous plan (no negative credits created)`);
+      devLog(`Expired ${totalExistingCredits} credits from previous billing period`);
+    } else if (isUpgrade) {
+      devLog(`This is an upgrade - preserving existing credits from previous subscription`);
     }
 
-    const description = `Credits from subscription ${invoice.billing_reason === 'subscription_create' ? 'activation' : subscription.was_upgrade ? 'upgrade' : 'renewal'} - ${subscription.plan_name}`;
+    const description = `Credits from subscription ${invoice.billing_reason === 'subscription_create' ? (isUpgrade ? 'upgrade' : 'activation') : 'renewal'} - ${subscription.plan_name}`;
     const metadata = {
       invoice_id: invoice.id,
       billing_reason: invoice.billing_reason,
       billing_period_start: periodStartDate.toISOString(),
       billing_period_end: periodEndDate.toISOString(),
+      is_upgrade: isUpgrade,
       was_upgrade: subscription.was_upgrade || false,
       old_plan_name: subscription.old_plan_name
     };
@@ -524,7 +531,30 @@ async function handleSubscriptionEvent(
   // For active subscriptions, ensure this user only has one active subscription
   if (subscription.status === 'active') {
     try {
-      // Get all active subscriptions for this user
+      // First, check if this is an upgrade with a specific previous subscription to cancel
+      const previousSubscriptionId = subscription.metadata?.previous_subscription_id;
+      
+      if (previousSubscriptionId && previousSubscriptionId !== '') {
+        devLog(`This is an upgrade subscription - canceling specific previous subscription: ${previousSubscriptionId}`);
+        
+        try {
+          // First check if the subscription still exists and is active
+          const previousSub = await stripe.subscriptions.retrieve(previousSubscriptionId);
+          
+          if (previousSub.status === 'active') {
+            // Cancel the specific previous subscription in Stripe
+            await stripe.subscriptions.cancel(previousSubscriptionId);
+            devLog(`Successfully canceled previous subscription: ${previousSubscriptionId}`);
+          } else {
+            devLog(`Previous subscription ${previousSubscriptionId} is already ${previousSub.status} - no need to cancel`);
+          }
+        } catch (cancelError) {
+          console.error(`Failed to cancel previous subscription ${previousSubscriptionId}:`, cancelError);
+          // Log the error but don't fail the webhook - the subscription might already be canceled
+        }
+      }
+      
+      // Also check for any other active subscriptions for this user (safety net)
       const { data: userSubscriptions } = await supabase
         .from('user_subscriptions')
         .select('stripe_subscription_id')
@@ -537,6 +567,12 @@ async function handleSubscriptionEvent(
         devLog(`Found ${userSubscriptions.length} other active subscriptions for user ${subscriptionRecord.user_id}, canceling them`);
         
         for (const oldSub of userSubscriptions) {
+          // Skip if this is the same subscription we already canceled above
+          if (oldSub.stripe_subscription_id === previousSubscriptionId) {
+            devLog(`Skipping ${oldSub.stripe_subscription_id} - already canceled above`);
+            continue;
+          }
+          
           try {
             // Cancel the old subscription in Stripe
             await stripe.subscriptions.cancel(oldSub.stripe_subscription_id);

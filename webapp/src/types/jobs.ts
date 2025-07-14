@@ -134,8 +134,9 @@ export interface FaceModel {
   id: string;
   user_id: string;
   name: string;
-  status: 'queued' | 'training' | 'ready' | 'failed';
+  status: 'queued' | 'training' | 'ready' | 'failed' | 'deleted';
   image_count?: number;
+  thumbnail_url?: string;
   created_at: string;
   updated_at: string;
 }

@@ -15,6 +15,7 @@ import {
   AlertDialogAction,
 } from '@primeshot/common/web/ui/alert-dialog'
 import { useTranslation } from 'react-i18next'
+import { useToast } from '@primeshot/common/web/ui/use-toast'
 import { useCreditGuard } from '@/hooks/useCreditGuard'
 import { useCurrentSubscription } from '@/hooks/useCurrentSubscription'
 import { useAuth } from '@/contexts/auth-context'
@@ -62,6 +63,7 @@ const REQUIREMENTS_SEEN_KEY = 'face-model-requirements-seen'
 
 export function FaceModelUploadDialog({ onComplete }: FaceModelUploadDialogProps) {
   const { t } = useTranslation(['upload', 'profile', 'common'])
+  const { toast } = useToast()
   const dialogService = useDialogService()
   const { user } = useAuth()
   const { data: subscription } = useCurrentSubscription()
@@ -170,6 +172,16 @@ export function FaceModelUploadDialog({ onComplete }: FaceModelUploadDialogProps
     
     return { isValid: true }
   }, [subscription, needsCredits, hasSufficientCredits, faceModelTrainingCost])
+
+  // Handle training error - show toast and close dialog
+  const handleTrainingError = useCallback((error: string) => {
+    toast({
+      title: t('upload:faceModel.trainingError'),
+      description: error,
+      variant: 'destructive'
+    })
+    dialogService.closeDialog()
+  }, [toast, t, dialogService])
 
   // Handle dialog close - only allow during specific steps
   const handleClose = useCallback(() => {
@@ -316,6 +328,7 @@ export function FaceModelUploadDialog({ onComplete }: FaceModelUploadDialogProps
         .from('face_models')
         .select('id')
         .eq('user_id', user!.id)
+        .neq('status', 'deleted') // Exclude soft-deleted face models
 
       if (faceModelsError) {
         console.error('Failed to check user face models:', faceModelsError)
@@ -434,14 +447,21 @@ export function FaceModelUploadDialog({ onComplete }: FaceModelUploadDialogProps
         }
       }
       
-      // Show error to user and reset to name step
-      setCurrentStep('name')
-      // You may want to show a toast or error message here
-      throw error
+      // Show error toast and close dialog
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred during face model creation'
+      toast({
+        title: t('upload:faceModel.trainingError'),
+        description: errorMessage,
+        variant: 'destructive'
+      })
+      
+      // Close dialog on error
+      dialogService.closeDialog()
+      return
     } finally {
       setIsProcessing(false)
     }
-  }, [stepData, createFaceModel, uploadImages, startTraining, updateFaceModelStatus, onComplete, subscription, subscriptionTiers, user])
+  }, [stepData, createFaceModel, uploadImages, startTraining, updateFaceModelStatus, onComplete, subscription, subscriptionTiers, user, toast, t, dialogService])
 
   // Handle profile data updates
   const handleProfileUpdate = useCallback((data: any, isComplete: boolean) => {
@@ -654,6 +674,7 @@ export function FaceModelUploadDialog({ onComplete }: FaceModelUploadDialogProps
               faceModelId={stepData.faceModelId}
               trainingJobId={stepData.trainingJobId}
               onComplete={handleTrainingComplete}
+              onError={handleTrainingError}
             />
           )}
         </DialogBody>

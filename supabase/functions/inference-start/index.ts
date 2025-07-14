@@ -178,26 +178,19 @@ serve(async (req) => {
       );
     }
 
-    // Verify user owns the face model
+    // Verify user owns the face model and it's ready for inference
     const { data: faceModel, error: faceModelError } = await supabase
       .from('face_models')
       .select('id, user_id, status, lora_path')
       .eq('id', face_model_id)
       .eq('user_id', user_id)
+      .eq('status', 'ready') // Only allow inference on ready face models
       .single();
 
     if (faceModelError || !faceModel) {
       return new Response(
-        JSON.stringify({ error: 'Face model not found or access denied' }),
+        JSON.stringify({ error: 'Face model not found, not ready, or access denied' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Check if face model is ready
-    if (faceModel.status !== 'ready') {
-      return new Response(
-        JSON.stringify({ error: `Face model is not ready (status: ${faceModel.status})` }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 

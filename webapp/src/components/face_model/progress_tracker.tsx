@@ -16,7 +16,7 @@ export interface ProgressTrackerProps {
       getLiveCountdownSeconds: () => number;
     }
   ) => void;
-  onComplete: (modelId: string) => void;
+  onComplete: (modelId: string, success?: boolean, errorMessage?: string) => void;
 }
 
 export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
@@ -36,8 +36,8 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({
   } = useTrainingProgress({
     jobId,
     websocketUrl: process.env.NEXT_PUBLIC_TRAINING_WEBSOCKET_URL || '',
-    onComplete: () => {
-      onComplete(modelId);
+    onComplete: (success: boolean, error?: string) => {
+      onComplete(modelId, success, error);
     },
     onError: (error) => {
       console.error(`WebSocket error for face model ${modelId}:`, error);

@@ -52,34 +52,54 @@ async function cleanupFailedFaceModel(supabase: any, faceModelId: string, userId
   
   try {
     // 1. Delete all images from S3 for this face model
+    console.log(`🧹 Step 1: Deleting S3 images for face model: ${faceModelId}`);
     await deleteS3FaceModelFolder(faceModelId);
     
-    // 2. Delete all image records from database
-    const { error: imagesDeleteError } = await supabase
+    // 2. Delete all image records from database using service role permissions
+    console.log(`🧹 Step 2: Deleting image records for face model: ${faceModelId}`);
+    const { data: deletedImages, error: imagesDeleteError } = await supabase
       .from('images')
       .delete()
       .eq('face_model_id', faceModelId)
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .select('id'); // Select to see what was deleted
     
     if (imagesDeleteError) {
-      console.error('Failed to delete image records:', imagesDeleteError);
+      console.error('❌ Failed to delete image records:', {
+        error: imagesDeleteError,
+        code: imagesDeleteError.code,
+        message: imagesDeleteError.message,
+        details: imagesDeleteError.details,
+        hint: imagesDeleteError.hint
+      });
       // Continue with cleanup even if this fails
     } else {
-      console.log(`✅ Deleted image records for face model: ${faceModelId}`);
+      console.log(`✅ Deleted ${deletedImages?.length || 0} image records for face model: ${faceModelId}`);
     }
     
-    // 3. Delete the face model record
+    // 3. Soft delete the face model record instead of hard delete
+    console.log(`🧹 Step 3: Soft deleting face model: ${faceModelId}`);
     const { error: faceModelDeleteError } = await supabase
       .from('face_models')
-      .delete()
+      .update({ 
+        status: 'deleted',
+        updated_at: new Date().toISOString()
+      })
       .eq('id', faceModelId)
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .neq('status', 'deleted'); // Only soft delete non-deleted models
     
     if (faceModelDeleteError) {
-      console.error('Failed to delete face model record:', faceModelDeleteError);
+      console.error('❌ Failed to soft delete face model record:', {
+        error: faceModelDeleteError,
+        code: faceModelDeleteError.code,
+        message: faceModelDeleteError.message,
+        details: faceModelDeleteError.details,
+        hint: faceModelDeleteError.hint
+      });
       // Continue with cleanup even if this fails
     } else {
-      console.log(`✅ Deleted face model record: ${faceModelId}`);
+      console.log(`✅ Soft deleted face model record: ${faceModelId}`);
     }
     
     console.log(`🧹 Cleanup completed for face model: ${faceModelId}`);
@@ -94,13 +114,13 @@ async function cleanupFailedFaceModel(supabase: any, faceModelId: string, userId
 async function deleteS3FaceModelFolder(faceModelId: string): Promise<void> {
   const bucketName = Deno.env.get('AWS_S3_BUCKET');
   if (!bucketName) {
-    console.error('AWS_S3_BUCKET environment variable not set');
+    console.error('❌ AWS_S3_BUCKET environment variable not set - skipping S3 cleanup');
     return;
   }
   
   const s3Client = getS3Client();
   if (!s3Client) {
-    console.log('S3 client not available, skipping S3 cleanup');
+    console.error('❌ S3 client not available (AWS credentials not configured) - skipping S3 cleanup');
     return;
   }
   
@@ -391,6 +411,7 @@ serve(async (req) => {
       .select('id, user_id, status')
       .eq('id', face_model_id)
       .eq('user_id', user_id)
+      .neq('status', 'deleted') // Only allow training on non-deleted face models
       .single();
 
     console.log(`👤 Face model query result:`, { faceModel, faceModelError });
@@ -518,7 +539,6 @@ serve(async (req) => {
     console.log('🚀 Starting real Modal training job:', modalPayload);
 
     try {
-      // Call real Modal API - using HTTPS endpoint
       const trainingUrl = Deno.env.get('TRAINING_API_URL'); 
 
       if (!trainingUrl) {  
@@ -590,7 +610,25 @@ serve(async (req) => {
       // Clean up the failed face model (S3 images, database records, face model)
       await cleanupFailedFaceModel(supabase, face_model_id, user_id);
 
-      // Note: We don't refund credits here as the training was attempted
+      // Refund credits since training never actually started (Modal API failed)
+      if (trainingCost > 0) {
+        const refundIdempotencyKey = `modal_failure_refund_${jobId}`;
+        const { data: refundResult, error: refundError } = await supabase
+          .rpc('refund_credits_with_idempotency', {
+            p_user_id: user_id,
+            p_job_id: jobId,
+            p_amount: trainingCost,
+            p_reason: `Refund for failed training start: ${modalError.message}`,
+            p_idempotency_key: refundIdempotencyKey
+          });
+
+        if (refundError) {
+          console.error('❌ Failed to process credit refund:', refundError);
+          // Continue with error response even if refund failed - this is logged for manual review
+        } else if (refundResult?.[0]?.success) {
+          console.log(`✅ Refund processed for training job ${jobId}: ${refundResult[0].refund_created ? 'new' : 'duplicate'} refund of ${trainingCost} credits`);
+        }
+      }
 
       return new Response(
         JSON.stringify({ 
@@ -598,6 +636,7 @@ serve(async (req) => {
           details: modalError.message,
           job_id: jobId,
           credits_spent: trainingCost,
+          credits_refunded: trainingCost,
           cleanup_performed: true
         }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

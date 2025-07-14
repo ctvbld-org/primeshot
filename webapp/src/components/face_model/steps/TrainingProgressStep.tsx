@@ -10,6 +10,7 @@ interface TrainingProgressStepProps {
   faceModelId: string
   trainingJobId: string
   onComplete?: () => void
+  onError?: (error: string) => void
 }
 
 interface TrainingProgressState {
@@ -25,7 +26,8 @@ interface TrainingProgressState {
 export function TrainingProgressStep({ 
   faceModelId, 
   trainingJobId,
-  onComplete 
+  onComplete,
+  onError 
 }: TrainingProgressStepProps) {
   const { t } = useTranslation('upload')
   const [trainingProgress, setTrainingProgress] = useState<TrainingProgressState>({
@@ -47,10 +49,17 @@ export function TrainingProgressStep({
     setTrainingProgress(data)
   }, [])
 
-  // Handler for training completion
-  const handleTrainingComplete = useCallback(() => {
-    onComplete?.()
-  }, [onComplete])
+  // Handler for training completion - now handles both success and failure
+  const handleTrainingComplete = useCallback((modelId: string, success?: boolean, errorMessage?: string) => {
+    if (success === false) {
+      // Training failed
+      const error = errorMessage || t('faceModel.trainingError')
+      onError?.(error)
+    } else {
+      // Training completed successfully
+      onComplete?.()
+    }
+  }, [onComplete, onError, t])
 
   // Debounce error display: only show if not connecting, not connected, error exists, and hasSettled
   useEffect(() => {

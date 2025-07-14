@@ -20,16 +20,17 @@ export async function POST(request: Request) {
 
     console.log(`Starting cleanup for face model: ${faceModelId}`)
 
-    // Verify the face model belongs to the user
+    // Verify the face model belongs to the user and is not already deleted
     const { data: faceModel, error: faceModelError } = await supabase
       .from('face_models')
-      .select('id, user_id')
+      .select('id, user_id, status')
       .eq('id', faceModelId)
       .eq('user_id', user.id)
+      .neq('status', 'deleted') // Only allow deletion of non-deleted models
       .single()
 
     if (faceModelError || !faceModel) {
-      console.error('Face model not found or access denied:', faceModelError)
+      console.error('Face model not found, access denied, or already deleted:', faceModelError)
       return NextResponse.json({ error: 'Face model not found or access denied' }, { status: 404 })
     }
 
@@ -87,31 +88,27 @@ export async function POST(request: Request) {
       // Continue with face model deletion
     }
 
-    // Delete any training jobs
-    const { error: deleteJobsError } = await supabase
-      .from('training_jobs')
-      .delete()
-      .eq('face_model_id', faceModelId)
+    // Note: We keep training_jobs for analytics and audit trail
+    // The soft delete approach maintains referential integrity
 
-    if (deleteJobsError) {
-      console.error('Failed to delete training jobs:', deleteJobsError)
-      // Continue with face model deletion
-    }
-
-    // Finally, delete the face model itself
+    // Soft delete the face model (set status to 'deleted' instead of removing record)
     const { error: deleteFaceModelError } = await supabase
       .from('face_models')
-      .delete()
+      .update({ 
+        status: 'deleted',
+        updated_at: new Date().toISOString()
+      })
       .eq('id', faceModelId)
       .eq('user_id', user.id)
+      .neq('status', 'deleted') // Extra safety check - don't delete already deleted models
 
     if (deleteFaceModelError) {
-      console.error('Failed to delete face model:', deleteFaceModelError)
+      console.error('Failed to soft delete face model:', deleteFaceModelError)
       return NextResponse.json({ error: 'Failed to delete face model' }, { status: 500 })
     }
 
-    console.log(`Successfully cleaned up face model: ${faceModelId}`)
-    return NextResponse.json({ success: true, message: 'Face model cleaned up successfully' })
+    console.log(`Successfully soft deleted face model: ${faceModelId}`)
+    return NextResponse.json({ success: true, message: 'Face model deleted successfully' })
 
   } catch (error) {
     console.error('Error during face model cleanup:', error)

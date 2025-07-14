@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Button } from '@primeshot/common/web/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@primeshot/common/web/ui/dialog'
 import { Badge } from '@primeshot/common/web/ui/badge'
-import { ArrowRight, CreditCard, Clock } from 'lucide-react'
+import { ArrowRight, CreditCard } from 'lucide-react'
 
 interface UpgradePreview {
   currentPlan: {
@@ -16,11 +16,13 @@ interface UpgradePreview {
     price: number
   }
   billing: {
-    proratedAmount: number
+    upgradeAmount?: number // Full price for new upgrade system
+    proratedAmount?: number // Legacy prorated amount (for backward compatibility)
     recurringAmount: number
     billingInterval: string
-    daysRemaining: number
-    totalDays: number
+    isFullPrice?: boolean
+    daysRemaining?: number
+    totalDays?: number
     subtotal?: number
     tax?: number
     total?: number
@@ -49,6 +51,10 @@ export function UpgradeConfirmationDialog({
   if (!preview) return null
 
   const { currentPlan, newPlan, billing } = preview
+  
+  // Handle both new (upgradeAmount) and legacy (proratedAmount) systems
+  const amountDueToday = billing.upgradeAmount ?? billing.proratedAmount ?? 0
+  const isFullPriceUpgrade = billing.isFullPrice ?? false
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -94,7 +100,7 @@ export function UpgradeConfirmationDialog({
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Amount due today:</span>
                 <span className="font-medium">
-                  {billing.proratedAmount > 0 ? formatPrice(billing.proratedAmount) : 'Free'}
+                  {amountDueToday > 0 ? formatPrice(amountDueToday) : 'Free'}
                 </span>
               </div>
               
@@ -105,26 +111,17 @@ export function UpgradeConfirmationDialog({
                 <span className="font-medium">{formatPrice(billing.recurringAmount)}</span>
               </div>
 
-              <div className="flex justify-between items-center pt-2 border-t">
-                <div className="flex items-center space-x-1 text-muted-foreground">
-                  <Clock className="w-3 h-3" />
-                  <span className="text-xs">
-                    {billing.daysRemaining} days remaining in current period
-                  </span>
-                </div>
-              </div>
             </div>
           </div>
 
-          {/* Proration Explanation */}
-          {billing.proratedAmount > 0 && (
-            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-xs text-blue-800">
-                <strong>Prorated billing:</strong> You'll be charged {formatPrice(billing.proratedAmount)} today for the remaining{' '}
-                {billing.daysRemaining} days of your current billing period.
+          {/* Full Price Explanation */}
+          {isFullPriceUpgrade && amountDueToday > 0 && (
+            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-xs text-green-800">
+                <strong>Full subscription upgrade:</strong> Your current subscription will be canceled and you'll start a new billing cycle immediately at {formatPrice(amountDueToday)}/month.
               </p>
-              <p className="text-xs text-blue-700 mt-1">
-                💡 This amount is calculated by Stripe using precise proration based on usage timing and your billing cycle.
+              <p className="text-xs text-green-700 mt-1">
+                💡 Your existing credits will be preserved and any remaining time from your current subscription will not be prorated.
               </p>
             </div>
           )}
@@ -135,7 +132,7 @@ export function UpgradeConfirmationDialog({
             Cancel
           </Button>
           <Button onClick={onConfirm} disabled={isLoading}>
-            {isLoading ? 'Upgrading...' : `Upgrade for ${billing.proratedAmount > 0 ? formatPrice(billing.proratedAmount) : 'Free'}`}
+            {isLoading ? 'Upgrading...' : `Upgrade for ${amountDueToday > 0 ? formatPrice(amountDueToday) : 'Free'}`}
           </Button>
         </DialogFooter>
       </DialogContent>

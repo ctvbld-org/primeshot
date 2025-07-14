@@ -56,39 +56,56 @@ export async function POST(request: NextRequest) {
     if (existingSubscription?.stripe_customer_id) {
       customerId = existingSubscription.stripe_customer_id
       
-      // If user has an active subscription, upgrade it instead of creating a new one
+      // If user has an active subscription, this is an upgrade - handle it directly
       if (existingSubscription.stripe_subscription_id) {
         try {
-          // Get the current subscription from Stripe
-          const currentSubscription = await stripe.subscriptions.retrieve(existingSubscription.stripe_subscription_id)
-          
-          // Modify the existing subscription with prorated billing
-          const updatedSubscription = await stripe.subscriptions.update(existingSubscription.stripe_subscription_id, {
-            items: [{
-              id: currentSubscription.items.data[0].id,
-              price: priceId,
-            }],
-            proration_behavior: 'always_invoice', // Prorate immediately
-            metadata: {
-              user_id: user.id,
-              user_email: user.email || '',
-              plan_name: product.metadata.plan_name || '',
-              credits_included: product.metadata.credits_included || '0',
-              upgraded_at: new Date().toISOString(),
-              source: 'webapp_upgrade'
-            }
+          // Get customer's payment methods to check if we can charge directly
+          const paymentMethods = await stripe.paymentMethods.list({
+            customer: customerId,
+            type: 'card',
           })
 
-          // Return success response for direct upgrade
-          return NextResponse.json({ 
-            upgraded: true,
-            subscriptionId: updatedSubscription.id,
-            message: 'Subscription upgraded successfully'
-          })
-        } catch (upgradeError) {
-          console.error('Error upgrading subscription:', upgradeError)
-          // Fall back to creating a new subscription if upgrade fails
-          // This should cancel the old subscription via webhook
+          // If customer has a payment method, create subscription directly without checkout
+          if (paymentMethods.data.length > 0) {
+            // Cancel the current subscription immediately (no proration)
+            await stripe.subscriptions.cancel(existingSubscription.stripe_subscription_id)
+            console.log(`Canceled existing subscription: ${existingSubscription.stripe_subscription_id}`)
+
+            // Create new subscription directly using existing payment method
+            const newSubscription = await stripe.subscriptions.create({
+              customer: customerId,
+              items: [{ price: priceId }],
+              default_payment_method: paymentMethods.data[0].id,
+              metadata: {
+                user_id: user.id,
+                user_email: user.email || '',
+                plan_name: product.metadata.plan_name || '',
+                credits_included: product.metadata.credits_included || '0',
+                source: 'webapp_upgrade',
+                is_upgrade: 'true'
+              }
+            })
+
+            console.log(`Created new subscription directly: ${newSubscription.id}`)
+            
+            return NextResponse.json({
+              success: true,
+              subscription_id: newSubscription.id,
+              redirect_url: successUrl
+            })
+          }
+          
+          // If no payment method, proceed to checkout WITHOUT canceling current subscription
+          // This is safer - the webhook will handle canceling the old subscription after successful payment
+          // This prevents users from being left without a subscription if they abandon checkout
+          console.log(`No payment method found for customer ${customerId} - proceeding to checkout. Current subscription ${existingSubscription.stripe_subscription_id} will be canceled after successful payment.`)
+          
+        } catch (error) {
+          console.error('Error handling subscription upgrade:', error)
+          return NextResponse.json(
+            { error: 'Failed to process subscription upgrade' },
+            { status: 500 }
+          )
         }
       }
     } else {
@@ -117,7 +134,9 @@ export async function POST(request: NextRequest) {
         plan_name: product.metadata.plan_name || '',
         credits_included: product.metadata.credits_included || '0',
         checkout_type: 'subscription',
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        is_upgrade: existingSubscription?.stripe_subscription_id ? 'true' : 'false',
+        previous_subscription_id: existingSubscription?.stripe_subscription_id || ''
       },
       subscription_data: {
         metadata: {
@@ -126,7 +145,9 @@ export async function POST(request: NextRequest) {
           plan_name: product.metadata.plan_name || '',
           credits_included: product.metadata.credits_included || '0',
           created_at: new Date().toISOString(),
-          source: 'webapp_checkout'
+          source: existingSubscription?.stripe_subscription_id ? 'webapp_upgrade' : 'webapp_checkout',
+          is_upgrade: existingSubscription?.stripe_subscription_id ? 'true' : 'false',
+          previous_subscription_id: existingSubscription?.stripe_subscription_id || ''
         }
       },
       success_url: successUrl,

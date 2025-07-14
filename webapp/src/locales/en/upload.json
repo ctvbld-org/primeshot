@@ -136,16 +136,17 @@
   },
   "faceModel": {
     "nameLabel": "Face Model Name",
-    "namePlaceholder": "Enter a name for your face model",
+    "namePlaceholder": "e.g., My Professional Headshots",
     "nameDescription": "This will help you identify your face model later.",
     "creditsRequired": "Training will use {{credits}} credits",
-    "creditsDescription": "Credits will be deducted when training starts.",
     "training": "Training Face Model",
     "trainingInitializing": "Initializing training process...",
     "timeRemaining": "Estimated time remaining",
     "trainingInfo": "Your face model is being trained. This process typically takes 10-15 minutes.",
     "canCloseInfo": "You can safely close this dialog and check back later.",
-    "trainingError": "Training failed"
+    "trainingError": "Training failed",
+    "trainingFailed": "Face model training failed",
+    "trainingFailedDescription": "There was an issue training your face model. Please try again or contact support if the problem persists."
   },
   "confirmClose": {
     "title": "Close Face Model Creation?",

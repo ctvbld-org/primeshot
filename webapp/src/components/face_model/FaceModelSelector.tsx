@@ -2,6 +2,9 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@primeshot/common/web/ui/popover';
+import { useToast } from '@primeshot/common/web/ui/use-toast';
+import { useTranslation } from 'react-i18next';
+import { confirmationService } from '@/lib/services/confirmationService';
 import { useAuth } from '@/contexts/auth-context';
 import { useFaceModelsApi } from '@/lib/api/face-models';
 import { createClient } from '@/lib/supabase/client';
@@ -10,6 +13,7 @@ import { Countdown } from './countdown';
 import { cn } from '@/lib/utils';
 import { CircleProgress } from '@primeshot/common/web/ui/circle-progress';
 import { Plus, ChevronDown } from 'lucide-react';
+import { Icon } from '@primeshot/common/web/Icon';
 import Image from 'next/image';
 import styles from './FaceModelSelector.module.css';
 import { getApiUrl } from '@/lib/api/client';
@@ -23,6 +27,7 @@ import { useCurrentSubscription } from '@/hooks/useCurrentSubscription';
 import { useOpenSubscriptionDialog } from '@/hooks/useOpenSubscriptionDialog';
 import { useOpenCreditPackDialog } from '@/hooks/useOpenCreditPackDialog';
 import { useCreditBalance } from '@/hooks/useCreditBalance';
+import { useFaceModelTrainingStatus } from '@/hooks/useFaceModelTrainingStatus';
 
 interface FaceModelWithTraining {
   id: string;
@@ -58,48 +63,70 @@ interface TrainingProgressState {
   getLiveCountdownSeconds?: () => number;
 }
 
-// Note: Face models are automatically detected and selected when training starts
 export function FaceModelSelector({ className, onModelSelected, refreshTrigger }: FaceModelSelectorProps) {
   const { user } = useAuth();
-  const { getUserFaceModels } = useFaceModelsApi();
-  const { hasActiveSubscription, subscription } = useSubscriptionStatus();
+  const { toast } = useToast();
+  const { t } = useTranslation('upload');
+  const dialogService = useDialogService();
+  const { data: subscription } = useCurrentSubscription();
   const { data: subscriptionTiers } = useSubscriptionTiers();
   const { data: creditCosts } = useCreditCosts();
-  const faceModelTrainingCost = getFaceModelTrainingCost(creditCosts);
-  const creditGuard = useCreditGuard(faceModelTrainingCost);
-  const dialogService = useDialogService();
+  const { data: creditBalance } = useCreditBalance();
+  const { hasActiveSubscription } = useSubscriptionStatus();
   const openSubscriptionDialog = useOpenSubscriptionDialog();
   const openCreditPackDialog = useOpenCreditPackDialog();
-  const { data: creditBalance } = useCreditBalance();
+  
+  // Face model training cost from DB
+  const faceModelTrainingCost = getFaceModelTrainingCost(creditCosts);
+  
+  // Calculate remaining face model trainings
+  const remainingFaceModelTrainings = useMemo(() => {
+    if (!subscription) return 0;
+    return Math.max(0, subscription.face_model_training_included - subscription.face_model_training_used);
+  }, [subscription]);
+
+  // Check if user needs credits for training (vs included in subscription)
+  const needsCreditsForTraining = useMemo(() => {
+    if (!subscription) return true;
+    return remainingFaceModelTrainings <= 0;
+  }, [subscription, remainingFaceModelTrainings]);
+
+  // Check if user has sufficient credits when needed
+  const hasSufficientCredits = useMemo(() => {
+    if (!needsCreditsForTraining) return true;
+    if (creditBalance === undefined) return false;
+    return creditBalance >= faceModelTrainingCost;
+  }, [needsCreditsForTraining, creditBalance, faceModelTrainingCost]);
+
+  // Check maximum face models allowed
+  const maxFaceModels = useMemo(() => {
+    if (!subscription || !subscriptionTiers) return 1;
+    return getFaceModelLimit(subscription.plan_name, subscriptionTiers);
+  }, [subscription, subscriptionTiers]);
+
+  const { getUserFaceModels, deleteFaceModel } = useFaceModelsApi();
   const [faceModels, setFaceModels] = useState<FaceModelWithTraining[]>([]);
   const [selectedModelId, setSelectedModelId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [thumbnailUrls, setThumbnailUrls] = useState<Record<string, string>>({});
-  const [userHasManuallySelected, setUserHasManuallySelected] = useState(false);
+  const [deletingModelId, setDeletingModelId] = useState<string | null>(null);
   const [trainingProgress, setTrainingProgress] = useState<Record<string, TrainingProgressState>>({});
   const [trainingJobIds, setTrainingJobIds] = useState<Record<string, string>>({});
+  const [thumbnailUrls, setThumbnailUrls] = useState<Record<string, string>>({});
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const { data: currentSubscription, isLoading: isSubLoading, isError: isSubError } = useCurrentSubscription();
-  const remainingTrainings = useMemo(() => {
-    if (!currentSubscription) return null;
-    return (currentSubscription.face_model_training_included ?? 0) - (currentSubscription.face_model_training_used ?? 0);
-  }, [currentSubscription]);
-  // Training cost is now available as faceModelTrainingCost from the hook above
+  const [refreshTriggerInternal, setRefreshTriggerInternal] = useState<number>(0);
 
-  const supabase = useMemo(() => createClient(), []);
+  const supabase = createClient()
+  const creditGuard = useCreditGuard(faceModelTrainingCost);
 
-  // Get the selected model
-  const selectedModel = useMemo(() => {
-    if (!user?.id) return null;
-    return faceModels.find(model => model.id === selectedModelId);
-  }, [faceModels, selectedModelId, user?.id]);
+  // Get the selected model object
+  const selectedModel = useMemo(() => 
+    faceModels.find(model => model.id === selectedModelId),
+    [faceModels, selectedModelId]
+  );
 
-  // Get max face models allowed for user's subscription
-  const maxFaceModels = useMemo(() => {
-    if (!subscription?.plan_name || !subscriptionTiers) return 1; // Default for no subscription
-    return getFaceModelLimit(subscription.plan_name, subscriptionTiers);
-  }, [subscription?.plan_name, subscriptionTiers]);
+  // Determine if popover should be enabled (only when user is authenticated AND has active subscription)
+  const shouldEnablePopover = user?.id && hasActiveSubscription;
 
   // Check if user has reached face model limit
   const hasReachedFaceModelLimit = useMemo(() => {
@@ -114,20 +141,6 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
     return tier?.max_face_models === 8;
   }, [subscription?.plan_name, subscriptionTiers]);
 
-  // Check if user needs credits for training (not within included quota)
-  const needsCreditsForTraining = useMemo(() => {
-    if (!currentSubscription) return true;
-    const remainingTrainings = (currentSubscription.face_model_training_included ?? 0) - (currentSubscription.face_model_training_used ?? 0);
-    return remainingTrainings <= 0;
-  }, [currentSubscription]);
-
-  // Check if user has sufficient credits for paid training
-  const hasSufficientCreditsForTraining = useMemo(() => {
-    if (!needsCreditsForTraining) return true;
-    if (creditBalance === undefined) return false;
-    return creditBalance >= faceModelTrainingCost;
-  }, [needsCreditsForTraining, creditBalance, faceModelTrainingCost]);
-
   // Determine what should happen when Create Face Model button is clicked
   const createFaceModelAction = useMemo(() => {
     // Check face model limits
@@ -138,27 +151,21 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
         return { type: 'upgrade_subscription', message: 'Create'};
       }
     }
-
+    
     // Check credits for paid training
-    if (needsCreditsForTraining && !hasSufficientCreditsForTraining) {
+    if (needsCreditsForTraining && !hasSufficientCredits) {
       return { type: 'credit_pack', message: 'Create', credits: faceModelTrainingCost };
     }
 
     // All checks passed - allow creation
     return { type: 'create', message: 'Create' };
   }, [
-    user?.id, 
-    hasActiveSubscription, 
     hasReachedFaceModelLimit, 
     isOnHighestTier, 
-    maxFaceModels,
     needsCreditsForTraining, 
-    hasSufficientCreditsForTraining, 
+    hasSufficientCredits, 
     faceModelTrainingCost
   ]);
-
-  // Determine if popover should be enabled (only when user is authenticated AND has active subscription)
-  const shouldEnablePopover = user?.id && hasActiveSubscription;
 
   // Handle button click - either open popover or trigger guard function
   const handleButtonClick = useCallback(() => {
@@ -173,143 +180,167 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
     }
   }, [shouldEnablePopover, creditGuard]);
 
-  // Helper function to get training job IDs for models
+  // Automatically select first model if none selected
+  useEffect(() => {
+    if (faceModels.length > 0 && !selectedModelId) {
+      // Check for manual selection from localStorage
+      try {
+        const savedSelection = localStorage.getItem(`face-model-selection`);
+        if (savedSelection) {
+          const { modelId } = JSON.parse(savedSelection);
+          if (faceModels.find(m => m.id === modelId)) {
+            setSelectedModelId(modelId);
+            onModelSelected?.(modelId);
+            return;
+          }
+        }
+      } catch (e) {
+        // Invalid saved data, ignore
+      }
+      
+      // Default to first model
+      const firstModel = faceModels[0];
+      setSelectedModelId(firstModel.id);
+      onModelSelected?.(firstModel.id);
+    }
+  }, [faceModels, selectedModelId, onModelSelected]);
+
+  // Auto refresh on external trigger
+  useEffect(() => {
+    if (refreshTrigger !== undefined) {
+      setRefreshTriggerInternal(refreshTrigger);
+    }
+  }, [refreshTrigger]);
+
+  // Fetch training job IDs for models in training/queued states
   const getTrainingJobIds = useCallback(async (models: FaceModelWithTraining[]) => {
     const trainingModels = models.filter(m => ['queued', 'training'].includes(m.status));
     if (trainingModels.length === 0) return {};
 
-    const { data: jobs, error } = await supabase
+    const modelIds = trainingModels.map(m => m.id);
+    const { data, error } = await supabase
       .from('training_jobs')
       .select('id, face_model_id')
-      .in('face_model_id', trainingModels.map(m => m.id))
-      .in('status', ['queued', 'running'])
+      .in('face_model_id', modelIds)
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching training jobs:', error);
+      console.error('Failed to fetch training job IDs:', error);
       return {};
     }
 
-    return jobs.reduce((acc, job) => ({
-      ...acc,
-      [job.face_model_id]: job.id
-    }), {} as Record<string, string>);
+    // Create mapping of face_model_id -> training_job_id
+    const mapping: Record<string, string> = {};
+    data?.forEach(job => {
+      if (!mapping[job.face_model_id]) { // Only take the most recent job
+        mapping[job.face_model_id] = job.id;
+      }
+    });
+
+    return mapping;
   }, [supabase]);
 
-  // Load persisted selection on mount
-  useEffect(() => {
-    const persistedSelection = localStorage.getItem(`face-model-selection`);
+  // Fetch thumbnail URLs for models that have thumbnail_url
+  const fetchThumbnailUrls = useCallback(async (models: FaceModelWithTraining[]) => {
+    const modelsWithThumbnails = models.filter(m => m.thumbnail_url);
+    if (modelsWithThumbnails.length === 0) return {};
 
-    if (persistedSelection) {
-        const { modelId, isManual } = JSON.parse(persistedSelection);
-        setSelectedModelId(modelId);
-        setUserHasManuallySelected(isManual);
+    // Generate presigned URLs for thumbnails
+    const urlPromises = modelsWithThumbnails.map(async (model) => {
+      try {
+        const response = await fetch(getApiUrl(`/api/user-images?url=${encodeURIComponent(model.thumbnail_url!)}`));
+        if (response.ok) {
+          const { url } = await response.json();
+          return { [model.id]: url };
+        } else {
+          console.warn(`Failed to get signed URL for model ${model.id}`);
+          return { [model.id]: '' };
+        }
+      } catch (error) {
+        console.error(`Failed to create presigned URL for model ${model.id}:`, error);
+        return { [model.id]: '' };
+      }
+    });
+
+    if (urlPromises.length > 0) {
+      try {
+        const urlResults = await Promise.all(urlPromises);
+        const urlMap = urlResults.reduce((acc, curr) => ({ ...acc, ...curr }), {});
+        return urlMap;
+      } catch (error) {
+        console.warn('Failed to generate presigned URLs, using fallback avatars:', error);
+        return {};
+      }
     }
+
+    return {};
   }, []);
 
-  const loadFaceModels = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
+  // Delete face model handler with confirmation
+  const handleDeleteConfirm = useCallback(async (model: FaceModelWithTraining) => {
+    if (!user?.id) return;
     
+    setDeletingModelId(model.id);
+    
+    try {
+      await deleteFaceModel(model.id, user.id);
+      
+      // Remove from local state immediately
+      setFaceModels(prev => prev.filter(m => m.id !== model.id));
+      
+      // Clear selection if the deleted model was selected
+      if (selectedModelId === model.id) {
+        setSelectedModelId('');
+      }
+      
+      // Trigger internal refresh to sync with server
+      setRefreshTriggerInternal(prev => prev + 1);
+      
+    } catch (err) {
+      console.error('Failed to delete face model:', err);
+      setError(err instanceof Error ? err.message : 'Failed to delete face model');
+    } finally {
+      setDeletingModelId(null);
+    }
+  }, [deleteFaceModel, selectedModelId, user?.id]);
+
+  // Load face models
+  const loadFaceModels = useCallback(async () => {
     if (!user?.id) {
-      setIsLoading(false);
       setFaceModels([]);
+      setIsLoading(false);
       return;
     }
 
+    setIsLoading(true);
+    setError(null);
+
     try {
-
-      // Get face models with relevant statuses (including queued for new training)
       const models = await getUserFaceModels(user.id);
-      const relevantModels = models.filter(model => 
-        ['queued', 'training', 'ready', 'failed'].includes(model.status)
-      );
-
-      // Get training jobs for these models to link training models with their jobs
-      const { data: trainingJobs, error: jobsError } = await supabase
-        .from('training_jobs')
-        .select('id, face_model_id, status, created_at')
-        .eq('user_id', user.id)
-        .in('face_model_id', relevantModels.map(m => m.id))
-        .order('created_at', { ascending: false });
-
-      if (jobsError) {
-        throw new Error(`Failed to fetch training jobs: ${jobsError.message}`);
-      }
-
-      // Map models with their latest training job info
-      const modelsWithTraining: FaceModelWithTraining[] = relevantModels.map(model => {
-        const latestJob = trainingJobs?.find(job => job.face_model_id === model.id);
-        
-        return {
+      
+      // Filter out deleted models and transform to FaceModelWithTraining
+      const validModels: FaceModelWithTraining[] = models
+        .filter(model => model.status !== 'deleted')
+        .map(model => ({
           id: model.id,
           name: model.name,
           status: model.status as 'queued' | 'training' | 'ready' | 'failed',
           user_id: model.user_id,
-          training_job_id: latestJob?.id,
+          training_job_id: undefined,
           created_at: model.created_at,
-          image_count: model.image_count || 0,
-          thumbnail_url: (model as any).thumbnail_url || null
-        };
-      });
-
-      // Sort models from newest to oldest
-      const sortedModels = modelsWithTraining.sort((a, b) => 
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      );
+          image_count: model.image_count,
+          thumbnail_url: (model as any).thumbnail_url
+        }));
       
-      setFaceModels(sortedModels);
+      setFaceModels(validModels);
 
-      // Generate presigned URLs for thumbnails
-      const urlPromises = modelsWithTraining
-        .filter(model => model.thumbnail_url)
-        .map(async (model) => {
-          try {
-            const response = await fetch(getApiUrl(`/api/user-images?url=${encodeURIComponent(model.thumbnail_url!)}`));
-            if (response.ok) {
-              const { url } = await response.json();
-              return { [model.id]: url };
-            } else {
-              console.warn(`Failed to get signed URL for model ${model.id}`);
-              return { [model.id]: '' };
-            }
-          } catch (error) {
-            console.error(`Failed to create presigned URL for model ${model.id}:`, error);
-            return { [model.id]: '' };
-          }
-        });
+      // Fetch training job IDs for queued/training models
+      const jobIds = await getTrainingJobIds(validModels);
+      setTrainingJobIds(jobIds);
 
-      if (urlPromises.length > 0) {
-        try {
-          const urlResults = await Promise.all(urlPromises);
-          const urlMap = urlResults.reduce((acc, curr) => ({ ...acc, ...curr }), {});
-          setThumbnailUrls(urlMap);
-        } catch (error) {
-          console.warn('Failed to generate presigned URLs, using fallback avatars:', error);
-          setThumbnailUrls({});
-        }
-      } else {
-        setThumbnailUrls({});
-      }
-
-      // Smart selection logic
-      if (sortedModels.length > 0) {
-        const persistedSelection = localStorage.getItem(`face-model-selection`);
-        const newestModel = sortedModels[0];
-       
-        if (persistedSelection) {
-          const { modelId } = JSON.parse(persistedSelection);
-          
-          setSelectedModelId(modelId);
-        } else {
-          // No previous selection, auto-select newest model
-          setSelectedModelId(newestModel.id);
-          localStorage.setItem(`face-model-selection`, JSON.stringify({
-            modelId: newestModel.id
-          }));
-          onModelSelected?.(newestModel.id);
-        }
-      }
+      // Fetch thumbnail URLs for ready models
+      const thumbnails = await fetchThumbnailUrls(validModels);
+      setThumbnailUrls(thumbnails);
 
     } catch (err) {
       console.error('Failed to load face models:', err);
@@ -317,7 +348,7 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
     } finally {
       setIsLoading(false);
     }
-  }, [user?.id, getUserFaceModels, supabase]);
+  }, [user?.id, getUserFaceModels, getTrainingJobIds, fetchThumbnailUrls]);
 
   // Reload face models whenever the refreshTrigger increments
   useEffect(() => {
@@ -373,31 +404,52 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
   }, []);
 
   // Refresh logic after a training job signals completion
-  const handleTrainingComplete = useCallback((modelId: string) => {
+  const handleTrainingComplete = useCallback((modelId: string, success?: boolean, errorMessage?: string) => {
     // Remove stale progress entry for this model
     setTrainingProgress(prev => {
       const { [modelId]: _removed, ...rest } = prev;
       return rest;
     });
 
-    // Optimistically set model status to ready so UI updates immediately
-    setFaceModels(prev => prev.map(m => (m.id === modelId ? { ...m, status: 'ready' } : m)));
+    // Remove the training job ID as well since it's completed
+    setTrainingJobIds(prev => {
+      const { [modelId]: _removed, ...rest } = prev;
+      return rest;
+    });
 
-    // Fetch fresh data to confirm backend status
-    //loadFaceModels();
+    if (success === false) {
+      // Training failed - update model status to failed and show error
+      setFaceModels(prev => prev.map(m => (m.id === modelId ? { ...m, status: 'failed' } : m)));
+      
+      // Show error toast
+      toast({
+        title: t('faceModel.trainingError'),
+        description: errorMessage || 'Face model training failed',
+        variant: 'destructive'
+      });
+    } else {
+      // Training completed successfully - optimistically set model status to ready
+      setFaceModels(prev => prev.map(m => (m.id === modelId ? { ...m, status: 'ready' } : m)));
+    }
 
-  }, [loadFaceModels]);
+    // Fetch fresh data to get the correct image count and confirm backend status
+    setTimeout(() => {
+      loadFaceModels();
+    }, 1000); // Small delay to ensure backend has updated
+
+  }, [loadFaceModels, toast, t]);
 
   // Function to open face model upload dialog
   const openFaceModelUploadDialog = useCallback(() => {
     dialogService.openDialog(
       <FaceModelUploadDialog 
         onComplete={(faceModelId) => {
-          loadFaceModels(); // Refresh the face models list
-          setSelectedModelId(faceModelId); // Auto-select the new model
-          localStorage.setItem(`face-model-selection`, JSON.stringify({ modelId: faceModelId }));
+          // Refresh the face models list when upload completes
+          loadFaceModels();
+          // Auto-select the newly created model
+          setSelectedModelId(faceModelId);
           onModelSelected?.(faceModelId);
-        }} 
+        }}
       />
     );
   }, [dialogService, loadFaceModels, onModelSelected]);
@@ -446,6 +498,26 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
     }
   }, [createFaceModelAction, creditGuard, openFaceModelUploadDialog, openSubscriptionDialog, openCreditPackDialog, setIsPopoverOpen, subscription?.plan_name]);
 
+  // Handle delete button click
+  // Handle delete confirmation
+  const handleDeleteClick = useCallback(async (e: React.MouseEvent, model: FaceModelWithTraining) => {
+    e.stopPropagation(); // Prevent model selection
+    
+    const confirmed = await confirmationService.confirm({
+      title: `Delete FaceModel '${model.name}'?`,
+      description: `This can't be undone. ${needsCreditsForTraining ? `You have no included face model training left. Creating a new one will cost ${faceModelTrainingCost} credits.` : ''}`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      variant: 'danger',
+      icon: 'bin'
+    });
+
+    if (confirmed) {
+      setIsPopoverOpen(false); // Close popover when deletion starts
+      await handleDeleteConfirm(model);
+    }
+  }, [needsCreditsForTraining, faceModelTrainingCost, handleDeleteConfirm]);
+
   const getStatusDisplay = (model: FaceModelWithTraining): React.ReactNode => {
     if (model.status === 'queued') {
       return 'Queued';
@@ -464,6 +536,9 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
   };
 
   const getImageCount = (model: FaceModelWithTraining) => {
+    if (deletingModelId === model.id) {
+      return 'Deleting...';
+    }
     if (model.status === 'queued') {
       return 'Initializing...';
     }
@@ -492,20 +567,38 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
     fetchJobIds();
   }, [faceModels, getTrainingJobIds]);
 
+  // Clean up training progress for models that are no longer training
+  useEffect(() => {
+    const readyModelIds = faceModels.filter(m => m.status === 'ready').map(m => m.id);
+    if (readyModelIds.length > 0) {
+      setTrainingProgress(prev => {
+        const newProgress = { ...prev };
+        readyModelIds.forEach(modelId => {
+          delete newProgress[modelId];
+        });
+        return newProgress;
+      });
+    }
+  }, [faceModels]);
 
 
   return (
     <div className={cn('flex items-center space-x-4', className)}>
       {/* Hidden trackers that manage WebSocket connections */}
-      {Object.entries(trainingJobIds).map(([modelId, jobId]) => (
-        <ProgressTracker
-          key={modelId}
-          modelId={modelId}
-          jobId={jobId}
-          onProgressUpdate={handleProgressUpdate}
-          onComplete={handleTrainingComplete}
-        />
-      ))}
+      {Object.entries(trainingJobIds)
+        .filter(([modelId]) => {
+          const model = faceModels.find(m => m.id === modelId);
+          return model && ['queued', 'training'].includes(model.status);
+        })
+        .map(([modelId, jobId]) => (
+          <ProgressTracker
+            key={modelId}
+            modelId={modelId}
+            jobId={jobId}
+            onProgressUpdate={handleProgressUpdate}
+            onComplete={handleTrainingComplete}
+          />
+        ))}
 
       <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
         <PopoverTrigger asChild>
@@ -516,8 +609,13 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
                   <Plus className="w-4 h-4 text-white" />
                 </div>
               ) : selectedModel ? (
-                <div className={styles.modelThumbnail}>
-                  {(selectedModel.status === 'training' || selectedModel.status === 'queued') && (
+                <div className={`${styles.modelThumbnail} ${deletingModelId === selectedModel.id ? 'opacity-50' : ''}`}>
+                  {/* Show deleting state */}
+                  {deletingModelId === selectedModel.id && (
+                    <CircleProgress value={100} size={32} thickness={3} className="animate-spin" />
+                  )}
+                  {/* Show training/queued progress */}
+                  {deletingModelId !== selectedModel.id && (selectedModel.status === 'training' || selectedModel.status === 'queued') && (
                     <CircleProgress value={trainingProgress[selectedModel.id]?.getProgressPercentage?.() ?? 0} size={32} thickness={3} />
                   )}
                   {thumbnailUrls[selectedModel.id] ? (
@@ -545,7 +643,10 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
             {/* Text */}
             <div className={styles.textContainer}>
               <p className={styles.primaryText}>
-                {!user?.id ? "Create Model" : selectedModel ? selectedModel.name : "Select face model"}
+                {!user?.id ? "Create Model" : 
+                 selectedModel ? 
+                   (deletingModelId === selectedModel.id ? "Deleting..." : selectedModel.name) : 
+                   "Select face model"}
               </p>
               <p className={styles.secondaryText}>Face Model</p>
             </div>
@@ -592,13 +693,18 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
               faceModels.map((model) => (
                 <div
                   key={model.id}
-                  className={styles.modelOption}
-                  onClick={() => handleModelSelected(model.id)}
+                  className={`${styles.modelOption} ${deletingModelId === model.id ? 'opacity-50 pointer-events-none' : ''}`}
+                  onClick={() => deletingModelId !== model.id && handleModelSelected(model.id)}
                 >
                   <div className="flex items-center justify-between w-full">
                     <div className="flex items-center space-x-3">
-                      <div className={styles.modelThumbnailLarge}>
-                        {(model.status === 'training' || model.status === 'queued') && (
+                      <div className={styles.modelThumbnailLarge} style={{ position: 'relative' }}>
+                        {/* Show deleting state */}
+                        {deletingModelId === model.id && (
+                          <CircleProgress value={100} size={48} thickness={3} className="animate-spin" />
+                        )}
+                        {/* Show training/queued progress */}
+                        {deletingModelId !== model.id && (model.status === 'training' || model.status === 'queued') && (
                           <CircleProgress value={trainingProgress[model.id]?.getProgressPercentage?.() ?? 0} size={48} thickness={3} />
                         )}
                         {thumbnailUrls[model.id] ? (
@@ -613,6 +719,16 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
                         ) : (
                           <div className={styles.modelInitial}>
                             {model.name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        {/* Delete icon overlay - only show for non-training models */}
+                        {model.status !== 'training' && 
+                         deletingModelId !== model.id && (
+                          <div 
+                            className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full cursor-pointer opacity-0 hover:opacity-100 transition-opacity"
+                            onClick={(e) => handleDeleteClick(e, model)}
+                          >
+                            <Icon variant="bin" size={20} className="text-red-400" />
                           </div>
                         )}
                       </div>
@@ -634,12 +750,10 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
 
           <div className={styles.dropdownFooter} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ minWidth: 120, textAlign: 'left', fontSize: 13, color: '#b6e3e2', fontWeight: 500 }}>
-              {isSubLoading ? (
-                <span style={{ opacity: 0.5 }}>...</span>
-              ) : isSubError || !currentSubscription ? null : remainingTrainings && remainingTrainings > 0 ? (
-                <span>{remainingTrainings} included in plan</span>
-              ) : (
+              {needsCreditsForTraining ? (
                 <span>{faceModelTrainingCost} credits</span>
+              ) : (
+                <span>{remainingFaceModelTrainings} included in plan</span>
               )}
             </div>
             <Button 
@@ -654,14 +768,19 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
         </PopoverContent>
       </Popover>
 
-      {selectedModel && ['queued', 'training'].includes(selectedModel.status || '') && (
+
+
+      {selectedModel && 
+       selectedModel.status !== 'ready' && 
+       ['queued', 'training'].includes(selectedModel.status || '') && (
         <div className="flex space-x-1">
           <div className="text-sm">
             {selectedModel.status === 'queued' && (
               <span className="text-yellow-400">Queued</span>
             )}
             {selectedModel.status === 'training' && (
-              trainingProgress[selectedModel.id]?.progress ? (
+              trainingProgress[selectedModel.id]?.progress && 
+              trainingProgress[selectedModel.id].progress.message !== 'Training completed successfully' ? (
                 <span className="text-cyan-400">{trainingProgress[selectedModel.id].progress.message}</span>
               ) : (
                 <span className="text-cyan-400">Initializing</span>

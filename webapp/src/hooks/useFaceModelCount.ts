@@ -12,12 +12,8 @@ export function useFaceModelCount() {
       if (!user?.id) return 0
       
       const models = await getUserFaceModels(user.id)
-      // Count only the relevant face models (exclude deleted/failed)
-      const relevantModels = models.filter(model => 
-        ['queued', 'training', 'ready', 'failed'].includes(model.status)
-      )
-      
-      return relevantModels.length
+      // getUserFaceModels now only returns active models, so we can count all of them
+      return models.length
     },
     enabled: !!user?.id, // Only run when user is authenticated
     staleTime: 30000, // Consider data stale after 30 seconds

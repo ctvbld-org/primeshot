@@ -74,9 +74,6 @@ export function FaceModelNameStep({
           <p className="text-sm text-[#44E3C9]">
             {t('faceModel.creditsRequired', { credits })}
           </p>
-          <p className="text-xs text-muted-foreground">
-            {t('faceModel.creditsDescription')}
-          </p>
         </div>
       )}
     </div>
