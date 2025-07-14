@@ -276,7 +276,8 @@ Test pricing endpoints:
 
 ```bash
 # Test face model training cost
-curl http://localhost:3000/api/pricing/face-model-training-cost
+# Face model training cost is now accessed directly from database
+# Use: SELECT value FROM credit_costs WHERE type = 'FACE_MODEL_TRAINING'
 
 # Test face model limit
 curl http://localhost:3000/api/pricing/face-model-limit/basic

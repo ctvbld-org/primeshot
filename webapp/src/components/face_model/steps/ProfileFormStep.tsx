@@ -128,6 +128,7 @@ export function ProfileFormStep({
 
           return (
             <FormField
+              key={field.name} 
               name={field.name}
               label={enhancedLabel}
               options={field.options}

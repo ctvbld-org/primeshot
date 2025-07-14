@@ -273,16 +273,21 @@ export async function POST(request: Request) {
         }, { status: 500 });
       }
 
-             // Fetch pricing configuration from internal API
-       const baseUrl = process.env.VERCEL_URL 
-         ? `https://${process.env.VERCEL_URL}` 
-         : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-       const pricingRes = await fetch(`${baseUrl}/api/pricing/face-model-training-cost`);
-       if (!pricingRes.ok) {
-         console.error('Failed to fetch face model training cost:', pricingRes.status);
-         return NextResponse.json({ error: 'Failed to fetch pricing configuration' }, { status: 500 });
-       }
-       const { cost: FACE_MODEL_TRAINING_CREDITS } = await pricingRes.json();
+      // Fetch face model training cost directly from database
+      const { data: creditCostData, error: costError } = await supabase
+        .from('credit_costs')
+        .select('value')
+        .eq('type', 'FACE_MODEL_TRAINING')
+        .single();
+
+      if (costError) {
+        console.error('Failed to fetch face model training cost from database:', costError);
+        return NextResponse.json({ 
+          error: 'Failed to fetch pricing configuration' 
+        }, { status: 500 });
+      }
+
+      const FACE_MODEL_TRAINING_CREDITS = creditCostData?.value || 30; // Fallback to 30 credits
 
       if (creditBalance < FACE_MODEL_TRAINING_CREDITS) {
         return NextResponse.json({ 

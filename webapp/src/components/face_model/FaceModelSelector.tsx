@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@primeshot/common/web/ui/popover';
 import { useToast } from '@primeshot/common/web/ui/use-toast';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import { confirmationService } from '@/lib/services/confirmationService';
 import { useAuth } from '@/contexts/auth-context';
 import { useFaceModelsApi } from '@/lib/api/face-models';
@@ -67,6 +68,7 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
   const { user } = useAuth();
   const { toast } = useToast();
   const { t } = useTranslation('upload');
+  const queryClient = useQueryClient();
   const dialogService = useDialogService();
   const { data: subscription } = useCurrentSubscription();
   const { data: subscriptionTiers } = useSubscriptionTiers();
@@ -449,10 +451,13 @@ export function FaceModelSelector({ className, onModelSelected, refreshTrigger }
           // Auto-select the newly created model
           setSelectedModelId(faceModelId);
           onModelSelected?.(faceModelId);
+          // Invalidate subscription and credit queries to update training usage count and balance
+          queryClient.invalidateQueries({ queryKey: ['currentSubscription'] });
+          queryClient.invalidateQueries({ queryKey: ['creditBalance'] });
         }}
       />
     );
-  }, [dialogService, loadFaceModels, onModelSelected]);
+  }, [dialogService, loadFaceModels, onModelSelected, queryClient]);
 
   // Handle Create Face Model button click with enhanced logic
   const handleCreateFaceModelClick = useCallback(() => {

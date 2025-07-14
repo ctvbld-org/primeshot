@@ -764,7 +764,6 @@ Detected changes in:
 - webapp/src/app/api/pricing/credit-costs/route.ts
 - webapp/src/app/api/pricing/credit-packs/route.ts
 - webapp/src/app/api/pricing/face-model-limit/[planName]/route.ts
-- webapp/src/app/api/pricing/face-model-training-cost/route.ts
 - webapp/src/app/api/pricing/subscriptions/route.ts
 - webapp/src/app/api/subscription/current/route.ts
 - webapp/src/app/api/upload-chunk/route.ts
