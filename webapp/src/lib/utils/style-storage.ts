@@ -1,4 +1,11 @@
 export interface StyleSelections {
+  scene: string | null
+  wardrobe: string | null
+  color: string | null
+}
+
+// Legacy interface for backward compatibility during migration
+export interface LegacyStyleSelections {
   background: string | null
   clothing: string | null
   clothingColor: string | null
@@ -22,6 +29,31 @@ function isLocalStorageAvailable(): boolean {
     return true
   } catch {
     return false
+  }
+}
+
+/**
+ * Migrate legacy style selections to new format
+ */
+function migrateLegacySelections(legacySelections: any): StyleSelections {
+  if (!legacySelections) {
+    return { scene: null, wardrobe: null, color: null }
+  }
+
+  // If already in new format, return as-is
+  if ('scene' in legacySelections || 'wardrobe' in legacySelections || 'color' in legacySelections) {
+    return {
+      scene: legacySelections.scene || null,
+      wardrobe: legacySelections.wardrobe || null,
+      color: legacySelections.color || null
+    }
+  }
+
+  // Migrate from legacy format
+  return {
+    scene: legacySelections.background || null,
+    wardrobe: legacySelections.clothing || null,
+    color: legacySelections.clothingColor || null
   }
 }
 
@@ -62,18 +94,20 @@ export function storeSelectedStyleIndex(styleIndex: number): void {
  */
 export function getStoredStyleSelections(styleId: string): StyleSelections {
   if (!isLocalStorageAvailable()) {
-    return { background: null, clothing: null, clothingColor: null }
+    return { scene: null, wardrobe: null, color: null }
   }
 
   try {
     const stored = localStorage.getItem(STYLE_SELECTIONS_KEY)
-    if (!stored) return { background: null, clothing: null, clothingColor: null }
+    if (!stored) return { scene: null, wardrobe: null, color: null }
     
     const allSelections = JSON.parse(stored)
-    return allSelections[styleId] || { background: null, clothing: null, clothingColor: null }
+    const selections = allSelections[styleId]
+    
+    return migrateLegacySelections(selections)
   } catch (error) {
     console.error('Error reading style selections from localStorage:', error)
-    return { background: null, clothing: null, clothingColor: null }
+    return { scene: null, wardrobe: null, color: null }
   }
 }
 
@@ -93,8 +127,8 @@ export function storeStyleSelections(styleId: string, selections: Partial<StyleS
       allSelections = JSON.parse(stored)
     }
     
-    // Get current selections or default, avoiding extra localStorage read
-    const currentSelections = allSelections[styleId] || { background: null, clothing: null, clothingColor: null }
+    // Get current selections or default, and migrate if needed
+    const currentSelections = migrateLegacySelections(allSelections[styleId])
     allSelections[styleId] = {
       ...currentSelections,
       ...selections

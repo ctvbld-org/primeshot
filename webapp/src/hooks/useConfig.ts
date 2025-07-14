@@ -1,23 +1,31 @@
 import { useQuery } from '@tanstack/react-query';
-import type { Style, Option, StyleId, OptionCategory } from '@/types/styles';
+import type { Style, StyleId, Scene, Wardrobe, Color } from '@/types/styles';
 import {
   getAllStyleConfigs,
   getStyleConfigById,
-  getAllOptions,
-  getOptionByCategory,
+  getScenes,
+  getWardrobes,
+  getColors,
+  getSceneByValue,
+  getWardrobeByValue,
+  getColorByValue,
 } from '@/lib/api/config';
 
 const CACHE_KEYS = {
-  styles: 'style-configs',
-  styleById: (id: StyleId) => ['style-config', id],
-  options: 'options',
-  optionByCategory: (category: OptionCategory) => ['option', category],
+  styles: 'styles',
+  styleById: (id: StyleId) => ['style', id],
+  scenes: 'scenes',
+  wardrobes: 'wardrobes',
+  colors: 'colors',
+  sceneByValue: (value: string) => ['scene', value],
+  wardrobeByValue: (value: string) => ['wardrobe', value],
+  colorByValue: (value: string) => ['color', value],
 } as const;
 
 // Define constants for cache configuration
 const ONE_WEEK_IN_MS = 1000 * 60 * 60 * 24 * 7; // 1 week
 
-export function useStyleConfigs() {
+export function useStyles() {
   return useQuery({
     queryKey: [CACHE_KEYS.styles],
     queryFn: getAllStyleConfigs,
@@ -25,7 +33,7 @@ export function useStyleConfigs() {
   });
 }
 
-export function useStyleConfig(id: StyleId) {
+export function useStyle(id: StyleId) {
   return useQuery({
     queryKey: CACHE_KEYS.styleById(id),
     queryFn: () => getStyleConfigById(id),
@@ -33,18 +41,60 @@ export function useStyleConfig(id: StyleId) {
   });
 }
 
-export function useOptions() {
+// Deprecated exports for backwards compatibility
+/** @deprecated Use useStyles() instead */
+export const useStyleConfigs = useStyles;
+/** @deprecated Use useStyle() instead */
+export const useStyleConfig = useStyle;
+
+// New separate table hooks
+export function useScenes() {
   return useQuery({
-    queryKey: [CACHE_KEYS.options],
-    queryFn: getAllOptions,
+    queryKey: [CACHE_KEYS.scenes],
+    queryFn: getScenes,
     staleTime: ONE_WEEK_IN_MS,
   });
 }
 
-export function useOption(category: OptionCategory) {
+export function useWardrobes() {
   return useQuery({
-    queryKey: CACHE_KEYS.optionByCategory(category),
-    queryFn: () => getOptionByCategory(category),
+    queryKey: [CACHE_KEYS.wardrobes],
+    queryFn: getWardrobes,
     staleTime: ONE_WEEK_IN_MS,
+  });
+}
+
+export function useColors() {
+  return useQuery({
+    queryKey: [CACHE_KEYS.colors],
+    queryFn: getColors,
+    staleTime: ONE_WEEK_IN_MS,
+  });
+}
+
+export function useScene(value: string) {
+  return useQuery({
+    queryKey: CACHE_KEYS.sceneByValue(value),
+    queryFn: () => getSceneByValue(value),
+    staleTime: ONE_WEEK_IN_MS,
+    enabled: !!value,
+  });
+}
+
+export function useWardrobe(value: string) {
+  return useQuery({
+    queryKey: CACHE_KEYS.wardrobeByValue(value),
+    queryFn: () => getWardrobeByValue(value),
+    staleTime: ONE_WEEK_IN_MS,
+    enabled: !!value,
+  });
+}
+
+export function useColor(value: string) {
+  return useQuery({
+    queryKey: CACHE_KEYS.colorByValue(value),
+    queryFn: () => getColorByValue(value),
+    staleTime: ONE_WEEK_IN_MS,
+    enabled: !!value,
   });
 }

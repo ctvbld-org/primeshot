@@ -6,23 +6,18 @@ const getProxyUrl = (path: string) => {
 };
 
 /**
- * Returns the appropriate set of images based on the user's gender
- * Uses same image filenames but different paths based on gender
- * 
+ * Returns the set of images from the styles placeholders directory
+ * Uses a fixed path for all style images
+ *
  * @param images The image filenames
- * @param gender The user's gender
- * @returns Array of images with gender-specific paths from S3 via proxy
+ * @returns Array of images with full URLs from S3 via proxy
  */
 export function getStyleImages(
-  images: string[],
-  gender?: Gender
+  images: string[]
 ): string[] {
   if (!images || !Array.isArray(images) || images.length === 0) {
     return [];
   }
-  
-  // Determine which gender folder to use
-  const genderFolder = gender ? gender : 'male';
   
   // Map each image to its gender-specific path
   return images.map(img => {
@@ -30,62 +25,11 @@ export function getStyleImages(
     if (img.startsWith('http')) return img;
     
     // Create the S3 path - place in the placeholders/gender subfolder
-    const s3Path = `app-images/placeholders/${genderFolder}/${img}`;
+    const s3Path = `app-images/placeholders/styles/${img}`;
     
     // Return the proxy URL
     return getProxyUrl(s3Path);
   });
 }
-
-/**
- * Gets just the first image from the gender-appropriate set
- * Useful for thumbnails or preview cards
- * 
- * @param images The image filenames
- * @param gender The user's gender
- * @returns First image with gender-specific path
- */
-export function getStyleThumbnail(
-  images: string[],
-  gender?: Gender
-): string {
-  if (!images || !Array.isArray(images) || images.length === 0) {
-    return '';
-  }
-  
-  const imageSet = getStyleImages(images, gender);
-  return imageSet[0] || '';
-}
-
-/**
- * Filters styles based on user gender
- * Only returns styles that are available for the user's gender
- * 
- * @param styles Array of style objects with availableGenders property
- * @param gender The user's gender (defaults to showing all styles if undefined)
- * @returns Filtered array of styles
- */
-export function filterStylesByGender<T extends { availableGenders?: Gender[] }>(
-  styles: T[],
-  gender?: Gender
-): T[] {
-  if (!gender) {
-    return styles; // Return all styles if no gender specified
-  }
-
-  return styles.filter(style => {
-    // If no availableGenders specified, style is available to all
-    if (!style.availableGenders || style.availableGenders.length === 0) {
-      return true;
-    }
-    
-    // Check if user's gender is in the availableGenders array
-    return style.availableGenders.includes(gender);
-  });
-}
-
-// For backward compatibility with old imports
-export const getGenderImages = getStyleImages;
-export const getGenderThumbnail = getStyleThumbnail;
 
 export default getStyleImages; 

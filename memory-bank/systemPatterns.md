@@ -803,6 +803,67 @@ Detected changes in:
 - webapp/src/components/pricing/UpgradeConfirmationDialog.tsx
 - webapp/src/lib/hooks/use-file-upload.ts
 - webapp/src/lib/hooks/use-order.ts
+
+
+**Auto-update 2025-07-14**:
+Detected changes in:
+- webapp/src/app/api/cleanup-face-model/route.ts
+- webapp/src/app/api/payment/subscription-checkout/route.ts
+- webapp/src/app/api/payment/webhook/route.ts
+- webapp/src/app/api/pricing/face-model-training-cost/route.ts
+- webapp/src/app/api/subscription/preview-upgrade/route.ts
+- webapp/src/app/api/upload-chunk/route.ts
+- webapp/src/app/globals.css
+- webapp/src/components/dashboard/CreditDashboard.tsx
+- webapp/src/components/face_model/FaceModelSelector.tsx
+- webapp/src/components/face_model/FaceModelUploadDialog.tsx
+- webapp/src/components/face_model/progress_tracker.tsx
+- webapp/src/components/face_model/steps/FaceModelNameStep.tsx
+- webapp/src/components/face_model/steps/ProfileFormStep.tsx
+- webapp/src/components/face_model/steps/TrainingProgressStep.tsx
+- webapp/src/components/home/GenerationControls.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/pricing/UpgradeConfirmationDialog.tsx
+- webapp/src/lib/api/face-models.ts
+- webapp/src/lib/services/confirmationService.ts
+
+
+**Auto-update 2025-07-14**:
+Detected changes in:
+- webapp/src/app/api/cleanup-orphaned-uploads/route.ts
+- webapp/src/app/api/styles/route.ts
+- webapp/src/app/app/layout.tsx
+- webapp/src/app/app/page.tsx
+- webapp/src/app/app/payment/error/page.tsx
+- webapp/src/app/app/review/page.module.css
+- webapp/src/app/app/review/page.tsx
+- webapp/src/app/app/settings/page.tsx
+- webapp/src/app/app/settings/profile/page.module.css
+- webapp/src/app/app/settings/profile/page.tsx
+- webapp/src/app/app/settings/settings-content.tsx
+- webapp/src/app/app/settings/settings-form.tsx
+- webapp/src/app/app/upload/page.tsx
+- webapp/src/components/animations/TiltCard.tsx
+- webapp/src/components/animations/confetti.tsx
+- webapp/src/components/auth/animated-background.module.css
+- webapp/src/components/auth/animated-background.tsx
+- webapp/src/components/review/review-footer.module.css
+- webapp/src/components/review/review-footer.tsx
+- webapp/src/components/review/shoot-summary.module.css
+- webapp/src/components/review/shoot-summary.tsx
+- webapp/src/components/style/SceneDropdown.tsx
+- webapp/src/components/style/StylesCarousel.tsx
+- webapp/src/components/style/WardrobeDropdown.tsx
+- webapp/src/contexts/style-selection-context.tsx
+- webapp/src/lib/api/config.ts
+- webapp/src/lib/events/payment.ts
+- webapp/src/lib/hooks/use-gender-filter.ts
+- webapp/src/lib/hooks/use-order-images.ts
+- webapp/src/lib/hooks/use-order.ts
+- webapp/src/lib/hooks/use-user-gender.ts
+- webapp/src/lib/utils/get-styles-images.ts
+- webapp/src/lib/utils/style-storage.ts
+- webapp/src/lib/utils/style-validation.ts
 ## Component Organization
 
 Components are organized by feature and reusability:
