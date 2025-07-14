@@ -23,8 +23,6 @@ const formToDbFieldMap: Record<string, string> = {
   gender: 'gender',
   eyeColor: 'eye_color',
   hairColor: 'hair_color',
-  hairLength: 'hair_length',
-  hairStyle: 'hair_style',
   age: 'age',
   bodyType: 'body_type',
   height: 'height',
@@ -68,7 +66,7 @@ export default function ReviewPage() {
       try {
         const { data, error } = await supabase
           .from('users')
-          .select('gender, eye_color, hair_color, hair_length, hair_style, age, body_type, height, weight, ethnicity, glasses')
+          .select('gender, eye_color, hair_color, age, body_type, height, weight, ethnicity, glasses')
           .eq('id', user.id)
           .single();
 

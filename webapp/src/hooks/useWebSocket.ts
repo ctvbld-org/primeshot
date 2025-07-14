@@ -96,7 +96,7 @@ export function useWebSocket(
       // In most browsers `ev` is Event, not ErrorEvent – keep message generic
       setError('WebSocket error');
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- url is already captured
+     
   }, [url, maxReconnectAttempts]);
 
   // Initial connect & cleanup

@@ -9,8 +9,6 @@ import { useAuth } from '@/contexts/auth-context';
 import {
   PROFILE_FORM_FIELDS,
   FormFieldConfig,
-  FEMALE_HAIRSTYLE_OPTIONS,
-  MALE_HAIRSTYLE_OPTIONS,
 } from '@/constants/profile-options';
 import { useTranslation } from 'react-i18next';
 
@@ -89,8 +87,7 @@ const ProfileForm = forwardRef<HTMLFormElement, ProfileFormProps>(({
         .update({
           eye_color: formData.eyeColor,
           hair_color: formData.hairColor,
-          hair_length: formData.hairLength,
-          hair_style: formData.hairStyle,
+
           age: formData.age,
           body_type: formData.bodyType,
           height: formData.height,
@@ -130,18 +127,12 @@ const ProfileForm = forwardRef<HTMLFormElement, ProfileFormProps>(({
       
       <form ref={ref} className={styles.form} onSubmit={handleSubmit}>
         {PROFILE_FORM_FIELDS.map(field => {
-          // Handle gender-specific options (like hairstyles)
-          let options = field.options;
-          if (field.genderSpecific) {
-            options = userGender === 'female' ? FEMALE_HAIRSTYLE_OPTIONS : MALE_HAIRSTYLE_OPTIONS;
-          }
-
           return (
             <FormField
               key={field.name}
               name={field.name}
               label={field.label}
-              options={options}
+              options={field.options}
               onFieldUpdate={handleFieldChange}
               value={field.name === 'gender' ? userGender : formData[field.name]}
               disabled={field.name === 'gender'}

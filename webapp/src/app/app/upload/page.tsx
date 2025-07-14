@@ -224,8 +224,8 @@ export default function UploadPage() {
       }
       
       toast({
-        title: t('errors.noActiveOrder'),
-        description: t('errors.paymentRequired'),
+        title: t('errors.noActiveSubscription'),
+        description: t('errors.subscriptionRequired'),
         variant: 'destructive'
       })
       return
@@ -233,8 +233,8 @@ export default function UploadPage() {
 
     if (!order) {
       toast({
-        title: t('errors.noActiveOrder'),
-        description: t('errors.paymentRequired'),
+        title: t('errors.noActiveSubscription'),
+        description: t('errors.subscriptionRequired'),
         variant: 'destructive'
       })
       return

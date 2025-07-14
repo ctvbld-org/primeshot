@@ -162,6 +162,10 @@
   height: auto;
 }
 
+[data-radix-popper-content-wrapper] {
+  z-index: 50 !important;
+}
+
 /* Hide scrollbar utility */
 .hide-scrollbar {
   -ms-overflow-style: none;  /* IE and Edge */

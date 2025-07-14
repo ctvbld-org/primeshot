@@ -1,50 +1,12 @@
-import { useQuery } from '@tanstack/react-query'
-import { useAuth } from '@/contexts/auth-context'
-import { getApiUrl } from '@/lib/api/client'
-
-interface SubscriptionInfo {
-  plan_name: string
-  status: string
-  current_period_end: string
-  credits_included: number
-  credits_used_this_period: number
-  max_resolution: string
-  face_model_training_included: number
-  face_model_training_used: number
-  cancel_at_period_end: boolean
-  current_period_start: string
-  stripe_subscription_id: string
-  created_at: string
-  updated_at: string
-}
-
-async function fetchSubscriptionStatus(): Promise<SubscriptionInfo | null> {
-  const res = await fetch(getApiUrl('api/subscription/current'))
-  if (!res.ok) {
-    if (res.status === 401) {
-      throw new Error('Unauthorized')
-    }
-    throw new Error('Failed to fetch subscription status')
-  }
-  
-  const data = await res.json()
-  return data // null if no active subscription
-}
+import { useCurrentSubscription } from './useCurrentSubscription'
 
 export function useSubscriptionStatus() {
-  const { isAuthenticated } = useAuth()
-
-  const { data: subscription, isLoading, error } = useQuery<SubscriptionInfo | null>({
-    queryKey: ['subscription-status'],
-    queryFn: fetchSubscriptionStatus,
-    enabled: isAuthenticated,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: (failureCount, error) => {
-      // Don't retry on auth errors
-      if (error.message === 'Unauthorized') return false
-      return failureCount < 3
-    }
-  })
+  // Re-use the central subscription query so we don't duplicate network calls
+  const {
+    data: subscription,
+    isLoading,
+    error,
+  } = useCurrentSubscription()
 
   return {
     subscription,

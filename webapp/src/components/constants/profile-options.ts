@@ -29,6 +29,7 @@ export const HAIR_COLOR_OPTIONS: OptionType[] = [
   { value: 'black', label: 'Black', color: '#000000' },
   { value: 'dark-brown', label: 'Dark Brown', color: '#3E2723' },
   { value: 'brown', label: 'Brown', color: '#5D4037' },
+  { value: 'auburn', label: 'Auburn', color: '#A0522D' },
   { value: 'blonde', label: 'Blonde', color: '#bca99a' },
   { value: 'red', label: 'Red', color: '#BF360C' },
   { value: 'grey', label: 'Grey', color: '#9E9E9E' },
@@ -41,58 +42,23 @@ export const HAIR_COLOR_OPTIONS: OptionType[] = [
   { value: 'pastel-pink', label: 'Pastel Pink', color: '#e0adb0' },
 ];
 
-export const HAIR_LENGTH_OPTIONS: OptionType[] = [
-  { value: 'bald', label: 'Bald/Shaved' },
-  { value: 'short', label: 'Short' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'long', label: 'Long' },
-  { value: 'very-long', label: 'Very Long' },
-];
 
-export const MALE_HAIRSTYLE_OPTIONS: OptionType[] = [
-  { value: 'bald-head', label: 'Bald Head' },
-  { value: 'balding-top', label: 'Balding Top' },
-  { value: 'straight-hair', label: 'Straight Hair' },
-  { value: 'wavy-hair', label: 'Wavy Hair' },
-  { value: 'curly-hair', label: 'Curly Hair' },
-  { value: 'afro', label: 'Afro' },
-  { value: 'dreadlocks', label: 'Dreadlocks' },
-  { value: 'cornrows', label: 'Cornrows' },
-  { value: 'slicked-back', label: 'Slicked Back' },
-  { value: 'comb-over', label: 'Comb Over' },
-  { value: 'receding-hairline', label: 'Receding Hairline' },
-  { value: 'undercut', label: 'Undercut' },
-  { value: 'man-bun', label: 'Man Bun' },
-  { value: 'mohawk', label: 'Mohawk' },
-  { value: 'crew-cut', label: 'Crew Cut' },
-  { value: 'faux-hawk', label: 'Faux Hawk' },
-  { value: 'buzzcut', label: 'Buzzcut' },
-];
-
-export const FEMALE_HAIRSTYLE_OPTIONS: OptionType[] = [
-  { value: 'straight-hair', label: 'Straight Hair' },
-  { value: 'wavy-hair', label: 'Wavy Hair' },
-  { value: 'curly-hair', label: 'Curly Hair' },
-  { value: 'afro', label: 'Afro' },
-  { value: 'dreadlocks', label: 'Dreadlocks' },
-  { value: 'cornrows', label: 'Cornrows' },
-  { value: 'braided-hair', label: 'Braided Hair' },
-  { value: 'updo', label: 'Updo' },
-  { value: 'ponytail', label: 'Ponytail' },
-  { value: 'hair-highlights', label: 'Hair Highlights' },
-  { value: 'bangs', label: 'Bangs' },
-  { value: 'pixie-cut', label: 'Pixie Cut' },
-  { value: 'layered-hair', label: 'Layered Hair' },
-  { value: 'twists', label: 'Twists' },
-];
 
 export const AGE_RANGE_OPTIONS: OptionType[] = [
   { value: '18-25', label: '18 to 25 years' },
   { value: '26-30', label: '26 to 30 years' },
   { value: '31-35', label: '31 to 35 years' },
   { value: '36-40', label: '36 to 40 years' },
-  { value: '41-50', label: '41 to 50 years' },
-  { value: '50+', label: 'Over 50 years' },
+  { value: '41-45', label: '41 to 45 years' },
+  { value: '46-50', label: '46 to 50 years' },
+  { value: '51-55', label: '51 to 55 years' },
+  { value: '56-60', label: '56 to 60 years' },
+  { value: '61-65', label: '61 to 65 years' },
+  { value: '66-70', label: '66 to 70 years' },
+  { value: '71-75', label: '71 to 75 years' },
+  { value: '76-80', label: '76 to 80 years' },
+  { value: '81-85', label: '81 to 85 years' },
+  { value: '86-90', label: '86 to 90 years' },
 ];
 
 export const BODY_TYPE_OPTIONS: OptionType[] = [
@@ -133,7 +99,6 @@ export const ETHNICITY_OPTIONS: OptionType[] = [
 export const GLASSES_OPTIONS: OptionType[] = [
   { value: 'no', label: 'No glasses' },
   { value: 'yes', label: 'Glasses' },
-  { value: 'sun', label: 'Sunglasses' },
 ];
 
 export const PROFILE_FORM_FIELDS: FormFieldConfig[] = [
@@ -158,19 +123,7 @@ export const PROFILE_FORM_FIELDS: FormFieldConfig[] = [
     options: HAIR_COLOR_OPTIONS,
     isRequired: true,
   },
-  {
-    name: 'hairLength',
-    label: 'HAIR LENGTH',
-    options: HAIR_LENGTH_OPTIONS,
-    isRequired: true,
-  },
-  {
-    name: 'hairStyle',
-    label: 'HAIR STYLE',
-    options: MALE_HAIRSTYLE_OPTIONS,
-    isRequired: true,
-    genderSpecific: true,
-  },
+
   {
     name: 'age',
     label: 'AGE',

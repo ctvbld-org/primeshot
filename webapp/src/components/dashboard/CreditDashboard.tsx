@@ -14,12 +14,14 @@ import {
   AlertTriangle,
   Plus
 } from 'lucide-react'
-import { formatDistanceToNow, format } from 'date-fns'
+import { formatDistanceToNow, format, differenceInCalendarDays } from 'date-fns'
 import { useOpenCreditPackDialog } from '@/hooks/useOpenCreditPackDialog'
 import { useCreditBalance } from '@/hooks/useCreditBalance'
 import { useCurrentSubscription, type SubscriptionInfo } from '@/hooks/useCurrentSubscription'
 import { useCreditTransactions, type CreditTransaction } from '@/hooks/useCreditTransactions'
-
+import { useFaceModelCount } from '@/hooks/useFaceModelCount'
+import { useSubscriptionTiers, getFaceModelLimit } from '@/hooks/usePricingConfig'
+import { useFaceModelTrainingStatus } from '@/hooks/useFaceModelTrainingStatus'
 
 
 interface CreditDashboardProps {
@@ -30,9 +32,17 @@ export function CreditDashboard({ className }: CreditDashboardProps) {
   const { data: creditBalance = 0, isLoading: balanceLoading } = useCreditBalance()
   const { data: subscription, isLoading: subLoading } = useCurrentSubscription()
   const { data: transactions = [], isLoading: transLoading } = useCreditTransactions(10)
+  const { data: faceModelCount = 0, isLoading: faceModelCountLoading } = useFaceModelCount()
+  const { data: subscriptionTiers } = useSubscriptionTiers()
   const openCreditPackDialog = useOpenCreditPackDialog()
+  const { statusMessage, usagePercentage: faceModelUsagePercentage } = useFaceModelTrainingStatus()
 
   const isLoading = balanceLoading || subLoading || transLoading
+
+  // Get max face models allowed for current subscription
+  const maxFaceModels = subscription?.plan_name && subscriptionTiers 
+    ? getFaceModelLimit(subscription.plan_name, subscriptionTiers)
+    : 1
 
   const getTransactionIcon = (transaction: CreditTransaction) => {
     switch (transaction.transaction_type) {
@@ -66,13 +76,13 @@ export function CreditDashboard({ className }: CreditDashboardProps) {
     return (subscription.credits_used_this_period / subscription.credits_included) * 100
   }
 
-      const getFaceModelUsagePercentage = () => {
-    if (!subscription) return 0
-    return (subscription.face_model_training_used / subscription.face_model_training_included) * 100
+  const getFaceModelCountUsagePercentage = () => {
+    if (maxFaceModels === 0) return 0
+    return (faceModelCount / maxFaceModels) * 100
   }
 
   const daysUntilReset = subscription 
-    ? Math.ceil((new Date(subscription.current_period_end).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    ? differenceInCalendarDays(new Date(subscription.current_period_end), new Date())
     : 0
 
   if (isLoading) {
@@ -168,13 +178,22 @@ export function CreditDashboard({ className }: CreditDashboardProps) {
               <Progress value={getSubscriptionUsagePercentage()} className="h-2" />
             </div>
 
-            {/* LoRA Training Usage */}
+            {/* Face Model Training Usage */}
             <div>
               <div className="flex justify-between text-sm mb-2">
-                                  <span>Face Model Training Used</span>
-                <span>{subscription.face_model_training_used} / {subscription.face_model_training_included}</span>
+                <span>Face Model Training Used</span>
+                <span>{statusMessage}</span>
               </div>
-                              <Progress value={getFaceModelUsagePercentage()} className="h-2" />
+              <Progress value={faceModelUsagePercentage} className="h-2" />
+            </div>
+
+            {/* Face Model Count Usage */}
+            <div>
+              <div className="flex justify-between text-sm mb-2">
+                <span>Face Model Slots Used</span>
+                <span>{faceModelCount} / {maxFaceModels}</span>
+              </div>
+              <Progress value={getFaceModelCountUsagePercentage()} className="h-2" />
             </div>
 
             <div className="grid grid-cols-2 gap-4 pt-2 border-t text-sm">

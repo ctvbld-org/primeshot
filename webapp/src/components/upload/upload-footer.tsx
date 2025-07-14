@@ -291,21 +291,7 @@ export function UploadFooter({
   // 7. Render
   return (
     <div className={styles.footer}>
-      <div className={styles.footerContent}>
-        <div className={styles.countWrapper}>
-          <span className={cn(styles.count, count >= minImages && styles.countActive)}>
-            {count}
-          </span>
-          <p className={styles.countLabel}>
-            {t('status.photosLabel', { count })}
-            <span className={styles.countDesc}>
-              {t('status.photosRequired', { min: UPLOAD_CONSTANTS.MIN_IMAGES, max: UPLOAD_CONSTANTS.MAX_IMAGES })}
-            </span>
-          </p>
-        </div>
-        
-        <span className={styles.separator} />
-        
+      <div className={styles.footerContent}>        
         <div className={styles.squares}>
           <div 
             ref={wrapperRef}
@@ -322,8 +308,6 @@ export function UploadFooter({
               <div className={styles.squareGroup}>
                 {Array.from({ length: minImages }).map((_, i) => renderSquare(i, true))}
               </div>
-              {/* Line separator */}
-              <span className={styles.separatorImg} />
               {/* Optional additional photos */}
               <div className={styles.squareGroup}>
                 {Array.from({ length: maxImages - minImages }).map((_, i) => renderSquare(i + minImages, false))}
@@ -331,16 +315,6 @@ export function UploadFooter({
             </div>
           </div>
         </div>
-
-        <Button
-          variant="primary"
-          onClick={onReviewClick}
-          disabled={count < minImages || isUploading}
-          className={styles.reviewButton}
-          loading={isUploading}
-        >
-          {isUploading ? t('buttons.uploading') : t('buttons.review')}
-        </Button>
       </div>
     </div>
   )

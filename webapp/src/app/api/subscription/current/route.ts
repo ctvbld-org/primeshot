@@ -60,14 +60,17 @@ export async function GET() {
       )  
     }
 
-    const creditsUsedThisPeriod = creditsUsed?.reduce((total, credit) => total + credit.credits, 0) || 0
+    // Fix: Spent credits are stored as negative values, so we need to use absolute values
+    const creditsUsedThisPeriod = creditsUsed?.reduce((total, credit) => total + Math.abs(credit.credits), 0) || 0
 
-    // Calculate LoRA training usage in current billing period
+    // Calculate Face Model training usage in current billing period
+    // Count all training jobs that have started (queued, running, completed)
+    // since the user has consumed their included quota once training begins
     const { data: faceModelTraining, error: loraError } = await supabase
       .from('training_jobs')
       .select('id')
       .eq('user_id', user.id)
-      .eq('status', 'completed')
+      .in('status', ['queued', 'running', 'completed'])
       .gte('created_at', periodStart.toISOString())
       .lt('created_at', periodEnd.toISOString())
 
@@ -86,7 +89,7 @@ export async function GET() {
       credits_used_this_period: creditsUsedThisPeriod,
       max_resolution: product.metadata.max_resolution || '1K',
       face_model_training_included: parseInt(product.metadata.face_model_training_included || '0'),
-              face_model_training_used: faceModelTrainingUsed,
+      face_model_training_used: faceModelTrainingUsed,
       cancel_at_period_end: subscription.cancel_at_period_end || false,
       // Additional useful fields
       current_period_start: subscription.current_period_start,

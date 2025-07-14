@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "predev": "node ../memory-bank/scripts/detect-changes.js --auto",
-    "dev": "concurrently --names \"NEXT,STRIPE\" --prefix-colors \"blue,yellow\" \"next dev --port 3000\" \"stripe listen --forward-to localhost:3000/api/payment/webhook\"",
+    "dev": "concurrently --names \"NEXT,STRIPE,NGROK\" --prefix-colors \"blue,yellow,magenta\" \"next dev --port 3000\" \"stripe listen --forward-to localhost:3000/api/payment/webhook\" \"node ../scripts/dev-ngrok.cjs\"",
     "dev:no-stripe": "next dev --port 3000",
     "dev:no-types": "next dev --port 3000",
     "build": "next build",

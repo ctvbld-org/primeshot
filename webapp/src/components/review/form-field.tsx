@@ -19,7 +19,7 @@ interface Option {
 }
 
 interface FormFieldProps {
-  label: string;
+  label: React.ReactNode;
   value?: string;
   options?: Option[];
   disabled?: boolean;

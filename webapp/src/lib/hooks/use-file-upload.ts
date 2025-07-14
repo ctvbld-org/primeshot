@@ -279,7 +279,6 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
             hasBody: false,
             faceDetectionSkipped: true,
             genderDetectionSkipped: true,
-            genderMatchesUser: false,
             eyesVisible: false,
             eyeDetectionSkipped: true,
             issues: ['Analysis error']
@@ -335,7 +334,6 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
             hasBody: false,
             faceDetectionSkipped: true,
             genderDetectionSkipped: true,
-            genderMatchesUser: false,
             eyesVisible: false,
             eyeDetectionSkipped: true,
             issues: ['Analysis error']
@@ -500,7 +498,6 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     try {
       const url = await uploadFileInChunks(
         file,
-        orderId,
         faceModelId,
         (progress: number) => {
           setFileStates(prev => prev.map((state, i) => 

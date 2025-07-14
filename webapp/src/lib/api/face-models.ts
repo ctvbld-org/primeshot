@@ -39,6 +39,7 @@ class FaceModelsApiClient {
       .from('face_models')
       .select('*')
       .eq('user_id', userId)
+      .neq('status', 'deleted') // Exclude soft-deleted face models
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -54,6 +55,7 @@ class FaceModelsApiClient {
       .select('*')
       .eq('id', faceModelId)
       .eq('user_id', userId)
+      .neq('status', 'deleted') // Exclude soft-deleted face models
       .single();
 
     if (error) {
@@ -83,12 +85,16 @@ class FaceModelsApiClient {
   async deleteFaceModel(faceModelId: string, userId: string): Promise<void> {
     const { error } = await supabase
       .from('face_models')
-      .delete()
+      .update({ 
+        status: 'deleted',
+        updated_at: new Date().toISOString()
+      })
       .eq('id', faceModelId)
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .neq('status', 'deleted'); // Only soft delete non-deleted models
 
     if (error) {
-      throw new Error(`Failed to delete face model: ${error.message}`);
+      throw new Error(`Failed to soft delete face model: ${error.message}`);
     }
   }
 }

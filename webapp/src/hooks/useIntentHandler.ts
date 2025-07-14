@@ -4,17 +4,7 @@ import { useGenerationIntent } from './useGenerationIntent'
 import { useSubscriptionStatus } from './useSubscriptionStatus'
 import { useOpenSubscriptionDialog } from './useOpenSubscriptionDialog'
 import { useOpenCreditPackDialog } from './useOpenCreditPackDialog'
-import { useQuery } from '@tanstack/react-query'
-import { getApiUrl } from '@/lib/api/client'
-
-async function fetchCreditBalance(): Promise<number> {
-  const res = await fetch(getApiUrl('api/credits/balance'))
-  if (!res.ok) {
-    throw new Error('Failed to fetch credit balance')
-  }
-  const { balance } = await res.json()
-  return balance as number
-}
+import { useCreditBalance } from './useCreditBalance'
 
 export function useIntentHandler() {
   const { isAuthenticated } = useAuth()
@@ -23,12 +13,7 @@ export function useIntentHandler() {
   const openSubscriptionDialog = useOpenSubscriptionDialog()
   const openCreditPackDialog = useOpenCreditPackDialog()
 
-  const { data: creditBalance } = useQuery<number>({
-    queryKey: ['credit-balance'],
-    queryFn: fetchCreditBalance,
-    enabled: isAuthenticated,
-    staleTime: 60 * 1000, // 1 minute
-  })
+  const { data: creditBalance } = useCreditBalance()
 
   useEffect(() => {
     // Only process intent when user becomes authenticated

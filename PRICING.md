@@ -68,11 +68,11 @@
 
 ## Special Launch Discount
 
-🎉 **Limited Time: Save 36% on all plans!**
+🎉 **Limited Time: Save on all plans!**
 
-- **Tier 1**: Save $5/month
-- **Tier 2**: Save $10/month  
-- **Tier 3**: Save $20/month
+- **Tier 1**: Save $5/month (36% Discount)
+- **Tier 2**: Save $10/month (26% Discount) 
+- **Tier 3**: Save $20/month (23% Discount) 
 
 *Discount applies to first 3 months for new subscribers*
 

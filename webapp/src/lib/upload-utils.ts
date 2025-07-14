@@ -12,14 +12,12 @@ export interface ChunkMetadata {
   fileName: string;
   fileType: string;
   uploadId: string;
-  orderId: string;
   faceModelId: string;
   qualityScore?: number;
 }
 
 export function* createChunks(
   file: FileWithScore & { size: number; slice: File['slice'] },
-  orderId: string,
   faceModelId: string,
   chunkSize: number = CHUNK_SIZE
 ): Generator<{ chunk: Blob; metadata: ChunkMetadata }> {
@@ -43,9 +41,9 @@ export function* createChunks(
       fileName: file.name || 'unnamed',
       fileType: file.type || 'application/octet-stream',
       uploadId,
-      orderId,
       faceModelId,
-      qualityScore: file.score
+      // API expects an integer (0-100). Round and clamp the score if provided.
+      qualityScore: file.score !== undefined ? Math.round(Math.min(100, Math.max(0, file.score))) : undefined
     };
 
     yield { chunk, metadata };
@@ -129,11 +127,10 @@ function isDuplicateChunkError(err: any): boolean {
 
 export async function uploadFileInChunks(
   file: FileWithScore & { size: number; slice: File['slice'] },
-  orderId: string,
   faceModelId: string,
   onProgress?: (progress: number) => void,
 ): Promise<string> {
-  const chunks = createChunks(file, orderId, faceModelId);
+  const chunks = createChunks(file, faceModelId);
   let uploadedChunks = 0;
   let uploadId: string | null = null;
 

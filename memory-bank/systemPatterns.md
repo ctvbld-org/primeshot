@@ -720,6 +720,90 @@ Detected changes in:
 **Auto-update 2025-07-08**:
 Detected changes in:
 - webapp/src/components/home/GenerationControls.module.css
+
+
+**Auto-update 2025-07-08**:
+Detected changes in:
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/components/dashboard/CreditDashboard.tsx
+- webapp/src/components/face_model/FaceModelSelector.tsx
+- webapp/src/components/face_model/FaceModelUploadDialog.tsx
+- webapp/src/components/face_model/steps/FaceModelNameStep.tsx
+- webapp/src/components/face_model/steps/ProfileFormStep.tsx
+- webapp/src/components/face_model/steps/TrainingProgressStep.tsx
+- webapp/src/components/face_model/steps/UploadPhotosStep.tsx
+- webapp/src/components/face_model/steps/UploadProgressStep.tsx
+- webapp/src/components/face_model/steps/UploadRequirementsStep.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/ui/confetti.tsx
+- webapp/src/lib/constants/pricing.ts
+- webapp/src/lib/constants/stripe-reference.ts
+- webapp/src/lib/constants/stripe-reference_old.ts
+
+
+**Auto-update 2025-07-10**:
+Detected changes in:
+- webapp/src/app/globals.css
+- webapp/src/app/page.tsx
+- webapp/src/components/face_model/FaceModelSelector.tsx
+- webapp/src/components/face_model/FaceModelUploadDialog.tsx
+- webapp/src/components/face_model/face_models.tsx
+- webapp/src/components/face_model/steps/UploadPhotosStep.tsx
+- webapp/src/components/upload/rejected-images-dialog.tsx
+- webapp/src/components/upload/upload-footer.tsx
+- webapp/src/components/upload/upload-requirements.tsx
+- webapp/src/contexts/DialogServiceContext.tsx
+- webapp/src/lib/hooks/use-file-upload.ts
+- webapp/src/lib/image-quality.ts
+
+
+**Auto-update 2025-07-12**:
+Detected changes in:
+- webapp/src/app/api/cleanup-face-model/route.ts
+- webapp/src/app/api/payment/webhook/route.ts
+- webapp/src/app/api/pricing/credit-costs/route.ts
+- webapp/src/app/api/pricing/credit-packs/route.ts
+- webapp/src/app/api/pricing/face-model-limit/[planName]/route.ts
+- webapp/src/app/api/pricing/face-model-training-cost/route.ts
+- webapp/src/app/api/pricing/subscriptions/route.ts
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/app/api/upload-chunk/route.ts
+- webapp/src/app/app/review/page.tsx
+- webapp/src/components/constants/profile-options.ts
+- webapp/src/components/dashboard/CreditDashboard.tsx
+- webapp/src/components/face_model/FaceModelSelector.tsx
+- webapp/src/components/face_model/FaceModelUploadDialog.tsx
+- webapp/src/components/face_model/progress_tracker.tsx
+- webapp/src/components/face_model/steps/ProfileFormStep.tsx
+- webapp/src/components/face_model/steps/TrainingProgressStep.tsx
+- webapp/src/components/face_model/steps/UploadPhotosStep.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/review/form-field.tsx
+- webapp/src/components/review/profile-form.module.css
+- webapp/src/components/review/profile-form.tsx
+- webapp/src/lib/constants/pricing.ts
+- webapp/src/lib/hooks/use-face-model.ts
+- webapp/src/lib/image-quality.ts
+- webapp/src/lib/services/creditService.ts
+- webapp/src/lib/upload-utils.ts
+
+
+**Auto-update 2025-07-13**:
+Detected changes in:
+- webapp/src/app/api/payment/subscription-checkout/route.ts
+- webapp/src/app/api/payment/webhook/route.ts
+- webapp/src/app/api/pricing/face-model-limit/[planName]/route.ts
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/app/api/subscription/customer-portal/route.ts
+- webapp/src/app/api/subscription/preview-upgrade/route.ts
+- webapp/src/app/app/upload/page.tsx
+- webapp/src/components/dashboard/CreditDashboard.tsx
+- webapp/src/components/face_model/FaceModelSelector.tsx
+- webapp/src/components/face_model/FaceModelUploadDialog.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/pricing/UpgradeConfirmationDialog.tsx
+- webapp/src/lib/hooks/use-file-upload.ts
+- webapp/src/lib/hooks/use-order.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

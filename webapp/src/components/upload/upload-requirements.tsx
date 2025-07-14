@@ -119,7 +119,9 @@ function UploadRequirementsComponent() {
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
         <DialogContent className={styles.dialog}>
           <DialogHeader>
-            <DialogTitle></DialogTitle>
+            <DialogTitle style={{position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0}}>
+              {t('requirements.title', 'Photo Upload Requirements')}
+            </DialogTitle>
           </DialogHeader>
 
           <DialogBody 

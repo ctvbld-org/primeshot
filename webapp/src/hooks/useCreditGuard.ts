@@ -1,21 +1,11 @@
 import { useCallback } from 'react'
-import { useAuth } from '@primeshot/common/hooks/AuthContext'
-import { useQuery } from '@tanstack/react-query'
-import { getApiUrl } from '@/lib/api/client'
+import { useAuth } from '@/contexts/auth-context'
+import { useCreditBalance } from './useCreditBalance'
 import { useOpenSubscriptionDialog } from '@/hooks/useOpenSubscriptionDialog'
 import { useOpenSigninModal } from '@/hooks/useOpenSigninModal'
 import { useOpenCreditPackDialog } from '@/hooks/useOpenCreditPackDialog'
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus'
 import { useGenerationIntent } from '@/hooks/useGenerationIntent'
-
-async function fetchCreditBalance(): Promise<number> {
-  const res = await fetch(getApiUrl('api/credits/balance'))
-  if (!res.ok) {
-    throw new Error('Failed to fetch credit balance')
-  }
-  const { balance } = await res.json()
-  return balance as number
-}
 
 /**
  * Hook that returns a guard function. Wrap any action with it and it will:
@@ -36,12 +26,7 @@ export function useCreditGuard(requiredCredits: number = 1) {
   const { hasActiveSubscription } = useSubscriptionStatus()
   const { saveIntent } = useGenerationIntent()
 
-  const { data: creditBalance } = useQuery<number>({
-    queryKey: ['credit-balance'],
-    queryFn: fetchCreditBalance,
-    enabled: isAuthenticated,
-    staleTime: 60 * 1000, // 1 minute
-  })
+  const { data: creditBalance } = useCreditBalance()
 
   const guard = useCallback(
     (action: () => void | Promise<void>) => {

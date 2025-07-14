@@ -155,6 +155,162 @@ export const config = {
   },
 };
 
+
+
+/**
+ * Ensures subscription record exists by creating or updating it
+ * Used to handle race conditions between webhook events
+ */
+async function ensureSubscriptionRecord(
+  subscriptionId: string,
+  customerId: string,
+  supabase: SupabaseClient
+): Promise<{ user_id: string; stripe_price_id: string; plan_name: string; was_upgrade?: boolean; old_plan_name?: string } | null> {
+  try {
+    // First, try to find existing subscription record
+    const { data: existingSubscription } = await supabase
+      .from('user_subscriptions')
+      .select('user_id, stripe_price_id, plan_name')
+      .eq('stripe_subscription_id', subscriptionId)
+      .single();
+
+    if (existingSubscription) {
+      devLog(`Found existing subscription record: ${subscriptionId}, checking for updates`);
+      
+      // Always fetch latest details from Stripe to check for updates
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
+        expand: ['items.data.price.product']
+      });
+
+      const latestPriceId = subscription.items.data[0]?.price.id;
+      const firstItem = subscription.items.data[0];
+      const product = firstItem?.price?.product as Stripe.Product;
+      const latestPlanName = product?.metadata?.plan_name || '';
+
+      // Update if price ID or plan name has changed
+      if (latestPriceId !== existingSubscription.stripe_price_id || latestPlanName !== existingSubscription.plan_name) {
+        const isUpgrade = latestPlanName !== existingSubscription.plan_name;
+        devLog(`Updating subscription record: ${subscriptionId} from ${existingSubscription.plan_name} to ${latestPlanName}`);
+        
+        // Use type-safe access to subscription period properties
+        const subscriptionWithPeriods = subscription as Stripe.Subscription & {
+          current_period_start?: number;
+          current_period_end?: number;
+        };
+
+        const currentPeriodStart = subscriptionWithPeriods.current_period_start 
+          ? new Date(subscriptionWithPeriods.current_period_start * 1000).toISOString() 
+          : null;
+
+        const currentPeriodEnd = subscriptionWithPeriods.current_period_end 
+          ? new Date(subscriptionWithPeriods.current_period_end * 1000).toISOString() 
+          : null;
+
+        // Update subscription record with new details
+        const { error: updateError } = await supabase.rpc('upsert_subscription', {
+          p_user_id: existingSubscription.user_id,
+          p_stripe_subscription_id: subscription.id,
+          p_stripe_customer_id: customerId,
+          p_stripe_price_id: latestPriceId,
+          p_plan_name: latestPlanName,
+          p_status: subscription.status,
+          p_current_period_start: currentPeriodStart,
+          p_current_period_end: currentPeriodEnd,
+          p_cancel_at_period_end: subscription.cancel_at_period_end || false
+        });
+
+        if (updateError) {
+          console.error('Error updating subscription record:', updateError.message);
+        } else {
+          devLog(`Successfully updated subscription record: ${subscriptionId} to ${latestPlanName}`);
+        }
+
+        // Return updated subscription info with upgrade information
+        return {
+          user_id: existingSubscription.user_id,
+          stripe_price_id: latestPriceId,
+          plan_name: latestPlanName,
+          was_upgrade: isUpgrade,
+          old_plan_name: isUpgrade ? existingSubscription.plan_name : undefined
+        };
+      }
+      
+      return existingSubscription;
+    }
+
+    // If no record exists, create it by fetching from Stripe
+    devLog(`Creating missing subscription record for: ${subscriptionId}`);
+    
+    // Get user ID from customer metadata
+    const customer = await stripe.customers.retrieve(customerId);
+    const userId = (customer as Stripe.Customer).metadata?.user_id;
+
+    if (!userId) {
+      console.error(`No user_id found in customer metadata for customer: ${customerId}`);
+      return null;
+    }
+
+    // Get subscription details from Stripe
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
+      expand: ['items.data.price.product']
+    });
+
+    const priceId = subscription.items.data[0]?.price.id;
+    if (!priceId) {
+      console.error(`No price ID found in subscription items for: ${subscriptionId}`);
+      return null;
+    }
+
+    // Get plan name from product metadata
+    const firstItem = subscription.items.data[0];
+    const product = firstItem?.price?.product as Stripe.Product;
+    const planName = product?.metadata?.plan_name || '';
+
+    // Use type-safe access to subscription period properties
+    const subscriptionWithPeriods = subscription as Stripe.Subscription & {
+      current_period_start?: number;
+      current_period_end?: number;
+    };
+
+    const currentPeriodStart = subscriptionWithPeriods.current_period_start 
+      ? new Date(subscriptionWithPeriods.current_period_start * 1000).toISOString() 
+      : null;
+
+    const currentPeriodEnd = subscriptionWithPeriods.current_period_end 
+      ? new Date(subscriptionWithPeriods.current_period_end * 1000).toISOString() 
+      : null;
+
+    // Create subscription record using atomic RPC function
+    const { error } = await supabase.rpc('upsert_subscription', {
+      p_user_id: userId,
+      p_stripe_subscription_id: subscription.id,
+      p_stripe_customer_id: customerId,
+      p_stripe_price_id: priceId,
+      p_plan_name: planName,
+      p_status: subscription.status,
+      p_current_period_start: currentPeriodStart,
+      p_current_period_end: currentPeriodEnd,
+      p_cancel_at_period_end: subscription.cancel_at_period_end || false
+    });
+
+    if (error) {
+      console.error('Error creating subscription record:', error.message);
+      return null;
+    }
+
+    devLog(`Successfully created subscription record: ${subscriptionId}`);
+    return {
+      user_id: userId,
+      stripe_price_id: priceId,
+      plan_name: planName
+    };
+
+  } catch (error) {
+    console.error('Error ensuring subscription record:', error);
+    return null;
+  }
+}
+
 /**
  * Handle subscription payment succeeded (invoice.payment_succeeded)
  * Awards credits when subscription renews
@@ -185,105 +341,165 @@ async function handleSubscriptionPaymentSucceeded(
     return;
   }
 
-  // If no subscription ID in invoice, try to find by customer
+  // If no subscription ID in invoice, get it from Stripe by customer
   if (!subscriptionId) {
-    const { data: subscriptions, error: lookupError } = await supabase
-      .from('user_subscriptions')
-      .select('stripe_subscription_id, user_id, stripe_price_id, plan_name, status')
-      .eq('stripe_customer_id', customerId)
-      .eq('status', 'active')
-      .order('created_at', { ascending: false })
-      .limit(1);
+    try {
+      const subscriptions = await stripe.subscriptions.list({
+        customer: customerId,
+        status: 'active',
+        limit: 1
+      });
 
-    if (lookupError || !subscriptions || subscriptions.length === 0) {
-      console.error(`No active subscription found for customer ${customerId}:`, lookupError?.message);
+      if (subscriptions.data.length === 0) {
+        console.error(`No active subscription found in Stripe for customer ${customerId}`);
+        return;
+      }
+
+      subscriptionId = subscriptions.data[0].id;
+      devLog(`Found subscription ${subscriptionId} for customer ${customerId}`);
+    } catch (error) {
+      console.error(`Error fetching subscription from Stripe for customer ${customerId}:`, error);
       return;
     }
-
-    subscriptionId = subscriptions[0].stripe_subscription_id;
   }
 
-  // Get user ID from subscription
-  const { data: subscription, error: subError } = await supabase
-    .from('user_subscriptions')
-    .select('user_id, stripe_price_id, plan_name')
-    .eq('stripe_subscription_id', subscriptionId)
-    .single();
-
-  if (subError || !subscription) {
-    console.error(`Error finding subscription ${subscriptionId}:`, subError?.message);
+  // Ensure subscription record exists (handles race condition)
+  const subscription = await ensureSubscriptionRecord(subscriptionId, customerId, supabase);
+  
+  if (!subscription) {
+    console.error(`Failed to ensure subscription record exists for: ${subscriptionId}`);
     return;
   }
 
   // Get plan details from Stripe and process atomically
   try {
-    const price = await stripe.prices.retrieve(subscription.stripe_price_id, {
-      expand: ['product']
-    });
+    // Retrieve full subscription to access reliable period dates and product metadata
+    const stripeSub = await stripe.subscriptions.retrieve(subscriptionId, {
+      expand: ['items.data.price.product']
+    }) as Stripe.Subscription;
 
-    const product = price.product as Stripe.Product;
-    const creditsIncluded = parseInt(product.metadata.credits_included || '0');
+    // Fallback to now / +30d if Stripe ever omits these (shouldn't happen)
+    const currentPeriodStartUnix = (stripeSub as any).current_period_start as number | undefined;
+    const currentPeriodEndUnix = (stripeSub as any).current_period_end as number | undefined;
+
+    const periodStartDate = currentPeriodStartUnix
+      ? new Date(currentPeriodStartUnix * 1000)
+      : new Date();
+
+    const periodEndDate = currentPeriodEndUnix
+      ? new Date(currentPeriodEndUnix * 1000)
+      : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+    // Get credits included from the product metadata (defaults to 0)
+    const firstItem = stripeSub.items.data[0];
+    const product = firstItem?.price?.product as Stripe.Product | undefined;
+    const creditsIncluded = product ? parseInt(product.metadata?.credits_included || '0') : 0;
+
+    devLog(`Processing invoice ${invoice.id} for subscription ${subscriptionId}: ${creditsIncluded} credits`);
+
+    // Check for existing earned credits from this subscription (potential upgrade scenario)
+    const { data: existingCredits, error: existingCreditsError } = await supabase
+      .from('user_credits')
+      .select('id, credits, created_at, description, metadata')
+      .eq('user_id', subscription.user_id)
+      .eq('source_type', 'subscription')
+      .eq('source_id', subscriptionId)
+      .eq('transaction_type', 'earned')
+      .order('created_at', { ascending: false });
+
+    if (existingCreditsError) {
+      console.error('Error checking existing credits:', existingCreditsError.message);
+      throw new Error(`Failed to check existing credits: ${existingCreditsError.message}`);
+    }
+
+    // Check if this is an upgrade - with new upgrade logic, we preserve existing credits
+    const isUpgrade = stripeSub.metadata?.is_upgrade === 'true';
+    
+    // If there are existing earned credits from this subscription, this was the old pro-rated upgrade system
+    // With the new upgrade system (cancel + create new), we don't expire credits anymore
+    if (existingCredits && existingCredits.length > 0 && !isUpgrade) {
+      devLog(`Found ${existingCredits.length} existing credit entries for subscription ${subscriptionId}`);
+      
+      // Only expire credits if this is NOT an upgrade (legacy behavior for subscription renewals)
+      const { error: expireError } = await supabase
+        .from('user_credits')
+        .update({
+          transaction_type: 'expired',
+          description: `Subscription renewal - ${subscription.plan_name} plan credits replaced previous period`,
+          metadata: {
+            ...existingCredits[0].metadata,
+            expired_reason: 'subscription_renewal',
+            expired_at: new Date().toISOString(),
+            invoice_id: invoice.id,
+            new_plan_name: subscription.plan_name
+          }
+        })
+        .eq('user_id', subscription.user_id)
+        .eq('source_type', 'subscription')
+        .eq('source_id', subscriptionId)
+        .eq('transaction_type', 'earned');
+
+      if (expireError) {
+        console.error('Error expiring existing credits:', expireError.message);
+        throw new Error(`Failed to expire existing credits: ${expireError.message}`);
+      }
+
+      const totalExistingCredits = existingCredits.reduce((sum, credit) => sum + credit.credits, 0);
+      devLog(`Expired ${totalExistingCredits} credits from previous billing period`);
+    } else if (isUpgrade) {
+      devLog(`This is an upgrade - preserving existing credits from previous subscription`);
+    }
+
+    const description = `Credits from subscription ${invoice.billing_reason === 'subscription_create' ? (isUpgrade ? 'upgrade' : 'activation') : 'renewal'} - ${subscription.plan_name}`;
+    const metadata = {
+      invoice_id: invoice.id,
+      billing_reason: invoice.billing_reason,
+      billing_period_start: periodStartDate.toISOString(),
+      billing_period_end: periodEndDate.toISOString(),
+      is_upgrade: isUpgrade,
+      was_upgrade: subscription.was_upgrade || false,
+      old_plan_name: subscription.old_plan_name
+    };
 
     if (creditsIncluded > 0) {
-      // Calculate billing period dates
-      const period = (invoice as any).lines?.data?.[0]?.period;
-      const periodStart = period?.start 
-        ? new Date(period.start * 1000) 
-        : new Date();
-      const periodEnd = period?.end 
-        ? new Date(period.end * 1000) 
-        : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Default 30 days
-
-      const description = `Credits from subscription ${invoice.billing_reason === 'subscription_create' ? 'activation' : 'renewal'} - ${subscription.plan_name}`;
-      const metadata = {
-        invoice_id: invoice.id,
-        billing_reason: invoice.billing_reason,
-        billing_period_start: periodStart.toISOString(),
-        billing_period_end: periodEnd.toISOString()
-      };
-
-      // Use atomic RPC function to update subscription and award credits
+      // Atomically update periods and award credits
       const { error: atomicError } = await supabase.rpc('award_subscription_credits', {
         p_user_id: subscription.user_id,
         p_subscription_id: subscriptionId,
         p_credits: creditsIncluded,
-        p_expires_at: periodEnd.toISOString(),
-        p_period_start: periodStart.toISOString(),
-        p_period_end: periodEnd.toISOString(),
+        p_expires_at: periodEndDate.toISOString(),
+        p_period_start: periodStartDate.toISOString(),
+        p_period_end: periodEndDate.toISOString(),
         p_description: description,
         p_metadata: metadata
       });
 
       if (atomicError) {
-        console.error(`Error in atomic subscription credit operation:`, atomicError.message);
+        console.error('Error in atomic subscription credit operation:', atomicError.message);
         throw new Error(`Failed to process subscription credits atomically: ${atomicError.message}`);
       }
 
       devLog(`Atomically awarded ${creditsIncluded} credits to user ${subscription.user_id}`);
     } else {
-      // Still update subscription periods even if no credits to award
-      const period = (invoice as any).lines?.data?.[0]?.period;
-      if (period) {
-        const periodStart = new Date(period.start * 1000).toISOString();
-        const periodEnd = new Date(period.end * 1000).toISOString();
-        
-        const { error: updateError } = await supabase
-          .from('user_subscriptions')
-          .update({
-            current_period_start: periodStart,
-            current_period_end: periodEnd,
-            updated_at: new Date().toISOString()
-          })
-          .eq('stripe_subscription_id', subscriptionId);
+      // No credits to award, but still keep subscription periods up-to-date
+      const { error: updateError } = await supabase
+        .from('user_subscriptions')
+        .update({
+          current_period_start: periodStartDate.toISOString(),
+          current_period_end: periodEndDate.toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('stripe_subscription_id', subscriptionId);
 
-        if (updateError) {
-          console.error(`Failed to update subscription periods:`, updateError.message);
-        }
+      if (updateError) {
+        console.error('Failed to update subscription periods:', updateError.message);
+      } else {
+        devLog(`Updated subscription periods for ${subscriptionId} (no credits included)`);
       }
     }
 
   } catch (stripeError) {
-    console.error('Error fetching plan details from Stripe:', stripeError);
+    console.error('Error processing subscription payment:', stripeError);
     throw new Error('Failed to process subscription payment');
   }
 }
@@ -304,58 +520,74 @@ async function handleSubscriptionEvent(
     ? subscription.customer
     : subscription.customer.id;
 
-  // Get user ID from customer metadata
-  const customer = await stripe.customers.retrieve(customerId);
-  const userId = (customer as Stripe.Customer).metadata?.user_id;
-
-  if (!userId) {
-    console.error(`No user_id found in customer metadata for customer: ${customerId}`);
+  // Use the centralized function to ensure subscription record exists
+  const subscriptionRecord = await ensureSubscriptionRecord(subscription.id, customerId, supabase);
+  
+  if (!subscriptionRecord) {
+    console.error(`Failed to create/update subscription record for: ${subscription.id}`);
     return;
   }
 
-  const priceId = subscription.items.data[0]?.price.id;
-  if (!priceId) {
-    console.error('No price ID found in subscription items');
-    return;
+  // For active subscriptions, ensure this user only has one active subscription
+  if (subscription.status === 'active') {
+    try {
+      // First, check if this is an upgrade with a specific previous subscription to cancel
+      const previousSubscriptionId = subscription.metadata?.previous_subscription_id;
+      
+      if (previousSubscriptionId && previousSubscriptionId !== '') {
+        devLog(`This is an upgrade subscription - canceling specific previous subscription: ${previousSubscriptionId}`);
+        
+        try {
+          // First check if the subscription still exists and is active
+          const previousSub = await stripe.subscriptions.retrieve(previousSubscriptionId);
+          
+          if (previousSub.status === 'active') {
+            // Cancel the specific previous subscription in Stripe
+            await stripe.subscriptions.cancel(previousSubscriptionId);
+            devLog(`Successfully canceled previous subscription: ${previousSubscriptionId}`);
+          } else {
+            devLog(`Previous subscription ${previousSubscriptionId} is already ${previousSub.status} - no need to cancel`);
+          }
+        } catch (cancelError) {
+          console.error(`Failed to cancel previous subscription ${previousSubscriptionId}:`, cancelError);
+          // Log the error but don't fail the webhook - the subscription might already be canceled
+        }
+      }
+      
+      // Also check for any other active subscriptions for this user (safety net)
+      const { data: userSubscriptions } = await supabase
+        .from('user_subscriptions')
+        .select('stripe_subscription_id')
+        .eq('user_id', subscriptionRecord.user_id)
+        .eq('status', 'active')
+        .neq('stripe_subscription_id', subscription.id); // Exclude the current subscription
+
+      // If there are other active subscriptions, cancel them
+      if (userSubscriptions && userSubscriptions.length > 0) {
+        devLog(`Found ${userSubscriptions.length} other active subscriptions for user ${subscriptionRecord.user_id}, canceling them`);
+        
+        for (const oldSub of userSubscriptions) {
+          // Skip if this is the same subscription we already canceled above
+          if (oldSub.stripe_subscription_id === previousSubscriptionId) {
+            devLog(`Skipping ${oldSub.stripe_subscription_id} - already canceled above`);
+            continue;
+          }
+          
+          try {
+            // Cancel the old subscription in Stripe
+            await stripe.subscriptions.cancel(oldSub.stripe_subscription_id);
+            devLog(`Canceled old subscription: ${oldSub.stripe_subscription_id}`);
+          } catch (cancelError) {
+            console.error(`Failed to cancel old subscription ${oldSub.stripe_subscription_id}:`, cancelError);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error checking for duplicate subscriptions:', error);
+    }
   }
 
-  // Get plan name from Stripe
-  const price = await stripe.prices.retrieve(priceId, {
-    expand: ['product']
-  });
-  const product = price.product as Stripe.Product;
-
-  // Use type-safe access to subscription period properties
-  const subscriptionWithPeriods = subscription as Stripe.Subscription & {
-    current_period_start?: number;
-    current_period_end?: number;
-  };
-
-  const currentPeriodStart = subscriptionWithPeriods.current_period_start 
-    ? new Date(subscriptionWithPeriods.current_period_start * 1000).toISOString() 
-    : null;
-
-  const currentPeriodEnd = subscriptionWithPeriods.current_period_end 
-    ? new Date(subscriptionWithPeriods.current_period_end * 1000).toISOString() 
-    : null;
-
-  // Use atomic RPC function to upsert subscription record
-  const { error } = await supabase.rpc('upsert_subscription', {
-    p_user_id: userId,
-    p_stripe_subscription_id: subscription.id,
-    p_stripe_customer_id: customerId,
-    p_stripe_price_id: priceId,
-    p_plan_name: product.metadata.plan_name || '',
-    p_status: subscription.status,
-    p_current_period_start: currentPeriodStart,
-    p_current_period_end: currentPeriodEnd,
-    p_cancel_at_period_end: subscription.cancel_at_period_end || false
-  });
-
-  if (error) {
-    console.error('Error in atomic subscription upsert:', error.message);
-    throw new Error(`Failed to update subscription atomically: ${error.message}`);
-  }
+  devLog(`Successfully processed subscription event for: ${subscription.id}`);
 }
 
 /**
