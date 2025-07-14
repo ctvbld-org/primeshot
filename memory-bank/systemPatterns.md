@@ -803,6 +803,29 @@ Detected changes in:
 - webapp/src/components/pricing/UpgradeConfirmationDialog.tsx
 - webapp/src/lib/hooks/use-file-upload.ts
 - webapp/src/lib/hooks/use-order.ts
+
+
+**Auto-update 2025-07-14**:
+Detected changes in:
+- webapp/src/app/api/cleanup-face-model/route.ts
+- webapp/src/app/api/payment/subscription-checkout/route.ts
+- webapp/src/app/api/payment/webhook/route.ts
+- webapp/src/app/api/pricing/face-model-training-cost/route.ts
+- webapp/src/app/api/subscription/preview-upgrade/route.ts
+- webapp/src/app/api/upload-chunk/route.ts
+- webapp/src/app/globals.css
+- webapp/src/components/dashboard/CreditDashboard.tsx
+- webapp/src/components/face_model/FaceModelSelector.tsx
+- webapp/src/components/face_model/FaceModelUploadDialog.tsx
+- webapp/src/components/face_model/progress_tracker.tsx
+- webapp/src/components/face_model/steps/FaceModelNameStep.tsx
+- webapp/src/components/face_model/steps/ProfileFormStep.tsx
+- webapp/src/components/face_model/steps/TrainingProgressStep.tsx
+- webapp/src/components/home/GenerationControls.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/pricing/UpgradeConfirmationDialog.tsx
+- webapp/src/lib/api/face-models.ts
+- webapp/src/lib/services/confirmationService.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react'
 import { Style } from '@/types/styles'
 import { storeSelectedStyleIndex, storeStyleSelections, type StyleSelections } from '@/lib/utils/style-storage'
-import { useStyleConfigs } from '@/hooks/useConfig'
+import { useStyles } from '@/hooks/useConfig'
 
 interface StyleSelectionContextType {
   selectedStyleId: string | null
@@ -30,7 +30,7 @@ export function StyleSelectionProvider({ children }: { children: React.ReactNode
   const [stylesData, setStylesData] = useState<any[]>([])
 
   // Fetch style configs to validate URL params
-  const { data: styleConfigs = [] } = useStyleConfigs()
+  const { data: styleConfigs = [] } = useStyles()
 
   // Ensure we only initialise from URL once
   const urlInitRef = useRef(false)
@@ -71,26 +71,26 @@ export function StyleSelectionProvider({ children }: { children: React.ReactNode
 
     if (
       sceneParam &&
-      Array.isArray(selectedStyle.available_backgrounds) &&
-      selectedStyle.available_backgrounds.includes(sceneParam)
+      Array.isArray(selectedStyle.available_scenes) &&
+      selectedStyle.available_scenes.includes(sceneParam)
     ) {
-      newSelections.background = sceneParam
+      newSelections.scene = sceneParam
     }
 
     if (
       wardrobeParam &&
-      Array.isArray(selectedStyle.available_clothing) &&
-      selectedStyle.available_clothing.includes(wardrobeParam)
+      Array.isArray(selectedStyle.available_wardrobes) &&
+      selectedStyle.available_wardrobes.includes(wardrobeParam)
     ) {
-      newSelections.clothing = wardrobeParam
+      newSelections.wardrobe = wardrobeParam
     }
 
     if (
       colorParam &&
-      Array.isArray(selectedStyle.available_clothing_colors) &&
-      selectedStyle.available_clothing_colors.includes(colorParam)
+      Array.isArray(selectedStyle.available_colors) &&
+      selectedStyle.available_colors.includes(colorParam)
     ) {
-      newSelections.clothingColor = colorParam
+      newSelections.color = colorParam
     }
 
     if (Object.keys(newSelections).length > 0) {

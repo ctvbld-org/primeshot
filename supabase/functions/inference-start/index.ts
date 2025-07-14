@@ -194,10 +194,10 @@ serve(async (req) => {
       );
     }
 
-    // Verify style exists and get style configuration
+    // Get style configuration from the styles table
     const { data: style, error: styleError } = await supabase
       .from('styles')
-      .select('id, name, is_active, lora_path, workflow_name')
+      .select('*')
       .eq('id', style_id)
       .single();
 
@@ -205,13 +205,6 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'Style not found' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    if (!style.is_active) {
-      return new Response(
-        JSON.stringify({ error: 'Style is not available' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 

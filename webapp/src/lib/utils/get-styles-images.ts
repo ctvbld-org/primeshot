@@ -6,23 +6,18 @@ const getProxyUrl = (path: string) => {
 };
 
 /**
- * Returns the appropriate set of images based on the user's gender
- * Uses same image filenames but different paths based on gender
- * 
+ * Returns the set of images from the styles placeholders directory
+ * Uses a fixed path for all style images
+ *
  * @param images The image filenames
- * @param gender The user's gender
- * @returns Array of images with gender-specific paths from S3 via proxy
+ * @returns Array of images with full URLs from S3 via proxy
  */
 export function getStyleImages(
-  images: string[],
-  gender?: Gender
+  images: string[]
 ): string[] {
   if (!images || !Array.isArray(images) || images.length === 0) {
     return [];
   }
-  
-  // Determine which gender folder to use
-  const genderFolder = gender ? gender : 'male';
   
   // Map each image to its gender-specific path
   return images.map(img => {
@@ -30,7 +25,7 @@ export function getStyleImages(
     if (img.startsWith('http')) return img;
     
     // Create the S3 path - place in the placeholders/gender subfolder
-    const s3Path = `app-images/placeholders/${genderFolder}/${img}`;
+    const s3Path = `app-images/placeholders/styles/${img}`;
     
     // Return the proxy URL
     return getProxyUrl(s3Path);
@@ -53,7 +48,7 @@ export function getStyleThumbnail(
     return '';
   }
   
-  const imageSet = getStyleImages(images, gender);
+  const imageSet = getStyleImages(images);
   return imageSet[0] || '';
 }
 

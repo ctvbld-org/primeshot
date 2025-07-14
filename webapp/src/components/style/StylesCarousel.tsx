@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useCallback } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
-import { useStyleConfigs } from '@/hooks/useConfig'
+import { useStyles } from '@/hooks/useConfig'
 import { StyleConfigsSchema, type Style } from '@/types/styles'
 import Image from 'next/image'
 import { useTranslation } from 'react-i18next'
@@ -16,7 +16,7 @@ import styles from './StylesCarousel.module.css'
 export function StylesCarousel() {
   const { t, i18n } = useTranslation(['styles', 'common'])
   const currentLang = i18n.language
-  const { data: styleConfigs = [], isLoading } = useStyleConfigs()
+  const { data: styleConfigs = [], isLoading } = useStyles()
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [canScrollPrev, setCanScrollPrev] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(false)
@@ -32,13 +32,10 @@ export function StylesCarousel() {
       return validatedConfigs.map((config: Style) => ({
         id: config.id,
         name: config.name,
-        tagline: config.tagline,
-        description: config.description,
         preview_images: config.preview_images,
-        available_genders: config.available_genders,
-        available_backgrounds: config.available_backgrounds,
-        available_clothing: config.available_clothing,
-        available_clothing_colors: config.available_clothing_colors,
+        available_scenes: config.available_scenes,
+        available_wardrobes: config.available_wardrobes,
+        available_colors: config.available_colors,
         translations: config.translations
       }))
     } catch (error) {

@@ -2,24 +2,24 @@
 
 import React, { useState, useEffect, useMemo, useCallback, useRef, type FC, type KeyboardEvent } from 'react'
 import { useStyleSelection } from '@/contexts/style-selection-context'
-import { useStyleConfigs, useOption } from '@/hooks/useConfig'
-import { useTranslatedOption } from '@/hooks/useTranslatedOption'
+import { useStyles, useWardrobes, useColors } from '@/hooks/useConfig'
 import { useValidStyleOptions } from '@/lib/utils/style-validation'
 import { getOptionsImage } from '@/lib/utils/get-options-image'
 import { getStoredStyleSelections, storeStyleSelections } from '@/lib/utils/style-storage'
 import { Popover, PopoverContent, PopoverTrigger } from '@primeshot/common/web/ui/popover'
+import { Icon } from '@primeshot/common/web/Icon'
 import Image from 'next/image'
 import { ChevronDown, ArrowLeft } from 'lucide-react'
 import styles from './WardrobeDropdown.module.css'
 
 interface WardrobeDropdownProps {
-  onSelect?: (clothingId: string, colorId: string) => void
+  onSelect?: (wardrobeId: string, colorId: string) => void
 }
 
-interface ClothingOption {
+interface WardrobeOption {
   id: string
   label: string
-  imageUrl: string
+  image: string
 }
 
 interface ColorOption {
@@ -29,123 +29,86 @@ interface ColorOption {
 }
 
 export const WardrobeDropdown: FC<WardrobeDropdownProps> = ({ onSelect }) => {
-  const [currentView, setCurrentView] = useState<'clothing' | 'color'>('clothing')
-  const [selectedClothing, setSelectedClothing] = useState<string | null>(null)
+  const [isOpen, setIsOpen] = useState(false)
+  const [currentView, setCurrentView] = useState<'wardrobe' | 'color'>('wardrobe')
+  const [selectedWardrobe, setSelectedWardrobe] = useState<string | null>(null)
   const [selectedColor, setSelectedColor] = useState<string | null>(null)
-  const [tempClothingSelection, setTempClothingSelection] = useState<string | null>(null)
+  const [tempWardrobeSelection, setTempWardrobeSelection] = useState<string | null>(null)
   const [tempColorSelection, setTempColorSelection] = useState<string | null>(null)
   const [focusedOptionIndex, setFocusedOptionIndex] = useState<number>(-1)
   const { selectedStyleId } = useStyleSelection()
   const dropdownRef = useRef<HTMLDivElement>(null)
   
-  const { data: styleConfigs, isLoading: isLoadingStyles } = useStyleConfigs()
-  const { data: rawClothingOptions, isLoading: isLoadingClothing } = useOption('clothing')
-  const { data: rawColorOptions, isLoading: isLoadingColors } = useOption('clothingColor')
-  const clothingOptions = useTranslatedOption(rawClothingOptions)
-  const colorOptions = useTranslatedOption(rawColorOptions)
+  const { data: styleConfigs, isLoading: isLoadingStyles } = useStyles()
+  const { data: wardrobeOptions, isLoading: isLoadingWardrobes } = useWardrobes()
+  const { data: colorOptions, isLoading: isLoadingColors } = useColors()
   const { data: validOptions } = useValidStyleOptions()
 
   // Get available options for current style
   const currentStyleConfig = styleConfigs?.find(style => style.id === selectedStyleId)
-  const availableClothingIds = currentStyleConfig?.available_clothing || []
-  const availableColorIds = currentStyleConfig?.available_clothing_colors || []
+  const availableWardrobeIds = currentStyleConfig?.available_wardrobes || []
+  const availableColorIds = currentStyleConfig?.available_colors || []
   
-  const filteredClothingOptions: ClothingOption[] = useMemo(() => {
-    return (clothingOptions?.options || [])
-      .filter(option => availableClothingIds.includes(option.id))
-      .map(option => ({
-        id: option.id,
-        label: option.label,
-        imageUrl: option.imageUrl ? getOptionsImage(option.imageUrl) : ''
+  const filteredWardrobeOptions: WardrobeOption[] = useMemo(() => {
+    return (wardrobeOptions || [])
+      .filter(wardrobe => availableWardrobeIds.includes(wardrobe.value))
+      .map(wardrobe => ({
+        id: wardrobe.value,
+        label: wardrobe.label,
+        image: wardrobe.image ? getOptionsImage(wardrobe.image) : ''
       }))
-  }, [clothingOptions?.options, availableClothingIds])
+  }, [wardrobeOptions, availableWardrobeIds])
 
   const filteredColorOptions: ColorOption[] = useMemo(() => {
-    return (colorOptions?.options || [])
-      .filter(option => availableColorIds.includes(option.id))
-      .map(option => ({
-        id: option.id,
-        label: option.label,
-        color: option.color || '#FFFFFF'
+    return (colorOptions || [])
+      .filter(color => availableColorIds.includes(color.value))
+      .map(color => ({
+        id: color.value,
+        label: color.label,
+        color: color.color || '#FFFFFF'
       }))
-  }, [colorOptions?.options, availableColorIds])
+  }, [colorOptions, availableColorIds])
 
   // Helper functions for selection management
-  const loadStoredClothingSelection = useCallback(() => {
+  const loadStoredWardrobeSelection = useCallback(() => {
     if (!selectedStyleId) return null
     const stored = getStoredStyleSelections(selectedStyleId)
-    return stored.clothing && filteredClothingOptions.some(opt => opt.id === stored.clothing) 
-      ? stored.clothing 
+    return stored.wardrobe && filteredWardrobeOptions.some(opt => opt.id === stored.wardrobe) 
+      ? stored.wardrobe 
       : null
-  }, [selectedStyleId, filteredClothingOptions])
+  }, [selectedStyleId, filteredWardrobeOptions])
 
   const loadStoredColorSelection = useCallback(() => {
     if (!selectedStyleId) return null
     const stored = getStoredStyleSelections(selectedStyleId)
-    return stored.clothingColor && filteredColorOptions.some(opt => opt.id === stored.clothingColor)
-      ? stored.clothingColor
+    return stored.color && filteredColorOptions.some(opt => opt.id === stored.color)
+      ? stored.color
       : null
   }, [selectedStyleId, filteredColorOptions])
 
-  const getDefaultClothing = useCallback(() => {
-    return filteredClothingOptions[0]?.id || null
-  }, [filteredClothingOptions])
-
-  const getDefaultColor = useCallback(() => {
-    return filteredColorOptions[0]?.id || null
-  }, [filteredColorOptions])
-
   const initializationKey = useRef<string>('')
 
-  // Single initialization effect to prevent cascading updates
+  // Load stored selections when style changes (no more auto-defaults)
   useEffect(() => {
-    if (!selectedStyleId || filteredClothingOptions.length === 0 || filteredColorOptions.length === 0) return
+    if (!selectedStyleId || filteredWardrobeOptions.length === 0 || filteredColorOptions.length === 0) return
 
     // Create a key to track if we need to reinitialize
-    const currentKey = `${selectedStyleId}-${filteredClothingOptions.length}-${filteredColorOptions.length}`
+    const currentKey = `${selectedStyleId}-${filteredWardrobeOptions.length}-${filteredColorOptions.length}`
     if (initializationKey.current === currentKey) return
     
     initializationKey.current = currentKey
 
-    // Load stored clothing
-    const storedClothing = loadStoredClothingSelection()
-    const finalClothing = storedClothing || getDefaultClothing()
+    // Only load stored selections, no defaults
+    const storedWardrobe = loadStoredWardrobeSelection()
+    const storedColor = loadStoredColorSelection()
     
-    if (finalClothing) {
-      // Load stored color for the clothing
-      const storedColor = loadStoredColorSelection()
-      const finalColor = storedColor || getDefaultColor()
-      
-      // Update state in a single batch
-      setSelectedClothing(finalClothing)
-      if (finalColor) {
-        setSelectedColor(finalColor)
-      }
-      
-      // Store to localStorage
-      if (selectedStyleId && finalColor) {
-        storeStyleSelections(selectedStyleId, { 
-          clothing: finalClothing,
-          clothingColor: finalColor 
-        })
-      }
-    }
-  }, [selectedStyleId, filteredClothingOptions, filteredColorOptions, loadStoredClothingSelection, getDefaultClothing, loadStoredColorSelection, getDefaultColor])
+    setSelectedWardrobe(storedWardrobe)
+    setSelectedColor(storedColor)
+  }, [selectedStyleId, filteredWardrobeOptions, filteredColorOptions])
 
-  // Separate effect for syncing changes to storage (only for user interactions)
-  useEffect(() => {
-    // Only sync if we have a valid initialization key (prevents initial sync)
-    if (selectedClothing && selectedColor && selectedStyleId && initializationKey.current) {
-      storeStyleSelections(selectedStyleId, { 
-        clothing: selectedClothing,
-        clothingColor: selectedColor 
-      })
-    }
-  }, [selectedStyleId, selectedClothing, selectedColor])
-
-  const handleClothingSelect = (clothingId: string) => {
+  const handleWardrobeSelect = (wardrobeId: string) => {
     setCurrentView('color')
-    setTempClothingSelection(clothingId)
+    setTempWardrobeSelection(wardrobeId)
     
     // Load stored color for this style or default to first
     const storedColor = loadStoredColorSelection()
@@ -160,36 +123,75 @@ export const WardrobeDropdown: FC<WardrobeDropdownProps> = ({ onSelect }) => {
   }
 
   const handleColorSelect = (colorId: string) => {
-    setTempColorSelection(colorId)
-  }
-
-  const handleConfirm = () => {
-    if (tempClothingSelection && tempColorSelection) {
-      // Commit temporary selections to actual state
-      setSelectedClothing(tempClothingSelection)
-      setSelectedColor(tempColorSelection)
-      setCurrentView('clothing')
+    if (tempWardrobeSelection) {
+      // Directly commit the selections
+      setSelectedWardrobe(tempWardrobeSelection)
+      setSelectedColor(colorId)
       
       // Store selections
       if (selectedStyleId) {
         storeStyleSelections(selectedStyleId, { 
-          clothing: tempClothingSelection,
-          clothingColor: tempColorSelection 
+          wardrobe: tempWardrobeSelection,
+          color: colorId 
         })
       }
       
-      onSelect?.(tempClothingSelection, tempColorSelection)
+      onSelect?.(tempWardrobeSelection, colorId)
       
       // Clear temporary selections
-      setTempClothingSelection(null)
+      setTempWardrobeSelection(null)
       setTempColorSelection(null)
+      
+      // Close the popover
+      setIsOpen(false)
+    }
+  }
+
+  const handleConfirm = () => {
+    if (tempWardrobeSelection && tempColorSelection) {
+      // Commit temporary selections to actual state
+      setSelectedWardrobe(tempWardrobeSelection)
+      setSelectedColor(tempColorSelection)
+      
+      // Store selections
+      if (selectedStyleId) {
+        storeStyleSelections(selectedStyleId, { 
+          wardrobe: tempWardrobeSelection,
+          color: tempColorSelection 
+        })
+      }
+      
+      onSelect?.(tempWardrobeSelection, tempColorSelection)
+      
+      // Clear temporary selections
+      setTempWardrobeSelection(null)
+      setTempColorSelection(null)
+      
+      // Close the popover
+      setIsOpen(false)
     }
   }
 
   const handleBack = () => {
-    setCurrentView('clothing')
-    setTempClothingSelection(null)
+    setCurrentView('wardrobe')
+    setTempWardrobeSelection(null)
     setTempColorSelection(null)
+  }
+
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open)
+    
+    // Reset view to wardrobe when opening
+    if (open) {
+      setCurrentView('wardrobe')
+      // Initialize temp selections with current selections when opening
+      setTempWardrobeSelection(selectedWardrobe)
+      setTempColorSelection(selectedColor)
+    } else {
+      // Clear temporary selections when closing
+      setTempWardrobeSelection(null)
+      setTempColorSelection(null)
+    }
   }
 
   // Keyboard navigation handler
@@ -197,23 +199,24 @@ export const WardrobeDropdown: FC<WardrobeDropdownProps> = ({ onSelect }) => {
     switch (event.key) {
       case 'Escape':
         event.preventDefault()
-        setCurrentView('clothing')
-        setTempClothingSelection(null)
+        setIsOpen(false)
+        setCurrentView('wardrobe')
+        setTempWardrobeSelection(null)
         setTempColorSelection(null)
         setFocusedOptionIndex(-1)
         break
       
       case 'ArrowDown':
         event.preventDefault()
-        if (currentView === 'clothing') {
-          const nextIndex = Math.min(focusedOptionIndex + 1, filteredClothingOptions.length - 1)
+        if (currentView === 'wardrobe') {
+          const nextIndex = Math.min(focusedOptionIndex + 1, filteredWardrobeOptions.length - 1)
           setFocusedOptionIndex(nextIndex)
         }
         break
       
       case 'ArrowUp':
         event.preventDefault()
-        if (currentView === 'clothing') {
+        if (currentView === 'wardrobe') {
           const prevIndex = Math.max(focusedOptionIndex - 1, 0)
           setFocusedOptionIndex(prevIndex)
         }
@@ -222,18 +225,16 @@ export const WardrobeDropdown: FC<WardrobeDropdownProps> = ({ onSelect }) => {
       case 'Enter':
       case ' ':
         event.preventDefault()
-        if (currentView === 'clothing' && focusedOptionIndex >= 0) {
-          const selectedOption = filteredClothingOptions[focusedOptionIndex]
+        if (currentView === 'wardrobe' && focusedOptionIndex >= 0) {
+          const selectedOption = filteredWardrobeOptions[focusedOptionIndex]
           if (selectedOption) {
-            handleClothingSelect(selectedOption.id)
+            handleWardrobeSelect(selectedOption.id)
             setFocusedOptionIndex(-1)
           }
-        } else if (currentView === 'color' && tempClothingSelection && tempColorSelection) {
-          handleConfirm()
         }
         break
     }
-  }, [currentView, focusedOptionIndex, filteredClothingOptions, tempClothingSelection, tempColorSelection])
+  }, [currentView, focusedOptionIndex, filteredWardrobeOptions])
 
   // Reset focused index when view changes
   useEffect(() => {
@@ -242,57 +243,68 @@ export const WardrobeDropdown: FC<WardrobeDropdownProps> = ({ onSelect }) => {
 
   // Focus management when dropdown opens
   useEffect(() => {
-    if (currentView === 'clothing') {
-      // Focus the first clothing option when dropdown opens
+    if (currentView === 'wardrobe') {
+      // Focus the first wardrobe option when dropdown opens
       setFocusedOptionIndex(0)
     }
   }, [currentView])
 
-  const selectedClothingOption = filteredClothingOptions.find(opt => opt.id === selectedClothing)
+  const selectedWardrobeOption = filteredWardrobeOptions.find(opt => opt.id === selectedWardrobe)
   const selectedColorOption = filteredColorOptions.find(opt => opt.id === selectedColor)
 
-  if (isLoadingStyles || isLoadingClothing || isLoadingColors || !selectedClothingOption || !selectedColorOption) {
+  if (isLoadingStyles || isLoadingWardrobes || isLoadingColors) {
     return (
       <div className={styles.loading} />
     )
   }
 
   return (
-    <Popover>
+    <Popover open={isOpen} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <button
-          onClick={() => {
-            // Initialize temp selections with current selections when opening
-            setTempClothingSelection(selectedClothing)
-            setTempColorSelection(selectedColor)
-            setCurrentView('clothing')
-          }}
           onKeyDown={handleKeyDown}
           aria-haspopup="listbox"
           aria-label="Select wardrobe item"
           className={styles.trigger}
         >
-          {/* Thumbnail with color overlay */}
-          <div className={styles.thumbnail}>
-            <Image
-              src={selectedClothingOption.imageUrl}
-              alt={selectedClothingOption.label}
-              width={48}
-              height={48}
-              className={styles.thumbnailImage}
-            />
-            {/* Color indicator */}
-            <div 
-              className={styles.colorIndicator}
-              style={{ backgroundColor: selectedColor || '#FFFFFF' }}
-            />
-          </div>
-          
-          {/* Text */}
-          <div className={styles.textContainer}>
-            <p className={styles.primaryText}>{selectedClothingOption.label}</p>
-            <p className={styles.secondaryText}>Wardrobe</p>
-          </div>
+          {selectedWardrobeOption && selectedColorOption ? (
+            <>
+              {/* Thumbnail with color overlay */}
+              <div className={styles.thumbnail}>
+                <Image
+                  src={selectedWardrobeOption.image}
+                  alt={selectedWardrobeOption.label}
+                  width={48}
+                  height={48}
+                  className={styles.thumbnailImage}
+                />
+                {/* Color indicator */}
+                <div 
+                  className={styles.colorIndicator}
+                  style={{ backgroundColor: selectedColor || '#FFFFFF' }}
+                />
+              </div>
+              
+              {/* Text */}
+              <div className={styles.textContainer}>
+                <p className={styles.primaryText}>{selectedWardrobeOption.label}</p>
+                <p className={styles.secondaryText}>Wardrobe</p>
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Empty state with icon */}
+              <div className={styles.thumbnail}>
+                <Icon variant="wardrobe" size={48} className="text-gray-400" />
+              </div>
+              
+              {/* Text */}
+              <div className={styles.textContainer}>
+                <p className={styles.primaryText}>Select Wardrobe</p>
+                <p className={styles.secondaryText}>Wardrobe</p>
+              </div>
+            </>
+          )}
         </button>
       </PopoverTrigger>
 
@@ -313,30 +325,30 @@ export const WardrobeDropdown: FC<WardrobeDropdownProps> = ({ onSelect }) => {
               className={styles.slidingContainer}
               style={{ transform: `translateX(${currentView === 'color' ? '-100%' : '0'})` }}
             >
-              {/* Clothing selection view */}
+              {/* Wardrobe selection view */}
               <div className={styles.clothingView}>
                 {/* Header */}
                 <div className={styles.dropdownHeader}>
                   <h3 className={styles.dropdownTitle}>Choose your clothes</h3>
                 </div>
                 
-                {/* Clothing options */}
+                {/* Wardrobe options */}
                 <div className={styles.clothingOptionsContainer}>
-                  {filteredClothingOptions.map((option, index) => (
+                  {filteredWardrobeOptions.map((option, index) => (
                     <button
                       key={option.id}
-                      onClick={() => handleClothingSelect(option.id)}
+                      onClick={() => handleWardrobeSelect(option.id)}
                       onKeyDown={handleKeyDown}
                       role="option"
-                      aria-selected={(tempClothingSelection || selectedClothing) === option.id}
+                      aria-selected={(tempWardrobeSelection || selectedWardrobe) === option.id}
                       aria-label={`Select ${option.label}`}
                       tabIndex={focusedOptionIndex === index ? 0 : -1}
-                      className={`${styles.clothingOption} ${(tempClothingSelection || selectedClothing) === option.id ? styles.clothingOptionSelected : ''} ${focusedOptionIndex === index ? styles.clothingOptionFocused : ''}`}
+                      className={`${styles.clothingOption} ${(tempWardrobeSelection || selectedWardrobe) === option.id ? styles.clothingOptionSelected : ''} ${focusedOptionIndex === index ? styles.clothingOptionFocused : ''}`}
                     >
                       {/* Thumbnail */}
                       <div className={styles.thumbnail}>
                         <Image
-                          src={option.imageUrl}
+                          src={option.image}
                           alt={option.label}
                           width={48}
                           height={48}
@@ -348,7 +360,7 @@ export const WardrobeDropdown: FC<WardrobeDropdownProps> = ({ onSelect }) => {
                       <span className={styles.clothingOptionLabel}>{option.label}</span>
                       
                       {/* Selected indicator */}
-                      {(tempClothingSelection || selectedClothing) === option.id && (
+                      {(tempWardrobeSelection || selectedWardrobe) === option.id && (
                         <div className={styles.selectedIndicator} />
                       )}
                     </button>
@@ -362,7 +374,7 @@ export const WardrobeDropdown: FC<WardrobeDropdownProps> = ({ onSelect }) => {
                 <div className={styles.colorHeader}>
                   <button 
                     onClick={handleBack}
-                    aria-label="Go back to clothing selection"
+                    aria-label="Go back to wardrobe selection"
                     className={styles.backButton}
                   >
                     <ArrowLeft className={styles.backIcon} />
@@ -370,16 +382,16 @@ export const WardrobeDropdown: FC<WardrobeDropdownProps> = ({ onSelect }) => {
                   <h3 className={styles.dropdownTitle}>Choose color</h3>
                 </div>
                 
-                {/* Background clothing image */}
+                {/* Background wardrobe image */}
                 <div className={styles.colorSelectionArea}>
                   {(() => {
-                    const displayClothingId = tempClothingSelection || selectedClothing
-                    const displayClothingOption = filteredClothingOptions.find(opt => opt.id === displayClothingId)
-                    return displayClothingOption && (
+                    const displayWardrobeId = tempWardrobeSelection || selectedWardrobe
+                    const displayWardrobeOption = filteredWardrobeOptions.find(opt => opt.id === displayWardrobeId)
+                    return displayWardrobeOption && (
                       <div className={styles.backgroundImage}>
                         <Image
-                          src={displayClothingOption.imageUrl}
-                          alt={displayClothingOption.label}
+                          src={displayWardrobeOption.image}
+                          alt={displayWardrobeOption.label}
                           fill
                           className={styles.backgroundImageInner}
                         />
@@ -413,18 +425,6 @@ export const WardrobeDropdown: FC<WardrobeDropdownProps> = ({ onSelect }) => {
                       />
                     ))}
                   </div>
-                </div>
-                
-                {/* Footer with confirm button */}
-                <div className={styles.footer}>
-                  <button
-                    onClick={handleConfirm}
-                    disabled={!tempClothingSelection || !tempColorSelection}
-                    aria-label="Confirm wardrobe selection"
-                    className={styles.confirmButton}
-                  >
-                    Confirm Selection
-                  </button>
                 </div>
               </div>
             </div>

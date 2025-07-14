@@ -34,6 +34,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      credit_costs: {
+        Row: {
+          created_at: string | null
+          id: number
+          type: string
+          updated_at: string | null
+          value: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          type: string
+          updated_at?: string | null
+          value: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          type?: string
+          updated_at?: string | null
+          value?: number
+        }
+        Relationships: []
+      }
       credit_pack_purchases: {
         Row: {
           amount_paid: number
@@ -77,6 +101,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      credit_packs: {
+        Row: {
+          created_at: string | null
+          credits: number
+          id: number
+          name: string
+          price: number
+          translations: Json | null
+          updated_at: string | null
+          validity_days: number
+        }
+        Insert: {
+          created_at?: string | null
+          credits: number
+          id?: number
+          name: string
+          price: number
+          translations?: Json | null
+          updated_at?: string | null
+          validity_days: number
+        }
+        Update: {
+          created_at?: string | null
+          credits?: number
+          id?: number
+          name?: string
+          price?: number
+          translations?: Json | null
+          updated_at?: string | null
+          validity_days?: number
+        }
+        Relationships: []
       }
       credit_usage: {
         Row: {
@@ -124,7 +181,17 @@ export type Database = {
       }
       face_models: {
         Row: {
+          age_range: string | null
+          body_type: string | null
           created_at: string | null
+          ethnicity: string | null
+          eye_color: string | null
+          gender: string | null
+          glasses: string | null
+          hair_color: string | null
+          hair_length: string | null
+          hair_style: string | null
+          height_range: string | null
           id: string
           image_count: number | null
           name: string
@@ -134,7 +201,17 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          age_range?: string | null
+          body_type?: string | null
           created_at?: string | null
+          ethnicity?: string | null
+          eye_color?: string | null
+          gender?: string | null
+          glasses?: string | null
+          hair_color?: string | null
+          hair_length?: string | null
+          hair_style?: string | null
+          height_range?: string | null
           id?: string
           image_count?: number | null
           name: string
@@ -144,7 +221,17 @@ export type Database = {
           user_id: string
         }
         Update: {
+          age_range?: string | null
+          body_type?: string | null
           created_at?: string | null
+          ethnicity?: string | null
+          eye_color?: string | null
+          gender?: string | null
+          glasses?: string | null
+          hair_color?: string | null
+          hair_length?: string | null
+          hair_style?: string | null
+          height_range?: string | null
           id?: string
           image_count?: number | null
           name?: string
@@ -190,20 +277,6 @@ export type Database = {
           upload_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "generated_images_style_id_fkey"
-            columns: ["style_id"]
-            isOneToOne: false
-            referencedRelation: "styles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "generated_images_style_id_fkey1"
-            columns: ["style_id"]
-            isOneToOne: false
-            referencedRelation: "styles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "generated_images_upload_id_fkey"
             columns: ["upload_id"]
@@ -269,39 +342,55 @@ export type Database = {
       }
       inference_jobs: {
         Row: {
+          color_id: string | null
           completed_at: string | null
           created_at: string | null
           error_message: string | null
           face_model_id: string
           id: string
+          scene_id: string | null
           status: string
           style_id: string | null
           updated_at: string | null
           user_id: string
+          wardrobe_id: string | null
         }
         Insert: {
+          color_id?: string | null
           completed_at?: string | null
           created_at?: string | null
           error_message?: string | null
           face_model_id: string
           id?: string
+          scene_id?: string | null
           status?: string
           style_id?: string | null
           updated_at?: string | null
           user_id: string
+          wardrobe_id?: string | null
         }
         Update: {
+          color_id?: string | null
           completed_at?: string | null
           created_at?: string | null
           error_message?: string | null
           face_model_id?: string
           id?: string
+          scene_id?: string | null
           status?: string
           style_id?: string | null
           updated_at?: string | null
           user_id?: string
+          wardrobe_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "inference_jobs_color_id_fkey"
+            columns: ["color_id"]
+            isOneToOne: false
+            referencedRelation: "style_colors"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "inference_jobs_face_model_id_fkey"
             columns: ["face_model_id"]
@@ -310,10 +399,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "inference_jobs_scene_id_fkey"
+            columns: ["scene_id"]
+            isOneToOne: false
+            referencedRelation: "style_scenes"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "inference_jobs_style_id_fkey"
             columns: ["style_id"]
             isOneToOne: false
             referencedRelation: "styles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inference_jobs_wardrobe_id_fkey"
+            columns: ["wardrobe_id"]
+            isOneToOne: false
+            referencedRelation: "style_wardrobes"
             referencedColumns: ["id"]
           },
         ]
@@ -419,139 +522,231 @@ export type Database = {
           },
         ]
       }
-      style_configs: {
+      style_colors: {
         Row: {
-          available_backgrounds: string[]
-          available_clothing: string[]
-          available_clothing_colors: string[]
-          available_genders: string[]
-          created_at: string | null
-          description: string | null
+          color: string
+          created_at: string
           id: string
-          name: string
-          preview_images: Json
-          tagline: string | null
+          label: string
           translations: Json
-          updated_at: string | null
+          updated_at: string
+          value: string
         }
         Insert: {
-          available_backgrounds?: string[]
-          available_clothing?: string[]
-          available_clothing_colors?: string[]
-          available_genders?: string[]
-          created_at?: string | null
-          description?: string | null
-          id: string
-          name: string
-          preview_images?: Json
-          tagline?: string | null
+          color: string
+          created_at?: string
+          id?: string
+          label: string
           translations?: Json
-          updated_at?: string | null
+          updated_at?: string
+          value: string
         }
         Update: {
-          available_backgrounds?: string[]
-          available_clothing?: string[]
-          available_clothing_colors?: string[]
-          available_genders?: string[]
-          created_at?: string | null
-          description?: string | null
+          color?: string
+          created_at?: string
           id?: string
-          name?: string
-          preview_images?: Json
-          tagline?: string | null
+          label?: string
           translations?: Json
-          updated_at?: string | null
+          updated_at?: string
+          value?: string
         }
         Relationships: []
       }
-      style_options: {
+      style_scenes: {
         Row: {
-          category: string
-          created_at: string | null
-          description: string | null
+          created_at: string
           id: string
+          image: string
           label: string
-          options: Json
           translations: Json
-          updated_at: string | null
+          updated_at: string
+          value: string
         }
         Insert: {
-          category: string
-          created_at?: string | null
-          description?: string | null
+          created_at?: string
           id?: string
+          image: string
           label: string
-          options?: Json
           translations?: Json
-          updated_at?: string | null
+          updated_at?: string
+          value: string
         }
         Update: {
-          category?: string
-          created_at?: string | null
-          description?: string | null
+          created_at?: string
           id?: string
+          image?: string
           label?: string
-          options?: Json
           translations?: Json
-          updated_at?: string | null
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
+      style_wardrobes: {
+        Row: {
+          created_at: string
+          id: string
+          image: string
+          label: string
+          translations: Json
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image: string
+          label: string
+          translations?: Json
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image?: string
+          label?: string
+          translations?: Json
+          updated_at?: string
+          value?: string
         }
         Relationships: []
       }
       styles: {
         Row: {
+          available_colors: string[]
+          available_scenes: string[]
+          available_wardrobes: string[]
+          color_id: string | null
           created_at: string | null
           id: string
           name: string
-          order_id: string | null
+          preview_images: Json
           prompt: string | null
-          settings: Json
-          status: string
+          scene_id: string | null
+          translations: Json
           updated_at: string | null
-          user_id: string | null
+          wardrobe_id: string | null
         }
         Insert: {
+          available_colors?: string[]
+          available_scenes?: string[]
+          available_wardrobes?: string[]
+          color_id?: string | null
           created_at?: string | null
           id: string
           name: string
-          order_id?: string | null
+          preview_images?: Json
           prompt?: string | null
-          settings?: Json
-          status?: string
+          scene_id?: string | null
+          translations?: Json
           updated_at?: string | null
-          user_id?: string | null
+          wardrobe_id?: string | null
         }
         Update: {
+          available_colors?: string[]
+          available_scenes?: string[]
+          available_wardrobes?: string[]
+          color_id?: string | null
           created_at?: string | null
           id?: string
           name?: string
-          order_id?: string | null
+          preview_images?: Json
           prompt?: string | null
-          settings?: Json
-          status?: string
+          scene_id?: string | null
+          translations?: Json
           updated_at?: string | null
-          user_id?: string | null
+          wardrobe_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "styles_order_id_fkey"
-            columns: ["order_id"]
+            foreignKeyName: "styles_color_id_fkey"
+            columns: ["color_id"]
             isOneToOne: false
-            referencedRelation: "orders"
+            referencedRelation: "style_colors"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "styles_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "styles_scene_id_fkey"
+            columns: ["scene_id"]
             isOneToOne: false
-            referencedRelation: "users"
+            referencedRelation: "style_scenes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "styles_wardrobe_id_fkey"
+            columns: ["wardrobe_id"]
+            isOneToOne: false
+            referencedRelation: "style_wardrobes"
             referencedColumns: ["id"]
           },
         ]
+      }
+      subscriptions: {
+        Row: {
+          concurrent_jobs: number
+          created_at: string | null
+          credits: number
+          description: string | null
+          display_name: string
+          face_model_training_included: number
+          features: Json | null
+          id: number
+          max_face_models: number
+          max_resolution: string
+          monthly_price: number
+          name: string
+          original_price: number
+          popular: boolean | null
+          translations: Json | null
+          updated_at: string | null
+          yearly_price: number
+        }
+        Insert: {
+          concurrent_jobs: number
+          created_at?: string | null
+          credits: number
+          description?: string | null
+          display_name: string
+          face_model_training_included: number
+          features?: Json | null
+          id?: number
+          max_face_models: number
+          max_resolution: string
+          monthly_price: number
+          name: string
+          original_price: number
+          popular?: boolean | null
+          translations?: Json | null
+          updated_at?: string | null
+          yearly_price: number
+        }
+        Update: {
+          concurrent_jobs?: number
+          created_at?: string | null
+          credits?: number
+          description?: string | null
+          display_name?: string
+          face_model_training_included?: number
+          features?: Json | null
+          id?: number
+          max_face_models?: number
+          max_resolution?: string
+          monthly_price?: number
+          name?: string
+          original_price?: number
+          popular?: boolean | null
+          translations?: Json | null
+          updated_at?: string | null
+          yearly_price?: number
+        }
+        Relationships: []
       }
       training_jobs: {
         Row: {
           completed_at: string | null
           created_at: string | null
+          credits_spent: number | null
           error_message: string | null
           face_model_id: string
           id: string
@@ -564,6 +759,7 @@ export type Database = {
         Insert: {
           completed_at?: string | null
           created_at?: string | null
+          credits_spent?: number | null
           error_message?: string | null
           face_model_id: string
           id?: string
@@ -576,6 +772,7 @@ export type Database = {
         Update: {
           completed_at?: string | null
           created_at?: string | null
+          credits_spent?: number | null
           error_message?: string | null
           face_model_id?: string
           id?: string
@@ -637,13 +834,13 @@ export type Database = {
         Row: {
           completed_chunks: number | null
           created_at: string
+          face_model_id: string | null
           file_name: string
           file_size: number
           file_type: string
           final_url: string | null
           id: string
           metadata: Json | null
-          order_id: string
           quality_score: number | null
           status: string
           total_chunks: number
@@ -653,13 +850,13 @@ export type Database = {
         Insert: {
           completed_chunks?: number | null
           created_at?: string
+          face_model_id?: string | null
           file_name: string
           file_size: number
           file_type: string
           final_url?: string | null
           id?: string
           metadata?: Json | null
-          order_id: string
           quality_score?: number | null
           status?: string
           total_chunks: number
@@ -669,13 +866,13 @@ export type Database = {
         Update: {
           completed_chunks?: number | null
           created_at?: string
+          face_model_id?: string | null
           file_name?: string
           file_size?: number
           file_type?: string
           final_url?: string | null
           id?: string
           metadata?: Json | null
-          order_id?: string
           quality_score?: number | null
           status?: string
           total_chunks?: number
@@ -684,10 +881,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "upload_sessions_order_id_fkey"
-            columns: ["order_id"]
+            foreignKeyName: "upload_sessions_face_model_id_fkey"
+            columns: ["face_model_id"]
             isOneToOne: false
-            referencedRelation: "orders"
+            referencedRelation: "face_models"
             referencedColumns: ["id"]
           },
         ]
@@ -703,7 +900,6 @@ export type Database = {
           source_id: string | null
           source_type: string
           transaction_type: string
-          updated_at: string | null
           user_id: string
         }
         Insert: {
@@ -716,7 +912,6 @@ export type Database = {
           source_id?: string | null
           source_type: string
           transaction_type: string
-          updated_at?: string | null
           user_id: string
         }
         Update: {
@@ -729,7 +924,6 @@ export type Database = {
           source_id?: string | null
           source_type?: string
           transaction_type?: string
-          updated_at?: string | null
           user_id?: string
         }
         Relationships: [
@@ -818,6 +1012,7 @@ export type Database = {
       }
       users: {
         Row: {
+          admin: boolean
           avatar_url: string | null
           created_at: string | null
           email: string
@@ -826,6 +1021,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          admin?: boolean
           avatar_url?: string | null
           created_at?: string | null
           email: string
@@ -834,6 +1030,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          admin?: boolean
           avatar_url?: string | null
           created_at?: string | null
           email?: string
@@ -887,7 +1084,15 @@ export type Database = {
         Args: { user_uuid: string }
         Returns: number
       }
+      expire_credit_pack_credits: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       expire_credits: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      expire_subscription_credits: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
@@ -898,6 +1103,10 @@ export type Database = {
       get_language_preference: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_user_available_credits: {
+        Args: { user_uuid: string }
+        Returns: number
       }
       get_user_credit_balance: {
         Args: { user_uuid: string }

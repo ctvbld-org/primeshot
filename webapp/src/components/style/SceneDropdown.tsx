@@ -2,73 +2,67 @@
 
 import React, { useState, useEffect, useMemo } from 'react'
 import { useStyleSelection } from '@/contexts/style-selection-context'
-import { useStyleConfigs, useOption } from '@/hooks/useConfig'
-import { useTranslatedOption } from '@/hooks/useTranslatedOption'
+import { useStyles, useScenes } from '@/hooks/useConfig'
 import { useValidStyleOptions } from '@/lib/utils/style-validation'
 import { getOptionsImage } from '@/lib/utils/get-options-image'
 import { getStoredStyleSelections, storeStyleSelections } from '@/lib/utils/style-storage'
 import { Popover, PopoverContent, PopoverTrigger } from '@primeshot/common/web/ui/popover'
+import { Icon } from '@primeshot/common/web/Icon'
 import Image from 'next/image'
-import { ChevronDown } from 'lucide-react'
 import styles from './SceneDropdown.module.css'
 
 interface SceneDropdownProps {
-  onSelect?: (backgroundId: string) => void
+  onSelect?: (sceneId: string) => void
 }
 
 export function SceneDropdown({ onSelect }: SceneDropdownProps) {
-  const [selectedBackground, setSelectedBackground] = useState<string | null>(null)
+  const [selectedScene, setSelectedScene] = useState<string | null>(null)
   const { selectedStyleId } = useStyleSelection()
   
-  const { data: styleConfigs, isLoading: isLoadingStyles } = useStyleConfigs()
-  const { data: rawBackgroundOptions, isLoading: isLoadingBackground } = useOption('background')
-  const backgroundOptions = useTranslatedOption(rawBackgroundOptions)
+  const { data: styleConfigs, isLoading: isLoadingStyles } = useStyles()
+  const { data: sceneOptions, isLoading: isLoadingScenes } = useScenes()
   const { data: validOptions } = useValidStyleOptions()
 
-  // Get available backgrounds for current style
+  // Get available scenes for current style
   const currentStyleConfig = styleConfigs?.find(style => style.id === selectedStyleId)
-  const availableBackgroundIds = currentStyleConfig?.available_backgrounds || []
+  const availableSceneIds = currentStyleConfig?.available_scenes || []
   
-  const filteredBackgroundOptions = useMemo(() => {
-    return (backgroundOptions?.options || [])
-      .filter(option => availableBackgroundIds.includes(option.id))
-      .map(option => ({
-        id: option.id,
-        label: option.label,
-        imageUrl: option.imageUrl ? getOptionsImage(option.imageUrl) : ''
+  const filteredSceneOptions = useMemo(() => {
+    return (sceneOptions || [])
+      .filter(scene => availableSceneIds.includes(scene.value))
+      .map(scene => ({
+        id: scene.value,
+        label: scene.label,
+        image: scene.image ? getOptionsImage(scene.image) : ''
       }))
-  }, [backgroundOptions?.options, availableBackgroundIds])
+  }, [sceneOptions, availableSceneIds])
 
-  // Load selection from localStorage when style changes
+  // Load selection from localStorage when style changes (no more auto-defaults)
   useEffect(() => {
-    if (!selectedStyleId || filteredBackgroundOptions.length === 0) return
+    if (!selectedStyleId || filteredSceneOptions.length === 0) return
 
     const stored = getStoredStyleSelections(selectedStyleId)
-    if (stored.background && filteredBackgroundOptions.some(opt => opt.id === stored.background)) {
-      setSelectedBackground(stored.background)
+    if (stored.scene && filteredSceneOptions.some(opt => opt.id === stored.scene)) {
+      setSelectedScene(stored.scene)
     } else {
-      // Default to first option
-      const defaultBackground = filteredBackgroundOptions[0]?.id
-      if (defaultBackground) {
-        setSelectedBackground(defaultBackground)
-        storeStyleSelections(selectedStyleId, { background: defaultBackground })
-      }
+      // No stored selection and no auto-default
+      setSelectedScene(null)
     }
-  }, [selectedStyleId, filteredBackgroundOptions])
+  }, [selectedStyleId, filteredSceneOptions])
 
-  const handleSelect = (backgroundId: string) => {
-    setSelectedBackground(backgroundId)
+  const handleSelect = (sceneId: string) => {
+    setSelectedScene(sceneId)
     
     if (selectedStyleId) {
-      storeStyleSelections(selectedStyleId, { background: backgroundId })
+      storeStyleSelections(selectedStyleId, { scene: sceneId })
     }
     
-    onSelect?.(backgroundId)
+    onSelect?.(sceneId)
   }
 
-  const selectedOption = filteredBackgroundOptions.find(opt => opt.id === selectedBackground)
+  const selectedOption = filteredSceneOptions.find(opt => opt.id === selectedScene)
 
-  if (isLoadingStyles || isLoadingBackground || !selectedOption) {
+  if (isLoadingStyles || isLoadingScenes) {
     return (
       <div className={styles.loading} />
     )
@@ -78,22 +72,39 @@ export function SceneDropdown({ onSelect }: SceneDropdownProps) {
     <Popover>
       <PopoverTrigger asChild>
         <button className={styles.trigger}>
-          {/* Thumbnail */}
-          <div className={styles.thumbnail}>
-            <Image
-              src={selectedOption.imageUrl}
-              alt={selectedOption.label}
-              width={48}
-              height={48}
-              className={styles.thumbnailImage}
-            />
-          </div>
-          
-          {/* Text */}
-          <div className={styles.textContainer}>
-            <p className={styles.primaryText}>{selectedOption.label}</p>
-            <p className={styles.secondaryText}>Scene</p>
-          </div>
+          {selectedOption ? (
+            <>
+              {/* Thumbnail */}
+              <div className={styles.thumbnail}>
+                <Image
+                  src={selectedOption.image}
+                  alt={selectedOption.label}
+                  width={48}
+                  height={48}
+                  className={styles.thumbnailImage}
+                />
+              </div>
+              
+              {/* Text */}
+              <div className={styles.textContainer}>
+                <p className={styles.primaryText}>{selectedOption.label}</p>
+                <p className={styles.secondaryText}>Scene</p>
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Empty state with icon */}
+              <div className={styles.thumbnail}>
+                <Icon variant="scene" size={48} className="text-gray-400" />
+              </div>
+              
+              {/* Text */}
+              <div className={styles.textContainer}>
+                <p className={styles.primaryText}>Select Scene</p>
+                <p className={styles.secondaryText}>Scene</p>
+              </div>
+            </>
+          )}
         </button>
       </PopoverTrigger>
       
@@ -110,16 +121,16 @@ export function SceneDropdown({ onSelect }: SceneDropdownProps) {
         
         {/* Options list */}
         <div className={styles.optionsContainer}>
-          {filteredBackgroundOptions.map((option) => (
+          {filteredSceneOptions.map((option) => (
             <button
               key={option.id}
               onClick={() => handleSelect(option.id)}
-              className={`${styles.option} ${selectedBackground === option.id ? styles.optionSelected : ''}`}
+              className={`${styles.option} ${selectedScene === option.id ? styles.optionSelected : ''}`}
             >
               {/* Thumbnail */}
               <div className={styles.thumbnail}>
                 <Image
-                  src={option.imageUrl}
+                  src={option.image}
                   alt={option.label}
                   width={48}
                   height={48}
@@ -131,7 +142,7 @@ export function SceneDropdown({ onSelect }: SceneDropdownProps) {
               <span className={styles.optionLabel}>{option.label}</span>
               
               {/* Selected indicator */}
-              {selectedBackground === option.id && (
+              {selectedScene === option.id && (
                 <div className={styles.selectedIndicator} />
               )}
             </button>
