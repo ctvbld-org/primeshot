@@ -31,13 +31,6 @@ export const AdminHeader: React.FC = () => {
           <Image src="/logo-primeshot.svg" alt="Primeshot Admin" width={32} height={32} />
         </Link>
 
-        {/* nav */}
-        <nav className="flex gap-6 text-sm font-medium">
-          <Link href="/dashboard" className="hover:text-gray-600">Dashboard</Link>
-          <Link href="/styles" className="hover:text-gray-600">Styles</Link>
-          <Link href="/subscriptions" className="hover:text-gray-600">Subscriptions</Link>
-        </nav>
-
         {/* admin badge */}
         {isAuthenticated && user?.admin && (
           <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">
@@ -47,6 +40,11 @@ export const AdminHeader: React.FC = () => {
 
         {/* spacer */}
         <div className="flex-1" />
+
+        {/* link to main app */}
+        <Link href="/app/albums" className="text-sm text-gray-600 hover:text-gray-900">
+          Go to App
+        </Link>
 
         {/* right slot */}
         {isAuthenticated ? <AccountDialog /> : <SignInModal />}

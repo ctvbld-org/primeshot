@@ -1,4 +1,5 @@
 import React from 'react';
+import '@/i18n';
 interface LanguageContextType {
     currentLanguage: string | null;
     isLoading: boolean;

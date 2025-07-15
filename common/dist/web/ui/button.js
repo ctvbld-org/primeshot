@@ -2,7 +2,7 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import styles from './button.module.css';
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 const buttonVariants = ({ variant = 'primary', size = 'md', className, loading, } = {}) => {
     return cn(styles.base, variant && styles[variant], size && styles[`size-${size}`], loading && styles.loading, className);
 };

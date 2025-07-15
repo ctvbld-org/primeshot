@@ -3,13 +3,13 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState } from 'react';
 import { useAuth } from '../hooks/AuthContext';
 import { useTranslation } from 'react-i18next';
-import styles from './signin.module.css';
+import styles from './SignInForm.module.css';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import Link from 'next/link';
 import { Icon } from './Icon';
 export function SignInForm() {
-    const { t } = useTranslation();
+    const { t } = useTranslation('auth');
     const { signIn, signInWithGoogle, signInWithLinkedIn, isLoading, error } = useAuth();
     const [email, setEmail] = useState('');
     const handleEmail = async (e) => {

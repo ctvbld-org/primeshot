@@ -1,9 +1,9 @@
 import { Inter } from 'next/font/google'
 import './globals.css'
-import { AuthProvider } from '@primeshot/common'
-import { LanguageProvider } from '@primeshot/common'
+import { AuthProvider } from '@primeshot/common/hooks/AuthContext'
+import { LanguageProvider } from '@primeshot/common/hooks/LanguageContext'
 import { QueryProvider } from '@/components/providers/query-provider'
-import { Toaster } from "@primeshot/common/web/ui/toaster"
+import { Toaster as SonnerToaster } from 'sonner'
 import { AdminHeader } from '@/components/layout/admin-header'
 import { Sidebar } from '@/components/layout/sidebar'
 
@@ -34,7 +34,7 @@ export default function RootLayout({
                   </main>
                 </div>
               </div>
-              <Toaster />
+              <SonnerToaster richColors position="top-center" />
             </QueryProvider>
           </LanguageProvider>
         </AuthProvider>
