@@ -6,6 +6,7 @@ import React from 'react';
 import { useAuth } from '../hooks/AuthContext';
 import { SignInModal } from './SignInModal';
 import { AccountDialog } from './AccountDialog';
+import styles from './Header.module.css';
 
 interface HeaderProps {
   /** Optional element rendered on the right side (e.g. login button). */
@@ -16,29 +17,32 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
   const { isAuthenticated, user } = useAuth();
 
   return (
-    <header className="w-full h-14 border-b border-gray-200 flex items-center px-4">
-      <div className="flex items-center gap-8 w-full max-w-6xl mx-auto">
-        {/* logo */}
-        <a href="/">
-          <Image src="/logo-primeshot.svg" alt="Primeshot" width={32} height={32} />
-        </a>
+    <header className={styles.header}>
+      <div className={styles.container}>
+        <div className={styles.leftSection}>
+          {/* logo */}
+          <a href="/">
+            <Image src="/logo-primeshot.svg" alt="Primeshot" width={32} height={32} />
+          </a>
+        </div>
 
-        {/* nav */}
-        <nav className="flex gap-6 text-sm font-medium">
-          <a href="/explore">Explore</a>
-          <a href="/create">Create</a>
-          <a href="/use-cases">Use Cases</a>
-          <a href="/pricing">Pricing</a>
-          {isAuthenticated && user?.admin && (
-            <a href="/admin/dashboard" className="text-purple-600 font-semibold">Admin</a>
-          )}
-        </nav>
+        <div className={styles.middleSection}>
+          {/* nav */}
+          <nav className={styles.nav}>
+            <a href="/explore" className={styles.navLink}>Explore</a>
+            <a href="/create" className={styles.navLink}>Create</a>
+            <a href="/use-cases" className={styles.navLink}>Use Cases</a>
+            <a href="/pricing" className={styles.navLink}>Pricing</a>
+            {isAuthenticated && user?.admin && (
+              <a href="/admin/dashboard" className={styles.adminNavLink}>Admin</a>
+            )}
+          </nav>
+        </div>
 
-        {/* spacer */}
-        <div className="flex-1" />
-
-        {/* right slot */}
-        {rightSlot ?? (isAuthenticated ? <AccountDialog /> : <SignInModal />)}
+        <div className={styles.rightSection}>
+          {/* right slot */}
+          {rightSlot ?? (isAuthenticated ? <AccountDialog /> : <SignInModal />)}
+        </div>
       </div>
     </header>
   );

@@ -1,21 +1,80 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
-import { v4 as uuidv4 } from 'uuid'
-
-// Client-side upload will use API route
-const s3Client = null as any // We'll use the API route for uploads
-
 export async function uploadImageToS3(
   file: File,
-  uploadPath: string,
+  styleName: string,
+  existingImages: string[],
+  onProgress?: (progress: number) => void,
+  uploadPath?: string
+): Promise<string> {
+  try {
+    // Convert image to WebP
+    const webpBlob = await convertToWebP(file)
+
+    // Generate filename: [style-name-in-kebab-case]-[n].webp
+    const baseName = styleName.trim().toLowerCase().replace(/\s+/g, '-')
+    // Find the next available number
+    let maxNum = 0
+    existingImages.forEach(img => {
+      const match = img.match(new RegExp(`^${baseName}-(\\d+)\\.webp$`))
+      if (match) {
+        const num = parseInt(match[1], 10)
+        if (num > maxNum) maxNum = num
+      }
+    })
+    const nextNum = maxNum + 1
+    const fileName = `${baseName}-${nextNum}.webp`
+    const finalUploadPath = uploadPath || 'app-images/placeholders/styles'
+
+    // Create FormData
+    const formData = new FormData()
+    formData.append('file', webpBlob, fileName)
+    formData.append('uploadPath', finalUploadPath)
+
+    // Upload via API route
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    })
+
+    if (!response.ok) {
+      throw new Error('Upload failed')
+    }
+
+    // Only return the filename for DB storage
+    return fileName
+  } catch (error) {
+    console.error('Upload error:', error)
+    throw new Error('Failed to upload image')
+  }
+}
+
+export async function uploadOptionImageToS3(
+  file: File,
+  optionName: string,
+  existingImages: string[],
   onProgress?: (progress: number) => void
 ): Promise<string> {
   try {
     // Convert image to WebP
     const webpBlob = await convertToWebP(file)
-    
+
+    // Generate filename: [option-name-in-kebab-case]-[n].webp
+    const baseName = optionName.trim().toLowerCase().replace(/\s+/g, '-')
+    // Find the next available number
+    let maxNum = 0
+    existingImages.forEach(img => {
+      const match = img.match(new RegExp(`^${baseName}-(\\d+)\\.webp$`))
+      if (match) {
+        const num = parseInt(match[1], 10)
+        if (num > maxNum) maxNum = num
+      }
+    })
+    const nextNum = maxNum + 1
+    const fileName = `${baseName}-${nextNum}.webp`
+    const uploadPath = 'app-images/placeholders/options'
+
     // Create FormData
     const formData = new FormData()
-    formData.append('file', webpBlob, 'image.webp')
+    formData.append('file', webpBlob, fileName)
     formData.append('uploadPath', uploadPath)
 
     // Upload via API route
@@ -28,9 +87,8 @@ export async function uploadImageToS3(
       throw new Error('Upload failed')
     }
 
-    const { url } = await response.json()
-    
-    return url
+    // Only return the filename for DB storage
+    return fileName
   } catch (error) {
     console.error('Upload error:', error)
     throw new Error('Failed to upload image')
@@ -94,25 +152,4 @@ async function convertToWebP(file: File): Promise<Blob> {
     reader.onerror = () => reject(new Error('Failed to read file'))
     reader.readAsDataURL(file)
   })
-}
-
-// For server-side upload (API route)
-export async function uploadImageFromServer(
-  buffer: Buffer,
-  uploadPath: string,
-  contentType: string
-): Promise<string> {
-  const fileName = `${uuidv4()}.webp`
-  const key = `${uploadPath}/${fileName}`
-
-  const command = new PutObjectCommand({
-    Bucket: process.env.AWS_S3_BUCKET!,
-    Key: key,
-    Body: buffer,
-    ContentType: 'image/webp',
-  })
-
-  await s3Client.send(command)
-
-  return `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${key}`
 }

@@ -20,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${carb.variable} ${inter.className}`}>
+      <body className={`${carb.variable} ${inter.className} dark`}>
         <AuthProvider>
           <LanguageProvider>
             <QueryProvider>

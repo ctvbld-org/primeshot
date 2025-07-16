@@ -1,11 +1,17 @@
 import { Inter } from 'next/font/google'
+import { carb } from '@/fonts'
 import './globals.css'
-import { AuthProvider } from '@primeshot/common/hooks/AuthContext'
-import { LanguageProvider } from '@primeshot/common/hooks/LanguageContext'
+
 import { QueryProvider } from '@/components/providers/query-provider'
-import { Toaster as SonnerToaster } from 'sonner'
-import { AdminHeader } from '@/components/layout/admin-header'
-import { Sidebar } from '@/components/layout/sidebar'
+import { Toaster } from "@primeshot/common/web/ui/toaster"
+import { BannerProvider } from "@primeshot/common/web/ui/use-banner"
+import { Header } from '@primeshot/common'
+import { AuthProvider } from '@primeshot/common'
+import { LanguageProvider } from '@primeshot/common'
+import { Nav } from '@/components/layout/nav'
+import { ProductionWarningBanner } from '@/components/layout/ProductionWarningBanner'
+import { RealtimeAnalyticsProvider } from '@/contexts/RealtimeAnalyticsContext'
+import { SyncButton } from '@/components/sync/sync-button'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -21,20 +27,25 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={`${carb.variable} ${inter.className} dark`}>
         <AuthProvider>
           <LanguageProvider>
             <QueryProvider>
-              <div className="min-h-screen bg-gray-50">
-                <AdminHeader />
-                <div className="flex h-[calc(100vh-3.5rem)]">
-                  <Sidebar />
-                  <main className="flex-1 overflow-y-auto p-6">
-                    {children}
+              <RealtimeAnalyticsProvider>
+                <BannerProvider>
+                  <ProductionWarningBanner />
+                  <Header />
+                  <main className="flex flex-col min-h-screen w-full mx-auto space-y-6" style={{ paddingTop: 'calc(56px + var(--admin-banner-height, 0px))' }}>
+                    <Nav />
+                    <div className="flex-1 overflow-y-auto p-6">
+                      {children}
+                    </div>
                   </main>
-                </div>
-              </div>
-              <SonnerToaster richColors position="top-center" />
+
+                  <Toaster />
+                  <SyncButton />
+                </BannerProvider>
+              </RealtimeAnalyticsProvider>
             </QueryProvider>
           </LanguageProvider>
         </AuthProvider>

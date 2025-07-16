@@ -45,14 +45,17 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 function DialogContent({
   className,
   children,
+  fullscreen = false,
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Content>) {
+}: React.ComponentProps<typeof DialogPrimitive.Content> & {
+  fullscreen?: boolean
+}) {
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay />
       <DialogPrimitive.Content
         data-slot="dialog-content"
-        className={`${styles.dialog} ${className || ''}`}
+        className={`${styles.dialog} ${fullscreen ? styles.fullscreen : ''} ${className || ''}`}
         {...props}
       >
         <div className={styles.content}>

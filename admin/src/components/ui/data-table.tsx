@@ -23,10 +23,11 @@ import {
 } from '@primeshot/common/web/ui/table'
 import { Button } from '@primeshot/common/web/ui/button'
 import { Input } from '@primeshot/common/web/ui/input'
-import { DataTablePagination } from './data-table-pagination'
+
 import { Plus, Search } from 'lucide-react'
 
 interface DataTableProps<TData, TValue> {
+  title?: string
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   searchKey?: string
@@ -36,6 +37,7 @@ interface DataTableProps<TData, TValue> {
 }
 
 export function DataTable<TData, TValue>({
+  title,
   columns,
   data,
   searchKey,
@@ -54,7 +56,6 @@ export function DataTable<TData, TValue>({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -70,17 +71,20 @@ export function DataTable<TData, TValue>({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
+        {title && (
+          <h2 className="text-lg font-semibold">{title}</h2>
+        )}
         {searchKey && (
           <div className="relative max-w-sm">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder={searchPlaceholder}
-              value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ''}
-              onChange={(event) =>
-                table.getColumn(searchKey)?.setFilterValue(event.target.value)
-              }
-              className="pl-8"
-            />
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder={searchPlaceholder}
+                value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ''}
+                onChange={(event) =>
+                  table.getColumn(searchKey)?.setFilterValue(event.target.value)
+                }
+                className="pl-8"
+              />
           </div>
         )}
         {onAdd && (
@@ -140,7 +144,6 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
     </div>
   )
 }

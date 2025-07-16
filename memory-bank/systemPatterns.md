@@ -864,6 +864,50 @@ Detected changes in:
 - webapp/src/lib/utils/get-styles-images.ts
 - webapp/src/lib/utils/style-storage.ts
 - webapp/src/lib/utils/style-validation.ts
+
+
+**Auto-update 2025-07-15**:
+Detected changes in:
+- admin/src/app/api/translate/route.ts
+- admin/src/app/api/upload/route.ts
+- admin/src/app/dashboard/page.tsx
+- admin/src/app/globals.css
+- admin/src/app/layout.tsx
+- admin/src/app/page.tsx
+- admin/src/app/styles/page.tsx
+- admin/src/app/subscriptions/page.tsx
+- admin/src/components/dashboard/subscription-analytics.tsx
+- admin/src/components/dashboard/top-users-leaderboard.tsx
+- admin/src/components/dashboard/usage-analytics.tsx
+- admin/src/components/dashboard/user-analytics.tsx
+- admin/src/components/dashboard/waitlist-widget.tsx
+- admin/src/components/layout/admin-header.tsx
+- admin/src/components/layout/sidebar.tsx
+- admin/src/components/providers/query-provider.tsx
+- admin/src/components/styles/color-form-dialog.tsx
+- admin/src/components/styles/colors-table.tsx
+- admin/src/components/styles/scene-form-dialog.tsx
+- admin/src/components/styles/scenes-table.tsx
+- admin/src/components/styles/style-form-dialog.tsx
+- admin/src/components/styles/styles-table.tsx
+- admin/src/components/styles/wardrobe-form-dialog.tsx
+- admin/src/components/styles/wardrobes-table.tsx
+- admin/src/components/subscriptions/credit-cost-form-dialog.tsx
+- admin/src/components/subscriptions/credit-costs-table.tsx
+- admin/src/components/subscriptions/credit-pack-form-dialog.tsx
+- admin/src/components/subscriptions/credit-packs-table.tsx
+- admin/src/components/subscriptions/subscription-form-dialog.tsx
+- admin/src/components/subscriptions/subscriptions-table.tsx
+- admin/src/components/ui/data-table-pagination.tsx
+- admin/src/components/ui/data-table.tsx
+- admin/src/components/ui/image-upload.tsx
+- admin/src/components/ui/multi-select.tsx
+- admin/src/components/ui/translation-dialog.tsx
+- admin/src/lib/supabase/client.ts
+- admin/src/lib/supabase/server.ts
+- admin/src/lib/upload.ts
+- webapp/src/components/style/WardrobeDropdown.tsx
+- webapp/src/lib/utils/get-styles-images.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

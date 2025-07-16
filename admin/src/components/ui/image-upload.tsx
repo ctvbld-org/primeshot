@@ -7,21 +7,25 @@ import { Button } from '@primeshot/common/web/ui/button'
 import { Progress } from '@primeshot/common/web/ui/progress'
 import { toast } from 'sonner'
 import { uploadImageToS3 } from '@/lib/upload'
+import getStyleImages from '@/lib/get-styles-images'
+import getOptionsImage from '@/lib/get-options-image'
 
 interface ImageUploadProps {
   value: string[]
   onChange: (value: string[]) => void
-  uploadPath: string
+  styleName: string
   maxFiles?: number
   maxSizeMB?: number
+  uploadPath?: string // <-- Add this
 }
 
 export function ImageUpload({
   value,
   onChange,
-  uploadPath,
+  styleName,
   maxFiles = 1,
   maxSizeMB = 10,
+  uploadPath = 'app-images/placeholders/styles', // <-- Default to styles
 }: ImageUploadProps) {
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({})
   const [isUploading, setIsUploading] = useState(false)
@@ -34,7 +38,7 @@ export function ImageUpload({
       }
 
       setIsUploading(true)
-      const newUrls: string[] = []
+      const newFilenames: string[] = []
 
       try {
         for (const file of acceptedFiles) {
@@ -43,23 +47,25 @@ export function ImageUpload({
             continue
           }
 
-          // Upload and convert to WebP
-          const url = await uploadImageToS3(
+          // Upload and convert to WebP, get filename only
+          const filename = await uploadImageToS3(
             file,
-            uploadPath,
+            styleName,
+            value,
             (progress) => {
               setUploadProgress((prev) => ({
                 ...prev,
                 [file.name]: progress,
               }))
-            }
+            },
+            uploadPath // <-- Pass here
           )
 
-          newUrls.push(url)
+          newFilenames.push(filename)
         }
 
-        onChange([...value, ...newUrls])
-        toast.success(`Uploaded ${newUrls.length} image(s) successfully`)
+        onChange([...value, ...newFilenames])
+        toast.success(`Uploaded ${newFilenames.length} image(s) successfully`)
       } catch (error) {
         console.error('Upload error:', error)
         toast.error('Failed to upload images')
@@ -68,7 +74,7 @@ export function ImageUpload({
         setUploadProgress({})
       }
     },
-    [value, onChange, uploadPath, maxFiles, maxSizeMB]
+    [value, onChange, styleName, maxFiles, maxSizeMB, uploadPath]
   )
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -126,24 +132,30 @@ export function ImageUpload({
       {/* Preview Images */}
       {value.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {value.map((url, index) => (
-            <div key={index} className="relative group">
-              <img
-                src={url}
-                alt={`Upload ${index + 1}`}
-                className="w-full h-24 object-cover rounded-lg"
-              />
-              <Button
-                type="button"
-                variant="destructive"
-                size="icon"
-                className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={() => removeImage(index)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
+          {value.map((url, index) => {
+            // Use appropriate image utility based on upload path
+            const imgUrl = uploadPath?.includes('options') 
+              ? getOptionsImage(url)
+              : getStyleImages([url])[0];
+            return (
+              <div key={index} className="relative group">
+                <img
+                  src={imgUrl}
+                  alt={`Upload ${index + 1}`}
+                  className="w-full h-24 object-cover rounded-lg"
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => removeImage(index)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )
+          })}
         </div>
       )}
 

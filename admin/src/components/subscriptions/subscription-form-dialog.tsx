@@ -1,18 +1,19 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
+import { shouldTranslateRow, translateRow, getTranslatableColumns } from '@/lib/translation'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@primeshot/common/web/ui/dialog'
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@primeshot/common/web/ui/sheet'
 import {
   Form,
   FormControl,
@@ -22,32 +23,47 @@ import {
   FormLabel,
   FormMessage,
 } from '@primeshot/common/web/ui/form'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@primeshot/common/web/ui/alert-dialog'
 import { Input } from '@primeshot/common/web/ui/input'
 import { Textarea } from '@primeshot/common/web/ui/textarea'
 import { Button } from '@primeshot/common/web/ui/button'
-import { Checkbox } from '@primeshot/common/web/ui/checkbox'
-import { toast } from 'sonner'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@primeshot/common/web/ui/select'
+import { useToast } from '@primeshot/common/web/ui/use-toast'
 import type { Database } from '@/types/supabase'
 
 type Subscription = Database['public']['Tables']['subscriptions']['Row']
 
-const formSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  display_name: z.string().min(1, 'Display name is required'),
-  description: z.string().optional(),
-  monthly_price: z.number().min(0, 'Monthly price must be positive'),
-  yearly_price: z.number().min(0, 'Yearly price must be positive'),
-  original_price: z.number().min(0, 'Original price must be positive'),
-  credits: z.number().min(0, 'Credits must be positive'),
-  face_model_training_included: z.number().min(0, 'Must be 0 or positive'),
-  max_face_models: z.number().min(1, 'Must be at least 1'),
-  max_resolution: z.string().min(1, 'Max resolution is required'),
-  stripe_product_id_monthly: z.string().optional(),
-  stripe_product_id_yearly: z.string().optional(),
-  popular: z.boolean(),
-})
-
-type FormData = z.infer<typeof formSchema>
+interface FormData {
+  name: string
+  display_name: string
+  description?: string
+  monthly_price: number
+  yearly_price: number
+  original_price: number
+  credits: number
+  face_model_training_included: number
+  max_face_models: number
+  max_resolution: string
+  concurrent_jobs: number
+  popular: boolean
+  features?: Record<string, any>
+  translations?: Record<string, any>
+}
 
 interface SubscriptionFormDialogProps {
   subscription: Subscription | null
@@ -64,9 +80,12 @@ export function SubscriptionFormDialog({
 }: SubscriptionFormDialogProps) {
   const queryClient = useQueryClient()
   const supabase = createClient()
+  const { toast } = useToast()
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const originalValuesRef = useRef<FormData | null>(null)
 
   const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
       display_name: '',
@@ -76,200 +95,329 @@ export function SubscriptionFormDialog({
       original_price: 0,
       credits: 0,
       face_model_training_included: 0,
-      max_face_models: 1,
-      max_resolution: '1024x1024',
-      stripe_product_id_monthly: '',
-      stripe_product_id_yearly: '',
+      max_face_models: 0,
+      max_resolution: '1K',
+      concurrent_jobs: 1,
       popular: false,
+      features: {},
+      translations: {},
     },
   })
 
+  // Function to check if form has changes
+  const hasChanges = () => {
+    if (!originalValuesRef.current) return false
+    
+    const currentValues = form.getValues()
+    const originalValues = originalValuesRef.current
+    
+    return (
+      currentValues.name !== originalValues.name ||
+      currentValues.display_name !== originalValues.display_name ||
+      currentValues.description !== originalValues.description ||
+      currentValues.monthly_price !== originalValues.monthly_price ||
+      currentValues.yearly_price !== originalValues.yearly_price ||
+      currentValues.original_price !== originalValues.original_price ||
+      currentValues.credits !== originalValues.credits ||
+      currentValues.face_model_training_included !== originalValues.face_model_training_included ||
+      currentValues.max_face_models !== originalValues.max_face_models ||
+      currentValues.max_resolution !== originalValues.max_resolution ||
+      currentValues.concurrent_jobs !== originalValues.concurrent_jobs ||
+      currentValues.popular !== originalValues.popular ||
+      JSON.stringify(currentValues.features) !== JSON.stringify(originalValues.features)
+    )
+  }
+
+  // Function to reset form to original values
+  const resetToOriginal = () => {
+    if (originalValuesRef.current) {
+      form.reset(originalValuesRef.current)
+    }
+  }
+
+  // Handle close with confirmation
+  const handleClose = () => {
+    if (hasChanges()) {
+      setShowConfirmDialog(true)
+    } else {
+      onOpenChange(false)
+    }
+  }
+
+  // Handle discard changes
+  const handleDiscard = () => {
+    resetToOriginal()
+    setShowConfirmDialog(false)
+    onOpenChange(false)
+  }
+
   // Reset form when subscription changes
   useEffect(() => {
-    if (subscription) {
-      form.reset({
-        name: subscription.name,
-        display_name: subscription.display_name,
-        description: subscription.description || '',
-        monthly_price: subscription.monthly_price,
-        yearly_price: subscription.yearly_price,
-        original_price: subscription.original_price,
-        credits: subscription.credits,
-        face_model_training_included: subscription.face_model_training_included,
-        max_face_models: subscription.max_face_models,
-        max_resolution: subscription.max_resolution,
-        stripe_product_id_monthly: subscription.stripe_product_id_monthly || '',
-        stripe_product_id_yearly: subscription.stripe_product_id_yearly || '',
-        popular: subscription.popular,
-      })
-    } else {
-      form.reset()
+    const newValues: FormData = subscription ? {
+      name: subscription.name,
+      display_name: subscription.display_name,
+      description: subscription.description || '',
+      monthly_price: subscription.monthly_price,
+      yearly_price: subscription.yearly_price,
+      original_price: subscription.original_price,
+      credits: subscription.credits,
+      face_model_training_included: subscription.face_model_training_included,
+      max_face_models: subscription.max_face_models,
+      max_resolution: subscription.max_resolution,
+      concurrent_jobs: subscription.concurrent_jobs,
+      popular: subscription.popular || false,
+      features: (subscription.features as Record<string, any>) || {},
+      translations: (subscription.translations as Record<string, any>) || {},
+    } : {
+      name: '',
+      display_name: '',
+      description: '',
+      monthly_price: 0,
+      yearly_price: 0,
+      original_price: 0,
+      credits: 0,
+      face_model_training_included: 0,
+      max_face_models: 0,
+      max_resolution: '1K',
+      concurrent_jobs: 1,
+      popular: false,
+      features: {},
+      translations: {},
     }
-  }, [subscription, form])
+    
+    form.reset(newValues)
+    originalValuesRef.current = newValues
+  }, [subscription, form, open])
+
+  // Reset confirmation dialog when sheet closes
+  useEffect(() => {
+    if (!open) {
+      setShowConfirmDialog(false)
+    }
+  }, [open])
 
   const mutation = useMutation({
-    mutationFn: async (data: FormData) => {
-      // Prepare data for database
-      const dbData = {
-        ...data,
-        stripe_product_id_monthly: data.stripe_product_id_monthly || null,
-        stripe_product_id_yearly: data.stripe_product_id_yearly || null,
+    mutationFn: async (data: FormData & { translations?: any }) => {
+      // Basic validation
+      if (!data.name || !data.display_name) {
+        throw new Error('Name and display name are required')
+      }
+      if (data.monthly_price < 0 || data.yearly_price < 0 || data.original_price < 0) {
+        throw new Error('Prices must be positive')
+      }
+      if (data.credits < 0 || data.concurrent_jobs < 1) {
+        throw new Error('Invalid credit or job configuration')
       }
 
       if (subscription) {
         // Update
-        const { error } = await supabase
-          .from('subscriptions')
-          .update(dbData)
-          .eq('id', subscription.id)
-        if (error) throw error
+        const response = await fetch(`/api/subscriptions/${subscription.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        })
+        
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.error || 'Failed to update subscription')
+        }
       } else {
         // Create
-        const { error } = await supabase
-          .from('subscriptions')
-          .insert([dbData])
-        if (error) throw error
+        const response = await fetch('/api/subscriptions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        })
+        
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.error || 'Failed to create subscription')
+        }
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] })
-      toast.success(subscription ? 'Subscription updated successfully' : 'Subscription created successfully')
+      toast({
+        title: "Success",
+        description: subscription ? 'Subscription updated successfully' : 'Subscription created successfully'
+      })
+      // Reset original values to current values to prevent confirmation dialog
+      originalValuesRef.current = form.getValues()
       onSuccess()
+      onOpenChange(false)
     },
     onError: (error) => {
-      toast.error('Failed to save subscription: ' + error.message)
+      toast({
+        title: "Error",
+        description: 'Failed to save subscription: ' + error.message,
+        variant: "destructive"
+      })
     },
   })
 
-  const onSubmit = (data: FormData) => {
-    mutation.mutate(data)
+  const onSubmit = async (data: FormData) => {
+    setIsLoading(true)
+    try {
+      const columns = getTranslatableColumns('subscriptions')
+      const needsTranslation = shouldTranslateRow(originalValuesRef.current ?? undefined, data, columns)
+      let translations = (subscription?.translations as Record<string, any>) || {}
+      if (needsTranslation) {
+        try {
+          translations = await translateRow('subscriptions', data)
+        } catch (err: any) {
+          toast({
+            title: "Translation failed",
+            description: err.message,
+            variant: "destructive"
+          })
+          setIsLoading(false)
+          return
+        }
+      }
+      mutation.mutate({ ...data, translations })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{subscription ? 'Edit Subscription' : 'Create Subscription'}</DialogTitle>
-          <DialogDescription>
-            {subscription ? 'Update the subscription tier' : 'Add a new subscription tier'}
-          </DialogDescription>
-        </DialogHeader>
+    <Sheet open={open} onOpenChange={handleClose}>
+      <SheetContent side="right" className="w-[500px] sm:max-w-[500px] !max-w-[500px] overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle>{subscription ? 'Edit Subscription' : 'Create Subscription'}</SheetTitle>
+          <SheetDescription>
+            {subscription ? 'Update the subscription plan configuration' : 'Add a new subscription plan'}
+          </SheetDescription>
+        </SheetHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
+        <div className="mt-6">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Internal Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="e.g., tier_1" />
+                      </FormControl>
+                      <FormDescription>
+                        Used internally for identification
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="display_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Display Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="e.g., Tier 1" />
+                      </FormControl>
+                      <FormDescription>
+                        Display name shown to users
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               <FormField
                 control={form.control}
-                name="name"
+                name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Internal Name</FormLabel>
+                    <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="e.g., tier_1" />
-                    </FormControl>
-                    <FormDescription>
-                      Used internally for identification
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="display_name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Display Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="e.g., Basic Plan" />
-                    </FormControl>
-                    <FormDescription>
-                      Shown to users
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} placeholder="Plan description" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="monthly_price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Monthly Price ($)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                      />
+                      <Textarea {...field} placeholder="Description of this subscription plan" rows={3} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="yearly_price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Yearly Price ($)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Monthly rate when paid yearly
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-3 gap-4 items-start">
+                <FormField
+                  control={form.control}
+                  name="monthly_price"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Monthly Price ($)</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          placeholder="e.g., 9.00"
+                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="original_price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Original Price ($)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      For showing discounts
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                <FormField
+                  control={form.control}
+                  name="yearly_price"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Yearly Price ($)</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          placeholder="e.g., 6.75"
+                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Monthly rate when paid yearly
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="original_price"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Original Price ($)</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          placeholder="e.g., 12.00"
+                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        For showing discounts
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               <FormField
                 control={form.control}
                 name="credits"
@@ -278,15 +426,88 @@ export function SubscriptionFormDialog({
                     <FormLabel>Monthly Credits</FormLabel>
                     <FormControl>
                       <Input
-                        type="number"
                         {...field}
-                        onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                        type="number"
+                        min="0"
+                        placeholder="e.g., 40"
+                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+              
+              <FormField
+                  control={form.control}
+                  name="concurrent_jobs"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Concurrent Jobs</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="number"
+                          min="1"
+                          placeholder="e.g., 1"
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Max concurrent generation jobs
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+              <div className="grid grid-cols-2 gap-4 items-start">
+                <FormField
+                  control={form.control}
+                  name="face_model_training_included"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Included FaceModel Training</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="number"
+                          min="0"
+                          placeholder="e.g., 1"
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Free face model trainings per month
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="max_face_models"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Max FaceModels</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="number"
+                          min="0"
+                          placeholder="e.g., 1"
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Maximum face models allowed
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <FormField
                 control={form.control}
@@ -295,122 +516,84 @@ export function SubscriptionFormDialog({
                   <FormItem>
                     <FormLabel>Max Resolution</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="e.g., 4096x4096" />
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select resolution" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1K">1K</SelectItem>
+                          <SelectItem value="2K">2K</SelectItem>
+                          <SelectItem value="4K">4K</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </FormControl>
+                    <FormDescription>
+                      Maximum image resolution allowed
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="face_model_training_included"
+                name="popular"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Included Face Models</FormLabel>
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">Mark as Popular</FormLabel>
+                      <FormDescription>
+                        Highlight this plan on the pricing page
+                      </FormDescription>
+                    </div>
                     <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                      <input
+                        type="checkbox"
+                        checked={field.value}
+                        onChange={field.onChange}
+                        className="h-4 w-4"
                       />
                     </FormControl>
-                    <FormDescription>
-                      Number of free LoRA trainings
-                    </FormDescription>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="max_face_models"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Max Face Models</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Total allowed LoRAs
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+              <div className="flex justify-end gap-2 pt-6">
+                <Button variant="outline" onClick={handleClose} type="button">
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={isLoading || mutation.isPending}
+                  className="w-full"
+                >
+                  {isLoading || mutation.isPending ? 'Saving...' : (subscription ? 'Update Subscription' : 'Create Subscription')}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </div>
+      </SheetContent>
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="stripe_product_id_monthly"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Stripe Monthly Product ID</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="price_..." />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="stripe_product_id_yearly"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Stripe Yearly Product ID</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="price_..." />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="popular"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>
-                      Mark as Popular
-                    </FormLabel>
-                    <FormDescription>
-                      Highlight this plan on the pricing page
-                    </FormDescription>
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? 'Saving...' : 'Save'}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+      {/* Confirmation Dialog */}
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to close?</AlertDialogTitle>
+            <AlertDialogDescription>
+              All changes made will be lost. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowConfirmDialog(false)}>
+              Continue editing
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleDiscard} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Discard
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </Sheet>
   )
 }

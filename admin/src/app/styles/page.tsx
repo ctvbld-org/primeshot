@@ -3,6 +3,7 @@ import { StylesTable } from '@/components/styles/styles-table'
 import { WardrobesTable } from '@/components/styles/wardrobes-table'
 import { ScenesTable } from '@/components/styles/scenes-table'
 import { ColorsTable } from '@/components/styles/colors-table'
+import styles from './tabs.module.css'
 
 export default function StylesPage() {
   return (
@@ -15,11 +16,11 @@ export default function StylesPage() {
       </div>
 
       <Tabs defaultValue="styles" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="styles">Styles</TabsTrigger>
-          <TabsTrigger value="wardrobes">Wardrobes</TabsTrigger>
-          <TabsTrigger value="scenes">Scenes</TabsTrigger>
-          <TabsTrigger value="colors">Colors</TabsTrigger>
+        <TabsList className={styles.tabsList}>
+          <TabsTrigger value="styles" className={styles.tabsTrigger}>Styles</TabsTrigger>
+          <TabsTrigger value="wardrobes" className={styles.tabsTrigger}>Wardrobes</TabsTrigger>
+          <TabsTrigger value="scenes" className={styles.tabsTrigger}>Scenes</TabsTrigger>
+          <TabsTrigger value="colors" className={styles.tabsTrigger}>Colors</TabsTrigger>
         </TabsList>
 
         <TabsContent value="styles" className="space-y-4">

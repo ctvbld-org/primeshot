@@ -15,7 +15,7 @@ import {
   useFormStatus,
 } from "react-dom"
 
-import { cn } from "@/lib/utils"
+import { cn } from "../../lib/utils"
 import { Label } from "@primeshot/common/web/ui/label"
 
 const Form = FormProvider
@@ -131,7 +131,7 @@ function FormDescription({ className, ...props }: React.ComponentProps<"p">) {
     <p
       data-slot="form-description"
       id={formDescriptionId}
-      className={cn("text-muted-foreground text-sm", className)}
+      className={cn("text-muted-foreground text-xs", className)}
       {...props}
     />
   )

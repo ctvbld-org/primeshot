@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
-import { v4 as uuidv4 } from 'uuid'
 
 // Initialize S3 client with server-side credentials
 const s3Client = new S3Client({
@@ -28,8 +27,8 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    // Generate unique filename
-    const fileName = `${uuidv4()}.webp`
+    // Use the filename provided by the frontend
+    const fileName = file.name
     const key = `${uploadPath}/${fileName}`
 
     // Upload to S3
@@ -42,9 +41,8 @@ export async function POST(request: NextRequest) {
 
     await s3Client.send(command)
 
-    // Return the S3 URL
+    // Return the S3 URL (optional, but not used for DB storage)
     const url = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${key}`
-    
     return NextResponse.json({ url })
   } catch (error) {
     console.error('S3 upload error:', error)

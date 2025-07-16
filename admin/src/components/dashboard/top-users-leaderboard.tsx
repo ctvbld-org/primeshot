@@ -1,11 +1,13 @@
 'use client'
 
+import { useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@primeshot/common/web/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '@primeshot/common/web/ui/avatar'
+import { Avatar } from '@primeshot/common/web/ui/avatar'
 import { Badge } from '@primeshot/common/web/ui/badge'
 import { createClient } from '@/lib/supabase/client'
-import { Trophy, Medal, Award } from 'lucide-react'
+import { Trophy, Medal, Award, Wifi, WifiOff } from 'lucide-react'
+import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription'
 
 interface TopUser {
   id: string
@@ -82,22 +84,70 @@ function getPlanBadgeVariant(plan: string | null): "default" | "secondary" | "ou
 }
 
 export function TopUsersLeaderboard() {
-  const { data: users, isLoading } = useQuery({
+  const { data: users, isLoading, refetch } = useQuery({
     queryKey: ['top-users'],
     queryFn: fetchTopUsers,
-    refetchInterval: 60000, // Refresh every minute
+    refetchInterval: 60000, // Refresh every minute as fallback
   })
 
+  // Handle realtime updates for user-related tables
+  const handleRealtimeUpdate = useCallback((table: string, eventType: string, record: any) => {
+    console.log(`Top users data may have changed due to ${eventType} on ${table}:`, record);
+    
+    // Refetch top users data when user/job-affecting changes occur
+    if (['users', 'inference_jobs', 'training_jobs', 'user_subscriptions'].includes(table)) {
+      refetch();
+    }
+  }, [refetch]);
+
+  // Subscribe to realtime updates
+  const { isConnected, connectionError } = useRealtimeSubscription({
+    tables: ['users', 'inference_jobs', 'training_jobs', 'user_subscriptions'],
+    onDataChange: handleRealtimeUpdate,
+    enabled: true
+  });
+
   if (isLoading || !users) {
-    return null
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base font-medium">Top Users</CardTitle>
+          <CardDescription className="text-xs mt-1 text-[#666666]">
+            Most active users by image generations
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="animate-pulse space-y-4">
+            <div className="h-16 bg-muted rounded" />
+            <div className="h-16 bg-muted rounded" />
+            <div className="h-16 bg-muted rounded" />
+          </div>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Top Users</CardTitle>
-        <CardDescription>
-          Most active users by image generations
+        <div className="flex items-center gap-2">
+          <CardTitle className="text-base font-medium">Top Users</CardTitle>
+          {isConnected ? (
+            <div title="Live updates enabled">
+              <Wifi className="h-4 w-4 text-green-500" />
+            </div>
+          ) : connectionError ? (
+            <div title={`Connection error: ${connectionError}`}>
+              <WifiOff className="h-4 w-4 text-red-500" />
+            </div>
+          ) : (
+            <div title="Connecting to live updates...">
+              <WifiOff className="h-4 w-4 text-gray-400" />
+            </div>
+          )}
+        </div>
+        <CardDescription className="text-xs mt-1 text-[#666666]">
+          Most active users by image generations {isConnected && '• Live updates'}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -116,10 +166,15 @@ export function TopUsersLeaderboard() {
                   <div className="w-8 flex justify-center">
                     {getPositionIcon(position)}
                   </div>
-                  <Avatar>
-                    <AvatarImage src={user.avatar_url || undefined} />
-                    <AvatarFallback>{initials}</AvatarFallback>
-                  </Avatar>
+                  <Avatar
+                    src={user.avatar_url}
+                    fallback={
+                      <span className="text-sm font-medium">
+                        {initials}
+                      </span>
+                    }
+                    className="h-10 w-10"
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">
                       {user.full_name || user.email}

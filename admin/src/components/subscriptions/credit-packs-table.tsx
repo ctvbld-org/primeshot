@@ -7,16 +7,16 @@ import { CreditPackFormDialog } from './credit-pack-form-dialog'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@primeshot/common/web/ui/button'
 import { Badge } from '@primeshot/common/web/ui/badge'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@primeshot/common/web/ui/dropdown-menu'
 import { MoreHorizontal, Pencil, Trash, Languages } from 'lucide-react'
 import { toast } from 'sonner'
 import { TranslationDialog } from '@/components/ui/translation-dialog'
 import type { Database } from '@/types/supabase'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@primeshot/common/web/ui/tooltip'
 
 type CreditPack = Database['public']['Tables']['credit_packs']['Row']
 
@@ -31,25 +31,25 @@ export function CreditPacksTable() {
   const { data: creditPacks = [], isLoading } = useQuery({
     queryKey: ['credit-packs'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('credit_packs')
-        .select('*')
-        .order('credits')
-      
-      if (error) throw error
-      return data
+      const response = await fetch('/api/credit-packs')
+      if (!response.ok) {
+        throw new Error('Failed to fetch credit packs')
+      }
+      return response.json()
     },
   })
 
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      const { error } = await supabase
-        .from('credit_packs')
-        .delete()
-        .eq('id', id)
+      const response = await fetch(`/api/credit-packs/${id}`, {
+        method: 'DELETE',
+      })
       
-      if (error) throw error
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to delete credit pack')
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['credit-packs'] })
@@ -64,13 +64,33 @@ export function CreditPacksTable() {
     {
       accessorKey: 'name',
       header: 'Name',
+      cell: ({ row }: any) => {
+        const name = row.getValue('name')
+        const pack = row.original
+        return (
+          <div className="flex items-center gap-2">
+            {name}
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="h-5 w-5 p-0"
+              onClick={() => {
+                setSelectedPack(pack)
+                setIsTranslationOpen(true)
+              }}
+            >
+              <Languages className="h-3 w-3" />
+            </Button>
+          </div>
+        )
+      },
     },
     {
       accessorKey: 'credits',
       header: 'Credits',
       cell: ({ row }: any) => {
         const credits = row.getValue('credits')
-        return <Badge variant="secondary">{credits} credits</Badge>
+        return <span className="text-sm text-muted-foreground">{credits} credits</span>
       },
     },
     {
@@ -91,64 +111,66 @@ export function CreditPacksTable() {
       },
     },
     {
-      accessorKey: 'stripe_product_id',
-      header: 'Stripe Product',
+      accessorKey: 'validity_days',
+      header: 'Credit Validity',
       cell: ({ row }: any) => {
-        const productId = row.getValue('stripe_product_id')
-        return productId ? (
-          <code className="text-xs bg-muted px-1 py-0.5 rounded">
-            {productId}
-          </code>
-        ) : (
-          <span className="text-sm text-muted-foreground">Not set</span>
+        const validityDays = row.getValue('validity_days')
+        return (
+          <div className="font-medium">
+            {validityDays} days
+          </div>
         )
       },
     },
     {
       id: 'actions',
+      header: () => <div className="text-right">Actions</div>,
       cell: ({ row }: any) => {
         const pack = row.original
 
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => {
-                  setSelectedPack(pack)
-                  setIsFormOpen(true)
-                }}
-              >
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  setSelectedPack(pack)
-                  setIsTranslationOpen(true)
-                }}
-              >
-                <Languages className="mr-2 h-4 w-4" />
-                Translate
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  if (confirm('Are you sure you want to delete this credit pack?')) {
-                    deleteMutation.mutate(pack.id)
-                  }
-                }}
-                className="text-destructive"
-              >
-                <Trash className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center justify-end gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => {
+                      setSelectedPack(pack)
+                      setIsFormOpen(true)
+                    }}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="px-3 py-2">
+                  <p>Edit</p>
+                </TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                    onClick={() => {
+                      if (confirm('Are you sure you want to delete this credit pack?')) {
+                        deleteMutation.mutate(pack.id)
+                      }
+                    }}
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="px-3 py-2">
+                  <p>Delete</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         )
       },
     },
@@ -161,10 +183,9 @@ export function CreditPacksTable() {
   return (
     <>
       <DataTable
+        title="Credit Packs"
         columns={columns}
         data={creditPacks}
-        searchKey="name"
-        searchPlaceholder="Search credit packs..."
         onAdd={() => {
           setSelectedPack(null)
           setIsFormOpen(true)
@@ -186,17 +207,7 @@ export function CreditPacksTable() {
         <TranslationDialog
           open={isTranslationOpen}
           onOpenChange={setIsTranslationOpen}
-          tableName="credit_packs"
-          recordId={selectedPack.id.toString()}
-          fields={[
-            { key: 'name', value: selectedPack.name },
-            { key: 'description', value: selectedPack.description || '' },
-          ]}
-          currentTranslations={selectedPack.translations || {}}
-          onSuccess={() => {
-            queryClient.invalidateQueries({ queryKey: ['credit-packs'] })
-            setIsTranslationOpen(false)
-          }}
+          currentTranslations={(selectedPack.translations as Record<string, any>) || {}}
         />
       )}
     </>

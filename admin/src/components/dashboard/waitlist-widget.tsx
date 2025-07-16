@@ -1,13 +1,17 @@
 'use client'
 
+import { useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@primeshot/common/web/ui/card'
 import { Badge } from '@primeshot/common/web/ui/badge'
 import { Button } from '@primeshot/common/web/ui/button'
+import { ChartConfig, ChartContainer } from '@primeshot/common/web/ui/chart'
 import { createClient } from '@/lib/supabase/client'
 import { formatDistanceToNow } from 'date-fns'
-import { Users, TrendingUp, Download, Mail } from 'lucide-react'
+import { Users, TrendingUp, Download, Mail, Wifi, WifiOff } from 'lucide-react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { useChartDimensions } from '@/hooks/useResizeObserver'
+import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription'
 import {
   Table,
   TableBody,
@@ -32,6 +36,13 @@ interface WaitlistStats {
     count: number
   }>
 }
+
+const chartConfig = {
+  count: {
+    label: "Signups",
+    color: "#2ADED8", // bright teal
+  },
+} satisfies ChartConfig
 
 async function fetchWaitlistStats(): Promise<WaitlistStats> {
   const supabase = createClient()
@@ -119,12 +130,45 @@ async function fetchWaitlistStats(): Promise<WaitlistStats> {
   }
 }
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-background border border-border rounded-lg p-3 shadow-lg">
+        <p className="font-semibold text-foreground mb-1">{label}</p>
+        <p className="text-sm text-muted-foreground">
+          Signups: {payload[0]?.value || 0}
+        </p>
+      </div>
+    )
+  }
+  return null
+}
+
 export function WaitlistWidget() {
-  const { data, isLoading } = useQuery({
+  const { containerHeight } = useChartDimensions(200);
+  
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ['waitlist-stats'],
     queryFn: fetchWaitlistStats,
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 30000, // Refresh every 30 seconds as fallback
   })
+
+  // Handle realtime updates for waitlist-related tables
+  const handleRealtimeUpdate = useCallback((table: string, eventType: string, record: any) => {
+    console.log(`Waitlist data may have changed due to ${eventType} on ${table}:`, record);
+    
+    // Refetch waitlist data when waitlist-affecting changes occur
+    if (table === 'waitlist') {
+      refetch();
+    }
+  }, [refetch]);
+
+  // Subscribe to realtime updates
+  const { isConnected, connectionError } = useRealtimeSubscription({
+    tables: ['waitlist'],
+    onDataChange: handleRealtimeUpdate,
+    enabled: true
+  });
 
   const handleExport = async () => {
     const supabase = createClient()
@@ -161,8 +205,8 @@ export function WaitlistWidget() {
         </CardHeader>
         <CardContent>
           <div className="animate-pulse space-y-4">
-            <div className="h-20 bg-gray-200 rounded" />
-            <div className="h-40 bg-gray-200 rounded" />
+            <div className="h-20 bg-muted rounded" />
+            <div className="h-40 bg-muted rounded" />
           </div>
         </CardContent>
       </Card>
@@ -177,20 +221,27 @@ export function WaitlistWidget() {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Waitlist</CardTitle>
-            <CardDescription>
-              Track signups and manage your waiting list
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-base font-medium">Waitlist</CardTitle>
+              {isConnected ? (
+                <div title="Live updates enabled">
+                  <Wifi className="h-4 w-4 text-green-500" />
+                </div>
+              ) : connectionError ? (
+                <div title={`Connection error: ${connectionError}`}>
+                  <WifiOff className="h-4 w-4 text-red-500" />
+                </div>
+              ) : (
+                <div title="Connecting to live updates...">
+                  <WifiOff className="h-4 w-4 text-gray-400" />
+                </div>
+              )}
+            </div>
+            <CardDescription className="text-xs mt-1 text-[#666666]">
+              Track signups and manage your waiting list {isConnected && '• Live updates'}
             </CardDescription>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleExport}
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Export CSV
-          </Button>
         </div>
       </CardHeader>
       <CardContent>
@@ -233,79 +284,51 @@ export function WaitlistWidget() {
           {/* Chart */}
           <div>
             <h4 className="text-sm font-medium mb-4">Signups Over Time</h4>
-            <ResponsiveContainer width="100%" height={200}>
-              <AreaChart data={data.chartData}>
-                <defs>
-                  <linearGradient id="colorWaitlist" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis 
-                  dataKey="date" 
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis 
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <Tooltip 
-                  contentStyle={{
-                    backgroundColor: '#fff',
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '8px',
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="count"
-                  stroke="#8b5cf6"
-                  fillOpacity={1}
-                  fill="url(#colorWaitlist)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            <ChartContainer
+              config={chartConfig}
+              className="w-full"
+              style={{ height: containerHeight }}
+            >
+              <ResponsiveContainer width="100%" height={containerHeight} key={containerHeight}>
+                <AreaChart data={data.chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorWaitlist" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#2ADED8" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#2ADED8" stopOpacity={0.1}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid 
+                    strokeDasharray="3 3" 
+                    stroke="rgba(255, 255, 255, 0.1)"
+                    opacity={0.3}
+                    vertical={false}
+                  />
+                  <XAxis 
+                    dataKey="date" 
+                    className="text-xs fill-muted-foreground"
+                    tick={{ fontSize: 12 }}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis 
+                    hide={true}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Area
+                    type="monotone"
+                    dataKey="count"
+                    stroke="#2ADED8"
+                    strokeWidth={2}
+                    fillOpacity={1}
+                    fill="url(#colorWaitlist)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </ChartContainer>
           </div>
 
-          {/* Recent Signups */}
-          <div>
-            <h4 className="text-sm font-medium mb-4">Recent Signups</h4>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Email</TableHead>
-                  <TableHead className="text-right">Signed Up</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.recentSignups.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={2} className="text-center text-muted-foreground">
-                      No signups yet
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  data.recentSignups.map((signup) => (
-                    <TableRow key={signup.id}>
-                      <TableCell className="font-medium">
-                        <div className="flex items-center gap-2">
-                          <Mail className="h-4 w-4 text-muted-foreground" />
-                          {signup.email}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right text-sm text-muted-foreground">
-                        {formatDistanceToNow(new Date(signup.created_at), { addSuffix: true })}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
         </div>
       </CardContent>
     </Card>

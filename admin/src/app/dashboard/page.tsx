@@ -6,47 +6,68 @@ import { SubscriptionAnalytics } from '@/components/dashboard/subscription-analy
 import { UsageAnalytics } from '@/components/dashboard/usage-analytics'
 import { TopUsersLeaderboard } from '@/components/dashboard/top-users-leaderboard'
 import { WaitlistWidget } from '@/components/dashboard/waitlist-widget'
+import RevenueAnalytics from '@/components/dashboard/revenue-analytics'
+import { RealtimeStatus } from '@/components/dashboard/realtime-status'
 
 export default function DashboardPage() {
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Welcome to the Primeshot admin dashboard. Monitor user activity, subscriptions, and system usage.
-        </p>
+      {/* Realtime Status Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground">
+            Monitor your application's key metrics and performance
+          </p>
+        </div>
+        <RealtimeStatus />
       </div>
 
-      {/* User Analytics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Suspense fallback={<AnalyticsCardSkeleton />}>
-          <UserAnalytics />
-        </Suspense>
-      </div>
+      <div className="grid flex-1 scroll-mt-20 items-stretch gap-10 md:grid-cols-2 md:gap-6 lg:grid-cols-4 xl:gap-10">
+        {/* User Analytics */}
+        <div className="themes-wrapper group relative grid gap-4 md:grid-cols-2 lg:grid-cols-4 overflow-hidden transition-all duration-200 ease-in-out hover:z-30 md:col-span-2 lg:col-span-4">
+          <Suspense fallback={<AnalyticsCardSkeleton />}>
+            <UserAnalytics />
+          </Suspense>
+        </div>
 
-      {/* Main Charts Row */}
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* Subscription Analytics */}
-        <Suspense fallback={<ChartCardSkeleton />}>
-          <SubscriptionAnalytics />
-        </Suspense>
+        {/* Main Charts Row */}
+        <div className="themes-wrapper group relative grid gap-4 md:grid-cols-3 lg:grid-cols-6 overflow-hidden transition-all duration-200 ease-in-out hover:z-30 md:col-span-2 lg:col-span-4">
+          <div className="grid md:col-span-1 lg:col-span-2">         
+            {/* Subscription Analytics */}
+            <Suspense fallback={<ChartCardSkeleton />}>
+              <SubscriptionAnalytics />
+            </Suspense>
+          </div>
 
-        {/* Usage Analytics */}
-        <Suspense fallback={<ChartCardSkeleton />}>
-          <UsageAnalytics />
-        </Suspense>
-      </div>
+          <div className="grid md:col-span-2 lg:col-span-4"> 
+            {/* Revenue Analytics */}
+            <Suspense fallback={<ChartCardSkeleton />}>
+              <RevenueAnalytics />
+            </Suspense>
+          </div>
+        </div>
 
-      {/* Top Users Leaderboard */}
-      <Suspense fallback={<LeaderboardSkeleton />}>
-        <TopUsersLeaderboard />
-      </Suspense>
+        <div className="themes-wrapper group relative grid gap-4 md:grid-cols-2 lg:grid-cols-2 overflow-hidden transition-all duration-200 ease-in-out hover:z-30 md:col-span-2 lg:col-span-4">
+          {/* Top Users Leaderboard */}
+          <Suspense fallback={<LeaderboardSkeleton />}>
+            <TopUsersLeaderboard />
+          </Suspense>
 
-      {/* Waitlist Widget */}
-      <div className="grid gap-4">
-        <Suspense fallback={<WaitlistSkeleton />}>
-          <WaitlistWidget />
-        </Suspense>
+          {/* Usage Analytics */}
+          <Suspense fallback={<ChartCardSkeleton />}>
+            <UsageAnalytics />
+          </Suspense>
+        </div>
+
+
+
+        <div className="themes-wrapper group relative grid gap-4 md:grid-cols-1 lg:grid-cols-1 overflow-hidden transition-all duration-200 ease-in-out hover:z-30 md:col-span-2 lg:col-span-4">
+          {/* Waitlist Widget */}
+          <Suspense fallback={<WaitlistSkeleton />}>
+            <WaitlistWidget />
+          </Suspense>
+        </div>
       </div>
     </div>
   )

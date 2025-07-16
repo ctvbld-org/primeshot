@@ -6,8 +6,7 @@
   z-index: 50;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  background-color: rgba(0, 21, 20, 0.7);
-  border-bottom: 1px solid #202A32;
+  background-color: rgba(12, 16, 19, 0.7);
 }
 
 .container {
@@ -238,4 +237,33 @@
   font-style: normal;
   font-weight: 500;
   line-height: normal;
+}
+
+/* Navigation styles */
+.nav {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 14px;
+  font-weight: 500;
+  color: #E5FBFA;
+}
+
+.navLink {
+  text-decoration: none;
+  opacity: 0.6;
+  transition: all 0.2s ease;
+}
+
+.navLink:hover {
+  opacity: 1;
+}
+
+.adminNavLink {
+  text-decoration: none;
+  opacity: 1;
+  transition: all 0.2s ease;
+}
+
+.adminNavLink {
+  color: rgba(42, 222, 216, 1); /* purple-300 equivalent */
 }

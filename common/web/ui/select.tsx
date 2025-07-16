@@ -5,7 +5,7 @@ import * as SelectPrimitive from "@radix-ui/react-select"
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react"
 import { Icon } from "../Icon"
 
-import { cn } from "@/lib/utils"
+import { cn } from "../../lib/utils"
 import styles from "./select.module.css"
 
 function Select({

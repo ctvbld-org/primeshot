@@ -17,6 +17,12 @@ import { MoreHorizontal, Pencil, Trash, Languages } from 'lucide-react'
 import { toast } from 'sonner'
 import { TranslationDialog } from '@/components/ui/translation-dialog'
 import type { Database } from '@/types/supabase'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@primeshot/common/web/ui/tooltip'
 
 type Subscription = Database['public']['Tables']['subscriptions']['Row']
 
@@ -31,25 +37,27 @@ export function SubscriptionsTable() {
   const { data: subscriptions = [], isLoading } = useQuery({
     queryKey: ['subscriptions'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('subscriptions')
-        .select('*')
-        .order('monthly_price')
+      const response = await fetch('/api/subscriptions')
       
-      if (error) throw error
-      return data
+      if (!response.ok) {
+        throw new Error('Failed to fetch subscriptions')
+      }
+      
+      return response.json()
     },
   })
 
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      const { error } = await supabase
-        .from('subscriptions')
-        .delete()
-        .eq('id', id)
+      const response = await fetch(`/api/subscriptions/${id}`, {
+        method: 'DELETE',
+      })
       
-      if (error) throw error
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to delete subscription')
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] })
@@ -67,9 +75,23 @@ export function SubscriptionsTable() {
       cell: ({ row }: any) => {
         const name = row.getValue('name')
         const displayName = row.original.display_name
+        const subscription = row.original
         return (
           <div>
-            <div className="font-medium">{displayName}</div>
+            <div className="font-medium flex items-center gap-2">
+              {displayName}
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="h-5 w-5 p-0"
+                onClick={() => {
+                  setSelectedSubscription(subscription)
+                  setIsTranslationOpen(true)
+                }}
+              >
+                <Languages className="h-3 w-3" />
+              </Button>
+            </div>
             <div className="text-sm text-muted-foreground">{name}</div>
           </div>
         )
@@ -104,16 +126,16 @@ export function SubscriptionsTable() {
       header: 'Credits',
       cell: ({ row }: any) => {
         const credits = row.getValue('credits')
-        return <Badge variant="secondary">{credits} credits/mo</Badge>
+        return <span className="text-sm text-muted-foreground">{credits} credits/mo</span>
       },
     },
     {
       accessorKey: 'face_model_training_included',
-      header: 'Included Training',
+      header: 'Included FaceModel',
       cell: ({ row }: any) => {
         const included = row.getValue('face_model_training_included')
         return included > 0 ? (
-          <Badge variant="outline">{included} LoRA{included > 1 ? 's' : ''}</Badge>
+          <span className="text-sm text-muted-foreground">{included} FaceModel{included > 1 ? 's' : ''}</span>
         ) : (
           <span className="text-sm text-muted-foreground">None</span>
         )
@@ -129,55 +151,63 @@ export function SubscriptionsTable() {
       cell: ({ row }: any) => {
         const popular = row.getValue('popular')
         return popular ? (
-          <Badge className="bg-green-500">Popular</Badge>
-        ) : null
+          <Badge variant="default" className="font-normal bg-green-100 text-green-800 border-green-200 hover:bg-green-200">
+            Popular
+          </Badge>
+        ) : (
+          <span className="text-sm text-muted-foreground">-</span>
+        )
       },
     },
     {
       id: 'actions',
+      header: () => <div className="text-right">Actions</div>,
       cell: ({ row }: any) => {
         const subscription = row.original
 
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => {
-                  setSelectedSubscription(subscription)
-                  setIsFormOpen(true)
-                }}
-              >
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  setSelectedSubscription(subscription)
-                  setIsTranslationOpen(true)
-                }}
-              >
-                <Languages className="mr-2 h-4 w-4" />
-                Translate
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  if (confirm('Are you sure you want to delete this subscription?')) {
-                    deleteMutation.mutate(subscription.id)
-                  }
-                }}
-                className="text-destructive"
-              >
-                <Trash className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center justify-end gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => {
+                      setSelectedSubscription(subscription)
+                      setIsFormOpen(true)
+                    }}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="px-3 py-2">
+                  <p>Edit</p>
+                </TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                    onClick={() => {
+                      if (confirm('Are you sure you want to delete this subscription?')) {
+                        deleteMutation.mutate(subscription.id)
+                      }
+                    }}
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="px-3 py-2">
+                  <p>Delete</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         )
       },
     },
@@ -190,10 +220,9 @@ export function SubscriptionsTable() {
   return (
     <>
       <DataTable
+        title="Subscription Tiers"
         columns={columns}
         data={subscriptions}
-        searchKey="display_name"
-        searchPlaceholder="Search subscriptions..."
         onAdd={() => {
           setSelectedSubscription(null)
           setIsFormOpen(true)
@@ -215,17 +244,7 @@ export function SubscriptionsTable() {
         <TranslationDialog
           open={isTranslationOpen}
           onOpenChange={setIsTranslationOpen}
-          tableName="subscriptions"
-          recordId={selectedSubscription.id.toString()}
-          fields={[
-            { key: 'display_name', value: selectedSubscription.display_name },
-            { key: 'description', value: selectedSubscription.description || '' },
-          ]}
-          currentTranslations={selectedSubscription.translations || {}}
-          onSuccess={() => {
-            queryClient.invalidateQueries({ queryKey: ['subscriptions'] })
-            setIsTranslationOpen(false)
-          }}
+          currentTranslations={(selectedSubscription.translations as Record<string, any>) || {}}
         />
       )}
     </>

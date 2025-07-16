@@ -1,10 +1,12 @@
 'use client'
 
+import { useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Card, CardContent, CardHeader, CardTitle } from '@primeshot/common/web/ui/card'
-import { Users, UserPlus, TrendingUp, Activity } from 'lucide-react'
+import { Users, UserPlus, TrendingUp, Activity, Wifi, WifiOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { formatDistanceToNow } from 'date-fns'
+import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription'
 
 interface UserStats {
   totalUsers: number
@@ -73,11 +75,28 @@ async function fetchUserStats(): Promise<UserStats> {
 }
 
 export function UserAnalytics() {
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats, isLoading, refetch } = useQuery({
     queryKey: ['user-analytics'],
     queryFn: fetchUserStats,
-    refetchInterval: 60000, // Refresh every minute
+    refetchInterval: 60000, // Refresh every minute as fallback
   })
+
+  // Handle realtime updates for user-related tables
+  const handleRealtimeUpdate = useCallback((table: string, eventType: string, record: any) => {
+    console.log(`User data may have changed due to ${eventType} on ${table}:`, record);
+    
+    // Refetch user data when user-affecting changes occur
+    if (table === 'users') {
+      refetch();
+    }
+  }, [refetch]);
+
+  // Subscribe to realtime updates
+  const { isConnected, connectionError } = useRealtimeSubscription({
+    tables: ['users'],
+    onDataChange: handleRealtimeUpdate,
+    enabled: true
+  });
 
   if (isLoading || !stats) {
     return null
@@ -116,18 +135,35 @@ export function UserAnalytics() {
 
   return (
     <>
-      {cards.map((card) => (
+      {cards.map((card, index) => (
         <Card key={card.title}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {card.title}
-            </CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-sm font-medium">
+                {card.title}
+              </CardTitle>
+              {index === 0 && (
+                isConnected ? (
+                  <div title="Live updates enabled">
+                    <Wifi className="h-3 w-3 text-green-500" />
+                  </div>
+                ) : connectionError ? (
+                  <div title={`Connection error: ${connectionError}`}>
+                    <WifiOff className="h-3 w-3 text-red-500" />
+                  </div>
+                ) : (
+                  <div title="Connecting to live updates...">
+                    <WifiOff className="h-3 w-3 text-gray-400" />
+                  </div>
+                )
+              )}
+            </div>
             <card.icon className={`h-4 w-4 ${card.color}`} />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{card.value}</div>
-            <p className="text-xs text-muted-foreground">
-              {card.description}
+            <p className="text-xs text-[#666666]">
+              {card.description}{index === 0 && isConnected && ' • Live updates'}
             </p>
           </CardContent>
         </Card>

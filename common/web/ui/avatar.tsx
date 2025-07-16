@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useMemo } from 'react'
-import { cn } from "@/lib/utils"
+import { cn } from "../../lib/utils"
 import style from "./avatar.module.css"
 
 interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {

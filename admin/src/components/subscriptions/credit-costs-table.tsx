@@ -7,15 +7,15 @@ import { CreditCostFormDialog } from './credit-cost-form-dialog'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@primeshot/common/web/ui/button'
 import { Badge } from '@primeshot/common/web/ui/badge'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@primeshot/common/web/ui/dropdown-menu'
 import { MoreHorizontal, Pencil, Trash } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Database } from '@/types/supabase'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@primeshot/common/web/ui/tooltip'
 
 type CreditCost = Database['public']['Tables']['credit_costs']['Row']
 
@@ -29,25 +29,25 @@ export function CreditCostsTable() {
   const { data: creditCosts = [], isLoading } = useQuery({
     queryKey: ['credit-costs'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('credit_costs')
-        .select('*')
-        .order('action_type')
-      
-      if (error) throw error
-      return data
+      const response = await fetch('/api/credit-costs')
+      if (!response.ok) {
+        throw new Error('Failed to fetch credit costs')
+      }
+      return response.json()
     },
   })
 
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      const { error } = await supabase
-        .from('credit_costs')
-        .delete()
-        .eq('id', id)
+      const response = await fetch(`/api/credit-costs/${id}`, {
+        method: 'DELETE',
+      })
       
-      if (error) throw error
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to delete credit cost')
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['credit-costs'] })
@@ -60,69 +60,72 @@ export function CreditCostsTable() {
 
   const columns = [
     {
-      accessorKey: 'action_type',
+      accessorKey: 'type',
       header: 'Action Type',
       cell: ({ row }: any) => {
-        const actionType = row.getValue('action_type')
+        const actionType = row.getValue('type')
         return (
-          <Badge variant="outline" className="font-mono">
-            {actionType}
-          </Badge>
+          <span className="text-sm text-muted-foreground">{actionType}</span>
         )
       },
     },
     {
-      accessorKey: 'credit_cost',
+      accessorKey: 'value',
       header: 'Credit Cost',
       cell: ({ row }: any) => {
-        const cost = row.getValue('credit_cost')
-        return <Badge>{cost} credits</Badge>
-      },
-    },
-    {
-      accessorKey: 'description',
-      header: 'Description',
-      cell: ({ row }: any) => {
-        const description = row.getValue('description')
-        return description || <span className="text-muted-foreground italic">No description</span>
+        const cost = row.getValue('value')
+        return <span className="text-sm text-muted-foreground">{cost} credits</span>
       },
     },
     {
       id: 'actions',
+      header: () => <div className="text-right">Actions</div>,
       cell: ({ row }: any) => {
         const cost = row.original
 
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => {
-                  setSelectedCost(cost)
-                  setIsFormOpen(true)
-                }}
-              >
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  if (confirm('Are you sure you want to delete this credit cost?')) {
-                    deleteMutation.mutate(cost.id)
-                  }
-                }}
-                className="text-destructive"
-              >
-                <Trash className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center justify-end gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => {
+                      setSelectedCost(cost)
+                      setIsFormOpen(true)
+                    }}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="px-3 py-2">
+                  <p>Edit</p>
+                </TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                    onClick={() => {
+                      if (confirm('Are you sure you want to delete this credit cost?')) {
+                        deleteMutation.mutate(cost.id)
+                      }
+                    }}
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="px-3 py-2">
+                  <p>Delete</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         )
       },
     },
@@ -135,10 +138,9 @@ export function CreditCostsTable() {
   return (
     <>
       <DataTable
+        title="Credit Costs"
         columns={columns}
         data={creditCosts}
-        searchKey="action_type"
-        searchPlaceholder="Search credit costs..."
         onAdd={() => {
           setSelectedCost(null)
           setIsFormOpen(true)

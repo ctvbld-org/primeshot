@@ -1,18 +1,19 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
+import { shouldTranslateRow, translateRow, getTranslatableColumns } from '@/lib/translation'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@primeshot/common/web/ui/dialog'
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@primeshot/common/web/ui/sheet'
 import {
   Form,
   FormControl,
@@ -27,15 +28,25 @@ import { Textarea } from '@primeshot/common/web/ui/textarea'
 import { Button } from '@primeshot/common/web/ui/button'
 import { toast } from 'sonner'
 import type { Database } from '@/types/supabase'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@primeshot/common/web/ui/alert-dialog'
 
 type CreditPack = Database['public']['Tables']['credit_packs']['Row']
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  description: z.string().optional(),
-  credits: z.number().min(1, 'Credits must be at least 1'),
-  price: z.number().min(0.01, 'Price must be at least $0.01'),
-  stripe_product_id: z.string().optional(),
+  credits: z.number().min(1, 'Credits must be positive'),
+  price: z.number().min(0, 'Price must be positive'),
+  validity_days: z.number().min(1, 'Validity days must be positive'),
+  translations: z.record(z.any()).optional(),
 })
 
 type FormData = z.infer<typeof formSchema>
@@ -55,116 +66,183 @@ export function CreditPackFormDialog({
 }: CreditPackFormDialogProps) {
   const queryClient = useQueryClient()
   const supabase = createClient()
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const originalValuesRef = useRef<FormData | null>(null)
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
-      description: '',
-      credits: 100,
-      price: 10,
-      stripe_product_id: '',
+      credits: 0,
+      price: 0,
+      validity_days: 30,
+      translations: {},
     },
   })
 
-  // Reset form when credit pack changes
-  useEffect(() => {
-    if (creditPack) {
-      form.reset({
-        name: creditPack.name,
-        description: creditPack.description || '',
-        credits: creditPack.credits,
-        price: creditPack.price,
-        stripe_product_id: creditPack.stripe_product_id || '',
-      })
-    } else {
-      form.reset()
+  // Function to check if form has changes
+  const hasChanges = () => {
+    if (!originalValuesRef.current) return false
+    
+    const currentValues = form.getValues()
+    const originalValues = originalValuesRef.current
+    
+    return (
+      currentValues.name !== originalValues.name ||
+      currentValues.credits !== originalValues.credits ||
+      currentValues.price !== originalValues.price ||
+      currentValues.validity_days !== originalValues.validity_days ||
+      JSON.stringify(currentValues.translations) !== JSON.stringify(originalValues.translations)
+    )
+  }
+
+  // Function to reset form to original values
+  const resetToOriginal = () => {
+    if (originalValuesRef.current) {
+      form.reset(originalValuesRef.current)
     }
-  }, [creditPack, form])
+  }
+
+  // Handle close with confirmation
+  const handleClose = () => {
+    if (hasChanges()) {
+      setShowConfirmDialog(true)
+    } else {
+      onOpenChange(false)
+    }
+  }
+
+  // Handle discard changes
+  const handleDiscard = () => {
+    resetToOriginal()
+    setShowConfirmDialog(false)
+    onOpenChange(false)
+  }
+
+  // Reset form when creditPack changes
+  useEffect(() => {
+    const newValues: FormData = creditPack ? {
+      name: creditPack.name,
+      credits: creditPack.credits,
+      price: creditPack.price,
+      validity_days: creditPack.validity_days,
+      translations: (creditPack.translations as Record<string, any>) || {},
+    } : {
+      name: '',
+      credits: 0,
+      price: 0,
+      validity_days: 30,
+      translations: {},
+    }
+    
+    form.reset(newValues)
+    originalValuesRef.current = newValues
+  }, [creditPack, form, open])
+
+  // Reset confirmation dialog when sheet closes
+  useEffect(() => {
+    if (!open) {
+      setShowConfirmDialog(false)
+    }
+  }, [open])
 
   const mutation = useMutation({
-    mutationFn: async (data: FormData) => {
-      // Prepare data for database
-      const dbData = {
-        ...data,
-        stripe_product_id: data.stripe_product_id || null,
-      }
-
+    mutationFn: async (data: FormData & { translations?: any }) => {
       if (creditPack) {
         // Update
-        const { error } = await supabase
-          .from('credit_packs')
-          .update(dbData)
-          .eq('id', creditPack.id)
-        if (error) throw error
+        const response = await fetch(`/api/credit-packs/${creditPack.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        })
+        
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.error || 'Failed to update credit pack')
+        }
       } else {
         // Create
-        const { error } = await supabase
-          .from('credit_packs')
-          .insert([dbData])
-        if (error) throw error
+        const response = await fetch('/api/credit-packs', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        })
+        
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.error || 'Failed to create credit pack')
+        }
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['credit-packs'] })
       toast.success(creditPack ? 'Credit pack updated successfully' : 'Credit pack created successfully')
+      // Reset original values to current values to prevent confirmation dialog
+      originalValuesRef.current = form.getValues()
       onSuccess()
+      onOpenChange(false)
     },
     onError: (error) => {
       toast.error('Failed to save credit pack: ' + error.message)
     },
   })
 
-  const onSubmit = (data: FormData) => {
-    mutation.mutate(data)
+  const onSubmit = async (data: FormData) => {
+    setIsLoading(true)
+    try {
+      const columns = getTranslatableColumns('credit_packs')
+      const needsTranslation = shouldTranslateRow(originalValuesRef.current ?? undefined, data, columns)
+      let translations = (creditPack?.translations as Record<string, any>) || {}
+      if (needsTranslation) {
+        try {
+          translations = await translateRow('credit_packs', data)
+        } catch (err: any) {
+          toast.error('Translation failed: ' + err.message)
+          setIsLoading(false)
+          return
+        }
+      }
+      mutation.mutate({ ...data, translations })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  // Calculate price per credit
-  const credits = form.watch('credits')
-  const price = form.watch('price')
-  const pricePerCredit = credits > 0 ? (price / credits).toFixed(3) : '0'
-
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>{creditPack ? 'Edit Credit Pack' : 'Create Credit Pack'}</DialogTitle>
-          <DialogDescription>
-            {creditPack ? 'Update the credit pack' : 'Add a new credit pack'}
-          </DialogDescription>
-        </DialogHeader>
+    <Sheet open={open} onOpenChange={handleClose}>
+      <SheetContent side="right" className="w-[500px] sm:max-w-[500px] !max-w-[500px] overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle>{creditPack ? 'Edit Credit Pack' : 'Create Credit Pack'}</SheetTitle>
+          <SheetDescription>
+            {creditPack ? 'Update the credit pack configuration' : 'Add a new credit pack'}
+          </SheetDescription>
+        </SheetHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="e.g., 100 Credits Pack" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <div className="mt-6">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="e.g., Starter Pack" />
+                    </FormControl>
+                    <FormDescription>
+                      Display name for this credit pack
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} placeholder="Pack description" rows={3} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="credits"
@@ -173,11 +251,16 @@ export function CreditPackFormDialog({
                     <FormLabel>Credits</FormLabel>
                     <FormControl>
                       <Input
-                        type="number"
                         {...field}
-                        onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                        type="number"
+                        min="1"
+                        placeholder="e.g., 90"
+                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
                       />
                     </FormControl>
+                    <FormDescription>
+                      Number of credits included in this pack
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -188,57 +271,84 @@ export function CreditPackFormDialog({
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Price ($)</FormLabel>
+                    <FormLabel>Price (USD)</FormLabel>
                     <FormControl>
                       <Input
-                        type="number"
-                        step="0.01"
                         {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="e.g., 19.00"
+                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                       />
                     </FormControl>
+                    <FormDescription>
+                      Price in US dollars
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            </div>
 
-            {credits > 0 && (
-              <div className="rounded-lg bg-muted p-3">
-                <p className="text-sm text-muted-foreground">
-                  Price per credit: <span className="font-medium text-foreground">${pricePerCredit}</span>
-                </p>
+              <FormField
+                control={form.control}
+                name="validity_days"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Validity Days</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="number"
+                        min="1"
+                        placeholder="e.g., 30"
+                        onChange={(e) => field.onChange(parseInt(e.target.value) || 30)}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Number of days the credits remain valid
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end gap-2 pt-6">
+                <Button variant="outline" onClick={handleClose} type="button">
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isLoading || mutation.isPending}
+                  className="w-full"
+                >
+                  {isLoading || mutation.isPending ? 'Saving...' : (creditPack ? 'Update Credit Pack' : 'Create Credit Pack')}
+                </Button>
               </div>
-            )}
+            </form>
+          </Form>
+        </div>
+      </SheetContent>
 
-            <FormField
-              control={form.control}
-              name="stripe_product_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Stripe Product ID</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="price_..." />
-                  </FormControl>
-                  <FormDescription>
-                    The Stripe price ID for this credit pack
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? 'Saving...' : 'Save'}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+      {/* Confirmation Dialog */}
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to close?</AlertDialogTitle>
+            <AlertDialogDescription>
+              All changes made will be lost. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowConfirmDialog(false)}>
+              Continue editing
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleDiscard} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Discard
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </Sheet>
   )
 }

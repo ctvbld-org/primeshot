@@ -14,17 +14,14 @@ export default function SubscriptionsPage() {
 
       <div className="space-y-8">
         <section>
-          <h2 className="text-xl font-semibold mb-4">Subscription Tiers</h2>
           <SubscriptionsTable />
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">Credit Packs</h2>
           <CreditPacksTable />
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">Credit Costs</h2>
           <CreditCostsTable />
         </section>
       </div>

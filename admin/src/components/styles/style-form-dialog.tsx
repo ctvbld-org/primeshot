@@ -1,18 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@primeshot/common/web/ui/dialog'
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@primeshot/common/web/ui/sheet'
 import {
   Form,
   FormControl,
@@ -22,6 +22,17 @@ import {
   FormLabel,
   FormMessage,
 } from '@primeshot/common/web/ui/form'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@primeshot/common/web/ui/alert-dialog'
+import { Badge } from '@primeshot/common/web/ui/badge'
 import { Input } from '@primeshot/common/web/ui/input'
 import { Textarea } from '@primeshot/common/web/ui/textarea'
 import { Button } from '@primeshot/common/web/ui/button'
@@ -29,6 +40,31 @@ import { MultiSelect } from '@/components/ui/multi-select'
 import { ImageUpload } from '@/components/ui/image-upload'
 import { toast } from 'sonner'
 import type { Database } from '@/types/supabase'
+import { shouldTranslateRow, translateRow, getTranslatableColumns } from '@/lib/translation'
+import { useToast } from '@primeshot/common/web/ui/use-toast'
+import getOptionsImage from '@/lib/get-options-image'
+
+// Add TagWithImage component
+function TagWithImage({ label, img, color }: { label: string; img?: string; color?: string }) {
+  return (
+    <span className="inline-flex items-center gap-1 pl-1 pr-2 py-0.5 text-muted-foreground">
+      {img && (
+        <img
+          src={img}
+          alt={label}
+          className="w-4 h-4 rounded-full object-cover"
+        />
+      )}
+      {color && (
+        <div
+          className="w-3 h-3 rounded-full"
+          style={{ backgroundColor: color }}
+        />
+      )}
+      {label}
+    </span>
+  )
+}
 
 type Style = Database['public']['Tables']['styles']['Row']
 type Scene = Database['public']['Tables']['style_scenes']['Row']
@@ -37,10 +73,8 @@ type Color = Database['public']['Tables']['style_colors']['Row']
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  tagline: z.string().optional(),
-  description: z.string().optional(),
+  prompt: z.string().optional(),
   preview_images: z.array(z.string()).min(1, 'At least one preview image is required'),
-  available_genders: z.array(z.string()).min(1, 'At least one gender is required'),
   available_scenes: z.array(z.string()).min(1, 'At least one scene is required'),
   available_wardrobes: z.array(z.string()).min(1, 'At least one wardrobe is required'),
   available_colors: z.array(z.string()).min(1, 'At least one color is required'),
@@ -59,6 +93,9 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
   const queryClient = useQueryClient()
   const supabase = createClient()
   const [isLoading, setIsLoading] = useState(false)
+  const { toast } = useToast()
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const originalValuesRef = useRef<FormData | null>(null)
 
   // Fetch options
   const { data: scenes = [] } = useQuery({
@@ -101,37 +138,109 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
-      tagline: '',
-      description: '',
+      prompt: '',
       preview_images: [],
-      available_genders: [],
       available_scenes: [],
       available_wardrobes: [],
       available_colors: [],
     },
   })
 
+  // Function to check if form has changes
+  const hasChanges = () => {
+    if (!originalValuesRef.current) return false
+    
+    const currentValues = form.getValues()
+    const originalValues = originalValuesRef.current
+    
+    return (
+      currentValues.name !== originalValues.name ||
+      currentValues.prompt !== originalValues.prompt ||
+      JSON.stringify(currentValues.preview_images.sort()) !== JSON.stringify(originalValues.preview_images.sort()) ||
+      JSON.stringify(currentValues.available_scenes.sort()) !== JSON.stringify(originalValues.available_scenes.sort()) ||
+      JSON.stringify(currentValues.available_wardrobes.sort()) !== JSON.stringify(originalValues.available_wardrobes.sort()) ||
+      JSON.stringify(currentValues.available_colors.sort()) !== JSON.stringify(originalValues.available_colors.sort())
+    )
+  }
+
+  // Function to reset form to original values
+  const resetToOriginal = () => {
+    if (originalValuesRef.current) {
+      form.reset(originalValuesRef.current)
+    }
+  }
+
+  // Handle close with confirmation
+  const handleClose = () => {
+    if (hasChanges()) {
+      setShowConfirmDialog(true)
+    } else {
+      onOpenChange(false)
+    }
+  }
+
+  // Handle discard changes
+  const handleDiscard = () => {
+    resetToOriginal()
+    setShowConfirmDialog(false)
+    onOpenChange(false)
+  }
+
   // Reset form when style changes
   useEffect(() => {
-    if (style) {
-      form.reset({
-        name: style.name,
-        tagline: style.tagline || '',
-        description: style.description || '',
-        preview_images: style.preview_images || [],
-        available_genders: style.available_genders || [],
-        available_scenes: style.available_scenes || [],
-        available_wardrobes: style.available_wardrobes || [],
-        available_colors: style.available_colors || [],
-      })
-    } else {
-      form.reset()
+    const newValues: FormData = style ? {
+      name: style.name,
+      prompt: style.prompt || '',
+      preview_images: style.preview_images as string[] || [],
+      available_scenes: style.available_scenes || [],
+      available_wardrobes: style.available_wardrobes || [],
+      available_colors: style.available_colors || [],
+    } : {
+      name: '',
+      prompt: '',
+      preview_images: [],
+      available_scenes: [],
+      available_wardrobes: [],
+      available_colors: [],
     }
+    
+    form.reset(newValues)
+    originalValuesRef.current = newValues
   }, [style, form])
 
+  // Reset confirmation dialog when sheet closes
+  useEffect(() => {
+    if (!open) {
+      setShowConfirmDialog(false)
+    }
+  }, [open])
+
   const mutation = useMutation({
-    mutationFn: async (data: FormData) => {
+    mutationFn: async (data: FormData & { translations?: any }) => {
       if (style) {
+        // For updates, check if any images were removed and delete them
+        const oldImages = (style.preview_images as string[]) || []
+        const newImages = data.preview_images || []
+        const removedImages = oldImages.filter(img => !newImages.includes(img))
+        
+        if (removedImages.length > 0) {
+          try {
+            await fetch('/api/images/delete', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                images: removedImages,
+                s3Path: 'app-images/placeholders/styles'
+              })
+            })
+          } catch (error) {
+            console.error('Failed to delete removed style images:', error)
+            // Don't fail the whole operation if image deletion fails
+          }
+        }
+
         // Update
         const { error } = await supabase
           .from('styles')
@@ -148,201 +257,233 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['styles'] })
-      toast.success(style ? 'Style updated successfully' : 'Style created successfully')
+      toast({ title: style ? 'Style updated successfully' : 'Style created successfully' })
+      // Reset original values to current values to prevent confirmation dialog
+      originalValuesRef.current = form.getValues()
       onSuccess()
+      onOpenChange(false)
     },
     onError: (error) => {
-      toast.error('Failed to save style: ' + error.message)
+      toast({ title: 'Failed to save style', description: error.message, variant: 'destructive' })
     },
   })
 
-  const onSubmit = (data: FormData) => {
-    mutation.mutate(data)
+  const onSubmit = async (data: FormData) => {
+    setIsLoading(true)
+    try {
+      const columns = getTranslatableColumns('styles')
+      const needsTranslation = shouldTranslateRow(style ?? undefined, data, columns)
+      let translations = style?.translations || null
+      if (needsTranslation) {
+        try {
+          translations = await translateRow('styles', data)
+        } catch (err: any) {
+          toast({ title: 'Translation failed', description: err.message, variant: 'destructive' })
+          setIsLoading(false)
+          return
+        }
+      }
+      mutation.mutate({ ...data, translations })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const genderOptions = [
-    { value: 'male', label: 'Male' },
-    { value: 'female', label: 'Female' },
-  ]
-
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{style ? 'Edit Style' : 'Create Style'}</DialogTitle>
-          <DialogDescription>
-            {style ? 'Update the style configuration' : 'Add a new photography style'}
-          </DialogDescription>
-        </DialogHeader>
+    <Sheet open={open} onOpenChange={handleClose}>
+      <SheetContent side="right" className="w-[500px] sm:max-w-[500px] !max-w-[500px] overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle>{style ? 'Edit Style' : 'Create Style'}</SheetTitle>
+          <SheetDescription>
+            {style ? 'Update the style details below.' : 'Fill in the details to create a new style.'}
+          </SheetDescription>
+        </SheetHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="e.g., Professional Studio" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <div className="mt-6">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="e.g., Professional Studio" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="tagline"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tagline</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Short description" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="prompt"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Prompt</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} placeholder="AI generation prompt for this style" rows={3} />
+                    </FormControl>
+                    <FormDescription>
+                      Optional prompt to guide AI generation for this style
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} placeholder="Detailed description of the style" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="preview_images"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Preview Images</FormLabel>
+                    <FormControl>
+                      <ImageUpload
+                        value={field.value}
+                        onChange={field.onChange}
+                        styleName={form.watch('name')}
+                        uploadPath="app-images/placeholders/styles"
+                        maxFiles={5}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="preview_images"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Preview Images</FormLabel>
-                  <FormControl>
-                    <ImageUpload
-                      value={field.value}
-                      onChange={field.onChange}
-                      uploadPath="app-images/options"
-                      maxFiles={5}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Upload up to 5 preview images for this style
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="available_scenes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Available Scenes</FormLabel>
+                    <FormControl>
+                      <MultiSelect
+                        options={scenes.map(s => ({
+                          value: s.value,
+                          label: s.label,
+                          image: s.image,
+                        }))}
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Select scenes"
+                        showImages
+                        className="border-input bg-background hover:bg-background"
+                        renderTag={(option) => (
+                          <Badge variant="outline" className="text-xs px-0 flex-shrink-0">
+                            <TagWithImage 
+                              label={option.label} 
+                              img={option.image ? getOptionsImage(option.image) : undefined} 
+                            />
+                          </Badge>
+                        )}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="available_genders"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Available Genders</FormLabel>
-                  <FormControl>
-                    <MultiSelect
-                      options={genderOptions}
-                      value={field.value}
-                      onChange={field.onChange}
-                      placeholder="Select genders"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="available_wardrobes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Available Wardrobes</FormLabel>
+                    <FormControl>
+                      <MultiSelect
+                        options={wardrobes.map(w => ({
+                          value: w.value,
+                          label: w.label,
+                          image: w.image,
+                        }))}
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Select wardrobes"
+                        showImages
+                        className="border-input bg-background hover:bg-background"
+                        renderTag={(option) => (
+                          <Badge variant="secondary" className="text-xs px-0 flex-shrink-0">
+                            <TagWithImage 
+                              label={option.label} 
+                              img={option.image ? getOptionsImage(option.image) : undefined} 
+                            />
+                          </Badge>
+                        )}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="available_scenes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Available Scenes</FormLabel>
-                  <FormControl>
-                    <MultiSelect
-                      options={scenes.map(s => ({
-                        value: s.value,
-                        label: s.label,
-                        image: s.image,
-                      }))}
-                      value={field.value}
-                      onChange={field.onChange}
-                      placeholder="Select scenes"
-                      showImages
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="available_colors"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Available Colors</FormLabel>
+                    <FormControl>
+                      <MultiSelect
+                        options={colors.map(c => ({
+                          value: c.value,
+                          label: c.label,
+                          color: c.color,
+                        }))}
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Select colors"
+                        showColors
+                        className="border-input bg-background hover:bg-background"
+                        renderTag={(option) => (
+                          <Badge variant="secondary" className="text-xs px-0 flex-shrink-0">
+                            <TagWithImage 
+                              label={option.label} 
+                              color={option.color} 
+                            />
+                          </Badge>
+                        )}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="available_wardrobes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Available Wardrobes</FormLabel>
-                  <FormControl>
-                    <MultiSelect
-                      options={wardrobes.map(w => ({
-                        value: w.value,
-                        label: w.label,
-                        image: w.image,
-                      }))}
-                      value={field.value}
-                      onChange={field.onChange}
-                      placeholder="Select wardrobes"
-                      showImages
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <div className="flex justify-end gap-2 pt-6">
+                <Button variant="outline" onClick={handleClose} type="button">
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={mutation.isPending || isLoading}>
+                  {mutation.isPending || isLoading ? 'Saving...' : 'Save'}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </div>
+      </SheetContent>
 
-            <FormField
-              control={form.control}
-              name="available_colors"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Available Colors</FormLabel>
-                  <FormControl>
-                    <MultiSelect
-                      options={colors.map(c => ({
-                        value: c.value,
-                        label: c.label,
-                        color: c.color,
-                      }))}
-                      value={field.value}
-                      onChange={field.onChange}
-                      placeholder="Select colors"
-                      showColors
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? 'Saving...' : 'Save'}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+      {/* Confirmation Dialog */}
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to close?</AlertDialogTitle>
+            <AlertDialogDescription>
+              All changes made will be lost. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowConfirmDialog(false)}>
+              Continue editing
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleDiscard} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Discard
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </Sheet>
   )
 }

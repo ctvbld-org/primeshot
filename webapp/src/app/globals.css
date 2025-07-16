@@ -48,6 +48,8 @@
   --radius: 0.625rem;
   --background: #0C1013;
   --foreground: #ffffff99;
+  --bg-popover: #0C1013;
+  --text-popover-foreground: #ffffff;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -95,10 +97,10 @@
 }
 
 .dark {
-  --background:hsl(177, 100%, 4%) ;
+  --background:#0C1013;
   --foreground: rgba(255, 255, 255, 0.6);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
+  --card: #1c1d1d;
+  --card-foreground: #99EFEC;
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.922 0 0);
@@ -130,7 +132,7 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
   html,
   body {
@@ -144,23 +146,6 @@
   }
 }
 
-.page-upload, 
-.page-profile, 
-.page-review {
-  background: 
-    radial-gradient(circle at 50% 50%, rgba(12, 16, 19, 0.00) 0%, #0C1013 100%),
-    url(/bg_tile.webp) repeat 0 0, #0C1013;
-  background-size: 34px;
-}
-
-.page-review {
-  justify-content: flex-start;
-}
-
-.page-review main {
-  min-height: calc(100vh - 120px);
-  height: auto;
-}
 
 [data-radix-popper-content-wrapper] {
   z-index: 50 !important;
