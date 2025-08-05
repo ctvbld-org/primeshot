@@ -1,6 +1,6 @@
-[submodule "ai_containers/ai-toolkit-modal"]
-	path = ai_containers/ai-toolkit-modal
-	url = git@github.com:ctvbld/primeshot-ai-toolkit-modal.git
-[submodule "ai_containers/comfyui-modal"]
-	path = ai_containers/comfyui-modal
-	url = git@github.com:ctvbld/primeshot-comfyui-modal.git
+[submodule "modal_apps/training"]
+	path = modal_apps/training
+	url = git@github.com:ctvbld/primeshot-training.git
+[submodule "modal_apps/inference"]
+	path = modal_apps/inference
+	url = git@github.com:ctvbld/primeshot-inference.git
