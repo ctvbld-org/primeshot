@@ -13,7 +13,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   return (
     <header className="w-full h-14 border-b border-gray-200 flex items-center px-4">
@@ -29,6 +29,9 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
           <a href="/create">Create</a>
           <a href="/use-cases">Use Cases</a>
           <a href="/pricing">Pricing</a>
+          {isAuthenticated && user?.admin && (
+            <a href="/admin/dashboard" className="text-purple-600 font-semibold">Admin</a>
+          )}
         </nav>
 
         {/* spacer */}

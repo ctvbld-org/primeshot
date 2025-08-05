@@ -1,5 +1,5 @@
 import { jsx as _jsx } from "react/jsx-runtime";
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils';
 /**
  * Pure-CSS circular progress indicator driven by CSS variables.
  * Updates are handled simply by changing the `--value` custom property.

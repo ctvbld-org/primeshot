@@ -5,6 +5,7 @@ export interface User extends SupabaseUser {
   avatar_url?: string
   updated_at?: string
   gender?: string
+  admin?: boolean
 }
 
 export type AuthError = {

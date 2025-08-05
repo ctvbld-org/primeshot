@@ -1,8 +1,8 @@
 'use client';
 import { jsx as _jsx } from "react/jsx-runtime";
 import { createContext, useContext, useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { formatAuthError } from '@/lib/utils/auth';
+import { createClient } from '../lib/supabase/client';
+import { formatAuthError } from '../lib/utils/auth';
 const initialState = {
     user: null,
     isLoading: true,
@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }) => {
             setState(prev => ({ ...prev, isLoading: true, error: null }));
             const { error } = await supabase.auth.signInWithOtp({
                 email,
-                options: { emailRedirectTo: `${window.location.origin}/auth/callback` }
+                options: { emailRedirectTo: getCallbackUrl() }
             });
             if (error)
                 throw error;
@@ -76,13 +76,18 @@ export const AuthProvider = ({ children }) => {
             setState(prev => ({ ...prev, isLoading: false }));
         }
     };
+    // Helper to build redirect URL respecting optional base path
+    const getCallbackUrl = () => {
+        const callbackUrl = process.env.NEXT_PUBLIC_APP_URL + '/auth/callback';
+        return callbackUrl;
+    };
     const signInWithGoogle = async () => {
         try {
             setState(prev => ({ ...prev, isLoading: true, error: null }));
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: `${window.location.origin}/auth/callback`,
+                    redirectTo: getCallbackUrl(),
                     queryParams: { access_type: 'offline', prompt: 'consent' }
                 }
             });
@@ -102,7 +107,7 @@ export const AuthProvider = ({ children }) => {
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'linkedin_oidc',
                 options: {
-                    redirectTo: `${window.location.origin}/auth/callback`,
+                    redirectTo: getCallbackUrl(),
                     scopes: 'openid profile email'
                 }
             });
@@ -121,13 +126,14 @@ export const AuthProvider = ({ children }) => {
             setState(prev => ({ ...prev, isLoading: true, error: null }));
             const currentPath = window.location.pathname + window.location.search;
             const isRelative = !currentPath.startsWith('http');
-            const safePath = isRelative ? currentPath : '/';
+            const DEFAULT_PATH = process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/';
+            const safePath = isRelative ? currentPath : DEFAULT_PATH;
             const returnUrl = encodeURIComponent(safePath);
             const { error } = await supabase.auth.signOut();
             if (error)
                 throw error;
             setState(prev => ({ ...prev, user: null, isAuthenticated: false }));
-            window.location.href = `/auth/signin?returnUrl=${returnUrl}`;
+            window.location.href = DEFAULT_PATH;
         }
         catch (error) {
             setState(prev => ({ ...prev, error: formatAuthError(error) }));
