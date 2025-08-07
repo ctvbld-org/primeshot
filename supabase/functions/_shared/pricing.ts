@@ -5,7 +5,7 @@
  * Credit costs, subscription tiers, and credit packs are fetched from the database.
  * 
  * This file provides a cached interface to the pricing tables:
- * - credit_costs: Cost per operation (image generation, face model training)
+ * - credit_costs: Cost per operation (image generation, character training)
  * - subscriptions: Subscription tier details
  * - credit_packs: Credit pack configurations
  */
@@ -38,7 +38,7 @@ async function getCreditCosts(supabase: any): Promise<Record<string, number>> {
         'IMAGE_GENERATION_1K': 1,
         'IMAGE_GENERATION_2K': 2,
         'IMAGE_GENERATION_4K': 3,
-        'FACE_MODEL_TRAINING': 30
+        'CHARACTER_TRAINING': 30
       };
     }
 
@@ -98,9 +98,9 @@ async function getSubscriptions(supabase: any): Promise<any[]> {
  * Get subscription limits from database
  */
 export async function getSubscriptionLimits(supabase: any, planName: string): Promise<{
-  face_model_training_included: number;
+  character_training_included: number;
   concurrent_jobs: number;
-  max_face_models: number;
+  max_characters: number;
   max_resolution: string;
 } | null> {
   try {
@@ -113,9 +113,9 @@ export async function getSubscriptionLimits(supabase: any, planName: string): Pr
     }
 
     return {
-      face_model_training_included: subscription.face_model_training_included,
+      character_training_included: subscription.character_training_included,
       concurrent_jobs: subscription.concurrent_jobs,
-      max_face_models: subscription.max_face_models,
+      max_characters: subscription.max_characters,
       max_resolution: subscription.max_resolution
     };
   } catch (error) {
@@ -125,11 +125,11 @@ export async function getSubscriptionLimits(supabase: any, planName: string): Pr
 }
 
 /**
- * Get credit cost for Face Model training
+ * Get credit cost for Character training
  */
-export async function getFaceModelTrainingCost(supabase: any): Promise<number> {
+export async function getCharacterTrainingCost(supabase: any): Promise<number> {
   const costs = await getCreditCosts(supabase);
-  return costs['FACE_MODEL_TRAINING'] || 30;
+  return costs['CHARACTER_TRAINING'] || costs['FACE_MODEL_TRAINING'] || 30; // Fallback for compatibility
 }
 
 /**
@@ -153,14 +153,14 @@ export async function calculateImageCreditCost(supabase: any, resolution: Resolu
  */
 export async function calculateCreditCost(
   supabase: any,
-  operationType: 'image_generation' | 'face_model_training',
+  operationType: 'image_generation' | 'character_training',
   options?: { resolution?: Resolution; batchSize?: number }
 ): Promise<number> {
   switch (operationType) {
     case 'image_generation':
       return await calculateImageCreditCost(supabase, options?.resolution || '1K', options?.batchSize || 1);
-    case 'face_model_training':
-      return await getFaceModelTrainingCost(supabase);
+    case 'character_training':
+      return await getCharacterTrainingCost(supabase);
     default:
       throw new Error(`Unknown operation type: ${operationType}`);
   }

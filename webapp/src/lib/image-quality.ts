@@ -64,8 +64,8 @@ const MIN_CONTRAST = 0.15; // Reduced from 0.4 - more realistic threshold
 const MAX_BLUR = 0.15; // Reduced from 0.5 - more realistic threshold
 
 // Constants for body detection
-const MIN_BODY_PERCENTAGE = 0.10; // 10% of images should include body
-const MAX_BODY_PERCENTAGE = 0.40; // 40% maximum for body shots
+const MIN_BODY_COUNT = 2; // Minimum 2 images with body shots
+const MAX_BODY_PERCENTAGE = 0.60; // 60% maximum for body shots
 
 // Add after other constants
 const MIN_EYE_CONFIDENCE = 0.3;
@@ -382,38 +382,7 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
             faceDetectionPerformed = true;
             result.hasFace = true;
             result.faceCount = rawFaceDetections.length;
-            
-            // Add gender detection for SSD MobileNet results
-            try {
-              if (!faceapi.nets.ageGenderNet.isLoaded) {
-                await faceapi.nets.ageGenderNet.loadFromUri('/models');
-              }
-              const genderDetection = await faceapi.detectSingleFace(img)
-                .withAgeAndGender();
-              
-              if (genderDetection && genderDetection.gender && genderDetection.genderProbability > 0.6) {
-                result.detectedGender = genderDetection.gender.toLowerCase() as 'male' | 'female';
-                result.genderDetectionSkipped = false;
-                
-                // Extract age information from SSD detection
-                if (genderDetection.age && genderDetection.age >= 18) {
-                  result.detectedAge = Math.round(genderDetection.age);
-                  result.detectedAgeRange = mapAgeToRange(result.detectedAge);
-                  
-                  // Initialize confidence scores object if not exists
-                  if (!result.confidenceScores) {
-                    result.confidenceScores = {};
-                  }
-                  result.confidenceScores.age = genderDetection.genderProbability;
-                }
-              } else {
-                result.genderDetectionSkipped = true;
-              }
-            } catch (genderError) {
-              console.error('Gender detection failed:', genderError);
-              result.genderDetectionSkipped = true;
-            }
-            
+                        
             // Since we don't have landmarks, estimate face score based on size and position
             const face = rawFaceDetections[0];
             const relativeSize = (face.box.width * face.box.height) / (width * height);
@@ -464,27 +433,6 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
         result.hasFace = true;
         result.faceCount = 1;
         
-        // Get gender and age from detection
-        const detection = faceDetections[0];
-        if (detection.gender && detection.genderProbability > 0.6) {
-          result.detectedGender = detection.gender.toLowerCase() as 'male' | 'female';
-          result.genderDetectionSkipped = false;
-        } else {
-          result.genderDetectionSkipped = true;
-        }
-        
-        // Extract age information
-        if (detection.age && detection.age >= 18) {
-          result.detectedAge = Math.round(detection.age);
-          result.detectedAgeRange = mapAgeToRange(result.detectedAge);
-          
-          // Initialize confidence scores object if not exists
-          if (!result.confidenceScores) {
-            result.confidenceScores = {};
-          }
-          result.confidenceScores.age = detection.genderProbability; // Use same confidence as gender
-        }
-        
         // Evaluate face position and size
         result.faceScore = evaluateFacePosition(faceDetections[0], width, height);
         
@@ -513,22 +461,7 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
               result.issues.push('Eye visibility could not be determined with high confidence');
             }
           }
-          
-          // Eye color and hair color detection removed - unreliable with canvas analysis
-          
-          // Glasses detection removed - not reliable enough
-          
-          // Detect body type (basic analysis)
-          const bodyTypeResult = detectBodyType(img, faceDetections[0]);
-          if (bodyTypeResult.confidence > 0.3) {
-            result.detectedBodyType = bodyTypeResult.bodyType;
-            
-            // Initialize confidence scores object if not exists
-            if (!result.confidenceScores) {
-              result.confidenceScores = {};
-            }
-            result.confidenceScores.bodyType = bodyTypeResult.confidence;
-          }
+                    
         }
       }
     } catch (error) {
@@ -629,159 +562,6 @@ async function createImageElement(file: File): Promise<HTMLImageElement> {
     img.src = URL.createObjectURL(file);
   });
 }
-
-// Age detection helper function
-function mapAgeToRange(age: number): string {
-  if (age >= 18 && age <= 25) return '18-25';
-  if (age >= 26 && age <= 30) return '26-30';
-  if (age >= 31 && age <= 35) return '31-35';
-  if (age >= 36 && age <= 40) return '36-40';
-  if (age >= 41 && age <= 45) return '41-45';
-  if (age >= 46 && age <= 50) return '46-50';
-  if (age >= 51 && age <= 55) return '51-55';
-  if (age >= 56 && age <= 60) return '56-60';
-  if (age >= 61 && age <= 65) return '61-65';
-  if (age >= 66 && age <= 70) return '66-70';
-  if (age >= 71 && age <= 75) return '71-75';
-  if (age >= 76 && age <= 80) return '76-80';
-  if (age >= 81 && age <= 85) return '81-85';
-  if (age >= 86 && age <= 90) return '86-90';
-  return '86-90';
-}
-
-// Eye color and hair color detection functions removed - unreliable with canvas analysis
-
-// Body type detection function
-function detectBodyType(
-  img: HTMLImageElement,
-  faceDetection: WithFaceLandmarks<{ detection: FaceDetection }>
-): { bodyType: string; confidence: number } {
-  try {
-    // Basic body type classification based on face and image proportions
-    // This is a simplified approach since accurate body type detection requires full body analysis
-    
-    const face = faceDetection.detection.box;
-    const faceWidth = face.width;
-    const faceHeight = face.height;
-    const imageWidth = img.width;
-    const imageHeight = img.height;
-    
-    // Calculate face-to-image ratios
-    const faceToImageWidthRatio = faceWidth / imageWidth;
-    const faceToImageHeightRatio = faceHeight / imageHeight;
-    
-    // Calculate face position relative to image
-    const faceCenterX = face.x + faceWidth / 2;
-    const faceCenterY = face.y + faceHeight / 2;
-    const relativeX = faceCenterX / imageWidth;
-    const relativeY = faceCenterY / imageHeight;
-    
-    // Estimate body visibility and proportions
-    const hasBodySpace = relativeY < 0.6; // Face is in upper 60% suggests body might be visible
-    const faceAspectRatio = faceWidth / faceHeight;
-    
-    // Very simple heuristic-based classification
-    // Note: This is quite limited without full body detection
-    
-    let bodyType = 'average';
-    let confidence = 0.3; // Low confidence for basic heuristics
-    
-    if (hasBodySpace) {
-      // If we can see more than just the face, attempt basic classification
-      
-      // Wider face relative to image might suggest broader build
-      if (faceToImageWidthRatio > 0.25) {
-        if (faceAspectRatio > 1.1) {
-          bodyType = 'heavyset';
-          confidence = 0.4;
-        } else {
-          bodyType = 'muscular';
-          confidence = 0.35;
-        }
-      }
-      // Smaller face relative to image might suggest slimmer build
-      else if (faceToImageWidthRatio < 0.15) {
-        bodyType = 'slim';
-        confidence = 0.4;
-      }
-      // Face positioned higher might suggest taller build
-      else if (relativeY < 0.3 && faceToImageHeightRatio < 0.2) {
-        bodyType = 'tall';
-        confidence = 0.35;
-      }
-      // Face positioned lower might suggest shorter build  
-      else if (relativeY > 0.5 && faceToImageHeightRatio > 0.25) {
-        bodyType = 'short';
-        confidence = 0.35;
-      }
-      else {
-        bodyType = 'average';
-        confidence = 0.3;
-      }
-    }
-    
-    // Additional classification based on facial features
-    const landmarks = faceDetection.landmarks;
-    
-    try {
-      // Analyze jaw line for additional body type hints
-      const jaw = landmarks.getJawOutline();
-      if (jaw && jaw.length > 0) {
-        const jawWidth = Math.max(...jaw.map((p: any) => p.x)) - Math.min(...jaw.map((p: any) => p.x));
-        const jawToFaceRatio = jawWidth / faceWidth;
-        
-        // Strong jaw might indicate more muscular build
-        if (jawToFaceRatio > 0.8) {
-          if (bodyType === 'average') {
-            bodyType = 'muscular';
-            confidence = 0.4;
-          } else if (bodyType === 'muscular') {
-            confidence = Math.min(0.6, confidence + 0.1);
-          }
-        }
-        // Narrow jaw might indicate slimmer build
-        else if (jawToFaceRatio < 0.6) {
-          if (bodyType === 'average') {
-            bodyType = 'slim';
-            confidence = 0.4;
-          } else if (bodyType === 'slim') {
-            confidence = Math.min(0.6, confidence + 0.1);
-          }
-        }
-      }
-    } catch (landmarkError) {
-      // If landmark analysis fails, keep existing classification
-    }
-    
-    return {
-      bodyType,
-      confidence: Math.max(0.2, Math.min(0.7, confidence)) // Keep confidence reasonable
-    };
-    
-  } catch (error) {
-    console.error('Error detecting body type:', error);
-    return { bodyType: 'average', confidence: 0 };
-  }
-}
-
-/* 
-// DEPRECATED: Resolution is now a binary pass/fail check, not scored
-function checkResolution(width: number, height: number): number {
-  if (width < MIN_WIDTH || height < MIN_HEIGHT) {
-    const widthRatio = width / MIN_WIDTH;
-    const heightRatio = height / MIN_HEIGHT;
-    const ratio = Math.min(widthRatio, heightRatio);
-    
-    // More aggressive scoring for below-minimum dimensions
-    // If either dimension is less than 70% of minimum, score drops rapidly
-    if (ratio < 0.7) {
-      return ratio * 0.5; // Halve the score for significantly undersized images
-    }
-    return ratio * 0.7; // 70% max score for any undersized dimension
-  }
-  return 1;
-}
-*/
 
 function evaluateFacePosition(detection: WithFaceLandmarks<{ detection: FaceDetection }>, imgWidth: number, imgHeight: number): number {
   const face = detection.detection;
@@ -1350,16 +1130,41 @@ function calculateOverallScore(result: ImageQualityResult): number {
   return score;
 }
 
-// Add function to check body percentage requirements
-export function checkBodyPercentageRequirements(results: Record<string, ImageQualityResult>): boolean {
-  if (isServer) return true;
+// Add function to check body shot requirements
+export function checkBodyShotRequirements(results: Record<string, ImageQualityResult>): { 
+  isValid: boolean; 
+  bodyCount: number; 
+  totalImages: number; 
+  bodyPercentage: number;
+  errors: string[];
+} {
+  if (isServer) return { isValid: true, bodyCount: 0, totalImages: 0, bodyPercentage: 0, errors: [] };
+  
   const totalImages = Object.keys(results).length;
-  if (totalImages === 0) return false;
+  if (totalImages === 0) return { isValid: false, bodyCount: 0, totalImages: 0, bodyPercentage: 0, errors: ['No images uploaded'] };
   
   const bodyCount = Object.values(results).filter(r => r.hasBody).length;
   const bodyPercentage = bodyCount / totalImages;
   
-  return bodyPercentage >= MIN_BODY_PERCENTAGE && bodyPercentage <= MAX_BODY_PERCENTAGE;
+  const errors: string[] = [];
+  
+  // Check minimum body count
+  if (bodyCount < MIN_BODY_COUNT) {
+    errors.push(`Need at least ${MIN_BODY_COUNT} body shots (currently have ${bodyCount})`);
+  }
+  
+  // Check maximum percentage
+  if (bodyPercentage > MAX_BODY_PERCENTAGE) {
+    errors.push(`Too many body shots (${Math.round(bodyPercentage * 100)}%). Maximum ${Math.round(MAX_BODY_PERCENTAGE * 100)}% allowed`);
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    bodyCount,
+    totalImages,
+    bodyPercentage,
+    errors
+  };
 }
 
 function isAcceptable(result: ImageQualityResult): boolean {

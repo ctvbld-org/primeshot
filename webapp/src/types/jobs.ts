@@ -2,7 +2,7 @@
 export interface TrainingJob {
   id: string;
   user_id: string;
-  face_model_id: string;
+  character_id: string;
   status: 'queued' | 'running' | 'completed' | 'failed';
   progress: number;
   modal_job_id?: string;
@@ -14,7 +14,7 @@ export interface TrainingJob {
   updated_at: string;
   error_message?: string;
   message?: string; // Progress message from the progress tracker
-  face_models?: {
+  characters?: {
     id: string;
     name: string;
     status: string;
@@ -23,7 +23,7 @@ export interface TrainingJob {
 
 export interface TrainingStartRequest {
   user_id: string;
-  face_model_id: string;
+  character_id: string;
 }
 
 export interface TrainingStartResponse {
@@ -36,8 +36,8 @@ export interface TrainingStartResponse {
 
 export interface TrainingProgressResponse {
   job_id: string;
-  face_model_id: string;
-  face_model?: {
+  character_id: string;
+  character?: {
     id: string;
     name: string;
     status: string;
@@ -62,7 +62,7 @@ export interface TrainingProgressResponse {
 export interface InferenceJob {
   id: string;
   user_id: string;
-  face_model_id: string;
+  character_id: string;
   style_id: string;
   status: 'queued' | 'pending' | 'processing' | 'completed' | 'failed';
   progress: number;
@@ -84,7 +84,7 @@ export interface InferenceSettings {
 
 export interface InferenceStartRequest {
   user_id: string;
-  face_model_id: string;
+  character_id: string;
   style_id: string;
   prompt?: string;
   settings?: InferenceSettings;
@@ -100,9 +100,9 @@ export interface InferenceStartResponse {
 
 export interface InferenceProgressResponse {
   job_id: string;
-  face_model_id: string;
+  character_id: string;
   style_id: string;
-  face_model?: {
+  character?: {
     id: string;
     name: string;
     status: string;
@@ -129,8 +129,8 @@ export interface InferenceProgressResponse {
   is_complete: boolean;
 }
 
-// Face Model Types
-export interface FaceModel {
+// Character Types
+export interface Character {
   id: string;
   user_id: string;
   name: string;

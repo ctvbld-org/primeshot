@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
-import { getFaceModelTrainingCost } from "../_shared/pricing.ts";
+import { getCharacterTrainingCost } from "../_shared/pricing.ts";
 
 interface TrainingCompleteRequest {
   job_id: string;
@@ -44,7 +44,7 @@ serve(async (req) => {
     // Get the training job details to access user_id and credits_spent
     const { data: trainingJob, error: jobError } = await supabase
       .from('training_jobs')
-      .select('user_id, face_model_id, credits_spent, status')
+      .select('user_id, character_id, credits_spent, status')
       .eq('id', job_id)
       .single();
 
@@ -92,18 +92,18 @@ serve(async (req) => {
       );
     }
 
-    // Update face model status
-    const faceModelStatus = success ? 'ready' : 'failed';
+    // Update character status
+    const characterStatus = success ? 'ready' : 'failed';
     await supabase
-      .from('face_models')
+      .from('characters')
       .update({ 
-        status: faceModelStatus,
+        status: characterStatus,
         updated_at: new Date().toISOString()
       })
-      .eq('id', trainingJob.face_model_id);
+      .eq('id', trainingJob.character_id);
 
     console.log(`✅ Updated training job ${job_id} to ${success ? 'completed' : 'failed'}`);
-    console.log(`✅ Updated face model ${trainingJob.face_model_id} to ${faceModelStatus}`);
+    console.log(`✅ Updated character ${trainingJob.character_id} to ${characterStatus}`);
 
     // Refund credits if training failed and credits were spent
     if (!success && trainingJob.credits_spent > 0) {
@@ -127,6 +127,38 @@ serve(async (req) => {
       }
     }
 
+    // Process training queue after job completion
+    let queueProcessingResult = null;
+    try {
+      console.log('🔄 Training job completed, processing queue...');
+      
+      // Call training-queue function directly
+      const queueResponse = await fetch(
+        `${Deno.env.get('SUPABASE_URL')}/functions/v1/training-queue`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
+          },
+          body: JSON.stringify({
+            trigger: 'training_completed',
+            completed_job_id: job_id
+          })
+        }
+      );
+
+      if (queueResponse.ok) {
+        queueProcessingResult = await queueResponse.json();
+        console.log('✅ Queue processing completed:', queueProcessingResult);
+      } else {
+        console.error('❌ Queue processing failed:', await queueResponse.text());
+      }
+    } catch (queueError) {
+      console.error('Warning: Queue processing error (non-blocking):', queueError);
+      // Don't block training completion for queue processing errors
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -135,7 +167,12 @@ serve(async (req) => {
         credits_refunded: (!success && trainingJob.credits_spent > 0) ? trainingJob.credits_spent : 0,
         message: success 
           ? 'Training completed successfully' 
-          : `Training failed: ${error_message || 'Unknown error'}`
+          : `Training failed: ${error_message || 'Unknown error'}`,
+        queue_processing: queueProcessingResult ? {
+          triggered: true,
+          jobs_started: queueProcessingResult.jobs_started || 0,
+          available_slots: queueProcessingResult.available_slots || 0
+        } : { triggered: false }
       }),
       {
         status: 200,

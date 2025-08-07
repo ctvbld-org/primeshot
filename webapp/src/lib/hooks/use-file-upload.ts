@@ -485,7 +485,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     setFileStates([])
   }
 
-  const uploadFile = async (file: File, orderId: string, faceModelId: string) => {
+  const uploadFile = async (file: File, orderId: string, characterId: string) => {
     const index = fileStates.findIndex(state => state.file === file)
     if (index === -1) return
 
@@ -498,7 +498,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     try {
       const url = await uploadFileInChunks(
         file,
-        faceModelId,
+        characterId,
         (progress: number) => {
           setFileStates(prev => prev.map((state, i) => 
             i === index 

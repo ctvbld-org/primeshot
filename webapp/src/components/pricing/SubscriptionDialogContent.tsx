@@ -12,7 +12,7 @@ import { UpgradeConfirmationDialog } from './UpgradeConfirmationDialog'
 
 // Context types for different upgrade scenarios
 export type SubscriptionDialogContext = 
-  | 'face-model-limit' 
+  | 'character-limit' 
   | 'resolution-upgrade' 
   | 'credit-upgrade' 
   | 'general'
@@ -21,7 +21,7 @@ export interface SubscriptionDialogContentProps {
   context?: SubscriptionDialogContext
   currentPlan?: string
   showOnlyUpgrades?: boolean
-  requiredFeature?: 'max_face_models' | 'max_resolution' | 'credits'
+  requiredFeature?: 'max_characters' | 'max_resolution' | 'credits'
 }
 
 function formatPrice(price: number) { 
@@ -67,10 +67,10 @@ function getTierHierarchy(): Record<string, number> {
 // Context-specific messaging
 function getContextMessage(context?: SubscriptionDialogContext) {
   switch (context) {
-    case 'face-model-limit':
+    case 'character-limit':
       return {
-        title: 'Upgrade to Create More Face Models',
-        description: 'You\'ve reached your face model limit. Upgrade your plan to create additional face models and unlock more features.'
+        title: 'Upgrade to Create More Characters',
+        description: 'You\'ve reached your character limit. Upgrade your plan to create additional characters and unlock more features.'
       }
     case 'resolution-upgrade':
       return {
@@ -353,7 +353,7 @@ export function SubscriptionDialogContent({
                 {/* Highlight required feature */}
                 {requiredFeature && (
                   <div className="text-sm text-primary font-medium">
-                    {requiredFeature === 'max_face_models' && `${tier.max_face_models} Face Models`}
+                                            {requiredFeature === 'max_characters' && `${tier.max_characters} Characters`}
                     {requiredFeature === 'max_resolution' && `Up to ${tier.max_resolution} Resolution`}
                     {requiredFeature === 'credits' && `${tier.credits} Credits/month`}
                   </div>

@@ -19,9 +19,9 @@ import { useOpenCreditPackDialog } from '@/hooks/useOpenCreditPackDialog'
 import { useCreditBalance } from '@/hooks/useCreditBalance'
 import { useCurrentSubscription, type SubscriptionInfo } from '@/hooks/useCurrentSubscription'
 import { useCreditTransactions, type CreditTransaction } from '@/hooks/useCreditTransactions'
-import { useFaceModelCount } from '@/hooks/useFaceModelCount'
-import { useSubscriptionTiers, getFaceModelLimit } from '@/hooks/usePricingConfig'
-import { useFaceModelTrainingStatus } from '@/hooks/useFaceModelTrainingStatus'
+import { useCharacterCount } from '@/hooks/useCharacterCount'
+import { useSubscriptionTiers, getCharacterLimit } from '@/hooks/usePricingConfig'
+import { useCharacterTrainingStatus } from '@/hooks/useCharacterTrainingStatus'
 
 
 interface CreditDashboardProps {
@@ -32,16 +32,16 @@ export function CreditDashboard({ className }: CreditDashboardProps) {
   const { data: creditBalance = 0, isLoading: balanceLoading } = useCreditBalance()
   const { data: subscription, isLoading: subLoading } = useCurrentSubscription()
   const { data: transactions = [], isLoading: transLoading } = useCreditTransactions(10)
-  const { data: faceModelCount = 0, isLoading: faceModelCountLoading } = useFaceModelCount()
+  const { data: characterCount = 0, isLoading: characterCountLoading } = useCharacterCount()
   const { data: subscriptionTiers } = useSubscriptionTiers()
   const openCreditPackDialog = useOpenCreditPackDialog()
-  const { statusMessage, usagePercentage: faceModelUsagePercentage } = useFaceModelTrainingStatus()
+  const { statusMessage, usagePercentage: characterUsagePercentage } = useCharacterTrainingStatus()
 
   const isLoading = balanceLoading || subLoading || transLoading
 
-  // Get max face models allowed for current subscription
-  const maxFaceModels = subscription?.plan_name && subscriptionTiers 
-    ? getFaceModelLimit(subscription.plan_name, subscriptionTiers)
+  // Get max characters allowed for current subscription
+  const maxCharacters = subscription?.plan_name && subscriptionTiers 
+    ? getCharacterLimit(subscription.plan_name, subscriptionTiers)
     : 1
 
   const getTransactionIcon = (transaction: CreditTransaction) => {
@@ -76,9 +76,9 @@ export function CreditDashboard({ className }: CreditDashboardProps) {
     return (subscription.credits_used_this_period / subscription.credits_included) * 100
   }
 
-  const getFaceModelCountUsagePercentage = () => {
-    if (maxFaceModels === 0) return 0
-    return (faceModelCount / maxFaceModels) * 100
+  const getCharacterCountUsagePercentage = () => {
+    if (maxCharacters === 0) return 0
+    return (characterCount / maxCharacters) * 100
   }
 
   const daysUntilReset = subscription 
@@ -178,22 +178,22 @@ export function CreditDashboard({ className }: CreditDashboardProps) {
               <Progress value={getSubscriptionUsagePercentage()} className="h-2" />
             </div>
 
-            {/* Face Model Training Usage */}
+            {/* Character Training Usage */}
             <div>
               <div className="flex justify-between text-sm mb-2">
-                <span>Face Model Training Used</span>
+                <span>Character Training Used</span>
                 <span>{statusMessage}</span>
               </div>
-              <Progress value={faceModelUsagePercentage} className="h-2" />
+              <Progress value={characterUsagePercentage} className="h-2" />
             </div>
 
-            {/* Face Model Count Usage */}
+            {/* Character Count Usage */}
             <div>
               <div className="flex justify-between text-sm mb-2">
-                <span>Face Model Slots Used</span>
-                <span>{faceModelCount} / {maxFaceModels}</span>
+                <span>Character Slots Used</span>
+                <span>{characterCount} / {maxCharacters}</span>
               </div>
-              <Progress value={getFaceModelCountUsagePercentage()} className="h-2" />
+              <Progress value={getCharacterCountUsagePercentage()} className="h-2" />
             </div>
 
             <div className="grid grid-cols-2 gap-4 pt-2 border-t text-sm">

@@ -9,8 +9,8 @@ export interface SubscriptionInfo {
   credits_included: number
   credits_used_this_period: number
   max_resolution: string
-  face_model_training_included: number
-  face_model_training_used: number
+  character_training_included: number
+  character_training_used: number
 }
 
 export function useCurrentSubscription() {

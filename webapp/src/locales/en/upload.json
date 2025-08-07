@@ -74,16 +74,16 @@
     "checkingQuality": "Checking lighting, framing, and sharpness."
   },
   "upload": {
-    "uploadingFiles": "Uploading {{uploaded}} of {{total}} photos...",
+    "uploadingFiles": "Loading your best looks",
     "uploadingInfo": "Please keep this page open until upload completes."
   },
   "errors": {
     "noActiveSubscription": "Active subscription required",
-    "subscriptionRequired": "Please upgrade your subscription to create face models.",
-    "insufficientCredits": "Insufficient credits for face model training",
-    "creditPackRequired": "You need {{credits}} credits to train this face model. Please purchase a credit pack.",
-    "faceModelLimitReached": "Face model limit reached",
-    "faceModelLimitMessage": "Your plan allows {{limit}} face model(s). Please upgrade to create more.",
+    "subscriptionRequired": "Please upgrade your subscription to create characters.",
+    "insufficientCredits": "Insufficient credits for character training",
+    "creditPackRequired": "You need {{credits}} credits to train this character. Please purchase a credit pack.",
+    "characterLimitReached": "Character limit reached",
+    "characterLimitMessage": "Your plan allows {{limit}} character(s). Please upgrade to create more.",
     "uploadFailed": "Failed to upload images..",
     "someUploadsFailed": "{{count}} uploads failed. Please try again.",
     "savingProgress": "Failed to save progress. Continuing to review.",
@@ -103,7 +103,12 @@
     "uploadFailedCount": "{{count}} file(s) could not be added",
     "invalidResponse": "Invalid response: missing or invalid URL",
     "deleteFailed": "Failed to delete image",
-    "genericError": "An error occurred. Please try again."
+    "genericError": "An error occurred. Please try again.",
+    "trainingRetrying": "Training failed, retrying... ({{attempt}}/{{maxRetries}})",
+    "trainingRetryFailed": "Training failed after {{attempts}} attempts. Please try again later.",
+    "uploadRetrying": "Upload failed, retrying... ({{attempt}}/{{maxRetries}})",
+    "uploadRetryFailed": "Upload failed after {{attempts}} attempts. Please check your connection and try again.",
+    "retryError": "Error: {{message}}"
   },
   "buttons": {
     "upload_one": "Upload {{count}} Style",
@@ -134,27 +139,30 @@
     "emptyPhotoSlot": "Empty photo slot {{number}}",
     "photoPreview": "Preview of photo {{number}}"
   },
-  "faceModel": {
-    "nameLabel": "Face Model Name",
-    "namePlaceholder": "e.g., My Professional Headshots",
-    "nameDescription": "This will help you identify your face model later.",
+  "character": {
+    "nameLabel": "Character Name",
     "creditsRequired": "Training will use {{credits}} credits",
-    "training": "Training Face Model",
-    "trainingInitializing": "Initializing training process...",
+    "training": "Training Character",
+    "trainingInitializing": "Your digital twin is warming up",
+    "trainingInitializingInfo": "Teaching the machine your face 😉",
     "timeRemaining": "Estimated time remaining",
-    "trainingInfo": "Your face model is being trained. This process typically takes 10-15 minutes.",
-    "canCloseInfo": "You can safely close this dialog and check back later.",
+    "canCloseInfo": "Return to app to continue queuing shoots.",
+    "queued": "Training Queued",
+    "queuedInitializing": "Your training is queued",
+    "queuedInfo": "Your character will start training automatically when a slot becomes available.",
+    "queuedPosition": "Position {{position}} in queue",
+    "returnToApp": "Return to app",
     "trainingError": "Training failed",
-    "trainingFailed": "Face model training failed",
-    "trainingFailedDescription": "There was an issue training your face model. Please try again or contact support if the problem persists."
+    "trainingFailed": "Character training failed",
+    "trainingFailedDescription": "There was an issue training your character. Please try again or contact support if the problem persists."
   },
   "confirmClose": {
-    "title": "Close Face Model Creation?",
+    "title": "Close Character Creation?",
     "description": "Are you sure you want to close? All your progress will be lost and you'll need to start over.",
     "progressMessages": {
       "upload": "Your uploaded photos will be lost.",
       "profile": "Your profile information will be lost.",
-      "name": "Your face model name will be lost."
+      "name": "Your character name will be lost."
     },
     "buttons": {
       "cancel": "Cancel",

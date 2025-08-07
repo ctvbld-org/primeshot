@@ -5,7 +5,7 @@ import { calculateImageCreditCost, getSubscriptionLimits, type Resolution } from
 
 interface InferenceRequest {
   user_id: string;
-  face_model_id: string;
+  character_id: string;
   style_id: string;
   prompt?: string;
   settings?: {
@@ -14,13 +14,15 @@ interface InferenceRequest {
     num_inference_steps?: number;
     resolution?: '1K' | '2K' | '4K';
     batch_size?: number;
+    // Optional queue type: fast (default) or slow
+    queue_type?: 'fast' | 'slow';
   };
 }
 
 interface InferenceJob {
   id: string;
   user_id: string;
-  face_model_id: string;
+  character_id: string;
   style_id: string;
   status: 'queued' | 'pending' | 'processing' | 'completed' | 'failed';
   progress: number;
@@ -82,6 +84,61 @@ async function checkResolutionPermission(
   }
 }
 
+// Check user's concurrent inference limits based on subscription plan
+async function checkInferenceConcurrentLimits(
+  supabase: any,
+  userId: string
+): Promise<{
+  allowed: boolean;
+  reason?: string;
+  concurrentJobs?: number;
+  currentRunningJobs?: number;
+}> {
+  try {
+    // Get user's active subscription
+    const { data: subscription } = await supabase
+      .from('user_subscriptions')
+      .select('plan_name')
+      .eq('user_id', userId)
+      .eq('status', 'active')
+      .single();
+
+    // Default to 1 concurrent job for users without an active subscription
+    let concurrentJobs = 1;
+
+    if (subscription?.plan_name) {
+      const limits = await getSubscriptionLimits(supabase, subscription.plan_name);
+      if (limits?.concurrent_jobs) {
+        concurrentJobs = limits.concurrent_jobs;
+      }
+    }
+
+    // Count user's currently running inference jobs (pending or processing)
+    const { count: runningCount } = await supabase
+      .from('inference_jobs')
+      .select('id', { count: 'exact' })
+      .eq('user_id', userId)
+      .in('status', ['pending', 'processing']);
+
+    const currentRunningJobs = runningCount || 0;
+
+    if (currentRunningJobs >= concurrentJobs) {
+      return {
+        allowed: false,
+        reason: `Concurrent inference limit reached (${currentRunningJobs}/${concurrentJobs})`,
+        concurrentJobs,
+        currentRunningJobs,
+      };
+    }
+
+    return { allowed: true, concurrentJobs, currentRunningJobs };
+  } catch (error) {
+    console.error('Error checking inference concurrent limits:', error);
+    // Fail-safe: allow but with reason set
+    return { allowed: true, reason: 'Failed to verify concurrent limits' };
+  }
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -106,12 +163,12 @@ serve(async (req) => {
 
     // Parse request body
     const body: InferenceRequest = await req.json();
-    const { user_id, face_model_id, style_id, prompt, settings } = body;
+    const { user_id, character_id, style_id, prompt, settings } = body;
 
     // Validate required fields
-    if (!user_id || !face_model_id || !style_id) {
+    if (!user_id || !character_id || !style_id) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields: user_id, face_model_id, and style_id' }),
+        JSON.stringify({ error: 'Missing required fields: user_id, character_id, and style_id' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -119,6 +176,7 @@ serve(async (req) => {
     // Extract settings
     const resolution = settings?.resolution || '1K';
     const batchSize = settings?.batch_size || 5;
+    const queueType: 'fast' | 'slow' = settings?.queue_type === 'slow' ? 'slow' : 'fast';
 
     // Validate batch_size limits
     if (!Number.isInteger(batchSize) || batchSize < 5 || batchSize > 20) {
@@ -178,18 +236,18 @@ serve(async (req) => {
       );
     }
 
-    // Verify user owns the face model and it's ready for inference
-    const { data: faceModel, error: faceModelError } = await supabase
-      .from('face_models')
+    // Verify user owns the character and it's ready for inference
+    const { data: character, error: characterError } = await supabase
+      .from('characters')
       .select('id, user_id, status, lora_path')
-      .eq('id', face_model_id)
+      .eq('id', character_id)
       .eq('user_id', user_id)
-      .eq('status', 'ready') // Only allow inference on ready face models
+      .eq('status', 'ready') // Only allow inference on ready characters
       .single();
 
-    if (faceModelError || !faceModel) {
+    if (characterError || !character) {
       return new Response(
-        JSON.stringify({ error: 'Face model not found, not ready, or access denied' }),
+        JSON.stringify({ error: 'Character not found, not ready, or access denied' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -216,7 +274,7 @@ serve(async (req) => {
         p_usage_type: 'image_generation',
         p_description: `Image generation - ${resolution} resolution, ${batchSize} images`,
         p_metadata: {
-          face_model_id,
+          character_id,
           style_id,
           resolution,
           batch_size: batchSize,
@@ -238,13 +296,17 @@ serve(async (req) => {
     // Generate job ID
     const jobId = crypto.randomUUID();
 
+    // Determine if we need to queue based on user's concurrent limits
+    const concurrentLimits = await checkInferenceConcurrentLimits(supabase, user_id);
+    const shouldQueue = !concurrentLimits.allowed;
+
     // Create inference job record with credits spent
     const inferenceJob: Partial<InferenceJob> = {
       id: jobId,
       user_id,
-      face_model_id,
+      character_id,
       style_id,
-      status: 'pending',
+      status: shouldQueue ? 'queued' : 'pending',
       progress: 0,
       estimated_duration: 45, // Default 45 seconds for inference
       prompt: prompt || `A professional photo in ${style.name} style`,
@@ -254,7 +316,8 @@ serve(async (req) => {
         batch_size: batchSize,
         strength: settings?.strength || 0.8,
         guidance_scale: settings?.guidance_scale || 7.5,
-        num_inference_steps: settings?.num_inference_steps || 30
+        num_inference_steps: settings?.num_inference_steps || 30,
+        queue_type: queueType,
       },
       credits_spent: creditCost,
       created_at: new Date().toISOString(),
@@ -292,9 +355,30 @@ serve(async (req) => {
       );
     }
 
+    if (shouldQueue) {
+      console.log(`🕐 Inference job ${jobId} queued due to per-user concurrent limit`);
+      return new Response(
+        JSON.stringify({
+          job_id: jobId,
+          status: 'queued',
+          estimated_duration: 45,
+          credits_spent: creditCost,
+          remaining_credits: currentBalance - creditCost,
+          queue_info: {
+            current_running_jobs: concurrentLimits.currentRunningJobs,
+            concurrent_jobs: concurrentLimits.concurrentJobs,
+          },
+          message: 'Inference queued. It will start automatically when a slot becomes available.',
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Call Modal ComfyUI API for real inference
     try {
-      const inferenceApiUrl = Deno.env.get('INFERENCE_API_URL');
+      const slowUrl = Deno.env.get('INFERENCE_SLOW_API_URL');
+      const defaultUrl = Deno.env.get('INFERENCE_API_URL');
+      const inferenceApiUrl = queueType === 'slow' ? (slowUrl || defaultUrl) : defaultUrl;
       if (!inferenceApiUrl) {
         throw new Error('INFERENCE_API_URL environment variable not set');
       }
@@ -305,7 +389,7 @@ serve(async (req) => {
         workflow_name: style.workflow_name || 'flux_lora',
         parameters: {
           prompt: inferenceJob.prompt,
-          lora_path: faceModel.lora_path,
+          lora_path: character.lora_path,
           style_lora_path: style.lora_path,
           strength: inferenceJob.settings?.strength || 0.8,
           guidance_scale: inferenceJob.settings?.guidance_scale || 7.5,
@@ -322,7 +406,7 @@ serve(async (req) => {
         url: inferenceApiUrl,
         job_id: jobId,
         user_id,
-        face_model_id,
+        character_id,
         style_id,
         credits_spent: creditCost,
         resolution,
@@ -405,6 +489,7 @@ serve(async (req) => {
           remaining_credits: currentBalance - creditCost,
           resolution,
           batch_size: batchSize,
+          queue_type: queueType,
           message: 'Inference job started successfully on Modal'
         }),
         {

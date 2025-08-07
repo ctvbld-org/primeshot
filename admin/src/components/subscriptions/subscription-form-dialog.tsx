@@ -467,7 +467,7 @@ export function SubscriptionFormDialog({
                   name="face_model_training_included"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Included FaceModel Training</FormLabel>
+                      <FormLabel>Included Character Training</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
@@ -478,7 +478,7 @@ export function SubscriptionFormDialog({
                         />
                       </FormControl>
                       <FormDescription>
-                        Free face model trainings per month
+                        Free character trainings per month
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -490,7 +490,7 @@ export function SubscriptionFormDialog({
                   name="max_face_models"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Max FaceModels</FormLabel>
+                      <FormLabel>Max Characters</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
@@ -501,7 +501,7 @@ export function SubscriptionFormDialog({
                         />
                       </FormControl>
                       <FormDescription>
-                        Maximum face models allowed
+                        Maximum characters allowed
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

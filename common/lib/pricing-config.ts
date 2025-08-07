@@ -23,9 +23,9 @@ export interface SubscriptionTierConfig {
   yearlyPrice: number;
   credits: number;
   maxResolution: Resolution;
-  faceModelTrainingIncluded: number;
+  characterTrainingIncluded: number;
   concurrentJobs: number;
-  maxFaceModels: number;
+  maxCharacters: number;
   features: string[];
   popular: boolean;
 }
@@ -44,7 +44,7 @@ export interface CreditCosts {
   IMAGE_GENERATION: {
     [K in Resolution]: number;
   };
-  FACE_MODEL_TRAINING: number;
+  CHARACTER_TRAINING: number;
 }
 
 // Function to get environment variable from multiple possible sources
@@ -96,15 +96,15 @@ export const SUBSCRIPTION_TIERS_CONFIG: SubscriptionTierConfig[] = [
     yearlyPrice: 9, // Discounted yearly price (per month)
     credits: 40,
     maxResolution: '1K' as const,
-    faceModelTrainingIncluded: 1,
+    characterTrainingIncluded: 1,
     concurrentJobs: 1,
-    maxFaceModels: 1,
+    maxCharacters: 1,
     features: [
       '40 monthly credits',
       'Standard image resolution (1K max)',
-      'Includes 1 Face Model training',
+      'Includes 1 Character training',
       '1 concurrent job',
-      '1 Face Model slot',
+      '1 Character slot',
       'Up to 40 images per month'
     ],
     popular: false
@@ -119,15 +119,15 @@ export const SUBSCRIPTION_TIERS_CONFIG: SubscriptionTierConfig[] = [
     yearlyPrice: 18, // Discounted yearly price (per month)
     credits: 180,
     maxResolution: '4K' as const,
-    faceModelTrainingIncluded: 1,
+    characterTrainingIncluded: 1,
     concurrentJobs: 2,
-    maxFaceModels: 3,
+    maxCharacters: 3,
     features: [
       '180 monthly credits',
       'Ultra high image resolution (up to 4K)',
-      'Includes 1 Face Model training',
+      'Includes 1 Character training',
       '2 concurrent jobs',
-      '3 Face Model slots',
+      '3 Character slots',
       'Up to 180×1K, 90×2K, or 60×4K images per month'
     ],
     popular: true
@@ -142,15 +142,15 @@ export const SUBSCRIPTION_TIERS_CONFIG: SubscriptionTierConfig[] = [
     yearlyPrice: 39, // Discounted yearly price (per month)
     credits: 450,
     maxResolution: '4K' as const,
-    faceModelTrainingIncluded: 3,
+    characterTrainingIncluded: 3,
     concurrentJobs: 4,
-    maxFaceModels: 8,
+    maxCharacters: 8,
     features: [
       '450 monthly credits',
       'Ultra high image resolution (up to 4K)',
-      'Includes 3 Face Model trainings',
+      'Includes 3 Character trainings',
       '4 concurrent jobs',
-      '8 Face Model slots',
+      '8 Character slots',
       'Up to 450×1K, 225×2K, or 150×4K images per month'
     ],
     popular: false
@@ -193,7 +193,7 @@ export const CREDIT_COSTS_CONFIG: CreditCosts = {
     '2K': parseInt(getEnvVar('CREDIT_COST_2K', '2')),
     '4K': parseInt(getEnvVar('CREDIT_COST_4K', '3'))
   },
-  FACE_MODEL_TRAINING: parseInt(getEnvVar('CREDIT_COST_FACE_MODEL_TRAINING', '30'))
+  CHARACTER_TRAINING: parseInt(getEnvVar('CREDIT_COST_CHARACTER_TRAINING', '30'))
 };
 
 // Helper functions to calculate savings (derived from SUBSCRIPTION_TIERS_CONFIG)
@@ -224,11 +224,11 @@ export function calculateImageCredits(resolution: Resolution, batchSize: number 
   return CREDIT_COSTS_CONFIG.IMAGE_GENERATION[resolution] * batchSize;
 }
 
-export function getFaceModelTrainingCost(): number {
-  return CREDIT_COSTS_CONFIG.FACE_MODEL_TRAINING;
+export function getCharacterTrainingCost(): number {
+  return CREDIT_COSTS_CONFIG.CHARACTER_TRAINING;
 }
 
-export function getFaceModelLimit(planName: string): number {
+export function getCharacterLimit(planName: string): number {
   const tier = SUBSCRIPTION_TIERS_CONFIG.find(t => t.id === planName);
-  return tier?.maxFaceModels || 1; // Default to 1 if tier not found
+  return tier?.maxCharacters || 1; // Default to 1 if tier not found
 } 

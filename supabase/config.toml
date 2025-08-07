@@ -297,8 +297,16 @@ inspector_port = 8083
 # The Deno major version to use.
 deno_version = 1
 
-# [edge_runtime.secrets]
-# secret_key = "env(SECRET_VALUE)"
+[edge_runtime.secrets]
+ENV = "env(ENV)"
+TRAINING_API_URL = "env(TRAINING_API_URL)"
+MODAL_TOKEN_ID = "env(MODAL_TOKEN_ID)"
+MODAL_TOKEN_SECRET = "env(MODAL_TOKEN_SECRET)"
+STRIPE_SECRET_KEY = "env(STRIPE_SECRET_KEY)"
+AWS_ACCESS_KEY_ID = "env(AWS_ACCESS_KEY_ID)"
+AWS_SECRET_ACCESS_KEY = "env(AWS_SECRET_ACCESS_KEY)"
+AWS_REGION = "env(AWS_REGION)"
+AWS_S3_BUCKET = "env(AWS_S3_BUCKET)"
 
 [analytics]
 enabled = true

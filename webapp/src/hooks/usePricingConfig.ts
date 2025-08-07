@@ -11,9 +11,9 @@ export interface SubscriptionTier {
   yearly_price: number
   credits: number
   max_resolution: string
-  face_model_training_included: number
+  character_training_included: number
   concurrent_jobs: number
-  max_face_models: number
+  max_characters: number
   features: string[]
   popular: boolean
   created_at: string
@@ -34,7 +34,7 @@ export interface CreditCosts {
   IMAGE_GENERATION_1K: number
   IMAGE_GENERATION_2K: number
   IMAGE_GENERATION_4K: number
-  FACE_MODEL_TRAINING: number
+  CHARACTER_TRAINING: number
 }
 
 export function useSubscriptionTiers() {
@@ -89,11 +89,13 @@ export function calculateImageCredits(resolution: '1K' | '2K' | '4K', batchSize:
   return creditCosts[costKey] * batchSize
 }
 
-export function getFaceModelTrainingCost(creditCosts?: CreditCosts): number {
-  return creditCosts?.FACE_MODEL_TRAINING || 30 // fallback to default
+export function getCharacterTrainingCost(creditCosts?: CreditCosts): number {
+  // Try CHARACTER_TRAINING first, fallback to FACE_MODEL_TRAINING for compatibility
+  return creditCosts?.CHARACTER_TRAINING || (creditCosts as any)?.FACE_MODEL_TRAINING || 30 // fallback to default
 }
 
-export function getFaceModelLimit(planName: string, subscriptionTiers?: SubscriptionTier[]): number {
+export function getCharacterLimit(planName: string, subscriptionTiers?: SubscriptionTier[]): number {
   const tier = subscriptionTiers?.find(t => t.name === planName)
-  return tier?.max_face_models || 1 // Default to 1 if tier not found
+  // Use the correct column name that has been renamed in the database
+  return tier?.max_characters || 1 // Default to 1 if tier not found
 } 

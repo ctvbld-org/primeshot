@@ -200,25 +200,133 @@ export const createPresignedGetUrl = async (key: string) => {
 };
 
 // Delete file from S3
-export const deleteFromS3 = async (key: string) => {
+export const deleteFromS3 = async (key: string): Promise<{ deleted: boolean; key: string }> => {
   try {
     // Ensure we're looking in the correct folder
     const finalKey = key.startsWith(SOURCE_IMAGES_FOLDER) 
       ? key 
       : `${SOURCE_IMAGES_FOLDER}${key}`;
       
-    // First check if object exists
-    await s3Client.send(new HeadObjectCommand({
-      Bucket: process.env.AWS_S3_BUCKET!,
-      Key: finalKey,
-    }));
-
-    await s3Client.send(new DeleteObjectCommand({
-      Bucket: process.env.AWS_S3_BUCKET!,
-      Key: finalKey,
-    }));
+    try {
+      // First check if object exists
+      await s3Client.send(new HeadObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET!,
+        Key: finalKey,
+      }));
+      
+      // Object exists, proceed with deletion
+      await s3Client.send(new DeleteObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET!,
+        Key: finalKey,
+      }));
+      
+      console.log(`✅ Successfully deleted S3 object: ${finalKey}`);
+      return { deleted: true, key: finalKey };
+      
+    } catch (headError: any) {
+      // Check if error is specifically "object not found"
+      if (headError?.name === 'NotFound' || headError?.$metadata?.httpStatusCode === 404) {
+        console.warn(`⚠️ S3 object not found (already deleted?): ${finalKey}`);
+        return { deleted: false, key: finalKey };
+      }
+      
+      // For other head errors, still try to delete (object might exist but head failed)
+      console.warn(`⚠️ HeadObject failed for ${finalKey}, attempting delete anyway:`, headError);
+      
+      try {
+        await s3Client.send(new DeleteObjectCommand({
+          Bucket: process.env.AWS_S3_BUCKET!,
+          Key: finalKey,
+        }));
+        
+        console.log(`✅ Successfully deleted S3 object: ${finalKey} (despite head failure)`);
+        return { deleted: true, key: finalKey };
+        
+      } catch (deleteError: any) {
+        // If delete also fails and it's a "not found" error, that's OK
+        if (deleteError?.name === 'NoSuchKey' || deleteError?.$metadata?.httpStatusCode === 404) {
+          console.warn(`⚠️ S3 object not found during delete: ${finalKey}`);
+          return { deleted: false, key: finalKey };
+        }
+        
+        // For any other delete error, throw it
+        throw deleteError;
+      }
+    }
   } catch (error) {
-    console.error('Error deleting from S3:', error);
-    throw new S3UploadError('Failed to delete file from S3', error as Error);
+    console.error(`❌ Error deleting from S3 (${key}):`, error);
+    throw new S3UploadError(`Failed to delete file from S3: ${key}`, error as Error);
+  }
+};
+
+// Delete entire character folder from S3
+export const deleteCharacterFolder = async (characterId: string): Promise<{ 
+  success: boolean; 
+  deletedCount: number; 
+  errors: string[] 
+}> => {
+  try {
+    const { ListObjectsV2Command, DeleteObjectsCommand } = await import('@aws-sdk/client-s3');
+    
+    const folderPrefix = `${SOURCE_IMAGES_FOLDER}${characterId}/`;
+    console.log(`🗂️ Deleting character folder: ${folderPrefix}`);
+    
+    // List all objects in the character folder
+    const listCommand = new ListObjectsV2Command({
+      Bucket: process.env.AWS_S3_BUCKET!,
+      Prefix: folderPrefix,
+    });
+    
+    const listResponse = await s3Client.send(listCommand);
+    const objects = listResponse.Contents || [];
+    
+    if (objects.length === 0) {
+      console.warn(`⚠️ No objects found in character folder: ${folderPrefix}`);
+      return { success: true, deletedCount: 0, errors: [] };
+    }
+    
+    console.log(`🗂️ Found ${objects.length} objects in character folder`);
+    
+    // Use batch deletion for efficiency (like backend implementation)
+    const objectsToDelete = objects.filter(obj => obj.Key).map(obj => ({ Key: obj.Key! }));
+    
+    if (objectsToDelete.length === 0) {
+      return { success: true, deletedCount: 0, errors: [] };
+    }
+    
+    const deleteCommand = new DeleteObjectsCommand({
+      Bucket: process.env.AWS_S3_BUCKET!,
+      Delete: {
+        Objects: objectsToDelete,
+        Quiet: false,
+      },
+    });
+    
+    const deleteResponse = await s3Client.send(deleteCommand);
+    
+    const deletedCount = deleteResponse.Deleted?.length || 0;
+    const s3Errors = deleteResponse.Errors || [];
+    const errors = s3Errors.map(err => `Failed to delete ${err.Key}: ${err.Message}`);
+    
+    if (deletedCount > 0) {
+      console.log(`✅ Successfully deleted ${deletedCount} objects from character folder`);
+    }
+    
+    if (errors.length > 0) {
+      console.error(`❌ Failed to delete some S3 objects:`, errors);
+    }
+    
+    const success = errors.length === 0;
+    console.log(`🗂️ Character folder cleanup complete: ${deletedCount}/${objects.length} deleted, ${errors.length} errors`);
+    
+    return { success, deletedCount, errors };
+    
+  } catch (error) {
+    console.error(`❌ Error deleting character folder ${characterId}:`, error);
+    return { 
+      success: false, 
+      deletedCount: 0, 
+      errors: [`Failed to delete character folder: ${error}`] 
+    };
   }
 }; 

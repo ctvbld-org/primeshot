@@ -138,9 +138,6 @@
   body {
     @apply bg-background text-foreground;
   }
-  main {
-    @apply h-[calc(100vh-120px)];
-  }
   .wrapper {
     height: 100%;
   }
@@ -220,14 +217,14 @@
   --size:64px;
   --thickness:2px;
   --value:0;
-  --color:#2ADED8;
+  --color:#179490;
+  --border:#2ADED8;
   width:var(--size);
   height:var(--size);
   position:absolute;
   inset:0;
-  border-radius:50%;
   pointer-events:none;
   background: conic-gradient(transparent calc(var(--value)*1%), var(--color) 0);
-  border: var(--thickness) solid var(--color);
-  mix-blend-mode: plus-lighter;
+  border: var(--thickness) solid var(--border);
+  mix-blend-mode: normal;
 }

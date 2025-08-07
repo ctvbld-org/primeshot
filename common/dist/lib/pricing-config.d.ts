@@ -21,9 +21,9 @@ export interface SubscriptionTierConfig {
     yearlyPrice: number;
     credits: number;
     maxResolution: Resolution;
-    faceModelTrainingIncluded: number;
+    characterTrainingIncluded: number;
     concurrentJobs: number;
-    maxFaceModels: number;
+    maxCharacters: number;
     features: string[];
     popular: boolean;
 }
@@ -40,7 +40,7 @@ export interface CreditCosts {
     IMAGE_GENERATION: {
         [K in Resolution]: number;
     };
-    FACE_MODEL_TRAINING: number;
+    CHARACTER_TRAINING: number;
 }
 export declare function fetchSubscriptionTiers(supabaseClient: any): Promise<any>;
 export declare function fetchCreditPacks(supabaseClient: any): Promise<any>;
@@ -59,5 +59,5 @@ export declare function getYearlyDiscount(tierId: string): {
     savings: string;
 } | null;
 export declare function calculateImageCredits(resolution: Resolution, batchSize?: number): number;
-export declare function getFaceModelTrainingCost(): number;
-export declare function getFaceModelLimit(planName: string): number;
+export declare function getCharacterTrainingCost(): number;
+export declare function getCharacterLimit(planName: string): number;
