@@ -81,7 +81,7 @@
   --sidebar-ring: oklch(0.708 0 0);
   --radius-3xl: 2.25rem;
 
-  --image-style-card-height: 576px;
+  --site-padding: 76px 40px;
 
   @media (max-height: 712px) {
     --image-style-card-height: 460px;
@@ -226,5 +226,5 @@
   pointer-events:none;
   background: conic-gradient(transparent calc(var(--value)*1%), var(--color) 0);
   border: var(--thickness) solid var(--border);
-  mix-blend-mode: normal;
+  mix-blend-mode: multiply;
 }

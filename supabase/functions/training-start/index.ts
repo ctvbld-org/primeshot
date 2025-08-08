@@ -496,7 +496,7 @@ serve(async (req) => {
           p_user_id: user_id,
           p_amount: trainingCost,
           p_usage_type: 'character_training',
-          p_description: `Face model training`,
+          p_description: `Character training`,
           p_metadata: {
             character_id,
           },
@@ -652,7 +652,7 @@ serve(async (req) => {
         .from('training_jobs')
         .update({ 
           status: 'running',
-          started_at: new Date().toISOString(),
+          // started_at is managed by DB trigger. Do not set directly here.
           modal_job_id: modalJobId,
           updated_at: new Date().toISOString()
         })

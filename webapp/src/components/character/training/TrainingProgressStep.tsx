@@ -214,7 +214,7 @@ export function TrainingProgressStep({
                     <span className={styles.dot}></span>
                   </span>
                 </span>
-              :  seconds !== null ? (<><span>About </span><span>{trainingProgress.getEstimatedTimeRemaining?.()}</span><span> remaining</span></>) : t('character.trainingInitializing')
+              :  seconds !== null ? (<span>About <Countdown seconds={seconds} /> remaining</span>) : t('character.trainingInitializing')
             }
           </h3>
           <p className={styles.statusDescription}>
@@ -228,7 +228,7 @@ export function TrainingProgressStep({
             )}
           </p>
 
-          {isRunning && (
+          {!isQueued && (
             <Button variant="ghost" onClick={() => dialogService.closeDialog()}>
               {t('character.returnToApp')}
             </Button>

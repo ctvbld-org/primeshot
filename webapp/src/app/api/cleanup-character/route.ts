@@ -35,8 +35,8 @@ export async function POST(request: Request) {
     }
 
     // Delete entire character folder from S3 (includes all images)
-    console.log(`Deleting character folder from S3: user-images/${characterId}/`)
-    const s3Result = await deleteCharacterFolder(characterId)
+    console.log(`Deleting character folder from S3: user-images/${user.id}/${characterId}/`)
+    const s3Result = await deleteCharacterFolder(characterId, user.id)
     
     if (s3Result.success) {
       console.log(`✅ Successfully deleted ${s3Result.deletedCount} objects from S3`)

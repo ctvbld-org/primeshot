@@ -260,7 +260,7 @@ export const deleteFromS3 = async (key: string): Promise<{ deleted: boolean; key
 };
 
 // Delete entire character folder from S3
-export const deleteCharacterFolder = async (characterId: string): Promise<{ 
+export const deleteCharacterFolder = async (characterId: string, userId: string): Promise<{ 
   success: boolean; 
   deletedCount: number; 
   errors: string[] 
@@ -268,7 +268,7 @@ export const deleteCharacterFolder = async (characterId: string): Promise<{
   try {
     const { ListObjectsV2Command, DeleteObjectsCommand } = await import('@aws-sdk/client-s3');
     
-    const folderPrefix = `${SOURCE_IMAGES_FOLDER}${characterId}/`;
+    const folderPrefix = `${SOURCE_IMAGES_FOLDER}${userId}/${characterId}/`;
     console.log(`🗂️ Deleting character folder: ${folderPrefix}`);
     
     // List all objects in the character folder

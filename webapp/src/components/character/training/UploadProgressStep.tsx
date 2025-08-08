@@ -41,7 +41,7 @@ export function UploadProgressStep({ progress, totalFiles, retryState, currentUp
             />
           )}
           <CircleProgress 
-            value={clampedProgress}
+            value={0}
             size={96} 
             thickness={4}
             className="rounded-[30px]"

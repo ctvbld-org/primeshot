@@ -131,7 +131,7 @@ async function startTrainingJob(supabase: any, job: TrainingJob): Promise<boolea
       .from('training_jobs')
       .update({
         status: 'running',
-        started_at: new Date().toISOString(),
+        // started_at is managed by DB trigger. Do not set directly here.
         modal_job_id: result.job_handle || null,
         updated_at: new Date().toISOString()
       })

@@ -10,6 +10,9 @@ import { Button } from '@primeshot/common/web/ui/button'
 import { Icon } from '@/components/icons/icon'
 import { getStyleImages } from '@/lib/utils/get-styles-images'
 import { useStyleSelection } from '@/contexts/style-selection-context'
+import { OptionButtons } from '@/components/style/OptionButtons'
+import { GenerationControls } from '@/components/home/GenerationControls'
+import { CharacterSelector } from '@/components/character/CharacterSelector'
 import { getStoredSelectedStyleIndex, storeSelectedStyleIndex } from '@/lib/utils/style-storage'
 import styles from './StylesCarousel.module.css'
 
@@ -144,7 +147,6 @@ export function StylesCarousel() {
   return (
     <div className={styles.container}>
       {/* Highlight overlay */}
-      <div className={styles.highlightOverlay} />
       
       {/* Carousel container */}
       <div className={styles.carouselWrapper} ref={emblaRef}>
@@ -181,34 +183,32 @@ export function StylesCarousel() {
         </div>
       </div>
 
-      {/* Action button at bottom */}
-      <div className={styles.actionButtonWrapper}>
-        <Button 
-          onClick={() => handleExploreStyles()}
-          className={styles.actionButton}
+      {/* Navigation Buttons */}
+      <div className={styles.carouselButtons}>
+        <button
+          onClick={scrollPrev}
+          disabled={!canScrollPrev}
+          className={`${styles.navButton} ${styles.navButtonLeft}`}
+          aria-label={t('buttons.previous', { ns: 'common' })}
         >
-          {t('buttons.explore', { ns: 'common' })}
-        </Button>
+          <Icon variant="arrowLeft" size={20} />
+        </button>
+
+        <button
+          onClick={scrollNext}
+          disabled={!canScrollNext}
+          className={`${styles.navButton} ${styles.navButtonRight}`}
+          aria-label={t('buttons.next', { ns: 'common' })}
+        >
+          <Icon variant="arrowRight" size={20} />
+        </button>
       </div>
 
-      {/* Navigation Buttons */}
-      <button
-        onClick={scrollPrev}
-        disabled={!canScrollPrev}
-        className={`${styles.navButton} ${styles.navButtonLeft}`}
-        aria-label={t('buttons.previous', { ns: 'common' })}
-      >
-        <Icon variant="arrowLeft" size={20} />
-      </button>
-
-      <button
-        onClick={scrollNext}
-        disabled={!canScrollNext}
-        className={`${styles.navButton} ${styles.navButtonRight}`}
-        aria-label={t('buttons.next', { ns: 'common' })}
-      >
-        <Icon variant="arrowRight" size={20} />
-      </button>
+      <div className={styles.stylesOptions}>
+          <OptionButtons />
+          <CharacterSelector />
+          <GenerationControls />
+        </div>
     </div>
   )
 } 

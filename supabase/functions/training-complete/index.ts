@@ -68,10 +68,9 @@ serve(async (req) => {
       );
     }
 
-    // Update training job status
+    // Update training job status. completed_at is managed by DB trigger.
     const updateData: any = {
       status: success ? 'completed' : 'failed',
-      completed_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
 

@@ -97,18 +97,17 @@ class CharactersApiClient {
   }
 
   async deleteCharacter(characterId: string, userId: string): Promise<void> {
-    const { error } = await supabase
-      .from('characters')
-      .update({ 
-        status: 'deleted',
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', characterId)
-      .eq('user_id', userId)
-      .neq('status', 'deleted'); // Only soft delete non-deleted models
+    // Use server-side cleanup route to delete S3 folder and related records, then soft delete character
+    const { getApiUrl } = await import('../api/client');
+    const response = await fetch(getApiUrl('api/cleanup-character'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ characterId })
+    });
 
-    if (error) {
-      throw new Error(`Failed to soft delete character: ${error.message}`);
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Failed to delete character: ${response.status} ${text}`);
     }
   }
 }
