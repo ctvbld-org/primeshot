@@ -1,10 +1,5 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import Stripe from 'stripe'
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-06-30.basil' as any
-})
 
 export async function GET() {
   try {
@@ -34,11 +29,16 @@ export async function GET() {
       return NextResponse.json(null)
     }
 
-    // Get plan details from Stripe
-    const price = await stripe.prices.retrieve(subscription.stripe_price_id, {
-      expand: ['product']
-    })
-    const product = price.product as Stripe.Product
+    // Get plan details from DB-backed pricing (remove live Stripe dependency)
+    const { data: tier, error: tierError } = await supabase
+      .from('subscriptions')
+      .select('credits,max_resolution,character_training_included,name')
+      .eq('name', subscription.plan_name)
+      .single()
+
+    if (tierError) {
+      console.error('Error fetching subscription tier:', tierError)
+    }
 
     // Calculate credits used in current billing period
     const periodStart = new Date(subscription.current_period_start)
@@ -80,15 +80,15 @@ export async function GET() {
 
     const characterTrainingUsed = characterTraining?.length || 0
 
-    // Build subscription info response
+    // Build subscription info response (DB-backed)
     const subscriptionInfo = {
       plan_name: subscription.plan_name,
       status: subscription.status,
       current_period_end: subscription.current_period_end,
-      credits_included: parseInt(product.metadata.credits_included || '0'),
+      credits_included: tier?.credits ?? 0,
       credits_used_this_period: creditsUsedThisPeriod,
-      max_resolution: product.metadata.max_resolution || '1K',
-      character_training_included: parseInt(product.metadata.character_training_included || '0'),
+      max_resolution: tier?.max_resolution ?? '1K',
+      character_training_included: tier?.character_training_included ?? 0,
       character_training_used: characterTrainingUsed,
       cancel_at_period_end: subscription.cancel_at_period_end || false,
       // Additional useful fields
