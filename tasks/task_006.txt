@@ -1,11 +1,18 @@
 # Task ID: 6
-# Title: Build generation controls panel
+# Title: Implement webhook handler for job completion
 # Status: pending
-# Dependencies: 1
-# Priority: medium
-# Description: Create the unified control panel for generation parameters and the primary generation button.
+# Dependencies: 2, 3, 5
+# Priority: high
+# Description: Create a Modal FastAPI endpoint to handle webhooks from comfyui-api on job completion and update the database.
 # Details:
-Build a control panel component with dropdowns for batch size (takes), aspect ratio, and quality settings. Implement the primary 'Generate' button that shows cost in credits. Add validation logic to disable the button when prerequisites aren't met (not logged in, no LoRA ready, insufficient credits). Reuse existing UI primitives for dropdowns and buttons. Connect controls to application state to prepare for generation API calls.
+1. Create a @modal.fastapi_endpoint for /inference/webhook
+2. Implement parsing of comfyui-api callback data
+3. Create database schema for the generated_images table with user_id, inference_id, original_path, web_path, width, height, format, bytes
+4. Implement upsert logic to add or update records in the generated_images table
+5. Update job status in the database
+6. Implement error handling for webhook processing
+7. Broadcast completion status via WebSocket progress endpoint
+8. Ensure webhook handler is idempotent to prevent duplicates
 
 # Test Strategy:
-Test button state under various user conditions (logged out, no credits, etc.). Verify parameter selection correctly updates state. Test responsive behavior of control panel on different screen sizes.
+Test webhook with sample payloads. Verify database records are correctly created/updated. Test idempotency by sending the same webhook multiple times. Verify WebSocket broadcasts correct completion status.

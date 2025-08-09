@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
-import { calculateImageCreditCost, getSubscriptionLimits, type Resolution } from "../_shared/pricing.ts";
+import { calculateImageCreditCost, getSubscriptionLimits, type Quality } from "../_shared/pricing.ts";
 
 interface InferenceRequest {
   user_id: string;
@@ -9,42 +9,39 @@ interface InferenceRequest {
   style_id: string;
   prompt?: string;
   settings?: {
-    strength?: number;
-    guidance_scale?: number;
-    num_inference_steps?: number;
-    resolution?: '1K' | '2K' | '4K';
-    batch_size?: number;
+    nb_takes?: number;
+    quality?: '1K' | '2K' | '4K';
+    aspect_ratio?: '1:1' | '2:3' | '3:2';
     // Optional queue type: fast (default) or slow
-    queue_type?: 'fast' | 'slow';
+    queue_type?: 'fast' | 'slow' | 'ultra';
   };
 }
 
 interface InferenceJob {
   id: string;
   user_id: string;
-  character_id: string;
   style_id: string;
   status: 'queued' | 'pending' | 'processing' | 'completed' | 'failed';
   progress: number;
   modal_job_id?: string;
-  estimated_duration?: number;
   created_at: string;
   updated_at: string;
   error_message?: string;
-  result_url?: string;
-  prompt?: string;
-  settings?: any;
+  wardrobe_id?: string;
+  scene_id?: string;
+  color_id?: string;
+  character_id: string;
   credits_spent?: number;
 }
 
 // Credit calculation function - now uses shared configuration
 
-// Check if user can generate at requested resolution based on their subscription
-async function checkResolutionPermission(
+// Check if user can generate at requested quality based on their subscription
+async function checkQualityPermission(
   supabase: any, 
   userId: string, 
-  requestedResolution: '1K' | '2K' | '4K'
-): Promise<{ allowed: boolean; maxResolution?: string; userTier?: string }> {
+  requestedQuality: '1K' | '2K' | '4K'
+): Promise<{ allowed: boolean; maxQuality?: string; userTier?: string }> {
   // Get user's active subscription
   const { data: subscription, error } = await supabase
     .from('user_subscriptions')
@@ -55,7 +52,7 @@ async function checkResolutionPermission(
 
   if (error || !subscription) {
     // No active subscription - only allow 1K
-    return { allowed: requestedResolution === '1K', maxResolution: '1K', userTier: 'none' };
+    return { allowed: requestedQuality === '1K', maxQuality: '1K', userTier: 'none' };
   }
 
   // Get plan details from database instead of Stripe
@@ -67,19 +64,19 @@ async function checkResolutionPermission(
       return { allowed: false };
     }
 
-    const maxResolution = limits.max_resolution;
+    const maxQuality = limits.max_quality;
     
-    const resolutionHierarchy = { '1K': 1, '2K': 2, '4K': 3 };
-    const userMaxLevel = resolutionHierarchy[maxResolution as keyof typeof resolutionHierarchy] || 1;
-    const requestedLevel = resolutionHierarchy[requestedResolution];
+    const qualityHierarchy = { '1K': 1, '2K': 2, '4K': 3 };
+    const userMaxLevel = qualityHierarchy[maxQuality as keyof typeof qualityHierarchy] || 1;
+    const requestedLevel = qualityHierarchy[requestedQuality];
 
     return {
       allowed: requestedLevel <= userMaxLevel,
-      maxResolution,
+      maxQuality,
       userTier: subscription.plan_name
     };
   } catch (error) {
-    console.error('Error checking resolution permission:', error);
+    console.error('Error checking quality permission:', error);
     return { allowed: false };
   }
 }
@@ -174,24 +171,25 @@ serve(async (req) => {
     }
 
     // Extract settings
-    const resolution = settings?.resolution || '1K';
-    const batchSize = settings?.batch_size || 5;
+    const quality = settings?.quality || '1K';
+    const nbTakes = settings?.nb_takes || 5;
+    const aspectRatio = settings?.aspect_ratio || '1:1';
     const queueType: 'fast' | 'slow' = settings?.queue_type === 'slow' ? 'slow' : 'fast';
 
     // Validate batch_size limits
-    if (!Number.isInteger(batchSize) || batchSize < 5 || batchSize > 20) {
+    if (!Number.isInteger(nbTakes) || nbTakes < 5 || nbTakes > 20) {
       return new Response(
         JSON.stringify({ 
           error: 'Invalid batch_size',
           details: 'batch_size must be an integer between 5 and 20',
-          provided_batch_size: batchSize
+          provided_number_of_takes: nbTakes
         }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     // Calculate credit cost for this operation
-    const creditCost = await calculateImageCreditCost(supabase, resolution as Resolution, batchSize);
+    const creditCost = await calculateImageCreditCost(supabase, quality as Quality, nbTakes);
 
     // Check user's credit balance
     const { data: balanceData, error: balanceError } = await supabase
@@ -223,14 +221,14 @@ serve(async (req) => {
     }
 
     // Check resolution permission based on user's subscription
-    const resolutionCheck = await checkResolutionPermission(supabase, user_id, resolution);
-    if (!resolutionCheck.allowed) {
+    const qualityCheck = await checkQualityPermission(supabase, user_id, quality);
+    if (!qualityCheck.allowed) {
       return new Response(
         JSON.stringify({ 
-          error: `Resolution ${resolution} not allowed for your subscription tier`,
-          details: `Your plan allows up to ${resolutionCheck.maxResolution} resolution`,
-          max_allowed_resolution: resolutionCheck.maxResolution,
-          user_tier: resolutionCheck.userTier
+          error: `Quality ${quality} not allowed for your subscription tier`,
+          details: `Your plan allows up to ${qualityCheck.maxQuality} quality`,
+          max_allowed_quality: qualityCheck.maxQuality,
+          user_tier: qualityCheck.userTier
         }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -272,12 +270,13 @@ serve(async (req) => {
         p_user_id: user_id,
         p_amount: creditCost,
         p_usage_type: 'image_generation',
-        p_description: `Image generation - ${resolution} resolution, ${batchSize} images`,
+        p_description: `Image generation - ${quality} quality, ${nbTakes} images`,
         p_metadata: {
           character_id,
           style_id,
-          resolution,
-          batch_size: batchSize,
+          quality,
+          nb_takes: nbTakes,
+          aspect_ratio: aspectRatio,
           style_name: style.name
         }
       });
@@ -306,19 +305,11 @@ serve(async (req) => {
       user_id,
       character_id,
       style_id,
-      status: shouldQueue ? 'queued' : 'pending',
-      progress: 0,
-      estimated_duration: 45, // Default 45 seconds for inference
-      prompt: prompt || `A professional photo in ${style.name} style`,
-      settings: {
-        ...settings,
-        resolution,
-        batch_size: batchSize,
-        strength: settings?.strength || 0.8,
-        guidance_scale: settings?.guidance_scale || 7.5,
-        num_inference_steps: settings?.num_inference_steps || 30,
-        queue_type: queueType,
-      },
+      status: shouldQueue ? 'queued' : 'pending', 
+      quality,
+      nb_takes: nbTakes,
+      aspect_ratio: aspectRatio,
+      queue_type: queueType,
       credits_spent: creditCost,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
@@ -338,7 +329,7 @@ serve(async (req) => {
           p_user_id: user_id,
           p_job_id: jobId,
           p_amount: creditCost,
-          p_reason: `Refund for failed job creation - ${resolution} resolution`,
+          p_reason: `Refund for failed job creation - ${quality} quality`,
           p_idempotency_key: idempotencyKey
         });
 
@@ -361,7 +352,6 @@ serve(async (req) => {
         JSON.stringify({
           job_id: jobId,
           status: 'queued',
-          estimated_duration: 45,
           credits_spent: creditCost,
           remaining_credits: currentBalance - creditCost,
           queue_info: {
@@ -383,20 +373,16 @@ serve(async (req) => {
         throw new Error('INFERENCE_API_URL environment variable not set');
       }
 
-      // Prepare Modal API request with resolution and batch size
+      // Prepare Modal API request with quality and batch size
       const modalRequest = {
         user_id,
         workflow_name: style.workflow_name || 'flux_lora',
         parameters: {
-          prompt: inferenceJob.prompt,
           lora_path: character.lora_path,
           style_lora_path: style.lora_path,
-          strength: inferenceJob.settings?.strength || 0.8,
-          guidance_scale: inferenceJob.settings?.guidance_scale || 7.5,
-          num_inference_steps: inferenceJob.settings?.num_inference_steps || 30,
-          resolution: resolution === '1K' ? '1024x1024' : 
-                     resolution === '2K' ? '2048x2048' : '4096x4096',
-          batch_size: batchSize,
+          nb_takes: nbTakes,
+          aspect_ratio: aspectRatio,
+          quality: quality,
           seed: -1, // Random seed
           env: env
         }
@@ -409,8 +395,9 @@ serve(async (req) => {
         character_id,
         style_id,
         credits_spent: creditCost,
-        resolution,
-        batch_size: batchSize
+        quality,
+        nb_takes: nbTakes,
+        aspect_ratio: aspectRatio,
       });
 
       // Get Modal authentication tokens
@@ -451,14 +438,34 @@ serve(async (req) => {
           })
           .eq('id', jobId);
 
-        // Note: We don't refund credits here as the generation was attempted
-        // Credits are spent when the job starts, not when it completes
+        // Refund credits since the Modal start failed (idempotent)
+        try {
+          const refundKey = `inference_modal_failure_refund_${jobId}`;
+          const { data: refundResult, error: refundError } = await supabase
+            .rpc('refund_credits_with_idempotency', {
+              p_user_id: user_id,
+              p_job_id: jobId,
+              p_amount: creditCost,
+              p_reason: `Refund for failed inference start: ${modalResponse.status} ${modalResponse.statusText}`,
+              p_idempotency_key: refundKey,
+            });
+          if (refundError) {
+            console.error('Failed to process refund:', refundError);
+          } else if (refundResult?.[0]?.success) {
+            console.log(`Refund processed for job ${jobId}: ${refundResult[0].refund_created ? 'new' : 'duplicate'} refund`);
+          } else {
+            console.error('Unexpected refund result:', refundResult);
+          }
+        } catch (refundException) {
+          console.error('Exception during refund process:', refundException);
+        }
 
         return new Response(
           JSON.stringify({ 
             error: 'Failed to start inference on Modal',
             details: `${modalResponse.status}: ${errorText}`,
-            credits_spent: creditCost
+            credits_spent: creditCost,
+            credits_refunded: creditCost
           }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
@@ -473,7 +480,7 @@ serve(async (req) => {
           .from('inference_jobs')
           .update({
             modal_job_id: modalResult.style_id,
-            status: 'processing',
+            status: 'running',
             updated_at: new Date().toISOString()
           })
           .eq('id', jobId);
@@ -483,13 +490,14 @@ serve(async (req) => {
         JSON.stringify({
           job_id: jobId,
           modal_job_id: modalResult.style_id,
-          status: 'processing',
-          estimated_duration: 45,
+          status: 'running',
+          estimated_duration: 45, // TODO: Get estimated duration from Modal API
           credits_spent: creditCost,
           remaining_credits: currentBalance - creditCost,
-          resolution,
-          batch_size: batchSize,
-          queue_type: queueType,
+          quality: quality, // Probably not needed
+          nb_takes: nbTakes, // Probably not needed
+          aspect_ratio: aspectRatio, // Probably not needed
+          queue_type: queueType, // Probably not needed
           message: 'Inference job started successfully on Modal'
         }),
         {
@@ -499,6 +507,7 @@ serve(async (req) => {
       );
 
     } catch (modalError) {
+      const errorMessage = (modalError as any)?.message ?? String(modalError);
       console.error('Modal API call failed:', modalError);
       
       // Update job status to failed
@@ -506,18 +515,39 @@ serve(async (req) => {
         .from('inference_jobs')
         .update({
           status: 'failed',
-          error_message: `Failed to call Modal API: ${modalError.message}`,
+          error_message: `Failed to call Modal API: ${errorMessage}`,
           updated_at: new Date().toISOString()
         })
         .eq('id', jobId);
 
-      // Note: We don't refund credits here as the generation was attempted
+      // Refund credits since the Modal call failed (idempotent)
+      try {
+        const refundKey = `inference_modal_failure_refund_${jobId}`;
+        const { data: refundResult, error: refundError } = await supabase
+          .rpc('refund_credits_with_idempotency', {
+            p_user_id: user_id,
+            p_job_id: jobId,
+            p_amount: creditCost,
+            p_reason: `Refund for failed inference start: ${errorMessage}`,
+            p_idempotency_key: refundKey,
+          });
+        if (refundError) {
+          console.error('Failed to process refund:', refundError);
+        } else if (refundResult?.[0]?.success) {
+          console.log(`Refund processed for job ${jobId}: ${refundResult[0].refund_created ? 'new' : 'duplicate'} refund`);
+        } else {
+          console.error('Unexpected refund result:', refundResult);
+        }
+      } catch (refundException) {
+        console.error('Exception during refund process:', refundException);
+      }
 
       return new Response(
         JSON.stringify({ 
           error: 'Failed to start inference',
-          details: modalError.message,
-          credits_spent: creditCost
+          details: errorMessage,
+          credits_spent: creditCost,
+          credits_refunded: creditCost
         }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );

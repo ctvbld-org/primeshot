@@ -1,185 +1,93 @@
-# Product Requirements Document (PRD)
+## Primeshot Inference Pipeline PRD (ComfyUI + comfyui-api on Modal)
 
-## Title
-Single-Page Image Generation & LoRA Management Refactor
+### 1) Overview
+- **Goal**: Ship a fast, scalable, and cost‑efficient inference pipeline using ComfyUI workflows fronted by comfyui-api, running on Modal with on‑demand GPUs and short keepalive windows.
+- **Why**: Leverage ComfyUI’s node ecosystem while gaining production features (stateless jobs, dynamic workflow endpoints, webhooks, S3 outputs) with negligible overhead.
+- **Scope**: Inference only (training exists separately). Replace per-request CLI runs with comfyui-api dynamic endpoints.
 
----
+### 2) Architecture
+- **Container (per GPU worker)**
+  - ComfyUI server (localhost:8000)
+  - comfyui-api server (localhost:9000) → forwards to ComfyUI /prompt
+  - Warmup workflow executed on start to pre-load checkpoint + VAE + text encoder
+- **Autoscaling & Cost**
+  - On-demand container per job; keepalive window ~600–900s to ride bursts
+  - Models cached on Modal volume; warmup keeps first job latency low
+- **Queue**
+  - Supabase Edge Function + DB = source-of-truth queue and scheduler
+  - Worker fetches job (or gets invoked), submits to comfyui-api, returns immediately (webhook will finalize)
+- **Outputs**
+  - S3 bucket: `primeshot-uploads-01`
+  - Prefix per job: `user-images/{user_id}/inference/{job_id}`
+  - Save both: `orig/*.png` (2K/4K) and `web/*.webp` (1K) directly from workflow
 
-## 1. Executive Summary
-Primeshot currently spreads the user journey for training LoRAs, choosing styles, and generating images across multiple screens. This PRD proposes a **major UX refactor** that consolidates the entire flow into a **single home page** while re-using large portions of the existing codebase. The refactor aims to:
+### 3) Naming & Endpoints
+- Modal app renamed to `primeshot-inference`
+- Class renamed to GPU naming: `H100*.` (GPU="H100", scaledown_window≈600–900)
+- Remove `health_check`; add `progress` web endpoint (WebSocket)
+- WebSocket URL: `wss://creativebuild--primeshot-inference-progress.modal.run`
+- Webhook: `@modal.fastapi_endpoint` (e.g., `/inference/webhook`) 
 
-1. Reduce time-to-first-image by minimising navigation.
-2. Provide immediate visual feedback for every step (style, background, clothing, colour, LoRA selection, generation output).
-3. Prepare the groundwork for credit-based monetisation and scalable inference powered by ComfyUI on Modal.
+### 4) Secrets & Config
+- Secret: `aws-secret`
+  - `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `AWS_BUCKET`
+- Secret: `comfyui-api-secret`
+  - `COMFY_API_KEY` (for API nodes if needed)
+  - `COMFYUI_BASE_URL` (set to `http://127.0.0.1:8000`)
+  - Webhook URL (to be added)
+- comfyui-api S3 output prefix: `user-images/{user_id}/inference/{job_id}`
 
-**Key success metrics**
-- 💡 30 % reduction in average time users need to generate their first image.
-- 💬 25 % decrease in support tickets related to "where do I…?" navigation.
-- 💸 100 % of generation requests gated behind the new credit system.
+### 5) Workflow Strategy
+- Use comfyui-api Dynamic Workflow Endpoints to avoid local parameter injection.
+- Graph split before upscaler:
+  - Pre-upscale branch → Resize to 1K → Save WebP (filename_prefix `web_`)
+  - Main branch → Upscale to 2K/4K → Save PNG (filename_prefix `orig_`)
+- Warmup workflow must load the specific checkpoint, VAE, and text encoder used by production graph.
 
----
+### 6) Data Model
+- Table: `generated_images`
+  - `user_id`, `inference_id`, `original_path`, `web_path`
+  - `width`, `height`, `format`, `bytes` (store for each variant or at least for `web_`)
+- Webhook handler upserts one row per produced image index, pairing orig/web.
 
-## 2. UX / UI Overview
-```
-┌─────────────────────────────────────────── Home Page ─────────────────────────────────────────┐
-│                                                                                               │
-│  ⇆ Styles Carousel  ← swipe or scroll                                                         │
-│  · Retro 8 mm · Studio Pro · Editorial Vogue · …                                              │
-│  ──────────────────────────────────────────────────────────────────────────────────────────── │
-│          ↑ Floating buttons anchored on current slide                                         │
-│          • Background  • Clothing  • Colour                                                   │
-│          (open full-screen option pickers)                                                    │
-│                                                                                               │
-│  ┌──────────── LoRA Selector ───────────┐    ┌────────── Generation Controls ───────────┐     │
-│  │  Face Model ▼  (status + progress)   │    │  Takes · Aspect · Quality ·  Generate  ▶ │     │
-│  │  Create / manage models              │    └──────────────────────────────────────────┘     │
-│  └──────────────────────────────────────┘                                                     │
-│                                                                                               │
-│  ─────────────── Generated Gallery / Placeholder / Login CTA ───────────────                  │
-│  |   image  |   image  |   image  |                                                           │
-└───────────────────────────────────────────────────────────────────────────────────────────────┘
-```
-Responsive: on mobile the layout stacks vertically; floating option buttons remain fixed on the active carousel card.
+### 7) Job Lifecycle
+1. Edge Function/queue picks a pending job and invokes the worker with `{user_id, job_id, params}`
+2. Worker posts to comfyui-api dynamic workflow endpoint (async mode) with S3 output + webhook URL
+3. comfyui-api forwards to ComfyUI /prompt and tracks via WS/history
+4. On completion, comfyui-api writes S3 objects and calls webhook
+5. Webhook handler updates DB (`generated_images`, job status) and emits progress/final via WS
 
-### Interaction highlights
-- **Carousel**: identical behaviour to existing `/styles` carousel but **without** the "Customise" button.
-- **Floating buttons**: open modal sheets that reuse option-selector components; they stay anchored while swiping.
-- **LoRA selector**: dropdown with avatar + live progress (reuse `face_models.tsx`).
-- **Generation controls**: dropdowns for batch size, aspect ratio, quality + primary "Generate" button that shows cost in credits.
-- **Gallery**: masonry grid that live-updates as images stream over WebSocket; placeholder shown when empty or unauthenticated.
+### 8) Concurrency & Utilization
+- One job at a time per GPU/container for reliability; increase throughput via batch size (within a job) and autoscaling multiple containers.
+- Optional later: request coalescing + dynamic batch sizing for compatible requests.
 
----
+### 9) Tasks
+1. Integrate comfyui-api in Modal inference worker (HIGH)
+   - Install Node 20, clone `ctvbld/comfyui-api@main`, `npm ci --omit=dev`
+   - Configure env via secrets; start comfyui-api (9000) and ComfyUI (8000)
+2. Rename inference app/class and expose progress WS (MEDIUM)
+   - App → `primeshot-inference`; Class → `H100*.`; remove `health_check`; add `progress` endpoint
+3. Define dynamic workflow endpoint with dual outputs (HIGH)
+   - Pre-upscale save WebP 1K (`web_`), final PNG 2K/4K (`orig_`); S3 prefixes under job path
+4. Warmup workflow configuration (MEDIUM)
+   - Pre-load checkpoint, VAE, text encoder on startup; measure latency improvement
+5. Webhook for completion + DB write (HIGH)
+   - `@modal.fastapi_endpoint` parses comfyui-api callback; upsert `generated_images` with paths + metadata; update job status
+6. Queue orchestration wiring (MEDIUM)
+   - Keep Supabase Edge Function + DB queue; include `user_id`, `job_id` in requests; one job per container; scaledown ~600–900s
+7. Remove legacy CLI execution path (LOW)
+   - Replace `comfy run` calls with comfyui-api dynamic endpoint invocation
+8. Validation & load testing (MEDIUM)
+   - Smoke, error-path, and light load tests; confirm S3 artifacts and DB updates; verify WS progress
 
-## 3. Component Reuse & Refactor Map
-| Area | Existing asset | New role | Required changes |
-|------|----------------|----------|------------------|
-| Styles carousel | `src/components/style/*` | Top-of-page carousel | Remove "Customise" button, add swipe events to emit style change context. |
-| Background picker | `background-image-selector.tsx` | Full-screen modal content | Convert to uncontrolled component, expose `onSelect`. |
-| Clothing picker | `clothing-image-selector.tsx` | Full-screen modal content | same as above |
-| Colour picker | `clothing-color-selector.module.css` + current colour logic | Full-screen modal content | minor style tweak for full-screen. |
-| LoRA manager | `components/create/face_models.tsx` | Left dropdown | Extract into `FaceModelSelector` component, keep WS progress logic. |
-| Generation controls | existing dropdown UI primitives | Right control panel | Create wrapper component, pass chosen style/LoRA/opts to API. |
-| Gallery | existing `/albums` card grid | Embedded below controls | Adapt to listen to inference WS stream. |
+### 10) Success Metrics
+- P50 time-to-first-image (warm): target under previous CLI run path
+- First warm job after cold start: improved via warmup (>X% reduction)
+- Correct S3 layout with both variants; webhook correctness (no duplicates, idempotent)
+- Stable autoscaling under burst (N concurrent jobs complete without timeouts)
 
----
+### 11) References
+- comfyui-api (dynamic workflow endpoints, S3 outputs, webhooks): [SaladTechnologies/comfyui-api](https://github.com/SaladTechnologies/comfyui-api?tab=readme-ov-file#generating-new-workflow-endpoints)
+- Your fork (pin main): [ctvbld/comfyui-api](https://github.com/ctvbld/comfyui-api)
 
-## 4. Roadmap (Top-down, Feature-by-Feature)
-| Feature | Goal & Scope | Key tasks | Owner | ETA |
-|---------|-------------|-----------|-------|-----|
-| **F1. Styles Carousel** | Display and change selected style | • Extract carousel from `/styles`
-• Remove Customise button
-• Expose `onStyleChange` context | Frontend | **Week 1** |
-| **F2. Floating Option Pickers** | Select background, clothing, colours | • Create generic `OptionModal`
-• Reuse selectors, tighten type safety
-• Update store when modal closes | Frontend | Week 1-2 |
-| **F3. LoRA Selector** | Manage & choose face models | • Move `face_models.tsx` into shared component
-• Ensure automatic selection persists
-• Design "Create LoRA" flow entry point | Frontend | Week 2 |
-| **F4. Generation Controls** | Configure takes, ratio, quality & trigger generation | • Build unified control bar
-• Validate credit availability
-• Disable button when prerequisites unmet | Frontend | Week 2 |
-| **F5. Gallery & States** | Show generated images or placeholder | • Integrate existing album cards
-• Placeholder for logged-out & empty
-• Live updates via WS | Frontend | Week 3 |
-| **F6. Inference Backend** | Run generation via ComfyUI on Modal | • Finalise workflows (*.json) for each style/ratio/quality
-• Build Modal HTTP endpoint `/inference/start`
-• WS channel for job progress & partial outputs
-• Supabase function `inference-start` to trigger Modal | Backend | Week 3-4 |
-| **F7. Credit-Based Payment** | Monetise generation | • Design Stripe products (credit packs + subscription?)
-• Implement purchase flow & webhook
-• Supabase `credits` table & RLS
-• Middleware check before generation | Backend | Week 4-5 |
-| **F8. QA & Roll-out** | Zero-downtime release | • Feature flag new UI
-• Cross-device QA, perf audit
-• Migration of existing routes linking to `/` | All | Week 6 |
 
-Dependencies: F1-F5 mostly independent, F6 required before manual QA of F5, F7 gates "Generate" button enablement.
-
----
-
-## 5. User Flow & Permission Matrix
-| State | Has credits | Logged in | Can create LoRA? | Can generate images? |
-|-------|-------------|-----------|------------------|----------------------|
-| New visitor | ✗ | ✗ | ✗ (redirect to login) | ✗ |
-| Logged-in, no credits | ✗ | ✓ | ✓ (first LoRA free) | ✗ (show buy credits) |
-| Logged-in, credits | ✓ | ✓ | ✓ | ✓ |
-
-Flow diagram available in `/docs/UX/user-flow-v2.png` (to be created) and aligns with screenshot you supplied.
-
----
-
-## 6. Risks & Mitigations
-| Risk | Impact | Mitigation |
-|------|--------|-----------|
-| Large component refactor may break existing flows | High | Feature flag + canary release |
-| WebSocket performance for many concurrent jobs | Medium | Use Modal channel per user, auto-close idle sockets |
-| Credit desync between Stripe & Supabase | High | Rely on Stripe webhooks + idempotent Supabase RPC verified by webhook secret |
-| Long inference latency hurts UX | Medium | Pre-warm ComfyUI containers, progressive image streaming |
-
----
-
-## 7. Acceptance Criteria & Definition of Done
-1. Users can select style → options → LoRA → generate images within **one page**.
-2. Generation button disabled until user meets: logged-in, has LoRA with `ready` status, has enough credits.
-3. Gallery populates in real-time via WebSocket.
-4. Credit count decrements immediately upon generation request and refunds on failure.
-5. Existing routes (`/styles`, `/upload`, etc.) redirect to `/` with no hard refresh.
-6. Lighthouse perf score ≥ 90 desktop, ≥ 80 mobile on home page.
-7. All tasks in roadmap delivered; unit + integration tests passing.
-
----
-
-## 8. Appendix
-- Relevant components: see file paths listed in §3.
-- Stripe products draft: `CREDIT_PACK_10`, `CREDIT_PACK_50`, `SUBSCRIPTION_MONTHLY`.
-
----
-
-## 9. Deployment Strategy
-
-### Option 2 – Two Vercel Projects with Edge Rewrites
-
-**Overview**  
-• `project-marketing` serves `/`, `/explore`, `/pricing`, …  
-• `project-app` serves `/create/*` (the SPA).  
-• Vercel edge rewrites forward any `/create/*` request from the marketing deployment to the SPA deployment, so the browser address remains `https://primeshot.ai`.
-
-**Vercel configuration**  
-Dashboard → Settings → Routing → **Rewrites**:  
-```
-Source        /create/(.*)
-Destination   https://project-app.vercel.app/create/$1
-```
-Or via `vercel.json` in the marketing repo:  
-```json
-{
-  "rewrites": [
-    { "source": "/create",        "destination": "https://project-app.vercel.app/create" },
-    { "source": "/create/:path*", "destination": "https://project-app.vercel.app/create/:path*" }
-  ]
-}
-```
-
-**Free-plan viability** – Rewrites are available on Vercel's Hobby (free) plan (100 GB bandwidth/month, limited build minutes).
-
-**Session sharing** – Configure Supabase auth cookie:  
-`Domain=.primeshot.ai; Path=/; Secure; SameSite=Lax`
-
-**Local development proxy** (in marketing `next.config.js`):  
-```js
-module.exports = {
-  async rewrites() {
-    return [
-      { source: '/create/:path*', destination: 'http://localhost:3001/create/:path*' }
-    ];
-  }
-};
-```
-
-**Pros / Cons**  
-Pros: independent deploys, slimmer bundles, single origin (no CORS).  
-Cons: one full page reload when crossing marketing ↔ app boundary; need to maintain rewrite rules and duplicate shared header assets.
-
----
-
-*Last updated: {{DATE}}* 

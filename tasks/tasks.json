@@ -1,136 +1,142 @@
 {
-  "master": {
-    "tasks": [
-      {
-        "id": 1,
-        "title": "Set up single-page layout structure",
-        "description": "Create the foundational layout for the new single-page UX with responsive design for mobile and desktop.",
-        "status": "done",
-        "dependencies": [],
-        "priority": "high",
-        "details": "Create a new page component at `src/pages/index.tsx` that implements the layout structure from the PRD. Include placeholder sections for: Styles Carousel, Floating Option Buttons, LoRA Selector, Generation Controls, and Gallery. Ensure responsive behavior with mobile-first approach where components stack vertically on smaller screens. Set up the necessary context providers for state management across components. Implement feature flag to toggle between old and new UX.",
-        "testStrategy": "Visual testing across multiple device sizes (mobile, tablet, desktop). Verify layout matches design spec with correct component placement and stacking behavior."
-      },
-      {
-        "id": 2,
-        "title": "Refactor Styles Carousel component",
-        "description": "Extract and adapt the existing styles carousel to work as a standalone component with event emission.",
-        "status": "done",
-        "dependencies": [
-          1
-        ],
-        "priority": "high",
-        "details": "Extract carousel from `/styles` page into a reusable component. Remove the 'Customize' button. Add swipe events and implement a context provider that emits style change events. Make sure the carousel maintains the current style selection state. Ensure carousel is responsive and anchors the floating option buttons to the current slide. Reuse existing styling but adapt for the new layout context.",
-        "testStrategy": "Unit test style selection events. Visual regression testing to ensure carousel appears and behaves identically to the existing one. Test swipe and scroll behaviors on touch and non-touch devices."
-      },
-      {
-        "id": 3,
-        "title": "Develop credit-based payment system",
-        "description": "Implement the credit system for monetizing image generation with Stripe integration.",
-        "status": "pending",
-        "dependencies": [
-          8
-        ],
-        "priority": "high",
-        "details": "Design Stripe products for credit packs and subscription options. Implement purchase flow using Stripe Checkout. Set up Stripe webhooks to handle successful payments. Create Supabase `credits` table with proper RLS policies. Implement middleware to check credit availability before generation. Add credit deduction logic that executes immediately on generation request. Implement refund mechanism for failed generations. Create admin dashboard for monitoring credit usage.",
-        "testStrategy": "Test complete purchase flow in Stripe test mode. Verify webhooks correctly update user credits. Test credit deduction and refund logic. Ensure proper error handling for insufficient credits and failed payments."
-      },
-      {
-        "id": 4,
-        "title": "Implement floating option buttons and modals",
-        "description": "Create the floating button system that anchors to the current carousel slide and opens modal option pickers.",
-        "status": "in-progress",
-        "dependencies": [
-          2
-        ],
-        "priority": "high",
-        "details": "Create a generic `OptionModal` component that can be reused for different option types. Refactor existing selectors (`background-image-selector.tsx`, `clothing-image-selector.tsx`, `clothing-color-selector.module.css`) to work as uncontrolled components within the modal. Implement the floating button UI that stays anchored to the current carousel slide. Connect modal state to application state store to update when modal closes. Ensure proper z-index management and animation transitions.",
-        "testStrategy": "Test modal opening/closing behavior. Verify option selection correctly updates application state. Test button anchoring during carousel swipes. Ensure accessibility standards are met for modal dialogs."
-      },
-      {
-        "id": 5,
-        "title": "Refactor LoRA selector component",
-        "description": "Extract and adapt the face model selector to work in the new single-page layout with status indicators.",
-        "status": "pending",
-        "dependencies": [
-          1
-        ],
-        "priority": "medium",
-        "details": "Extract `FaceModelSelector` from `components/create/face_models.tsx`. Maintain WebSocket progress logic for LoRA training status. Implement dropdown with avatar and live progress indicators. Add 'Create/manage models' link that navigates to LoRA creation flow. Ensure automatic selection of default/last used LoRA persists. Handle edge cases like no available LoRAs or in-progress training.",
-        "testStrategy": "Unit test selection behavior and WebSocket connection handling. Verify status indicators update correctly. Test edge cases including no available models and models in various states (training, failed, ready)."
-      },
-      {
-        "id": 6,
-        "title": "Build generation controls panel",
-        "description": "Create the unified control panel for generation parameters and the primary generation button.",
-        "status": "pending",
-        "dependencies": [
-          1
-        ],
-        "priority": "medium",
-        "details": "Build a control panel component with dropdowns for batch size (takes), aspect ratio, and quality settings. Implement the primary 'Generate' button that shows cost in credits. Add validation logic to disable the button when prerequisites aren't met (not logged in, no LoRA ready, insufficient credits). Reuse existing UI primitives for dropdowns and buttons. Connect controls to application state to prepare for generation API calls.",
-        "testStrategy": "Test button state under various user conditions (logged out, no credits, etc.). Verify parameter selection correctly updates state. Test responsive behavior of control panel on different screen sizes."
-      },
-      {
-        "id": 7,
-        "title": "Integrate gallery with WebSocket updates",
-        "description": "Adapt the existing album gallery to show generated images with live updates via WebSocket.",
-        "status": "pending",
-        "dependencies": [
-          1
-        ],
-        "priority": "medium",
-        "details": "Reuse the existing album card grid from `/albums` page. Implement placeholder states for empty gallery and unauthenticated users. Set up WebSocket listener to receive real-time updates from inference jobs. Implement masonry grid layout that updates dynamically as new images arrive. Add loading states and error handling for failed generations. Include functionality to download or share generated images.",
-        "testStrategy": "Test WebSocket connection establishment and reconnection logic. Verify gallery updates correctly when new images arrive. Test placeholder states and transitions. Ensure responsive behavior of gallery grid on different screen sizes."
-      },
-      {
-        "id": 8,
-        "title": "Implement ComfyUI inference backend on Modal",
-        "description": "Set up the serverless inference backend using ComfyUI workflows on Modal.",
-        "status": "pending",
-        "dependencies": [],
-        "priority": "high",
-        "details": "Finalize ComfyUI workflows (*.json) for each combination of style/ratio/quality. Build Modal HTTP endpoint `/inference/start` that accepts generation parameters. Implement WebSocket channel for job progress and partial output streaming. Create Supabase function `inference-start` to trigger Modal. Set up proper error handling and retry logic. Ensure efficient resource utilization with container pre-warming and auto-scaling.",
-        "testStrategy": "Load test inference endpoint with various parameter combinations. Measure cold start and warm execution times. Verify WebSocket streaming works correctly. Test error cases and ensure proper error messages are returned."
-      },
-      {
-        "id": 9,
-        "title": "Connect frontend to inference and payment backends",
-        "description": "Integrate the single-page UI with the inference and payment systems.",
-        "status": "pending",
-        "dependencies": [
-          6,
-          7,
-          8,
-          3
-        ],
-        "priority": "medium",
-        "details": "Connect generation button to the inference API endpoint. Implement credit check before generation. Set up WebSocket connection to receive generation progress and results. Update UI to show remaining credits and generation status. Implement error handling for various failure scenarios. Add buy credits flow when user has insufficient credits. Create smooth transitions between states (selecting options, generating, viewing results).",
-        "testStrategy": "End-to-end testing of the complete generation flow. Verify credit deduction and WebSocket updates work correctly. Test error scenarios and ensure appropriate messages are displayed. Verify buy credits flow redirects correctly to Stripe."
-      },
-      {
-        "id": 10,
-        "title": "Implement route migration and feature flag rollout",
-        "description": "Set up route redirections and gradual rollout of the new single-page experience.",
-        "status": "pending",
-        "dependencies": [
-          2,
-          4,
-          5,
-          6,
-          7,
-          9
-        ],
-        "priority": "low",
-        "details": "Implement redirects from existing routes (`/styles`, `/upload`, etc.) to the new home page (`/`). Ensure redirects maintain state and pass necessary parameters. Set up feature flag system to gradually roll out the new UI to users. Implement canary release strategy with percentage-based rollout. Add analytics to track key metrics (time-to-first-image, support ticket reduction). Create rollback mechanism in case of critical issues. Conduct performance optimization to meet Lighthouse score targets (≥90 desktop, ≥80 mobile).",
-        "testStrategy": "Test all redirect routes to ensure they maintain proper state. Verify feature flag system correctly shows new or old UI based on configuration. Run Lighthouse audits to verify performance metrics. Conduct cross-browser and cross-device testing to ensure consistent experience."
-      }
-    ],
-    "metadata": {
-      "projectName": "Single-Page Image Generation & LoRA Management Refactor",
-      "totalTasks": 10,
-      "sourceFile": "PRD.md",
-      "generatedAt": "2023-11-09"
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Setup ComfyUI and comfyui-api in Modal container",
+      "description": "Set up the Modal container with ComfyUI server and comfyui-api server running on the appropriate ports with proper configuration.",
+      "status": "done",
+      "dependencies": [],
+      "priority": "high",
+      "details": "1. Install Node 20 in the Modal container\n2. Clone the comfyui-api repository from ctvbld/comfyui-api@main\n3. Run npm ci --omit=dev to install dependencies\n4. Configure ComfyUI to run on localhost:8000\n5. Configure comfyui-api to run on localhost:9000\n6. Set up environment variables using Modal secrets\n7. Create startup script that launches both servers in the correct order",
+      "testStrategy": "Verify both servers start correctly with no errors. Test a basic request to ensure comfyui-api can successfully forward to ComfyUI. Check logs for proper initialization."
+    },
+    {
+      "id": 2,
+      "title": "Implement Modal secrets and configuration",
+      "description": "Set up the required secrets and configuration for AWS S3 access and comfyui-api settings.",
+      "status": "done",
+      "dependencies": [
+        1
+      ],
+      "priority": "high",
+      "details": "1. Create 'aws-secret' with AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, AWS_BUCKET\n2. Create 'comfyui-api-secret' with COMFY_API_KEY, COMFYUI_BASE_URL (http://127.0.0.1:8000)\n3. Configure S3 output prefix pattern: user-images/{user_id}/inference/{job_id}/ with subfolders 'orig/' and 'web/'\n4. Set up webhook URL configuration in the secrets\n5. Ensure Modal container has proper access to these secrets\n6. Configure environment variables in the comfyui-api startup",
+      "testStrategy": "Verify secrets are correctly loaded in the container. Test S3 connectivity with a small upload. Confirm comfyui-api can access the configured values."
+    },
+    {
+      "id": 3,
+      "title": "Rename Modal app and implement WebSocket progress endpoint",
+      "description": "Rename the Modal app and class to match the new naming convention and implement the WebSocket progress endpoint.",
+      "status": "done",
+      "dependencies": [
+        1
+      ],
+      "priority": "medium",
+      "details": "1. Rename Modal app to 'primeshot-inference'\n2. Rename class to 'H100*' to reflect GPU naming\n3. Remove the existing 'health_check' endpoint\n4. Implement WebSocket 'progress' endpoint at wss://creativebuild--primeshot-inference-progress.modal.run\n5. Set up WebSocket handlers for connection, message, and disconnection\n6. Implement progress tracking and broadcasting mechanism\n7. Configure appropriate keepalive window (600-900 seconds)",
+      "testStrategy": "Test WebSocket connection and ensure progress updates are correctly broadcasted. Verify renamed endpoints are accessible. Check that the keepalive window is correctly applied."
+    },
+    {
+      "id": 4,
+      "title": "Develop warmup workflow for model preloading",
+      "description": "Create and implement a warmup workflow that preloads the checkpoint, VAE, and text encoder on container startup.",
+      "status": "done",
+      "dependencies": [
+        1,
+        2
+      ],
+      "priority": "medium",
+      "details": "1. Identify the specific checkpoint, VAE, and text encoder used in production\n2. Create a minimal ComfyUI workflow that loads these models\n3. Implement automatic execution of this workflow when the container starts\n4. Add timing measurements to quantify latency improvements\n5. Ensure models are cached on Modal volume for persistence\n6. Optimize the warmup process to minimize startup time\n7. Add logging to track warmup success/failure",
+      "testStrategy": "Measure cold start vs. warm start latency. Verify models are correctly loaded and cached. Test with multiple container restarts to ensure consistency."
+    },
+    {
+      "id": 5,
+      "title": "Create dynamic workflow endpoint with dual output formats",
+      "description": "Implement a dynamic workflow endpoint in comfyui-api that produces both web-optimized WebP and high-resolution PNG outputs.",
+      "status": "done",
+      "dependencies": [
+        1,
+        2,
+        4
+      ],
+      "priority": "high",
+      "details": "1. Design ComfyUI workflow with split branches before the upscaler\n2. Configure pre-upscale branch to resize to 1K and save as WebP with filename_prefix 'web_'\n3. Configure main branch to upscale to 2K/4K and save as PNG with filename_prefix 'orig_'\n4. Implement dynamic workflow endpoint in comfyui-api\n5. Configure S3 output to user-images/{user_id}/inference/{job_id}/web/ and /orig/ subfolders\n6. Ensure proper error handling for both output paths\n7. Add logging for successful/failed generation of each output format",
+      "testStrategy": "Test the endpoint with various input parameters. Verify both WebP and PNG outputs are correctly generated and saved to S3. Check image dimensions and quality of both formats."
+    },
+    {
+      "id": 6,
+      "title": "Implement webhook handler for job completion",
+      "description": "Create a Modal FastAPI endpoint to handle webhooks from comfyui-api on job completion and update the database.",
+      "status": "pending",
+      "dependencies": [
+        2,
+        3,
+        5
+      ],
+      "priority": "high",
+      "details": "1. Create a @modal.fastapi_endpoint for /inference/webhook\n2. Implement parsing of comfyui-api callback data\n3. Create database schema for the generated_images table with user_id, inference_id, original_path, web_path, width, height, format, bytes\n4. Implement upsert logic to add or update records in the generated_images table\n5. Update job status in the database\n6. Implement error handling for webhook processing\n7. Broadcast completion status via WebSocket progress endpoint\n8. Ensure webhook handler is idempotent to prevent duplicates",
+      "testStrategy": "Test webhook with sample payloads. Verify database records are correctly created/updated. Test idempotency by sending the same webhook multiple times. Verify WebSocket broadcasts correct completion status."
+    },
+    {
+      "id": 7,
+      "title": "Integrate with Supabase queue system",
+      "description": "Connect the Modal inference system with the existing Supabase Edge Function and DB queue for job orchestration.",
+      "status": "in-progress",
+      "dependencies": [
+        3,
+        6
+      ],
+      "priority": "medium",
+      "details": "1. Update job schema to include user_id and job_id\n2. Modify worker to fetch jobs from Supabase queue\n3. Implement job submission to comfyui-api dynamic endpoint with async mode\n4. Configure worker to return immediately after submission (letting webhook finalize)\n5. Set up proper error handling and retry logic\n6. Configure container keepalive window to 600-900 seconds\n7. Ensure one job per container for reliability\n8. Implement job status tracking in Supabase DB",
+      "testStrategy": "Test end-to-end job submission through queue. Verify jobs are correctly picked up and processed. Test error conditions and retry logic. Measure container keepalive behavior under various load patterns."
+    },
+    {
+      "id": 8,
+      "title": "Replace legacy CLI execution with comfyui-api calls",
+      "description": "Remove the existing CLI-based execution path and replace with comfyui-api dynamic endpoint invocation.",
+      "status": "pending",
+      "dependencies": [
+        5,
+        7
+      ],
+      "priority": "low",
+      "details": "1. Identify all locations where 'comfy run' CLI commands are used\n2. Replace each CLI call with equivalent comfyui-api dynamic endpoint invocation\n3. Update parameter handling to match the new API format\n4. Add logging to track successful migrations\n5. Clean up any unused CLI-related code and dependencies",
+      "testStrategy": "Compare results from old CLI path vs. new API path to ensure identical outputs. Test with various input parameters to verify compatibility. Measure performance differences between the two approaches."
+    },
+    {
+      "id": 9,
+      "title": "Implement comprehensive error handling and logging",
+      "description": "Add robust error handling, logging, and monitoring throughout the inference pipeline.",
+      "status": "pending",
+      "dependencies": [
+        6,
+        7,
+        8
+      ],
+      "priority": "medium",
+      "details": "1. Implement structured logging for all components\n2. Add error handling for ComfyUI server failures\n3. Add error handling for comfyui-api failures\n4. Implement retry logic for transient failures\n5. Add monitoring for queue depth and processing times\n6. Implement alerting for critical failures\n7. Add detailed error reporting to webhook responses\n8. Create dashboard for system health and performance metrics",
+      "testStrategy": "Inject various failure scenarios to test error handling. Verify logs contain sufficient information for debugging. Test retry logic with simulated transient failures. Verify alerts are triggered appropriately."
+    },
+    {
+      "id": 10,
+      "title": "Conduct validation and load testing",
+      "description": "Perform comprehensive testing of the entire pipeline under various load conditions and validate against success metrics.",
+      "status": "pending",
+      "dependencies": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "priority": "medium",
+      "details": "1. Develop smoke tests for basic functionality\n2. Create error-path tests to verify error handling\n3. Implement light load tests with concurrent jobs\n4. Measure P50 time-to-first-image for warm containers\n5. Compare cold start performance with and without warmup workflow\n6. Verify S3 artifact structure and organization\n7. Test webhook correctness and idempotency\n8. Evaluate autoscaling behavior under burst load conditions",
+      "testStrategy": "Run automated test suite covering all scenarios. Measure performance against baseline and targets. Document results including P50 latency, cold start improvement percentage, S3 layout correctness, and autoscaling stability under burst load."
     }
+  ],
+  "metadata": {
+    "projectName": "Primeshot Inference Pipeline Implementation",
+    "totalTasks": 10,
+    "sourceFile": "PRD.md",
+    "generatedAt": "2023-11-22"
   }
 }

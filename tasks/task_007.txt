@@ -1,11 +1,18 @@
 # Task ID: 7
-# Title: Integrate gallery with WebSocket updates
+# Title: Integrate with Supabase queue system
 # Status: pending
-# Dependencies: 1
+# Dependencies: 3, 6
 # Priority: medium
-# Description: Adapt the existing album gallery to show generated images with live updates via WebSocket.
+# Description: Connect the Modal inference system with the existing Supabase Edge Function and DB queue for job orchestration.
 # Details:
-Reuse the existing album card grid from `/albums` page. Implement placeholder states for empty gallery and unauthenticated users. Set up WebSocket listener to receive real-time updates from inference jobs. Implement masonry grid layout that updates dynamically as new images arrive. Add loading states and error handling for failed generations. Include functionality to download or share generated images.
+1. Update job schema to include user_id and job_id
+2. Modify worker to fetch jobs from Supabase queue
+3. Implement job submission to comfyui-api dynamic endpoint with async mode
+4. Configure worker to return immediately after submission (letting webhook finalize)
+5. Set up proper error handling and retry logic
+6. Configure container keepalive window to 600-900 seconds
+7. Ensure one job per container for reliability
+8. Implement job status tracking in Supabase DB
 
 # Test Strategy:
-Test WebSocket connection establishment and reconnection logic. Verify gallery updates correctly when new images arrive. Test placeholder states and transitions. Ensure responsive behavior of gallery grid on different screen sizes.
+Test end-to-end job submission through queue. Verify jobs are correctly picked up and processed. Test error conditions and retry logic. Measure container keepalive behavior under various load patterns.

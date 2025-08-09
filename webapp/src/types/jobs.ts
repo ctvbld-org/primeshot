@@ -32,6 +32,7 @@ export interface TrainingStartResponse {
   status: string;
   estimated_duration: number;
   message: string;
+  gpu_type?: string;
 }
 
 export interface TrainingProgressResponse {

@@ -1,27 +1,16 @@
 # Task ID: 2
-# Title: Refactor Styles Carousel component
-# Status: done
+# Title: Implement Modal secrets and configuration
+# Status: pending
 # Dependencies: 1
 # Priority: high
-# Description: Extract and adapt the existing styles carousel to work as a standalone component with event emission.
+# Description: Set up the required secrets and configuration for AWS S3 access and comfyui-api settings.
 # Details:
-Extract carousel from `/styles` page into a reusable component. Remove the 'Customize' button. Add swipe events and implement a context provider that emits style change events. Make sure the carousel maintains the current style selection state. Ensure carousel is responsive and anchors the floating option buttons to the current slide. Reuse existing styling but adapt for the new layout context.
+1. Create 'aws-secret' with AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, AWS_BUCKET
+2. Create 'comfyui-api-secret' with COMFY_API_KEY, COMFYUI_BASE_URL (http://127.0.0.1:8000)
+3. Configure S3 output prefix pattern: user-images/{user_id}/inference/{job_id}
+4. Set up webhook URL configuration in the secrets
+5. Ensure Modal container has proper access to these secrets
+6. Configure environment variables in the comfyui-api startup
 
 # Test Strategy:
-Unit test style selection events. Visual regression testing to ensure carousel appears and behaves identically to the existing one. Test swipe and scroll behaviors on touch and non-touch devices.
-
-# Task ID: pricing-db-migrations
-# Title: Write SQL migrations for dynamic pricing tables
-# Status: pending
-# Dependencies: pricing-db-schema-design
-# Priority: high
-# Description: Write SQL migration scripts to create the new subscriptions, credit_packs, and credit_costs tables as per the new schema (no cost_per_credit or savings in credit_packs).
-# Details:
-- Write migration for 'subscriptions' table with all required fields
-- Write migration for 'credit_packs' table (no cost_per_credit, no savings)
-- Write migration for 'credit_costs' table
-- Add created_at and updated_at timestamps to all tables
-# Test Strategy:
-- Apply migrations to a test DB
-- Verify tables are created with correct columns and types
-- Insert sample data and query for validation
+Verify secrets are correctly loaded in the container. Test S3 connectivity with a small upload. Confirm comfyui-api can access the configured values.

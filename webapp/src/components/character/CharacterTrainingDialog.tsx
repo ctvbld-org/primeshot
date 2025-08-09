@@ -305,8 +305,6 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
       // Get character limit from subscription tiers data
       const maxCharacters = subscriptionTiers?.find(tier => tier.name === subscription.plan_name)?.max_characters || 1
       
-      console.log(`Character limit check: ${currentCharacterCount} existing characters, limit is ${maxCharacters} for plan ${subscription.plan_name}`)
-      
       if (currentCharacterCount >= maxCharacters) {
         throw new Error(`Character limit reached. Your ${subscription.plan_name} plan allows ${maxCharacters} character(s).`)
       }
@@ -320,9 +318,6 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
       }
 
       createdCharacterId = character.id
-      console.log(`Created character: ${createdCharacterId}`)
-
-      // Character profile will be automatically populated during training via physical analysis
 
       // Update step data with character ID
       setStepData((prev: StepData) => ({ ...prev, characterId: character.id }))
@@ -336,8 +331,6 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
       if (!uploadedUrls || uploadedUrls.length === 0) {
         throw new Error('Failed to upload images')
       }
-
-      // Character remains in 'queued' status until the training job updates it
 
       // Start training with retry mechanism
       const trainingResponse = await startTraining({

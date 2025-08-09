@@ -25,6 +25,29 @@ interface TrainingJob {
   credits_spent?: number;
 }
 
+// Find an existing active training job for idempotency (queued or running)
+async function findExistingActiveJob(
+  supabase: any,
+  userId: string,
+  characterId: string
+): Promise<TrainingJob | null> {
+  const { data, error } = await supabase
+    .from('training_jobs')
+    .select('id, user_id, character_id, status, modal_job_id, created_at, updated_at, credits_spent, error_message, gpu_type')
+    .eq('user_id', userId)
+    .eq('character_id', characterId)
+    .in('status', ['queued', 'running'])
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error checking existing active job:', error);
+    return null;
+  }
+  return data || null;
+}
+
 // Initialize S3 client for cleanup operations
 function getS3Client() {
   const accessKeyId = Deno.env.get('AWS_ACCESS_KEY_ID');
@@ -479,11 +502,34 @@ serve(async (req) => {
       );
     }
 
-    // Check if character is already being trained or completed
-    if (character.status === 'training' || character.status === 'ready') {
-      console.log(`⚠️ Character already ${character.status}`);
+    // IDEMPOTENCY: If a job already exists (queued/running), return it instead of failing/creating a new one
+    const existingJob = await findExistingActiveJob(supabase, user_id, character_id);
+    if (existingJob) {
+      console.log(`🔁 Resuming existing training job ${existingJob.id} (status=${existingJob.status})`);
       return new Response(
-        JSON.stringify({ error: `Character is already ${character.status}` }),
+        JSON.stringify({
+          job_id: existingJob.id,
+          status: existingJob.status,
+          modal_job_id: existingJob.modal_job_id,
+          gpu_type: (existingJob as any).gpu_type ?? null,
+          message: 'Existing training job found, resuming'
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check if character is already being trained or completed
+    if (character.status === 'training') {
+      console.log('⚠️ Character status is training but no active job was found - returning 409');
+      return new Response(
+        JSON.stringify({ error: 'Character is already training' }),
+        { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    if (character.status === 'ready') {
+      console.log('⚠️ Character already ready');
+      return new Response(
+        JSON.stringify({ error: 'Character is already ready' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -601,16 +647,6 @@ serve(async (req) => {
     // Global capacity available - start training immediately
     console.log(`🚀 Global capacity available, starting training immediately`);
 
-    // Update character status to training
-    console.log(`🔄 Updating character status to training`);
-    await supabase
-      .from('characters')
-      .update({ 
-        status: 'training',
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', character_id);
-
     // Prepare Modal API call
     const modalPayload = {
       user_id,
@@ -646,6 +682,15 @@ serve(async (req) => {
       const modalResult = await modalResponse.json();
       console.log('✅ Modal training started:', modalResult);
 
+      // Update character status to training
+      await supabase
+        .from('characters')
+        .update({ 
+          status: 'training',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', character_id);
+
       // Update job status to running and add Modal job ID
       const modalJobId = modalResult.job_handle || modalResult.modal_job_id;
       await supabase
@@ -654,6 +699,7 @@ serve(async (req) => {
           status: 'running',
           // started_at is managed by DB trigger. Do not set directly here.
           modal_job_id: modalJobId,
+          gpu_type: modalResult.gpu_type ?? null,
           updated_at: new Date().toISOString()
         })
         .eq('id', jobId);
@@ -678,6 +724,7 @@ serve(async (req) => {
       );
 
     } catch (modalError) {
+      const errorMessage = (modalError as any)?.message ?? String(modalError);
       console.error('❌ Modal API call failed:', modalError);
       
       // Update job status to failed
@@ -685,7 +732,7 @@ serve(async (req) => {
         .from('training_jobs')
         .update({
           status: 'failed',
-          error_message: modalError.message,
+          error_message: errorMessage,
           updated_at: new Date().toISOString()
         })
         .eq('id', jobId);
@@ -696,7 +743,7 @@ serve(async (req) => {
       // Refund credits since training never actually started (Modal API failed)
       if (trainingCost > 0) {
         console.log(`💰 Attempting to refund ${trainingCost} credits for failed training job: ${jobId}`);
-        console.log(`🔍 Modal error was: ${modalError.message}`);
+        console.log(`🔍 Modal error was: ${errorMessage}`);
         
         const refundIdempotencyKey = `modal_failure_refund_${jobId}`;
         
@@ -706,7 +753,7 @@ serve(async (req) => {
               p_user_id: user_id,
               p_job_id: jobId,
               p_amount: trainingCost,
-              p_reason: `Refund for failed training start: ${modalError.message}`,
+              p_reason: `Refund for failed training start: ${errorMessage}`,
               p_idempotency_key: refundIdempotencyKey
             });
 
@@ -735,15 +782,15 @@ serve(async (req) => {
       }
 
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: 'Failed to start training on Modal',
-          details: modalError.message,
+          details: errorMessage,
           job_id: jobId,
           credits_spent: trainingCost,
           credits_refunded: trainingCost,
           cleanup_performed: true
         }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 

@@ -986,6 +986,72 @@ Detected changes in:
 - webapp/src/app/globals.css
 - webapp/src/app/layout.tsx
 - webapp/src/lib/utils/get-styles-images.ts
+
+
+**Auto-update 2025-08-09**:
+Detected changes in:
+- admin/src/components/subscriptions/subscription-form-dialog.tsx
+- admin/src/components/subscriptions/subscriptions-table.tsx
+- webapp/src/app/api/cleanup-character/route.ts
+- webapp/src/app/api/cleanup-face-model/route.ts
+- webapp/src/app/api/pricing/character-limit/[planName]/route.ts
+- webapp/src/app/api/pricing/credit-costs/route.ts
+- webapp/src/app/api/pricing/subscriptions/route.ts
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/app/api/upload-chunk/route.ts
+- webapp/src/app/globals.css
+- webapp/src/app/page.tsx
+- webapp/src/components/character/CharacterSelector.module.css
+- webapp/src/components/character/CharacterSelector.tsx
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/Countdown.tsx
+- webapp/src/components/character/ProgressTracker.tsx
+- webapp/src/components/character/training/CharacterNameStep.tsx
+- webapp/src/components/character/training/ThumbnailStyles.module.css
+- webapp/src/components/character/training/TrainingProgressStep.tsx
+- webapp/src/components/character/training/UploadPhotosStep.tsx
+- webapp/src/components/character/training/UploadProgressStep.tsx
+- webapp/src/components/dashboard/CreditDashboard.tsx
+- webapp/src/components/face_model/FaceModelUploadDialog.tsx
+- webapp/src/components/face_model/steps/FaceModelNameStep.tsx
+- webapp/src/components/face_model/steps/ProfileFormStep.tsx
+- webapp/src/components/face_model/steps/TrainingProgressStep.tsx
+- webapp/src/components/face_model/steps/UploadPhotosStep.tsx
+- webapp/src/components/face_model/steps/UploadProgressStep.tsx
+- webapp/src/components/face_model/steps/UploadRequirementsStep.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/style/StylesCarousel.module.css
+- webapp/src/components/style/StylesCarousel.tsx
+- webapp/src/components/upload/FileUploader.module.css
+- webapp/src/components/upload/FileUploader.tsx
+- webapp/src/components/upload/ImageQualityScore.module.css
+- webapp/src/components/upload/ImageQualityScore.tsx
+- webapp/src/components/upload/ImageTooltip.module.css
+- webapp/src/components/upload/ImageTooltip.tsx
+- webapp/src/components/upload/RejectedImagesContent.module.css
+- webapp/src/components/upload/RejectedImagesContent.tsx
+- webapp/src/components/upload/RequirementsContent.tsx
+- webapp/src/components/upload/UploadFooter.module.css
+- webapp/src/components/upload/UploadFooter.tsx
+- webapp/src/components/upload/UploadRequirements.module.css
+- webapp/src/components/upload/UploadRequirements.tsx
+- webapp/src/components/upload/rejected-images-dialog.tsx
+- webapp/src/lib/api/characters.ts
+- webapp/src/lib/api/face-models.ts
+- webapp/src/lib/api/jobs.ts
+- webapp/src/lib/constants/pricing.ts
+- webapp/src/lib/constants/upload.ts
+- webapp/src/lib/hooks/use-character-images.ts
+- webapp/src/lib/hooks/use-character.ts
+- webapp/src/lib/hooks/use-face-model.ts
+- webapp/src/lib/hooks/use-file-upload.ts
+- webapp/src/lib/image-quality.ts
+- webapp/src/lib/s3.ts
+- webapp/src/lib/schemas.ts
+- webapp/src/lib/services/creditService.ts
+- webapp/src/lib/types.ts
+- webapp/src/lib/upload-utils.ts
+- webapp/src/lib/websocket/connection-manager.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

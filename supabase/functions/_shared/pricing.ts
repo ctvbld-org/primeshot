@@ -10,7 +10,7 @@
  * - credit_packs: Credit pack configurations
  */
 
-export type Resolution = '1K' | '2K' | '4K';
+export type Quality = '1K' | '2K' | '4K';
 
 let cachedCreditCosts: Record<string, number> | null = null;
 let cachedSubscriptions: any[] | null = null;
@@ -87,7 +87,7 @@ async function getSubscriptions(supabase: any): Promise<any[]> {
     cachedSubscriptions = subscriptions || [];
     lastSubscriptionsFetchTime = now;
 
-    return cachedSubscriptions;
+    return cachedSubscriptions || [];
   } catch (error) {
     console.error('Failed to fetch subscriptions:', error);
     return [];
@@ -135,16 +135,16 @@ export async function getCharacterTrainingCost(supabase: any): Promise<number> {
 /**
  * Get credit cost for image generation
  */
-export async function getImageGenerationCost(supabase: any, resolution: Resolution): Promise<number> {
+export async function getImageGenerationCost(supabase: any, quality: Quality): Promise<number> {
   const costs = await getCreditCosts(supabase);
-  return costs[`IMAGE_GENERATION_${resolution}`] || 1;
+  return costs[`IMAGE_GENERATION_${quality}`] || 1;
 }
 
 /**
  * Calculate credit cost for image generation
  */
-export async function calculateImageCreditCost(supabase: any, resolution: Resolution = '1K', batchSize: number = 1): Promise<number> {
-  const cost = await getImageGenerationCost(supabase, resolution);
+export async function calculateImageCreditCost(supabase: any, quality: Quality = '1K', batchSize: number = 1): Promise<number> {
+  const cost = await getImageGenerationCost(supabase, quality);
   return cost * batchSize;
 }
 
@@ -154,11 +154,11 @@ export async function calculateImageCreditCost(supabase: any, resolution: Resolu
 export async function calculateCreditCost(
   supabase: any,
   operationType: 'image_generation' | 'character_training',
-  options?: { resolution?: Resolution; batchSize?: number }
+  options?: { quality?: Quality; batchSize?: number }
 ): Promise<number> {
   switch (operationType) {
     case 'image_generation':
-      return await calculateImageCreditCost(supabase, options?.resolution || '1K', options?.batchSize || 1);
+      return await calculateImageCreditCost(supabase, options?.quality || '1K', options?.batchSize || 1);
     case 'character_training':
       return await getCharacterTrainingCost(supabase);
     default:

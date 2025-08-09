@@ -8,7 +8,7 @@
     "predev": "node memory-bank/scripts/detect-changes.js --auto",
     "dev": "turbo dev",
     "dev:webapp": "npm run dev --workspace=webapp",
-    "dev:admin": "npm run dev --workspace=admin", 
+    "dev:admin": "npm run dev --workspace=admin",
     "dev:website": "npm run dev --workspace=website",
     "build": "turbo build",
     "list": "task-master list",
