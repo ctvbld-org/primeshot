@@ -21,14 +21,14 @@ const s3Client = new S3Client({
 });
 
 // Delete entire character folder from S3
-async function deleteS3CharacterFolder(characterId: string): Promise<{ success: boolean; deletedCount: number; errors: any[] }> {
+async function deleteS3CharacterFolder(userId: string, characterId: string): Promise<{ success: boolean; deletedCount: number; errors: any[] }> {
   const bucketName = Deno.env.get('AWS_S3_BUCKET');
   if (!bucketName) {
     console.error('AWS_S3_BUCKET environment variable not set');
     return { success: false, deletedCount: 0, errors: ['AWS_S3_BUCKET not configured'] };
   }
   
-  const folderPrefix = `user-images/${characterId}/`;
+  const folderPrefix = `user-images/${userId}/training/${characterId}/`;
   
   try {
     // List all objects in the character folder
@@ -115,19 +115,19 @@ serve(async (req) => {
       character_id,
       user_id,
       reason,
-      s3_cleanup: { success: false, deletedCount: 0, errors: [] },
+      s3_cleanup: { success: false, deletedCount: 0, errors: [] as any[] },
       images_cleanup: { success: false, deletedCount: 0, error: null },
       character_cleanup: { success: false, error: null },
       training_jobs_cleanup: { success: false, deletedCount: 0, error: null }
     };
 
     // 1. Delete all images from S3 for this character
-    results.s3_cleanup = await deleteS3CharacterFolder(character_id);
+    results.s3_cleanup = await deleteS3CharacterFolder(user_id, character_id);
 
     // 2. Delete all image records from database
     try {
       const { count: imageCount, error: imagesDeleteError } = await supabase
-        .from('images')
+        .from('uploaded_images')
         .delete({ count: 'exact' })
         .eq('character_id', character_id)
         .eq('user_id', user_id);

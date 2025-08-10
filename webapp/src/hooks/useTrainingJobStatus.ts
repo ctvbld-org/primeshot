@@ -6,7 +6,7 @@ export interface TrainingJobInfo {
   id: string;
   character_id: string;
   user_id: string;
-  status: 'queued' | 'running' | 'completed' | 'failed';
+  status: 'queued' | 'pending' | 'running' | 'completed' | 'failed';
   started_at?: string;
   completed_at?: string;
   created_at: string;
@@ -14,6 +14,8 @@ export interface TrainingJobInfo {
   modal_job_id?: string;
   error_message?: string;
   credits_spent?: number;
+  retry_count?: number;
+  retry_after?: string | null;
 }
 
 export function useTrainingJobStatus(jobId: string | null) {

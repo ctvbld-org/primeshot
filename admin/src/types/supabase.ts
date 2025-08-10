@@ -47,6 +47,7 @@ export type Database = {
           hair_style: string | null
           id: string
           image_count: number | null
+          lora_path: string | null
           metadata: Json | null
           name: string
           status: string
@@ -66,6 +67,7 @@ export type Database = {
           hair_style?: string | null
           id?: string
           image_count?: number | null
+          lora_path?: string | null
           metadata?: Json | null
           name: string
           status?: string
@@ -85,6 +87,7 @@ export type Database = {
           hair_style?: string | null
           id?: string
           image_count?: number | null
+          lora_path?: string | null
           metadata?: Json | null
           name?: string
           status?: string
@@ -286,61 +289,7 @@ export type Database = {
             foreignKeyName: "generated_images_upload_id_fkey"
             columns: ["upload_id"]
             isOneToOne: false
-            referencedRelation: "images"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      images: {
-        Row: {
-          character_id: string | null
-          created_at: string | null
-          dimensions: Json | null
-          file_name: string | null
-          file_size: number | null
-          id: string
-          mime_type: string | null
-          quality_score: number | null
-          url: string
-          user_id: string | null
-        }
-        Insert: {
-          character_id?: string | null
-          created_at?: string | null
-          dimensions?: Json | null
-          file_name?: string | null
-          file_size?: number | null
-          id?: string
-          mime_type?: string | null
-          quality_score?: number | null
-          url: string
-          user_id?: string | null
-        }
-        Update: {
-          character_id?: string | null
-          created_at?: string | null
-          dimensions?: Json | null
-          file_name?: string | null
-          file_size?: number | null
-          id?: string
-          mime_type?: string | null
-          quality_score?: number | null
-          url?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_images_character_id"
-            columns: ["character_id"]
-            isOneToOne: false
-            referencedRelation: "characters"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "images_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
+            referencedRelation: "uploaded_images"
             referencedColumns: ["id"]
           },
         ]
@@ -351,6 +300,7 @@ export type Database = {
           color_id: string | null
           completed_at: string | null
           created_at: string | null
+          credits_spent: number
           error_message: string | null
           id: string
           scene_id: string | null
@@ -365,6 +315,7 @@ export type Database = {
           color_id?: string | null
           completed_at?: string | null
           created_at?: string | null
+          credits_spent?: number
           error_message?: string | null
           id?: string
           scene_id?: string | null
@@ -379,6 +330,7 @@ export type Database = {
           color_id?: string | null
           completed_at?: string | null
           created_at?: string | null
+          credits_spent?: number
           error_message?: string | null
           id?: string
           scene_id?: string | null
@@ -665,15 +617,15 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          character_training_included: number
           concurrent_jobs: number
           created_at: string | null
           credits: number
           description: string | null
           display_name: string
-          face_model_training_included: number
           features: Json | null
           id: number
-          max_face_models: number
+          max_characters: number
           max_resolution: string
           monthly_price: number
           name: string
@@ -684,15 +636,15 @@ export type Database = {
           yearly_price: number
         }
         Insert: {
+          character_training_included: number
           concurrent_jobs: number
           created_at?: string | null
           credits: number
           description?: string | null
           display_name: string
-          face_model_training_included: number
           features?: Json | null
           id?: number
-          max_face_models: number
+          max_characters: number
           max_resolution: string
           monthly_price: number
           name: string
@@ -703,15 +655,15 @@ export type Database = {
           yearly_price: number
         }
         Update: {
+          character_training_included?: number
           concurrent_jobs?: number
           created_at?: string | null
           credits?: number
           description?: string | null
           display_name?: string
-          face_model_training_included?: number
           features?: Json | null
           id?: number
-          max_face_models?: number
+          max_characters?: number
           max_resolution?: string
           monthly_price?: number
           name?: string
@@ -730,8 +682,11 @@ export type Database = {
           created_at: string | null
           credits_spent: number | null
           error_message: string | null
+          gpu_type: string | null
           id: string
           modal_job_id: string | null
+          retry_after: string | null
+          retry_count: number
           started_at: string | null
           status: string
           updated_at: string | null
@@ -743,8 +698,11 @@ export type Database = {
           created_at?: string | null
           credits_spent?: number | null
           error_message?: string | null
+          gpu_type?: string | null
           id?: string
           modal_job_id?: string | null
+          retry_after?: string | null
+          retry_count?: number
           started_at?: string | null
           status?: string
           updated_at?: string | null
@@ -756,8 +714,11 @@ export type Database = {
           created_at?: string | null
           credits_spent?: number | null
           error_message?: string | null
+          gpu_type?: string | null
           id?: string
           modal_job_id?: string | null
+          retry_after?: string | null
+          retry_count?: number
           started_at?: string | null
           status?: string
           updated_at?: string | null
@@ -873,6 +834,60 @@ export type Database = {
             columns: ["character_id"]
             isOneToOne: false
             referencedRelation: "characters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      uploaded_images: {
+        Row: {
+          character_id: string | null
+          created_at: string | null
+          dimensions: Json | null
+          file_name: string | null
+          file_size: number | null
+          id: string
+          mime_type: string | null
+          quality_score: number | null
+          url: string
+          user_id: string | null
+        }
+        Insert: {
+          character_id?: string | null
+          created_at?: string | null
+          dimensions?: Json | null
+          file_name?: string | null
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          quality_score?: number | null
+          url: string
+          user_id?: string | null
+        }
+        Update: {
+          character_id?: string | null
+          created_at?: string | null
+          dimensions?: Json | null
+          file_name?: string | null
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          quality_score?: number | null
+          url?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_uploaded_images_character_id"
+            columns: ["character_id"]
+            isOneToOne: false
+            referencedRelation: "characters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "uploaded_images_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]

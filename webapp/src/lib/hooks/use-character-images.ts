@@ -17,7 +17,7 @@ export const useCharacterImages = (characterId?: string) => {
 
     try {
       const { data, error } = await supabase
-        .from('images')
+        .from('uploaded_images')
         .select('*')
         .eq('character_id', characterId)
 

@@ -16,6 +16,8 @@ interface TrainingJob {
   completed_at?: string;
   modal_job_id?: string;
   error_message?: string;
+  retry_count?: number;
+  retry_after?: string | null;
 }
 
 /**
@@ -46,6 +48,7 @@ async function getNextQueuedJob(supabase: any): Promise<TrainingJob | null> {
     .from('training_jobs')
     .select('*')
     .eq('status', 'queued')
+    .or('retry_after.is.null,retry_after.lte.' + new Date().toISOString())
     .order('created_at', { ascending: true })
     .limit(1)
     .single();
@@ -126,12 +129,11 @@ async function startTrainingJob(supabase: any, job: TrainingJob): Promise<boolea
 
     const result = await modalResponse.json();
     
-    // Update job status to running
+    // Update job status to pending (provider queue) and store modal_job_id
     const { error: updateError } = await supabase
       .from('training_jobs')
       .update({
-        status: 'running',
-        // started_at is managed by DB trigger. Do not set directly here.
+        status: 'pending',
         modal_job_id: result.job_handle || null,
         updated_at: new Date().toISOString()
       })
@@ -142,27 +144,24 @@ async function startTrainingJob(supabase: any, job: TrainingJob): Promise<boolea
       return false;
     }
 
-    // Update character status to training
-    await supabase
-      .from('characters')
-      .update({
-        status: 'training',
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', job.character_id);
-
-    console.log(`✅ Successfully started training job ${job.id}`);
+    console.log(`✅ Submitted training job ${job.id} to provider (pending)`);
     return true;
 
   } catch (error) {
     console.error(`Error starting training job ${job.id}:`, error);
     
-    // Mark job as failed
+    // Transient failure: requeue with backoff
+    const retryCount = (job.retry_count ?? 0) + 1;
+    const backoffMinutes = Math.min(30, Math.max(2, Math.pow(2, retryCount)));
+    const retryAfter = new Date(Date.now() + backoffMinutes * 60 * 1000).toISOString();
+
     await supabase
       .from('training_jobs')
       .update({
-        status: 'failed',
-        error_message: `Queue processing error: ${error.message}`,
+        status: 'queued',
+        error_message: `Queue processing error: ${ (error as Error).message }`,
+        retry_count: retryCount,
+        retry_after: retryAfter,
         updated_at: new Date().toISOString()
       })
       .eq('id', job.id);

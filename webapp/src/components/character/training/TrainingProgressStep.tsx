@@ -155,8 +155,11 @@ export function TrainingProgressStep({
   const seconds = trainingProgress.progress ? trainingProgress.getLiveCountdownSeconds?.() : null
   
   // Determine if job is queued based on database status
-  const isQueued = jobStatus?.status === 'queued'
+  const isPending = jobStatus?.status === 'pending'
+  const isQueued = jobStatus?.status === 'queued' || isPending
   const isRunning = jobStatus?.status === 'running'
+  const retryAfterIso = jobStatus?.retry_after || null
+  const retryAfterText = retryAfterIso ? new Date(retryAfterIso).toLocaleTimeString() : null
 
   return (
     <>
@@ -218,7 +221,15 @@ export function TrainingProgressStep({
             }
           </h3>
           <p className={styles.statusDescription}>
-            {isQueued ? t('character.queuedInfo') : isRunning && trainingProgress.progress?.status === 'running' ? t('character.canCloseInfo') : t('character.trainingInitializingInfo')}
+            {isQueued ? (
+              isPending
+                ? t('character.providerQueuedInfo')
+                : retryAfterText
+                  ? `${t('character.queuedInfo')} · Retrying at ${retryAfterText}`
+                  : t('character.queuedInfo')
+            ) : (
+              isRunning && trainingProgress.progress?.status === 'running' ? t('character.canCloseInfo') : t('character.trainingInitializingInfo')
+            )}
 
             {/* Error State */}
             {showError && (

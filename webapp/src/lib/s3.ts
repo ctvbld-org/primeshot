@@ -268,7 +268,7 @@ export const deleteCharacterFolder = async (characterId: string, userId: string)
   try {
     const { ListObjectsV2Command, DeleteObjectsCommand } = await import('@aws-sdk/client-s3');
     
-    const folderPrefix = `${SOURCE_IMAGES_FOLDER}${userId}/${characterId}/`;
+    const folderPrefix = `${SOURCE_IMAGES_FOLDER}${userId}/training/${characterId}/`;
     console.log(`🗂️ Deleting character folder: ${folderPrefix}`);
     
     // List all objects in the character folder

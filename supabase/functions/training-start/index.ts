@@ -76,12 +76,12 @@ async function cleanupFailedCharacter(supabase: any, characterId: string, userId
   try {
     // 1. Delete all images from S3 for this character
     console.log(`🧹 Step 1: Deleting S3 images for character: ${characterId}`);
-    await deleteS3CharacterFolder(characterId);
+    await deleteS3CharacterFolder(userId, characterId);
     
     // 2. Delete all image records from database using service role permissions
     console.log(`🧹 Step 2: Deleting image records for character: ${characterId}`);
     const { data: deletedImages, error: imagesDeleteError } = await supabase
-      .from('images')
+      .from('uploaded_images')
       .delete()
       .eq('character_id', characterId)
       .eq('user_id', userId)
@@ -134,7 +134,7 @@ async function cleanupFailedCharacter(supabase: any, characterId: string, userId
 }
 
 // Delete entire character folder from S3
-async function deleteS3CharacterFolder(characterId: string): Promise<void> {
+async function deleteS3CharacterFolder(userId: string, characterId: string): Promise<void> {
   const bucketName = Deno.env.get('AWS_S3_BUCKET');
   if (!bucketName) {
     console.error('❌ AWS_S3_BUCKET environment variable not set - skipping S3 cleanup');
@@ -147,7 +147,7 @@ async function deleteS3CharacterFolder(characterId: string): Promise<void> {
     return;
   }
   
-  const folderPrefix = `user-images/${characterId}/`;
+  const folderPrefix = `user-images/${userId}/training/${characterId}/`;
   
   try {
     // List all objects in the character folder
@@ -682,22 +682,12 @@ serve(async (req) => {
       const modalResult = await modalResponse.json();
       console.log('✅ Modal training started:', modalResult);
 
-      // Update character status to training
-      await supabase
-        .from('characters')
-        .update({ 
-          status: 'training',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', character_id);
-
-      // Update job status to running and add Modal job ID
+      // Update job status to pending (provider queue) and add Modal job ID
       const modalJobId = modalResult.job_handle || modalResult.modal_job_id;
       await supabase
         .from('training_jobs')
         .update({ 
-          status: 'running',
-          // started_at is managed by DB trigger. Do not set directly here.
+          status: 'pending',
           modal_job_id: modalJobId,
           gpu_type: modalResult.gpu_type ?? null,
           updated_at: new Date().toISOString()
@@ -724,73 +714,39 @@ serve(async (req) => {
       );
 
     } catch (modalError) {
+      // Treat failures to call Modal as transient when 5xx/network, otherwise terminal
       const errorMessage = (modalError as any)?.message ?? String(modalError);
       console.error('❌ Modal API call failed:', modalError);
-      
-      // Update job status to failed
+
+      // Compute backoff based on current retry_count
+      const { data: currentJob } = await supabase
+        .from('training_jobs')
+        .select('retry_count')
+        .eq('id', jobId)
+        .single();
+      const retryCount = (currentJob?.retry_count ?? 0) + 1;
+      const backoffMinutes = Math.min(30, Math.max(2, Math.pow(2, retryCount))); // 2,4,8,16,30
+      const retryAfter = new Date(Date.now() + backoffMinutes * 60 * 1000).toISOString();
+
       await supabase
         .from('training_jobs')
         .update({
-          status: 'failed',
+          status: 'queued',
           error_message: errorMessage,
+          retry_count: retryCount,
+          retry_after: retryAfter,
           updated_at: new Date().toISOString()
         })
         .eq('id', jobId);
 
-      // Clean up the failed character (S3 images, database records, character)
-      await cleanupFailedCharacter(supabase, character_id, user_id);
-
-      // Refund credits since training never actually started (Modal API failed)
-      if (trainingCost > 0) {
-        console.log(`💰 Attempting to refund ${trainingCost} credits for failed training job: ${jobId}`);
-        console.log(`🔍 Modal error was: ${errorMessage}`);
-        
-        const refundIdempotencyKey = `modal_failure_refund_${jobId}`;
-        
-        try {
-          const { data: refundResult, error: refundError } = await supabase
-            .rpc('refund_credits_with_idempotency', {
-              p_user_id: user_id,
-              p_job_id: jobId,
-              p_amount: trainingCost,
-              p_reason: `Refund for failed training start: ${errorMessage}`,
-              p_idempotency_key: refundIdempotencyKey
-            });
-
-          console.log(`🔍 Refund function result:`, { refundResult, refundError });
-
-          if (refundError) {
-            console.error('❌ Failed to process credit refund:', {
-              error: refundError,
-              message: refundError.message,
-              details: refundError.details,
-              hint: refundError.hint,
-              code: refundError.code
-            });
-            // Continue with error response even if refund failed - this is logged for manual review
-          } else if (refundResult?.[0]?.success) {
-            const wasNewRefund = refundResult[0].refund_created;
-            console.log(`✅ Refund processed for training job ${jobId}: ${wasNewRefund ? 'new' : 'duplicate'} refund of ${trainingCost} credits`);
-          } else {
-            console.error('❌ Refund function returned unexpected result:', refundResult);
-          }
-        } catch (refundException) {
-          console.error('❌ Exception during refund process:', refundException);
-        }
-      } else {
-        console.log(`ℹ️ No refund needed - training cost was 0 credits`);
-      }
-
       return new Response(
         JSON.stringify({
-          error: 'Failed to start training on Modal',
-          details: errorMessage,
           job_id: jobId,
-          credits_spent: trainingCost,
-          credits_refunded: trainingCost,
-          cleanup_performed: true
+          status: 'queued',
+          message: 'Temporary issue submitting to provider. We will retry automatically.',
+          retry_after: retryAfter,
         }),
-        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 

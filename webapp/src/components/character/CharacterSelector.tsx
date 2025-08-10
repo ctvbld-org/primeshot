@@ -222,7 +222,7 @@ export function CharacterSelector({ className, onModelSelected, refreshTrigger }
     const modelIds = trainingModels.map(m => m.id);
     const { data, error } = await supabase
       .from('training_jobs')
-      .select('id, character_id')
+      .select('id, character_id, status')
       .in('character_id', modelIds)
       .order('created_at', { ascending: false });
 
@@ -593,7 +593,7 @@ export function CharacterSelector({ className, onModelSelected, refreshTrigger }
       {Object.entries(trainingJobIds)
         .filter(([modelId]) => {
           const model = characters.find(m => m.id === modelId);
-          return model && ['queued', 'training'].includes(model.status);
+          return model && model.status === 'training';
         })
         .map(([modelId, jobId]) => (
           <ProgressTracker

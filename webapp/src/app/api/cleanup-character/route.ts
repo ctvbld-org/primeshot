@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     }
 
     // Delete entire character folder from S3 (includes all images)
-    console.log(`Deleting character folder from S3: user-images/${user.id}/${characterId}/`)
+    console.log(`Deleting character folder from S3: user-images/${user.id}/training/${characterId}/`)
     const s3Result = await deleteCharacterFolder(characterId, user.id)
     
     if (s3Result.success) {
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
 
     // Delete images from database
     const { error: deleteImagesError } = await supabase
-      .from('images')
+      .from('uploaded_images')
       .delete()
       .eq('character_id', characterId)
 

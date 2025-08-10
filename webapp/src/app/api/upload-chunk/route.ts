@@ -8,6 +8,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 import { z } from 'zod';
+import sharp from 'sharp';
 
 // Security limits
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
@@ -435,12 +436,36 @@ export async function POST(request: Request) {
       // Upload original file to S3
       const cleanOriginalName = metadata.fileName.replace(/\.[^/.]+$/, '');
       const fileExtension = metadata.fileName.split('.').pop() || 'jpg';
-      const key = `user-images/${user.id}/${metadata.characterId}/source/${metadata.uploadId}-${cleanOriginalName}.${fileExtension}`;
+      const key = `user-images/${user.id}/training/${metadata.characterId}/source/${metadata.uploadId}-${cleanOriginalName}.${fileExtension}`;
       const url = await uploadToS3(finalBuffer, key, metadata.fileType);
 
       // Use original file dimensions (we'll set defaults since we're not processing)
       const safeWidth = 1;
       const safeHeight = 1;
+
+      // Create and upload a web-friendly thumbnail for the character if needed
+      // We always generate the thumbnail here (cheap vs. round-trip to S3 to check),
+      // but only set characters.thumbnail_url if it isn't set yet.
+      let thumbUrl: string | null = null;
+      try {
+        const thumbnailBuffer = await sharp(finalBuffer)
+          .resize(400, 400, {
+            fit: 'cover',
+            position: 'entropy',
+            withoutEnlargement: true,
+          })
+          .webp({ quality: 80 })
+          .toBuffer();
+
+        const thumbKey = `user-images/${user.id}/training/${metadata.characterId}/thumbnail.webp`;
+        const uploadedThumbUrl = await uploadToS3(thumbnailBuffer, thumbKey, 'image/webp');
+        // Ensure we always have a concrete string URL (some SDK typings mark Location as possibly undefined)
+        const bucket = process.env.AWS_S3_BUCKET;
+        const region = process.env.NEXT_PUBLIC_AWS_REGION || 'us-east-1';
+        thumbUrl = uploadedThumbUrl || (bucket ? `https://${bucket}.s3.${region}.amazonaws.com/${thumbKey}` : null);
+      } catch (thumbErr) {
+        console.error('Failed to generate/upload thumbnail.webp:', thumbErr);
+      }
 
               // Save to images table
         const imageData = {
@@ -458,7 +483,7 @@ export async function POST(request: Request) {
 
       const validatedData = imageSchema.parse(imageData);
       const { error: dbError } = await supabase
-        .from('images')
+        .from('uploaded_images')
         .insert(validatedData);
 
       if (dbError) {
@@ -476,20 +501,20 @@ export async function POST(request: Request) {
       }
 
       // Check if character needs a thumbnail (first image uploaded)
-          const { data: character } = await supabase
+      const { data: characterThumb } = await supabase
       .from('characters')
       .select('thumbnail_url')
       .eq('id', metadata.characterId)
         .single();
 
-      // If character doesn't have a thumbnail yet, set it to this image's URL
-      if (character && !character.thumbnail_url) {
+      // If character doesn't have a thumbnail yet, set it to the newly-generated thumbnail
+      if (characterThumb && !characterThumb.thumbnail_url && thumbUrl) {
         await supabase
           .from('characters')
-          .update({ thumbnail_url: url })
+          .update({ thumbnail_url: thumbUrl })
           .eq('id', metadata.characterId);
-        
-        console.log(`Set thumbnail for character ${metadata.characterId}: ${url}`);
+
+        console.log(`Set thumbnail for character ${metadata.characterId}: ${thumbUrl}`);
       }
 
       // Update character status to 'uploaded' since upload is complete

@@ -1052,6 +1052,13 @@ Detected changes in:
 - webapp/src/lib/types.ts
 - webapp/src/lib/upload-utils.ts
 - webapp/src/lib/websocket/connection-manager.ts
+
+
+**Auto-update 2025-08-09**:
+Detected changes in:
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/ThumbnailStyles.module.css
 ## Component Organization
 
 Components are organized by feature and reusability:

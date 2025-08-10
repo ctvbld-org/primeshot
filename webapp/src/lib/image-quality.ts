@@ -133,21 +133,21 @@ export async function loadModels() {
     
     // Check if models are available at the path
     try {
-      console.log(`Loading TinyFaceDetector from ${modelPath}`);
+      //console.log(`Loading TinyFaceDetector from ${modelPath}`);
       await faceapi.nets.tinyFaceDetector.loadFromUri(modelPath);
-      console.log('TinyFaceDetector loaded successfully');
+      //console.log('TinyFaceDetector loaded successfully');
       
-      console.log(`Loading FaceLandmark68Net from ${modelPath}`);
+      //console.log(`Loading FaceLandmark68Net from ${modelPath}`);
       await faceapi.nets.faceLandmark68Net.loadFromUri(modelPath);
-      console.log('FaceLandmark68Net loaded successfully');
+      //console.log('FaceLandmark68Net loaded successfully');
       
-      console.log(`Loading SsdMobilenetv1 from ${modelPath}`);
+      //console.log(`Loading SsdMobilenetv1 from ${modelPath}`);
       await faceapi.nets.ssdMobilenetv1.loadFromUri(modelPath);
-      console.log('SsdMobilenetv1 loaded successfully');
+      //console.log('SsdMobilenetv1 loaded successfully');
 
-      console.log(`Loading AgeGenderNet from ${modelPath}`);
+      //console.log(`Loading AgeGenderNet from ${modelPath}`);
       await faceapi.nets.ageGenderNet.loadFromUri(modelPath);
-      console.log('AgeGenderNet loaded successfully');
+      //console.log('AgeGenderNet loaded successfully');
       
       console.log('All face detection models loaded successfully');
     } catch (loadError) {
