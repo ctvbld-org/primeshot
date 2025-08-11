@@ -1059,6 +1059,18 @@ Detected changes in:
 - webapp/src/app/api/subscription/current/route.ts
 - webapp/src/components/character/CharacterTrainingDialog.tsx
 - webapp/src/components/character/training/ThumbnailStyles.module.css
+
+
+**Auto-update 2025-08-10**:
+Detected changes in:
+- webapp/src/app/api/cleanup-character/route.ts
+- webapp/src/app/api/upload-chunk/route.ts
+- webapp/src/app/api/user-images/route.ts
+- webapp/src/components/character/CharacterSelector.tsx
+- webapp/src/components/character/training/TrainingProgressStep.tsx
+- webapp/src/lib/hooks/use-character-images.ts
+- webapp/src/lib/image-quality.ts
+- webapp/src/lib/s3.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

@@ -92,6 +92,10 @@ export interface FileWithScore extends Partial<File> {
   isExisting?: boolean;
   order_id?: string;
   id?: string;
+  // Normalized face box for primary face (0..1)
+  faceBox?: { x: number; y: number; width: number; height: number };
+  // Marks this file as the first accepted image in the batch for thumbnail creation
+  isFirstImage?: boolean;
 }
 
 export type HeadshotInfo = {

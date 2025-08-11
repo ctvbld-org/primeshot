@@ -60,7 +60,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
       const existingFileStates = existingImages.map((file: FileWithScore) => ({
         file: file as unknown as File,
         previewUrl: file.url,
-        qualityResult: {
+          qualityResult: {
           width: 0,
           height: 0,
           faceCount: 1,
@@ -77,9 +77,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
           isAcceptable: true,
           hasFace: true,
           hasBody: true,
-          faceDetectionSkipped: false,
-          genderDetectionSkipped: false,
-          genderMatchesUser: true,
+            faceDetectionSkipped: false,
           eyesVisible: true,
           eyeDetectionSkipped: false,
           issues: []
@@ -278,7 +276,6 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
             hasFace: false,
             hasBody: false,
             faceDetectionSkipped: true,
-            genderDetectionSkipped: true,
             eyesVisible: false,
             eyeDetectionSkipped: true,
             issues: ['Analysis error']
@@ -333,7 +330,6 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
             hasFace: false,
             hasBody: false,
             faceDetectionSkipped: true,
-            genderDetectionSkipped: true,
             eyesVisible: false,
             eyeDetectionSkipped: true,
             issues: ['Analysis error']

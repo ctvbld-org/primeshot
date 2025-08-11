@@ -22,6 +22,13 @@ const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
 const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 // Metadata validation schema
+const normalizedBoxSchema = z.object({
+  x: z.number().min(0).max(1),
+  y: z.number().min(0).max(1),
+  width: z.number().min(0).max(1),
+  height: z.number().min(0).max(1),
+}).partial({});
+
 const chunkMetadataSchema = z.object({
   uploadId: z.string().uuid(),
   characterId: z.string().uuid(),
@@ -39,7 +46,9 @@ const chunkMetadataSchema = z.object({
   fileType: z.enum(ALLOWED_MIME_TYPES, {
     errorMap: () => ({ message: `Only ${ALLOWED_MIME_TYPES.join(', ')} files are allowed` })
   }),
-  qualityScore: z.number().int().min(0).max(100).optional()
+  qualityScore: z.number().int().min(0).max(100).optional(),
+  faceBox: normalizedBoxSchema.optional(),
+  isFirstImage: z.boolean().optional()
 }).refine(data => data.chunkIndex < data.totalChunks, {
   message: "chunkIndex must be less than totalChunks"
 });
@@ -443,28 +452,69 @@ export async function POST(request: Request) {
       const safeWidth = 1;
       const safeHeight = 1;
 
-      // Create and upload a web-friendly thumbnail for the character if needed
-      // We always generate the thumbnail here (cheap vs. round-trip to S3 to check),
-      // but only set characters.thumbnail_url if it isn't set yet.
+      // Only generate/upload thumbnail when uploading the first image (client-provided flag)
       let thumbUrl: string | null = null;
-      try {
-        const thumbnailBuffer = await sharp(finalBuffer)
-          .resize(400, 400, {
-            fit: 'cover',
-            position: 'entropy',
-            withoutEnlargement: true,
-          })
-          .webp({ quality: 80 })
-          .toBuffer();
+      const shouldCreateThumbnail = (metadata as any).isFirstImage === true;
+      if (shouldCreateThumbnail) {
+        try {
+          // Attempt face-aware crop if client provided a normalized face box
+          let thumbnailSharp = sharp(finalBuffer);
+          const meta = await thumbnailSharp.metadata();
+          const imgWidth = meta.width || 0;
+          const imgHeight = meta.height || 0;
 
-        const thumbKey = `user-images/${user.id}/training/${metadata.characterId}/thumbnail.webp`;
-        const uploadedThumbUrl = await uploadToS3(thumbnailBuffer, thumbKey, 'image/webp');
-        // Ensure we always have a concrete string URL (some SDK typings mark Location as possibly undefined)
-        const bucket = process.env.AWS_S3_BUCKET;
-        const region = process.env.NEXT_PUBLIC_AWS_REGION || 'us-east-1';
-        thumbUrl = uploadedThumbUrl || (bucket ? `https://${bucket}.s3.${region}.amazonaws.com/${thumbKey}` : null);
-      } catch (thumbErr) {
-        console.error('Failed to generate/upload thumbnail.webp:', thumbErr);
+          const fb = (metadata as any).faceBox as { x: number; y: number; width: number; height: number } | undefined;
+          if (fb && imgWidth > 0 && imgHeight > 0 && fb.width > 0 && fb.height > 0) {
+            // Convert normalized box to pixels and add margin
+            const margin = 0.15; // 15% padding around face
+            const nx = Math.max(0, fb.x - margin);
+            const ny = Math.max(0, fb.y - margin);
+            const nw = Math.min(1 - nx, fb.width + margin * 2);
+            const nh = Math.min(1 - ny, fb.height + margin * 2);
+
+            // Create a square crop around the face box by expanding the shorter side
+            const px = Math.round(nx * imgWidth);
+            const py = Math.round(ny * imgHeight);
+            const pw = Math.round(nw * imgWidth);
+            const ph = Math.round(nh * imgHeight);
+
+            // Determine square side length
+            const side = Math.min(imgWidth, imgHeight, Math.max(pw, ph));
+
+            // Center square around face box center
+            const faceCenterX = px + pw / 2;
+            const faceCenterY = py + ph / 2;
+            let sx = Math.round(faceCenterX - side / 2);
+            let sy = Math.round(faceCenterY - side / 2);
+            // Clamp to image bounds
+            sx = Math.max(0, Math.min(imgWidth - side, sx));
+            sy = Math.max(0, Math.min(imgHeight - side, sy));
+
+            // If side is invalid, fallback later
+            if (side > 0 && sx >= 0 && sy >= 0 && sx + side <= imgWidth && sy + side <= imgHeight) {
+              thumbnailSharp = sharp(finalBuffer).extract({ left: sx, top: sy, width: side, height: side });
+            }
+          }
+
+          const thumbnailBuffer = await thumbnailSharp
+            .resize(400, 400, {
+              fit: 'cover',
+              // Fallback crop bias if no faceBox or invalid extract
+              position: 'attention',
+              withoutEnlargement: true,
+            })
+            .webp({ quality: 80 })
+            .toBuffer();
+
+          const thumbKey = `user-images/${user.id}/training/${metadata.characterId}/thumbnail.webp`;
+          const uploadedThumbUrl = await uploadToS3(thumbnailBuffer, thumbKey, 'image/webp');
+          // Ensure we always have a concrete string URL (some SDK typings mark Location as possibly undefined)
+          const bucket = process.env.AWS_S3_BUCKET;
+          const region = process.env.NEXT_PUBLIC_AWS_REGION || 'us-east-1';
+          thumbUrl = uploadedThumbUrl || (bucket ? `https://${bucket}.s3.${region}.amazonaws.com/${thumbKey}` : null);
+        } catch (thumbErr) {
+          console.error('Failed to generate/upload thumbnail.webp:', thumbErr);
+        }
       }
 
               // Save to images table
@@ -500,21 +550,14 @@ export async function POST(request: Request) {
         // Don't fail the upload, just log the error
       }
 
-      // Check if character needs a thumbnail (first image uploaded)
-      const { data: characterThumb } = await supabase
-      .from('characters')
-      .select('thumbnail_url')
-      .eq('id', metadata.characterId)
-        .single();
-
-      // If character doesn't have a thumbnail yet, set it to the newly-generated thumbnail
-      if (characterThumb && !characterThumb.thumbnail_url && thumbUrl) {
+      // Attempt idempotent update: set thumbnail only if it's currently null
+      if (thumbUrl) {
         await supabase
           .from('characters')
           .update({ thumbnail_url: thumbUrl })
-          .eq('id', metadata.characterId);
-
-        console.log(`Set thumbnail for character ${metadata.characterId}: ${thumbUrl}`);
+          .eq('id', metadata.characterId)
+          .is('thumbnail_url', null);
+        console.log(`Attempted to set thumbnail for character ${metadata.characterId}: ${thumbUrl}`);
       }
 
       // Update character status to 'uploaded' since upload is complete

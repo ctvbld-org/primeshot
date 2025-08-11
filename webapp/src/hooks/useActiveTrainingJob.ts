@@ -6,7 +6,7 @@ export interface ActiveTrainingJob {
   id: string;
   character_id: string;
   user_id: string;
-  status: 'queued' | 'pending' | 'running';
+  status: 'initializing' | 'queued' | 'pending' | 'running';
   created_at: string;
   updated_at: string;
   modal_job_id?: string | null;
@@ -37,7 +37,7 @@ export function useActiveTrainingJob(characterId: string | null) {
           .select('id, character_id, user_id, status, created_at, updated_at, modal_job_id, retry_after, retry_count')
           .eq('user_id', user.id)
           .eq('character_id', characterId)
-          .in('status', ['queued', 'pending', 'running'])
+          .in('status', ['initializing', 'queued', 'pending', 'running'])
           .order('created_at', { ascending: false })
           .limit(1)
           .maybeSingle();
@@ -63,7 +63,7 @@ export function useActiveTrainingJob(characterId: string | null) {
         (payload) => {
           const row = payload.new as ActiveTrainingJob;
           if (row.user_id !== user.id) return;
-          if (!['queued', 'pending', 'running'].includes(row.status)) return;
+          if (!['initializing', 'queued', 'pending', 'running'].includes(row.status)) return;
           // Keep the most recent by created_at via refetch when IDs differ
           if (!job || row.id === job.id) {
             setJob(row);

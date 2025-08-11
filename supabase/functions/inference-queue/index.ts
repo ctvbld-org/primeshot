@@ -20,58 +20,15 @@ interface InferenceJobRow {
   settings?: any
 }
 
-async function getUserConcurrentLimit(supabase: any, userId: string): Promise<number> {
-  // Default for non-subscribed users
-  let concurrent = 1
+// Capacity is enforced in the claim RPC (Option B). No local checks needed here.
 
-  const { data: subscription } = await supabase
-    .from('user_subscriptions')
-    .select('plan_name')
-    .eq('user_id', userId)
-    .eq('status', 'active')
-    .single()
-
-  if (subscription?.plan_name) {
-    try {
-      const { data, error } = await supabase
-        .from('subscriptions')
-        .select('concurrent_jobs')
-        .eq('name', subscription.plan_name)
-        .single()
-      if (!error && data?.concurrent_jobs) {
-        concurrent = data.concurrent_jobs
-      }
-    } catch (_) {
-      // keep default
-    }
-  }
-
-  return concurrent
-}
-
-async function getUserRunningCount(supabase: any, userId: string): Promise<number> {
-  const { count } = await supabase
-    .from('inference_jobs')
-    .select('id', { count: 'exact' })
-    .eq('user_id', userId)
-    .in('status', ['pending', 'processing'])
-  return count || 0
-}
-
-async function getQueuedJobsBatch(supabase: any, limit = 10): Promise<InferenceJobRow[]> {
-  const { data, error } = await supabase
-    .from('inference_jobs')
-    .select('*')
-    .eq('status', 'queued')
-    .order('created_at', { ascending: true })
-    .limit(limit)
-
+async function claimNextQueuedInferenceJob(supabase: any): Promise<InferenceJobRow | null> {
+  const { data, error } = await supabase.rpc('claim_next_queued_inference_job')
   if (error) {
-    console.error('Error fetching queued inference jobs:', error)
-    return []
+    console.error('Error claiming queued inference job:', error)
+    return null
   }
-
-  return data || []
+  return (data as InferenceJobRow) || null
 }
 
 async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<boolean> {
@@ -142,7 +99,7 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
     await supabase
       .from('inference_jobs')
       .update({
-        status: 'processing',
+        status: 'pending',
         modal_job_id: modalResult.style_id ?? null,
         updated_at: new Date().toISOString(),
       })
@@ -160,22 +117,18 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
 }
 
 async function processInferenceQueue(supabase: any): Promise<{ processed: number; checked: number }> {
-  const queuedJobs = await getQueuedJobsBatch(supabase, 20)
-  if (!queuedJobs.length) return { processed: 0, checked: 0 }
-
   let processed = 0
   let checked = 0
-  for (const job of queuedJobs) {
-    checked++
-    const limit = await getUserConcurrentLimit(supabase, job.user_id)
-    const running = await getUserRunningCount(supabase, job.user_id)
-    if (running >= limit) {
+  for (let i = 0; i < 10; i++) {
+    const job = await claimNextQueuedInferenceJob(supabase)
+    if (!job) {
+      await new Promise((r) => setTimeout(r, 200))
       continue
     }
+    checked++
     const ok = await startInferenceJob(supabase, job)
     if (ok) processed++
-    // tiny delay to reduce race conditions
-    await new Promise((r) => setTimeout(r, 300))
+    await new Promise((r) => setTimeout(r, 500))
   }
   return { processed, checked }
 }

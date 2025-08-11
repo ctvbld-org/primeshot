@@ -99,7 +99,8 @@ async function getSubscriptions(supabase: any): Promise<any[]> {
  */
 export async function getSubscriptionLimits(supabase: any, planName: string): Promise<{
   character_training_included: number;
-  concurrent_jobs: number;
+  concurrent_jobs: number; // inference concurrency
+  concurrent_trainings: number; // training concurrency
   max_characters: number;
   max_resolution: string;
 } | null> {
@@ -115,6 +116,7 @@ export async function getSubscriptionLimits(supabase: any, planName: string): Pr
     return {
       character_training_included: subscription.character_training_included,
       concurrent_jobs: subscription.concurrent_jobs,
+      concurrent_trainings: subscription.concurrent_trainings ?? 2,
       max_characters: subscription.max_characters,
       max_resolution: subscription.max_resolution
     };

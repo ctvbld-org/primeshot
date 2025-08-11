@@ -22,49 +22,34 @@ interface TrainingJob {
 
 /**
  * Training Queue Processor
- * 
- * Manages global training concurrency limits (max 2 concurrent training jobs)
- * Processes queued training jobs when slots become available
+ *
+ * Submits queued training jobs to the provider. No app-wide concurrency limits
+ * are enforced here; provider-side (Modal) handles global queuing. Jobs are
+ * queued here only for transient failures/backoff (retry_after) and are retried
+ * when eligible.
  */
 
-const MAX_CONCURRENT_TRAINING_JOBS = 2;
-
-async function getRunningTrainingCount(supabase: any): Promise<number> {
-  const { count, error } = await supabase
-    .from('training_jobs')
-    .select('id', { count: 'exact' })
-    .eq('status', 'running');
-
-  if (error) {
-    console.error('Error getting running training count:', error);
-    throw error;
-  }
-
-  return count || 0;
-}
+// No app-wide running count needed; per-user concurrency is handled in training-start
 
 async function getNextQueuedJob(supabase: any): Promise<TrainingJob | null> {
-  const { data, error } = await supabase
-    .from('training_jobs')
-    .select('*')
-    .eq('status', 'queued')
-    .or('retry_after.is.null,retry_after.lte.' + new Date().toISOString())
-    .order('created_at', { ascending: true })
-    .limit(1)
-    .single();
-
-  if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
-    console.error('Error getting next queued job:', error);
+  const { data, error } = await supabase.rpc('claim_next_queued_training_job');
+  if (error) {
+    console.error('Error claiming next queued job:', error);
     throw error;
   }
-
-  return data || null;
+  const job = data as TrainingJob | null;
+  if (!job || !job.id) {
+    return null;
+  }
+  return job;
 }
 
 async function startTrainingJob(supabase: any, job: TrainingJob): Promise<boolean> {
   console.log(`Starting training job ${job.id} for character ${job.character_id}`);
   
   try {
+    // Capacity was enforced by the claim RPC (Option B). No additional checks here.
+
     // Get character data
     const { data: character, error: characterError } = await supabase
       .from('characters')
@@ -98,7 +83,7 @@ async function startTrainingJob(supabase: any, job: TrainingJob): Promise<boolea
 
     // Call Modal training API
     const modalResponse = await fetch(
-      `${Deno.env.get('TRAINING_API_URL')}/train`,
+      `${Deno.env.get('TRAINING_API_URL')}`,
       {
         method: 'POST',
         headers: {
@@ -140,7 +125,7 @@ async function startTrainingJob(supabase: any, job: TrainingJob): Promise<boolea
       .eq('id', job.id);
 
     if (updateError) {
-      console.error(`Error updating job ${job.id} to running:`, updateError);
+      console.error(`Error updating job ${job.id} to pending:`, updateError);
       return false;
     }
 
@@ -170,44 +155,34 @@ async function startTrainingJob(supabase: any, job: TrainingJob): Promise<boolea
   }
 }
 
-async function processTrainingQueue(supabase: any): Promise<{ processed: number; available_slots: number }> {
+async function processTrainingQueue(supabase: any): Promise<{ processed: number }> {
   console.log('🔄 Processing training queue...');
-  
-  const runningCount = await getRunningTrainingCount(supabase);
-  const availableSlots = MAX_CONCURRENT_TRAINING_JOBS - runningCount;
-  
-  console.log(`Current running jobs: ${runningCount}/${MAX_CONCURRENT_TRAINING_JOBS}`);
-  console.log(`Available slots: ${availableSlots}`);
-  
-  if (availableSlots <= 0) {
-    console.log('No available training slots, queue processing skipped');
-    return { processed: 0, available_slots: 0 };
-  }
 
   let processed = 0;
-  
-  // Process available slots
-  for (let i = 0; i < availableSlots; i++) {
+
+  // Process up to a small batch of queued jobs per invocation
+  for (let i = 0; i < 10; i++) {
     const nextJob = await getNextQueuedJob(supabase);
-    
+
     if (!nextJob) {
-      console.log('No more queued jobs to process');
-      break;
+      // No claim this iteration; continue to next attempt to reduce latency
+      await new Promise(resolve => setTimeout(resolve, 200));
+      continue;
     }
-    
-    console.log(`Processing queued job ${nextJob.id} (${i + 1}/${availableSlots})`);
-    
+
+    console.log(`Processing queued job ${nextJob.id} (${i + 1}/10)`);
+
     const success = await startTrainingJob(supabase, nextJob);
     if (success) {
       processed++;
     }
-    
+
     // Small delay between job starts to avoid race conditions
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 500));
   }
-  
+
   console.log(`✅ Training queue processing complete: ${processed} jobs started`);
-  return { processed, available_slots: availableSlots - processed };
+  return { processed };
 }
 
 serve(async (req) => {
@@ -237,8 +212,6 @@ serve(async (req) => {
         success: true,
         message: 'Training queue processed',
         jobs_started: result.processed,
-        available_slots: result.available_slots,
-        max_concurrent_jobs: MAX_CONCURRENT_TRAINING_JOBS,
         timestamp: new Date().toISOString()
       }),
       { 

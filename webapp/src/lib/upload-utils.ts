@@ -14,6 +14,10 @@ export interface ChunkMetadata {
   uploadId: string;
   characterId: string;
   qualityScore?: number;
+  // Optional normalized face box hint from client analysis (0..1)
+  faceBox?: { x: number; y: number; width: number; height: number };
+  // Marks that this file is the first accepted image in the batch
+  isFirstImage?: boolean;
 }
 
 export function* createChunks(
@@ -43,7 +47,9 @@ export function* createChunks(
       uploadId,
       characterId,
       // API expects an integer (0-100). Round and clamp the score if provided.
-      qualityScore: file.score !== undefined ? Math.round(Math.min(100, Math.max(0, file.score))) : undefined
+      qualityScore: file.score !== undefined ? Math.round(Math.min(100, Math.max(0, file.score))) : undefined,
+      faceBox: file.faceBox,
+      isFirstImage: file.isFirstImage
     };
 
     yield { chunk, metadata };

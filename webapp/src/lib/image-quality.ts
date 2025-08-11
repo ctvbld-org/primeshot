@@ -26,12 +26,6 @@ const SERVER_STUB_RESULT = {
   hasFace: false,
   hasBody: false,
   faceDetectionSkipped: true,
-  genderDetectionSkipped: true,
-  detectedAge: undefined,
-  detectedAgeRange: undefined,
-  detectedBodyType: undefined,
-  hasGlasses: undefined,
-  confidenceScores: undefined,
   issues: [] as string[],
   eyesVisible: true,
   eyeDetectionSkipped: true,
@@ -141,13 +135,10 @@ export async function loadModels() {
       await faceapi.nets.faceLandmark68Net.loadFromUri(modelPath);
       //console.log('FaceLandmark68Net loaded successfully');
       
-      //console.log(`Loading SsdMobilenetv1 from ${modelPath}`);
-      await faceapi.nets.ssdMobilenetv1.loadFromUri(modelPath);
-      //console.log('SsdMobilenetv1 loaded successfully');
+      // Note: We no longer preload SSD MobileNet. It will be loaded lazily
+      // only if TinyFaceDetector fails to detect a face.
 
-      //console.log(`Loading AgeGenderNet from ${modelPath}`);
-      await faceapi.nets.ageGenderNet.loadFromUri(modelPath);
-      //console.log('AgeGenderNet loaded successfully');
+      // AgeGenderNet removed: we no longer perform age/gender inference
       
       console.log('All face detection models loaded successfully');
     } catch (loadError) {
@@ -175,6 +166,8 @@ export interface ImageQualityResult {
   width: number;
   height: number;
   faceCount: number;
+  // Normalized face bounding box for primary face (0..1 coordinates)
+  faceBox?: { x: number; y: number; width: number; height: number };
   
   // Scores
   score: number;
@@ -194,22 +187,7 @@ export interface ImageQualityResult {
   hasBody: boolean;
   faceDetectionSkipped: boolean;
   
-  // Gender detection
-  detectedGender?: 'male' | 'female';
-  genderDetectionSkipped: boolean;
-  
-  // Auto-detection results for profile form
-  detectedAge?: number;
-  detectedAgeRange?: string; // Maps to AGE_RANGE_OPTIONS values
-  detectedBodyType?: string; // Maps to BODY_TYPE_OPTIONS values
-  hasGlasses?: boolean; // Simplified glasses detection (yes/no only)
-  
-  // Confidence scores for UI feedback
-  confidenceScores?: {
-    age?: number;
-    bodyType?: number;
-    glasses?: number;
-  };
+  // Removed age/gender/bodyType/glasses metadata
   
   // Additional info
   issues: string[];
@@ -265,18 +243,11 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
   
   if (modelsReady && faceapi) {
     try {
-      // Load gender detection model if needed
-      if (!faceapi.nets.ageGenderNet.isLoaded) {
-        await faceapi.nets.ageGenderNet.loadFromUri('/models');
-      }
-
-      // First try with TinyFaceDetector with lower threshold and include gender detection
+      // First try with TinyFaceDetector with lower threshold
       const faceDetections = await faceapi.detectAllFaces(
         img, 
         new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 })
-      )
-      .withFaceLandmarks()
-      .withAgeAndGender();
+      ).withFaceLandmarks();
       
       // Set faceCount based on TinyFaceDetector results
       result.faceCount = faceDetections.length;
@@ -313,9 +284,10 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
       
       // If no faces detected, try SSD MobileNet as a fallback with lower threshold
       if (faceDetections.length === 0) {
-        // Load SSD model if needed
+        // Load SSD model lazily if needed (not preloaded)
         if (!faceapi.nets.ssdMobilenetv1.isLoaded) {
-          await faceapi.nets.ssdMobilenetv1.loadFromUri('/models');
+          const ssdModelPath = `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/face-models`;
+          await faceapi.nets.ssdMobilenetv1.loadFromUri(ssdModelPath);
         }
         
         // Detect with SSD model with a very low confidence threshold
@@ -326,7 +298,7 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
         
         console.log('SSD MobileNet face detection results:', ssdDetections.length > 0 ? 'Face detected' : 'No face detected');
         
-        if (ssdDetections.length > 0) {
+          if (ssdDetections.length > 0) {
           // SSD found faces that TinyFaceDetector missed
           faceDetectionPerformed = true;
           result.hasFace = true;
@@ -349,6 +321,19 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
           } else {
             result.faceScore = evaluateFacePosition(ssdDetections[0], width, height);
           }
+          
+            // Attach normalized face box for server-side thumbnail hints
+            const fb = ssdDetections[0].detection.box;
+            const bx = Math.max(0, fb.x) / width;
+            const by = Math.max(0, fb.y) / height;
+            const bw = Math.min(width, fb.width) / width;
+            const bh = Math.min(height, fb.height) / height;
+            result.faceBox = {
+              x: Math.min(1, Math.max(0, bx)),
+              y: Math.min(1, Math.max(0, by)),
+              width: Math.min(1, Math.max(0, bw)),
+              height: Math.min(1, Math.max(0, bh))
+            };
           
           if (result.faceScore < 0.7) {
             result.issues.push('Face position is not optimal.');
@@ -385,6 +370,19 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
                         
             // Since we don't have landmarks, estimate face score based on size and position
             const face = rawFaceDetections[0];
+            // Attach normalized face box from raw detection
+            if (face?.box) {
+              const bx = Math.max(0, face.box.x) / width;
+              const by = Math.max(0, face.box.y) / height;
+              const bw = Math.min(width, face.box.width) / width;
+              const bh = Math.min(height, face.box.height) / height;
+              result.faceBox = {
+                x: Math.min(1, Math.max(0, bx)),
+                y: Math.min(1, Math.max(0, by)),
+                width: Math.min(1, Math.max(0, bw)),
+                height: Math.min(1, Math.max(0, bh))
+              };
+            }
             const relativeSize = (face.box.width * face.box.height) / (width * height);
             const centerX = face.box.x + face.box.width / 2;
             const centerY = face.box.y + face.box.height / 2;
@@ -421,13 +419,13 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
         result.faceCount = 0;
         result.faceScore = 0.1; // Very low score for no face
         result.issues.push('No face detected.');
-        result.genderDetectionSkipped = true;
+        // gender detection removed
       } else if (faceDetections.length > 1) {
         result.hasFace = true;
         result.faceCount = faceDetections.length;
         result.issues.push('Multiple faces detected.');
         result.faceScore = 0.5;
-        result.genderDetectionSkipped = true;
+        // gender detection removed
       } else {
         // One face detected
         result.hasFace = true;
@@ -469,7 +467,7 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
       result.hasBody = false;
       result.bodyScore = 0;
       result.faceDetectionSkipped = true;
-      result.genderDetectionSkipped = true;
+      // gender detection removed
       result.hasFace = false; 
       result.faceCount = 0;
       result.faceScore = 0.5; // Give a medium score as fallback
@@ -480,7 +478,7 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
     result.hasBody = false;
     result.bodyScore = 0;
     result.faceDetectionSkipped = true;
-    result.genderDetectionSkipped = true;
+    // gender detection removed
     result.hasFace = false;
     result.faceCount = 0;
     result.faceScore = 0.5; // Medium fallback score when face detection is skipped
@@ -549,6 +547,21 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
   
   // Clean up
   URL.revokeObjectURL(img.src);
+  
+  // Attach normalized face box from primary detection if available
+  if (primaryFaceDetection) {
+    const fb = primaryFaceDetection.detection.box;
+    const bx = Math.max(0, fb.x) / width;
+    const by = Math.max(0, fb.y) / height;
+    const bw = Math.min(width, fb.width) / width;
+    const bh = Math.min(height, fb.height) / height;
+    result.faceBox = {
+      x: Math.min(1, Math.max(0, bx)),
+      y: Math.min(1, Math.max(0, by)),
+      width: Math.min(1, Math.max(0, bw)),
+      height: Math.min(1, Math.max(0, bh))
+    };
+  }
   
   return result;
 }
@@ -1496,6 +1509,7 @@ function initializeResult(width: number, height: number): ImageQualityResult {
     width,
     height,
     faceCount: 0,
+    faceBox: undefined,
     score: 0,
     faceScore: 0,
     bodyScore: 0,
@@ -1510,12 +1524,6 @@ function initializeResult(width: number, height: number): ImageQualityResult {
     hasFace: false,
     hasBody: false,
     faceDetectionSkipped: false,
-    genderDetectionSkipped: true,
-    detectedAge: undefined,
-    detectedAgeRange: undefined,
-    detectedBodyType: undefined,
-    hasGlasses: undefined,
-    confidenceScores: undefined,
     issues: [],
     eyesVisible: false,
     eyeDetectionSkipped: false

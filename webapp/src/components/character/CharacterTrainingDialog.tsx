@@ -265,6 +265,10 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
         
         const fileWithScore = file as any
         fileWithScore.score = stepData.qualityResults[file.name]?.score || 0
+        // Attach normalized face box hint for server-side thumbnail crop
+        fileWithScore.faceBox = stepData.qualityResults[file.name]?.faceBox
+        // Mark the first file so server generates thumbnail only once
+        fileWithScore.isFirstImage = uploadedCount === 0
         
         const url = await uploadFileInChunks(
           fileWithScore,

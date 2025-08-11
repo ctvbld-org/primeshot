@@ -39,6 +39,16 @@ serve(async (req) => {
       );
     }
 
+    // Validate full UUID format to prevent truncated IDs
+    const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    if (!UUID_V4_REGEX.test(job_id)) {
+      console.error(`❌ Invalid job_id format (expected UUID): ${job_id}`)
+      return new Response(
+        JSON.stringify({ error: 'Invalid job_id format: expected UUID' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     console.log(`🏁 Completing training job: ${job_id}, success: ${success}`);
 
     // Get the training job details to access user_id and credits_spent
@@ -80,7 +90,7 @@ serve(async (req) => {
 
     const { error: updateError } = await supabase
       .from('training_jobs')
-      .update(updateData)
+      .update({ ...updateData, retry_after: null })
       .eq('id', job_id);
 
     if (updateError) {

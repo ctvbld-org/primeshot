@@ -51,6 +51,7 @@ export function TrainingProgressStep({
   const [character, setCharacter] = useState<Character | null>(null)
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null)
   const [isLoadingCharacter, setIsLoadingCharacter] = useState(false)
+  const [pendingSince, setPendingSince] = useState<number | null>(null)
   
   // Get training job status from database via real-time subscription
   const { data: jobStatus, isLoading: isLoadingJobStatus } = useTrainingJobStatus(trainingJobId)
@@ -102,12 +103,19 @@ export function TrainingProgressStep({
 
   // Handle job status transitions
   useEffect(() => {
+    // Track when we enter/exit pending to suppress brief cold-start flashes
+    if (jobStatus?.status === 'pending') {
+      if (pendingSince === null) setPendingSince(Date.now())
+    } else if (pendingSince !== null) {
+      setPendingSince(null)
+    }
+
     if (jobStatus?.status === 'completed') {
       onComplete?.()
     } else if (jobStatus?.status === 'failed') {
       onError?.(jobStatus.error_message || t('character.trainingError'))
     }
-  }, [jobStatus?.status, jobStatus?.error_message, onComplete, onError, t])
+  }, [jobStatus?.status, jobStatus?.error_message, onComplete, onError, t, pendingSince])
 
   // Start a timer after mount or when job/model changes
   useEffect(() => {
@@ -152,14 +160,49 @@ export function TrainingProgressStep({
   }, [hasSettled, trainingProgress.error, trainingProgress.isConnecting, trainingProgress.isConnected])
 
   const progressPercentage = trainingProgress.getProgressPercentage?.() ?? 0
-  const seconds = trainingProgress.progress ? trainingProgress.getLiveCountdownSeconds?.() : null
+  // Do not gate the countdown on progress; show running label immediately and attach countdown when available
+  const seconds = trainingProgress.getLiveCountdownSeconds?.() ?? null
   
   // Determine if job is queued based on database status
+  const isInitializing = jobStatus?.status === 'initializing'
+  const isQueued = jobStatus?.status === 'queued'
   const isPending = jobStatus?.status === 'pending'
-  const isQueued = jobStatus?.status === 'queued' || isPending
   const isRunning = jobStatus?.status === 'running'
+  const isCompleted = jobStatus?.status === 'completed'
+  const isFailed = jobStatus?.status === 'failed'
   const retryAfterIso = jobStatus?.retry_after || null
-  const retryAfterText = retryAfterIso ? new Date(retryAfterIso).toLocaleTimeString() : null
+
+  // Show pending only if it persists beyond a short threshold to mask cold starts.
+  // Allow override via NEXT_PUBLIC_PENDING_DISPLAY_DELAY_MS (ms), default 10s.
+  const PENDING_DISPLAY_DELAY_MS = Number(process.env.NEXT_PUBLIC_PENDING_DISPLAY_DELAY_MS ?? 15000)
+  const shouldShowPending = isPending && (pendingSince !== null && Date.now() - pendingSince >= PENDING_DISPLAY_DELAY_MS)
+
+  // Build mutually exclusive title/description nodes to avoid duplicated messages
+  const titleNode = isFailed
+    ? t('character.trainingFailed')
+    : isInitializing
+    ? t('character.trainingInitializing')
+    : isQueued
+    ? t('character.trainingQueued')
+    : shouldShowPending
+    ? t('character.trainingPending')
+    : isRunning
+    ? (seconds !== null
+        ? (<>{t('character.trainingRunning')} <Countdown seconds={seconds} /></>)
+        : t('character.trainingRunningNoCountdown'))
+    : t('character.trainingWarmingUp')
+
+  const descriptionNode = isFailed
+    ? t('character.trainingFailedDescription')
+    : isInitializing
+    ? t('character.trainingInitializingInfo')
+    : isQueued
+    ? t('character.trainingQueuedInfo')
+    : shouldShowPending
+    ? t('character.trainingPendingInfo')
+    : isRunning
+    ? t('character.trainingRunningInfo')
+    : t('character.trainingWarmingUpInfo')
 
   return (
     <>
@@ -207,30 +250,24 @@ export function TrainingProgressStep({
         {/* Status Text */}
         <div className={styles.statusContainer}>
           <h3 className={styles.statusTitle}>
-            {isQueued 
-              ? 
-                <span>
-                  {t('character.trainingInitializing')}
+            {isFailed ? (
+              t('character.trainingFailed')
+            ) : (
+              <>
+                <span>{titleNode}</span>
+                {!isRunning && seconds === null && (
                   <span className={styles.dots}>
                     <span className={styles.dot}></span>
                     <span className={styles.dot}></span>
                     <span className={styles.dot}></span>
                   </span>
-                </span>
-              :  seconds !== null ? (<span>About <Countdown seconds={seconds} /> remaining</span>) : t('character.trainingInitializing')
-            }
+                )}
+              </>
+            )}
           </h3>
           <p className={styles.statusDescription}>
-            {isQueued ? (
-              isPending
-                ? t('character.providerQueuedInfo')
-                : retryAfterText
-                  ? `${t('character.queuedInfo')} · Retrying at ${retryAfterText}`
-                  : t('character.queuedInfo')
-            ) : (
-              isRunning && trainingProgress.progress?.status === 'running' ? t('character.canCloseInfo') : t('character.trainingInitializingInfo')
-            )}
-
+            {descriptionNode}
+            
             {/* Error State */}
             {showError && (
               <p className="text-sm text-red-400">
@@ -239,7 +276,7 @@ export function TrainingProgressStep({
             )}
           </p>
 
-          {!isQueued && (
+          {(isRunning || isQueued || shouldShowPending) && (
             <Button variant="ghost" onClick={() => dialogService.closeDialog()}>
               {t('character.returnToApp')}
             </Button>

@@ -13,7 +13,7 @@ export interface JobProgressData {
   progress: number;
   message: string;
   timestamp: number;
-  status: 'queued' | 'running' | 'completed' | 'failed';
+  status: 'initializing' | 'queued' | 'pending' | 'running' | 'completed' | 'failed';
   estimated_remaining?: number;
   elapsed_time?: number;
   phase?: string;

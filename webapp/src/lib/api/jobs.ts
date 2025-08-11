@@ -84,7 +84,7 @@ class JobsApiClient implements JobApiClient {
     request: TrainingStartRequest, 
     onRetry?: (attempt: number, maxRetries: number, error: Error) => void
   ): Promise<TrainingStartResponse> {
-    return this.makeRequestWithRetry<TrainingStartResponse>('training-start', {
+    return this.makeRequestWithRetry<TrainingStartResponse>('training-create', {
       method: 'POST',
       body: JSON.stringify(request),
     }, onRetry);
@@ -94,7 +94,7 @@ class JobsApiClient implements JobApiClient {
     request: InferenceStartRequest,
     onRetry?: (attempt: number, maxRetries: number, error: Error) => void
   ): Promise<InferenceStartResponse> {
-    return this.makeRequestWithRetry<InferenceStartResponse>('inference-start', {
+    return this.makeRequestWithRetry<InferenceStartResponse>('inference-create', {
       method: 'POST',
       body: JSON.stringify(request),
     }, onRetry);

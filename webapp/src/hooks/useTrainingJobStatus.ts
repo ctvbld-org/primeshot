@@ -6,7 +6,7 @@ export interface TrainingJobInfo {
   id: string;
   character_id: string;
   user_id: string;
-  status: 'queued' | 'pending' | 'running' | 'completed' | 'failed';
+  status: 'initializing' | 'queued' | 'pending' | 'running' | 'completed' | 'failed';
   started_at?: string;
   completed_at?: string;
   created_at: string;

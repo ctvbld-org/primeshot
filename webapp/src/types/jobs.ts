@@ -3,7 +3,7 @@ export interface TrainingJob {
   id: string;
   user_id: string;
   character_id: string;
-  status: 'queued' | 'running' | 'completed' | 'failed';
+  status: 'initializing' | 'queued' | 'pending' | 'running' | 'completed' | 'failed';
   progress: number;
   modal_job_id?: string;
   estimated_duration?: number;
@@ -43,7 +43,7 @@ export interface TrainingProgressResponse {
     name: string;
     status: string;
   };
-  status: 'queued' | 'running' | 'completed' | 'failed';
+  status: 'initializing' | 'queued' | 'pending' | 'running' | 'completed' | 'failed';
   progress: number;
   modal_job_id?: string;
   estimated_duration?: number;
@@ -65,7 +65,7 @@ export interface InferenceJob {
   user_id: string;
   character_id: string;
   style_id: string;
-  status: 'queued' | 'pending' | 'processing' | 'completed' | 'failed';
+  status: 'initializing' | 'queued' | 'pending' | 'running' | 'completed' | 'failed';
   progress: number;
   modal_job_id?: string;
   estimated_duration?: number;
@@ -94,7 +94,7 @@ export interface InferenceStartRequest {
 export interface InferenceStartResponse {
   job_id: string;
   modal_job_id?: string;
-  status: 'queued' | 'pending';
+  status: 'queued' | 'pending' | 'initializing';
   estimated_duration: number;
   message: string;
 }
@@ -114,7 +114,7 @@ export interface InferenceProgressResponse {
     description: string;
     thumbnail_url: string;
   };
-  status: 'queued' | 'pending' | 'processing' | 'completed' | 'failed';
+  status: 'initializing' | 'queued' | 'pending' | 'running' | 'completed' | 'failed';
   progress: number;
   modal_job_id?: string;
   estimated_duration?: number;
