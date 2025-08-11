@@ -31,10 +31,6 @@
 ### 4) Secrets & Config
 - Secret: `aws-secret`
   - `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `AWS_BUCKET`
-- Secret: `comfyui-api-secret`
-  - `COMFY_API_KEY` (for API nodes if needed)
-  - `COMFYUI_BASE_URL` (set to `http://127.0.0.1:8000`)
-  - Webhook URL (to be added)
 - comfyui-api S3 output prefix: `user-images/{user_id}/inference/{job_id}`
 
 ### 5) Workflow Strategy
