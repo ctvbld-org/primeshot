@@ -16,6 +16,8 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
   const { isAuthenticated, user } = useAuth();
 
+  // Right content can be provided by consumer app via rightSlot
+
   return (
     <header className={styles.header}>
       <div className={styles.container}>

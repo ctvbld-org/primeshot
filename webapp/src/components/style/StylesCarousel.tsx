@@ -6,13 +6,10 @@ import { useStyles } from '@/hooks/useConfig'
 import { StyleConfigsSchema, type Style } from '@/types/styles'
 import Image from 'next/image'
 import { useTranslation } from 'react-i18next'
-import { Button } from '@primeshot/common/web/ui/button'
 import { Icon } from '@/components/icons/icon'
 import { getStyleImages } from '@/lib/utils/get-styles-images'
 import { useStyleSelection } from '@/contexts/style-selection-context'
-import { OptionButtons } from '@/components/style/OptionButtons'
-import { GenerationControls } from '@/components/home/GenerationControls'
-import { CharacterSelector } from '@/components/character/CharacterSelector'
+import { GenerateBar } from '@/components/style/GenerateBar/GenerateBar'
 import { getStoredSelectedStyleIndex, storeSelectedStyleIndex } from '@/lib/utils/style-storage'
 import styles from './StylesCarousel.module.css'
 
@@ -32,7 +29,13 @@ export function StylesCarousel() {
   const photographyStyleOptions = useMemo(() => {
     try {
       const validatedConfigs = StyleConfigsSchema.parse(styleConfigs)
-      return validatedConfigs.map((config: Style) => ({
+      // Sort by created_at DESC (newest first). Fallback to original order when missing.
+      const sorted = [...validatedConfigs].sort((a: any, b: any) => {
+        const at = a.created_at ? Date.parse(a.created_at as string) : 0
+        const bt = b.created_at ? Date.parse(b.created_at as string) : 0
+        return bt - at
+      })
+      return sorted.map((config: Style) => ({
         id: config.id,
         name: config.name,
         preview_images: config.preview_images,
@@ -60,7 +63,8 @@ export function StylesCarousel() {
     startIndex: 0, // Will be updated when styles load
     align: 'center',
     containScroll: false,
-    duration: 30
+    duration: 30,
+    loop: true,
   })
 
   const stylesWithImages = useMemo(() => {
@@ -70,6 +74,12 @@ export function StylesCarousel() {
       translations: style.translations
     }));
   }, [photographyStyleOptions]);
+
+  // Helper to determine if a slide index is near the current index in a looping carousel
+  const isNearSelected = useCallback((idx: number, selected: number, total: number) => {
+    const delta = Math.abs(idx - selected)
+    return Math.min(delta, total - delta) <= 1 // within 1 slide on either side
+  }, [])
 
   // Load persisted selection and initialize carousel when styles are available
   useEffect(() => {
@@ -129,12 +139,7 @@ export function StylesCarousel() {
     return style[field] || ''
   }
 
-  const handleExploreStyles = () => {
-    // Add your navigation logic here - e.g., router.push('/app/styles')
-    for (const style of stylesWithImages) {
-      console.log('Explore style:', style.name)
-    }
-  }
+  // subtitle translation is constant per request
 
   if (isLoading || photographyStyleOptions.length === 0) {
     return (
@@ -163,18 +168,20 @@ export function StylesCarousel() {
                     src={style.preview_images.length > 0 ? getStyleImages([style.preview_images[0]])[0] : ''}
                     alt={`${style.name} preview`}
                     fill
-                    sizes="500px"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 80vw, 1280px"
+                    quality={80}
+                    loading={isNearSelected(index, selectedIndex, photographyStyleOptions.length) ? 'eager' : 'lazy'}
+                    decoding="async"
                     className="object-cover"
                     priority={index === selectedIndex}
                   />
                   
                   <div className={`${styles.overlay} ${selectedIndex === index ? styles.active : ''}`}>
-                    {/* Title at top */}
-                    <div>
-                      <h3 className={styles.title}>
-                        {getTranslatedField(style, 'name')}
-                      </h3>
+                    <div className={styles.textBlock}>
+                      <div className={styles.subtitle}>{t('titles.photoStyle', { ns: 'styles' })}</div>
+                      <h3 className={styles.title}>{getTranslatedField(style, 'name')}</h3>
                     </div>
+                    <button className={styles.actionButton}>Examples</button>
                   </div>
                 </div>
               </div>
@@ -204,11 +211,25 @@ export function StylesCarousel() {
         </button>
       </div>
 
-      <div className={styles.stylesOptions}>
-          <OptionButtons />
-          <CharacterSelector />
-          <GenerationControls />
-        </div>
+      {/* Fixed small thumbnail of the current style */}
+      <div className={styles.fixedThumb}>
+        {photographyStyleOptions[selectedIndex]?.preview_images?.[0] && (
+          <Image
+            src={getStyleImages([photographyStyleOptions[selectedIndex].preview_images[0]])[0]}
+            alt={photographyStyleOptions[selectedIndex].name}
+            width={123}
+            height={167}
+            quality={100}
+            className="object-cover rounded-lg"
+          />
+        )}
+      </div>
+
+      <GenerateBar emblaApi={emblaApi || null} onPanelToggle={(open) => {
+        const container = document.querySelector(`.${styles.container}`) as HTMLElement | null
+        if (!container) return
+        container.classList.toggle(styles.panelOpen, !!open)
+      }} />
     </div>
   )
 } 

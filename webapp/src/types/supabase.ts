@@ -97,7 +97,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "face_models_user_id_fkey"
+            foreignKeyName: "characters_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"

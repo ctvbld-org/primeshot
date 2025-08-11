@@ -97,7 +97,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "face_models_user_id_fkey"
+            foreignKeyName: "characters_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
@@ -552,6 +552,7 @@ export type Database = {
           id: string
           image: string
           label: string
+          gender?: string
           translations: Json
           updated_at: string
           value: string
@@ -561,6 +562,7 @@ export type Database = {
           id?: string
           image: string
           label: string
+          gender?: string
           translations?: Json
           updated_at?: string
           value: string
@@ -570,6 +572,7 @@ export type Database = {
           id?: string
           image?: string
           label?: string
+          gender?: string
           translations?: Json
           updated_at?: string
           value?: string
@@ -619,6 +622,7 @@ export type Database = {
         Row: {
           character_training_included: number
           concurrent_jobs: number
+          concurrent_trainings: number
           created_at: string | null
           credits: number
           description: string | null
@@ -638,6 +642,7 @@ export type Database = {
         Insert: {
           character_training_included: number
           concurrent_jobs: number
+          concurrent_trainings: number
           created_at?: string | null
           credits: number
           description?: string | null
@@ -657,6 +662,7 @@ export type Database = {
         Update: {
           character_training_included?: number
           concurrent_jobs?: number
+          concurrent_trainings?: number
           created_at?: string | null
           credits?: number
           description?: string | null

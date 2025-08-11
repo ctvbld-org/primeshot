@@ -1,0 +1,35 @@
+.container { display: flex; align-items: center; gap: 12px; }
+
+.text {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 16px;
+}
+
+.avatarWrapper {
+  position: relative;
+  width: 36px;
+  height: 36px;
+}
+
+.avatarInset {
+  position: absolute;
+  inset: 3px; /* 2px gap between ring and image */
+  border-radius: 999px;
+  overflow: hidden;
+  z-index: 1; /* ensure avatar sits above any ring fill */
+}
+
+.avatar {
+  border-radius: 999px;
+}
+
+/* Make the progress a ring only (no sector fill over avatar) */
+/* no longer using css conic ring; SVG handles progress */
+
+
+@media (max-width: 920px) { .text { display: none; } }
+
+

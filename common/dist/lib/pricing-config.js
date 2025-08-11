@@ -8,7 +8,7 @@
  * - CREDIT_COST_1K (default: 1)
  * - CREDIT_COST_2K (default: 2)
  * - CREDIT_COST_4K (default: 3)
- * - CREDIT_COST_FACE_MODEL_TRAINING (default: 30)
+ * - CREDIT_COST_CHARACTER_TRAINING (default: 30)
  */
 // Function to get environment variable from multiple possible sources
 function getEnvVar(name, fallback) {
@@ -149,7 +149,7 @@ export const CREDIT_COSTS_CONFIG = {
         '2K': parseInt(getEnvVar('CREDIT_COST_2K', '2')),
         '4K': parseInt(getEnvVar('CREDIT_COST_4K', '3'))
     },
-    FACE_MODEL_TRAINING: parseInt(getEnvVar('CREDIT_COST_FACE_MODEL_TRAINING', '30'))
+    CHARACTER_TRAINING: parseInt(getEnvVar('CREDIT_COST_CHARACTER_TRAINING', '30'))
 };
 // Helper functions to calculate savings (derived from SUBSCRIPTION_TIERS_CONFIG)
 export function getLaunchDiscount(tierId) {
@@ -178,10 +178,10 @@ export function getYearlyDiscount(tierId) {
 export function calculateImageCredits(resolution, batchSize = 1) {
     return CREDIT_COSTS_CONFIG.IMAGE_GENERATION[resolution] * batchSize;
 }
-export function getFaceModelTrainingCost() {
-    return CREDIT_COSTS_CONFIG.FACE_MODEL_TRAINING;
+export function getCharacterTrainingCost() {
+    return CREDIT_COSTS_CONFIG.CHARACTER_TRAINING;
 }
-export function getFaceModelLimit(planName) {
+export function getCharacterLimit(planName) {
     const tier = SUBSCRIPTION_TIERS_CONFIG.find(t => t.id === planName);
     return (tier === null || tier === void 0 ? void 0 : tier.maxFaceModels) || 1; // Default to 1 if tier not found
 }

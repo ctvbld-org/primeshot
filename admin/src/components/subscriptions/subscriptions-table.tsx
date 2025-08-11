@@ -130,10 +130,10 @@ export function SubscriptionsTable() {
       },
     },
     {
-      accessorKey: 'face_model_training_included',
+      accessorKey: 'character_training_included',
       header: 'Included Character',
       cell: ({ row }: any) => {
-        const included = row.getValue('face_model_training_included')
+        const included = row.getValue('character_training_included')
         return included > 0 ? (
           <span className="text-sm text-muted-foreground">{included} Character{included > 1 ? 's' : ''}</span>
         ) : (

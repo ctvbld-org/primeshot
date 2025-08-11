@@ -2,10 +2,12 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
 
+interface ArtifactEntry { bucket: string; key: string; width?: number; height?: number; bytes?: number; format?: string }
 interface InferenceCompleteRequest {
   job_id: string
   success?: boolean
   error_message?: string
+  artifacts?: { web?: ArtifactEntry[]; orig?: ArtifactEntry[] }
 }
 
 serve(async (req) => {
@@ -26,7 +28,7 @@ serve(async (req) => {
       })
     }
 
-    const { job_id, success, error_message }: InferenceCompleteRequest = await req.json()
+    const { job_id, success, error_message, artifacts }: InferenceCompleteRequest = await req.json()
     if (!job_id) {
       return new Response(JSON.stringify({ error: 'Missing job_id' }), {
         status: 400,
@@ -53,10 +55,43 @@ serve(async (req) => {
       })
     }
 
+    // If artifacts provided, upsert generated_images first
+    if (artifacts && (artifacts.web?.length || artifacts.orig?.length)) {
+      const web = artifacts.web || []
+      const orig = artifacts.orig || []
+      const rows: any[] = []
+      const count = Math.max(web.length, orig.length)
+      for (let i = 0; i < count; i++) {
+        const w = web[i]
+        const o = orig[i]
+        rows.push({
+          user_id: job.user_id,
+          inference_id: job_id,
+          web_path: w ? `s3://${w.bucket}/${w.key}` : null,
+          original_path: o ? `s3://${o.bucket}/${o.key}` : null,
+          width: (w?.width ?? o?.width) || null,
+          height: (w?.height ?? o?.height) || null,
+          format: (w?.format ?? o?.format) || null,
+          bytes: (w?.bytes ?? o?.bytes) || null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+      }
+      if (rows.length > 0) {
+        const { error: upsertErr } = await supabase
+          .from('generated_images')
+          // onConflict depends on your schema; if you have a unique constraint adjust accordingly
+          .upsert(rows)
+        if (upsertErr) {
+          console.error('generated_images upsert failed:', upsertErr)
+        }
+      }
+    }
+
     await supabase
       .from('inference_jobs')
       .update({
-        status: success ? 'completed' : 'failed',
+        status: success ?? (artifacts && ((artifacts.web?.length || 0) > 0 || (artifacts.orig?.length || 0) > 0)) ? 'completed' : 'failed',
         error_message: success ? null : (error_message ?? 'Unknown error'),
         updated_at: new Date().toISOString(),
         completed_at: new Date().toISOString(),

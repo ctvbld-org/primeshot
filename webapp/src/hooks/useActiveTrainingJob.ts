@@ -6,7 +6,7 @@ export interface ActiveTrainingJob {
   id: string;
   character_id: string;
   user_id: string;
-  status: 'initializing' | 'queued' | 'pending' | 'running';
+  status: 'initializing' | 'queued' | 'pending' | 'running' | 'completed' | 'failed';
   created_at: string;
   updated_at: string;
   modal_job_id?: string | null;
@@ -63,10 +63,15 @@ export function useActiveTrainingJob(characterId: string | null) {
         (payload) => {
           const row = payload.new as ActiveTrainingJob;
           if (row.user_id !== user.id) return;
-          if (!['initializing', 'queued', 'pending', 'running'].includes(row.status)) return;
-          // Keep the most recent by created_at via refetch when IDs differ
-          if (!job || row.id === job.id) {
-            setJob(row);
+          const isActiveStatus = ['initializing', 'queued', 'pending', 'running'].includes(row.status as any);
+          if (isActiveStatus) {
+            // Keep the most recent by created_at via refetch when IDs differ
+            if (!job || row.id === job.id) {
+              setJob(row);
+            }
+          } else {
+            // Job finished (completed/failed) -> clear active job so UI hides progress
+            setJob(null);
           }
         }
       )

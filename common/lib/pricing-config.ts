@@ -8,7 +8,7 @@
  * - CREDIT_COST_1K (default: 1)
  * - CREDIT_COST_2K (default: 2) 
  * - CREDIT_COST_4K (default: 3)
- * - CREDIT_COST_FACE_MODEL_TRAINING (default: 30)
+ * - CREDIT_COST_CHARACTER_TRAINING (default: 30)
  */
 
 export type Resolution = '1K' | '2K' | '4K';

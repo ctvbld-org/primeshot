@@ -60,7 +60,7 @@ async function getCreditCosts(supabase: any): Promise<Record<string, number>> {
       'IMAGE_GENERATION_1K': 1,
       'IMAGE_GENERATION_2K': 2,
       'IMAGE_GENERATION_4K': 3,
-      'FACE_MODEL_TRAINING': 30
+      'CHARACTER_TRAINING': 30
     };
   }
 }
@@ -131,7 +131,7 @@ export async function getSubscriptionLimits(supabase: any, planName: string): Pr
  */
 export async function getCharacterTrainingCost(supabase: any): Promise<number> {
   const costs = await getCreditCosts(supabase);
-  return costs['CHARACTER_TRAINING'] || costs['FACE_MODEL_TRAINING'] || 30; // Fallback for compatibility
+  return costs['CHARACTER_TRAINING'] || 30; // Fallback for compatibility
 }
 
 /**

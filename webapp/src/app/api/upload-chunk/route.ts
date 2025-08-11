@@ -299,8 +299,7 @@ export async function POST(request: Request) {
             return acc;
           }, {} as Record<string, number>);
 
-          // Try CHARACTER_TRAINING first, fallback to FACE_MODEL_TRAINING for compatibility
-          CHARACTER_TRAINING_CREDITS = costsMap['CHARACTER_TRAINING'] || costsMap['FACE_MODEL_TRAINING'] || 30;
+          CHARACTER_TRAINING_CREDITS = costsMap['CHARACTER_TRAINING'] || 30;
         }
       } catch (error) {
         console.error('Error fetching character training cost:', error);

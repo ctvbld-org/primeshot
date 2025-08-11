@@ -1,0 +1,8 @@
+.panel { width: 100%; color: inherit; }
+
+.header { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; }
+.title { font-weight: 600; opacity: 0.95; }
+.done { background: transparent; color: #b6e3e2; border: none; font-weight: 600; }
+.body { padding: 8px; }
+
+

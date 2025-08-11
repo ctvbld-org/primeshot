@@ -90,8 +90,7 @@ export function calculateImageCredits(resolution: '1K' | '2K' | '4K', batchSize:
 }
 
 export function getCharacterTrainingCost(creditCosts?: CreditCosts): number {
-  // Try CHARACTER_TRAINING first, fallback to FACE_MODEL_TRAINING for compatibility
-  return creditCosts?.CHARACTER_TRAINING || (creditCosts as any)?.FACE_MODEL_TRAINING || 30 // fallback to default
+  return creditCosts?.CHARACTER_TRAINING || 30 // fallback to default
 }
 
 export function getCharacterLimit(planName: string, subscriptionTiers?: SubscriptionTier[]): number {

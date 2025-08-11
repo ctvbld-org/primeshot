@@ -107,6 +107,14 @@ export function WardrobesTable() {
       },
     },
     {
+      accessorKey: 'gender',
+      header: 'Gender',
+      cell: ({ row }: any) => {
+        const g = row.getValue('gender') || 'unisex'
+        return <span className="text-sm text-muted-foreground capitalize">{g}</span>
+      },
+    },
+    {
       accessorKey: 'label',
       header: 'Label',
       cell: ({ row }: any) => {

@@ -7,7 +7,12 @@ import { LanguageSwitcher } from './LanguageSwitcher'
 import Image from 'next/image'
 import { Button } from './ui/button'
 
-export function AccountDialog() {
+interface AccountDialogProps {
+  /** Optional custom trigger element. Must be a single element (use asChild). */
+  triggerSlot?: React.ReactNode
+}
+
+export function AccountDialog({ triggerSlot }: AccountDialogProps) {
   const { user, signOut } = useAuth()
   const { t } = useTranslation()
 
@@ -16,9 +21,14 @@ export function AccountDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button className="h-8 w-8 rounded-full overflow-hidden border border-gray-200">
-          <Image src={user.avatar_url ?? '/avatar-default.png'} alt="avatar" width={32} height={32} />
-        </button>
+        {triggerSlot ? (
+          // Custom trigger provided by consumer
+          triggerSlot as React.ReactElement
+        ) : (
+          <button className="h-8 w-8 rounded-full overflow-hidden border border-gray-200">
+            <Image src={user.avatar_url ?? '/avatar-default.png'} alt="avatar" width={32} height={32} />
+          </button>
+        )}
       </DialogTrigger>
       <DialogContent className="w-72 p-0">
         <DialogHeader className="p-4">

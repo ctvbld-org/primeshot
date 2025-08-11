@@ -34,17 +34,32 @@
   margin: 0 auto;
 }
 
+.container * {
+  user-select: none;
+}
+
+.panelOpen .textBlock, 
+.panelOpen .fixedThumb,
+.panelOpen .carouselButtons,
+.panelOpen .actionButton { 
+  opacity: 0; 
+  transition: opacity 180ms ease; 
+  pointer-events: none;
+}
+
+.textBlock, 
+.fixedThumb,
+.carouselButtons { 
+  transition: opacity 180ms ease; 
+}
+
 .stylesOptions {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
   position: absolute;
-  bottom: 6px;
-  left: 6px;
-  right: 6px;
-  padding: 0 12px;
-  z-index: 1;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  z-index: 10;
 }
 
 .carouselWrapper {
@@ -67,16 +82,17 @@
 }
 
 .slide img {
-    opacity: 0.1;
-    transition: all 0.4s ease-out;
+  object-position: 0 30%;
+  opacity: 0.1;
+  transition: all 0.4s ease-out;
 }
 
 .slide.active img{
-    opacity: 1;
+  opacity: 1;
 }
 
 .slideInner {
-  height: 300px;
+  height: 340px;
   border-radius: 28px;
   overflow: hidden;
   position: relative;
@@ -89,14 +105,17 @@
 }
 
 .overlay {
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), radial-gradient(100% 110.31% at 100% 0%, rgba(0, 0, 0, 0) 65.72%, rgba(0, 0, 0, 0.6) 100%);
+  border-radius: 28px;
   position: absolute;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: flex-start;
   opacity: 0;
   transition: opacity 0.3s ease-out;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 .overlay.active {
@@ -108,47 +127,58 @@
   font-weight: 700;
   color: #ffffff;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25); /* drop-shadow-lg */
+  transform: translateX(26px);
+}
+
+.subtitle { 
+  font-size: 0.9rem; 
+  color: #b6e3e2; 
+  font-weight: 600; 
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25); /* drop-shadow-lg */
+  transform: translateX(26px);
+}
+
+.textBlock { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 12px; 
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25); /* drop-shadow-lg */
 }
 
 /* Action button */
-.actionButtonWrapper {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-}
-
 .actionButton {
-  background-color: #44E3C9;
-  color: #000000;
+  color: #44E3C9;
   font-weight: 600;
-  padding: 8px 24px; /* py-2 px-6 */
-  border-radius: 9999px; /* rounded-full */
-  transition: background-color 0.2s ease;
+  padding: 8px 26px;
   border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .actionButton:hover {
-  background-color: rgba(68, 227, 201, 0.9);
+  color: rgba(68, 227, 201, 0.9);
 }
 
 /* Navigation buttons */
-.navButton {
+.carouselButtons {
+  display: flex;
+  gap: 6px;
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 20;
+  top: 26px;
+  left: 26px;
+  z-index: 11;
+}
+.navButton {
   width: 48px; /* w-12 */
   height: 48px; /* h-12 */
-  border-radius: 9999px;
-  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
+  background-color: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
+  cursor: pointer;
   border: none;
   transition: background-color 0.2s ease;
 }
@@ -162,10 +192,17 @@
   cursor: not-allowed;
 }
 
-.navButtonLeft {
-  left: 1rem; /* left-4 */
+.fixedThumb { 
+  position: absolute; 
+  top: 26px; 
+  right: 26px; 
+  border-radius: 12px; 
+  overflow: hidden; 
+  z-index: 9; 
 }
 
-.navButtonRight {
-  right: 1rem; /* right-4 */
-} 
+.fixedThumb img {
+  width: 123px; 
+  height: 167px; 
+  object-fit: cover;
+}

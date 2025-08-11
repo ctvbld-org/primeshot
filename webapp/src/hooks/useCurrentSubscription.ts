@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/auth-context'
 export interface SubscriptionInfo {
   plan_name: string
   status: string
+  current_period_start: string
   current_period_end: string
   credits_included: number
   credits_used_this_period: number

@@ -44,9 +44,10 @@ const formSchema = z.object({
   label: z.string().min(1, 'Label is required'),
   value: z.string().min(1, 'Value is required'),
   image: z.string().optional(),
+  gender: z.enum(['man', 'woman', 'unisex']),
 })
 
-type FormData = z.infer<typeof formSchema>
+type WardrobeFormValues = z.infer<typeof formSchema>
 
 interface WardrobeFormDialogProps {
   wardrobe: Wardrobe | null
@@ -64,32 +65,35 @@ export function WardrobeFormDialog({
   const queryClient = useQueryClient()
   const supabase = createClient()
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
-  const originalValues = useRef<FormData | null>(null)
+  const originalValues = useRef<WardrobeFormValues | null>(null)
 
-  const form = useForm<FormData>({
+  const form = useForm<WardrobeFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       label: '',
       value: '',
       image: '',
+      gender: 'unisex',
     },
   })
 
   // Track original values when form loads
   useEffect(() => {
     if (open && wardrobe) {
-      const values = {
+      const values: WardrobeFormValues = {
         label: wardrobe.label || '',
         value: wardrobe.value || '',
         image: wardrobe.image || '',
+        gender: ((wardrobe as any).gender ?? 'unisex') as WardrobeFormValues['gender'],
       }
       form.reset(values)
       originalValues.current = values
     } else if (open && !wardrobe) {
-      const values = {
+      const values: WardrobeFormValues = {
         label: '',
         value: '',
         image: '',
+        gender: 'unisex',
       }
       form.reset(values)
       originalValues.current = values
@@ -99,11 +103,18 @@ export function WardrobeFormDialog({
   const hasChanges = (): boolean => {
     if (!originalValues.current) return false
     
-    const currentValues = form.getValues()
+    const inputValues = form.getValues()
+    const currentValues: WardrobeFormValues = {
+      label: inputValues.label || '',
+      value: inputValues.value || '',
+      image: inputValues.image,
+      gender: (inputValues.gender ?? 'unisex') as WardrobeFormValues['gender'],
+    }
     return (
       currentValues.label !== originalValues.current.label ||
       currentValues.value !== originalValues.current.value ||
-      currentValues.image !== originalValues.current.image
+      currentValues.image !== originalValues.current.image ||
+      currentValues.gender !== originalValues.current.gender
     )
   }
 
@@ -128,7 +139,7 @@ export function WardrobeFormDialog({
   }
 
   const createMutation = useMutation({
-    mutationFn: async (data: FormData) => {
+    mutationFn: async (data: WardrobeFormValues) => {
       const { data: result, error } = await supabase
         .from('style_wardrobes')
         .insert([data])
@@ -140,7 +151,13 @@ export function WardrobeFormDialog({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wardrobes'] })
       toast.success('Wardrobe created successfully')
-      originalValues.current = form.getValues()
+      const gv = form.getValues()
+      originalValues.current = {
+        label: gv.label || '',
+        value: gv.value || '',
+        image: gv.image,
+        gender: (gv.gender ?? 'unisex') as WardrobeFormValues['gender'],
+      }
       onOpenChange(false)
       onSuccess()
     },
@@ -151,7 +168,7 @@ export function WardrobeFormDialog({
   })
 
   const updateMutation = useMutation({
-    mutationFn: async (data: FormData) => {
+    mutationFn: async (data: WardrobeFormValues) => {
       if (!wardrobe) throw new Error('No wardrobe to update')
 
       const { data: result, error } = await supabase
@@ -166,7 +183,13 @@ export function WardrobeFormDialog({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wardrobes'] })
       toast.success('Wardrobe updated successfully')
-      originalValues.current = form.getValues()
+      const gv = form.getValues()
+      originalValues.current = {
+        label: gv.label || '',
+        value: gv.value || '',
+        image: gv.image,
+        gender: (gv.gender ?? 'unisex') as WardrobeFormValues['gender'],
+      }
       onOpenChange(false)
       onSuccess()
     },
@@ -176,7 +199,7 @@ export function WardrobeFormDialog({
     },
   })
 
-  const onSubmit = (data: FormData) => {
+  const onSubmit = (data: WardrobeFormValues) => {
     if (wardrobe) {
       updateMutation.mutate(data)
     } else {
@@ -252,6 +275,31 @@ export function WardrobeFormDialog({
                         maxFiles={1}
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="gender"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Gender</FormLabel>
+                    <FormControl>
+                      <select
+                        value={field.value}
+                        onChange={(e) => field.onChange(e.target.value as WardrobeFormValues['gender'])}
+                        className="w-full h-10 rounded border bg-background px-3"
+                      >
+                        <option value="unisex">Unisex</option>
+                        <option value="man">Man</option>
+                        <option value="woman">Woman</option>
+                      </select>
+                    </FormControl>
+                    <FormDescription>
+                      Target gender for this wardrobe item
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

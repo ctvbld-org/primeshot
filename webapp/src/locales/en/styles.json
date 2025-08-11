@@ -86,6 +86,7 @@
     }
   },
   "titles": {
-    "styleLabel": "Style"
+    "styleLabel": "Style",
+    "photoStyle": "Photo Style"
   }
 } 
