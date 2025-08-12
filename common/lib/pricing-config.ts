@@ -11,7 +11,7 @@
  * - CREDIT_COST_CHARACTER_TRAINING (default: 30)
  */
 
-export type Resolution = '1K' | '2K' | '4K';
+export type Quality = '1K' | '2K' | '4K';
 
 export interface SubscriptionTierConfig {
   id: string;
@@ -22,7 +22,7 @@ export interface SubscriptionTierConfig {
   monthlyPrice: number;
   yearlyPrice: number;
   credits: number;
-  maxQuality: Resolution;
+  maxQuality: Quality;
   characterTrainingIncluded: number;
   concurrentJobs: number;
   maxCharacters: number;
@@ -42,7 +42,7 @@ export interface CreditPackConfig {
 
 export interface CreditCosts {
   IMAGE_GENERATION: {
-    [K in Resolution]: number;
+    [K in Quality]: number;
   };
   CHARACTER_TRAINING: number;
 }
@@ -101,7 +101,7 @@ export const SUBSCRIPTION_TIERS_CONFIG: SubscriptionTierConfig[] = [
     maxCharacters: 1,
     features: [
       '40 monthly credits',
-      'Standard image resolution (1K max)',
+      'Standard image quality (1K max)',
       'Includes 1 Character training',
       '1 concurrent job',
       '1 Character slot',
@@ -124,7 +124,7 @@ export const SUBSCRIPTION_TIERS_CONFIG: SubscriptionTierConfig[] = [
     maxCharacters: 3,
     features: [
       '180 monthly credits',
-      'Ultra high image resolution (up to 4K)',
+      'Ultra high image quality (up to 4K)',
       'Includes 1 Character training',
       '2 concurrent jobs',
       '3 Character slots',
@@ -147,7 +147,7 @@ export const SUBSCRIPTION_TIERS_CONFIG: SubscriptionTierConfig[] = [
     maxCharacters: 8,
     features: [
       '450 monthly credits',
-      'Ultra high image resolution (up to 4K)',
+      'Ultra high image quality (up to 4K)',
       'Includes 3 Character trainings',
       '4 concurrent jobs',
       '8 Character slots',
@@ -220,8 +220,8 @@ export function getYearlyDiscount(tierId: string) {
 }
 
 // Helper functions
-export function calculateImageCredits(resolution: Resolution, batchSize: number = 1): number {
-  return CREDIT_COSTS_CONFIG.IMAGE_GENERATION[resolution] * batchSize;
+export function calculateImageCredits(quality: Quality, nbTakes: number = 1): number {
+  return CREDIT_COSTS_CONFIG.IMAGE_GENERATION[quality] * nbTakes;
 }
 
 export function getCharacterTrainingCost(): number {

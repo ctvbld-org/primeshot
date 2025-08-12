@@ -13,7 +13,7 @@ import styles from './SubscriptionDialogContent.module.css'
 // Context types for different upgrade scenarios
 export type SubscriptionDialogContext = 
   | 'character-limit' 
-  | 'resolution-upgrade' 
+  | 'quality-upgrade' 
   | 'credit-upgrade' 
   | 'general'
 
@@ -72,10 +72,10 @@ function getContextMessage(context?: SubscriptionDialogContext) {
         title: 'Upgrade to Create More Characters',
         description: 'You\'ve reached your character limit. Upgrade your plan to create additional characters and unlock more features.'
       }
-    case 'resolution-upgrade':
+    case 'quality-upgrade':
       return {
-        title: 'Upgrade for Higher Resolution',
-        description: 'Upgrade your plan to generate images at higher resolutions and access premium features.'
+        title: 'Upgrade for Higher Quality',
+        description: 'Upgrade your plan to generate images at higher quality and access premium features.'
       }
     case 'credit-upgrade':
       return {

@@ -47,7 +47,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
 
   // Settings state stored in localStorage-compatible keys
   const STORAGE_KEYS = {
-    BATCH_SIZE: 'generation-controls-batch-size',
+    NB_TAKES: 'generation-controls-nb-takes',
     ASPECT_RATIO: 'generation-controls-aspect-ratio',
     QUALITY: 'generation-controls-quality'
   }
@@ -63,7 +63,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const sanitizeQuality = (q: any): QualityCode =>
     ((ALLOWED_QUALITIES as unknown as string[]).includes(q) ? q : '1K') as QualityCode
 
-  const [batchSize, setBatchSize] = useState<number>(() => load(STORAGE_KEYS.BATCH_SIZE, 10))
+  const [nbTakes, setNbTakes] = useState<number>(() => load(STORAGE_KEYS.NB_TAKES, 10))
   const [quality, setQuality] = useState<QualityCode>(() => sanitizeQuality(load(STORAGE_KEYS.QUALITY, '1K')))
   const [aspectRatio, setAspectRatio] = useState<string>(() => load(STORAGE_KEYS.ASPECT_RATIO, '4:5'))
 
@@ -79,10 +79,10 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const { hasActiveSubscription } = useSubscriptionStatus()
   const requiredCredits = useMemo(() => {
     const table = BATCH_PRICING?.[quality] ?? []
-    const entry = table.find(b => b.size === batchSize)
+    const entry = table.find(b => b.size === nbTakes)
     const perImage = CREDIT_COSTS?.IMAGE_GENERATION?.[quality] ?? 1
-    return entry ? entry.credits : perImage * batchSize
-  }, [batchSize, quality])
+    return entry ? entry.credits : perImage * nbTakes
+  }, [nbTakes, quality])
   const guard = useCreditGuard(requiredCredits)
 
   const stylesWithPreview = useMemo(() => {
@@ -116,9 +116,9 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
 
   const onGenerate = useCallback(() => {
     // Generation intent is already handled elsewhere via events; here we just emit
-    const event = new CustomEvent('execute-inference-create', { detail: { batchSize, aspectRatio, quality } })
+    const event = new CustomEvent('execute-inference-create', { detail: { nbTakes, aspectRatio, quality } })
     window.dispatchEvent(event)
-  }, [batchSize, aspectRatio, quality])
+  }, [nbTakes, aspectRatio, quality])
 
   const qualityOptions = useMemo(() => ([
     { label: 'Basic', value: '1K' as QualityCode },
@@ -301,7 +301,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
               <span className={styles.settingLabel}>Number of Takes</span>
               <div className={styles.segmented}>
                 {[5, 15, 20].map(n => (
-                  <button key={n} className={`${styles.segment} ${batchSize === n ? styles.segmentActive : ''}`} onClick={() => { setBatchSize(n); save(STORAGE_KEYS.BATCH_SIZE, n) }}>{n}</button>
+                  <button key={n} className={`${styles.segment} ${nbTakes === n ? styles.segmentActive : ''}`} onClick={() => { setNbTakes(n); save(STORAGE_KEYS.NB_TAKES, n) }}>{n}</button>
                 ))}
               </div>
             </div>

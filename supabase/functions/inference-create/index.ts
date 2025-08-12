@@ -173,12 +173,12 @@ serve(async (req) => {
     const aspectRatio = (body.params as any)?.aspect_ratio || '1:1';
     const queueType: 'fast' | 'slow' = body.queue_type === 'slow' ? 'slow' : 'fast';
 
-    // Validate batch_size limits
+    // Validate nb_takes limits
     if (!Number.isInteger(nbTakes) || nbTakes < 5 || nbTakes > 20) {
       return new Response(
         JSON.stringify({ 
-          error: 'Invalid batch_size',
-          details: 'batch_size must be an integer between 5 and 20',
+          error: 'Invalid nb_takes',
+          details: 'nb_takes must be an integer between 5 and 20',
           provided_number_of_takes: nbTakes
         }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -375,7 +375,7 @@ serve(async (req) => {
         throw new Error('INFERENCE_API_URL environment variable not set');
       }
 
-      // Prepare Modal API request with quality and batch size
+      // Prepare Modal API request with quality and nbTakes
       const modalRequest = {
         user_id,
         job_id: jobId,

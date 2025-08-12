@@ -208,34 +208,34 @@ export type Database = {
       }
       credit_usage: {
         Row: {
-          batch_size: number | null
           created_at: string | null
           credits_used: number
           id: string
           job_id: string | null
           metadata: Json | null
+          nb_takes: number | null
           quality: string | null
           usage_type: string
           user_id: string
         }
         Insert: {
-          batch_size?: number | null
           created_at?: string | null
           credits_used: number
           id?: string
           job_id?: string | null
           metadata?: Json | null
+          nb_takes?: number | null
           quality?: string | null
           usage_type: string
           user_id: string
         }
         Update: {
-          batch_size?: number | null
           created_at?: string | null
           credits_used?: number
           id?: string
           job_id?: string | null
           metadata?: Json | null
+          nb_takes?: number | null
           quality?: string | null
           usage_type?: string
           user_id?: string

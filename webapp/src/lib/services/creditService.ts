@@ -9,7 +9,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export interface CreditOperation {
   type: 'image_generation' | 'character_training'
   quality?: '1K' | '2K' | '4K'
-  batchSize?: number
+  nbTakes?: number
   metadata?: Record<string, any>
 }
 
@@ -72,7 +72,7 @@ export class CreditService {
   calculateCreditCost(operation: CreditOperation): number {
     switch (operation.type) {
       case 'image_generation':
-        return calculateImageCredits(operation.quality!, operation.batchSize || 1)
+        return calculateImageCredits(operation.quality!, operation.nbTakes || 1)
           case 'character_training':
       return CREDIT_COSTS.CHARACTER_TRAINING
       default:

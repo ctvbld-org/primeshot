@@ -181,10 +181,10 @@ export function CreditPackPricing({ className }: CreditPackPricingProps) {
           <div>
             <h4 className="font-medium mb-2">Image Generation</h4>
             <ul className="space-y-1 text-muted-foreground">
-              <li>• 1K resolution: 1 credit per image</li>
-              <li>• 2K resolution: 2 credits per image</li>
-              <li>• 4K resolution: 3 credits per image</li>
-              <li>• Batch generation: Cost × quantity</li>
+              <li>• 1K quality: 1 credit per image</li>
+              <li>• 2K quality: 2 credits per image</li>
+              <li>• 4K quality: 3 credits per image</li>
+              <li>• Number of takes: cost × quantity</li>
             </ul>
           </div>
           <div>

@@ -145,9 +145,9 @@ export async function getImageGenerationCost(supabase: any, quality: Quality): P
 /**
  * Calculate credit cost for image generation
  */
-export async function calculateImageCreditCost(supabase: any, quality: Quality = '1K', batchSize: number = 1): Promise<number> {
+export async function calculateImageCreditCost(supabase: any, quality: Quality = '1K', nbTakes: number = 1): Promise<number> {
   const cost = await getImageGenerationCost(supabase, quality);
-  return cost * batchSize;
+  return cost * nbTakes;
 }
 
 /**
@@ -156,11 +156,11 @@ export async function calculateImageCreditCost(supabase: any, quality: Quality =
 export async function calculateCreditCost(
   supabase: any,
   operationType: 'image_generation' | 'character_training',
-  options?: { quality?: Quality; batchSize?: number }
+  options?: { quality?: Quality; nbTakes?: number }
 ): Promise<number> {
   switch (operationType) {
     case 'image_generation':
-      return await calculateImageCreditCost(supabase, options?.quality || '1K', options?.batchSize || 1);
+      return await calculateImageCreditCost(supabase, options?.quality || '1K', options?.nbTakes || 1);
     case 'character_training':
       return await getCharacterTrainingCost(supabase);
     default:

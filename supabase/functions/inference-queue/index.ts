@@ -64,8 +64,8 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
       color_id: job?.settings?.color_id,
       scene_id: job?.settings?.scene_id,
       params: {
-        nb_takes: job?.settings?.nb_takes ?? job?.settings?.batch_size ?? 5,
-        quality: job?.settings?.quality ?? (job?.settings?.resolution ?? '1K'),
+        nb_takes: job?.settings?.nb_takes ?? 5,
+        quality: job?.settings?.quality ?? '1K',
         aspect_ratio: job?.settings?.aspect_ratio ?? '1:1',
         seed: job?.settings?.seed ?? -1,
       },
