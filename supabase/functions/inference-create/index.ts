@@ -7,14 +7,11 @@ interface InferenceRequest {
   user_id: string;
   character_id: string;
   style_id: string;
-  prompt?: string;
-  settings?: {
-    nb_takes?: number;
-    quality?: '1K' | '2K' | '4K';
-    aspect_ratio?: '1:1' | '2:3' | '3:2';
-    // Optional queue type: fast (default) or slow
-    queue_type?: 'fast' | 'slow' | 'ultra';
-  };
+  wardrobe_id?: string;
+  color_id?: string;
+  scene_id?: string;
+  params?: Record<string, unknown>; // seed?, quality, nb_takes, aspect_ratio
+  queue_type?: 'fast' | 'slow' | 'ultra';
 }
 
 interface InferenceJob {
@@ -160,7 +157,7 @@ serve(async (req) => {
 
     // Parse request body
     const body: InferenceRequest = await req.json();
-    const { user_id, character_id, style_id, prompt, settings } = body;
+    const { user_id, character_id, style_id } = body;
 
     // Validate required fields
     if (!user_id || !character_id || !style_id) {
@@ -170,11 +167,11 @@ serve(async (req) => {
       );
     }
 
-    // Extract settings
-    const quality = settings?.quality || '1K';
-    const nbTakes = settings?.nb_takes || 5;
-    const aspectRatio = settings?.aspect_ratio || '1:1';
-    const queueType: 'fast' | 'slow' = settings?.queue_type === 'slow' ? 'slow' : 'fast';
+    // Extract params/settings
+    const quality = (body.params as any)?.quality || '1K';
+    const nbTakes = (body.params as any)?.nb_takes || 5;
+    const aspectRatio = (body.params as any)?.aspect_ratio || '1:1';
+    const queueType: 'fast' | 'slow' = body.queue_type === 'slow' ? 'slow' : 'fast';
 
     // Validate batch_size limits
     if (!Number.isInteger(nbTakes) || nbTakes < 5 || nbTakes > 20) {
@@ -369,7 +366,7 @@ serve(async (req) => {
       );
     }
 
-    // Call Modal ComfyUI API for real inference
+    // Call Modal ComfyUI API for real inference (Option B payload)
     try {
       const slowUrl = Deno.env.get('INFERENCE_SLOW_API_URL');
       const defaultUrl = Deno.env.get('INFERENCE_API_URL');
@@ -382,16 +379,18 @@ serve(async (req) => {
       const modalRequest = {
         user_id,
         job_id: jobId,
-        workflow_name: style.workflow_name || 'default_workflow',
-        parameters: {
-          // note: lora path is in DB and validated in the worker; keep here only if the endpoint expects it
+        character_id,
+        style_id,
+        wardrobe_id: body.wardrobe_id,
+        color_id: body.color_id,
+        scene_id: body.scene_id,
+        params: {
           nb_takes: nbTakes,
           aspect_ratio: aspectRatio,
           quality: quality,
-          seed: -1,
-          env: env
+          seed: (body.params as any)?.seed ?? -1
         }
-      };
+      } as Record<string, unknown>;
 
       console.log('Calling Modal ComfyUI API:', {
         url: inferenceApiUrl,

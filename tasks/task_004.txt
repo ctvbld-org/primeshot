@@ -1,6 +1,6 @@
 # Task ID: 4
 # Title: Develop warmup workflow for model preloading
-# Status: pending
+# Status: done
 # Dependencies: 1, 2
 # Priority: medium
 # Description: Create and implement a warmup workflow that preloads the checkpoint, VAE, and text encoder on container startup.

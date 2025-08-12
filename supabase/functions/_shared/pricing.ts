@@ -102,7 +102,7 @@ export async function getSubscriptionLimits(supabase: any, planName: string): Pr
   concurrent_jobs: number; // inference concurrency
   concurrent_trainings: number; // training concurrency
   max_characters: number;
-  max_resolution: string;
+  max_quality: string;
 } | null> {
   try {
     const subscriptions = await getSubscriptions(supabase);
@@ -118,7 +118,7 @@ export async function getSubscriptionLimits(supabase: any, planName: string): Pr
       concurrent_jobs: subscription.concurrent_jobs,
       concurrent_trainings: subscription.concurrent_trainings ?? 2,
       max_characters: subscription.max_characters,
-      max_resolution: subscription.max_resolution
+      max_quality: subscription.max_quality
     };
   } catch (error) {
     console.error('Failed to fetch subscription limits:', error);

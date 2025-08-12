@@ -58,7 +58,7 @@ interface FormData {
   credits: number
   character_training_included: number
   max_characters: number
-  max_resolution: string
+  max_quality: string
   concurrent_jobs: number
   concurrent_trainings: number
   popular: boolean
@@ -97,7 +97,7 @@ export function SubscriptionFormDialog({
       credits: 0,
       character_training_included: 0,
       max_characters: 0,
-      max_resolution: '1K',
+      max_quality: '1K',
       concurrent_jobs: 1,
       concurrent_trainings: 2,
       popular: false,
@@ -123,7 +123,7 @@ export function SubscriptionFormDialog({
       currentValues.credits !== originalValues.credits ||
       currentValues.character_training_included !== originalValues.character_training_included ||
       currentValues.max_characters !== originalValues.max_characters ||
-      currentValues.max_resolution !== originalValues.max_resolution ||
+      currentValues.max_quality !== originalValues.max_quality ||
       currentValues.concurrent_jobs !== originalValues.concurrent_jobs ||
       currentValues.concurrent_trainings !== originalValues.concurrent_trainings ||
       currentValues.popular !== originalValues.popular ||
@@ -166,9 +166,9 @@ export function SubscriptionFormDialog({
       credits: subscription.credits,
       character_training_included: subscription.character_training_included,
       max_characters: subscription.max_characters,
-      max_resolution: subscription.max_resolution,
+      max_quality: (subscription as any).max_quality,
       concurrent_jobs: subscription.concurrent_jobs,
-      concurrent_trainings: subscription.concurrent_trainings,
+      concurrent_trainings: subscription.concurrent_trainings ?? 0,
       popular: subscription.popular || false,
       features: (subscription.features as Record<string, any>) || {},
       translations: (subscription.translations as Record<string, any>) || {},
@@ -182,7 +182,7 @@ export function SubscriptionFormDialog({
       credits: 0,
       character_training_included: 0,
       max_characters: 0,
-      max_resolution: '1K',
+      max_quality: '1K',
       concurrent_jobs: 1,
       concurrent_trainings: 2,
       popular: false,
@@ -539,14 +539,14 @@ export function SubscriptionFormDialog({
 
               <FormField
                 control={form.control}
-                name="max_resolution"
+                name="max_quality"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Max Resolution</FormLabel>
+                    <FormLabel>Max Quality</FormLabel>
                     <FormControl>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select resolution" />
+                           <SelectValue placeholder="Select quality" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="1K">1K</SelectItem>
@@ -556,7 +556,7 @@ export function SubscriptionFormDialog({
                       </Select>
                     </FormControl>
                     <FormDescription>
-                      Maximum image resolution allowed
+                      Maximum image quality allowed
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

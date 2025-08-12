@@ -1,6 +1,6 @@
 # Task ID: 1
 # Title: Setup ComfyUI and comfyui-api in Modal container
-# Status: pending
+# Status: done
 # Dependencies: None
 # Priority: high
 # Description: Set up the Modal container with ComfyUI server and comfyui-api server running on the appropriate ports with proper configuration.

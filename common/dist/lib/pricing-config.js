@@ -53,7 +53,7 @@ export const SUBSCRIPTION_TIERS_CONFIG = [
         monthlyPrice: 9, // Discounted price
         yearlyPrice: 9, // Discounted yearly price (per month)
         credits: 40,
-        maxResolution: '1K',
+        maxQuality: '1K',
         faceModelTrainingIncluded: 1,
         concurrentJobs: 1,
         maxFaceModels: 1,
@@ -76,7 +76,7 @@ export const SUBSCRIPTION_TIERS_CONFIG = [
         monthlyPrice: 29, // Discounted price
         yearlyPrice: 18, // Discounted yearly price (per month)
         credits: 180,
-        maxResolution: '4K',
+        maxQuality: '4K',
         faceModelTrainingIncluded: 1,
         concurrentJobs: 2,
         maxFaceModels: 3,
@@ -99,7 +99,7 @@ export const SUBSCRIPTION_TIERS_CONFIG = [
         monthlyPrice: 69, // Discounted price
         yearlyPrice: 39, // Discounted yearly price (per month)
         credits: 450,
-        maxResolution: '4K',
+        maxQuality: '4K',
         faceModelTrainingIncluded: 3,
         concurrentJobs: 4,
         maxFaceModels: 8,

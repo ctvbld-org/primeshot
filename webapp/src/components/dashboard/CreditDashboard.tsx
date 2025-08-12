@@ -198,8 +198,8 @@ export function CreditDashboard({ className }: CreditDashboardProps) {
 
             <div className="grid grid-cols-2 gap-4 pt-2 border-t text-sm">
               <div>
-                <span className="text-muted-foreground">Max Resolution:</span>
-                <span className="font-medium ml-2">{subscription.max_resolution}</span>
+                <span className="text-muted-foreground">Max Quality:</span>
+                <span className="font-medium ml-2">{subscription.max_quality}</span>
               </div>
               <div>
                 <span className="text-muted-foreground">Plan Status:</span>

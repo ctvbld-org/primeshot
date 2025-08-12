@@ -22,7 +22,7 @@ export interface SubscriptionTierConfig {
   monthlyPrice: number;
   yearlyPrice: number;
   credits: number;
-  maxResolution: Resolution;
+  maxQuality: Resolution;
   characterTrainingIncluded: number;
   concurrentJobs: number;
   maxCharacters: number;
@@ -95,7 +95,7 @@ export const SUBSCRIPTION_TIERS_CONFIG: SubscriptionTierConfig[] = [
     monthlyPrice: 9, // Discounted price
     yearlyPrice: 9, // Discounted yearly price (per month)
     credits: 40,
-    maxResolution: '1K' as const,
+    maxQuality: '1K' as const,
     characterTrainingIncluded: 1,
     concurrentJobs: 1,
     maxCharacters: 1,
@@ -118,7 +118,7 @@ export const SUBSCRIPTION_TIERS_CONFIG: SubscriptionTierConfig[] = [
     monthlyPrice: 29, // Discounted price
     yearlyPrice: 18, // Discounted yearly price (per month)
     credits: 180,
-    maxResolution: '4K' as const,
+    maxQuality: '4K' as const,
     characterTrainingIncluded: 1,
     concurrentJobs: 2,
     maxCharacters: 3,
@@ -141,7 +141,7 @@ export const SUBSCRIPTION_TIERS_CONFIG: SubscriptionTierConfig[] = [
     monthlyPrice: 69, // Discounted price
     yearlyPrice: 39, // Discounted yearly price (per month)
     credits: 450,
-    maxResolution: '4K' as const,
+    maxQuality: '4K' as const,
     characterTrainingIncluded: 3,
     concurrentJobs: 4,
     maxCharacters: 8,

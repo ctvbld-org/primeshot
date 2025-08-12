@@ -1,6 +1,6 @@
 # Task ID: 5
 # Title: Create dynamic workflow endpoint with dual output formats
-# Status: pending
+# Status: done
 # Dependencies: 1, 2, 4
 # Priority: high
 # Description: Implement a dynamic workflow endpoint in comfyui-api that produces both web-optimized WebP and high-resolution PNG outputs.
@@ -9,7 +9,7 @@
 2. Configure pre-upscale branch to resize to 1K and save as WebP with filename_prefix 'web_'
 3. Configure main branch to upscale to 2K/4K and save as PNG with filename_prefix 'orig_'
 4. Implement dynamic workflow endpoint in comfyui-api
-5. Configure S3 output paths following the pattern user-images/{user_id}/inference/{job_id}
+5. Configure S3 output to user-images/{user_id}/inference/{job_id}/web/ and /orig/ subfolders
 6. Ensure proper error handling for both output paths
 7. Add logging for successful/failed generation of each output format
 

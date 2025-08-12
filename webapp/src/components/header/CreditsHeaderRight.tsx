@@ -29,9 +29,11 @@ export function CreditsHeaderRight() {
     <AccountDialog
       triggerSlot={
         <div className={styles.container}>
-            <span className={styles.text}>
-            {remaining.toLocaleString()} credits remaining
-            </span>
+            {subscription?.status === 'active' && (
+              <span className={styles.text}>
+                {remaining.toLocaleString()} credits remaining
+              </span>
+            )}
           <div className={styles.avatarWrapper}>
             <div className={styles.avatarInset}>
               <Avatar src={user?.avatar_url ?? undefined} alt={user?.email ?? 'avatar'} className={styles.avatar} />

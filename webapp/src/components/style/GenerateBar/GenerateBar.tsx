@@ -7,22 +7,17 @@ import { Icon } from '@primeshot/common/web/Icon'
 import { useTranslation } from 'react-i18next'
 import { useStyleSelection } from '@/contexts/style-selection-context'
 import { useScenes, useWardrobes, useColors } from '@/hooks/useConfig'
+
 import { getStyleImages } from '@/lib/utils/get-styles-images'
 import { getOptionsImage } from '@/lib/utils/get-options-image'
-import { getStoredSelectedStyleIndex, storeSelectedStyleIndex, getStoredStyleSelections, storeStyleSelections } from '@/lib/utils/style-storage'
+import { storeSelectedStyleIndex, getStoredStyleSelections, storeStyleSelections } from '@/lib/utils/style-storage'
 import { useCurrentSubscription } from '@/hooks/useCurrentSubscription'
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus'
-import { useCreditGuard } from '@/hooks/useCreditGuard'
-import { BATCH_PRICING, CREDIT_COSTS, ResolutionType } from '@/lib/constants/pricing'
+import { BATCH_PRICING, CREDIT_COSTS } from '@/lib/constants/pricing'
 import styles from './GenerateBar.module.css'
 import { useAuth } from '@/contexts/auth-context'
-import { useDialogService } from '@/contexts/DialogServiceContext'
-import { useSubscriptionTiers, useCreditCosts, getCharacterTrainingCost, getCharacterLimit } from '@/hooks/usePricingConfig'
-import { useOpenSubscriptionDialog } from '@/hooks/useOpenSubscriptionDialog'
-import { useOpenCreditPackDialog } from '@/hooks/useOpenCreditPackDialog'
-import { useCreditBalance } from '@/hooks/useCreditBalance'
 import { useCharactersApi } from '@/lib/api/characters'
-import { CharacterTrainingDialog } from '@/components/character/CharacterTrainingDialog'
+import { useCreditGuard } from '@/hooks/useCreditGuard'
 import { getApiUrl } from '@/lib/api/client'
 import { useActiveTrainingJob } from '@/hooks/useActiveTrainingJob'
 import { useTrainingProgress } from '@/hooks/useJobProgress'
@@ -30,6 +25,8 @@ import { CircleProgress } from '@primeshot/common/web/ui/circle-progress'
 import { Countdown } from '@/components/character/Countdown'
 
 import { OptionsPanel } from '../OptionsPanel/OptionsPanel'
+import { GenerateBarSelect } from './GenerateBarSelect'
+import { useCreateCharacter } from './useCreateCharacter'
 
 type PanelKey = 'styles' | 'scenes' | 'wardrobe' | 'characters' | 'settings' | null
 
@@ -45,13 +42,12 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const [openPanel, setOpenPanel] = useState<PanelKey>(null)
   // Wardrobe panel local UI state
   const [selectedWardrobeValue, setSelectedWardrobeValue] = useState<string | null>(null)
-  const [selectedGender, setSelectedGender] = useState<'man' | 'woman'>('man')
+  const [selectedGender, setSelectedGender] = useState<'man' | 'woman'>('woman')
   const [selectionVersion, setSelectionVersion] = useState(0)
 
   // Settings state stored in localStorage-compatible keys
   const STORAGE_KEYS = {
     BATCH_SIZE: 'generation-controls-batch-size',
-    RESOLUTION: 'generation-controls-resolution',
     ASPECT_RATIO: 'generation-controls-aspect-ratio',
     QUALITY: 'generation-controls-quality'
   }
@@ -62,10 +58,14 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const save = (k: string, v: any) => { try { localStorage.setItem(k, JSON.stringify(v)) } catch {}
   }
 
+  type QualityCode = '1K' | '2K' | '4K'
+  const ALLOWED_QUALITIES: QualityCode[] = ['1K', '2K', '4K']
+  const sanitizeQuality = (q: any): QualityCode =>
+    ((ALLOWED_QUALITIES as unknown as string[]).includes(q) ? q : '1K') as QualityCode
+
   const [batchSize, setBatchSize] = useState<number>(() => load(STORAGE_KEYS.BATCH_SIZE, 10))
-  const [resolution, setResolution] = useState<ResolutionType>(() => load(STORAGE_KEYS.RESOLUTION, '1K'))
+  const [quality, setQuality] = useState<QualityCode>(() => sanitizeQuality(load(STORAGE_KEYS.QUALITY, '1K')))
   const [aspectRatio, setAspectRatio] = useState<string>(() => load(STORAGE_KEYS.ASPECT_RATIO, '4:5'))
-  const [quality, setQuality] = useState<string>(() => load(STORAGE_KEYS.QUALITY, 'Basic'))
 
   // Selected character tracking (for selector thumbnail progress overlay)
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(() => {
@@ -78,9 +78,11 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const { data: subscription } = useCurrentSubscription()
   const { hasActiveSubscription } = useSubscriptionStatus()
   const requiredCredits = useMemo(() => {
-    const entry = BATCH_PRICING[resolution].find(b => b.size === batchSize)
-    return entry ? entry.credits : CREDIT_COSTS.IMAGE_GENERATION[resolution] * batchSize
-  }, [batchSize, resolution])
+    const table = BATCH_PRICING?.[quality] ?? []
+    const entry = table.find(b => b.size === batchSize)
+    const perImage = CREDIT_COSTS?.IMAGE_GENERATION?.[quality] ?? 1
+    return entry ? entry.credits : perImage * batchSize
+  }, [batchSize, quality])
   const guard = useCreditGuard(requiredCredits)
 
   const stylesWithPreview = useMemo(() => {
@@ -114,28 +116,25 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
 
   const onGenerate = useCallback(() => {
     // Generation intent is already handled elsewhere via events; here we just emit
-    const event = new CustomEvent('execute-generation-intent', { detail: { batchSize, resolution, aspectRatio, quality } })
+    const event = new CustomEvent('execute-inference-create', { detail: { batchSize, aspectRatio, quality } })
     window.dispatchEvent(event)
-  }, [batchSize, resolution, aspectRatio, quality])
+  }, [batchSize, aspectRatio, quality])
 
   const qualityOptions = useMemo(() => ([
-    { label: '1K', value: '1K' as ResolutionType },
-    { label: '2K', value: '2K' as ResolutionType },
-    { label: '4K', value: '4K' as ResolutionType },
+    { label: 'Basic', value: '1K' as QualityCode },
+    { label: 'Standard', value: '2K' as QualityCode },
+    { label: 'High', value: '4K' as QualityCode },
   ]), [])
+
+  const currentQualityLabel = useMemo(() => {
+    const found = qualityOptions.find(o => o.value === quality)
+    return found?.label ?? ''
+  }, [qualityOptions, quality])
 
   // Panel contents
   // Characters panel hooks and logic (top-level to respect rules of hooks)
   const { user } = useAuth()
-  const dialogService = useDialogService()
-  const { data: subscriptionTiers } = useSubscriptionTiers()
-  const { data: creditCosts } = useCreditCosts()
-  const { data: creditBalance } = useCreditBalance()
-  const openSubscriptionDialog = useOpenSubscriptionDialog()
-  const openCreditPackDialog = useOpenCreditPackDialog()
   const { getUserCharacters } = useCharactersApi()
-
-  const characterTrainingCost = getCharacterTrainingCost(creditCosts)
   const [characters, setCharacters] = React.useState<any[]>([])
   const [characterThumbs, setCharacterThumbs] = React.useState<Record<string, string>>({})
 
@@ -164,6 +163,19 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
 
   React.useEffect(() => { refreshCharacters() }, [refreshCharacters])
 
+  const onSelectCharacter = (modelId: string) => {
+    try { localStorage.setItem('character-selection', JSON.stringify({ modelId })) } catch {}
+    setSelectedCharacterId(modelId)
+    close()
+  }
+
+  // Character creation hook
+  const { createCharacterAction, handleCreateCharacterClick } = useCreateCharacter({
+    characters,
+    onSelectCharacter,
+    refreshCharacters
+  })
+
   // Selected-character active job/progress for the small selector thumbnail
   const { job: selectedJob } = useActiveTrainingJob(selectedCharacterId)
   const selectedIsRunning = selectedJob?.status === 'running'
@@ -172,76 +184,12 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const selectedTraining = useTrainingProgress({ jobId: selectedJob?.id || '' })
   const selectedPct = selectedIsRunning ? selectedTraining.getProgressPercentage?.() ?? 0 : 0
 
-  const remainingCharacterTrainings = React.useMemo(() => {
-    if (!subscription) return 0
-    return Math.max(0, subscription.character_training_included - subscription.character_training_used)
-  }, [subscription])
-
-  const needsCreditsForTraining = React.useMemo(() => {
-    if (!subscription) return true
-    return remainingCharacterTrainings <= 0
-  }, [subscription, remainingCharacterTrainings])
-
-  const hasSufficientCredits = React.useMemo(() => {
-    if (!needsCreditsForTraining) return true
-    if (creditBalance === undefined) return false
-    return creditBalance >= characterTrainingCost
-  }, [needsCreditsForTraining, creditBalance, characterTrainingCost])
-
-  const maxCharacters = React.useMemo(() => {
-    if (!subscription || !subscriptionTiers) return 1
-    return getCharacterLimit(subscription.plan_name, subscriptionTiers)
-  }, [subscription, subscriptionTiers])
-
-  const hasReachedCharacterLimit = React.useMemo(() => characters.length >= maxCharacters, [characters.length, maxCharacters])
-  const isOnHighestTier = React.useMemo(() => {
-    if (!subscription?.plan_name || !subscriptionTiers) return false
-    const tier = subscriptionTiers.find(t => t.name === subscription.plan_name)
-    return tier?.max_characters === 8
-  }, [subscription?.plan_name, subscriptionTiers])
-
-  type CreateAction = { type: 'create'|'credit_pack'|'upgrade_subscription'|'limit_reached'; credits?: number; message: string }
-  const createCharacterAction: CreateAction = React.useMemo(() => {
-    if (hasReachedCharacterLimit) {
-      if (isOnHighestTier) return { type: 'limit_reached', message: 'Limit Reached' }
-      return { type: 'upgrade_subscription', message: 'Create' }
-    }
-    if (needsCreditsForTraining && !hasSufficientCredits) {
-      return { type: 'credit_pack', message: 'Create', credits: characterTrainingCost }
-    }
-    return { type: 'create', message: 'Create' }
-  }, [hasReachedCharacterLimit, isOnHighestTier, needsCreditsForTraining, hasSufficientCredits, characterTrainingCost])
-
-  const handleCreateCharacter = () => {
-    switch (createCharacterAction.type) {
-      case 'credit_pack':
-        openCreditPackDialog(createCharacterAction.credits)
-        return
-      case 'upgrade_subscription':
-        openSubscriptionDialog({
-          context: 'character-limit',
-          currentPlan: subscription?.plan_name,
-          showOnlyUpgrades: true,
-          requiredFeature: 'max_characters'
-        })
-        return
-      case 'limit_reached':
-        return
-      case 'create':
-        // Close the panel immediately when opening the dialog
-        close()
-        dialogService.openDialog(
-          <CharacterTrainingDialog onComplete={(id) => { onSelectCharacter(id); refreshCharacters() }} />
-        )
-        return
-    }
-  }
-
-  const onSelectCharacter = (modelId: string) => {
-    try { localStorage.setItem('character-selection', JSON.stringify({ modelId })) } catch {}
-    setSelectedCharacterId(modelId)
-    close()
-  }
+  // Handle button click - either open popover or trigger guard function
+  const handleButtonClick = useCallback(() => {
+    guard(() => {
+      open('characters') 
+    })();
+  }, [guard]);
 
   const renderPanel = () => {
     if (!openPanel) return null
@@ -323,7 +271,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
         return (
           <OptionsPanel title={'Character'} onClose={close}>
             <div className={styles.itemsRow}>
-              <button className={`${styles.itemCard} ${styles.createCard}`} onClick={handleCreateCharacter} disabled={createCharacterAction.type === 'limit_reached'}>
+              <button className={`${styles.itemCard} ${styles.createCard}`} onClick={handleCreateCharacterClick} disabled={createCharacterAction.type === 'limit_reached'}>
                 <Icon variant="plusFill" size={24} />
                 <div className={styles.itemLabel}>{createCharacterAction.message}</div>
               </button>
@@ -340,16 +288,16 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
         )
       }
       case 'settings': {
-        const gated = (res: ResolutionType) => {
+        const gated = (res: QualityCode) => {
           if (!hasActiveSubscription) return false
-          const maxRes = subscription?.max_resolution || '1K'
-          if (maxRes === '1K' && (res === '2K' || res === '4K')) return true
-          if (maxRes === '2K' && res === '4K') return true
+          const maxQuality = (subscription as any)?.max_quality || '1K'
+          if (maxQuality === '1K' && (res === '2K' || res === '4K')) return true
+          if (maxQuality === '2K' && res === '4K') return true
           return false
         }
         return (
-          <OptionsPanel title={'Settings'} onClose={close}>
-            <div className={styles.settingsRow}>
+          <OptionsPanel className={styles.settingsPanel} title={'Settings'} onClose={close}>
+            <div className={styles.settingsColumn}>
               <span className={styles.settingLabel}>Number of Takes</span>
               <div className={styles.segmented}>
                 {[5, 15, 20].map(n => (
@@ -357,15 +305,26 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 ))}
               </div>
             </div>
-            <div className={styles.settingsRow}>
-              <span className={styles.settingLabel}>Quality</span>
+            <div className={styles.settingsColumn}>
+              <span className={styles.settingLabel}>Quality {currentQualityLabel}</span>
               <div className={styles.segmented}>
                 {qualityOptions.map(opt => (
-                  <button key={opt.value} className={`${styles.segment} ${resolution === opt.value ? styles.segmentActive : ''} ${gated(opt.value) ? styles.segmentDisabled : ''}`} disabled={gated(opt.value)} onClick={() => { setResolution(opt.value); save(STORAGE_KEYS.RESOLUTION, opt.value) }}>{opt.label}</button>
+                  <button
+                    key={opt.value}
+                    className={`${styles.segment} ${quality === opt.value ? styles.segmentActive : ''} ${gated(opt.value) ? styles.segmentDisabled : ''}`}
+                    disabled={gated(opt.value)}
+                    onClick={() => {
+                      const q = sanitizeQuality(opt.value)
+                      setQuality(q)
+                      save(STORAGE_KEYS.QUALITY, q)
+                    }}
+                  >
+                     {opt.label}
+                  </button>
                 ))}
               </div>
             </div>
-            <div className={styles.settingsRow}>
+            <div className={styles.settingsColumn}>
               <span className={styles.settingLabel}>Aspect Ratio</span>
               <div className={styles.segmented}>
                 {['4:5', '16:9', '1:1', '3:4'].map(r => (
@@ -391,72 +350,95 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   return (
     <div className={`${styles.bar} ${openPanel ? styles.panelOpen : ''}`} style={openPanel ? ({ ['--panel-height' as any]: `${panelHeight}px` }) : undefined}>
       <div className={`${styles.content} ${openPanel ? styles.contentHidden : ''}`}>
-      {/* Style button */}
-      <button className={styles.barButton} onClick={() => open('styles')} aria-label="Select style">
-        <div className={styles.thumb}>
-          {currentStyle?.preview ? <Image src={currentStyle.preview} alt={currentStyle?.name || 'style'} width={32} height={32} className={styles.thumbImg} /> : <Icon variant="scene" size={24} />}
-        </div>
-        <div className={styles.texts}><div className={styles.primary}>{currentStyle?.name || t('titles.styleLabel', { ns: 'styles' })}</div></div>
-      </button>
+        <div className={styles.leftContent}>
+            {/* Style */}
+            <GenerateBarSelect
+                onClick={() => open('styles')}
+                ariaLabel="Select style"
+                variant="labeled"
+                thumbnail={currentStyle?.preview ? (
+                <Image src={currentStyle.preview} alt={currentStyle?.name || 'style'} width={32} height={32} className={styles.thumbImg} />
+                ) : (
+                <Icon variant="scene" size={24} />
+                )}
+                label={currentStyle?.name || t('titles.styleLabel', { ns: 'styles' })}
+            />
 
-      <button className={styles.barButton} onClick={() => open('scenes')} aria-label="Select scene">
-        <div className={styles.thumb}>
-          {(() => {
-            const sel = currentStyle ? getStoredStyleSelections(currentStyle.id).scene : null
-            const scene = scenes.find(s => s.value === sel)
-            if (scene?.image) return <Image src={getOptionsImage(scene.image)} alt={scene.label} width={32} height={32} className={styles.thumbImg} />
-            return <Icon variant="scene" size={24} />
-          })()}
-        </div>
-        <div className={styles.texts}><div className={styles.primary}>{selectedLabels.scene || 'Scene'}</div></div>
-      </button>
+            {/* Scene */}
+            <GenerateBarSelect
+                onClick={() => open('scenes')}
+                ariaLabel="Select scene"
+                variant="labeled"
+                thumbnail={(() => {
+                const sel = currentStyle ? getStoredStyleSelections(currentStyle.id).scene : null
+                const scene = scenes.find(s => s.value === sel)
+                if (scene?.image) return <Image src={getOptionsImage(scene.image)} alt={scene.label} width={32} height={32} className={styles.thumbImg} />
+                return <Icon variant="scene" size={24} />
+                })()}
+                label={selectedLabels.scene || 'Scene'}
+            />
 
-      <button className={styles.barButton} onClick={() => open('wardrobe')} aria-label="Select wardrobe">
-        <div className={styles.thumb} style={{ position: 'relative' }}>
-          {(() => {
-            const sel = currentStyle ? getStoredStyleSelections(currentStyle.id) : null
-            const wrb = wardrobes.find(w => w.value === (sel?.wardrobe || ''))
-            if (wrb?.image) {
-              return (
-                <>
-                  <Image src={getOptionsImage(wrb.image)} alt={wrb.label} width={32} height={32} className={styles.thumbImg} />
-                  {sel?.color ? (
+            {/* Wardrobe */}
+            <GenerateBarSelect
+                onClick={() => open('wardrobe')}
+                ariaLabel="Select wardrobe"
+                variant="labeled"
+                thumbnail={(() => {
+                const sel = currentStyle ? getStoredStyleSelections(currentStyle.id) : null
+                const wrb = wardrobes.find(w => w.value === (sel?.wardrobe || ''))
+                if (wrb?.image) {
+                    return (
+                    <Image src={getOptionsImage(wrb.image)} alt={wrb.label} width={32} height={32} className={styles.thumbImg} />
+                    )
+                }
+                return <Icon variant="wardrobe" size={24} />
+                })()}
+                overlay={(() => {
+                const sel = currentStyle ? getStoredStyleSelections(currentStyle.id) : null
+                if (!sel?.color) return null
+                return (
                     <span style={{ position: 'absolute', right: 2, bottom: 2, width: 8, height: 8, borderRadius: 9999, background: colors.find(c=>c.value===sel.color)?.color || '#fff', border: '1px solid rgba(0,0,0,0.4)' }} />
-                  ) : null}
+                )
+                })()}
+                label={selectedLabels.wardrobe || 'Wardrobe'}
+            />
+        </div>
+
+        <div className={styles.rightContent}>
+            {/* Character */}
+            <GenerateBarSelect
+                onClick={handleButtonClick}
+                ariaLabel="Select character"
+                variant="icon"
+                thumbnail={(() => {
+                const url = selectedCharacterId ? characterThumbs[selectedCharacterId] : ''
+                if (url) return <Image src={url} alt="Character" width={32} height={32} className={styles.thumbImg} />
+                return <Icon variant="smilyFace" size={24} />
+                })()}
+                overlay={(
+                <>
+                    {selectedIsRunning && (
+                    <span className={styles.tinyProgress} aria-label="Training progress">
+                        <CircleProgress value={selectedPct} size={32} thickness={2} />
+                    </span>
+                    )}
+                    {selectedIsWaiting && <span className={styles.tinyTrainingDot} />}
                 </>
-              )
-            }
-            return <Icon variant="wardrobe" size={24} />
-          })()}
+                )}
+            />
+
+            {/* Settings */}
+            <GenerateBarSelect
+                onClick={() => open('settings')}
+                ariaLabel="Open settings"
+                variant="icon"
+                thumbnail={<Icon variant="idea" size={24} />}
+            />
+
+            <div className={styles.credits}>{requiredCredits} credits</div>
+            <button className={styles.generate} onClick={guard(onGenerate)}>Generate</button>
         </div>
-        <div className={styles.texts}><div className={styles.primary}>{selectedLabels.wardrobe || 'Wardrobe'}</div></div>
-      </button>
-
-      <button className={styles.barButton} onClick={() => open('characters')} aria-label="Select character">
-        <div className={styles.thumb} style={{ position: 'relative' }}>
-          {(() => {
-            const url = selectedCharacterId ? characterThumbs[selectedCharacterId] : ''
-            if (url) return <Image src={url} alt="Character" width={32} height={32} className={styles.thumbImg} />
-            return <Icon variant="smilyFace" size={24} />
-          })()}
-          {selectedIsRunning && (
-            <span className={styles.tinyProgress} aria-label="Training progress">
-              <CircleProgress value={selectedPct} size={32} thickness={2} />
-            </span>
-          )}
-          {selectedIsWaiting && <span className={styles.tinyTrainingDot} />}
-        </div>
-      </button>
-
-      <button className={styles.barButton} onClick={() => open('settings')} aria-label="Open settings">
-        <div className={styles.thumb}><Icon variant="idea" size={24} /></div>
-      </button>
-
-      <div className={styles.spacer} />
-
-      <div className={styles.credits}>{requiredCredits} credits</div>
-      <button className={styles.generate} onClick={guard(onGenerate)}>Generate</button>
-      </div>
+    </div>
 
       {/* Panel slot */}
       <div ref={panelRef} className={styles.panelSlot}>

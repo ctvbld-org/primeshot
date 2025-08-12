@@ -65,7 +65,7 @@
       "id": 6,
       "title": "Implement webhook handler for job completion",
       "description": "Create a Modal FastAPI endpoint to handle webhooks from comfyui-api on job completion and update the database.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         2,
         3,

@@ -8,10 +8,8 @@
 1. Identify all locations where 'comfy run' CLI commands are used
 2. Replace each CLI call with equivalent comfyui-api dynamic endpoint invocation
 3. Update parameter handling to match the new API format
-4. Ensure backward compatibility for existing job parameters
-5. Add logging to track successful migrations
-6. Implement fallback mechanism during transition if needed
-7. Clean up any unused CLI-related code and dependencies
+4. Add logging to track successful migrations
+5. Clean up any unused CLI-related code and dependencies
 
 # Test Strategy:
 Compare results from old CLI path vs. new API path to ensure identical outputs. Test with various input parameters to verify compatibility. Measure performance differences between the two approaches.

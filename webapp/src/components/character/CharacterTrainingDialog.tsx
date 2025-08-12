@@ -40,6 +40,8 @@ import { TrainingProgressStep } from './training/TrainingProgressStep'
 
 interface CharacterTrainingDialogProps {
   onComplete?: (characterId: string) => void
+  // Hint for DialogServiceProvider to not wrap this component in its own Dialog
+  wrapWithDialog?: boolean
 }
 
 type DialogStep = 

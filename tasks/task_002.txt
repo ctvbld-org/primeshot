@@ -1,13 +1,13 @@
 # Task ID: 2
 # Title: Implement Modal secrets and configuration
-# Status: pending
+# Status: done
 # Dependencies: 1
 # Priority: high
 # Description: Set up the required secrets and configuration for AWS S3 access and comfyui-api settings.
 # Details:
 1. Create 'aws-secret' with AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, AWS_BUCKET
 2. Create 'comfyui-api-secret' with COMFY_API_KEY, COMFYUI_BASE_URL (http://127.0.0.1:8000)
-3. Configure S3 output prefix pattern: user-images/{user_id}/inference/{job_id}
+3. Configure S3 output prefix pattern: user-images/{user_id}/inference/{job_id}/ with subfolders 'orig/' and 'web/'
 4. Set up webhook URL configuration in the secrets
 5. Ensure Modal container has proper access to these secrets
 6. Configure environment variables in the comfyui-api startup

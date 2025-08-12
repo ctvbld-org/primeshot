@@ -1,6 +1,6 @@
 # Task ID: 6
 # Title: Implement webhook handler for job completion
-# Status: pending
+# Status: done
 # Dependencies: 2, 3, 5
 # Priority: high
 # Description: Create a Modal FastAPI endpoint to handle webhooks from comfyui-api on job completion and update the database.

@@ -1,12 +1,12 @@
 # Task ID: 3
 # Title: Rename Modal app and implement WebSocket progress endpoint
-# Status: pending
+# Status: done
 # Dependencies: 1
 # Priority: medium
 # Description: Rename the Modal app and class to match the new naming convention and implement the WebSocket progress endpoint.
 # Details:
 1. Rename Modal app to 'primeshot-inference'
-2. Rename class to 'Fast' to reflect GPU naming
+2. Rename class to 'H100*' to reflect GPU naming
 3. Remove the existing 'health_check' endpoint
 4. Implement WebSocket 'progress' endpoint at wss://creativebuild--primeshot-inference-progress.modal.run
 5. Set up WebSocket handlers for connection, message, and disconnection

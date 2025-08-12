@@ -1071,6 +1071,51 @@ Detected changes in:
 - webapp/src/lib/hooks/use-character-images.ts
 - webapp/src/lib/image-quality.ts
 - webapp/src/lib/s3.ts
+
+
+**Auto-update 2025-08-12**:
+Detected changes in:
+- admin/src/components/styles/wardrobe-form-dialog.tsx
+- admin/src/components/styles/wardrobes-table.tsx
+- admin/src/components/subscriptions/credit-cost-form-dialog.tsx
+- admin/src/components/subscriptions/subscription-form-dialog.tsx
+- admin/src/components/subscriptions/subscriptions-table.tsx
+- webapp/src/app/api/upload-chunk/route.ts
+- webapp/src/app/layout.tsx
+- webapp/src/app/page.tsx
+- webapp/src/components/character/CharacterSelector.module.css
+- webapp/src/components/character/CharacterSelector.tsx
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/TrainingProgressStep.tsx
+- webapp/src/components/header/CreditsHeaderRight.module.css
+- webapp/src/components/header/CreditsHeaderRight.tsx
+- webapp/src/components/home/GalleryPlaceholder.module.css
+- webapp/src/components/home/GalleryPlaceholder.tsx
+- webapp/src/components/home/GenerationControls.module.css
+- webapp/src/components/home/GenerationControls.tsx
+- webapp/src/components/review/form-field.module.css
+- webapp/src/components/review/form-field.tsx
+- webapp/src/components/review/profile-form.module.css
+- webapp/src/components/review/profile-form.tsx
+- webapp/src/components/style/BaseDropdown.module.css
+- webapp/src/components/style/GenerateBar/GenerateBar.module.css
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/components/style/OptionButtons.tsx
+- webapp/src/components/style/OptionsPanel/OptionsPanel.module.css
+- webapp/src/components/style/OptionsPanel/OptionsPanel.tsx
+- webapp/src/components/style/SceneDropdown.module.css
+- webapp/src/components/style/SceneDropdown.tsx
+- webapp/src/components/style/StylesCarousel.module.css
+- webapp/src/components/style/StylesCarousel.tsx
+- webapp/src/components/style/WardrobeDropdown.module.css
+- webapp/src/components/style/WardrobeDropdown.tsx
+- webapp/src/lib/api/jobs.ts
+- webapp/src/lib/hooks/use-file-upload.ts
+- webapp/src/lib/hooks/use-inference-jobs-count.ts
+- webapp/src/lib/image-quality.ts
+- webapp/src/lib/types.ts
+- webapp/src/lib/upload-utils.ts
+- webapp/src/lib/websocket/connection-manager.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

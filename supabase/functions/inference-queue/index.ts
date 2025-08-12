@@ -57,17 +57,17 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
 
     const modalRequest = {
       user_id: job.user_id,
-      workflow_name: style.workflow_name || 'flux_lora',
-      parameters: {
-        prompt: 'A professional photo',
-        lora_path: character.lora_path,
-        style_lora_path: style.lora_path,
-        strength: job?.settings?.strength ?? 0.8,
-        guidance_scale: job?.settings?.guidance_scale ?? 7.5,
-        num_inference_steps: job?.settings?.num_inference_steps ?? 30,
-        resolution: job?.settings?.resolution === '2K' ? '2048x2048' : job?.settings?.resolution === '4K' ? '4096x4096' : '1024x1024',
-        batch_size: job?.settings?.batch_size ?? 5,
-        seed: -1,
+      job_id: job.id,
+      character_id: job.character_id,
+      style_id: job.style_id,
+      wardrobe_id: job?.settings?.wardrobe_id,
+      color_id: job?.settings?.color_id,
+      scene_id: job?.settings?.scene_id,
+      params: {
+        nb_takes: job?.settings?.nb_takes ?? job?.settings?.batch_size ?? 5,
+        quality: job?.settings?.quality ?? (job?.settings?.resolution ?? '1K'),
+        aspect_ratio: job?.settings?.aspect_ratio ?? '1:1',
+        seed: job?.settings?.seed ?? -1,
       },
     }
 

@@ -46,16 +46,18 @@ function DialogContent({
   className,
   children,
   fullscreen = false,
+  noContainer = false,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   fullscreen?: boolean
+  noContainer?: boolean
 }) {
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay />
       <DialogPrimitive.Content
         data-slot="dialog-content"
-        className={`${styles.dialog} ${fullscreen ? styles.fullscreen : ''} ${className || ''}`}
+        className={`${styles.dialog} ${(fullscreen || noContainer) ? styles.fullscreen : ''} ${noContainer ? styles.noContainer : ''} ${className || ''}`}
         {...props}
       >
         <div className={styles.content}>

@@ -142,8 +142,8 @@ export function SubscriptionsTable() {
       },
     },
     {
-      accessorKey: 'max_resolution',
-      header: 'Max Resolution',
+      accessorKey: 'max_quality',
+      header: 'Max Quality',
     },
     {
       accessorKey: 'popular',

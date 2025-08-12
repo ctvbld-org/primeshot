@@ -20,7 +20,7 @@ export interface SubscriptionTierConfig {
     monthlyPrice: number;
     yearlyPrice: number;
     credits: number;
-    maxResolution: Resolution;
+    maxQuality: Resolution;
     characterTrainingIncluded: number;
     concurrentJobs: number;
     maxCharacters: number;

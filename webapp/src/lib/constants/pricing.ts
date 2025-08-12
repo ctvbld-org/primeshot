@@ -60,7 +60,7 @@ export interface SubscriptionTier {
   monthlyPrice: number // in dollars (discounted price)
   yearlyPrice: number // in dollars (discounted yearly price per month)
   credits: number
-  maxResolution: '1K' | '2K' | '4K'
+  maxQuality: '1K' | '2K' | '4K'
   characterTrainingIncluded: number
   concurrentJobs: number
   maxCharacters: number
@@ -94,7 +94,7 @@ export const SUBSCRIPTION_TIERS: SubscriptionTier[] = SUBSCRIPTION_TIERS_CONFIG.
 
   return {
     ...tier,
-    maxResolution: tier.maxResolution as '1K' | '2K' | '4K',
+    maxQuality: tier.maxQuality as '1K' | '2K' | '4K',
     stripePriceIds
   }
 })

@@ -33,19 +33,36 @@ export function DialogServiceProvider({ children }: { children: ReactNode }) {
     dialogServiceSingleton.closeDialog = closeDialog
   }, [openDialog, closeDialog])
 
+  // Derive wrapper props from the provided content element
+  const derivedWrapperProps = (() => {
+    if (content && typeof content === 'object' && (content as any).type) {
+      const el = content as any
+      return {
+        fullscreen: Boolean(el.props?.fullscreen),
+        noContainer: Boolean(el.props?.noContainer),
+        selfManaged: Boolean(el.props?.selfManaged || el.props?.wrapWithDialog === false),
+      }
+    }
+    return { fullscreen: false, noContainer: false, selfManaged: false }
+  })()
+
   return (
     <DialogServiceContext.Provider value={{ openDialog, closeDialog }}>
       {children}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle style={{position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0}}>
-              Dialog
-            </DialogTitle>
-          </DialogHeader>
-          {content}
-        </DialogContent>
-      </Dialog>
+      {derivedWrapperProps.selfManaged ? (
+        open ? <>{content}</> : null
+      ) : (
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent fullscreen={derivedWrapperProps.fullscreen} noContainer={derivedWrapperProps.noContainer}>
+            <DialogHeader>
+              <DialogTitle style={{position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0}}>
+                Dialog
+              </DialogTitle>
+            </DialogHeader>
+            {content}
+          </DialogContent>
+        </Dialog>
+      )}
     </DialogServiceContext.Provider>
   )
 }

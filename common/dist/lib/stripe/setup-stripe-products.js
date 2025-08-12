@@ -136,7 +136,7 @@ async function createSubscriptionProducts(subscriptionTiers) {
                 metadata: {
                     plan_name: tier.name,
                     credits_included: tier.credits.toString(),
-                    max_resolution: tier.max_resolution,
+                    max_quality: tier.max_quality,
                     character_training_included: tier.character_training_included.toString(),
                     concurrent_jobs: tier.concurrent_jobs.toString(),
                     max_characters: tier.max_characters.toString(),

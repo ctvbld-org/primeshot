@@ -10,7 +10,7 @@ export interface SubscriptionTier {
   monthly_price: number
   yearly_price: number
   credits: number
-  max_resolution: string
+  max_quality: string
   character_training_included: number
   concurrent_jobs: number
   max_characters: number
@@ -83,9 +83,9 @@ export function useCreditCosts() {
 }
 
 // Helper functions for common operations
-export function calculateImageCredits(resolution: '1K' | '2K' | '4K', batchSize: number = 1, creditCosts?: CreditCosts): number {
+export function calculateImageCredits(quality: '1K' | '2K' | '4K', batchSize: number = 1, creditCosts?: CreditCosts): number {
   if (!creditCosts) return 0
-  const costKey = `IMAGE_GENERATION_${resolution}` as keyof CreditCosts
+  const costKey = `IMAGE_GENERATION_${quality}` as keyof CreditCosts
   return creditCosts[costKey] * batchSize
 }
 

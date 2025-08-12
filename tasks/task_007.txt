@@ -1,6 +1,6 @@
 # Task ID: 7
 # Title: Integrate with Supabase queue system
-# Status: pending
+# Status: in-progress
 # Dependencies: 3, 6
 # Priority: medium
 # Description: Connect the Modal inference system with the existing Supabase Edge Function and DB queue for job orchestration.

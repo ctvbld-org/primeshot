@@ -9,7 +9,7 @@ export interface SubscriptionInfo {
   current_period_end: string
   credits_included: number
   credits_used_this_period: number
-  max_resolution: string
+  max_quality: string
   character_training_included: number
   character_training_used: number
 }

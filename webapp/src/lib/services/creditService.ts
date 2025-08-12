@@ -8,7 +8,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export interface CreditOperation {
   type: 'image_generation' | 'character_training'
-  resolution?: '1K' | '2K' | '4K'
+  quality?: '1K' | '2K' | '4K'
   batchSize?: number
   metadata?: Record<string, any>
 }
@@ -20,7 +20,7 @@ export interface SubscriptionPlan {
   interval: string
   planName: string
   creditsIncluded: number
-  maxResolution: string
+  maxQuality: string
   characterTrainingIncluded: number
   concurrentJobs: number
   maxCharacters: number
@@ -72,7 +72,7 @@ export class CreditService {
   calculateCreditCost(operation: CreditOperation): number {
     switch (operation.type) {
       case 'image_generation':
-        return calculateImageCredits(operation.resolution!, operation.batchSize || 1)
+        return calculateImageCredits(operation.quality!, operation.batchSize || 1)
           case 'character_training':
       return CREDIT_COSTS.CHARACTER_TRAINING
       default:
@@ -174,7 +174,7 @@ export class CreditService {
           interval: price.recurring?.interval || 'month',
           planName: product.metadata.plan_name || '',
           creditsIncluded: parseInt(product.metadata.credits_included || '0'),
-          maxResolution: product.metadata.max_resolution || '1K',
+          maxQuality: product.metadata.max_quality || '1K',
                 characterTrainingIncluded: parseInt(product.metadata.character_training_included || '0'),
       concurrentJobs: parseInt(product.metadata.concurrent_jobs || '1'),
       maxCharacters: parseInt(product.metadata.max_characters || '1')
@@ -245,15 +245,15 @@ export class CreditService {
   }
 
   /**
-   * Check if user can generate images at specified resolution
+   * Check if user can generate images at specified quality
    */
-  async canGenerateAtResolution(userId: string, resolution: '1K' | '2K' | '4K'): Promise<boolean> {
+  async canGenerateAtQuality(userId: string, quality: '1K' | '2K' | '4K'): Promise<boolean> {
     const planDetails = await this.getUserPlanDetails(userId)
     if (!planDetails) return false
 
-    const resolutionHierarchy = { '1K': 1, '2K': 2, '4K': 3 }
-    const userMaxLevel = resolutionHierarchy[planDetails.maxResolution as keyof typeof resolutionHierarchy]
-    const requestedLevel = resolutionHierarchy[resolution]
+    const qualityHierarchy = { '1K': 1, '2K': 2, '4K': 3 }
+    const userMaxLevel = qualityHierarchy[planDetails.maxQuality as keyof typeof qualityHierarchy]
+    const requestedLevel = qualityHierarchy[quality]
 
     return requestedLevel <= userMaxLevel
   }
@@ -337,10 +337,10 @@ export class CreditService {
       totalCreditsUsed: data?.reduce((sum: number, usage: any) => sum + usage.credits_used, 0) || 0,
       imageGeneration: data?.filter((u: any) => u.usage_type === 'image_generation').length || 0,
       characterTraining: data?.filter((u: any) => u.usage_type === 'character_training').length || 0,
-      byResolution: {
-        '1K': data?.filter((u: any) => u.resolution === '1K').reduce((sum: number, u: any) => sum + u.credits_used, 0) || 0,
-        '2K': data?.filter((u: any) => u.resolution === '2K').reduce((sum: number, u: any) => sum + u.credits_used, 0) || 0,
-        '4K': data?.filter((u: any) => u.resolution === '4K').reduce((sum: number, u: any) => sum + u.credits_used, 0) || 0
+      byQuality: {
+        '1K': data?.filter((u: any) => u.quality === '1K').reduce((sum: number, u: any) => sum + u.credits_used, 0) || 0,
+        '2K': data?.filter((u: any) => u.quality === '2K').reduce((sum: number, u: any) => sum + u.credits_used, 0) || 0,
+        '4K': data?.filter((u: any) => u.quality === '4K').reduce((sum: number, u: any) => sum + u.credits_used, 0) || 0
       }
     }
   }
