@@ -116,17 +116,22 @@ export function SubscriptionDialogContent({
   // Filter tiers based on upgrade requirements
   const filteredTiers = useMemo(() => {
     if (!subscriptionTiers) return []
-    
+
+    // When showing upgrades for an existing subscriber, include the current plan
+    // card as well (button will be disabled) and then all higher tiers.
     if (showOnlyUpgrades && effectiveCurrentPlan) {
       const hierarchy = getTierHierarchy()
       const currentLevel = hierarchy[effectiveCurrentPlan] || 0
-      
-      return subscriptionTiers.filter(tier => {
+
+      const currentTier = subscriptionTiers.find(t => t.name === effectiveCurrentPlan)
+      const upgradeTiers = subscriptionTiers.filter(tier => {
         const tierLevel = hierarchy[tier.name] || 0
         return tierLevel > currentLevel
       })
+
+      return currentTier ? [currentTier, ...upgradeTiers] : upgradeTiers
     }
-    
+
     return subscriptionTiers
   }, [subscriptionTiers, showOnlyUpgrades, effectiveCurrentPlan])
 
@@ -136,15 +141,15 @@ export function SubscriptionDialogContent({
   // Update selected tier when filtered tiers change
   useMemo(() => {
     if (filteredTiers.length > 0 && !selectedTier) {
-      // For upgrades, select the first (lowest) upgrade option
+      // For upgrades, prefer the first actual upgrade (skip current plan if present)
       // For new users, select the recommended tier or standard
       const defaultTier = showOnlyUpgrades 
-        ? filteredTiers[0]
+        ? (filteredTiers.find(t => t.name !== effectiveCurrentPlan) || filteredTiers[0])
         : filteredTiers.find(t => t.popular) || filteredTiers.find(t => t.name === 'standard') || filteredTiers[0]
-      
+
       setSelectedTier(defaultTier)
     }
-  }, [filteredTiers, selectedTier, showOnlyUpgrades])
+  }, [filteredTiers, selectedTier, showOnlyUpgrades, effectiveCurrentPlan])
 
   const handlePurchase = async (passedTier?: SubscriptionTier | null) => {
     if (!user) {
@@ -353,6 +358,7 @@ export function SubscriptionDialogContent({
           const isSelected = selectedTier?.id === tier.id
           const isRecommended = tier.popular && !showOnlyUpgrades
           const name = tier.name
+          const isCurrentPlan = !!effectiveCurrentPlan && name === effectiveCurrentPlan
 
           return (
             <div
@@ -413,8 +419,12 @@ export function SubscriptionDialogContent({
                 </ul>
               </div>
 
-              <Button className={styles.selectBtn} onClick={() => handlePurchase(tier)} disabled={loading && isSelected}>
-                {loading && isSelected ? 'Processing…' : 'Select Plan'}
+              <Button
+                className={styles.selectBtn}
+                onClick={() => handlePurchase(tier)}
+                disabled={isCurrentPlan || (loading && isSelected)}
+              >
+                {isCurrentPlan ? 'Current Plan' : (loading && isSelected ? 'Processing…' : 'Select Plan')}
               </Button>
             </div>
           )

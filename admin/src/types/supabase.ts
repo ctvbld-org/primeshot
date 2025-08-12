@@ -407,6 +407,24 @@ export type Database = {
           },
         ]
       }
+      inference_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       sessions: {
         Row: {
           created_at: string | null
@@ -1104,6 +1122,10 @@ export type Database = {
         Returns: undefined
       }
       get_language_preference: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_pricing_last_updated: {
         Args: Record<PropertyKey, never>
         Returns: string
       }

@@ -13,7 +13,8 @@ import { getOptionsImage } from '@/lib/utils/get-options-image'
 import { storeSelectedStyleIndex, getStoredStyleSelections, storeStyleSelections } from '@/lib/utils/style-storage'
 import { useCurrentSubscription } from '@/hooks/useCurrentSubscription'
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus'
-import { BATCH_PRICING, CREDIT_COSTS } from '@/lib/constants/pricing'
+import { useCreditCosts, calculateImageCredits } from '@/hooks/usePricingConfig'
+import { useInferenceSettings } from '@/hooks/useInferenceSettings'
 import styles from './GenerateBar.module.css'
 import { useAuth } from '@/contexts/auth-context'
 import { useCharactersApi } from '@/lib/api/characters'
@@ -63,6 +64,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const sanitizeQuality = (q: any): QualityCode =>
     ((ALLOWED_QUALITIES as unknown as string[]).includes(q) ? q : '1K') as QualityCode
 
+  const { data: inferenceSettings } = useInferenceSettings()
   const [nbTakes, setNbTakes] = useState<number>(() => load(STORAGE_KEYS.NB_TAKES, 10))
   const [quality, setQuality] = useState<QualityCode>(() => sanitizeQuality(load(STORAGE_KEYS.QUALITY, '1K')))
   const [aspectRatio, setAspectRatio] = useState<string>(() => load(STORAGE_KEYS.ASPECT_RATIO, '4:5'))
@@ -76,13 +78,11 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   })
 
   const { data: subscription } = useCurrentSubscription()
+  const { data: creditCosts } = useCreditCosts()
   const { hasActiveSubscription } = useSubscriptionStatus()
   const requiredCredits = useMemo(() => {
-    const table = BATCH_PRICING?.[quality] ?? []
-    const entry = table.find(b => b.size === nbTakes)
-    const perImage = CREDIT_COSTS?.IMAGE_GENERATION?.[quality] ?? 1
-    return entry ? entry.credits : perImage * nbTakes
-  }, [nbTakes, quality])
+    return calculateImageCredits(quality, nbTakes, creditCosts) || 0
+  }, [nbTakes, quality, creditCosts])
   const guard = useCreditGuard(requiredCredits)
 
   const stylesWithPreview = useMemo(() => {
@@ -120,11 +120,11 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
     window.dispatchEvent(event)
   }, [nbTakes, aspectRatio, quality])
 
-  const qualityOptions = useMemo(() => ([
-    { label: 'Basic', value: '1K' as QualityCode },
-    { label: 'Standard', value: '2K' as QualityCode },
-    { label: 'High', value: '4K' as QualityCode },
-  ]), [])
+  const qualityOptions = useMemo(() => {
+    const codes = (inferenceSettings?.qualities || ['1K','2K','4K']) as QualityCode[]
+    const labels = inferenceSettings?.quality_labels || { '1K': 'Basic', '2K': 'Standard', '4K': 'High' }
+    return codes.map(code => ({ label: labels[code] || code, value: code as QualityCode }))
+  }, [inferenceSettings])
 
   const currentQualityLabel = useMemo(() => {
     const found = qualityOptions.find(o => o.value === quality)
@@ -300,7 +300,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
             <div className={styles.settingsColumn}>
               <span className={styles.settingLabel}>Number of Takes</span>
               <div className={styles.segmented}>
-                {[5, 15, 20].map(n => (
+                {(inferenceSettings?.nb_takes_options || [5,15,20]).map(n => (
                   <button key={n} className={`${styles.segment} ${nbTakes === n ? styles.segmentActive : ''}`} onClick={() => { setNbTakes(n); save(STORAGE_KEYS.NB_TAKES, n) }}>{n}</button>
                 ))}
               </div>
@@ -327,7 +327,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
             <div className={styles.settingsColumn}>
               <span className={styles.settingLabel}>Aspect Ratio</span>
               <div className={styles.segmented}>
-                {['4:5', '16:9', '1:1', '3:4'].map(r => (
+                {(inferenceSettings?.aspect_ratios || ['4:5','16:9','1:1','3:4']).map(r => (
                   <button key={r} className={`${styles.segment} ${aspectRatio === r ? styles.segmentActive : ''}`} onClick={() => { setAspectRatio(r); save(STORAGE_KEYS.ASPECT_RATIO, r) }}>{r}</button>
                 ))}
               </div>

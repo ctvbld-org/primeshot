@@ -3,7 +3,8 @@ import { Button } from '@primeshot/common/web/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@primeshot/common/web/ui/card'
 import { Badge } from '@primeshot/common/web/ui/badge'
 import { Coins, Package, Wallet } from 'lucide-react'
-import { CREDIT_PACKS, type CreditPack } from '@/lib/constants/pricing'
+import { useCreditPacks } from '@/hooks/usePricingConfig'
+import { STRIPE_REFERENCE } from '@/lib/constants/stripe-reference'
 import { useAuth } from '@primeshot/common/hooks/AuthContext'
 import { toast } from 'sonner'
 import { getApiUrl } from '@/lib/api/client'
@@ -15,23 +16,48 @@ interface CreditPackDialogContentProps {
 export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogContentProps) {
   const [isLoading, setIsLoading] = useState<string | null>(null)
   const { user } = useAuth()
+  const { data: creditPacks = [] } = useCreditPacks()
 
-  const handlePurchase = async (creditPack: CreditPack) => {
+  const getEnvironment = (): 'test' | 'production' => {
+    if (typeof process !== 'undefined' && process.env.VERCEL_TARGET_ENV) {
+      return process.env.VERCEL_TARGET_ENV === 'production' ? 'production' : 'test'
+    }
+    if (typeof process !== 'undefined' && process.env.NODE_ENV === 'production') {
+      return 'production'
+    }
+    return 'test'
+  }
+
+  const getPriceIdForCredits = (credits: number): string | null => {
+    const env = getEnvironment()
+    const map: Record<number, keyof typeof STRIPE_REFERENCE[typeof env]['creditPacks']> = {
+      90: 'credits_90',
+      180: 'credits_180',
+      360: 'credits_360',
+    }
+    const key = map[credits]
+    return key ? STRIPE_REFERENCE[env].creditPacks[key].price : null
+  }
+
+  const handlePurchase = async (creditPack: { name: string; credits: number }) => {
     if (!user) {
       toast.error('Please log in')
       return
     }
 
-    setIsLoading(creditPack.id)
+    setIsLoading(creditPack.name)
 
     try {
+      const priceId = getPriceIdForCredits(creditPack.credits)
+      if (!priceId) throw new Error('Invalid credit pack configuration')
+
       const response = await fetch(getApiUrl('/api/payment/credit-pack-checkout'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          priceId: creditPack.stripePriceId,
+          priceId,
           successUrl: `${window.location.origin}${process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/'}?credits=success`,
           cancelUrl: `${window.location.origin}/pricing`
         })
@@ -75,7 +101,7 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
     return credits.toLocaleString()
   }
 
-  const isRecommendedForUser = (pack: CreditPack) => {
+  const isRecommendedForUser = (pack: { credits: number }) => {
     if (!requiredCredits) return false
     return pack.credits >= requiredCredits && pack.credits <= requiredCredits * 2
   }
@@ -93,21 +119,21 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
       </div>
 
       <div className="grid md:grid-cols-3 gap-4">
-        {CREDIT_PACKS.map((pack) => (
+        {creditPacks.map((pack) => (
           <Card 
-            key={pack.id} 
+            key={`${pack.name}-${pack.credits}`} 
             className={`relative overflow-hidden transition-all duration-200 hover:shadow-lg hover:border-muted-foreground/50 ${
               isRecommendedForUser(pack) ? 'border-blue-200 ring-1 ring-blue-200' : ''
-            } ${pack.savings ? 'border-green-200 ring-1 ring-green-200' : ''}`}
+            }`}
           >
-            {(pack.savings || isRecommendedForUser(pack)) && (
+            {(isRecommendedForUser(pack)) && (
               <div className="absolute top-3 right-3">
                 <Badge variant="secondary" className={
                   isRecommendedForUser(pack) 
                     ? "bg-blue-100 text-blue-700" 
                     : "bg-green-100 text-green-700"
                 }>
-                  {isRecommendedForUser(pack) ? 'Recommended' : pack.savings}
+                  {'Recommended'}
                 </Badge>
               </div>
             )}
@@ -127,7 +153,7 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
                   <span className="text-muted-foreground text-xs">one-time</span>
                 </div>
                 <div className="text-xs text-muted-foreground mt-1">
-                  ${pack.costPerCredit.toFixed(3)} per credit
+                  ${(pack.price / Math.max(pack.credits, 1)).toFixed(3)} per credit
                 </div>
               </div>
             </CardHeader>
@@ -164,12 +190,12 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
             <CardFooter>
               <Button
                 onClick={() => handlePurchase(pack)}
-                disabled={isLoading === pack.id}
+                disabled={isLoading === `${pack.name}`}
                 className="w-full"
                 variant={isRecommendedForUser(pack) ? "primary" : "secondary"}
                 size="sm"
               >
-                {isLoading === pack.id ? (
+                {isLoading === `${pack.name}` ? (
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
                     Processing...

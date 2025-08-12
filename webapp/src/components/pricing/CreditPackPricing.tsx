@@ -5,7 +5,8 @@ import { Button } from '@primeshot/common/web/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@primeshot/common/web/ui/card'
 import { Badge } from '@primeshot/common/web/ui/badge'
 import { Coins, Package, Wallet } from 'lucide-react'
-import { CREDIT_PACKS, type CreditPack } from '@/lib/constants/pricing'
+import { useCreditPacks } from '@/hooks/usePricingConfig'
+import { STRIPE_REFERENCE } from '@/lib/constants/stripe-reference'
 import { useAuth } from '@primeshot/common/hooks/AuthContext'
 import { useCreditPackCheckout } from '@/hooks/useCreditPackCheckout'
 
@@ -18,14 +19,40 @@ export function CreditPackPricing({ className }: CreditPackPricingProps) {
   const router = useRouter()
   const { user } = useAuth()
 
-  const handlePurchase = async (creditPack: CreditPack) => {
+  const { data: creditPacks = [] } = useCreditPacks()
+
+  const getEnvironment = (): 'test' | 'production' => {
+    if (typeof process !== 'undefined' && process.env.VERCEL_TARGET_ENV) {
+      return process.env.VERCEL_TARGET_ENV === 'production' ? 'production' : 'test'
+    }
+    if (typeof process !== 'undefined' && process.env.NODE_ENV === 'production') {
+      return 'production'
+    }
+    return 'test'
+  }
+
+  const getPriceIdForCredits = (credits: number): string | null => {
+    const env = getEnvironment()
+    const map: Record<number, keyof typeof STRIPE_REFERENCE[typeof env]['creditPacks']> = {
+      90: 'credits_90',
+      180: 'credits_180',
+      360: 'credits_360',
+    }
+    const key = map[credits]
+    return key ? STRIPE_REFERENCE[env].creditPacks[key].price : null
+  }
+
+  const handlePurchase = async (creditPack: { credits: number }) => {
     if (!user) {
       router.push('/auth/login')
       return
     }
 
+    const priceId = getPriceIdForCredits(creditPack.credits)
+    if (!priceId) return
+
     checkoutMutation.mutate({
-      priceId: creditPack.stripePriceId,
+      priceId,
       successUrl: `${window.location.origin}${process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/'}?credits=success`,
       cancelUrl: `${window.location.origin}/pricing`
     })
@@ -73,20 +100,14 @@ export function CreditPackPricing({ className }: CreditPackPricingProps) {
       </div>
 
       <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-        {CREDIT_PACKS.map((pack) => (
+        {creditPacks.map((pack) => (
           <Card 
-            key={pack.id} 
+            key={`${pack.name}-${pack.credits}`} 
             className={`relative overflow-hidden transition-all duration-200 hover:shadow-lg hover:border-muted-foreground/50 ${
-              pack.savings ? 'border-green-200 ring-1 ring-green-200' : ''
+              ''
             }`}
           >
-            {pack.savings && (
-              <div className="absolute top-3 right-3">
-                <Badge variant="secondary" className="bg-green-100 text-green-700">
-                  {pack.savings}
-                </Badge>
-              </div>
-            )}
+            {/* Savings badge removed; not present in DB-backed packs */}
 
             <CardHeader className="text-center pb-4">
               <div className={`mx-auto mb-4 ${getPackColor(pack.id)}`}>
@@ -103,7 +124,7 @@ export function CreditPackPricing({ className }: CreditPackPricingProps) {
                   <span className="text-muted-foreground text-sm">one-time</span>
                 </div>
                 <div className="text-sm text-muted-foreground mt-1">
-                  ${pack.costPerCredit.toFixed(3)} per credit
+                  ${(pack.price / Math.max(pack.credits, 1)).toFixed(3)} per credit
                 </div>
               </div>
             </CardHeader>
@@ -157,7 +178,7 @@ export function CreditPackPricing({ className }: CreditPackPricingProps) {
                 onClick={() => handlePurchase(pack)}
                 disabled={checkoutMutation.isPending}
                 className="w-full"
-                variant={pack.savings ? "primary" : "secondary"}
+                variant={"secondary"}
                 size="lg"
               >
                 {checkoutMutation.isPending ? (

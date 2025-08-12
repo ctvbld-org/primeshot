@@ -6,8 +6,7 @@ import { DataTable } from '@/components/ui/data-table'
 import { CreditCostFormDialog } from './credit-cost-form-dialog'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@primeshot/common/web/ui/button'
-import { Badge } from '@primeshot/common/web/ui/badge'
-import { MoreHorizontal, Pencil, Trash } from 'lucide-react'
+import { Pencil, Trash } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Database } from '@/types/supabase'
 import {
@@ -23,7 +22,6 @@ export function CreditCostsTable() {
   const [selectedCost, setSelectedCost] = useState<CreditCost | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const queryClient = useQueryClient()
-  const supabase = createClient()
 
   // Fetch credit costs
   const { data: creditCosts = [], isLoading } = useQuery({

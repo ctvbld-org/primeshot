@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
+import { getApiUrl } from '@/lib/api/client'
 import Stripe from 'stripe'
-import { CREDIT_COSTS, calculateImageCredits } from '@/lib/constants/pricing'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-06-30.basil' as any
@@ -41,6 +41,35 @@ export class CreditService {
   private static cache = new Map<string, { data: any; timestamp: number }>()
   private static cacheExpiry = 5 * 60 * 1000 // 5 minutes
 
+  private async getCreditCosts(): Promise<{
+    IMAGE_GENERATION_1K: number
+    IMAGE_GENERATION_2K: number
+    IMAGE_GENERATION_4K: number
+    CHARACTER_TRAINING: number
+  }> {
+    const cacheKey = 'credit_costs'
+    const cached = CreditService.cache.get(cacheKey)
+    if (cached && Date.now() - cached.timestamp < CreditService.cacheExpiry) {
+      return cached.data
+    }
+
+    try {
+      const res = await fetch(getApiUrl('api/pricing/credit-costs'))
+      if (!res.ok) throw new Error('Failed to fetch credit costs')
+      const data = await res.json()
+      CreditService.cache.set(cacheKey, { data, timestamp: Date.now() })
+      return data
+    } catch {
+      // Fallback defaults
+      return {
+        IMAGE_GENERATION_1K: 1,
+        IMAGE_GENERATION_2K: 2,
+        IMAGE_GENERATION_4K: 3,
+        CHARACTER_TRAINING: 30
+      }
+    }
+  }
+
   /**
    * Get current credit balance for a user
    */
@@ -69,12 +98,17 @@ export class CreditService {
    * Calculate credit cost based on operation type and parameters
    * Uses centralized CREDIT_COSTS configuration from pricing constants
    */
-  calculateCreditCost(operation: CreditOperation): number {
+  async calculateCreditCost(operation: CreditOperation): Promise<number> {
+    const costs = await this.getCreditCosts()
     switch (operation.type) {
-      case 'image_generation':
-        return calculateImageCredits(operation.quality!, operation.nbTakes || 1)
-          case 'character_training':
-      return CREDIT_COSTS.CHARACTER_TRAINING
+      case 'image_generation': {
+        const quality = operation.quality || '1K'
+        const nbTakes = operation.nbTakes || 1
+        const key = `IMAGE_GENERATION_${quality}` as keyof typeof costs
+        return (costs[key] || 1) * nbTakes
+      }
+      case 'character_training':
+        return costs.CHARACTER_TRAINING
       default:
         throw new Error(`Unknown operation type: ${operation.type}`)
     }
@@ -84,7 +118,7 @@ export class CreditService {
    * Spend credits for an operation (uses database FIFO function)
    */
   async spendCredits(userId: string, operation: CreditOperation): Promise<void> {
-    const creditCost = this.calculateCreditCost(operation)
+    const creditCost = await this.calculateCreditCost(operation)
     const supabase = await this.getSupabase()
     
     const { data, error } = await supabase

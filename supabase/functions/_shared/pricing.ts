@@ -14,9 +14,11 @@ export type Quality = '1K' | '2K' | '4K';
 
 let cachedCreditCosts: Record<string, number> | null = null;
 let cachedSubscriptions: any[] | null = null;
+let cachedInferenceSettings: Record<string, any> | null = null;
+let cachedLastUpdated: string | null = null;
 let lastCreditCostsFetchTime = 0;
 let lastSubscriptionsFetchTime = 0;
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const CACHE_TTL = 5 * 60 * 1000; // legacy TTL fallback if version detection fails
 
 async function getCreditCosts(supabase: any): Promise<Record<string, number>> {
   const now = Date.now();
@@ -92,6 +94,70 @@ async function getSubscriptions(supabase: any): Promise<any[]> {
     console.error('Failed to fetch subscriptions:', error);
     return [];
   }
+}
+
+/**
+ * Fetch inference settings as a combined object
+ */
+export async function getInferenceSettings(supabase: any): Promise<{
+  qualities: string[];
+  quality_labels: Record<string, string>;
+  nb_takes_options: number[];
+  aspect_ratios: string[];
+  defaults: { quality: string; nb_takes: number; aspect_ratio: string };
+}> {
+  // If cached and version unchanged, return cached
+  const version = await getPricingLastUpdated(supabase);
+  if (cachedInferenceSettings && cachedLastUpdated === version) {
+    return cachedInferenceSettings as any;
+  }
+
+  const { data, error } = await supabase
+    .from('inference_settings')
+    .select('key, value');
+
+  if (error) {
+    console.error('Error fetching inference settings:', error);
+    // Provide safe defaults if DB temporarily unavailable
+    return {
+      qualities: ['1K','2K','4K'],
+      quality_labels: { '1K': 'Basic', '2K': 'Standard', '4K': 'High' },
+      nb_takes_options: [5,15,20],
+      aspect_ratios: ['4:5','16:9','1:1','3:4'],
+      defaults: { quality: '1K', nb_takes: 5, aspect_ratio: '4:5' }
+    };
+  }
+
+  const map = Object.create(null);
+  for (const row of (data || [])) map[row.key] = row.value;
+  const settings = {
+    qualities: map['qualities'] || ['1K','2K','4K'],
+    quality_labels: map['quality_labels'] || { '1K': 'Basic', '2K': 'Standard', '4K': 'High' },
+    nb_takes_options: map['nb_takes_options'] || [5,15,20],
+    aspect_ratios: map['aspect_ratios'] || ['4:5','16:9','1:1','3:4'],
+    defaults: map['defaults'] || { quality: '1K', nb_takes: 5, aspect_ratio: '4:5' },
+  } as const;
+
+  cachedInferenceSettings = settings as any;
+  cachedLastUpdated = version;
+  return settings as any;
+}
+
+/**
+ * Compute a single last_updated across pricing-related tables.
+ * When this value changes, caches are invalidated.
+ */
+export async function getPricingLastUpdated(supabase: any): Promise<string> {
+  const { data, error } = await supabase.rpc('get_pricing_last_updated');
+  if (error || !data) {
+    // Fallback: use time-based TTL behavior
+    const now = Date.now();
+    if (!lastSubscriptionsFetchTime || (now - lastSubscriptionsFetchTime) > CACHE_TTL) {
+      lastSubscriptionsFetchTime = now;
+    }
+    return String(lastSubscriptionsFetchTime);
+  }
+  return data as string;
 }
 
 /**

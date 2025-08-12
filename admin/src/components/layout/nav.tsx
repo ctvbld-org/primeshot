@@ -2,13 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Palette, CreditCard } from 'lucide-react'
+import { LayoutDashboard, Palette, CreditCard, Settings } from 'lucide-react'
 import styles from './nav.module.css'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Styles', href: '/styles', icon: Palette },
   { name: 'Subscriptions', href: '/subscriptions', icon: CreditCard },
+  { name: 'Inference', href: '/inference', icon: Settings },
 ]
 
 export function Nav() {

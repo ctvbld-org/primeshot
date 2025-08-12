@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
-import { calculateImageCreditCost, getSubscriptionLimits, type Quality } from "../_shared/pricing.ts";
+import { calculateImageCreditCost, getSubscriptionLimits, getInferenceSettings, type Quality } from "../_shared/pricing.ts";
 
 interface InferenceRequest {
   user_id: string;
@@ -167,19 +167,31 @@ serve(async (req) => {
       );
     }
 
-    // Extract params/settings
-    const quality = (body.params as any)?.quality || '1K';
-    const nbTakes = (body.params as any)?.nb_takes || 5;
-    const aspectRatio = (body.params as any)?.aspect_ratio || '1:1';
+    // Extract params/settings with DB-driven defaults
+    const settings = await getInferenceSettings(supabase);
+    const quality = (body.params as any)?.quality || settings.defaults.quality;
+    const nbTakes = (body.params as any)?.nb_takes || settings.defaults.nb_takes;
+    const aspectRatio = (body.params as any)?.aspect_ratio || settings.defaults.aspect_ratio;
     const queueType: 'fast' | 'slow' = body.queue_type === 'slow' ? 'slow' : 'fast';
 
-    // Validate nb_takes limits
-    if (!Number.isInteger(nbTakes) || nbTakes < 5 || nbTakes > 20) {
+    // Validate using DB-defined options
+    if (!Number.isInteger(nbTakes) || !settings.nb_takes_options.includes(nbTakes)) {
       return new Response(
         JSON.stringify({ 
           error: 'Invalid nb_takes',
-          details: 'nb_takes must be an integer between 5 and 20',
+          details: `nb_takes must be one of: ${settings.nb_takes_options.join(', ')}`,
           provided_number_of_takes: nbTakes
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!settings.qualities.includes(quality)) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid quality',
+          details: `quality must be one of: ${settings.qualities.join(', ')}`,
+          provided_quality: quality
         }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
