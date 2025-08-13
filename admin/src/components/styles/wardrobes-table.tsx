@@ -107,14 +107,6 @@ export function WardrobesTable() {
       },
     },
     {
-      accessorKey: 'gender',
-      header: 'Gender',
-      cell: ({ row }: any) => {
-        const g = row.getValue('gender') || 'unisex'
-        return <span className="text-sm text-muted-foreground capitalize">{g}</span>
-      },
-    },
-    {
       accessorKey: 'label',
       header: 'Label',
       cell: ({ row }: any) => {
@@ -139,13 +131,33 @@ export function WardrobesTable() {
       },
     },
     {
-      accessorKey: 'value',
-      header: 'Value',
-      cell: ({ row }: any) => (
-        <code className="text-sm bg-muted px-2 py-1 rounded">
-          {row.getValue('value')}
-        </code>
-      ),
+      accessorKey: 'prompt',
+      header: 'Prompt',
+      cell: ({ row }: any) => {
+        const prompt = (row.getValue('prompt') as string) || ''
+        const preview = prompt.length > 80 ? prompt.slice(0, 80) + '…' : prompt
+        return (
+          <span className="text-sm text-muted-foreground" title={prompt}>
+            {preview || '-'}
+          </span>
+        )
+      },
+    },
+    {
+      accessorKey: 'category',
+      header: 'Category',
+      cell: ({ row }: any) => {
+        const category = (row.getValue('category') as string) || ''
+        return <span className="text-sm text-muted-foreground">{category || '-'}</span>
+      },
+    },
+    {
+      accessorKey: 'gender',
+      header: 'Gender',
+      cell: ({ row }: any) => {
+        const g = row.getValue('gender') || 'unisex'
+        return <span className="text-sm text-muted-foreground capitalize">{g}</span>
+      },
     },
     {
       id: 'actions',

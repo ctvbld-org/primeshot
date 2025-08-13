@@ -140,6 +140,19 @@ export function ScenesTable() {
       ),
     },
     {
+      accessorKey: 'prompt',
+      header: 'Prompt',
+      cell: ({ row }: any) => {
+        const prompt = (row.getValue('prompt') as string) || ''
+        const preview = prompt.length > 80 ? prompt.slice(0, 80) + '…' : prompt
+        return (
+          <span className="text-sm text-muted-foreground" title={prompt}>
+            {preview || '-'}
+          </span>
+        )
+      },
+    },
+    {
       id: 'actions',
       header: () => <div className="text-right">Actions</div>,
       cell: ({ row }: any) => {

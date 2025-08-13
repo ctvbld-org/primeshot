@@ -35,7 +35,7 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
   try {
     // Fetch character and style
     const [{ data: character }, { data: style }] = await Promise.all([
-      supabase.from('characters').select('id, lora_path').eq('id', job.character_id).single(),
+      supabase.from('characters').select('id, lora_path, metadata').eq('id', job.character_id).single(),
       supabase.from('styles').select('*').eq('id', job.style_id).single(),
     ])
 
@@ -55,6 +55,90 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
       throw new Error('INFERENCE_API_URL environment variable not set')
     }
 
+    // ----- Build prepared payload (mirror inference-create) -----
+    if (!character?.lora_path) {
+      await supabase
+        .from('inference_jobs')
+        .update({ status: 'failed', error_message: 'Character missing lora_path', updated_at: new Date().toISOString() })
+        .eq('id', job.id)
+      return false
+    }
+
+    const styleLora = (style as any)?.lora_path || ''
+    const characterLora = character.lora_path as string
+
+    let wardrobePrompt = ''
+    if (job?.settings?.wardrobe_id) {
+      const { data: w } = await supabase.from('wardrobes').select('*').eq('id', job.settings.wardrobe_id).maybeSingle()
+      wardrobePrompt = (w?.prompt || w?.name || w?.title || '').toString()
+    }
+    let colorValue = ''
+    if (job?.settings?.color_id) {
+      const { data: c } = await supabase.from('colors').select('*').eq('id', job.settings.color_id).maybeSingle()
+      colorValue = (c?.value || c?.name || c?.label || '').toString()
+    }
+    let scenePrompt = ''
+    if (job?.settings?.scene_id) {
+      const { data: s } = await supabase.from('scenes').select('*').eq('id', job.settings.scene_id).maybeSingle()
+      scenePrompt = (s?.prompt || s?.name || s?.title || '').toString()
+    }
+    const stylePrompt = (style as any)?.prompt || (style as any)?.description || ''
+    const negativePrompt = (style as any)?.negative_prompt || ''
+
+    const safeJoin = (list: string[]) => {
+      const items = list.filter(Boolean)
+      if (items.length <= 1) return items[0] || ''
+      if (items.length === 2) return `${items[0]} and ${items[1]}`
+      return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`
+    }
+    const buildPronoun = (gender?: string | null) => {
+      const g = (gender || '').toLowerCase()
+      if (g.startsWith('male') || g === 'man' || g === 'm') return 'He'
+      if (g.startsWith('female') || g === 'woman' || g === 'f') return 'She'
+      return 'They'
+    }
+    const buildSubjectPrompt = (meta: any) => {
+      const gender = meta?.gender as string | undefined
+      const pronoun = buildPronoun(gender)
+      const age = meta?.age as string | undefined
+      const eyeColor = meta?.eyes?.color as string | undefined
+      const hairColor = meta?.hair?.color as string | undefined
+      const hairLength = meta?.hair?.length as string | undefined
+      const hairStyles: string[] = Array.isArray(meta?.hair?.styles) ? meta.hair.styles : []
+      const hairTexture = meta?.hair?.texture as string | undefined
+
+      const pieces: string[] = []
+      const who = gender ? `A ${gender}` : 'A person'
+      pieces.push(age ? `${who} in ${age}` : who)
+      const hairBits: string[] = []
+      if (hairLength) hairBits.push(hairLength)
+      if (hairColor) hairBits.push(`${hairColor} hair`)
+      let hairClause = hairBits.join(' ')
+      const styleList = safeJoin(hairStyles)
+      if (styleList) hairClause = hairClause ? `${hairClause}, ${styleList}` : styleList
+      if (hairTexture) hairClause = hairClause ? `${hairClause}, ${hairTexture}` : hairTexture
+      if (hairClause) pieces.push(`with ${hairClause}`)
+      if (eyeColor) pieces.push(`and ${eyeColor} eyes`)
+      const sentence = pieces.join(' ').replace(/\s+/g, ' ').trim()
+      const subject = sentence.endsWith('.') ? sentence : `${sentence}.`
+      return { subject, pronoun }
+    }
+
+    const { subject: subjectPrompt, pronoun } = buildSubjectPrompt(character?.metadata || {})
+    const wearLine = wardrobePrompt || colorValue ? `${pronoun} is wearing ${colorValue ? `a ${colorValue} ` : ''}${wardrobePrompt}.` : ''
+    const lines = [subjectPrompt]
+    if (wearLine) lines.push(wearLine)
+    if (stylePrompt) lines.push(stylePrompt)
+    if (scenePrompt) lines.push(scenePrompt)
+    const finalPrompt = lines.join('\n')
+
+    const resolveWorkflow = (s: any, params: any): string => {
+      const key = s?.workflow || s?.workflow_key || s?.workflow_s3_key
+      if (typeof key === 'string' && key.length > 0) return key
+      return 'workflows/2_1/flux_lora.json'
+    }
+    const workflowKey = resolveWorkflow(style, job?.settings || {})
+
     const modalRequest = {
       user_id: job.user_id,
       job_id: job.id,
@@ -69,6 +153,13 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
         aspect_ratio: job?.settings?.aspect_ratio ?? '1:1',
         seed: job?.settings?.seed ?? -1,
       },
+      prepared: {
+        workflow: workflowKey,
+        prompt: finalPrompt,
+        negative_prompt: negativePrompt,
+        character_lora: characterLora,
+        style_lora: styleLora || '',
+      }
     }
 
     const headers: Record<string, string> = { 'Content-Type': 'application/json' }

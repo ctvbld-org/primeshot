@@ -138,17 +138,26 @@ export function ColorFormDialog({
     mutationFn: async (data: FormData) => {
       if (color) {
         // Update
-        const { error } = await supabase
-          .from('style_colors')
-          .update(data)
-          .eq('id', color.id)
-        if (error) throw error
+        const res = await fetch('/api/admin/style-colors', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: color.id, ...data }),
+        })
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}))
+          throw new Error(err.error || 'Failed to update color')
+        }
       } else {
         // Create
-        const { error } = await supabase
-          .from('style_colors')
-          .insert([data])
-        if (error) throw error
+        const res = await fetch('/api/admin/style-colors', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        })
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}))
+          throw new Error(err.error || 'Failed to create color')
+        }
       }
     },
     onSuccess: () => {

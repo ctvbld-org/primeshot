@@ -87,7 +87,7 @@ export async function GET() {
       current_period_end: subscription.current_period_end,
       credits_included: tier?.credits ?? 0,
       credits_used_this_period: creditsUsedThisPeriod,
-      max_quality: tier?.max_quality ?? '1K',
+      max_quality: tier?.max_quality,
       character_training_included: tier?.character_training_included ?? 0,
       character_training_used: characterTrainingUsed,
       cancel_at_period_end: subscription.cancel_at_period_end || false,

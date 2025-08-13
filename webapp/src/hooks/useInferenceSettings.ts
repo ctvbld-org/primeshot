@@ -15,7 +15,15 @@ export function useInferenceSettings() {
     queryFn: async () => {
       const res = await fetch(getApiUrl('api/inference/settings'))
       if (!res.ok) throw new Error('Failed to fetch inference settings')
-      return res.json()
+      const raw = await res.json()
+      // Do minimal normalization; assume DB has full config
+      return {
+        qualities: raw.qualities || [],
+        quality_labels: raw.quality_labels || {},
+        nb_takes_options: raw.nb_takes_options || [],
+        aspect_ratios: raw.aspect_ratios || [],
+        defaults: raw.defaults || { quality: '', nb_takes: 0, aspect_ratio: '' },
+      }
     },
     staleTime: 6 * 60 * 60 * 1000, // 6h
     gcTime: 24 * 60 * 60 * 1000, // 24h

@@ -20,14 +20,17 @@ import { useAuth } from '@/contexts/auth-context'
 import { useCharactersApi } from '@/lib/api/characters'
 import { useCreditGuard } from '@/hooks/useCreditGuard'
 import { getApiUrl } from '@/lib/api/client'
+import { useJobsApi } from '@/lib/api/jobs'
+import { useActionGate } from '@/hooks/useActionGate'
 import { useActiveTrainingJob } from '@/hooks/useActiveTrainingJob'
-import { useTrainingProgress } from '@/hooks/useJobProgress'
+import { useTrainingProgress, useInferenceProgress } from '@/hooks/useJobProgress'
 import { CircleProgress } from '@primeshot/common/web/ui/circle-progress'
 import { Countdown } from '@/components/character/Countdown'
 
 import { OptionsPanel } from '../OptionsPanel/OptionsPanel'
 import { GenerateBarSelect } from './GenerateBarSelect'
 import { useCreateCharacter } from './useCreateCharacter'
+import { Button } from '@primeshot/common/web/ui/button'
 
 type PanelKey = 'styles' | 'scenes' | 'wardrobe' | 'characters' | 'settings' | null
 
@@ -46,6 +49,9 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const [selectedGender, setSelectedGender] = useState<'man' | 'woman'>('woman')
   const [selectionVersion, setSelectionVersion] = useState(0)
 
+  // Validation error state for required selectors
+  const [errors, setErrors] = useState<{ character?: boolean; scene?: boolean; wardrobe?: boolean; color?: boolean }>({})
+
   // Settings state stored in localStorage-compatible keys
   const STORAGE_KEYS = {
     NB_TAKES: 'generation-controls-nb-takes',
@@ -59,15 +65,14 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const save = (k: string, v: any) => { try { localStorage.setItem(k, JSON.stringify(v)) } catch {}
   }
 
-  type QualityCode = '1K' | '2K' | '4K'
-  const ALLOWED_QUALITIES: QualityCode[] = ['1K', '2K', '4K']
-  const sanitizeQuality = (q: any): QualityCode =>
-    ((ALLOWED_QUALITIES as unknown as string[]).includes(q) ? q : '1K') as QualityCode
+  type QualityCode = string
+  const sanitizeQuality = (q: any, allowed: string[]): QualityCode =>
+    (allowed.includes(String(q)) ? String(q) : (allowed[0] ?? String(q) ?? ''))
 
   const { data: inferenceSettings } = useInferenceSettings()
-  const [nbTakes, setNbTakes] = useState<number>(() => load(STORAGE_KEYS.NB_TAKES, 10))
-  const [quality, setQuality] = useState<QualityCode>(() => sanitizeQuality(load(STORAGE_KEYS.QUALITY, '1K')))
-  const [aspectRatio, setAspectRatio] = useState<string>(() => load(STORAGE_KEYS.ASPECT_RATIO, '4:5'))
+  const [nbTakes, setNbTakes] = useState<number>(() => load(STORAGE_KEYS.NB_TAKES, null))
+  const [quality, setQuality] = useState<QualityCode>(() => String(load(STORAGE_KEYS.QUALITY, '')))
+  const [aspectRatio, setAspectRatio] = useState<string>(() => load(STORAGE_KEYS.ASPECT_RATIO, ''))
 
   // Selected character tracking (for selector thumbnail progress overlay)
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(() => {
@@ -81,9 +86,17 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const { data: creditCosts } = useCreditCosts()
   const { hasActiveSubscription } = useSubscriptionStatus()
   const requiredCredits = useMemo(() => {
-    return calculateImageCredits(quality, nbTakes, creditCosts) || 0
-  }, [nbTakes, quality, creditCosts])
+    const allowed = (inferenceSettings?.qualities || []) as string[]
+    const effectiveQuality = quality || (inferenceSettings?.defaults?.quality as string) || allowed[0] || ''
+    const takes = typeof nbTakes === 'number' && nbTakes > 0
+      ? nbTakes
+      : (inferenceSettings?.defaults?.nb_takes as number) || 1
+    return calculateImageCredits(effectiveQuality, takes, creditCosts) || 0
+  }, [nbTakes, quality, creditCosts, inferenceSettings?.defaults?.quality, inferenceSettings?.defaults?.nb_takes, inferenceSettings?.qualities])
   const guard = useCreditGuard(requiredCredits)
+
+  // Jobs API (moved to top-level to avoid creating a new instance in handler)
+  const { startInference } = useJobsApi()
 
   const stylesWithPreview = useMemo(() => {
     return stylesData.map((s) => ({
@@ -114,22 +127,31 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
     close()
   }, [emblaApi, setSelectedStyleIndex, stylesWithPreview])
 
-  const onGenerate = useCallback(() => {
-    // Generation intent is already handled elsewhere via events; here we just emit
-    const event = new CustomEvent('execute-inference-create', { detail: { nbTakes, aspectRatio, quality } })
-    window.dispatchEvent(event)
-  }, [nbTakes, aspectRatio, quality])
+  
 
   const qualityOptions = useMemo(() => {
-    const codes = (inferenceSettings?.qualities || ['1K','2K','4K']) as QualityCode[]
-    const labels = inferenceSettings?.quality_labels || { '1K': 'Basic', '2K': 'Standard', '4K': 'High' }
-    return codes.map(code => ({ label: labels[code] || code, value: code as QualityCode }))
+    const codes = (inferenceSettings?.qualities || []) as QualityCode[]
+    return codes.map(code => ({ label: code, value: code as QualityCode }))
   }, [inferenceSettings])
 
   const currentQualityLabel = useMemo(() => {
-    const found = qualityOptions.find(o => o.value === quality)
-    return found?.label ?? ''
-  }, [qualityOptions, quality])
+    const labels = inferenceSettings?.quality_labels || {}
+    return (labels as any)[quality] || quality
+  }, [inferenceSettings?.quality_labels, quality])
+
+  // Ensure stored quality stays valid if settings change (future-proof for new qualities like 8K)
+  React.useEffect(() => {
+    const allowed = (inferenceSettings?.qualities || []) as string[]
+    if (allowed.length === 0) return
+    if (!allowed.includes(String(quality))) {
+      const next = sanitizeQuality(
+        (inferenceSettings?.defaults?.quality as string) || allowed[0],
+        allowed
+      )
+      setQuality(next as QualityCode)
+      save(STORAGE_KEYS.QUALITY, next)
+    }
+  }, [inferenceSettings?.qualities, inferenceSettings?.defaults?.quality])
 
   // Panel contents
   // Characters panel hooks and logic (top-level to respect rules of hooks)
@@ -137,6 +159,78 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const { getUserCharacters } = useCharactersApi()
   const [characters, setCharacters] = React.useState<any[]>([])
   const [characterThumbs, setCharacterThumbs] = React.useState<Record<string, string>>({})
+  const { runWithGates } = useActionGate(requiredCredits, 'inference')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [inferenceJobId, setInferenceJobId] = useState('')
+  const inference = useInferenceProgress({ jobId: inferenceJobId })
+  const inferencePct = inferenceJobId ? (inference.getProgressPercentage?.() ?? 0) : 0
+
+  const onGenerate = useCallback(async () => {
+    try {
+      if (isSubmitting) return
+
+      // Basic client-side validation BEFORE mutating state
+      const sel = currentStyle ? getStoredStyleSelections(currentStyle.id) : null
+      const missing: { character?: boolean; scene?: boolean; wardrobe?: boolean; color?: boolean } = {}
+      if (!selectedCharacterId) missing.character = true
+      if (!sel?.scene) missing.scene = true
+      if (!sel?.wardrobe) missing.wardrobe = true
+      if (!sel?.color) missing.color = true
+
+      const allowed = (inferenceSettings?.qualities || []) as string[]
+      const defaultsLoaded = Boolean(
+        (inferenceSettings?.defaults?.quality as string) &&
+        (inferenceSettings?.defaults?.nb_takes as number) &&
+        (inferenceSettings?.defaults?.aspect_ratio as string) &&
+        allowed.length
+      )
+
+      if (Object.keys(missing).length > 0 || !defaultsLoaded || !user?.id || !currentStyle) {
+        setErrors(missing)
+        if (!defaultsLoaded) console.warn('Inference settings defaults not loaded yet')
+        if (!user?.id) console.warn('User not authenticated')
+        if (!currentStyle) console.warn('No style selected')
+        return
+      }
+
+      setIsSubmitting(true)
+
+      const scene_id = sel?.scene || ''
+      const wardrobe_id = sel?.wardrobe || ''
+      const color_id = sel?.color || ''
+      const character_id = selectedCharacterId || ''
+
+      const effectiveQuality = (quality || (inferenceSettings?.defaults?.quality as string)) as string
+      const effectiveTakes = (nbTakes || (inferenceSettings?.defaults?.nb_takes as number)) as number
+      const effectiveAspect = (aspectRatio || (inferenceSettings?.defaults?.aspect_ratio as string)) as string
+
+      // Effective settings are guaranteed by defaultsLoaded check above
+
+      const payload = {
+        user_id: user.id,
+        character_id,
+        style_id: currentStyle.id,
+        wardrobe_id,
+        color_id,
+        scene_id,
+        params: {
+          nb_takes: effectiveTakes,
+          quality: effectiveQuality,
+          aspect_ratio: effectiveAspect
+        }
+      }
+
+      const data = (await runWithGates(async () => {
+        return await startInference(payload as any)
+      })) as any
+      const jobId = (data as any)?.job_id
+      if (jobId) setInferenceJobId(jobId)
+    } catch (e) {
+      console.error('Generate error', e)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }, [isSubmitting, user?.id, currentStyle?.id, selectedCharacterId, nbTakes, quality, aspectRatio, inferenceSettings, runWithGates])
 
   const refreshCharacters = React.useCallback(async () => {
     if (!user?.id) { setCharacters([]); return }
@@ -290,17 +384,20 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
       case 'settings': {
         const gated = (res: QualityCode) => {
           if (!hasActiveSubscription) return false
-          const maxQuality = (subscription as any)?.max_quality || '1K'
-          if (maxQuality === '1K' && (res === '2K' || res === '4K')) return true
-          if (maxQuality === '2K' && res === '4K') return true
-          return false
+          const order = (inferenceSettings?.qualities || []) as string[]
+          if (order.length === 0) return false
+          const idx = order.indexOf(String(res))
+          const maxQ = (subscription as any)?.max_quality || order[0]
+          const maxIdx = order.indexOf(String(maxQ))
+          if (idx === -1 || maxIdx === -1) return false
+          return idx > maxIdx
         }
         return (
-          <OptionsPanel className={styles.settingsPanel} title={'Settings'} onClose={close}>
+          <OptionsPanel className={styles.settingsPanel} title={'Settings'} onClose={close} showDone>
             <div className={styles.settingsColumn}>
               <span className={styles.settingLabel}>Number of Takes</span>
               <div className={styles.segmented}>
-                {(inferenceSettings?.nb_takes_options || [5,15,20]).map(n => (
+                {(inferenceSettings?.nb_takes_options || []).map(n => (
                   <button key={n} className={`${styles.segment} ${nbTakes === n ? styles.segmentActive : ''}`} onClick={() => { setNbTakes(n); save(STORAGE_KEYS.NB_TAKES, n) }}>{n}</button>
                 ))}
               </div>
@@ -314,7 +411,8 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                     className={`${styles.segment} ${quality === opt.value ? styles.segmentActive : ''} ${gated(opt.value) ? styles.segmentDisabled : ''}`}
                     disabled={gated(opt.value)}
                     onClick={() => {
-                      const q = sanitizeQuality(opt.value)
+                      const allowed = (inferenceSettings?.qualities || []) as string[]
+                      const q = sanitizeQuality(opt.value, allowed.length ? allowed : [String(opt.value)])
                       setQuality(q)
                       save(STORAGE_KEYS.QUALITY, q)
                     }}
@@ -327,7 +425,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
             <div className={styles.settingsColumn}>
               <span className={styles.settingLabel}>Aspect Ratio</span>
               <div className={styles.segmented}>
-                {(inferenceSettings?.aspect_ratios || ['4:5','16:9','1:1','3:4']).map(r => (
+                {(inferenceSettings?.aspect_ratios || []).map(r => (
                   <button key={r} className={`${styles.segment} ${aspectRatio === r ? styles.segmentActive : ''}`} onClick={() => { setAspectRatio(r); save(STORAGE_KEYS.ASPECT_RATIO, r) }}>{r}</button>
                 ))}
               </div>
@@ -369,6 +467,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 onClick={() => open('scenes')}
                 ariaLabel="Select scene"
                 variant="labeled"
+                className={errors.scene ? styles.selectorError : ''}
                 thumbnail={(() => {
                 const sel = currentStyle ? getStoredStyleSelections(currentStyle.id).scene : null
                 const scene = scenes.find(s => s.value === sel)
@@ -383,6 +482,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 onClick={() => open('wardrobe')}
                 ariaLabel="Select wardrobe"
                 variant="labeled"
+                className={errors.wardrobe ? styles.selectorError : ''}
                 thumbnail={(() => {
                 const sel = currentStyle ? getStoredStyleSelections(currentStyle.id) : null
                 const wrb = wardrobes.find(w => w.value === (sel?.wardrobe || ''))
@@ -410,6 +510,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 onClick={handleButtonClick}
                 ariaLabel="Select character"
                 variant="icon"
+                className={errors.character ? styles.selectorError : ''}
                 thumbnail={(() => {
                 const url = selectedCharacterId ? characterThumbs[selectedCharacterId] : ''
                 if (url) return <Image src={url} alt="Character" width={32} height={32} className={styles.thumbImg} />
@@ -436,7 +537,14 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
             />
 
             <div className={styles.credits}>{requiredCredits} credits</div>
-            <button className={styles.generate} onClick={guard(onGenerate)}>Generate</button>
+            <Button
+                variant="primary"
+                className={styles.generate}
+                disabled={isSubmitting}
+                onClick={() => guard(onGenerate)()}
+            >
+              {isSubmitting && inferenceJobId ? `Generating ${Math.round(inferencePct)}%` : (isSubmitting ? 'Generating…' : 'Generate')}
+            </Button>
         </div>
     </div>
 

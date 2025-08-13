@@ -87,8 +87,16 @@ export interface InferenceStartRequest {
   user_id: string;
   character_id: string;
   style_id: string;
-  prompt?: string;
-  settings?: InferenceSettings;
+  wardrobe_id?: string;
+  color_id?: string;
+  scene_id?: string;
+  params?: {
+    nb_takes?: number;
+    quality?: string;
+    aspect_ratio?: string;
+    seed?: number;
+  };
+  queue_type?: 'fast' | 'slow' | 'ultra';
 }
 
 export interface InferenceStartResponse {

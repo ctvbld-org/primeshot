@@ -1116,6 +1116,36 @@ Detected changes in:
 - webapp/src/lib/types.ts
 - webapp/src/lib/upload-utils.ts
 - webapp/src/lib/websocket/connection-manager.ts
+
+
+**Auto-update 2025-08-12**:
+Detected changes in:
+- admin/src/app/api/admin/inference-settings/[key]/route.ts
+- admin/src/app/api/admin/inference-settings/route.ts
+- admin/src/app/inference/page.tsx
+- admin/src/components/inference/inference-settings-form-dialog.tsx
+- admin/src/components/inference/inference-settings-table.tsx
+- admin/src/components/layout/nav.tsx
+- admin/src/components/subscriptions/credit-costs-table.tsx
+- admin/src/components/subscriptions/subscription-form-dialog.tsx
+- admin/src/components/subscriptions/subscriptions-table.tsx
+- webapp/src/app/api/inference/settings/route.ts
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/dashboard/CreditDashboard.tsx
+- webapp/src/components/header/CreditsHeaderRight.tsx
+- webapp/src/components/pricing/CreditPackDialogContent.tsx
+- webapp/src/components/pricing/CreditPackPricing.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.module.css
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/style/GenerateBar/GenerateBar.module.css
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/components/style/GenerateBar/GenerateBarSelect.tsx
+- webapp/src/components/style/GenerateBar/useCreateCharacter.tsx
+- webapp/src/components/style/OptionsPanel/OptionsPanel.tsx
+- webapp/src/contexts/DialogServiceContext.tsx
+- webapp/src/lib/constants/pricing.ts
+- webapp/src/lib/services/creditService.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

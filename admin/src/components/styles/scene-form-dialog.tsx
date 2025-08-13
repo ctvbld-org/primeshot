@@ -23,6 +23,7 @@ import {
   FormMessage,
 } from '@primeshot/common/web/ui/form'
 import { Input } from '@primeshot/common/web/ui/input'
+import { Textarea } from '@primeshot/common/web/ui/textarea'
 import { Button } from '@primeshot/common/web/ui/button'
 import {
   AlertDialog,
@@ -37,6 +38,7 @@ import {
 import { ImageUpload } from '@/components/ui/image-upload'
 import { toast } from 'sonner'
 import type { Database } from '@/types/supabase'
+import { getTranslatableColumns, shouldTranslateRow, translateRow } from '@/lib/translation'
 
 type Scene = Database['public']['Tables']['style_scenes']['Row']
 
@@ -44,6 +46,7 @@ const formSchema = z.object({
   label: z.string().min(1, 'Label is required'),
   value: z.string().min(1, 'Value is required'),
   image: z.string().optional(),
+  prompt: z.string().optional(),
 })
 
 type FormData = z.infer<typeof formSchema>
@@ -65,6 +68,7 @@ export function SceneFormDialog({
   const supabase = createClient()
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const originalValues = useRef<FormData | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -72,6 +76,7 @@ export function SceneFormDialog({
       label: '',
       value: '',
       image: '',
+      prompt: '',
     },
   })
 
@@ -82,6 +87,7 @@ export function SceneFormDialog({
         label: scene.label || '',
         value: scene.value || '',
         image: scene.image || '',
+        prompt: ((scene as any).prompt ?? '') as string,
       }
       form.reset(values)
       originalValues.current = values
@@ -90,6 +96,7 @@ export function SceneFormDialog({
         label: '',
         value: '',
         image: '',
+        prompt: '',
       }
       form.reset(values)
       originalValues.current = values
@@ -103,7 +110,8 @@ export function SceneFormDialog({
     return (
       currentValues.label !== originalValues.current.label ||
       currentValues.value !== originalValues.current.value ||
-      currentValues.image !== originalValues.current.image
+      currentValues.image !== originalValues.current.image ||
+      (currentValues.prompt ?? '') !== (originalValues.current as any).prompt
     )
   }
 
@@ -128,17 +136,21 @@ export function SceneFormDialog({
   }
 
   const createMutation = useMutation({
-    mutationFn: async (data: FormData) => {
-      const { data: result, error } = await supabase
-        .from('style_scenes')
-        .insert([data])
-        .select()
-
-      if (error) throw error
-      return result
+    mutationFn: async (data: FormData & { translations?: any }) => {
+      const res = await fetch('/api/admin/style-scenes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || 'Failed to create scene')
+      }
+      const json = await res.json()
+      return json.data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['scenes'] })
+      queryClient.invalidateQueries({ queryKey: ['style-scenes'] })
       toast.success('Scene created successfully')
       originalValues.current = form.getValues()
       onOpenChange(false)
@@ -151,20 +163,22 @@ export function SceneFormDialog({
   })
 
   const updateMutation = useMutation({
-    mutationFn: async (data: FormData) => {
+    mutationFn: async (data: FormData & { translations?: any }) => {
       if (!scene) throw new Error('No scene to update')
-
-      const { data: result, error } = await supabase
-        .from('style_scenes')
-        .update(data)
-        .eq('id', scene.id)
-        .select()
-
-      if (error) throw error
-      return result
+      const res = await fetch('/api/admin/style-scenes', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: scene.id, ...data }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || 'Failed to update scene')
+      }
+      const json = await res.json()
+      return json.data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['scenes'] })
+      queryClient.invalidateQueries({ queryKey: ['style-scenes'] })
       toast.success('Scene updated successfully')
       originalValues.current = form.getValues()
       onOpenChange(false)
@@ -176,15 +190,33 @@ export function SceneFormDialog({
     },
   })
 
-  const onSubmit = (data: FormData) => {
-    if (scene) {
-      updateMutation.mutate(data)
-    } else {
-      createMutation.mutate(data)
+  const onSubmit = async (data: FormData) => {
+    setIsSaving(true)
+    try {
+      const columns = getTranslatableColumns('scene')
+      const needsTranslation = shouldTranslateRow(originalValues.current ?? undefined, data as any, columns)
+      let translations = ((scene as any)?.translations as Record<string, any>) || {}
+      if (needsTranslation) {
+        try {
+          translations = await translateRow('scene', data as any)
+        } catch (err: any) {
+          toast.error('Translation failed: ' + (err?.message || 'Unknown error'))
+          setIsSaving(false)
+          return
+        }
+      }
+
+      if (scene) {
+        updateMutation.mutate({ ...(data as any), translations })
+      } else {
+        createMutation.mutate({ ...(data as any), translations })
+      }
+    } finally {
+      setIsSaving(false)
     }
   }
 
-  const isLoading = createMutation.isPending || updateMutation.isPending
+  const isLoading = isSaving || createMutation.isPending || updateMutation.isPending
 
   return (
     <>
@@ -231,6 +263,27 @@ export function SceneFormDialog({
                     </FormControl>
                     <FormDescription>
                       The internal value used for this scene option.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="prompt"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Prompt</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Optional prompt to guide generation"
+                        rows={4}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Optional. Internal text prompt for this scene option.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

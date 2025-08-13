@@ -171,7 +171,7 @@ export function StylesTable() {
                 <img
                   src={images[0]}
                   alt={style.name}
-                  className="w-full h-40 object-cover border-b"
+                  className="w-full h-40 object-cover object-[50%_30%] border-b"
                 />
               ) : (
                 <div className="w-full h-40 flex items-center justify-center bg-muted text-muted-foreground text-sm border-b">

@@ -118,7 +118,7 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
         break;
       
       case 'upgrade_subscription':
-        // Use enhanced subscription dialog with face model limit context
+        // Use enhanced subscription dialog with character limit context
         openSubscriptionDialog({
           context: 'character-limit',
           currentPlan: subscription?.plan_name,

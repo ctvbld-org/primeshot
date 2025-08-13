@@ -21,9 +21,18 @@ interface InferenceJob {
   status: 'initializing' | 'queued' | 'pending' | 'completed' | 'failed';
   progress: number;
   modal_job_id?: string;
+  quality: string;
+  nb_takes: number;
+  aspect_ratio: string;
+  workflow: string;
+  character_lora: string;
+  style_lora: string;
+  prompt: string;
+  negative_prompt: string;
   created_at: string;
   updated_at: string;
   error_message?: string;
+  queue_type: 'fast' | 'slow' | 'ultra';
   wardrobe_id?: string;
   scene_id?: string;
   color_id?: string;
@@ -131,6 +140,31 @@ async function checkInferenceConcurrentLimits(
     // Fail-safe: allow but with reason set
     return { allowed: true, reason: 'Failed to verify concurrent limits' };
   }
+}
+
+// Find an existing active inference job for idempotency (initializing/queued/pending/running)
+async function findExistingActiveInferenceJob(
+  supabase: any,
+  userId: string,
+  characterId: string,
+  styleId: string
+): Promise<InferenceJob | null> {
+  const { data, error } = await supabase
+    .from('inference_jobs')
+    .select('id, user_id, character_id, style_id, status, modal_job_id, created_at, updated_at, credits_spent, error_message')
+    .eq('user_id', userId)
+    .eq('character_id', characterId)
+    .eq('style_id', styleId)
+    .in('status', ['initializing', 'queued', 'pending', 'running'])
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error checking existing active inference job:', error);
+    return null;
+  }
+  return (data as InferenceJob) || null;
 }
 
 serve(async (req) => {
@@ -246,7 +280,7 @@ serve(async (req) => {
     // Verify user owns the character and it's ready for inference
     const { data: character, error: characterError } = await supabase
       .from('characters')
-      .select('id, user_id, status, lora_path')
+      .select('id, user_id, status, lora_path, metadata')
       .eq('id', character_id)
       .eq('user_id', user_id)
       .eq('status', 'ready') // Only allow inference on ready characters
@@ -273,7 +307,21 @@ serve(async (req) => {
       );
     }
 
-    // Spend credits BEFORE starting the job (non-refundable)
+    // IDEMPOTENCY: if a job already exists for this (user, character, style) and is active, return it
+    const existingJob = await findExistingActiveInferenceJob(supabase, user_id, character_id, style_id);
+    if (existingJob) {
+      return new Response(
+        JSON.stringify({
+          job_id: existingJob.id,
+          status: existingJob.status,
+          modal_job_id: existingJob.modal_job_id ?? null,
+          message: 'Existing inference job found, resuming'
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Spend credits BEFORE starting the job (non-refundable, aligned with training)
     const { data: spendResult, error: spendError } = await supabase
       .rpc('spend_user_credits', {
         p_user_id: user_id,
@@ -300,6 +348,112 @@ serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    // ----- Build prepared payload (prompt + workflow + loras) -----
+    // 1) Required character LoRA
+    const characterLora = character.lora_path as string | null;
+    if (!characterLora) {
+      return new Response(
+        JSON.stringify({ error: 'Character is missing lora_path; training must complete before inference.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // 2) Optional style LoRA
+    const styleLora = (style as any)?.lora_path ?? '';
+
+    // 3) Optional wardrobe/color/scene pieces
+    let wardrobePrompt = '';
+    if (body.wardrobe_id) {
+      const { data: wardrobeRow } = await supabase.from('wardrobes').select('*').eq('id', body.wardrobe_id).maybeSingle();
+      wardrobePrompt = (wardrobeRow?.prompt || wardrobeRow?.name || wardrobeRow?.title || '').toString();
+    }
+    let colorValue = '';
+    if (body.color_id) {
+      const { data: colorRow } = await supabase.from('colors').select('*').eq('id', body.color_id).maybeSingle();
+      colorValue = (colorRow?.value || colorRow?.name || colorRow?.label || '').toString();
+    }
+    let scenePrompt = '';
+    if (body.scene_id) {
+      const { data: sceneRow } = await supabase.from('scenes').select('*').eq('id', body.scene_id).maybeSingle();
+      scenePrompt = (sceneRow?.prompt || sceneRow?.name || sceneRow?.title || '').toString();
+    }
+
+    // 4) Style prompt defaults
+    const stylePrompt = (style as any)?.prompt || (style as any)?.description || '';
+    const negativePrompt = (style as any)?.negative_prompt || '';
+
+    // 5) Build subject prompt from character.metadata
+    function safeJoin(list: string[]): string {
+      const items = list.filter(Boolean);
+      if (items.length <= 1) return items[0] || '';
+      if (items.length === 2) return `${items[0]} and ${items[1]}`;
+      return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
+    }
+
+    function buildPronoun(gender: string | undefined | null): 'He' | 'She' | 'They' {
+      const g = (gender || '').toLowerCase();
+      if (g.startsWith('male') || g === 'man' || g === 'm') return 'He';
+      if (g.startsWith('female') || g === 'woman' || g === 'f') return 'She';
+      return 'They';
+    }
+
+    function buildSubjectPrompt(meta: any): { subject: string; pronoun: 'He' | 'She' | 'They' } {
+      const gender = meta?.gender as string | undefined;
+      const pronoun = buildPronoun(gender);
+      const age = meta?.age as string | undefined;
+      const eyeColor = meta?.eyes?.color as string | undefined;
+      const hairColor = meta?.hair?.color as string | undefined;
+      const hairLength = meta?.hair?.length as string | undefined;
+      const hairStyles: string[] = Array.isArray(meta?.hair?.styles) ? meta.hair.styles : [];
+      const hairTexture = meta?.hair?.texture as string | undefined;
+
+      const pieces: string[] = [];
+      // Base lead-in
+      const who = gender ? `A ${gender}` : 'A person';
+      if (age) {
+        pieces.push(`${who} in ${age}`);
+      } else {
+        pieces.push(who);
+      }
+
+      // Hair
+      const hairBits: string[] = [];
+      if (hairLength) hairBits.push(hairLength);
+      if (hairColor) hairBits.push(`${hairColor} hair`);
+      let hairClause = hairBits.join(' ');
+      const styleList = safeJoin(hairStyles);
+      if (styleList) hairClause = hairClause ? `${hairClause}, ${styleList}` : styleList;
+      if (hairTexture) hairClause = hairClause ? `${hairClause}, ${hairTexture}` : hairTexture;
+      if (hairClause) pieces.push(`with ${hairClause}`);
+
+      // Eyes
+      if (eyeColor) pieces.push(`and ${eyeColor} eyes`);
+
+      const sentence = pieces.join(' ').replace(/\s+/g, ' ').trim();
+      const subject = sentence.endsWith('.') ? sentence : `${sentence}.`;
+      return { subject, pronoun };
+    }
+
+    const { subject: subjectPrompt, pronoun } = buildSubjectPrompt(character?.metadata || {});
+
+    // 6) Final prompt assembly
+    const wearLine = wardrobePrompt || colorValue
+      ? `${pronoun} is wearing ${colorValue ? `a ${colorValue} ` : ''}${wardrobePrompt}.`
+      : '';
+    const lines = [subjectPrompt];
+    if (wearLine) lines.push(wearLine);
+    if (stylePrompt) lines.push(stylePrompt);
+    if (scenePrompt) lines.push(scenePrompt);
+    const finalPrompt = lines.join('\n');
+
+    // 7) Workflow resolver (future-proof)
+    function resolveWorkflow(s: any, params: any): string {
+      const key = s?.workflow || s?.workflow_key || s?.workflow_s3_key;
+      if (typeof key === 'string' && key.length > 0) return key;
+      return 'workflows/2_1/flux_lora.json';
+    }
+    const workflowKey = resolveWorkflow(style, (body as any)?.params || {});
 
     // Generate job ID
     const jobId = crypto.randomUUID();
@@ -378,6 +532,37 @@ serve(async (req) => {
       );
     }
 
+    // Post-insert per-user concurrency reconciliation to avoid race conditions (align with training)
+    try {
+      const userLimit = concurrentLimits.concurrentJobs ?? 1;
+      const { count: activeNow } = await supabase
+        .from('inference_jobs')
+        .select('id', { count: 'exact' })
+        .eq('user_id', user_id)
+        .in('status', ['initializing', 'pending', 'running']);
+      const activeCount = activeNow || 0;
+      if (activeCount > userLimit) {
+        await supabase
+          .from('inference_jobs')
+          .update({ status: 'queued', updated_at: new Date().toISOString() })
+          .eq('id', jobId);
+        return new Response(
+          JSON.stringify({
+            job_id: jobId,
+            status: 'queued',
+            message: 'Concurrent job limit reached. Job queued and will start automatically.',
+            queue_info: {
+              concurrent_running: activeCount - 1,
+              concurrent_limit: userLimit,
+            }
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    } catch (e) {
+      console.warn('Post-insert inference concurrency check failed; proceeding to submit:', e);
+    }
+
     // Call Modal ComfyUI API for real inference (Option B payload)
     try {
       const slowUrl = Deno.env.get('INFERENCE_SLOW_API_URL');
@@ -401,6 +586,13 @@ serve(async (req) => {
           aspect_ratio: aspectRatio,
           quality: quality,
           seed: (body.params as any)?.seed ?? -1
+        },
+        prepared: {
+          workflow: workflowKey,
+          prompt: finalPrompt,
+          negative_prompt: negativePrompt,
+          character_lora: characterLora,
+          style_lora: styleLora || ''
         }
       } as Record<string, unknown>;
 
@@ -438,52 +630,19 @@ serve(async (req) => {
 
       if (!modalResponse.ok) {
         const errorText = await modalResponse.text();
-        console.error('Modal API error:', {
-          status: modalResponse.status,
-          statusText: modalResponse.statusText,
-          body: errorText
-        });
-        
-        // Update job status to failed
+        console.error('Modal API error:', { status: modalResponse.status, statusText: modalResponse.statusText, body: errorText });
+        // Treat as transient: queue for retry (do not refund here; aligned with training)
         await supabase
           .from('inference_jobs')
-          .update({
-            status: 'failed',
-            error_message: `Modal API error: ${modalResponse.status} ${modalResponse.statusText}`,
-            updated_at: new Date().toISOString()
-          })
+          .update({ status: 'queued', error_message: `Modal API error: ${modalResponse.status} ${modalResponse.statusText}`, updated_at: new Date().toISOString() })
           .eq('id', jobId);
-
-        // Refund credits since the Modal start failed (idempotent)
-        try {
-          const refundKey = `inference_modal_failure_refund_${jobId}`;
-          const { data: refundResult, error: refundError } = await supabase
-            .rpc('refund_credits_with_idempotency', {
-              p_user_id: user_id,
-              p_job_id: jobId,
-              p_amount: creditCost,
-              p_reason: `Refund for failed inference start: ${modalResponse.status} ${modalResponse.statusText}`,
-              p_idempotency_key: refundKey,
-            });
-          if (refundError) {
-            console.error('Failed to process refund:', refundError);
-          } else if (refundResult?.[0]?.success) {
-            console.log(`Refund processed for job ${jobId}: ${refundResult[0].refund_created ? 'new' : 'duplicate'} refund`);
-          } else {
-            console.error('Unexpected refund result:', refundResult);
-          }
-        } catch (refundException) {
-          console.error('Exception during refund process:', refundException);
-        }
-
         return new Response(
-          JSON.stringify({ 
-            error: 'Failed to start inference on Modal',
-            details: `${modalResponse.status}: ${errorText}`,
-            credits_spent: creditCost,
-            credits_refunded: creditCost
+          JSON.stringify({
+            job_id: jobId,
+            status: 'queued',
+            message: 'Temporary issue submitting to provider. We will retry automatically.'
           }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
@@ -530,47 +689,18 @@ serve(async (req) => {
     } catch (modalError) {
       const errorMessage = (modalError as any)?.message ?? String(modalError);
       console.error('Modal API call failed:', modalError);
-      
-      // Update job status to failed
+      // Treat as transient: queue and return 200 (no refund here)
       await supabase
         .from('inference_jobs')
-        .update({
-          status: 'failed',
-          error_message: `Failed to call Modal API: ${errorMessage}`,
-          updated_at: new Date().toISOString()
-        })
+        .update({ status: 'queued', error_message: `Failed to call Modal API: ${errorMessage}`, updated_at: new Date().toISOString() })
         .eq('id', jobId);
-
-      // Refund credits since the Modal call failed (idempotent)
-      try {
-        const refundKey = `inference_modal_failure_refund_${jobId}`;
-        const { data: refundResult, error: refundError } = await supabase
-          .rpc('refund_credits_with_idempotency', {
-            p_user_id: user_id,
-            p_job_id: jobId,
-            p_amount: creditCost,
-            p_reason: `Refund for failed inference start: ${errorMessage}`,
-            p_idempotency_key: refundKey,
-          });
-        if (refundError) {
-          console.error('Failed to process refund:', refundError);
-        } else if (refundResult?.[0]?.success) {
-          console.log(`Refund processed for job ${jobId}: ${refundResult[0].refund_created ? 'new' : 'duplicate'} refund`);
-        } else {
-          console.error('Unexpected refund result:', refundResult);
-        }
-      } catch (refundException) {
-        console.error('Exception during refund process:', refundException);
-      }
-
       return new Response(
-        JSON.stringify({ 
-          error: 'Failed to start inference',
-          details: errorMessage,
-          credits_spent: creditCost,
-          credits_refunded: creditCost
+        JSON.stringify({
+          job_id: jobId,
+          status: 'queued',
+          message: 'Temporary issue submitting to provider. We will retry automatically.'
         }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 

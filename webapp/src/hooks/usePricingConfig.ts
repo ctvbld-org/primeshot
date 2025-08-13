@@ -30,12 +30,7 @@ export interface CreditPack {
   updated_at: string
 }
 
-export interface CreditCosts {
-  IMAGE_GENERATION_1K: number
-  IMAGE_GENERATION_2K: number
-  IMAGE_GENERATION_4K: number
-  CHARACTER_TRAINING: number
-}
+export type CreditCosts = Record<string, number>
 
 export function useSubscriptionTiers() {
   return useQuery({
@@ -83,14 +78,15 @@ export function useCreditCosts() {
 }
 
 // Helper functions for common operations
-export function calculateImageCredits(quality: '1K' | '2K' | '4K', batchSize: number = 1, creditCosts?: CreditCosts): number {
+export function calculateImageCredits(quality: string, batchSize: number = 1, creditCosts?: CreditCosts): number {
   if (!creditCosts) return 0
-  const costKey = `IMAGE_GENERATION_${quality}` as keyof CreditCosts
-  return creditCosts[costKey] * batchSize
+  const costKey = `IMAGE_GENERATION_${quality}`
+  const perImage = creditCosts[costKey] ?? 1
+  return perImage * batchSize
 }
 
 export function getCharacterTrainingCost(creditCosts?: CreditCosts): number {
-  return creditCosts?.CHARACTER_TRAINING || 30 // fallback to default
+  return creditCosts?.['CHARACTER_TRAINING'] ?? 30
 }
 
 export function getCharacterLimit(planName: string, subscriptionTiers?: SubscriptionTier[]): number {

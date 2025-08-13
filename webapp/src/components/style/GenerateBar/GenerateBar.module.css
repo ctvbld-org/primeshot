@@ -64,6 +64,8 @@
 .generate { background: #1fd6bf; color: #0a1413; border: none; padding: 8px 14px; border-radius: 12px; font-weight: 600; }
 .generate:hover { background: #25e6d0; }
 
+.selectorError { outline: 2px solid #ef4444; outline-offset: 2px; border-radius: 12px; }
+
 .itemsRow { display: flex; gap: 12px; padding: 8px; overflow-x: auto; }
 
 /* panel slot layered above background, inside bar */

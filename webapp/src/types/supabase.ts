@@ -315,6 +315,7 @@ export type Database = {
       }
       inference_jobs: {
         Row: {
+          aspect_ratio: string | null
           character_id: string
           color_id: string | null
           completed_at: string | null
@@ -322,6 +323,10 @@ export type Database = {
           credits_spent: number
           error_message: string | null
           id: string
+          modal_job_id: string | null
+          nb_takes: number | null
+          quality: string | null
+          queue_type: string | null
           retry_after: string | null
           scene_id: string | null
           status: string
@@ -331,6 +336,7 @@ export type Database = {
           wardrobe_id: string | null
         }
         Insert: {
+          aspect_ratio?: string | null
           character_id: string
           color_id?: string | null
           completed_at?: string | null
@@ -338,6 +344,10 @@ export type Database = {
           credits_spent?: number
           error_message?: string | null
           id?: string
+          modal_job_id?: string | null
+          nb_takes?: number | null
+          quality?: string | null
+          queue_type?: string | null
           retry_after?: string | null
           scene_id?: string | null
           status?: string
@@ -347,6 +357,7 @@ export type Database = {
           wardrobe_id?: string | null
         }
         Update: {
+          aspect_ratio?: string | null
           character_id?: string
           color_id?: string | null
           completed_at?: string | null
@@ -354,6 +365,10 @@ export type Database = {
           credits_spent?: number
           error_message?: string | null
           id?: string
+          modal_job_id?: string | null
+          nb_takes?: number | null
+          quality?: string | null
+          queue_type?: string | null
           retry_after?: string | null
           scene_id?: string | null
           status?: string
@@ -406,6 +421,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      inference_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
       }
       sessions: {
         Row: {
@@ -478,6 +511,7 @@ export type Database = {
           id: string
           image: string
           label: string
+          prompt: string | null
           translations: Json
           updated_at: string
           value: string
@@ -487,6 +521,7 @@ export type Database = {
           id?: string
           image: string
           label: string
+          prompt?: string | null
           translations?: Json
           updated_at?: string
           value: string
@@ -496,6 +531,7 @@ export type Database = {
           id?: string
           image?: string
           label?: string
+          prompt?: string | null
           translations?: Json
           updated_at?: string
           value?: string
@@ -504,31 +540,37 @@ export type Database = {
       }
       style_wardrobes: {
         Row: {
+          category: string
           created_at: string
           gender: string
           id: string
           image: string
           label: string
+          prompt: string | null
           translations: Json
           updated_at: string
           value: string
         }
         Insert: {
+          category: string
           created_at?: string
           gender?: string
           id?: string
           image: string
           label: string
+          prompt?: string | null
           translations?: Json
           updated_at?: string
           value: string
         }
         Update: {
+          category?: string
           created_at?: string
           gender?: string
           id?: string
           image?: string
           label?: string
+          prompt?: string | null
           translations?: Json
           updated_at?: string
           value?: string
@@ -542,6 +584,7 @@ export type Database = {
           available_wardrobes: string[]
           created_at: string | null
           id: string
+          lora_path: string | null
           name: string
           preview_images: Json
           prompt: string | null
@@ -554,6 +597,7 @@ export type Database = {
           available_wardrobes?: string[]
           created_at?: string | null
           id?: string
+          lora_path?: string | null
           name: string
           preview_images?: Json
           prompt?: string | null
@@ -566,6 +610,7 @@ export type Database = {
           available_wardrobes?: string[]
           created_at?: string | null
           id?: string
+          lora_path?: string | null
           name?: string
           preview_images?: Json
           prompt?: string | null
@@ -1052,6 +1097,7 @@ export type Database = {
       claim_next_queued_inference_job: {
         Args: Record<PropertyKey, never>
         Returns: {
+          aspect_ratio: string | null
           character_id: string
           color_id: string | null
           completed_at: string | null
@@ -1059,6 +1105,10 @@ export type Database = {
           credits_spent: number
           error_message: string | null
           id: string
+          modal_job_id: string | null
+          nb_takes: number | null
+          quality: string | null
+          queue_type: string | null
           retry_after: string | null
           scene_id: string | null
           status: string
@@ -1104,6 +1154,10 @@ export type Database = {
         Returns: undefined
       }
       get_language_preference: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_pricing_last_updated: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
@@ -1192,12 +1246,14 @@ export type Database = {
       spend_user_credits: {
         Args: {
           p_amount: number
-          p_description?: string
-          p_metadata?: Json
+          p_description: string
+          p_metadata: Json
           p_usage_type: string
           p_user_id: string
         }
-        Returns: boolean
+        Returns: {
+          success: boolean
+        }[]
       }
       update_language_preference: {
         Args: { new_language: string }

@@ -242,17 +242,26 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
         }
 
         // Update
-        const { error } = await supabase
-          .from('styles')
-          .update(data)
-          .eq('id', style.id)
-        if (error) throw error
+        const res = await fetch('/api/admin/styles', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: style.id, ...data }),
+        })
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}))
+          throw new Error(err.error || 'Failed to update style')
+        }
       } else {
         // Create
-        const { error } = await supabase
-          .from('styles')
-          .insert([data])
-        if (error) throw error
+        const res = await fetch('/api/admin/styles', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        })
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}))
+          throw new Error(err.error || 'Failed to create style')
+        }
       }
     },
     onSuccess: () => {

@@ -1,6 +1,9 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@primeshot/common/web/ui/sheet'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@primeshot/common/web/ui/form'
@@ -11,23 +14,32 @@ import { Button } from '@primeshot/common/web/ui/button'
 
 interface Row { key: string; value: any }
 
+const formSchema = z.object({
+  key: z.string().min(1, 'Key is required'),
+  value: z.string().min(2, 'Value (JSON) is required'),
+})
+type FormData = z.infer<typeof formSchema>
+
 export function InferenceSettingsFormDialog({ row, open, onOpenChange, onSuccess }: { row: Row | null; open: boolean; onOpenChange: (open: boolean) => void; onSuccess: () => void }) {
   const queryClient = useQueryClient()
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
-  const [keyValue, setKeyValue] = useState(row?.key || '')
-  const [jsonValue, setJsonValue] = useState(row ? JSON.stringify(row.value, null, 2) : '')
-  const originalRef = useRef<{ key: string; json: string } | null>(null)
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: { key: '', value: '' },
+  })
+
+  const originalRef = useRef<FormData | null>(null)
 
   useEffect(() => {
-    setKeyValue(row?.key || '')
-    setJsonValue(row ? JSON.stringify(row.value, null, 2) : '')
-    originalRef.current = { key: row?.key || '', json: row ? JSON.stringify(row.value, null, 2) : '' }
-  }, [row])
+    const newValues: FormData = row ? { key: row.key, value: JSON.stringify(row.value, null, 2) } : { key: '', value: '' }
+    form.reset(newValues)
+    originalRef.current = newValues
+  }, [row, form])
 
   const hasChanges = () => {
-    const original = originalRef.current
-    if (!original) return false
-    return keyValue !== original.key || jsonValue !== original.json
+    if (!originalRef.current) return false
+    const now = form.getValues()
+    return now.key !== originalRef.current.key || now.value !== originalRef.current.value
   }
 
   const handleClose = () => {
@@ -36,29 +48,29 @@ export function InferenceSettingsFormDialog({ row, open, onOpenChange, onSuccess
   }
 
   const handleDiscard = () => {
-    if (originalRef.current) {
-      setKeyValue(originalRef.current.key)
-      setJsonValue(originalRef.current.json)
-    }
+    if (originalRef.current) form.reset(originalRef.current)
     setShowConfirmDialog(false)
     onOpenChange(false)
   }
 
   const mutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (data: FormData) => {
       let parsed: any
-      try { parsed = jsonValue ? JSON.parse(jsonValue) : null } catch (e: any) { throw new Error('Value must be valid JSON') }
+      try { parsed = data.value ? JSON.parse(data.value) : null } catch { throw new Error('Value must be valid JSON') }
       const res = await fetch('/api/admin/inference-settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key: keyValue, value: parsed })
+        body: JSON.stringify({ key: data.key, value: parsed })
       })
       if (!res.ok) throw new Error('Failed to save setting')
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['inference-settings'] }); onSuccess() },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['inference-settings'] })
+      onSuccess()
+    },
   })
 
-  const onSubmit = (e: React.FormEvent) => { e.preventDefault(); mutation.mutate() }
+  const onSubmit = (data: FormData) => mutation.mutate(data)
 
   return (
     <Sheet open={open} onOpenChange={handleClose}>
@@ -69,15 +81,16 @@ export function InferenceSettingsFormDialog({ row, open, onOpenChange, onSuccess
         </SheetHeader>
 
         <div className="mt-6">
-          <Form>
-            <form onSubmit={onSubmit} className="space-y-6">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
+                control={form.control}
                 name="key"
-                render={() => (
+                render={({ field }) => (
                   <FormItem>
                     <FormLabel>Key</FormLabel>
                     <FormControl>
-                      <Input value={keyValue} onChange={(e) => setKeyValue(e.target.value)} placeholder="e.g., qualities" disabled={!!row} />
+                      <Input {...field} placeholder="e.g., qualities" disabled={!!row} />
                     </FormControl>
                     <FormDescription>Setting name (immutable when editing)</FormDescription>
                     <FormMessage />
@@ -86,12 +99,13 @@ export function InferenceSettingsFormDialog({ row, open, onOpenChange, onSuccess
               />
 
               <FormField
+                control={form.control}
                 name="value"
-                render={() => (
+                render={({ field }) => (
                   <FormItem>
                     <FormLabel>Value (JSON)</FormLabel>
                     <FormControl>
-                      <Textarea value={jsonValue} onChange={(e) => setJsonValue(e.target.value)} rows={14} className="font-mono" />
+                      <Textarea {...field} rows={14} className="font-mono" />
                     </FormControl>
                     <FormDescription>Provide valid JSON (array or object)</FormDescription>
                     <FormMessage />
