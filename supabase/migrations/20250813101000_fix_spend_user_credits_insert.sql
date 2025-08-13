@@ -36,3 +36,4 @@ $$;
 grant execute on function public.spend_user_credits(uuid, int, text, text, jsonb) to service_role;
 
 
+

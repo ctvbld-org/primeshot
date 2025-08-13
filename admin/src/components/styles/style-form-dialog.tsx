@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -42,7 +43,7 @@ import { toast } from 'sonner'
 import type { Database } from '@/types/supabase'
 import { shouldTranslateRow, translateRow, getTranslatableColumns } from '@/lib/translation'
 import { useToast } from '@primeshot/common/web/ui/use-toast'
-import getOptionsImage from '@/lib/get-options-image'
+import { getSceneOptionImage, getWardrobeOptionImage } from '@/lib/get-options-image'
 
 // Add TagWithImage component
 function TagWithImage({ label, img, color }: { label: string; img?: string; color?: string }) {
@@ -218,30 +219,7 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
   const mutation = useMutation({
     mutationFn: async (data: FormData & { translations?: any }) => {
       if (style) {
-        // For updates, check if any images were removed and delete them
-        const oldImages = (style.preview_images as string[]) || []
-        const newImages = data.preview_images || []
-        const removedImages = oldImages.filter(img => !newImages.includes(img))
-        
-        if (removedImages.length > 0) {
-          try {
-            await fetch('/api/images/delete', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                images: removedImages,
-                s3Path: 'app-images/placeholders/styles'
-              })
-            })
-          } catch (error) {
-            console.error('Failed to delete removed style images:', error)
-            // Don't fail the whole operation if image deletion fails
-          }
-        }
-
-        // Update
+        // Update (retain S3 images even if removed from this style)
         const res = await fetch('/api/admin/styles', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -277,9 +255,14 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
     },
   })
 
+  // Defer upload integration for preview images
+  const uploaders = React.useRef<(() => Promise<string[]>)[]>([])
+  const registerUploader = (u: () => Promise<string[]>) => { uploaders.current.push(u) }
+
   const onSubmit = async (data: FormData) => {
     setIsLoading(true)
     try {
+      for (const up of uploaders.current) { await up() }
       const columns = getTranslatableColumns('styles')
       const needsTranslation = shouldTranslateRow(style ?? undefined, data, columns)
       let translations = style?.translations || null
@@ -354,6 +337,8 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
                         onChange={field.onChange}
                         styleName={form.watch('name')}
                         uploadPath="app-images/placeholders/styles"
+                        deferUpload
+                        onRegisterUploader={registerUploader}
                         maxFiles={5}
                       />
                     </FormControl>
@@ -380,11 +365,12 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
                         placeholder="Select scenes"
                         showImages
                         className="border-input bg-background hover:bg-background"
+                        resolveImageUrl={(opt)=> opt.image ? (getSceneOptionImage as any)(opt.image) : ''}
                         renderTag={(option) => (
                           <Badge variant="outline" className="text-xs px-0 flex-shrink-0">
                             <TagWithImage 
                               label={option.label} 
-                              img={option.image ? getOptionsImage(option.image) : undefined} 
+                              img={option.image ? getSceneOptionImage(option.image) : undefined} 
                             />
                           </Badge>
                         )}
@@ -413,11 +399,12 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
                         placeholder="Select wardrobes"
                         showImages
                         className="border-input bg-background hover:bg-background"
+                        resolveImageUrl={(opt)=> opt.image ? (getWardrobeOptionImage as any)(opt.image) : ''}
                         renderTag={(option) => (
                           <Badge variant="secondary" className="text-xs px-0 flex-shrink-0">
                             <TagWithImage 
                               label={option.label} 
-                              img={option.image ? getOptionsImage(option.image) : undefined} 
+                              img={option.image ? getWardrobeOptionImage(option.image) : undefined} 
                             />
                           </Badge>
                         )}

@@ -1,5 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 export function Loader({ size = 'md', text, className }) {
     const sizeClasses = {
         sm: 'w-5 h-5',

@@ -1,7 +1,7 @@
 "use client";
 import { jsx as _jsx } from "react/jsx-runtime";
 import React, { useMemo } from 'react';
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 import style from "./avatar.module.css";
 export function Avatar({ src, fallback, alt, className, ...props }) {
     const [hasError, setHasError] = React.useState(false);

@@ -11,7 +11,7 @@ import { RealtimeStatus } from '@/components/dashboard/realtime-status'
 
 export default function DashboardPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-6">
       {/* Realtime Status Header */}
       <div className="flex justify-between items-center">
         <div>

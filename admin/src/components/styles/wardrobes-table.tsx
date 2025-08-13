@@ -16,7 +16,7 @@ import { Pencil, Trash, Languages } from 'lucide-react'
 import { toast } from 'sonner'
 import { TranslationDialog } from '@/components/ui/translation-dialog'
 import type { Database } from '@/types/supabase'
-import getOptionsImage from '@/lib/get-options-image'
+import { getWardrobeOptionImage } from '@/lib/get-options-image'
 
 type Wardrobe = Database['public']['Tables']['style_wardrobes']['Row']
 
@@ -61,24 +61,7 @@ export function WardrobesTable() {
       
       if (deleteError) throw deleteError
 
-      // Delete associated image if it exists
-      if (wardrobe.image) {
-        try {
-          await fetch('/api/images/delete', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              images: [wardrobe.image],
-              s3Path: 'app-images/placeholders/options'
-            })
-          })
-        } catch (error) {
-          console.error('Failed to delete wardrobe image:', error)
-          // Don't fail the whole operation if image deletion fails
-        }
-      }
+      // Do not delete S3 images on record deletion to avoid cross-env data loss
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['style-wardrobes'] })
@@ -97,7 +80,7 @@ export function WardrobesTable() {
         const image = row.getValue('image')
         return image ? (
           <img
-            src={getOptionsImage(image)}
+            src={getWardrobeOptionImage(image)}
             alt={row.original.label}
             className="h-12 w-12 rounded object-cover"
           />

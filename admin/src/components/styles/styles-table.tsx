@@ -12,7 +12,7 @@ import { useToast } from '@primeshot/common/web/ui/use-toast'
 import { TranslationDialog } from '@/components/ui/translation-dialog'
 import type { Database } from '@/types/supabase'
 import getStyleImages from '@/lib/get-styles-images'
-import getOptionsImage from '@/lib/get-options-image'
+import { getSceneOptionImage, getWardrobeOptionImage } from '@/lib/get-options-image'
 
 type Style = Database['public']['Tables']['styles']['Row']
 
@@ -206,7 +206,7 @@ export function StylesTable() {
                       const meta = sceneMap[scene]
                       return (
                         <Badge key={scene} variant="outline" className="text-xs px-0 flex-shrink-0">
-                          <TagWithImage label={meta?.label || scene} img={meta?.image ? getOptionsImage(meta.image) : undefined} />
+                          <TagWithImage label={meta?.label || scene} img={meta?.image ? getSceneOptionImage(meta.image) : undefined} />
                         </Badge>
                       )
                     })}
@@ -220,7 +220,7 @@ export function StylesTable() {
                       const meta = wardrobeMap[wardrobe]
                       return (
                         <Badge key={wardrobe} variant="secondary" className="text-xs px-0 flex-shrink-0">
-                          <TagWithImage label={meta?.label || wardrobe} img={meta?.image ? getOptionsImage(meta.image) : undefined} />
+                          <TagWithImage label={meta?.label || wardrobe} img={meta?.image ? getWardrobeOptionImage(meta.image) : undefined} />
                         </Badge>
                       )
                     })}

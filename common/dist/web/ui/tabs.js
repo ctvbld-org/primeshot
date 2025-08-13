@@ -1,7 +1,7 @@
 "use client";
 import { jsx as _jsx } from "react/jsx-runtime";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 function Tabs({ className, orientation = "horizontal", ...props }) {
     return (_jsx(TabsPrimitive.Root, { "data-slot": "tabs", "data-orientation": orientation, className: cn("flex flex-1", orientation === "vertical" ? "flex-row" : "flex-col gap-2", className), ...props }));
 }

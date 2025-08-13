@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
+import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -49,6 +50,7 @@ import {
   AlertDialogTitle,
 } from '@primeshot/common/web/ui/alert-dialog'
 import { ImageUpload } from '@/components/ui/image-upload'
+import { getWardrobeOptionImage } from '@/lib/get-options-image'
 import { toast } from 'sonner'
 import type { Database } from '@/types/supabase'
 import { getTranslatableColumns, shouldTranslateRow, translateRow } from '@/lib/translation'
@@ -271,9 +273,14 @@ export function WardrobeFormDialog({
     },
   })
 
+  // Defer upload integration
+  const uploaders = React.useRef<(() => Promise<string[]>)[]>([])
+  const registerUploader = (u: () => Promise<string[]>) => { uploaders.current.push(u) }
+
   const onSubmit = async (data: WardrobeFormValues) => {
     setIsSaving(true)
     try {
+      for (const up of uploaders.current) { await up() }
       const columns = getTranslatableColumns('wardrobe')
       const needsTranslation = shouldTranslateRow(originalValues.current ?? undefined, data, columns)
       let translations = ((wardrobe as any)?.translations as Record<string, any>) || {}
@@ -360,8 +367,10 @@ export function WardrobeFormDialog({
                       <ImageUpload
                         value={field.value ? [field.value] : []}
                         onChange={(urls) => field.onChange(urls[0] || '')}
-                        styleName={'wardrobe-' + form.watch('value')}
-                        uploadPath="app-images/placeholders/options"
+                        styleName={form.watch('value')}
+                        uploadPath="app-images/placeholders/options/wardrobes"
+                        deferUpload
+                        onRegisterUploader={registerUploader}
                         maxFiles={1}
                       />
                     </FormControl>

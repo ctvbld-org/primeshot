@@ -1146,6 +1146,40 @@ Detected changes in:
 - webapp/src/contexts/DialogServiceContext.tsx
 - webapp/src/lib/constants/pricing.ts
 - webapp/src/lib/services/creditService.ts
+
+
+**Auto-update 2025-08-13**:
+Detected changes in:
+- admin/src/app/api/admin/inference-settings/route.ts
+- admin/src/app/api/admin/style-colors/route.ts
+- admin/src/app/api/admin/style-scenes/route.ts
+- admin/src/app/api/admin/style-wardrobes/route.ts
+- admin/src/app/api/admin/styles/route.ts
+- admin/src/app/api/inference/settings/route.ts
+- admin/src/app/layout.tsx
+- admin/src/components/inference/inference-settings-form-dialog.tsx
+- admin/src/components/providers/AdminGuard.tsx
+- admin/src/components/styles/color-form-dialog.tsx
+- admin/src/components/styles/scene-form-dialog.tsx
+- admin/src/components/styles/scenes-table.tsx
+- admin/src/components/styles/style-form-dialog.tsx
+- admin/src/components/styles/styles-table.tsx
+- admin/src/components/styles/wardrobe-form-dialog.tsx
+- admin/src/components/styles/wardrobes-table.tsx
+- admin/src/lib/sync/detector.ts
+- admin/src/lib/sync/engine.ts
+- admin/src/lib/sync/types.ts
+- webapp/src/app/api/inference/settings/route.ts
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/components/pricing/CreditPackDialogContent.tsx
+- webapp/src/components/pricing/CreditPackGrid.tsx
+- webapp/src/components/pricing/CreditPackPricing.tsx
+- webapp/src/components/pricing/utils.tsx
+- webapp/src/components/style/GenerateBar/GenerateBar.module.css
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/components/style/GenerateBar/useCreateCharacter.tsx
+- webapp/src/components/style/OptionsPanel/OptionsPanel.tsx
+- webapp/src/lib/constants/pricing.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

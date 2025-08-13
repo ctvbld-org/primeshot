@@ -19,7 +19,7 @@ import {
 } from '@primeshot/common/web/ui/popover'
 import { Badge } from '@primeshot/common/web/ui/badge'
 import { Checkbox } from '@primeshot/common/web/ui/checkbox'
-import getOptionsImage from '@/lib/get-options-image'
+import getOptionsImage, { getSceneOptionImage, getWardrobeOptionImage } from '@/lib/get-options-image'
 
 interface Option {
   value: string
@@ -37,6 +37,7 @@ interface MultiSelectProps {
   showColors?: boolean
   className?: string
   renderTag?: (option: Option) => React.ReactNode
+  resolveImageUrl?: (option: Option) => string
 }
 
 export function MultiSelect({
@@ -48,6 +49,7 @@ export function MultiSelect({
   showColors = false,
   className,
   renderTag,
+  resolveImageUrl,
 }: MultiSelectProps) {
   const [open, setOpen] = React.useState(false)
   const triggerRef = React.useRef<HTMLDivElement>(null)
@@ -88,7 +90,7 @@ export function MultiSelect({
                   <div className="flex items-center gap-1 pr-1">
                     {showImages && option.image && (
                       <img
-                        src={getOptionsImage(option.image)}
+                        src={resolveImageUrl ? resolveImageUrl(option) : getOptionsImage(option.image)}
                         alt={option.label}
                         className="w-4 h-4 rounded-full object-cover"
                       />
@@ -157,7 +159,7 @@ export function MultiSelect({
                   <div className="flex items-center space-x-2 flex-1">
                     {showImages && option.image && (
                       <img
-                        src={getOptionsImage(option.image)}
+                        src={resolveImageUrl ? resolveImageUrl(option) : getOptionsImage(option.image)}
                         alt={option.label}
                         className="h-8 w-8 rounded object-cover"
                       />

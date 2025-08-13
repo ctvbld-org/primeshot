@@ -9,7 +9,8 @@ import { useStyleSelection } from '@/contexts/style-selection-context'
 import { useScenes, useWardrobes, useColors } from '@/hooks/useConfig'
 
 import { getStyleImages } from '@/lib/utils/get-styles-images'
-import { getOptionsImage } from '@/lib/utils/get-options-image'
+// For options we will use a custom CloudFront loader that selects the nearest variant
+import { makeCloudfrontLoader } from '@/lib/utils/cloudfrontLoader'
 import { storeSelectedStyleIndex, getStoredStyleSelections, storeStyleSelections } from '@/lib/utils/style-storage'
 import { useCurrentSubscription } from '@/hooks/useCurrentSubscription'
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus'
@@ -38,6 +39,8 @@ interface GenerateBarProps { emblaApi: any | null; onPanelToggle?: (open: boolea
 
 export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const { t } = useTranslation(['styles', 'settings'])
+  const scenesLoader = makeCloudfrontLoader('app-images/placeholders/options/scenes')
+  const wardrobesLoader = makeCloudfrontLoader('app-images/placeholders/options/wardrobes')
   const { selectedStyleIndex, setSelectedStyleIndex, stylesData } = useStyleSelection()
   const { data: scenes = [] } = useScenes()
   const { data: wardrobes = [] } = useWardrobes()
@@ -311,7 +314,9 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
             <div className={styles.itemsRow}>
               {items.map(opt => (
                 <button key={opt.value} className={styles.itemCard} onClick={() => { storeStyleSelections(currentStyle.id, { scene: opt.value }); setSelectionVersion(v=>v+1); close() }}>
-                  {opt.image && <Image src={getOptionsImage(opt.image)} alt={opt.label} width={80} height={80} className={styles.itemThumb} />}
+                  {opt.image && (
+                    <Image loader={scenesLoader} src={opt.image} alt={opt.label} width={80} height={80} className={styles.itemThumb} />
+                  )}
                   <div className={styles.itemLabel}>{opt.label}</div>
                 </button>
               ))}
@@ -341,7 +346,9 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 <div className={styles.itemsRow}>
                   {filteredWardrobes.map(opt => (
                     <button key={opt.value} className={styles.itemCard} onClick={() => setSelectedWardrobeValue(opt.value)}>
-                      {opt.image && <Image src={getOptionsImage(opt.image)} alt={opt.label} width={80} height={80} className={styles.itemThumb} />}
+                      {opt.image && (
+                        <Image loader={wardrobesLoader} src={opt.image} alt={opt.label} width={80} height={80} className={styles.itemThumb} />
+                      )}
                       <div className={styles.itemLabel}>{opt.label}</div>
                     </button>
                   ))}
@@ -471,7 +478,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 thumbnail={(() => {
                 const sel = currentStyle ? getStoredStyleSelections(currentStyle.id).scene : null
                 const scene = scenes.find(s => s.value === sel)
-                if (scene?.image) return <Image src={getOptionsImage(scene.image)} alt={scene.label} width={32} height={32} className={styles.thumbImg} />
+                if (scene?.image) return <Image loader={scenesLoader} src={scene.image} alt={scene.label} width={32} height={32} className={styles.thumbImg} />
                 return <Icon variant="scene" size={24} />
                 })()}
                 label={selectedLabels.scene || 'Scene'}
@@ -488,7 +495,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 const wrb = wardrobes.find(w => w.value === (sel?.wardrobe || ''))
                 if (wrb?.image) {
                     return (
-                    <Image src={getOptionsImage(wrb.image)} alt={wrb.label} width={32} height={32} className={styles.thumbImg} />
+                    <Image loader={wardrobesLoader} src={wrb.image} alt={wrb.label} width={32} height={32} className={styles.thumbImg} />
                     )
                 }
                 return <Icon variant="wardrobe" size={24} />

@@ -4,7 +4,7 @@ import { CreditCostsTable } from '@/components/subscriptions/credit-costs-table'
 
 export default function SubscriptionsPage() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pt-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Subscriptions Management</h1>
         <p className="text-muted-foreground">

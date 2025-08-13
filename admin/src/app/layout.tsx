@@ -39,7 +39,7 @@ export default function RootLayout({
                   <AdminGuard>
                     <main className="flex flex-col min-h-screen w-full mx-auto space-y-6" style={{ paddingTop: 'calc(56px + var(--admin-banner-height, 0px))' }}>
                       <Nav />
-                      <div className="flex-1 overflow-y-auto p-6">
+                      <div className="flex-1 overflow-y-auto px-6">
                         {children}
                       </div>
                     </main>

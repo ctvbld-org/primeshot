@@ -5,6 +5,7 @@ import useEmblaCarousel from 'embla-carousel-react'
 import { useStyles } from '@/hooks/useConfig'
 import { StyleConfigsSchema, type Style } from '@/types/styles'
 import Image from 'next/image'
+import { makeCloudfrontLoader } from '@/lib/utils/cloudfrontLoader'
 import { useTranslation } from 'react-i18next'
 import { Icon } from '@/components/icons/icon'
 import { getStyleImages } from '@/lib/utils/get-styles-images'
@@ -165,7 +166,8 @@ export function StylesCarousel() {
                 {/* Single preview image */}
                 <div className={styles.imageWrapper}>
                   <Image
-                    src={style.preview_images.length > 0 ? getStyleImages([style.preview_images[0]])[0] : ''}
+                    loader={makeCloudfrontLoader('app-images/placeholders/styles')}
+                    src={style.preview_images.length > 0 ? style.preview_images[0] : ''}
                     alt={`${style.name} preview`}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1280px) 80vw, 1280px"
@@ -215,7 +217,8 @@ export function StylesCarousel() {
       <div className={styles.fixedThumb}>
         {photographyStyleOptions[selectedIndex]?.preview_images?.[0] && (
           <Image
-            src={getStyleImages([photographyStyleOptions[selectedIndex].preview_images[0]])[0]}
+            loader={makeCloudfrontLoader('app-images/placeholders/styles')}
+            src={photographyStyleOptions[selectedIndex].preview_images[0]}
             alt={photographyStyleOptions[selectedIndex].name}
             width={123}
             height={167}

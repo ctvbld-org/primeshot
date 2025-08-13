@@ -33,9 +33,9 @@
     "ora": "^7.0.1"
   },
   "devDependencies": {
+    "@ngrok/ngrok": "^1.5.2",
     "@types/node": "^24.0.10",
     "concurrently": "^9.2.0",
-    "ngrok": "^5.0.0-beta.2",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.3",
     "turbo": "^2.5.4",

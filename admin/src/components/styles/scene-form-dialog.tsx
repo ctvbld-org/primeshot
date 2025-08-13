@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
+import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -36,6 +37,7 @@ import {
   AlertDialogTitle,
 } from '@primeshot/common/web/ui/alert-dialog'
 import { ImageUpload } from '@/components/ui/image-upload'
+import { getSceneOptionImage } from '@/lib/get-options-image'
 import { toast } from 'sonner'
 import type { Database } from '@/types/supabase'
 import { getTranslatableColumns, shouldTranslateRow, translateRow } from '@/lib/translation'
@@ -190,9 +192,15 @@ export function SceneFormDialog({
     },
   })
 
+  // Defer upload integration
+  const uploaders = React.useRef<(() => Promise<string[]>)[]>([])
+  const registerUploader = (u: () => Promise<string[]>) => { uploaders.current.push(u) }
+
   const onSubmit = async (data: FormData) => {
     setIsSaving(true)
     try {
+      // perform deferred uploads if any
+      for (const up of uploaders.current) { await up() }
       const columns = getTranslatableColumns('scene')
       const needsTranslation = shouldTranslateRow(originalValues.current ?? undefined, data as any, columns)
       let translations = ((scene as any)?.translations as Record<string, any>) || {}
@@ -300,8 +308,10 @@ export function SceneFormDialog({
                       <ImageUpload
                         value={field.value ? [field.value] : []}
                         onChange={(urls) => field.onChange(urls[0] || '')}
-                        styleName={'scene-' + form.watch('value')}
-                        uploadPath="app-images/placeholders/options"
+                        styleName={form.watch('value')}
+                        uploadPath="app-images/placeholders/options/scenes"
+                        deferUpload
+                        onRegisterUploader={registerUploader}
                         maxFiles={1}
                       />
                     </FormControl>

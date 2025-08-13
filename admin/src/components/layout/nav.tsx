@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Palette, CreditCard, Settings } from 'lucide-react'
+import { LayoutDashboard, Palette, CreditCard, Settings, FolderTree } from 'lucide-react'
 import styles from './nav.module.css'
 
 const navigation = [
@@ -10,6 +10,7 @@ const navigation = [
   { name: 'Styles', href: '/styles', icon: Palette },
   { name: 'Subscriptions', href: '/subscriptions', icon: CreditCard },
   { name: 'Inference', href: '/inference', icon: Settings },
+  { name: 'Media', href: '/media', icon: FolderTree },
 ]
 
 export function Nav() {

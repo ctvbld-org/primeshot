@@ -7,7 +7,7 @@ import styles from './tabs.module.css'
 
 export default function StylesPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Styles Management</h1>
         <p className="text-muted-foreground">

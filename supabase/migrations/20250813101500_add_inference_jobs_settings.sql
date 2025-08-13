@@ -16,3 +16,4 @@ alter table public.inference_jobs
 --   add constraint chk_inference_jobs_nb_takes_positive check (nb_takes is null or nb_takes > 0);
 
 
+

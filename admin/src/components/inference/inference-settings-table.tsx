@@ -101,7 +101,7 @@ export function InferenceSettingsTable() {
   if (isLoading) return <div>Loading...</div>
 
   return (
-    <>
+    <div className="pt-6">
       <DataTable
         title="Inference Settings"
         columns={columns}
@@ -116,7 +116,7 @@ export function InferenceSettingsTable() {
         onOpenChange={setIsFormOpen}
         onSuccess={() => { setIsFormOpen(false); setSelectedRow(null); queryClient.invalidateQueries({ queryKey: ['inference-settings'] }) }}
       />
-    </>
+    </div>
   )
 }
 

@@ -16,3 +16,15 @@ export function getOptionsImage(filename: string): string {
 }
 
 export default getOptionsImage; 
+
+export function getSceneOptionImage(filename: string): string {
+  if (!filename) return '';
+  if (filename.startsWith('http')) return filename;
+  return `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/options/scenes/${filename}`;
+}
+
+export function getWardrobeOptionImage(filename: string): string {
+  if (!filename) return '';
+  if (filename.startsWith('http')) return filename;
+  return `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/placeholders/options/wardrobes/${filename}`;
+}
