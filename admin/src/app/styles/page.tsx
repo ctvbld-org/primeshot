@@ -1,4 +1,6 @@
+"use client"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@primeshot/common/web/ui/tabs'
+import * as React from 'react'
 import { StylesTable } from '@/components/styles/styles-table'
 import { WardrobesTable } from '@/components/styles/wardrobes-table'
 import { ScenesTable } from '@/components/styles/scenes-table'
@@ -6,6 +8,16 @@ import { ColorsTable } from '@/components/styles/colors-table'
 import styles from './tabs.module.css'
 
 export default function StylesPage() {
+  const STORAGE_KEY = 'styles:activeTab'
+  const [tab, setTab] = React.useState<string>('styles')
+  React.useEffect(() => {
+    const saved = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null
+    if (saved) setTab(saved)
+  }, [])
+  const onTabChange = (v: string) => {
+    setTab(v)
+    try { localStorage.setItem(STORAGE_KEY, v) } catch {}
+  }
   return (
     <div className="space-y-6 pt-6">
       <div>
@@ -15,7 +27,7 @@ export default function StylesPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="styles" className="space-y-4">
+      <Tabs value={tab} onValueChange={onTabChange} className="space-y-4">
         <TabsList className={styles.tabsList}>
           <TabsTrigger value="styles" className={styles.tabsTrigger}>Styles</TabsTrigger>
           <TabsTrigger value="wardrobes" className={styles.tabsTrigger}>Wardrobes</TabsTrigger>

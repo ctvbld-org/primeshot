@@ -1,6 +1,8 @@
-import { useQuery } from '@tanstack/react-query'
+import { useEffect } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getApiUrl } from '@/lib/api/client'
 import { useAuth } from '@/contexts/auth-context'
+import { createClient } from '@/lib/supabase/client'
 
 export interface SubscriptionInfo {
   plan_name: string
@@ -15,9 +17,10 @@ export interface SubscriptionInfo {
 }
 
 export function useCurrentSubscription() {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
+  const queryClient = useQueryClient()
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ['currentSubscription'],
     queryFn: async (): Promise<SubscriptionInfo | null> => {
       const response = await fetch(getApiUrl('api/subscription/current'))
@@ -31,4 +34,25 @@ export function useCurrentSubscription() {
     staleTime: 60000, // Consider data stale after 1 minute
     gcTime: 300000, // Keep in cache for 5 minutes
   })
+
+  // Realtime: invalidate subscription when user's subscription rows change
+  useEffect(() => {
+    if (!isAuthenticated || !user?.id) return
+    const supabase = createClient()
+    const channel = supabase
+      .channel(`user-subscription-${user.id}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'user_subscriptions', filter: `user_id=eq.${user.id}` },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['currentSubscription'] })
+        }
+      )
+      .subscribe()
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [isAuthenticated, user?.id, queryClient])
+
+  return query
 } 

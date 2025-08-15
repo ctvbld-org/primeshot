@@ -307,19 +307,7 @@ serve(async (req) => {
       );
     }
 
-    // IDEMPOTENCY: if a job already exists for this (user, character, style) and is active, return it
-    const existingJob = await findExistingActiveInferenceJob(supabase, user_id, character_id, style_id);
-    if (existingJob) {
-      return new Response(
-        JSON.stringify({
-          job_id: existingJob.id,
-          status: existingJob.status,
-          modal_job_id: existingJob.modal_job_id ?? null,
-          message: 'Existing inference job found, resuming'
-        }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    // Allow multiple jobs even with identical params; concurrency limits handle execution order
 
     // Spend credits BEFORE starting the job (non-refundable, aligned with training)
     const { data: spendResult, error: spendError } = await supabase
@@ -334,7 +322,8 @@ serve(async (req) => {
           quality,
           nb_takes: nbTakes,
           aspect_ratio: aspectRatio,
-          style_name: style.name
+          style_name: style.name,
+          job_id: crypto.randomUUID()
         }
       });
 
@@ -451,7 +440,8 @@ serve(async (req) => {
     function resolveWorkflow(s: any, params: any): string {
       const key = s?.workflow || s?.workflow_key || s?.workflow_s3_key;
       if (typeof key === 'string' && key.length > 0) return key;
-      return 'workflows/2_1/flux_lora.json';
+      // Default to WAN2.1.json stored under workflows/ prefix; loader accepts with/without prefix
+      return 'WAN2.1.json';
     }
     const workflowKey = resolveWorkflow(style, (body as any)?.params || {});
 

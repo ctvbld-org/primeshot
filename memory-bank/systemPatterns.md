@@ -1180,6 +1180,42 @@ Detected changes in:
 - webapp/src/components/style/GenerateBar/useCreateCharacter.tsx
 - webapp/src/components/style/OptionsPanel/OptionsPanel.tsx
 - webapp/src/lib/constants/pricing.ts
+
+
+**Auto-update 2025-08-15**:
+Detected changes in:
+- admin/src/app/api/images/list/route.ts
+- admin/src/app/api/media/delete/route.ts
+- admin/src/app/api/media/download/file/route.ts
+- admin/src/app/api/media/download/route.ts
+- admin/src/app/api/media/download/zip/route.ts
+- admin/src/app/api/media/folder/route.ts
+- admin/src/app/api/media/list/route.ts
+- admin/src/app/api/styles/[id]/route.ts
+- admin/src/app/dashboard/page.tsx
+- admin/src/app/layout.tsx
+- admin/src/app/media/page.tsx
+- admin/src/app/media/styles.module.css
+- admin/src/app/styles/page.tsx
+- admin/src/app/subscriptions/page.tsx
+- admin/src/components/inference/inference-settings-table.tsx
+- admin/src/components/layout/nav.tsx
+- admin/src/components/media/TreeNav.tsx
+- admin/src/components/media/tree.module.css
+- admin/src/components/styles/scene-form-dialog.tsx
+- admin/src/components/styles/scenes-table.tsx
+- admin/src/components/styles/style-form-dialog.tsx
+- admin/src/components/styles/styles-table.tsx
+- admin/src/components/styles/wardrobe-form-dialog.tsx
+- admin/src/components/styles/wardrobes-table.tsx
+- admin/src/components/ui/image-upload.tsx
+- admin/src/components/ui/multi-select.tsx
+- admin/src/lib/get-options-image.ts
+- admin/src/lib/upload.ts
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/components/style/StylesCarousel.tsx
+- webapp/src/lib/utils/cloudfrontLoader.ts
+- webapp/src/lib/utils/get-options-image.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

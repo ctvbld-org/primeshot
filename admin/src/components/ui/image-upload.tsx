@@ -163,7 +163,11 @@ export function ImageUpload({
       if (!res.ok) throw new Error('Failed to list images')
       const json = await res.json()
       const list = (json?.files || []) as any[]
-      setFiles(list.filter(f => typeof f?.filename === 'string'))
+      const originalsOnly = list
+        .filter(f => typeof f?.filename === 'string')
+        // exclude responsive variants like *-w320.webp, *-w1280.jpg, etc.
+        .filter(f => !/-w\d+\.(webp|png|jpe?g)$/i.test(String(f.filename)))
+      setFiles(originalsOnly)
     } catch (e) {
       toast.error('Failed to load existing images')
     } finally {
