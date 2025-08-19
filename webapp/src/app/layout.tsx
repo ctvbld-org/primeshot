@@ -11,8 +11,12 @@ import { AuthProvider } from '@primeshot/common'
 import { LanguageProvider } from '@primeshot/common'
 import { DialogServiceProvider } from '@/contexts/DialogServiceContext'
 import { IntentHandler } from '@/components/providers/intent-handler'
+import { InferenceQueueProvider } from '@/contexts/inference-queue-context'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
 
 export default function RootLayout({
   children
@@ -27,10 +31,12 @@ export default function RootLayout({
             <QueryProvider>
               <BannerProvider>
                 <DialogServiceProvider>
-                  <IntentHandler />
-                  <Header rightSlot={<CreditsHeaderRight />} />
-                  {children}
-                  <Toaster />
+                  <InferenceQueueProvider>
+                    <IntentHandler />
+                    <Header rightSlot={<CreditsHeaderRight />} />
+                    {children}
+                    <Toaster />
+                  </InferenceQueueProvider>
                 </DialogServiceProvider>
               </BannerProvider>
             </QueryProvider>

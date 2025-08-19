@@ -32,49 +32,51 @@ export interface CreditPack {
 
 export type CreditCosts = Record<string, number>
 
-export function useSubscriptionTiers() {
+export interface PricingData {
+  subscriptions: SubscriptionTier[]
+  creditPacks: CreditPack[]
+  creditCosts: CreditCosts
+}
+
+// New batched hook for all pricing data
+export function usePricingData() {
   return useQuery({
-    queryKey: ['subscriptionTiers'],
-    queryFn: async (): Promise<SubscriptionTier[]> => {
-      const response = await fetch(getApiUrl('api/pricing/subscriptions'))
+    queryKey: ['pricingData'],
+    queryFn: async (): Promise<PricingData> => {
+      const response = await fetch(getApiUrl('api/pricing/all'))
       if (!response.ok) {
-        throw new Error('Failed to fetch subscription tiers')
+        throw new Error('Failed to fetch pricing data')
       }
       return response.json()
     },
     staleTime: 300000, // 5 minutes
     gcTime: 600000, // 10 minutes
   })
+}
+
+// Individual hooks that use the batched data
+export function useSubscriptionTiers() {
+  const { data, ...rest } = usePricingData()
+  return {
+    data: data?.subscriptions,
+    ...rest
+  }
 }
 
 export function useCreditPacks() {
-  return useQuery({
-    queryKey: ['creditPacks'],
-    queryFn: async (): Promise<CreditPack[]> => {
-      const response = await fetch(getApiUrl('api/pricing/credit-packs'))
-      if (!response.ok) {
-        throw new Error('Failed to fetch credit packs')
-      }
-      return response.json()
-    },
-    staleTime: 300000, // 5 minutes
-    gcTime: 600000, // 10 minutes
-  })
+  const { data, ...rest } = usePricingData()
+  return {
+    data: data?.creditPacks,
+    ...rest
+  }
 }
 
 export function useCreditCosts() {
-  return useQuery({
-    queryKey: ['creditCosts'],
-    queryFn: async (): Promise<CreditCosts> => {
-      const response = await fetch(getApiUrl('api/pricing/credit-costs'))
-      if (!response.ok) {
-        throw new Error('Failed to fetch credit costs')
-      }
-      return response.json()
-    },
-    staleTime: 300000, // 5 minutes
-    gcTime: 600000, // 10 minutes
-  })
+  const { data, ...rest } = usePricingData()
+  return {
+    data: data?.creditCosts,
+    ...rest
+  }
 }
 
 // Helper functions for common operations

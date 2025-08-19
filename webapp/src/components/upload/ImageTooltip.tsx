@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react'
 import { Button } from '@primeshot/common/web/ui/button'
 import { formatFileSize } from '@/lib/utils'
 import { cn } from '@/lib/utils'
-import { Icon } from '@/components/icons/icon'
+import { Icon } from '@primeshot/common/web/Icon'
 import styles from './ImageTooltip.module.css'
 import type { FileWithScore } from '@/lib/types'
 

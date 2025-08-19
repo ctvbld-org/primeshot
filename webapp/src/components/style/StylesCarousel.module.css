@@ -123,19 +123,22 @@
 }
 
 .title {
-  font-size: 1.5rem; /* text-2xl */
-  font-weight: 700;
+  font-family: var(--font-carb);
+  font-size: 3rem; /* text-2xl */
+  font-weight: 200;
+  letter-spacing: -0.02em;
   color: #ffffff;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25); /* drop-shadow-lg */
   transform: translateX(26px);
 }
 
 .subtitle { 
-  font-size: 0.9rem; 
-  color: #b6e3e2; 
-  font-weight: 600; 
+  font-size: 0.75rem;
+  color: #fff; 
+  font-weight: 500; 
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25); /* drop-shadow-lg */
   transform: translateX(26px);
+  opacity: 0.4;
 }
 
 .textBlock { 
@@ -147,8 +150,9 @@
 
 /* Action button */
 .actionButton {
+  font-size: 0.75rem;
+  font-weight: 500; 
   color: #44E3C9;
-  font-weight: 600;
   padding: 8px 26px;
   border: none;
   cursor: pointer;

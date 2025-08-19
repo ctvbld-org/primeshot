@@ -75,6 +75,7 @@ type Color = Database['public']['Tables']['style_colors']['Row']
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   prompt: z.string().optional(),
+  lora_path: z.string().optional(),
   preview_images: z.array(z.string()).min(1, 'At least one preview image is required'),
   available_scenes: z.array(z.string()).min(1, 'At least one scene is required'),
   available_wardrobes: z.array(z.string()).min(1, 'At least one wardrobe is required'),
@@ -140,6 +141,7 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
     defaultValues: {
       name: '',
       prompt: '',
+      lora_path: '',
       preview_images: [],
       available_scenes: [],
       available_wardrobes: [],
@@ -157,6 +159,7 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
     return (
       currentValues.name !== originalValues.name ||
       currentValues.prompt !== originalValues.prompt ||
+      currentValues.lora_path !== originalValues.lora_path ||
       JSON.stringify(currentValues.preview_images.sort()) !== JSON.stringify(originalValues.preview_images.sort()) ||
       JSON.stringify(currentValues.available_scenes.sort()) !== JSON.stringify(originalValues.available_scenes.sort()) ||
       JSON.stringify(currentValues.available_wardrobes.sort()) !== JSON.stringify(originalValues.available_wardrobes.sort()) ||
@@ -192,6 +195,7 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
     const newValues: FormData = style ? {
       name: style.name,
       prompt: style.prompt || '',
+      lora_path: style.lora_path || '',
       preview_images: style.preview_images as string[] || [],
       available_scenes: style.available_scenes || [],
       available_wardrobes: style.available_wardrobes || [],
@@ -199,6 +203,7 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
     } : {
       name: '',
       prompt: '',
+      lora_path: '',
       preview_images: [],
       available_scenes: [],
       available_wardrobes: [],
@@ -319,6 +324,23 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
                     </FormControl>
                     <FormDescription>
                       Optional prompt to guide AI generation for this style
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="lora_path"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>LoRA Path</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="/data/style_loras/.../wan_lora_****_****.safetensors" />
+                    </FormControl>
+                    <FormDescription>
+                      Optional path to the LoRA model file for this style
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

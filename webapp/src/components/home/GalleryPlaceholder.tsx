@@ -3,15 +3,18 @@
 import React from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { Skeleton } from '@primeshot/common/web/ui/skeleton'
-import { Icon } from '@/components/icons/icon'
+import { Icon } from '@primeshot/common/web/Icon'
 import styles from './GalleryPlaceholder.module.css'
 import { useInferenceJobsCount } from '@/lib/hooks/use-inference-jobs-count'
+import { InferenceThumbnailComponent } from './InferenceThumbnail'
+import { useInferenceQueue } from '@/contexts/inference-queue-context'
 
 export function GalleryPlaceholder() {
-  const { isAuthenticated, isLoading } = useAuth()
-  const { count: jobsCount, isLoading: jobsLoading } = useInferenceJobsCount()
+  const { isAuthenticated, isLoading: authLoading } = useAuth()
+  const { count: jobsCount } = useInferenceJobsCount()
+  const { jobs, isLoading: queueLoading } = useInferenceQueue()
 
-  if (isLoading) {
+  if (authLoading || queueLoading) {
     return (
       <div className={styles.skeletonWrapper}>
         <Skeleton className={styles.skeleton} />
@@ -20,7 +23,7 @@ export function GalleryPlaceholder() {
   }
 
   // Authenticated with no inference jobs -> show the same placeholder
-  if (isAuthenticated && !jobsLoading && jobsCount === 0) {
+  if (isAuthenticated && jobsCount === 0) {
     return (
       <div className={styles.placeholderCard} role="region" aria-label="How it works">
         <div className={styles.steps}>
@@ -80,7 +83,22 @@ export function GalleryPlaceholder() {
 
   if (isAuthenticated) {
     return (
-      <div className={styles.generatedStub}>Generated images will appear here (stub)</div>
+      <div className={styles.generatedSection}>
+        {/* Thumbnail grid for active/recent jobs */}
+        {jobs.length > 0 && (
+          <div className={styles.thumbnailGrid}>
+            {jobs.map(job => 
+              job.thumbnails.map(thumbnail => (
+                <InferenceThumbnailComponent
+                  key={thumbnail.id}
+                  thumbnail={thumbnail}
+                  onClick={() => console.log('Thumbnail clicked:', thumbnail)}
+                />
+              ))
+            )}
+          </div>
+        )}
+      </div>
     )
   }
 

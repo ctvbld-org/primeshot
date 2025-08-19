@@ -53,7 +53,6 @@ function getFieldDisplayName(field: string): string {
     enabled: 'Enabled',
     active: 'Active',
     key: 'Key',
-    value: 'Value',
   }
   return fieldMap[field] || field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
 }

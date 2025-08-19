@@ -68,18 +68,18 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
     const characterLora = character.lora_path as string
 
     let wardrobePrompt = ''
-    if (job?.settings?.wardrobe_id) {
-      const { data: w } = await supabase.from('wardrobes').select('*').eq('id', job.settings.wardrobe_id).maybeSingle()
+    if (job.wardrobe_id) {
+      const { data: w } = await supabase.from('style_wardrobes').select('*').eq('id', job.wardrobe_id).maybeSingle()
       wardrobePrompt = (w?.prompt || w?.name || w?.title || '').toString()
     }
     let colorValue = ''
-    if (job?.settings?.color_id) {
-      const { data: c } = await supabase.from('colors').select('*').eq('id', job.settings.color_id).maybeSingle()
+    if (job.color_id) {
+      const { data: c } = await supabase.from('style_colors').select('*').eq('id', job.color_id).maybeSingle()
       colorValue = (c?.value || c?.name || c?.label || '').toString()
     }
     let scenePrompt = ''
-    if (job?.settings?.scene_id) {
-      const { data: s } = await supabase.from('scenes').select('*').eq('id', job.settings.scene_id).maybeSingle()
+    if (job.scene_id) {
+      const { data: s } = await supabase.from('style_scenes').select('*').eq('id', job.scene_id).maybeSingle()
       scenePrompt = (s?.prompt || s?.name || s?.title || '').toString()
     }
     const stylePrompt = (style as any)?.prompt || (style as any)?.description || ''
@@ -144,9 +144,9 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
       job_id: job.id,
       character_id: job.character_id,
       style_id: job.style_id,
-      wardrobe_id: job?.settings?.wardrobe_id,
-      color_id: job?.settings?.color_id,
-      scene_id: job?.settings?.scene_id,
+      wardrobe_id: job.wardrobe_id,
+      color_id: job.color_id,
+      scene_id: job.scene_id,
       params: {
         nb_takes: job?.settings?.nb_takes ?? 5,
         quality: job?.settings?.quality ?? '1K',
@@ -191,7 +191,7 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
       .from('inference_jobs')
       .update({
         status: 'pending',
-        modal_job_id: modalResult.style_id ?? null,
+        modal_job_id: modalResult.job_id ?? null,
         updated_at: new Date().toISOString(),
       })
       .eq('id', job.id)

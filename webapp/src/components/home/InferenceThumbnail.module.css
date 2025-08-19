@@ -1,0 +1,180 @@
+.thumbnail {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+}
+
+.thumbnail:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.image {
+  object-fit: cover;
+  transition: opacity 0.3s ease;
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+  color: var(--color-text-secondary);
+}
+
+/* Status overlay */
+.statusOverlay {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  backdrop-filter: blur(4px);
+}
+
+.statusText {
+  white-space: nowrap;
+}
+
+/* Status-specific styles */
+.statusQueued .statusOverlay {
+  background: rgba(156, 163, 175, 0.9);
+}
+
+.statusGenerating .statusOverlay {
+  background: rgba(59, 130, 246, 0.9);
+}
+
+.statusCompleted .statusOverlay {
+  background: rgba(34, 197, 94, 0.9);
+}
+
+.statusFailed .statusOverlay {
+  background: rgba(239, 68, 68, 0.9);
+}
+
+/* Progress bar */
+.progressContainer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.progressBar {
+  height: 100%;
+  background: var(--color-primary);
+  transition: width 0.3s ease;
+  border-radius: 0 0 8px 8px;
+}
+
+/* Loading spinner */
+.loadingSpinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--color-border);
+  border-top: 2px solid var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Preview overlay for images still generating */
+.previewOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(1px);
+}
+
+/* Image generating state */
+.imageGenerating {
+  opacity: 0.8;
+  filter: brightness(0.9);
+}
+
+/* Text states for placeholder */
+.generatingText {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-primary);
+  text-align: center;
+}
+
+.queuedText {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+/* Enhanced placeholder for different states */
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+  color: var(--color-text-secondary);
+}
+
+/* Pulse animation for generating state */
+.statusGenerating .placeholder {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+  }
+  50% {
+    background: linear-gradient(135deg, #e8f4fd 0%, #d1e7f0 100%);
+  }
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 768px) {
+  .thumbnail {
+    border-radius: 6px;
+  }
+  
+  .statusOverlay {
+    top: 6px;
+    right: 6px;
+    padding: 3px 6px;
+    font-size: 11px;
+  }
+}
+

@@ -81,11 +81,30 @@ export default function MediaPage() {
     if (res.ok) refresh()
   }
 
+  // Check if we're in a workflow folder
+  const isWorkflowFolder = prefix.includes('workflows')
+  
+  // Determine if files are images
+  const areFilesImages = (files: File[]) => {
+    return files.every(file => /\.(png|jpe?g|webp|svg)$/i.test(file.name))
+  }
+
   const onPickFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files ? Array.from(e.target.files) : []
     if (files.length === 0) return
     setPendingFiles(files)
-    setShowUpload(true)
+    
+    console.log('Files selected:', files.map(f => f.name))
+    console.log('Is workflow folder:', isWorkflowFolder)
+    console.log('Are files images:', areFilesImages(files))
+    
+    // If in workflow folder and files aren't images, upload directly
+    if (isWorkflowFolder && !areFilesImages(files)) {
+      console.log('Triggering direct upload')
+      doDirectUpload(files)
+    } else {
+      setShowUpload(true)
+    }
   }
 
   function sanitizeBaseName(name: string) {
@@ -118,6 +137,42 @@ export default function MediaPage() {
       reader.onerror = () => reject(new Error('read'))
       reader.readAsDataURL(file)
     })
+  }
+
+  const doDirectUpload = async (filesToUpload?: File[]) => {
+    try {
+      setIsUploading(true)
+      const uploadPath = prefix.replace(/\/$/, '')
+      const files = filesToUpload || pendingFiles
+      
+      console.log('Direct upload starting with files:', files.map(f => f.name))
+      console.log('Upload path:', uploadPath)
+      
+      for (const file of files) {
+        const form = new FormData()
+        form.append('file', file)
+        form.append('uploadPath', uploadPath)
+        form.append('directUpload', 'true') // Flag to indicate direct upload
+        
+        console.log('Uploading file:', file.name)
+        const response = await fetch('/api/upload', { method: 'POST', body: form })
+        console.log('Upload response:', response.status, response.ok)
+        
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(`Upload failed: ${errorData.error || 'Unknown error'}`)
+        }
+      }
+      
+      setPendingFiles([])
+      refresh()
+      toast.success(`Uploaded ${files.length} file(s)`)
+    } catch (error) {
+      console.error('Upload error:', error)
+      toast.error('Failed to upload files')
+    } finally { 
+      setIsUploading(false) 
+    }
   }
 
   const doUploadWithVariants = async () => {
@@ -219,7 +274,13 @@ export default function MediaPage() {
               Create folder
             </Button>
             <label className={styles.uploadLabel}>
-              <input type="file" multiple accept="image/*" onChange={onPickFiles} hidden />
+              <input 
+                type="file" 
+                multiple 
+                accept={isWorkflowFolder ? "*/*" : "image/*"} 
+                onChange={onPickFiles} 
+                hidden 
+              />
               <UploadIcon className="mr-2 h-4 w-4" />
               <span>Upload</span>
             </label>

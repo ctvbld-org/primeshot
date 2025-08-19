@@ -3,7 +3,7 @@
 import { memo, useRef, useState, useEffect } from 'react'
 import { Button } from '@primeshot/common/web/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogBody } from '@primeshot/common/web/ui/dialog'
-import { Icon } from '@/components/icons/icon'
+import { Icon } from '@primeshot/common/web/Icon'
 import { usePhotoRequirements } from '@/hooks/use-photo-requirements'
 import { cn } from '@/lib/utils'
 import { useTranslation } from 'react-i18next'

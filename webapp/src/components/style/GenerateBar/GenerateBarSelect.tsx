@@ -2,15 +2,17 @@
 
 import React from 'react'
 import styles from './GenerateBar.module.css'
+import { Icon } from '@primeshot/common/web/Icon'
 
 export type GenerateBarSelectProps = {
   onClick: () => void
   ariaLabel: string
   thumbnail: React.ReactNode
   label?: string
-  variant?: 'labeled' | 'icon'
+  variant?: 'labeled' | 'icon' | 'no-label' 
   overlay?: React.ReactNode
   disabled?: boolean
+  error?: boolean
   className?: string
   thumbClassName?: string
 }
@@ -23,12 +25,16 @@ export function GenerateBarSelect({
   variant = 'labeled',
   overlay,
   disabled,
+  error,
   className,
   thumbClassName,
 }: GenerateBarSelectProps) {
+  const noLabel = variant === 'no-label'
+  const iconOnly = variant === 'icon'
+
   return (
     <button
-      className={`${styles.barButton} ${className || ''}`.trim()}
+      className={`${styles.barButton} ${noLabel ? styles.noLabel : ''} ${iconOnly ? styles.iconOnly : ''} ${error ? styles.selectorError : ''} ${className || ''}`.trim()}
       onClick={onClick}
       aria-label={ariaLabel}
       disabled={disabled}
@@ -38,9 +44,10 @@ export function GenerateBarSelect({
         {overlay}
       </div>
       {variant === 'labeled' && (
-        <div className={styles.texts}>
-          <div className={styles.primary}>{label}</div>
-        </div>
+        <>
+          <span className={styles.text}>{label}</span>
+          <Icon variant="chevronDown" size={16} className={styles.icon} />
+        </>
       )}
     </button>
   )

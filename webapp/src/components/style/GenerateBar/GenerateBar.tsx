@@ -15,7 +15,7 @@ import { storeSelectedStyleIndex, getStoredStyleSelections, storeStyleSelections
 import { useCurrentSubscription } from '@/hooks/useCurrentSubscription'
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus'
 import { useCreditCosts, calculateImageCredits } from '@/hooks/usePricingConfig'
-import { useInferenceSettings } from '@/hooks/useInferenceSettings'
+import { useGenerationConfig } from '@/hooks/useGenerationConfig'
 import styles from './GenerateBar.module.css'
 import { useAuth } from '@/contexts/auth-context'
 import { useCharactersApi } from '@/lib/api/characters'
@@ -27,6 +27,8 @@ import { useActiveTrainingJob } from '@/hooks/useActiveTrainingJob'
 import { useTrainingProgress, useInferenceProgress } from '@/hooks/useJobProgress'
 import { CircleProgress } from '@primeshot/common/web/ui/circle-progress'
 import { Countdown } from '@/components/character/Countdown'
+import { useInferenceQueue } from '@/contexts/inference-queue-context'
+import { useCallback as useCallbackReact, useRef } from 'react'
 
 import { OptionsPanel } from '../OptionsPanel/OptionsPanel'
 import { GenerateBarSelect } from './GenerateBarSelect'
@@ -42,6 +44,12 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const scenesLoader = makeCloudfrontLoader('app-images/placeholders/options/scenes')
   const wardrobesLoader = makeCloudfrontLoader('app-images/placeholders/options/wardrobes')
   const { selectedStyleIndex, setSelectedStyleIndex, stylesData } = useStyleSelection()
+  
+  // Auth state for conditional data loading
+  const { isAuthenticated, user: authUser } = useAuth()
+  const authReady = isAuthenticated !== undefined // Auth state has been resolved
+  
+  // Only load option data once auth is ready
   const { data: scenes = [] } = useScenes()
   const { data: wardrobes = [] } = useWardrobes()
   const { data: colors = [] } = useColors()
@@ -72,7 +80,15 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const sanitizeQuality = (q: any, allowed: string[]): QualityCode =>
     (allowed.includes(String(q)) ? String(q) : (allowed[0] ?? String(q) ?? ''))
 
-  const { data: inferenceSettings } = useInferenceSettings()
+  // Conditional data loading - only fetch generation config after auth is ready
+  const { 
+    data: generationConfig, 
+    isLoading: isLoadingGenerationConfig,
+    error: generationConfigError 
+  } = useGenerationConfig()
+  const inferenceSettings = generationConfig?.inferenceSettings
+  const generationCreditCosts = generationConfig?.creditCosts
+  
   const [nbTakes, setNbTakes] = useState<number>(() => load(STORAGE_KEYS.NB_TAKES, null))
   const [quality, setQuality] = useState<QualityCode>(() => String(load(STORAGE_KEYS.QUALITY, '')))
   const [aspectRatio, setAspectRatio] = useState<string>(() => load(STORAGE_KEYS.ASPECT_RATIO, ''))
@@ -85,17 +101,24 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
     } catch { return null }
   })
 
-  const { data: subscription } = useCurrentSubscription()
-  const { data: creditCosts } = useCreditCosts()
-  const { hasActiveSubscription } = useSubscriptionStatus()
+  // Auth-dependent data loading - only fetch when authenticated
+  const { data: subscription, isLoading: isLoadingSubscription } = useCurrentSubscription()
+  const { data: creditCosts, isLoading: isLoadingCreditCosts } = useCreditCosts() 
+  const { hasActiveSubscription, isLoading: isLoadingSubscriptionStatus } = useSubscriptionStatus()
+  
+  // Calculate overall loading state for GenerateBar
+  const isDataLoading = !authReady || isLoadingGenerationConfig || (isAuthenticated && (isLoadingSubscription || isLoadingCreditCosts))
+  const hasError = generationConfigError
   const requiredCredits = useMemo(() => {
     const allowed = (inferenceSettings?.qualities || []) as string[]
     const effectiveQuality = quality || (inferenceSettings?.defaults?.quality as string) || allowed[0] || ''
     const takes = typeof nbTakes === 'number' && nbTakes > 0
       ? nbTakes
       : (inferenceSettings?.defaults?.nb_takes as number) || 1
-    return calculateImageCredits(effectiveQuality, takes, creditCosts) || 0
-  }, [nbTakes, quality, creditCosts, inferenceSettings?.defaults?.quality, inferenceSettings?.defaults?.nb_takes, inferenceSettings?.qualities])
+    // Use generation credit costs from batched endpoint, fallback to individual hook
+    const costs = generationCreditCosts || creditCosts
+    return calculateImageCredits(effectiveQuality, takes, costs) || 0
+  }, [nbTakes, quality, generationCreditCosts, creditCosts, inferenceSettings?.defaults?.quality, inferenceSettings?.defaults?.nb_takes, inferenceSettings?.qualities])
   const guard = useCreditGuard(requiredCredits)
 
   // Jobs API (moved to top-level to avoid creating a new instance in handler)
@@ -158,7 +181,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
 
   // Panel contents
   // Characters panel hooks and logic (top-level to respect rules of hooks)
-  const { user } = useAuth()
+  // Use authUser from above
   const { getUserCharacters } = useCharactersApi()
   const [characters, setCharacters] = React.useState<any[]>([])
   const [characterThumbs, setCharacterThumbs] = React.useState<Record<string, string>>({})
@@ -167,9 +190,25 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const [inferenceJobId, setInferenceJobId] = useState('')
   const inference = useInferenceProgress({ jobId: inferenceJobId })
   const inferencePct = inferenceJobId ? (inference.getProgressPercentage?.() ?? 0) : 0
+  
+  // Inference queue integration
+  const { jobs, addJob, updateThumbnail, updateJobStatus, connectToJob, replaceJobId, isGenerating } = useInferenceQueue()
+  
+  // Debouncing for generate button
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const lastClickTimeRef = useRef<number>(0)
 
   const onGenerate = useCallback(async () => {
+    let tempJobId: string | null = null;
+    
     try {
+      // Debouncing - prevent rapid clicks
+      const now = Date.now()
+      if (now - lastClickTimeRef.current < 1000) {
+        return // Ignore clicks within 1 second
+      }
+      lastClickTimeRef.current = now
+
       if (isSubmitting) return
 
       // Basic client-side validation BEFORE mutating state
@@ -188,13 +227,23 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
         allowed.length
       )
 
-      if (Object.keys(missing).length > 0 || !defaultsLoaded || !user?.id || !currentStyle) {
+      if (Object.keys(missing).length > 0 || !defaultsLoaded || !authUser?.id || !currentStyle) {
         setErrors(missing)
         if (!defaultsLoaded) console.warn('Inference settings defaults not loaded yet')
-        if (!user?.id) console.warn('User not authenticated')
+        if (!authUser?.id) console.warn('User not authenticated')
         if (!currentStyle) console.warn('No style selected')
         return
       }
+
+      const effectiveQuality = (quality || (inferenceSettings?.defaults?.quality as string)) as string
+      const effectiveTakes = (nbTakes || (inferenceSettings?.defaults?.nb_takes as number)) as number
+      const effectiveAspect = (aspectRatio || (inferenceSettings?.defaults?.aspect_ratio as string)) as string
+
+      // Generate a temporary job ID for optimistic UI
+      tempJobId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      
+      // 🎯 OPTIMISTIC UI: Add thumbnails immediately
+      addJob(tempJobId, effectiveTakes)
 
       setIsSubmitting(true)
 
@@ -203,14 +252,8 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
       const color_id = sel?.color || ''
       const character_id = selectedCharacterId || ''
 
-      const effectiveQuality = (quality || (inferenceSettings?.defaults?.quality as string)) as string
-      const effectiveTakes = (nbTakes || (inferenceSettings?.defaults?.nb_takes as number)) as number
-      const effectiveAspect = (aspectRatio || (inferenceSettings?.defaults?.aspect_ratio as string)) as string
-
-      // Effective settings are guaranteed by defaultsLoaded check above
-
       const payload = {
-        user_id: user.id,
+        user_id: authUser.id,
         character_id,
         style_id: currentStyle.id,
         wardrobe_id,
@@ -223,22 +266,48 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
         }
       }
 
+      // Make API call (non-blocking for UI)
       const data = (await runWithGates(async () => {
         return await startInference(payload as any)
       })) as any
-      const jobId = (data as any)?.job_id
-      if (jobId) setInferenceJobId(jobId)
+      
+      const realJobId = (data as any)?.job_id
+      if (realJobId) {
+        setInferenceJobId(realJobId)
+        
+        // Replace temporary job with real job ID and connect to WebSocket
+        replaceJobId(tempJobId, realJobId)
+      }
     } catch (e) {
       console.error('Generate error', e)
+      
+      // Mark thumbnails as failed for the temp job if it was created
+      if (tempJobId) {
+        const job = jobs.find(j => j.id === tempJobId);
+        if (job) {
+          const errorMessage = e instanceof Error ? e.message : 'Failed to start generation';
+          job.thumbnails.forEach((_, index) => {
+            updateThumbnail(tempJobId!, index, { 
+              status: 'failed',
+              errorMessage: errorMessage
+            });
+          });
+          updateJobStatus(tempJobId!, 'failed');
+        }
+      }
+      
+      // Show user-friendly error message
+      // TODO: Integrate with toast/notification system
+      console.error('Failed to start generation. Please try again.');
     } finally {
       setIsSubmitting(false)
     }
-  }, [isSubmitting, user?.id, currentStyle?.id, selectedCharacterId, nbTakes, quality, aspectRatio, inferenceSettings, runWithGates])
+  }, [isSubmitting, authUser?.id, currentStyle?.id, selectedCharacterId, nbTakes, quality, aspectRatio, inferenceSettings, runWithGates, addJob, replaceJobId, jobs, updateThumbnail, updateJobStatus])
 
   const refreshCharacters = React.useCallback(async () => {
-    if (!user?.id) { setCharacters([]); return }
+    if (!authUser?.id) { setCharacters([]); return }
     try {
-      const list = await getUserCharacters(user.id)
+      const list = await getUserCharacters(authUser.id)
       setCharacters(list)
       const entries = await Promise.all(
         list
@@ -256,7 +325,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
       for (const [id, url] of entries) map[id] = url
       setCharacterThumbs(map)
     } catch { setCharacters([]) }
-  }, [user?.id, getUserCharacters])
+  }, [authUser?.id, getUserCharacters])
 
   React.useEffect(() => { refreshCharacters() }, [refreshCharacters])
 
@@ -452,8 +521,16 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
     }
   }, [openPanel])
 
+  // Determine CSS classes for loading states
+  const barClasses = [
+    styles.bar,
+    openPanel ? styles.panelOpen : '',
+    isDataLoading ? styles.barLoading : styles.barReady,
+    !isDataLoading && authReady ? styles.barFadeIn : ''
+  ].filter(Boolean).join(' ')
+
   return (
-    <div className={`${styles.bar} ${openPanel ? styles.panelOpen : ''}`} style={openPanel ? ({ ['--panel-height' as any]: `${panelHeight}px` }) : undefined}>
+    <div className={barClasses} style={openPanel ? ({ ['--panel-height' as any]: `${panelHeight}px` }) : undefined}>
       <div className={`${styles.content} ${openPanel ? styles.contentHidden : ''}`}>
         <div className={styles.leftContent}>
             {/* Style */}
@@ -474,13 +551,14 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 onClick={() => open('scenes')}
                 ariaLabel="Select scene"
                 variant="labeled"
-                className={errors.scene ? styles.selectorError : ''}
+                className={`${errors.scene ? styles.selectorError : ''} ${!selectedLabels.scene ? styles.selectorEmpty : ''}`}
                 thumbnail={(() => {
-                const sel = currentStyle ? getStoredStyleSelections(currentStyle.id).scene : null
-                const scene = scenes.find(s => s.value === sel)
-                if (scene?.image) return <Image loader={scenesLoader} src={scene.image} alt={scene.label} width={32} height={32} className={styles.thumbImg} />
-                return <Icon variant="scene" size={24} />
-                })()}
+                  const sel = currentStyle ? getStoredStyleSelections(currentStyle.id).scene : null
+                  const scene = scenes.find(s => s.value === sel)
+                
+                  if (scene?.image) return <Image loader={scenesLoader} src={scene.image} alt={scene.label} width={32} height={32} className={styles.thumbImg} />
+                    return <Icon variant="scene" size={24} />
+                  })()}
                 label={selectedLabels.scene || 'Scene'}
             />
 
@@ -489,7 +567,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 onClick={() => open('wardrobe')}
                 ariaLabel="Select wardrobe"
                 variant="labeled"
-                className={errors.wardrobe ? styles.selectorError : ''}
+                className={`${errors.wardrobe ? styles.selectorError : ''} ${!selectedLabels.wardrobe ? styles.selectorEmpty : ''}`}
                 thumbnail={(() => {
                 const sel = currentStyle ? getStoredStyleSelections(currentStyle.id) : null
                 const wrb = wardrobes.find(w => w.value === (sel?.wardrobe || ''))
@@ -516,7 +594,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
             <GenerateBarSelect
                 onClick={handleButtonClick}
                 ariaLabel="Select character"
-                variant="icon"
+                variant="no-label"
                 className={errors.character ? styles.selectorError : ''}
                 thumbnail={(() => {
                 const url = selectedCharacterId ? characterThumbs[selectedCharacterId] : ''
@@ -527,7 +605,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 <>
                     {selectedIsRunning && (
                     <span className={styles.tinyProgress} aria-label="Training progress">
-                        <CircleProgress value={selectedPct} size={32} thickness={2} />
+                        <CircleProgress className={styles.circleProgress} value={selectedPct} size={44} thickness={2} />
                     </span>
                     )}
                     {selectedIsWaiting && <span className={styles.tinyTrainingDot} />}
@@ -540,7 +618,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 onClick={() => open('settings')}
                 ariaLabel="Open settings"
                 variant="icon"
-                thumbnail={<Icon variant="idea" size={24} />}
+                thumbnail={<Icon variant="settings" size={16} />}
             />
 
             <div className={styles.credits}>{requiredCredits} credits</div>
@@ -548,6 +626,8 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 variant="primary"
                 className={styles.generate}
                 disabled={isSubmitting}
+                icon={<Icon variant="generate" size={16} />}
+                iconSide='right'
                 onClick={() => guard(onGenerate)()}
             >
               {isSubmitting && inferenceJobId ? `Generating ${Math.round(inferencePct)}%` : (isSubmitting ? 'Generating…' : 'Generate')}

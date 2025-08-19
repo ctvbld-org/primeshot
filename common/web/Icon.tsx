@@ -26,7 +26,9 @@ interface IconProps extends React.SVGProps<SVGSVGElement> {
     | 'chevronRight'
     | 'checkOutline'
     | 'lock'
-    | 'chevronDown';
+    | 'chevronDown'
+    | 'settings'
+    | 'generate';
 }
 
 export function Icon({ size = 28, className, variant, ...props }: IconProps) {
@@ -53,7 +55,9 @@ export function Icon({ size = 28, className, variant, ...props }: IconProps) {
     chevronRight: "0 0 17 16",
     checkOutline: "0 0 16 16",
     lock: " 0 0 16 16",
-    chevronDown: "0 0 16 16"
+    chevronDown: "0 0 16 16",
+    settings: "0 0 14 12",
+    generate: "0 0 15 20"
   } as const;
 
   const icons = {
@@ -197,6 +201,15 @@ export function Icon({ size = 28, className, variant, ...props }: IconProps) {
     ),
     lock: (
       <path d="M12 7H11V4C11 3.20435 10.6839 2.44129 10.1213 1.87868C9.55871 1.31607 8.79565 1 8 1C7.20435 1 6.44129 1.31607 5.87868 1.87868C5.31607 2.44129 5 3.20435 5 4V7H4C3.73478 7 3.48043 7.10536 3.29289 7.29289C3.10536 7.48043 3 7.73478 3 8V14C3 14.2652 3.10536 14.5196 3.29289 14.7071C3.48043 14.8946 3.73478 15 4 15H12C12.2652 15 12.5196 14.8946 12.7071 14.7071C12.8946 14.5196 13 14.2652 13 14V8C13 7.73478 12.8946 7.48043 12.7071 7.29289C12.5196 7.10536 12.2652 7 12 7ZM6 4C6 3.46957 6.21071 2.96086 6.58579 2.58579C6.96086 2.21071 7.46957 2 8 2C8.53043 2 9.03914 2.21071 9.41421 2.58579C9.78929 2.96086 10 3.46957 10 4V7H6V4ZM12 14H4V8H12V14Z" fill="currentColor"/>
+    ),
+    settings: (
+      <>
+        <path d="M14 2H11.95C11.7 0.85 10.7 0 9.5 0C8.3 0 7.3 0.85 7.05 2H0V3H7.05C7.3 4.15 8.3 5 9.5 5C10.7 5 11.7 4.15 11.95 3H14V2ZM9.5 4C8.65 4 8 3.35 8 2.5C8 1.65 8.65 1 9.5 1C10.35 1 11 1.65 11 2.5C11 3.35 10.35 4 9.5 4Z" fill="currentColor"/>
+        <path d="M0 10H2.05C2.3 11.15 3.3 12 4.5 12C5.7 12 6.7 11.15 6.95 10H14V9H6.95C6.7 7.85 5.7 7 4.5 7C3.3 7 2.3 7.85 2.05 9H0V10ZM4.5 8C5.35 8 6 8.65 6 9.5C6 10.35 5.35 11 4.5 11C3.65 11 3 10.35 3 9.5C3 8.65 3.65 8 4.5 8Z" fill="currentColor"/>
+      </>
+    ),
+    generate: (
+      <path d="M8.39062 0L7.50174 7.55556H14.6128L6.61285 20L7.50174 12H0.390625L8.39062 0Z" fill="currentColor"/>
     )
   } as Record<string, React.ReactNode>;
 

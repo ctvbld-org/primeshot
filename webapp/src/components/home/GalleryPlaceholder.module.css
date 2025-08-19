@@ -10,13 +10,37 @@
   border-radius: var(--radius-3xl);
 }
 
+.generatedSection {
+  width: 100%;
+  margin-top: 2rem;
+}
+
+.thumbnailGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+  .thumbnailGrid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .thumbnailGrid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
 .generatedStub {
   width: 100%;
   min-height: 400px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 2rem;
   border: 2px dashed #4b5563; /* gray-600 */
   border-radius: 12px;
   color: #9ca3af; /* gray-400 */

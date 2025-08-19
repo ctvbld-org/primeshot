@@ -349,27 +349,51 @@ serve(async (req) => {
     }
 
     // 2) Optional style LoRA
+    console.log('🎨 Style object:', JSON.stringify(style, null, 2));
+    console.log('🎯 Style lora_path:', style?.lora_path);
     const styleLora = (style as any)?.lora_path ?? '';
 
-    // 3) Optional wardrobe/color/scene pieces
+    // 3) Optional wardrobe/color/scene pieces - lookup by value to get UUID and prompt
     let wardrobePrompt = '';
+    let wardrobeUuid: string | null = null;
     if (body.wardrobe_id) {
-      const { data: wardrobeRow } = await supabase.from('wardrobes').select('*').eq('id', body.wardrobe_id).maybeSingle();
-      wardrobePrompt = (wardrobeRow?.prompt || wardrobeRow?.name || wardrobeRow?.title || '').toString();
+      const { data: wardrobeRow } = await supabase.from('style_wardrobes').select('*').eq('value', body.wardrobe_id).maybeSingle();
+      if (wardrobeRow) {
+        wardrobeUuid = wardrobeRow.id;
+        wardrobePrompt = (wardrobeRow.prompt).toString();
+      }
     }
+    
     let colorValue = '';
+    let colorUuid: string | null = null;
     if (body.color_id) {
-      const { data: colorRow } = await supabase.from('colors').select('*').eq('id', body.color_id).maybeSingle();
-      colorValue = (colorRow?.value || colorRow?.name || colorRow?.label || '').toString();
+      const { data: colorRow } = await supabase.from('style_colors').select('*').eq('value', body.color_id).maybeSingle();
+      if (colorRow) {
+        colorUuid = colorRow.id;
+        colorValue = (colorRow.value).toString();
+      }
     }
+
+    // Replace [color] placeholder in wardrobe prompt with actual color value
+    const gender = character?.metadata?.gender as string | undefined;
+    const pronoun = buildPronoun(gender);
+    if (wardrobePrompt && colorValue) {
+      wardrobePrompt = wardrobePrompt.replace(/\[color\]/g, colorValue);
+    }
+    wardrobePrompt = `${pronoun} is wearing ${wardrobePrompt}.`;
+    
     let scenePrompt = '';
+    let sceneUuid: string | null = null;
     if (body.scene_id) {
-      const { data: sceneRow } = await supabase.from('scenes').select('*').eq('id', body.scene_id).maybeSingle();
-      scenePrompt = (sceneRow?.prompt || sceneRow?.name || sceneRow?.title || '').toString();
+      const { data: sceneRow } = await supabase.from('style_scenes').select('*').eq('value', body.scene_id).maybeSingle();
+      if (sceneRow) {
+        sceneUuid = sceneRow.id;
+        scenePrompt = (sceneRow.prompt).toString();
+      }
     }
 
     // 4) Style prompt defaults
-    const stylePrompt = (style as any)?.prompt || (style as any)?.description || '';
+    const stylePrompt = (style as any)?.prompt || '';
     const negativePrompt = (style as any)?.negative_prompt || '';
 
     // 5) Build subject prompt from character.metadata
@@ -387,9 +411,8 @@ serve(async (req) => {
       return 'They';
     }
 
-    function buildSubjectPrompt(meta: any): { subject: string; pronoun: 'He' | 'She' | 'They' } {
+    function buildSubjectPrompt(meta: any): { subject: string } {
       const gender = meta?.gender as string | undefined;
-      const pronoun = buildPronoun(gender);
       const age = meta?.age as string | undefined;
       const eyeColor = meta?.eyes?.color as string | undefined;
       const hairColor = meta?.hair?.color as string | undefined;
@@ -399,7 +422,7 @@ serve(async (req) => {
 
       const pieces: string[] = [];
       // Base lead-in
-      const who = gender ? `A ${gender}` : 'A person';
+      const who = gender ? `The subject is a ${gender}` : 'A person';
       if (age) {
         pieces.push(`${who} in ${age}`);
       } else {
@@ -421,18 +444,16 @@ serve(async (req) => {
 
       const sentence = pieces.join(' ').replace(/\s+/g, ' ').trim();
       const subject = sentence.endsWith('.') ? sentence : `${sentence}.`;
-      return { subject, pronoun };
+
+      return { subject };
     }
 
-    const { subject: subjectPrompt, pronoun } = buildSubjectPrompt(character?.metadata || {});
+    const { subject: subjectPrompt } = buildSubjectPrompt(character?.metadata || {});
 
     // 6) Final prompt assembly
-    const wearLine = wardrobePrompt || colorValue
-      ? `${pronoun} is wearing ${colorValue ? `a ${colorValue} ` : ''}${wardrobePrompt}.`
-      : '';
-    const lines = [subjectPrompt];
-    if (wearLine) lines.push(wearLine);
-    if (stylePrompt) lines.push(stylePrompt);
+    const lines = [stylePrompt];
+    if (subjectPrompt) lines.push(subjectPrompt);
+    if (wardrobePrompt) lines.push(wardrobePrompt);
     if (scenePrompt) lines.push(scenePrompt);
     const finalPrompt = lines.join('\n');
 
@@ -458,6 +479,9 @@ serve(async (req) => {
       user_id,
       character_id,
       style_id,
+      wardrobe_id: wardrobeUuid || undefined,
+      scene_id: sceneUuid || undefined,
+      color_id: colorUuid || undefined,
       status: 'initializing',
       quality,
       nb_takes: nbTakes,
@@ -562,6 +586,9 @@ serve(async (req) => {
         throw new Error('INFERENCE_API_URL environment variable not set');
       }
 
+      // Determine environment based on Supabase URL
+      const env = Deno.env.get('SUPABASE_URL')?.includes('localhost') ? 'dev' : 'prod';
+
       // Prepare Modal API request with quality and nbTakes
       const modalRequest = {
         user_id,
@@ -571,6 +598,7 @@ serve(async (req) => {
         wardrobe_id: body.wardrobe_id,
         color_id: body.color_id,
         scene_id: body.scene_id,
+        env: env, // Add environment flag like training
         params: {
           nb_takes: nbTakes,
           aspect_ratio: aspectRatio,
@@ -585,6 +613,11 @@ serve(async (req) => {
           style_lora: styleLora || ''
         }
       } as Record<string, unknown>;
+
+      console.log('🔍 Final LoRA values before job submission:');
+      console.log('  - characterLora:', characterLora);
+      console.log('  - styleLora:', styleLora);
+      console.log('  - style_lora in metadata:', styleLora || '');
 
       console.log('Calling Modal ComfyUI API:', {
         url: inferenceApiUrl,
@@ -646,11 +679,11 @@ serve(async (req) => {
       console.log('Modal API response:', modalResult);
 
       // Update job with Modal job ID if provided, but keep status 'pending'
-      if (modalResult.style_id) {
+      if (modalResult.job_id) {
         await supabase
           .from('inference_jobs')
           .update({
-            modal_job_id: modalResult.style_id,
+            modal_job_id: modalResult.job_id,
             updated_at: new Date().toISOString()
           })
           .eq('id', jobId);
@@ -659,7 +692,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({
           job_id: jobId,
-          modal_job_id: modalResult.style_id,
+          modal_job_id: modalResult.job_id,
           status: 'pending',
           estimated_duration: 45, // TODO: Update when provider exposes
           credits_spent: creditCost,

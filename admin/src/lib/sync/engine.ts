@@ -58,8 +58,10 @@ export async function executSync(request: SyncRequest): Promise<SyncResult> {
         throw new Error(`Failed to fetch target data for ${table}: ${targetData.error.message}`)
       }
       
-      const sourceMap = new Map((sourceData.data || []).map(r => [r.id, r]))
-      const targetMap = new Map((targetData.data || []).map(r => [r.id, r]))
+      // Use correct primary key for each table type
+      const pk: 'id' | 'key' = table === 'inference_settings' ? 'key' : 'id'
+      const sourceMap = new Map((sourceData.data || []).map(r => [r[pk], r]))
+      const targetMap = new Map((targetData.data || []).map(r => [r[pk], r]))
       
       // Process each selected change ID
       for (const changeId of changeIds) {

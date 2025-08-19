@@ -1216,6 +1216,12 @@ Detected changes in:
 - webapp/src/components/style/StylesCarousel.tsx
 - webapp/src/lib/utils/cloudfrontLoader.ts
 - webapp/src/lib/utils/get-options-image.ts
+
+
+**Auto-update 2025-08-16**:
+Detected changes in:
+- admin/src/app/styles/page.tsx
+- admin/src/components/ui/image-upload.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

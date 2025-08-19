@@ -5,7 +5,7 @@ import styles from './UploadFooter.module.css'
 import { ImageTooltip } from './ImageTooltip'
 import { Popover, PopoverContent, PopoverTrigger } from '@primeshot/common/web/ui/popover'
 import { Loader } from '@primeshot/common/web/ui/loader'
-import { Icon } from '../icons/icon'
+import { Icon } from '@primeshot/common/web/Icon'
 import type { FileWithScore } from '@/lib/types'
 import { getApiUrl } from '@/lib/api/client'
 
