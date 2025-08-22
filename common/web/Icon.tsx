@@ -28,7 +28,8 @@ interface IconProps extends React.SVGProps<SVGSVGElement> {
     | 'lock'
     | 'chevronDown'
     | 'settings'
-    | 'generate';
+    | 'generate'
+    | 'download';
 }
 
 export function Icon({ size = 28, className, variant, ...props }: IconProps) {
@@ -57,7 +58,8 @@ export function Icon({ size = 28, className, variant, ...props }: IconProps) {
     lock: " 0 0 16 16",
     chevronDown: "0 0 16 16",
     settings: "0 0 14 12",
-    generate: "0 0 15 20"
+    generate: "0 0 15 20",
+    download: "0 0 20 20"
   } as const;
 
   const icons = {
@@ -210,6 +212,12 @@ export function Icon({ size = 28, className, variant, ...props }: IconProps) {
     ),
     generate: (
       <path d="M8.39062 0L7.50174 7.55556H14.6128L6.61285 20L7.50174 12H0.390625L8.39062 0Z" fill="currentColor"/>
+    ),
+    download: (
+      <>
+        <path d="M10 12.5L6.25 8.75L7.31 7.69L9.25 9.63V2.5H10.75V9.63L12.69 7.69L13.75 8.75L10 12.5Z" fill="currentColor"/>
+        <path d="M17.5 15V16.25C17.5 16.5815 17.3683 16.8995 17.1339 17.1339C16.8995 17.3683 16.5815 17.5 16.25 17.5H3.75C3.4185 17.5 3.10054 17.3683 2.86612 17.1339C2.6317 16.8995 2.5 16.5815 2.5 16.25V15H1.25V16.25C1.25 16.913 1.51339 17.5489 1.98223 18.0178C2.45107 18.4866 3.087 18.75 3.75 18.75H16.25C16.913 18.75 17.5489 18.4866 18.0178 18.0178C18.4866 17.5489 18.75 16.913 18.75 16.25V15H17.5Z" fill="currentColor"/>
+      </>
     )
   } as Record<string, React.ReactNode>;
 

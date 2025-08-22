@@ -43,6 +43,22 @@ async function list(prefix: string) {
   return res.json() as Promise<{ folders: string[]; files: { key: string; name: string; size: number; lastModified: string | null }[] }>
 }
 
+async function getAllFilesInFolder(folderPrefix: string): Promise<string[]> {
+  const data = await list(folderPrefix)
+  const allFiles: string[] = []
+  
+  // Add all files in current folder
+  allFiles.push(...data.files.map(f => f.key))
+  
+  // Recursively get files from subfolders
+  for (const subfolder of data.folders) {
+    const subfolderFiles = await getAllFilesInFolder(subfolder)
+    allFiles.push(...subfolderFiles)
+  }
+  
+  return allFiles
+}
+
 export default function MediaPage() {
   const { prefix, setPrefix } = usePersistedPrefix()
   const [loading, setLoading] = useState(false)
@@ -56,6 +72,7 @@ export default function MediaPage() {
     320: true, 640: true, 960: true, 1280: true, 1920: true, 2560: true
   })
   const [isUploading, setIsUploading] = useState(false)
+  const [isExpandingFolders, setIsExpandingFolders] = useState(false)
 
   const refresh = async () => {
     setLoading(true)
@@ -218,25 +235,89 @@ export default function MediaPage() {
   const onDownload = async () => {
     const keys = Array.from(selected)
     if (keys.length === 0) return
-    if (keys.length === 1) {
-      // trigger native download
-      window.location.href = `/api/media/download/file?key=${encodeURIComponent(keys[0])}`
-      return
-    }
-    // Preflight to get parts
-    const pre = await fetch('/api/media/download/zip', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ keys }) })
-    const { parts } = await pre.json()
-    for (let i = 0; i < parts.length; i++) {
-      const res = await fetch(`/api/media/download/zip?part=${i}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ keys }) })
-      const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `media-part-${i + 1}.zip`
-      document.body.appendChild(a)
-      a.click()
-      a.remove()
-      setTimeout(() => URL.revokeObjectURL(url), 5000)
+    
+    try {
+      setIsExpandingFolders(true)
+      
+      // Separate folders from files
+      const selectedFolders = folders.filter(folder => keys.includes(folder))
+      const selectedFiles = files.filter(file => keys.includes(file.key)).map(file => file.key)
+      
+      let allFilesToDownload = [...selectedFiles]
+      
+      // Expand folders to include all files within them
+      if (selectedFolders.length > 0) {
+        toast.info(`Expanding ${selectedFolders.length} folder(s) to include all files...`)
+        
+        for (const folder of selectedFolders) {
+          const folderFiles = await getAllFilesInFolder(folder)
+          allFilesToDownload.push(...folderFiles)
+        }
+        
+        // Remove duplicates
+        allFilesToDownload = [...new Set(allFilesToDownload)]
+        
+        if (selectedFolders.length > 0) {
+          toast.success(`Found ${allFilesToDownload.length - selectedFiles.length} additional files in ${selectedFolders.length} folder(s)`)
+        }
+      }
+      
+      if (allFilesToDownload.length === 0) {
+        toast.error('No files found to download')
+        return
+      }
+      
+      if (allFilesToDownload.length === 1) {
+        // Single file download
+        window.location.href = `/api/media/download/file?key=${encodeURIComponent(allFilesToDownload[0])}`
+        return
+      }
+      
+      // Multiple files - create zip
+      toast.info(`Preparing download of ${allFilesToDownload.length} files...`)
+      
+      // Preflight to get parts
+      const pre = await fetch('/api/media/download/zip', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ keys: allFilesToDownload }) 
+      })
+      
+      if (!pre.ok) {
+        throw new Error('Failed to prepare download')
+      }
+      
+      const { parts } = await pre.json()
+      
+      for (let i = 0; i < parts.length; i++) {
+        const res = await fetch(`/api/media/download/zip?part=${i}`, { 
+          method: 'POST', 
+          headers: { 'Content-Type': 'application/json' }, 
+          body: JSON.stringify({ keys: allFilesToDownload }) 
+        })
+        
+        if (!res.ok) {
+          throw new Error(`Failed to download part ${i + 1}`)
+        }
+        
+        const blob = await res.blob()
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `media-part-${i + 1}.zip`
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
+        setTimeout(() => URL.revokeObjectURL(url), 5000)
+      }
+      
+      toast.success(`Download started for ${allFilesToDownload.length} files`)
+      
+    } catch (error) {
+      console.error('Download error:', error)
+      toast.error(`Download failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      setIsExpandingFolders(false)
     }
   }
 
@@ -286,9 +367,9 @@ export default function MediaPage() {
             </label>
           </div>
           <div className={styles.actionsRight}>
-            <Button variant="ghost" onClick={onDownload} disabled={selected.size === 0}>
+            <Button variant="ghost" onClick={onDownload} disabled={selected.size === 0 || isExpandingFolders}>
               <DownloadIcon className="mr-2 h-4 w-4" />
-              Download
+              {isExpandingFolders ? 'Expanding...' : 'Download'}
             </Button>
             <Button variant="ghost" onClick={onDelete} disabled={selected.size === 0}>
               <TrashIcon className="mr-2 h-4 w-4" />

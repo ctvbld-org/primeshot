@@ -15,6 +15,12 @@
   margin-top: 2rem;
 }
 
+.jobsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0; /* No gap since InferenceJobGroup has its own margin */
+}
+
 .thumbnailGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -236,6 +242,64 @@
   color: rgba(255,255,255,0.7);
   line-height: 1.4;
   font-size: 0.95rem;
+}
+
+/* Infinite scrolling styles */
+.loadMoreTrigger {
+  width: 100%;
+  padding: 2rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loadingMore {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.loadingSkeleton {
+  width: 100%;
+  max-width: 600px;
+  height: 120px;
+  border-radius: var(--radius-2xl);
+}
+
+.endOfList {
+  padding: 2rem 0;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 2rem;
+}
+
+.errorState {
+  padding: 2rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--radius-2xl);
+  margin-top: 2rem;
+}
+
+.errorState button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-md);
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.errorState button:hover {
+  background: rgba(239, 68, 68, 0.3);
 }
 
 

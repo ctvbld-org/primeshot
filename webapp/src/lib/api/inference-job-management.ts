@@ -1,37 +1,18 @@
 /**
- * API functions for managing inference jobs
+ * Inference Job Management API
+ * 
+ * This module focuses on job lifecycle management, status tracking,
+ * and job metadata operations. Use this for managing the inference
+ * process itself rather than handling the generated results.
  */
 
 import { createClient } from '@/lib/supabase/client';
-
-export interface InferenceJobRow {
-  id: string;
-  user_id: string;
-  character_id: string;
-  style_id: string;
-  status: 'queued' | 'pending' | 'running' | 'completed' | 'failed';
-  error_message?: string;
-  settings?: {
-    nb_takes?: number;
-    quality?: string;
-    aspect_ratio?: string;
-  };
-  created_at: string;
-  updated_at: string;
-}
-
-export interface GeneratedImage {
-  id: string;
-  inference_id: string;
-  user_id: string;
-  original_path: string;
-  web_path: string;
-  width: number;
-  height: number;
-  format: string;
-  bytes: number;
-  created_at: string;
-}
+import type { 
+  InferenceJobRow, 
+  GeneratedImage, 
+  InferenceJobWithImages 
+} from '@/types/inference';
+import { getInferenceImageUrl } from '@/lib/utils/inference-images';
 
 /**
  * Fetch active inference jobs for a user
@@ -62,7 +43,11 @@ export async function fetchActiveInferenceJobs(userId: string): Promise<Inferenc
 /**
  * Fetch completed inference jobs with their generated images
  */
-export async function fetchCompletedInferenceJobs(userId: string, limit: number = 10): Promise<(InferenceJobRow & { generated_images: GeneratedImage[] })[]> {
+export async function fetchCompletedInferenceJobs(
+  userId: string, 
+  limit: number = 10, 
+  offset: number = 0
+): Promise<InferenceJobWithImages[]> {
   try {
     const supabase = createClient();
 
@@ -86,7 +71,7 @@ export async function fetchCompletedInferenceJobs(userId: string, limit: number 
       .eq('user_id', userId)
       .eq('status', 'completed')
       .order('created_at', { ascending: false })
-      .limit(limit);
+      .range(offset, offset + limit - 1);
 
     if (error) {
       console.error('Error fetching completed inference jobs:', error);
@@ -103,7 +88,7 @@ export async function fetchCompletedInferenceJobs(userId: string, limit: number 
 /**
  * Fetch a specific inference job with its generated images
  */
-export async function fetchInferenceJob(jobId: string): Promise<(InferenceJobRow & { generated_images: GeneratedImage[] }) | null> {
+export async function fetchInferenceJob(jobId: string): Promise<InferenceJobWithImages | null> {
   try {
     const supabase = createClient();
 
@@ -140,16 +125,75 @@ export async function fetchInferenceJob(jobId: string): Promise<(InferenceJobRow
 }
 
 /**
- * Get the CloudFront URL for an inference image
+ * Get total count of inference jobs for a user
  */
-export function getInferenceImageUrl(imagePath: string): string {
-  const cloudfrontDomain = process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN || 'd3el9qajjnmn76.cloudfront.net';
-  
-  // Remove s3:// prefix if present
-  const cleanPath = imagePath.replace(/^s3:\/\/[^\/]+\//, '');
-  
-  return `https://${cloudfrontDomain}/${cleanPath}`;
+export async function getTotalInferenceJobsCount(userId: string): Promise<number> {
+  try {
+    const supabase = createClient();
+
+    const { count, error } = await supabase
+      .from('inference_jobs')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId);
+
+    if (error) {
+      console.error('Error fetching inference jobs count:', error);
+      return 0;
+    }
+
+    return count || 0;
+  } catch (error) {
+    console.error('Failed to fetch inference jobs count:', error);
+    return 0;
+  }
 }
+
+/**
+ * Fetch all inference jobs with pagination support
+ */
+export async function fetchInferenceJobsPaginated(
+  userId: string,
+  limit: number = 10,
+  offset: number = 0
+): Promise<InferenceJobWithImages[]> {
+  try {
+    const supabase = createClient();
+
+    const { data: jobs, error } = await supabase
+      .from('inference_jobs')
+      .select(`
+        *,
+        generated_images (
+          id,
+          inference_id,
+          user_id,
+          original_path,
+          web_path,
+          width,
+          height,
+          format,
+          bytes,
+          created_at
+        )
+      `)
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
+      console.error('Error fetching paginated inference jobs:', error);
+      return [];
+    }
+
+    return jobs || [];
+  } catch (error) {
+    console.error('Failed to fetch paginated inference jobs:', error);
+    return [];
+  }
+}
+
+// Re-export the shared utility for convenience
+export { getInferenceImageUrl } from '@/lib/utils/inference-images';
 
 /**
  * Subscribe to real-time updates for inference jobs

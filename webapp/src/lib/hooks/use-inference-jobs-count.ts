@@ -12,21 +12,16 @@ interface UseInferenceJobsCountResult {
  * This replaces the old database-based count with queue-based count
  */
 export function useInferenceJobsCount(): UseInferenceJobsCountResult {
-  const { jobs } = useInferenceQueue()
+  const { totalCount, isLoading, error, refresh } = useInferenceQueue()
   
-  // Count all jobs (active and completed)
-  const count = jobs.length
+  // Use the total count from the database, not just loaded jobs
+  const count = totalCount
   
-  // For backwards compatibility, provide empty implementations
-  const refetch = async () => {
-    // No-op since the queue handles its own updates
-  }
-
   return { 
     count, 
-    isLoading: false, // Queue handles its own loading state
-    error: null, 
-    refetch 
+    isLoading,
+    error: error ? new Error(error) : null, 
+    refetch: refresh
   }
 }
 

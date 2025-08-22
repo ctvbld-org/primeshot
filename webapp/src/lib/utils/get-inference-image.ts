@@ -9,7 +9,7 @@ export interface InferenceImageOptions {
   /** Target display width in pixels (image will be sized appropriately) */
   width?: number;
   /** Force a specific variant size */
-  size?: 320 | 640 | 1024;
+  size?: 480 | 720 | 1024;
   /** Get original high-res version instead of web variant */
   original?: boolean;
 }
@@ -23,6 +23,12 @@ export interface InferenceImageOptions {
  */
 export function getInferenceImage(baseUrl: string, options: InferenceImageOptions = {}): string {
   if (!baseUrl) return '';
+  
+  // Handle base64 data URLs (from WebSocket previews) - return as-is
+  if (baseUrl.startsWith('data:image/')) {
+    console.log('🎨 Using base64 preview image directly');
+    return baseUrl;
+  }
   
   // If requesting original, swap /web/ for /orig/ and change extension to .png
   if (options.original) {
@@ -44,10 +50,10 @@ export function getInferenceImage(baseUrl: string, options: InferenceImageOption
     // Account for high-DPI displays (2x scaling)
     const effectiveWidth = options.width * (window.devicePixelRatio || 1);
     
-    if (effectiveWidth <= 320) {
-      targetSize = 320;
-    } else if (effectiveWidth <= 640) {
-      targetSize = 640;
+    if (effectiveWidth <= 480) {
+      targetSize = 480;
+    } else if (effectiveWidth <= 720) {
+      targetSize = 720;
     } else {
       targetSize = 1024;
     }
@@ -66,17 +72,21 @@ export function getInferenceImage(baseUrl: string, options: InferenceImageOption
 }
 
 /**
- * Get inference image optimized for thumbnail display (320px)
+ * Get inference image optimized for thumbnail display (480px for retina 240px displays)
  */
 export function getInferenceImageThumbnail(baseUrl: string): string {
-  return getInferenceImage(baseUrl, { size: 320 });
+  // Base64 previews are already optimized for thumbnails
+  if (baseUrl.startsWith('data:image/')) {
+    return baseUrl;
+  }
+  return getInferenceImage(baseUrl, { size: 480 });
 }
 
 /**
- * Get inference image optimized for card display (640px)
+ * Get inference image optimized for card display (720px)
  */
 export function getInferenceImageCard(baseUrl: string): string {
-  return getInferenceImage(baseUrl, { size: 640 });
+  return getInferenceImage(baseUrl, { size: 720 });
 }
 
 /**
@@ -113,7 +123,7 @@ export function getInferenceImageResponsive(baseUrl: string, containerWidth: num
 export function getInferenceImageSrcSet(baseUrl: string): string {
   if (!baseUrl) return '';
   
-  const sizes = [320, 640, 1024];
+  const sizes = [480, 720, 1024];
   
   return sizes
     .map(size => {

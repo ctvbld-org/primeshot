@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { Upload, X, Loader2 } from 'lucide-react'
 import { Button } from '@primeshot/common/web/ui/button'
@@ -41,6 +41,14 @@ export function ImageUpload({
   const [sort, setSort] = useState<'name'|'newest'>('newest')
   const [selection, setSelection] = useState<Set<string>>(new Set())
   const [staged, setStaged] = useState<{ file: File; preview: string }[]>([])
+  
+  // Use ref to store current styleName so deferred upload can access the latest value
+  const styleNameRef = useRef(styleName)
+  
+  // Update ref whenever styleName changes
+  useEffect(() => {
+    styleNameRef.current = styleName
+  }, [styleName])
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -132,7 +140,7 @@ export function ImageUpload({
         for (const s of staged) {
           const name = await uploadImageToS3(
             s.file,
-            styleName,
+            styleNameRef.current, // Use ref to get the current styleName value at upload time
             [...value, ...newNames],
             undefined,
             uploadPath
@@ -153,7 +161,7 @@ export function ImageUpload({
       }
     }
     onRegisterUploader(uploadNow)
-  }, [deferUpload, onRegisterUploader, staged, styleName, uploadPath, value, onChange])
+  }, [deferUpload, onRegisterUploader, staged, uploadPath, value, onChange])
 
   const loadExisting = useCallback(async () => {
     try {

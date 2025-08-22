@@ -1,9 +1,9 @@
 'use client';
 
 import React, { createContext, useContext, ReactNode } from 'react';
-import { useInferenceQueueWithProgress } from '@/hooks/useInferenceQueue';
+import { useInfiniteInferenceJobsWithProgress } from '@/hooks/useInfiniteInferenceJobsWithProgress';
 
-type InferenceQueueContextType = ReturnType<typeof useInferenceQueueWithProgress>;
+type InferenceQueueContextType = ReturnType<typeof useInfiniteInferenceJobsWithProgress>;
 
 const InferenceQueueContext = createContext<InferenceQueueContextType | null>(null);
 
@@ -12,7 +12,7 @@ interface InferenceQueueProviderProps {
 }
 
 export function InferenceQueueProvider({ children }: InferenceQueueProviderProps) {
-  const inferenceQueue = useInferenceQueueWithProgress();
+  const inferenceQueue = useInfiniteInferenceJobsWithProgress();
 
   return (
     <InferenceQueueContext.Provider value={inferenceQueue}>

@@ -1222,6 +1222,37 @@ Detected changes in:
 Detected changes in:
 - admin/src/app/styles/page.tsx
 - admin/src/components/ui/image-upload.tsx
+
+
+**Auto-update 2025-08-20**:
+Detected changes in:
+- admin/src/app/api/upload/route.ts
+- admin/src/app/media/page.tsx
+- admin/src/components/styles/style-form-dialog.tsx
+- admin/src/lib/sync/detector.ts
+- admin/src/lib/sync/engine.ts
+- webapp/src/app/api/generation/config/route.ts
+- webapp/src/app/api/pricing/all/route.ts
+- webapp/src/app/layout.tsx
+- webapp/src/components/home/GalleryPlaceholder.module.css
+- webapp/src/components/home/GalleryPlaceholder.tsx
+- webapp/src/components/home/InferenceThumbnail.module.css
+- webapp/src/components/home/InferenceThumbnail.tsx
+- webapp/src/components/icons/icon.tsx
+- webapp/src/components/style/GenerateBar/GenerateBar.module.css
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/components/style/GenerateBar/GenerateBarSelect.tsx
+- webapp/src/components/style/StylesCarousel.module.css
+- webapp/src/components/style/StylesCarousel.tsx
+- webapp/src/components/upload/ImageTooltip.tsx
+- webapp/src/components/upload/UploadFooter.tsx
+- webapp/src/components/upload/UploadRequirements.tsx
+- webapp/src/contexts/inference-queue-context.tsx
+- webapp/src/lib/api/inference-images.ts
+- webapp/src/lib/api/inference-jobs.ts
+- webapp/src/lib/debug/inference-debug.ts
+- webapp/src/lib/hooks/use-inference-jobs-count.ts
+- webapp/src/lib/utils/get-inference-image.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

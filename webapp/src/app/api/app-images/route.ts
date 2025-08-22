@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { s3Client } from '@/lib/s3';
+import { createClient } from '@/lib/supabase/server';
 
 /**
  * API route for proxying S3 image requests through our server
@@ -19,7 +20,8 @@ const isValidPath = (path: string) => {
     (
       path.startsWith('app-images/') || 
       path.startsWith('app-images/placeholders/') ||
-      path.startsWith('app-images/placeholders/options/')
+      path.startsWith('app-images/placeholders/options/') ||
+      path.startsWith('user-images/') // Allow user-generated inference images
     ) && 
     // AND has a valid file extension
     /\.(jpg|jpeg|png|webp|svg)$/i.test(path)
@@ -57,6 +59,23 @@ export async function GET(request: Request) {
     
     if (!isValidPath(path)) {
       return NextResponse.json({ error: 'Invalid path parameter' }, { status: 400 });
+    }
+
+    // For user-images, verify authentication and authorization
+    if (path.startsWith('user-images/')) {
+      const supabase = await createClient();
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+      if (authError || !user) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+
+      // Verify the user has access to this image
+      // Extract user_id from the path (format: user-images/{user_id}/...)
+      const pathParts = path.split('/');
+      if (pathParts[1] !== user.id) {
+        return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+      }
     }
     
     // First generate a signed URL that we can fetch

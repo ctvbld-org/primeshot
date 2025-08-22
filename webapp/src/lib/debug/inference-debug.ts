@@ -4,7 +4,7 @@
 
 export function checkInferenceConfiguration() {
   const config = {
-    websocketUrl: process.env.NEXT_PUBLIC_INFERENCE_WEBSOCKET_URL,
+    websocketUrl: process.env.NEXT_PUBLIC_INFERENCE_WEBSOCKET_URL || 'wss://creativebuild--primeshot-inference-progress.modal.run',
     cloudfrontDomain: process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN,
     supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
     appUrl: process.env.NEXT_PUBLIC_APP_URL,
@@ -45,7 +45,7 @@ export function logInferenceJobActivity(action: string, jobId: string, details?:
 }
 
 export function testWebSocketConnection(jobId: string = 'test-job-123') {
-  const wsUrl = process.env.NEXT_PUBLIC_INFERENCE_WEBSOCKET_URL;
+  const wsUrl = process.env.NEXT_PUBLIC_INFERENCE_WEBSOCKET_URL || 'wss://creativebuild--primeshot-inference-progress.modal.run';
   
   if (!wsUrl) {
     console.error('❌ Cannot test WebSocket: NEXT_PUBLIC_INFERENCE_WEBSOCKET_URL not configured');

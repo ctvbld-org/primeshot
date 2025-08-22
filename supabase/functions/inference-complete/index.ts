@@ -2,7 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
 
-interface ArtifactEntry { bucket: string; key: string; width?: number; height?: number; bytes?: number; format?: string }
+interface ArtifactEntry { bucket: string; key: string; width?: number; height?: number; bytes?: number; format?: string; seed?: number }
 interface InferenceCompleteRequest {
   job_id: string
   success?: boolean
@@ -174,32 +174,33 @@ serve(async (req) => {
         const o = orig[i]
         
         // Extract metadata from artifacts or fetch from S3
-        let width: number, height: number, format: string, bytes: number
+        let width: number, height: number, format: string, bytes: number, seed: number | null
         
-        // Try to get metadata from artifacts first
+        // Try to get metadata from artifacts first (preferred method)
         if ((w?.width && w?.height && w?.format && w?.bytes) || 
             (o?.width && o?.height && o?.format && o?.bytes)) {
           width = w?.width ?? o?.width ?? 1024
           height = w?.height ?? o?.height ?? 1024
           format = w?.format ?? o?.format ?? 'png'
           bytes = w?.bytes ?? o?.bytes ?? 1024000
+          seed = w?.seed ?? o?.seed ?? null
+          console.log(`Using provided metadata: ${width}x${height}, ${format}, ${bytes} bytes, seed: ${seed}`)
         } else {
-          // Metadata missing, extract from S3
+          // Skip expensive S3 metadata extraction - use safe defaults
+          // The Modal inference pipeline should always provide complete metadata now
           const artifactToCheck = w || o
-          if (artifactToCheck) {
-            console.log(`Extracting metadata for s3://${artifactToCheck.bucket}/${artifactToCheck.key}`)
-            const metadata = await extractImageMetadata(artifactToCheck.bucket, artifactToCheck.key)
-            width = metadata.width
-            height = metadata.height
-            format = metadata.format
-            bytes = metadata.bytes
-          } else {
-            // Fallback defaults
-            width = 1024
-            height = 1024
-            format = 'png'
-            bytes = 1024000
-          }
+          seed = artifactToCheck?.seed ?? null
+          
+          console.log(`⚠️ Metadata missing from artifacts, using defaults (S3 extraction skipped for performance)`)
+          console.log(`Artifact keys: web=${w?.key}, orig=${o?.key}`)
+          
+          // Use safe defaults that satisfy database constraints
+          width = 1024
+          height = 1024
+          format = 'png'
+          bytes = 1024000
+          
+          console.log(`Using default metadata: ${width}x${height}, ${format}, ${bytes} bytes, seed: ${seed}`)
         }
         
         // Ensure all required fields have valid values
@@ -217,6 +218,7 @@ serve(async (req) => {
           height,
           format,
           bytes,
+          seed,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })

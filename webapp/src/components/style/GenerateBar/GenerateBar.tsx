@@ -192,14 +192,14 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const inferencePct = inferenceJobId ? (inference.getProgressPercentage?.() ?? 0) : 0
   
   // Inference queue integration
-  const { jobs, addJob, updateThumbnail, updateJobStatus, connectToJob, replaceJobId, isGenerating } = useInferenceQueue()
+  const { jobs, createQueuedThumbnails, connectJobAfterCreation, updateThumbnail, updateJobStatus, connectToJob, isGenerating } = useInferenceQueue()
   
   // Debouncing for generate button
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const lastClickTimeRef = useRef<number>(0)
 
   const onGenerate = useCallback(async () => {
-    let tempJobId: string | null = null;
+    let placeholderId: string | null = null;
     
     try {
       // Debouncing - prevent rapid clicks
@@ -239,11 +239,8 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
       const effectiveTakes = (nbTakes || (inferenceSettings?.defaults?.nb_takes as number)) as number
       const effectiveAspect = (aspectRatio || (inferenceSettings?.defaults?.aspect_ratio as string)) as string
 
-      // Generate a temporary job ID for optimistic UI
-      tempJobId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-      
-      // 🎯 OPTIMISTIC UI: Add thumbnails immediately
-      addJob(tempJobId, effectiveTakes)
+      // 🎯 OPTIMISTIC UI: Create queued thumbnails immediately (no WebSocket connection yet)
+      placeholderId = createQueuedThumbnails(effectiveTakes)
 
       setIsSubmitting(true)
 
@@ -266,7 +263,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
         }
       }
 
-      // Make API call (non-blocking for UI)
+      // Make API call to get real job ID first
       const data = (await runWithGates(async () => {
         return await startInference(payload as any)
       })) as any
@@ -275,24 +272,24 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
       if (realJobId) {
         setInferenceJobId(realJobId)
         
-        // Replace temporary job with real job ID and connect to WebSocket
-        replaceJobId(tempJobId, realJobId)
+        // Update thumbnails with real job ID and connect to WebSocket
+        connectJobAfterCreation(placeholderId, realJobId)
       }
     } catch (e) {
       console.error('Generate error', e)
       
-      // Mark thumbnails as failed for the temp job if it was created
-      if (tempJobId) {
-        const job = jobs.find(j => j.id === tempJobId);
+      // Mark thumbnails as failed for the placeholder job if it was created
+      if (placeholderId) {
+        const job = jobs.find(j => j.id === placeholderId);
         if (job) {
           const errorMessage = e instanceof Error ? e.message : 'Failed to start generation';
           job.thumbnails.forEach((_, index) => {
-            updateThumbnail(tempJobId!, index, { 
+            updateThumbnail(placeholderId!, index, { 
               status: 'failed',
               errorMessage: errorMessage
             });
           });
-          updateJobStatus(tempJobId!, 'failed');
+          updateJobStatus(placeholderId!, 'failed');
         }
       }
       
@@ -302,7 +299,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
     } finally {
       setIsSubmitting(false)
     }
-  }, [isSubmitting, authUser?.id, currentStyle?.id, selectedCharacterId, nbTakes, quality, aspectRatio, inferenceSettings, runWithGates, addJob, replaceJobId, jobs, updateThumbnail, updateJobStatus])
+  }, [isSubmitting, authUser?.id, currentStyle?.id, selectedCharacterId, nbTakes, quality, aspectRatio, inferenceSettings, runWithGates, createQueuedThumbnails, connectJobAfterCreation, jobs, updateThumbnail, updateJobStatus])
 
   const refreshCharacters = React.useCallback(async () => {
     if (!authUser?.id) { setCharacters([]); return }
@@ -625,12 +622,11 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
             <Button
                 variant="primary"
                 className={styles.generate}
-                disabled={isSubmitting}
                 icon={<Icon variant="generate" size={16} />}
                 iconSide='right'
                 onClick={() => guard(onGenerate)()}
             >
-              {isSubmitting && inferenceJobId ? `Generating ${Math.round(inferencePct)}%` : (isSubmitting ? 'Generating…' : 'Generate')}
+              Generate
             </Button>
         </div>
     </div>

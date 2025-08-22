@@ -1,8 +1,9 @@
 /**
- * API functions for fetching inference job results and images
+ * Inference Results API
  * 
  * This module focuses on handling generated images, image serving,
- * and result-oriented operations.
+ * and result-oriented operations. Use this for displaying and
+ * working with the outputs of completed inference jobs.
  */
 
 import { createClient } from '@/lib/supabase/client';

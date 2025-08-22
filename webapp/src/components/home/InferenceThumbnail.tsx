@@ -24,11 +24,17 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
   thumbnail,
   onClick
 }) => {
+  // Check if we're using a base64 preview
+  const isBase64Preview = (thumbnail.webImageUrl || thumbnail.imageUrl)?.startsWith('data:image/');
+  
   const getStatusText = () => {
     switch (thumbnail.status) {
       case 'queued':
         return 'Queued...';
       case 'running':
+        if (isBase64Preview) {
+          return thumbnail.progress ? `${Math.round(thumbnail.progress)}%` : 'Live Preview';
+        }
         return thumbnail.progress ? `${Math.round(thumbnail.progress)}%` : 'Generating...';
       case 'completed':
         return '';
@@ -63,18 +69,32 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
       <div className={styles.imageContainer}>
         {thumbnail.webImageUrl || thumbnail.imageUrl ? (
           <>
-            <Image
-              src={thumbnail.webImageUrl || thumbnail.imageUrl!}
-              alt={`Generated image ${thumbnail.index + 1}`}
-              fill
-              className={`${styles.image} ${thumbnail.status === 'running' ? styles.imageGenerating : ''}`}
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              priority={thumbnail.status === 'completed'}
-            />
+            {isBase64Preview ? (
+              <Image
+                src={thumbnail.webImageUrl || thumbnail.imageUrl!}
+                alt={`Generated image ${thumbnail.index + 1}`}
+                fill
+                className={`${styles.image} ${thumbnail.status === 'running' ? styles.imageGenerating : ''} ${styles.base64Preview}`}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                priority={thumbnail.status === 'completed'}
+                unoptimized={true} // Disable Next.js optimization for base64 images
+              />
+            ) : (
+              <img
+                src={thumbnail.webImageUrl || thumbnail.imageUrl!}
+                alt={`Generated image ${thumbnail.index + 1}`}
+                className={`${styles.image} ${thumbnail.status === 'running' ? styles.imageGenerating : ''}`}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                onError={(e) => console.error(`❌ Image failed to load: ${thumbnail.webImageUrl || thumbnail.imageUrl}`, e)}
+              />
+            )}
             {/* Show overlay for preview images that are still generating */}
             {thumbnail.status === 'running' && (
               <div className={styles.previewOverlay}>
                 <div className={styles.loadingSpinner} />
+                {isBase64Preview && (
+                  <div className={styles.previewBadge}>LIVE</div>
+                )}
               </div>
             )}
           </>

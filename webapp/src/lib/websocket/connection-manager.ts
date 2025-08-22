@@ -348,6 +348,12 @@ class WebSocketConnectionManager {
 
     websocket.onmessage = (event) => {
       try {
+        // Check message size for debugging
+        const messageSize = event.data.length;
+        if (messageSize > 100000) { // 100KB
+          console.warn(`📡 Large WebSocket message received: ${messageSize} bytes for ${jobType} job ${jobId}`);
+        }
+        
         const data: JobProgressData = JSON.parse(event.data);
         
         // Store latest data
@@ -364,12 +370,30 @@ class WebSocketConnectionManager {
               subscription.onComplete(true);
             } else if (data.status === 'failed') {
               subscription.onComplete(false, data.error_message);
+            } else if (data.status === 'closed' && data.close_connection) {
+              // Handle explicit close signal from server
+              console.log(`📡 WebSocket Manager: Received close signal for job ${jobId}`);
+              subscription.onComplete(true);
+              // Close the connection after a brief delay
+              setTimeout(() => {
+                this.closeConnection(jobKey);
+              }, 100);
             }
           }
         }
       } catch (error) {
-        console.error(`📡 WebSocket Manager: Failed to parse message for job ${jobId}:`, error);
-        this.notifySubscribersError(connection, 'Failed to parse progress data');
+        const messageSize = event.data?.length || 0;
+        console.error(`📡 WebSocket Manager: Failed to parse message for job ${jobId} (size: ${messageSize} bytes):`, error);
+        
+        // Provide more specific error messages
+        let errorMessage = 'Failed to parse progress data';
+        if (messageSize > 1000000) { // 1MB
+          errorMessage = 'Message too large to process';
+        } else if (error instanceof SyntaxError) {
+          errorMessage = 'Invalid message format received';
+        }
+        
+        this.notifySubscribersError(connection, errorMessage);
       }
     };
 
@@ -447,7 +471,7 @@ class WebSocketConnectionManager {
       case 'training':
         return process.env.NEXT_PUBLIC_TRAINING_WEBSOCKET_URL || null;
       case 'inference':
-        return process.env.NEXT_PUBLIC_INFERENCE_WEBSOCKET_URL || null;
+        return process.env.NEXT_PUBLIC_INFERENCE_WEBSOCKET_URL || 'wss://creativebuild--primeshot-inference-progress.modal.run';
       default:
         return null;
     }
