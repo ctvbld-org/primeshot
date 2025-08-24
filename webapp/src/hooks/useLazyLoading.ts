@@ -9,7 +9,7 @@ interface UseLazyLoadingOptions {
 }
 
 interface UseLazyLoadingReturn {
-  ref: React.RefObject<HTMLDivElement>;
+  ref: React.RefObject<HTMLDivElement | null>;
   isVisible: boolean;
   isIntersecting: boolean;
 }
@@ -83,14 +83,44 @@ export function useInfiniteScroll(
   onLoadMore: () => void,
   options: { rootMargin?: string; threshold?: number } = {}
 ) {
-  const { rootMargin = '100px', threshold = 0.1 } = options;
-  const { ref, isIntersecting } = useLazyLoading({ rootMargin, threshold });
+  const { rootMargin = '200px', threshold = 0.1 } = options;
+  const ref = useRef<HTMLDivElement>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const hasTriggeredRef = useRef(false);
+
+  const handleIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
+    const [entry] = entries;
+    const isCurrentlyIntersecting = entry.isIntersecting;
+    
+    if (isCurrentlyIntersecting && !hasTriggeredRef.current) {
+      hasTriggeredRef.current = true;
+      onLoadMore();
+    } else if (!isCurrentlyIntersecting) {
+      // Reset when element leaves viewport so it can trigger again
+      hasTriggeredRef.current = false;
+    }
+  }, [onLoadMore]);
 
   useEffect(() => {
-    if (isIntersecting) {
-      onLoadMore();
-    }
-  }, [isIntersecting, onLoadMore]);
+    const element = ref.current;
+    if (!element) return;
+
+    // Create observer
+    observerRef.current = new IntersectionObserver(handleIntersection, {
+      rootMargin,
+      threshold
+    });
+
+    // Start observing
+    observerRef.current.observe(element);
+
+    // Cleanup
+    return () => {
+      if (observerRef.current && element) {
+        observerRef.current.unobserve(element);
+      }
+    };
+  }, [handleIntersection, rootMargin, threshold]);
 
   return { ref };
 }

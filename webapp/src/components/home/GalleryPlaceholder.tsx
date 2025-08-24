@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useAuth } from '@/contexts/auth-context'
 import { Skeleton } from '@primeshot/common/web/ui/skeleton'
 import { Icon } from '@primeshot/common/web/Icon'
@@ -21,10 +21,29 @@ export function GalleryPlaceholder() {
     loadMore 
   } = useInferenceQueue()
   
+  // Memoized callback for infinite scroll
+  const handleInfiniteScroll = useCallback(() => {
+    if (hasMore && !isLoadingMore) {
+      loadMore();
+    }
+  }, [hasMore, isLoadingMore, loadMore]);
+
   // Infinite scroll trigger
-  const { ref: loadMoreRef } = useInfiniteScroll(loadMore, {
-    rootMargin: '100px'
+  const { ref: loadMoreRef } = useInfiniteScroll(handleInfiniteScroll, {
+    rootMargin: '300px',
+    threshold: 0.1
   })
+
+  // Debug logging (can be removed in production)
+  // console.log('🔍 GalleryPlaceholder state:', { 
+  //   authLoading, 
+  //   isLoading, 
+  //   totalCount, 
+  //   jobsLength: jobs.length, 
+  //   hasMore, 
+  //   isLoadingMore,
+  //   error 
+  // });
 
   if (authLoading || isLoading) {
     return (
@@ -120,9 +139,13 @@ export function GalleryPlaceholder() {
             {/* Infinite scroll trigger */}
             {hasMore && (
               <div ref={loadMoreRef} className={styles.loadMoreTrigger}>
-                {isLoadingMore && (
+                {isLoadingMore ? (
                   <div className={styles.loadingMore}>
                     <Skeleton className={styles.loadingSkeleton} />
+                    <p>Loading more shoots...</p>
+                  </div>
+                ) : (
+                  <div className={styles.loadingMore}>
                     <p>Loading more shoots...</p>
                   </div>
                 )}

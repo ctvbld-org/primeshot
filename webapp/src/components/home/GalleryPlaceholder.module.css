@@ -247,10 +247,12 @@
 /* Infinite scrolling styles */
 .loadMoreTrigger {
   width: 100%;
+  min-height: 100px;
   padding: 2rem 0;
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: 1rem 0;
 }
 
 .loadingMore {

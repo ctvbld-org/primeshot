@@ -52,84 +52,86 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
       } = await import('@/lib/api/inference-job-management');
       
       // Fetch total count and initial jobs in parallel
-      const [totalCountResult, activeJobs, initialJobs] = await Promise.all([
+      const [totalCountResult, initialJobs] = await Promise.all([
         getTotalInferenceJobsCount(user.id),
-        fetchActiveInferenceJobs(user.id),
         fetchInferenceJobsPaginated(user.id, JOBS_PER_PAGE, 0)
       ]);
-
-      console.log(`📊 Total inference jobs: ${totalCountResult}, Active: ${activeJobs.length}, Initial batch: ${initialJobs.length}`);
 
       setTotalCount(totalCountResult);
       
       const allJobs: InferenceJob[] = [];
 
-      // Convert active database jobs to UI format
-      activeJobs.forEach(dbJob => {
-        const nbTakes = dbJob.nb_takes || 1;
-        const thumbnails: InferenceThumbnail[] = Array.from({ length: nbTakes }, (_, index) => ({
-          id: uuidv4(),
-          jobId: dbJob.id,
-          status: dbJob.status === 'pending' || dbJob.status === 'running' ? 'running' : 'queued',
-          index,
-          progress: dbJob.status === 'running' ? 50 : 0
-        }));
-
-        allJobs.push({
-          id: dbJob.id,
-          status: dbJob.status === 'pending' || dbJob.status === 'running' ? 'running' : 'queued',
-          thumbnails,
-          createdAt: new Date(dbJob.created_at),
-          nbTakes
-        });
-
-        activeJobIds.current.add(dbJob.id);
-      });
-
-      // Convert initial jobs to UI format
+      // Convert all initial jobs to UI format
       initialJobs.forEach(dbJob => {
-        // Skip if already added as active job
-        if (activeJobIds.current.has(dbJob.id)) return;
+        const nbTakes = dbJob.nb_takes || 1;
+        
+        // Check if this is an active job (queued, pending, running)
+        const isActive = ['queued', 'pending', 'running'].includes(dbJob.status);
+        
+        if (isActive) {
+          // Active job - create placeholder thumbnails
+          const thumbnails: InferenceThumbnail[] = Array.from({ length: nbTakes }, (_, index) => ({
+            id: uuidv4(),
+            jobId: dbJob.id,
+            status: dbJob.status === 'pending' || dbJob.status === 'running' ? 'running' : 'queued',
+            index,
+            progress: dbJob.status === 'running' ? 50 : 0
+          }));
 
-        const thumbnails: InferenceThumbnail[] = dbJob.generated_images.map((image, index) => ({
-          id: uuidv4(),
-          jobId: dbJob.id,
-          status: 'completed',
-          index,
-          progress: 100,
-          imageUrl: getInferenceImageUrl(image.original_path),
-          webImageUrl: getInferenceImageUrl(image.web_path)
-        }));
+          allJobs.push({
+            id: dbJob.id,
+            status: dbJob.status === 'pending' || dbJob.status === 'running' ? 'running' : 'queued',
+            thumbnails,
+            createdAt: new Date(dbJob.created_at),
+            nbTakes
+          });
 
-        // Fill remaining slots if there are fewer images than expected takes
-        const nbTakes = dbJob.nb_takes || thumbnails.length;
-        while (thumbnails.length < nbTakes) {
-          thumbnails.push({
+          activeJobIds.current.add(dbJob.id);
+        } else {
+          // Completed job - create thumbnails with images
+          const thumbnails: InferenceThumbnail[] = dbJob.generated_images.map((image, index) => ({
             id: uuidv4(),
             jobId: dbJob.id,
             status: 'completed',
-            index: thumbnails.length,
-            progress: 100
+            index,
+            progress: 100,
+            imageUrl: getInferenceImageUrl(image.original_path),
+            webImageUrl: getInferenceImageUrl(image.web_path)
+          }));
+
+          // Fill remaining slots if there are fewer images than expected takes
+          while (thumbnails.length < nbTakes) {
+            thumbnails.push({
+              id: uuidv4(),
+              jobId: dbJob.id,
+              status: 'completed',
+              index: thumbnails.length,
+              progress: 100
+            });
+          }
+
+          allJobs.push({
+            id: dbJob.id,
+            status: 'completed',
+            thumbnails,
+            createdAt: new Date(dbJob.created_at),
+            nbTakes
           });
         }
-
-        allJobs.push({
-          id: dbJob.id,
-          status: 'completed',
-          thumbnails,
-          createdAt: new Date(dbJob.created_at),
-          nbTakes
-        });
       });
 
       // Sort by creation date (newest first)
       allJobs.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
       setJobs(allJobs);
-      setOffset(initialJobs.length);
-      setHasMore(initialJobs.length === JOBS_PER_PAGE && allJobs.length < totalCountResult);
+      // Offset should be the total number of jobs we've loaded from the paginated API
+      // Since fetchInferenceJobsPaginated gets ALL jobs, we need to account for both active and completed
+      setOffset(allJobs.length);
+      // hasMore should be true if there are more jobs in the database than we've loaded
+      const hasMoreJobs = allJobs.length < totalCountResult;
+      setHasMore(hasMoreJobs);
       
-      console.log(`🚀 Loaded ${allJobs.length} initial jobs, hasMore: ${allJobs.length < totalCountResult}`);
+
 
     } catch (err) {
       console.error('❌ Failed to load initial inference jobs:', err);
@@ -141,7 +143,9 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
 
   // Load more jobs for infinite scrolling
   const loadMore = useCallback(async () => {
-    if (!user?.id || isLoadingMore || !hasMore) return;
+    if (!user?.id || isLoadingMore || !hasMore) {
+      return;
+    }
 
     try {
       setIsLoadingMore(true);
@@ -151,8 +155,6 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
       
       const moreJobs = await fetchInferenceJobsPaginated(user.id, JOBS_PER_PAGE, offset);
       
-      console.log(`📄 Loading more jobs: offset=${offset}, fetched=${moreJobs.length}`);
-
       if (moreJobs.length === 0) {
         setHasMore(false);
         return;
@@ -199,15 +201,13 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
       setOffset(prev => prev + moreJobs.length);
       setHasMore(moreJobs.length === JOBS_PER_PAGE);
 
-      console.log(`📄 Loaded ${newJobs.length} more jobs, total: ${jobs.length + newJobs.length}, hasMore: ${moreJobs.length === JOBS_PER_PAGE}`);
-
     } catch (err) {
       console.error('❌ Failed to load more inference jobs:', err);
       setError(err instanceof Error ? err.message : 'Failed to load more jobs');
     } finally {
       setIsLoadingMore(false);
     }
-  }, [user?.id, isLoadingMore, hasMore, offset, jobs]);
+  }, [user?.id, isLoadingMore, hasMore, offset, jobs, totalCount]);
 
   // Refresh all jobs
   const refresh = useCallback(async () => {
@@ -294,10 +294,10 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
     }));
   }, []);
 
-  // Load initial jobs on mount
+  // Load initial jobs on mount and when user changes
   useEffect(() => {
     loadInitialJobs();
-  }, [loadInitialJobs]);
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     jobs,

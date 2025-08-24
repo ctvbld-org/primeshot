@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { InferenceThumbnail } from '@/components/home/InferenceThumbnail';
 import { useJobProgress } from '@/hooks/useJobProgress';
 import { useAuth } from '@/contexts/auth-context';
+import { webSocketManager } from '@/lib/websocket/connection-manager';
 
 export interface InferenceJob {
   id: string;
@@ -803,40 +804,83 @@ function useInferenceWebSocketManager(queue: UseInferenceQueueReturn) {
 // Custom hook that combines inference queue with WebSocket progress tracking
 export function useInferenceQueueWithProgress(): UseInferenceQueueReturn & {
   connectToJob: (jobId: string) => void;
-  connectJobAfterCreation: (placeholderId: string, realJobId: string) => void;
 } {
   const queue = useInferenceQueue();
   const { connectToJob, disconnectFromJob } = useInferenceWebSocketManager(queue);
+  const activeConnections = useRef<Map<string, string>>(new Map()); // jobId -> subscriptionId
 
-  // Auto-connect to active jobs when they're loaded from the database
+  // Monitor active jobs and update their thumbnail states based on WebSocket progress
   useEffect(() => {
     const activeJobs = queue.jobs.filter(job => 
       (job.status === 'queued' || job.status === 'running') &&
       !job.id.startsWith('placeholder_') // Don't connect to placeholder jobs
     );
 
-    if (activeJobs.length > 0) {
-      console.log(`🔌 Auto-connecting to ${activeJobs.length} active jobs (excluding placeholders)`);
-      activeJobs.forEach(job => {
-        connectToJob(job.id);
+    activeJobs.forEach(job => {
+      // Subscribe to progress updates for this job using the centralized manager
+      const subscriptionId = webSocketManager.subscribe(job.id, 'inference', {
+        onProgress: (data) => {
+          const status = data.status;
+          const progress = data.progress || 0;
+          
+          if (status === 'running' || status === 'pending' || status === 'initializing') {
+            queue.updateJobStatus(job.id, 'running');
+            
+            // Update all thumbnails to running state
+            job.thumbnails.forEach((_, index) => {
+              queue.updateThumbnail(job.id, index, {
+                status: 'running',
+                progress: Math.min(progress, 90) // Cap at 90% until completion
+              });
+            });
+          } else if (status === 'completed') {
+            queue.updateJobStatus(job.id, 'completed');
+            
+            // Mark all thumbnails as completed
+            job.thumbnails.forEach((_, index) => {
+              queue.updateThumbnail(job.id, index, {
+                status: 'completed',
+                progress: 100
+              });
+            });
+          } else if (status === 'failed') {
+            queue.updateJobStatus(job.id, 'failed');
+            
+            // Mark all thumbnails as failed
+            job.thumbnails.forEach((_, index) => {
+              queue.updateThumbnail(job.id, index, {
+                status: 'failed',
+                progress: 0
+              });
+            });
+          }
+        },
+        onComplete: (success: boolean) => {
+          queue.updateJobStatus(job.id, success ? 'completed' : 'failed');
+        },
+        onError: (error: string) => {
+          console.error(`WebSocket error for job ${job.id}:`, error);
+          queue.updateJobStatus(job.id, 'failed');
+        }
       });
-    }
-  }, [queue.jobs, connectToJob]);
+      
+      // Store subscription for cleanup
+      activeConnections.current.set(job.id, subscriptionId);
+    });
 
-  const connectJobAfterCreation = useCallback((placeholderId: string, realJobId: string) => {
-    console.log(`🔄 Connecting job after creation: ${placeholderId} -> ${realJobId}`);
-    
-    // Update the job with the real ID (no WebSocket transfer needed since placeholder had no connection)
-    queue.updateJobWithRealId(placeholderId, realJobId);
-    
-    // Connect to the real job WebSocket
-    connectToJob(realJobId);
-    
-  }, [queue, connectToJob]);
+    // Cleanup subscriptions for jobs that are no longer active
+    for (const [jobId, subscriptionId] of activeConnections.current.entries()) {
+      if (!activeJobs.find(job => job.id === jobId)) {
+        webSocketManager.unsubscribe(subscriptionId);
+        activeConnections.current.delete(jobId);
+      }
+    }
+  }, [queue.jobs, queue]);
+
+  // Removed connectJobAfterCreation - now using simplified useInferenceProgress approach
 
   return {
     ...queue,
     connectToJob,
-    connectJobAfterCreation,
   };
 }

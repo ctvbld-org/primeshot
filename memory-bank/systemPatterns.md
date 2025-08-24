@@ -1253,6 +1253,31 @@ Detected changes in:
 - webapp/src/lib/debug/inference-debug.ts
 - webapp/src/lib/hooks/use-inference-jobs-count.ts
 - webapp/src/lib/utils/get-inference-image.ts
+
+
+**Auto-update 2025-08-23**:
+Detected changes in:
+- admin/src/app/media/page.tsx
+- admin/src/components/ui/image-upload.tsx
+- webapp/src/app/api/app-images/route.ts
+- webapp/src/components/home/GalleryPlaceholder.module.css
+- webapp/src/components/home/GalleryPlaceholder.tsx
+- webapp/src/components/home/InferenceImageViewerDialog.module.css
+- webapp/src/components/home/InferenceImageViewerDialog.tsx
+- webapp/src/components/home/InferenceJobGroup.module.css
+- webapp/src/components/home/InferenceJobGroup.tsx
+- webapp/src/components/home/InferenceThumbnail.module.css
+- webapp/src/components/home/InferenceThumbnail.tsx
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/contexts/inference-queue-context.tsx
+- webapp/src/lib/api/inference-images.ts
+- webapp/src/lib/api/inference-job-management.ts
+- webapp/src/lib/api/inference-results.ts
+- webapp/src/lib/debug/inference-debug.ts
+- webapp/src/lib/hooks/use-inference-jobs-count.ts
+- webapp/src/lib/utils/get-inference-image.ts
+- webapp/src/lib/utils/inference-images.ts
+- webapp/src/lib/websocket/connection-manager.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

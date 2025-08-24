@@ -13,7 +13,7 @@ export interface JobProgressData {
   progress: number;
   message: string;
   timestamp: number;
-  status: 'initializing' | 'queued' | 'pending' | 'running' | 'completed' | 'failed';
+  status: 'initializing' | 'queued' | 'pending' | 'running' | 'completed' | 'failed' | 'closed';
   estimated_remaining?: number;
   elapsed_time?: number;
   phase?: string;
@@ -303,6 +303,20 @@ class WebSocketConnectionManager {
       return;
     }
 
+    // Add delay for inference jobs to allow Modal container to start
+    const delay = jobType === 'inference' ? 3000 : 0; // 3 second delay for inference
+    
+    if (delay > 0) {
+      console.log(`📡 WebSocket Manager: Delaying connection for ${jobType} job ${jobId} by ${delay}ms to allow Modal startup`);
+      setTimeout(() => {
+        this.createConnectionNow(jobId, jobType, baseUrl);
+      }, delay);
+    } else {
+      this.createConnectionNow(jobId, jobType, baseUrl);
+    }
+  }
+
+  private createConnectionNow(jobId: string, jobType: JobType, baseUrl: string): void {
     const url = `${baseUrl}/ws/progress/${jobId}`;
     const jobKey = this.getJobKey(jobId, jobType);
     
@@ -332,6 +346,15 @@ class WebSocketConnectionManager {
     this.connections.set(jobKey, connection);
     this.emitStatusChange(jobKey, 'connecting');
     this.setupWebSocketEvents(connection);
+    
+    // Set a connection timeout for inference jobs (Modal containers can be slow)
+    const connectionTimeout = jobType === 'inference' ? 30000 : 10000; // 30s for inference, 10s for training
+    setTimeout(() => {
+      if (connection.isConnecting && !connection.isConnected) {
+        console.warn(`📡 WebSocket Manager: Connection timeout for ${jobType} job ${jobId} after ${connectionTimeout}ms`);
+        connection.websocket.close();
+      }
+    }, connectionTimeout);
   }
 
   private setupWebSocketEvents(connection: WebSocketConnection): void {
@@ -356,6 +379,16 @@ class WebSocketConnectionManager {
         
         const data: JobProgressData = JSON.parse(event.data);
         
+        // Debug: Log preview images in WebSocket messages
+        if (data.preview_images) {
+          console.log(`🎨 WebSocket Manager: Received preview_images for job ${jobId}:`, {
+            preview_count: data.preview_images.length,
+            preview_index: data.preview_index,
+            first_preview_length: data.preview_images[0]?.length || 0,
+            first_preview_type: data.preview_images[0]?.startsWith('data:image/') ? 'base64' : 'other'
+          });
+        }
+        
         // Store latest data
         connection.lastData = data;
         
@@ -363,6 +396,14 @@ class WebSocketConnectionManager {
         for (const subscriptionId of connection.subscriptions) {
           const subscription = this.subscriptions.get(subscriptionId);
           if (subscription) {
+            // Debug: Log what data is being passed to subscribers
+            if (data.preview_images) {
+              console.log(`🔄 WebSocket Manager: Passing preview data to subscriber ${subscriptionId} for job ${jobId}:`, {
+                has_preview_images: !!data.preview_images,
+                preview_count: data.preview_images?.length || 0,
+                preview_index: data.preview_index
+              });
+            }
             subscription.onProgress(data);
             
             // Handle completion
@@ -432,10 +473,14 @@ class WebSocketConnectionManager {
 
   private scheduleReconnect(connection: WebSocketConnection): void {
     connection.reconnectAttempts++;
-    const delay = this.reconnectDelay * Math.pow(2, connection.reconnectAttempts - 1); // Exponential backoff
+    
+    // Use longer delays for inference jobs since Modal containers take time to start
+    const baseDelay = connection.jobType === 'inference' ? 5000 : this.reconnectDelay; // 5s for inference, 1s for training
+    const delay = baseDelay * Math.pow(1.5, connection.reconnectAttempts - 1); // Gentler exponential backoff
+    
     const jobKey = this.getJobKey(connection.jobId, connection.jobType);
     
-    console.log(`📡 WebSocket Manager: Reconnecting to job ${connection.jobId} in ${delay}ms (attempt ${connection.reconnectAttempts}/${connection.maxReconnectAttempts})`);
+    console.log(`📡 WebSocket Manager: Reconnecting to ${connection.jobType} job ${connection.jobId} in ${delay}ms (attempt ${connection.reconnectAttempts}/${connection.maxReconnectAttempts})`);
     this.emitStatusChange(jobKey, 'reconnecting');
     
     setTimeout(() => {

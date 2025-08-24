@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useInfiniteInferenceJobs } from './useInfiniteInferenceJobs';
 import { useAuth } from '@/contexts/auth-context';
 import { InferenceThumbnail } from '@/components/home/InferenceThumbnail';
+import { webSocketManager } from '@/lib/websocket/connection-manager';
 
 /**
  * Enhanced infinite inference jobs hook with WebSocket progress tracking
@@ -14,6 +15,7 @@ export function useInfiniteInferenceJobsWithProgress() {
   const { user } = useAuth();
   const activeConnections = useRef<Map<string, string>>(new Map()); // jobId -> subscriptionId
   const pollingIntervals = useRef<Map<string, NodeJS.Timeout>>(new Map()); // jobId -> interval
+  const previewTracking = useRef<Map<string, { currentThumbnail: number, lastPreviewIndex: number }>>(new Map()); // jobId -> tracking info
 
   // Connect to WebSocket for a specific job
   const connectToJob = useCallback((jobId: string) => {
@@ -55,6 +57,18 @@ export function useInfiniteInferenceJobsWithProgress() {
               preview_images: data.preview_images ? `${data.preview_images.length} previews` : 'none',
               completed_images: data.completed_images ? `${data.completed_images.length} completed` : 'none'
             });
+            
+            // Debug: Check if preview_images exists in the data
+            if (data.preview_images) {
+              console.log(`🎨 Hook received preview_images for job ${jobId}:`, {
+                preview_images_type: typeof data.preview_images,
+                preview_images_length: data.preview_images?.length,
+                preview_index: data.preview_index,
+                first_preview_sample: data.preview_images[0]?.substring(0, 50) + '...'
+              });
+            } else {
+              console.log(`❌ Hook did NOT receive preview_images for job ${jobId}. Available keys:`, Object.keys(data));
+            }
             
             // Map database status to UI status
             let uiStatus: 'queued' | 'running' | 'completed' | 'failed' = 'queued';
@@ -100,6 +114,63 @@ export function useInfiniteInferenceJobsWithProgress() {
             
             console.log(`🎯 Found job ${jobId} in queue with ${currentJob.thumbnails.length} thumbnails, current status: ${currentJob.status}`);
             
+            // Debug: Log all received data keys
+            console.log(`📊 WebSocket data keys for job ${jobId}:`, Object.keys(data));
+            
+            // Handle preview images first (outside the thumbnail loop)
+            if (data.preview_images && Array.isArray(data.preview_images) && data.preview_images.length > 0) {
+              console.log(`🎨 Processing preview images for job ${jobId}:`, {
+                preview_count: data.preview_images.length,
+                preview_index: data.preview_index,
+                first_preview_length: data.preview_images[0]?.length || 0
+              });
+              const previewPath = data.preview_images[0]; // Take the first (and usually only) preview
+              const previewIndex = data.preview_index || 0; // Use the preview_index from WebSocket data
+              
+              if (previewPath && previewIndex >= 0) {
+                // Import the image URL utility
+                import('@/lib/utils/get-inference-image').then(({ getInferenceImage }) => {
+                  const previewUrl = getInferenceImage(previewPath);
+                  
+                  // Enhanced logging for base64 previews
+                  const isBase64 = previewPath.startsWith('data:image/');
+                  const logUrl = isBase64 
+                    ? `${previewPath.substring(0, 50)}... (base64, ${previewPath.length} chars)`
+                    : previewUrl;
+                  
+                  console.log(`🎨 Setting preview image for thumbnail ${previewIndex} of job ${jobId}: ${logUrl}`);
+                  
+                  // Validate base64 data before setting
+                  if (isBase64) {
+                    try {
+                      // Basic validation - check if it's a valid data URL
+                      const [header, data] = previewPath.split(',');
+                      if (!header.includes('data:image/') || !data || data.length < 100) {
+                        console.warn(`⚠️ Invalid base64 preview for job ${jobId}, preview_index ${previewIndex}`);
+                        return;
+                      }
+                      
+                      // Check size (warn if very large)
+                      if (previewPath.length > 100000) { // 100KB
+                        console.warn(`⚠️ Large base64 preview for job ${jobId}: ${previewPath.length} chars`);
+                      }
+                    } catch (e) {
+                      console.error(`❌ Base64 validation failed for job ${jobId}:`, e);
+                      return;
+                    }
+                  }
+                  
+                  // Update the specific thumbnail with the preview
+                  infiniteJobs.updateThumbnail(jobId, previewIndex, {
+                    status: uiStatus,
+                    progress: data.progress !== undefined ? Math.round(Math.min(100, Math.max(0, data.progress))) : undefined,
+                    webImageUrl: previewUrl, // Use preview as web image
+                    imageUrl: previewUrl // Also set as main image for now
+                  });
+                });
+              }
+            }
+            
             // Always update thumbnails when we receive WebSocket data
             const job = infiniteJobs.jobs.find(j => j.id === jobId);
             if (job) {
@@ -122,56 +193,15 @@ export function useInfiniteInferenceJobsWithProgress() {
                   updates.errorMessage = data.error_message || 'Generation failed';
                 }
                 
-                // Check for preview images in progress data
-                if (data.preview_images && Array.isArray(data.preview_images) && data.preview_images[index]) {
-                  const previewPath = data.preview_images[index];
-                  if (previewPath) {
-                    // Import the image URL utility
-                    import('@/lib/utils/get-inference-image').then(({ getInferenceImage }) => {
-                      const previewUrl = getInferenceImage(previewPath);
-                      
-                      // Enhanced logging for base64 previews
-                      const isBase64 = previewPath.startsWith('data:image/');
-                      const logUrl = isBase64 
-                        ? `${previewPath.substring(0, 50)}... (base64, ${previewPath.length} chars)`
-                        : previewUrl;
-                      
-                      console.log(`🎨 Setting preview image ${index} for job ${jobId}: ${logUrl}`);
-                      
-                      // Validate base64 data before setting
-                      if (isBase64) {
-                        try {
-                          // Basic validation - check if it's a valid data URL
-                          const [header, data] = previewPath.split(',');
-                          if (!header.includes('data:image/') || !data || data.length < 100) {
-                            console.warn(`⚠️ Invalid base64 preview for job ${jobId}, index ${index}`);
-                            return;
-                          }
-                          
-                          // Check size (warn if very large)
-                          if (previewPath.length > 100000) { // 100KB
-                            console.warn(`⚠️ Large base64 preview for job ${jobId}: ${previewPath.length} chars`);
-                          }
-                        } catch (e) {
-                          console.error(`❌ Base64 validation failed for job ${jobId}:`, e);
-                          return;
-                        }
-                      }
-                      
-                      infiniteJobs.updateThumbnail(jobId, index, {
-                        ...updates,
-                        webImageUrl: previewUrl, // Use preview as web image
-                        imageUrl: previewUrl // Also set as main image for now
-                      });
-                    });
-                    return; // Skip the regular update since we're doing it with preview
-                  }
-                }
-                
-                // Check for individual image completion in progress data
-                if (data.completed_images && Array.isArray(data.completed_images)) {
-                  const completedImage = data.completed_images.find((img: any) => img.index === index);
-                  if (completedImage) {
+                // Regular update for this thumbnail
+                console.log(`📝 Updating thumbnail ${index} for job ${jobId}:`, updates);
+                infiniteJobs.updateThumbnail(jobId, index, updates);
+              });
+              
+              // Check for individual image completion in progress data
+              if (data.completed_images && Array.isArray(data.completed_images)) {
+                data.completed_images.forEach((completedImage: any) => {
+                  if (completedImage && typeof completedImage.index === 'number') {
                     import('@/lib/utils/get-inference-image').then(({ getInferenceImage }) => {
                       // Handle both base64 URLs and S3 paths
                       const webUrl = completedImage.web_path 
@@ -182,27 +212,22 @@ export function useInfiniteInferenceJobsWithProgress() {
                         ? getInferenceImage(completedImage.original_path)
                         : completedImage.base64 || completedImage.original_base64 || webUrl;
                       
-                      console.log(`✨ Individual image ${index} completed for job ${jobId}:`, {
+                      console.log(`✨ Individual image ${completedImage.index} completed for job ${jobId}:`, {
                         webUrl: webUrl ? `${webUrl.substring(0, 50)}...` : 'none',
                         originalUrl: originalUrl ? `${originalUrl.substring(0, 50)}...` : 'none',
                         isBase64: webUrl?.startsWith('data:image/') || false
                       });
                       
-                      infiniteJobs.updateThumbnail(jobId, index, {
-                        ...updates,
+                      infiniteJobs.updateThumbnail(jobId, completedImage.index, {
                         status: 'completed',
                         progress: 100,
                         webImageUrl: webUrl,
                         imageUrl: originalUrl
                       });
                     });
-                    return; // Skip regular update
                   }
-                }
-                
-                console.log(`📝 Updating thumbnail ${index} for job ${jobId}:`, updates);
-                infiniteJobs.updateThumbnail(jobId, index, updates);
-              });
+                });
+              }
             } else {
               console.warn(`⚠️ Job ${jobId} not found in queue for progress update`);
             }
@@ -263,8 +288,9 @@ export function useInfiniteInferenceJobsWithProgress() {
               }
             }
             
-            // Clean up connection
+            // Clean up connection and preview tracking
             activeConnections.current.delete(jobId);
+            previewTracking.current.delete(jobId);
           },
           onError: (error) => {
             console.error(`❌ WebSocket error for job ${jobId}:`, error);
@@ -281,8 +307,9 @@ export function useInfiniteInferenceJobsWithProgress() {
               });
             }
             
-            // Clean up connection
+            // Clean up connection and preview tracking
             activeConnections.current.delete(jobId);
+            previewTracking.current.delete(jobId);
           }
         });
         
@@ -368,25 +395,188 @@ export function useInfiniteInferenceJobsWithProgress() {
     // Update the job with the real ID (no WebSocket transfer needed since placeholder had no connection)
     infiniteJobs.updateJobWithRealId(placeholderId, realJobId);
     
-    // Connect to the real job WebSocket
-    connectToJob(realJobId);
+    // DISABLED: WebSocket connection now handled by useInferenceProgress hook
+    // connectToJob(realJobId);
     
   }, [infiniteJobs, connectToJob]);
 
-  // Auto-connect to active jobs when they're loaded from the database
+  // Auto-connect to active jobs and update their thumbnail states
   useEffect(() => {
     const activeJobs = infiniteJobs.jobs.filter(job => 
       (job.status === 'queued' || job.status === 'running') &&
       !job.id.startsWith('placeholder_') // Don't connect to placeholder jobs
     );
 
-    if (activeJobs.length > 0) {
-      console.log(`🔌 Auto-connecting to ${activeJobs.length} active jobs (excluding placeholders)`);
-      activeJobs.forEach(job => {
-        connectToJob(job.id);
+    activeJobs.forEach(job => {
+      // Check if we already have a connection for this job
+      if (activeConnections.current.has(job.id)) {
+        return;
+      }
+
+      console.log(`🔌 Auto-connecting to job ${job.id} for thumbnail updates`);
+      
+      // Subscribe to progress updates using the centralized WebSocket manager
+      const subscriptionId = webSocketManager.subscribe(job.id, 'inference', {
+        onProgress: (data) => {
+          const status = data.status;
+          const progress = data.progress || 0;
+          
+          console.log(`📊 Auto-connection progress update for job ${job.id}: ${status} - ${progress}%`);
+          
+          // Debug: Check if preview_images exists in the auto-connection data
+          if (data.preview_images) {
+            console.log(`🎨 Auto-connection received preview_images for job ${job.id}:`, {
+              preview_images_type: typeof data.preview_images,
+              preview_images_length: data.preview_images?.length,
+              preview_index: data.preview_index,
+              first_preview_sample: data.preview_images[0]?.substring(0, 50) + '...'
+            });
+          }
+          
+          // Handle preview images in auto-connection
+          if (data.preview_images && Array.isArray(data.preview_images) && data.preview_images.length > 0) {
+            const previewPath = data.preview_images[0]; // Take the first (and usually only) preview
+            const comfyPreviewIndex = data.preview_index || 0; // ComfyUI's internal preview counter
+            
+            if (previewPath) {
+              // Get or initialize preview tracking for this job
+              let tracking = previewTracking.current.get(job.id);
+              if (!tracking) {
+                tracking = { currentThumbnail: 0, lastPreviewIndex: -1 };
+                previewTracking.current.set(job.id, tracking);
+              }
+              
+              // Since ComfyUI doesn't tell us which specific image in the batch each preview belongs to,
+              // we'll show the preview on all thumbnails to give users visual feedback that generation is happening
+              console.log(`🎨 Auto-connection setting preview for all thumbnails of job ${job.id} (ComfyUI preview_index: ${comfyPreviewIndex})`);
+              
+              // Import the image URL utility
+              import('@/lib/utils/get-inference-image').then(({ getInferenceImage }) => {
+                const previewUrl = getInferenceImage(previewPath);
+                
+                // Update all thumbnails with the same preview to show generation progress
+                job.thumbnails.forEach((_, index) => {
+                  infiniteJobs.updateThumbnail(job.id, index, {
+                    status: 'running',
+                    progress: Math.min(progress, 90),
+                    webImageUrl: previewUrl, // Use preview as web image
+                    imageUrl: previewUrl // Also set as main image for now
+                  });
+                });
+              });
+            }
+          }
+          
+          if (status === 'running' || status === 'pending' || status === 'initializing') {
+            infiniteJobs.updateJobStatus(job.id, 'running');
+            
+            // Update all thumbnails to running state (but don't override previews)
+            job.thumbnails.forEach((_, index) => {
+              // Only update if this thumbnail doesn't have a preview being set
+              if (!data.preview_images || data.preview_index !== index) {
+                infiniteJobs.updateThumbnail(job.id, index, {
+                  status: 'running',
+                  progress: Math.min(progress, 90) // Cap at 90% until completion
+                });
+              }
+            });
+          } else if (status === 'completed') {
+            infiniteJobs.updateJobStatus(job.id, 'completed');
+            
+            // Mark all thumbnails as completed
+            job.thumbnails.forEach((_, index) => {
+              infiniteJobs.updateThumbnail(job.id, index, {
+                status: 'completed',
+                progress: 100
+              });
+            });
+          } else if (status === 'failed') {
+            infiniteJobs.updateJobStatus(job.id, 'failed');
+            
+            // Mark all thumbnails as failed
+            job.thumbnails.forEach((_, index) => {
+              infiniteJobs.updateThumbnail(job.id, index, {
+                status: 'failed',
+                progress: 0
+              });
+            });
+          }
+        },
+        onComplete: async (success: boolean) => {
+          console.log(`✅ Auto-connection job ${job.id} completed: ${success}`);
+          
+          if (success) {
+            infiniteJobs.updateJobStatus(job.id, 'completed');
+            
+            // Fetch generated images and update thumbnails
+            try {
+              console.log(`🔍 Auto-connection fetching inference job result for ${job.id}...`);
+              const { fetchInferenceJobResult, getInferenceImageUrl } = await import('@/lib/api/inference-results');
+              const result = await fetchInferenceJobResult(job.id);
+              
+              console.log(`🔍 Auto-connection fetched result for job ${job.id}:`, result);
+              
+              if (result && result.generated_images.length > 0) {
+                // Update thumbnails with actual image URLs
+                result.generated_images.forEach((image, index) => {
+                  const webImageUrl = getInferenceImageUrl(image.web_path, true);
+                  const originalImageUrl = getInferenceImageUrl(image.original_path, false);
+                  
+                  console.log(`🖼️ Auto-connection updating thumbnail ${index} for job ${job.id}:`, {
+                    web_path: image.web_path,
+                    webImageUrl,
+                    original_path: image.original_path,
+                    originalImageUrl
+                  });
+                  
+                  infiniteJobs.updateThumbnail(job.id, index, {
+                    status: 'completed',
+                    imageUrl: originalImageUrl,
+                    webImageUrl: webImageUrl,
+                    progress: 100
+                  });
+                });
+                
+                console.log(`🖼️ Auto-connection updated ${result.generated_images.length} thumbnails for job ${job.id}`);
+              } else {
+                console.warn(`⚠️ Auto-connection: No generated images found for completed job ${job.id}`);
+              }
+            } catch (fetchError) {
+              console.error(`❌ Auto-connection failed to fetch images for completed job ${job.id}:`, fetchError);
+            }
+          } else {
+            infiniteJobs.updateJobStatus(job.id, 'failed');
+            // Mark all thumbnails as failed
+            job.thumbnails.forEach((_, index) => {
+              infiniteJobs.updateThumbnail(job.id, index, { 
+                status: 'failed',
+                errorMessage: 'Generation failed'
+              });
+            });
+          }
+          
+          // Clean up preview tracking on completion
+          previewTracking.current.delete(job.id);
+        },
+        onError: (error: string) => {
+          console.error(`❌ WebSocket error for job ${job.id}:`, error);
+          infiniteJobs.updateJobStatus(job.id, 'failed');
+        }
       });
+      
+      // Store subscription for cleanup
+      activeConnections.current.set(job.id, subscriptionId);
+    });
+
+    // Cleanup subscriptions for jobs that are no longer active
+    for (const [jobId, subscriptionId] of activeConnections.current.entries()) {
+      if (!activeJobs.find(job => job.id === jobId)) {
+        console.log(`🔌 Cleaning up WebSocket subscription for job ${jobId}`);
+        webSocketManager.unsubscribe(subscriptionId);
+        activeConnections.current.delete(jobId);
+      }
     }
-  }, [infiniteJobs.jobs, connectToJob]);
+  }, [infiniteJobs.jobs, infiniteJobs]);
 
   // Cleanup all connections on unmount
   useEffect(() => {
@@ -404,6 +594,9 @@ export function useInfiniteInferenceJobsWithProgress() {
         clearInterval(interval);
       });
       pollingIntervals.current.clear();
+      
+      // Clean up preview tracking
+      previewTracking.current.clear();
     };
   }, []);
 

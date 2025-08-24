@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 // Embla type import replaced with any to avoid cross-package type issues
 import Image from 'next/image'
 import { Icon } from '@primeshot/common/web/Icon'
@@ -188,14 +188,10 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const { runWithGates } = useActionGate(requiredCredits, 'inference')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [inferenceJobId, setInferenceJobId] = useState('')
-  const inference = useInferenceProgress({ jobId: inferenceJobId })
-  const inferencePct = inferenceJobId ? (inference.getProgressPercentage?.() ?? 0) : 0
   
-  // Inference queue integration
-  const { jobs, createQueuedThumbnails, connectJobAfterCreation, updateThumbnail, updateJobStatus, connectToJob, isGenerating } = useInferenceQueue()
+  // Inference queue integration (only for job creation, not thumbnail management)
+  const { createQueuedThumbnails, updateJobWithRealId, isGenerating } = useInferenceQueue()
   
-  // Debouncing for generate button
-  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const lastClickTimeRef = useRef<number>(0)
 
   const onGenerate = useCallback(async () => {
@@ -272,26 +268,14 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
       if (realJobId) {
         setInferenceJobId(realJobId)
         
-        // Update thumbnails with real job ID and connect to WebSocket
-        connectJobAfterCreation(placeholderId, realJobId)
+        // Update thumbnails with real job ID (WebSocket connection handled by useInferenceProgress)
+        updateJobWithRealId(placeholderId, realJobId)
       }
     } catch (e) {
       console.error('Generate error', e)
       
-      // Mark thumbnails as failed for the placeholder job if it was created
-      if (placeholderId) {
-        const job = jobs.find(j => j.id === placeholderId);
-        if (job) {
-          const errorMessage = e instanceof Error ? e.message : 'Failed to start generation';
-          job.thumbnails.forEach((_, index) => {
-            updateThumbnail(placeholderId!, index, { 
-              status: 'failed',
-              errorMessage: errorMessage
-            });
-          });
-          updateJobStatus(placeholderId!, 'failed');
-        }
-      }
+      // Error handling for failed job creation
+      // Thumbnail error states will be handled by the job queue component
       
       // Show user-friendly error message
       // TODO: Integrate with toast/notification system
@@ -299,7 +283,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
     } finally {
       setIsSubmitting(false)
     }
-  }, [isSubmitting, authUser?.id, currentStyle?.id, selectedCharacterId, nbTakes, quality, aspectRatio, inferenceSettings, runWithGates, createQueuedThumbnails, connectJobAfterCreation, jobs, updateThumbnail, updateJobStatus])
+  }, [isSubmitting, authUser?.id, currentStyle?.id, selectedCharacterId, nbTakes, quality, aspectRatio, inferenceSettings, runWithGates, createQueuedThumbnails, updateJobWithRealId])
 
   const refreshCharacters = React.useCallback(async () => {
     if (!authUser?.id) { setCharacters([]); return }
