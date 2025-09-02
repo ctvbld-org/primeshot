@@ -2,12 +2,12 @@
 
 import { useRouter } from 'next/navigation'
 import { Button } from '@primeshot/common/web/ui/button'
-import { Badge } from '@primeshot/common/web/ui/badge'
 import { useCreditPacks, useCreditCosts } from '@/hooks/usePricingConfig'
 import { useAuth } from '@primeshot/common/hooks/AuthContext'
 import { useCreditPackCheckout } from '@/hooks/useCreditPackCheckout'
-import { CreditPackGrid } from './CreditPackGrid'
-import { getPriceIdForCredits, extractQualityCosts, getTrainingCost } from './utils'
+import { getPriceIdForCredits, extractQualityCosts, getTrainingCost, formatValidity } from './utils'
+import { Icon } from '@primeshot/common/web/Icon'
+import styles from './SubscriptionDialogContent.module.css'
 
 interface CreditPackPricingProps {
   className?: string
@@ -39,44 +39,80 @@ export function CreditPackPricing({ className }: CreditPackPricingProps) {
 
   const packs = creditPacks as any
 
-  const formatValidity = (days: number) => {
-    if (days >= 365) {
-      return `${Math.floor(days / 365)} year${Math.floor(days / 365) > 1 ? 's' : ''}`
-    } else if (days >= 30) {
-      return `${Math.floor(days / 30)} month${Math.floor(days / 30) > 1 ? 's' : ''}`
-    } else {
-      return `${days} day${days > 1 ? 's' : ''}`
-    }
-  }
-
   const guideQualityCosts = extractQualityCosts(creditCosts || {}, 6)
   const guideTrainingCost = getTrainingCost(creditCosts || {})
 
   return (
     <div className={className}>
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold">Credit Packs</h2>
-        <p className="text-muted-foreground mt-2">
-          Top up your credits with one-time purchases. Perfect for extra generations when you need them.
-        </p>
+      <div className={styles.sectionIntro}>
+        <h2 className={styles.headerTitle}>Credit Packs</h2>
+        <p className={styles.subtleText}>Top up your credits with one-time purchases. Perfect for extra generations when you need them.</p>
       </div>
 
-      <CreditPackGrid
-        packs={packs}
-        creditCosts={creditCosts || {}}
-        onPurchase={handlePurchase as any}
-        isProcessing={(name) => checkoutMutation.isPending}
-        buttonVariant="secondary"
-        buttonSize="lg"
-      />
+      <div className={styles.grid}>
+        {(packs || []).map((pack: any) => {
+          const perCredit = (pack.price / Math.max(pack.credits, 1)).toFixed(3)
+          const level = pack.credits >= 360 ? 'pro' : pack.credits >= 180 ? 'standard' : 'basic'
+          return (
+            <div key={`${pack.name}-${pack.credits}`} className={`${styles.card} ${level}`}>
+              <div className={styles.cardHead}>
+                <div className={styles.iconWrap}>
+                  {level === 'pro' ? (
+                    <Icon variant="insights" size={24} />
+                  ) : level === 'standard' ? (
+                    <Icon variant="scene" size={24} />
+                  ) : (
+                    <Icon variant="smilyFace" size={24} />
+                  )}
+                </div>
+              </div>
 
-      {/* Credit Usage Info */}
-      <div className="mt-8 bg-muted/30 rounded-lg p-6 max-w-4xl mx-auto">
-        <h3 className="font-semibold mb-4">Credit Usage Guide</h3>
-        <div className="grid md:grid-cols-2 gap-6 text-sm">
+              <div className={styles.cardTitle}>{pack.name}</div>
+
+              <div className={styles.priceBlock}>
+                <div className={styles.mainPrice}>${pack.price}<span className={styles.per}> one-time</span></div>
+                <div className={styles.priceSub}>${perCredit} per credit</div>
+              </div>
+
+              <div className={styles.divider} />
+
+              <div className={styles.includedBlock}>
+                <div className={styles.metaGrid}>
+                  <div className={styles.metaItem}><span className={styles.subtleText}>Credits:</span> {pack.credits.toLocaleString()}</div>
+                  {pack.validity_days != null && (
+                    <div className={styles.metaItem}><span className={styles.subtleText}>Validity:</span> {formatValidity(pack.validity_days)}</div>
+                  )}
+                </div>
+
+                <ul className={styles.features}>
+                  <li className={styles.featureItem}>Perfect for:</li>
+                  {guideQualityCosts.map((q) => (
+                    <li key={q.quality} className={styles.featureItem}>• {Math.floor(pack.credits / Math.max(q.cost, 1))} × {q.quality} images</li>
+                  ))}
+                  {!!guideTrainingCost && (
+                    <li className={styles.featureItem}>• {Math.floor(pack.credits / Math.max(guideTrainingCost, 1))} × LoRA trainings</li>
+                  )}
+                </ul>
+              </div>
+
+              <Button
+                className={styles.selectBtn}
+                onClick={() => handlePurchase(pack)}
+                disabled={checkoutMutation.isPending}
+              >
+                {checkoutMutation.isPending ? 'Processing…' : `Buy ${pack.name}`}
+              </Button>
+            </div>
+          )
+        })}
+      </div>
+
+      <div className={styles.guideBlock}>
+        <div className={styles.guideTitle}>Credit Usage Guide</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <div>
-            <h4 className="font-medium mb-2">Image Generation</h4>
-            <ul className="space-y-1 text-muted-foreground">
+            <div style={{ fontWeight: 600, marginBottom: 8 }}>Image Generation</div>
+            <ul className={styles.subtleText} style={{ display: 'grid', gap: 4 }}>
               {guideQualityCosts.map((q) => (
                 <li key={q.quality}>• {q.quality} quality: {q.cost} credit{q.cost > 1 ? 's' : ''} per image</li>
               ))}
@@ -84,8 +120,8 @@ export function CreditPackPricing({ className }: CreditPackPricingProps) {
             </ul>
           </div>
           <div>
-            <h4 className="font-medium mb-2">LoRA Training</h4>
-            <ul className="space-y-1 text-muted-foreground">
+            <div style={{ fontWeight: 600, marginBottom: 8 }}>LoRA Training</div>
+            <ul className={styles.subtleText} style={{ display: 'grid', gap: 4 }}>
               {!!guideTrainingCost && (
                 <li>• Face model training: {guideTrainingCost} credits</li>
               )}
@@ -96,12 +132,8 @@ export function CreditPackPricing({ className }: CreditPackPricingProps) {
         </div>
       </div>
 
-      {/* Important Notice */}
-      <div className="mt-6 text-center text-sm text-muted-foreground max-w-2xl mx-auto">
-        <p>
-          Credits expire after the validity period and cannot be refunded. 
-          Credits are consumed when generation starts, regardless of output quality.
-        </p>
+      <div className={styles.mutedNote}>
+        Credits expire after the validity period and cannot be refunded. Credits are consumed when generation starts, regardless of output quality.
       </div>
     </div>
   )

@@ -7,6 +7,6 @@ export function useOpenCreditPackDialog() {
   const { openDialog } = useDialogService()
 
   return useCallback((requiredCredits?: number) => {
-    openDialog(createElement(CreditPackDialogContent, { requiredCredits }))
+    openDialog(createElement(CreditPackDialogContent, { requiredCredits, fullscreen: true }))
   }, [openDialog])
 } 

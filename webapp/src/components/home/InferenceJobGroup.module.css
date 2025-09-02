@@ -1,15 +1,9 @@
 .jobGroup {
-  margin-bottom: 32px;
-  border-radius: 12px;
-  background: var(--color-surface-primary);
-  border: 1px solid var(--color-border);
   overflow: hidden;
 }
 
 .jobHeader {
-  padding: 16px 20px;
-  background: var(--color-surface-secondary);
-  border-bottom: 1px solid var(--color-border);
+  padding: 0 20px;
 }
 
 .jobTitle {
@@ -19,12 +13,31 @@
   margin-bottom: 8px;
 }
 
-.shootTitle {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin: 0;
-  letter-spacing: 0.5px;
+.titleRow {
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.jobSubtitle {
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: lowercase;
+  opacity: 0.7;
+}
+.jobSubtitle::first-letter {text-transform: uppercase}
+
+.dotsMenuButton {
+  height: 40px;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .jobMeta {
@@ -33,14 +46,7 @@
   gap: 8px;
   font-size: 12px;
   color: var(--color-text-secondary);
-}
-
-.timeAgo {
-  font-weight: 500;
-}
-
-.separator {
-  color: var(--color-text-tertiary);
+  position: relative;
 }
 
 .status {
@@ -48,33 +54,29 @@
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 11px;
-  text-transform: uppercase;
   letter-spacing: 0.5px;
+  color: #2ADED8;
+}
+
+
+.separator {
+  color: var(--color-text-tertiary);
 }
 
 .statusQueued {
-  background: rgba(156, 163, 175, 0.1);
   color: #9CA3AF;
 }
 
-.statusGenerating {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3B82F6;
-}
-
 .statusCompleted {
-  background: rgba(34, 197, 94, 0.1);
   color: #22C55E;
 }
 
 .statusFailed {
-  background: rgba(239, 68, 68, 0.1);
   color: #EF4444;
 }
 
 .progress {
-  font-weight: 600;
-  color: var(--color-primary);
+  padding-left: 4px;
 }
 
 .jobOptions {
@@ -95,16 +97,21 @@
 
 .thumbnailGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
-  padding: 20px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1px;
+  border-radius: 28px;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .thumbnailGrid {
+    grid-template-columns: repeat(1, 1fr);
+  }
 }
 
 .thumbnailPlaceholder {
   aspect-ratio: 1;
-  background: var(--color-surface-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+  background: #2ADED810;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -112,58 +119,48 @@
   position: relative;
 }
 
-.thumbnailPlaceholder::before {
-  content: '';
-  width: 24px;
-  height: 24px;
-  border: 2px solid var(--color-border);
-  border-radius: 50%;
-  border-top-color: var(--color-primary);
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
+/* Animated dots (fade + scale) used in uploading status */
+@keyframes dotFadePulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.9);
   }
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .jobGroup {
-    margin-bottom: 24px;
-    border-radius: 8px;
-  }
-  
-  .jobHeader {
-    padding: 12px 16px;
-  }
-  
-  .jobTitle {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-  }
-  
-  .shootTitle {
-    font-size: 13px;
-  }
-  
-  .jobMeta {
-    font-size: 11px;
-  }
-  
-  .thumbnailGrid {
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 12px;
-    padding: 16px;
-  }
+.dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 1px;
 }
 
-@media (max-width: 480px) {
-  .thumbnailGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    padding: 12px;
-  }
+.dot {
+  width: 2px;
+  height: 2px;
+  border-radius: 9999px;
+  background-color: currentColor;
+  display: inline-block;
+  transform-origin: center;
+  opacity: 0;
+  animation: dotFadePulse 1.2s ease-in-out infinite;
+}
+
+.dots .dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dots .dot:nth-child(3) {
+  animation-delay: 0.4s;
 }

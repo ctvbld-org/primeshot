@@ -14,7 +14,7 @@ export default function Home() {
         </section>
       </StyleSelectionProvider>
 
-      <section>
+      <section className="max-w-[1280px] mx-auto">
         <GalleryPlaceholder />
       </section>
     </main>

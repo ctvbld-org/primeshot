@@ -273,20 +273,31 @@ export function WardrobeFormDialog({
     },
   })
 
-  // Defer upload integration
-  const uploaders = React.useRef<(() => Promise<string[]>)[]>([])
-  const registerUploader = (u: () => Promise<string[]>) => { uploaders.current.push(u) }
+  // Defer upload integration (single uploader for this form)
+  const uploaderRef = React.useRef<(() => Promise<string[]>) | null>(null)
+  const registerUploader = (u: () => Promise<string[]>) => { uploaderRef.current = u }
+
+  // Reset uploader when dialog opens/closes to avoid stale closures across entries
+  useEffect(() => {
+    if (!open) {
+      uploaderRef.current = null
+    }
+  }, [open])
 
   const onSubmit = async (data: WardrobeFormValues) => {
     setIsSaving(true)
     try {
-      for (const up of uploaders.current) { await up() }
+      if (uploaderRef.current) {
+        await uploaderRef.current()
+      }
+      // Re-read latest form values after deferred uploads may have updated fields (e.g., image)
+      const latest = form.getValues()
       const columns = getTranslatableColumns('wardrobe')
-      const needsTranslation = shouldTranslateRow(originalValues.current ?? undefined, data, columns)
+      const needsTranslation = shouldTranslateRow(originalValues.current ?? undefined, latest, columns)
       let translations = ((wardrobe as any)?.translations as Record<string, any>) || {}
       if (needsTranslation) {
         try {
-          translations = await translateRow('wardrobe', data)
+          translations = await translateRow('wardrobe', latest)
         } catch (err: any) {
           toast.error('Translation failed: ' + (err?.message || 'Unknown error'))
           setIsSaving(false)
@@ -295,9 +306,9 @@ export function WardrobeFormDialog({
       }
 
       if (wardrobe) {
-        updateMutation.mutate({ ...data, translations })
+        updateMutation.mutate({ ...latest, translations })
       } else {
-        createMutation.mutate({ ...data, translations })
+        createMutation.mutate({ ...latest, translations })
       }
     } finally {
       setIsSaving(false)

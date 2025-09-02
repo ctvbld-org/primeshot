@@ -42,7 +42,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
 
   // Split options into separate constants for better memoization
   const {
-    maxSize = 100 * 1024 * 1024,
+    maxSize = 25 * 1024 * 1024,
     allowedTypes = ['image/jpeg', 'image/png'],
     maxFiles = UPLOAD_CONSTANTS.MAX_IMAGES,
     existingImages = []

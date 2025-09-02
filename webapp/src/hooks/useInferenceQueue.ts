@@ -9,11 +9,17 @@ import { webSocketManager } from '@/lib/websocket/connection-manager';
 
 export interface InferenceJob {
   id: string;
-  status: 'queued' | 'running' | 'completed' | 'failed';
+  status: string; // Allow any status from Modal - no more rigid mapping
   thumbnails: InferenceThumbnail[];
   createdAt: Date;
   progress?: number;
   nbTakes: number;
+  message?: string;
+  // Metadata for UI subtitle rendering
+  styleId?: string;
+  sceneId?: string;
+  wardrobeId?: string;
+  colorId?: string;
 }
 
 interface UseInferenceQueueReturn {
@@ -22,6 +28,7 @@ interface UseInferenceQueueReturn {
   createQueuedThumbnails: (nbTakes: number) => string; // Returns placeholder ID
   updateJobWithRealId: (placeholderId: string, realJobId: string) => void;
   updateJobStatus: (jobId: string, status: InferenceJob['status']) => void;
+  updateJobMessage: (jobId: string, message?: string) => void;
   updateThumbnail: (jobId: string, thumbnailIndex: number, updates: Partial<InferenceThumbnail>) => void;
   clearJobs: () => void;
   isGenerating: boolean;
@@ -37,7 +44,7 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
 
   // Calculate if any job is currently generating
   const isGenerating = jobs.some(job => 
-    job.status === 'queued' || job.status === 'running'
+    job.status === 'initializing' || job.status === 'queued' || job.status === 'running'
   );
 
   // Fetch active inference jobs from database on mount
@@ -47,14 +54,9 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
       return;
     }
 
-    // Debug configuration on first load
-    import('@/lib/debug/inference-debug').then(({ checkInferenceConfiguration }) => {
-      checkInferenceConfiguration();
-    });
-
     const loadActiveJobs = async () => {
       try {
-        const { fetchActiveInferenceJobs, fetchCompletedInferenceJobs, getInferenceImageUrl } = await import('@/lib/api/inference-job-management');
+        const { fetchActiveInferenceJobs, fetchCompletedInferenceJobs, fetchInferenceJob, getInferenceImageUrl } = await import('@/lib/api/inference-job-management');
         
         // Fetch both active and recent completed jobs
         const [activeJobs, completedJobs] = await Promise.all([
@@ -82,7 +84,12 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
             status: dbJob.status === 'pending' || dbJob.status === 'running' ? 'running' : 'queued',
             thumbnails,
             createdAt: new Date(dbJob.created_at),
-            nbTakes
+            nbTakes,
+            // Attach DB metadata so UI can resolve labels by UUID
+            styleId: dbJob.style_id,
+            sceneId: dbJob.scene_id || undefined,
+            wardrobeId: dbJob.wardrobe_id || undefined,
+            colorId: dbJob.color_id || undefined
           });
 
           activeJobIds.current.add(dbJob.id);
@@ -117,7 +124,12 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
             status: 'completed',
             thumbnails,
             createdAt: new Date(dbJob.created_at),
-            nbTakes
+            nbTakes,
+            // Attach DB metadata (UUIDs)
+            styleId: dbJob.style_id,
+            sceneId: dbJob.scene_id || undefined,
+            wardrobeId: dbJob.wardrobe_id || undefined,
+            colorId: dbJob.color_id || undefined
           });
         });
 
@@ -126,6 +138,42 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
 
         setJobs(allJobs);
         console.log(`🚀 Loaded ${allJobs.length} total inference jobs from database`);
+
+        // After initial load, hydrate any already-generated images for running/pending jobs
+        // This fixes the reload case where WS won't replay completed images
+        await Promise.all(
+          activeJobs
+            .filter(j => j.status === 'running' || j.status === 'pending')
+            .map(async (j) => {
+              try {
+                const full = await fetchInferenceJob(j.id);
+                const images = full?.generated_images || [];
+                if (images.length > 0) {
+                  setJobs(prev => prev.map(queueJob => {
+                    if (queueJob.id !== j.id) return queueJob;
+                    const updated = [...queueJob.thumbnails];
+                    // Map available images to first N thumbnails (consistent with existing logic)
+                    images.forEach((img: any, idx: number) => {
+                      const webUrl = getInferenceImageUrl(img.web_path);
+                      const originalUrl = getInferenceImageUrl(img.original_path);
+                      if (updated[idx]) {
+                        updated[idx] = {
+                          ...updated[idx],
+                          status: 'completed',
+                          progress: 100,
+                          webImageUrl: webUrl,
+                          imageUrl: originalUrl,
+                        };
+                      }
+                    });
+                    return { ...queueJob, thumbnails: updated };
+                  }));
+                }
+              } catch (e) {
+                console.warn('Hydration fetch failed for job', j.id, e);
+              }
+            })
+        );
 
       } catch (error) {
         console.error('❌ Failed to load inference jobs:', error);
@@ -137,7 +185,7 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
     loadActiveJobs();
   }, [user?.id]);
 
-  const addJob = useCallback((jobId: string, nbTakes: number) => {
+  const addJob = useCallback((jobId: string, nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string }) => {
     const thumbnails: InferenceThumbnail[] = Array.from({ length: nbTakes }, (_, index) => ({
       id: uuidv4(),
       jobId,
@@ -151,6 +199,10 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
       thumbnails,
       createdAt: new Date(),
       nbTakes,
+      styleId: meta?.styleId,
+      sceneId: meta?.sceneId,
+      wardrobeId: meta?.wardrobeId,
+      colorId: meta?.colorId,
     };
 
     setJobs(prev => [newJob, ...prev]);
@@ -186,7 +238,7 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
     }, 3000); // 3 second delay to allow for job initialization
   }, []);
 
-  const createQueuedThumbnails = useCallback((nbTakes: number) => {
+  const createQueuedThumbnails = useCallback((nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string }) => {
     // Create a placeholder ID for the thumbnails (no WebSocket connection yet)
     const placeholderId = `placeholder_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
@@ -199,10 +251,14 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
 
     const newJob: InferenceJob = {
       id: placeholderId,
-      status: 'queued',
+      status: 'initializing',
       thumbnails,
       createdAt: new Date(),
       nbTakes,
+      styleId: meta?.styleId,
+      sceneId: meta?.sceneId,
+      wardrobeId: meta?.wardrobeId,
+      colorId: meta?.colorId,
     };
 
     setJobs(prev => [newJob, ...prev]);
@@ -247,6 +303,13 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
     }
   }, []);
 
+  const updateJobMessage = useCallback((jobId: string, message?: string) => {
+    if (message == null) return;
+    setJobs(prev => prev.map(job => 
+      job.id === jobId ? { ...job, message } : job
+    ));
+  }, []);
+
   const updateThumbnail = useCallback((
     jobId: string, 
     thumbnailIndex: number, 
@@ -280,15 +343,24 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
         
         const unsubscribe = subscribeToInferenceJobUpdates(user.id, (updatedJob) => {
           console.log(`📨 Real-time update for job ${updatedJob.id}:`, updatedJob.status);
-          
-          // Update job status in the queue
+
+          // Prevent downgrades once generation has begun (e.g., running → starting)
+          const current = jobs.find(j => j.id === updatedJob.id);
+          const currentIsRunning = current?.status === 'running';
+          const isDowngradeToStarting = currentIsRunning && (updatedJob.status as any) === 'starting';
+          const anyThumbProgress = current?.thumbnails?.some(t => (t.progress ?? 0) > 0);
+          if (isDowngradeToStarting || (anyThumbProgress && (updatedJob.status as any) === 'starting')) {
+            console.log(`⏭️ Ignoring downgrade to 'starting' for job ${updatedJob.id} (already generating)`);
+          } else {
+            // Update job status in the queue
+            updateJobStatus(updatedJob.id, updatedJob.status);
+          }
+
           if (updatedJob.status === 'completed') {
-            console.log(`🎉 Job ${updatedJob.id} completed, fetching images...`);
             // Fetch the complete job with images
             import('@/lib/api/inference-job-management').then(async ({ fetchInferenceJob, getInferenceImageUrl }) => {
               const completeJob = await fetchInferenceJob(updatedJob.id);
               if (completeJob && completeJob.generated_images.length > 0) {
-                console.log(`🖼️ Found ${completeJob.generated_images.length} generated images for job ${updatedJob.id}`);
                 updateJobStatus(updatedJob.id, 'completed');
                 
                 // Update thumbnails with actual images
@@ -320,10 +392,6 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
                 });
               });
             }
-          } else if (updatedJob.status === 'running') {
-            updateJobStatus(updatedJob.id, 'running');
-          } else if (updatedJob.status === 'pending') {
-            updateJobStatus(updatedJob.id, 'running');
           }
         });
 
@@ -351,6 +419,7 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
     createQueuedThumbnails,
     updateJobWithRealId,
     updateJobStatus,
+    updateJobMessage,
     updateThumbnail,
     clearJobs,
     isGenerating,
@@ -546,6 +615,10 @@ function useInferenceWebSocketManager(queue: UseInferenceQueueReturn) {
             
             // Update job status
             queue.updateJobStatus(jobId, jobStatus);
+            // Update job message if provided
+            if (typeof data.message === 'string' && data.message) {
+              queue.updateJobMessage(jobId, data.message);
+            }
             
             // Debug: Check if job exists in queue
             const currentJob = queue.jobs.find(j => j.id === jobId);

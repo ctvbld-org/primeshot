@@ -87,15 +87,25 @@ export async function GET(request: Request) {
     // Generate a short-lived signed URL
     const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 60 });
     
-    // Fetch the data from the signed URL
-    const response = await fetch(signedUrl);
-    
-    if (!response.ok) {
-      return NextResponse.json(
-        { error: `Failed to retrieve image: ${response.statusText}` }, 
-        { status: response.status }
-      );
-    }
+    // Fetch the data from the signed URL with retry (up to 3 attempts, backoff)
+    const tryFetch = async (url: string, attempts = 3): Promise<Response> => {
+      let lastErr: any = null;
+      for (let i = 0; i < attempts; i++) {
+        try {
+          const res = await fetch(url, { cache: 'no-store' });
+          if (res.ok) return res;
+          lastErr = new Error(res.statusText || `HTTP ${res.status}`);
+        } catch (e) {
+          lastErr = e;
+        }
+        // simple exponential backoff: 200ms, 400ms
+        const delayMs = 200 * Math.pow(2, i);
+        await new Promise(r => setTimeout(r, delayMs));
+      }
+      throw lastErr || new Error('Unknown fetch error');
+    };
+
+    const response = await tryFetch(signedUrl, 3);
     
     // Get the image data
     const imageData = await response.arrayBuffer();

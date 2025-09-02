@@ -261,6 +261,7 @@ export type Database = {
           inference_id: string
           metadata: Json | null
           original_path: string
+          seed: number | null
           updated_at: string
           user_id: string
           web_path: string
@@ -276,6 +277,7 @@ export type Database = {
           inference_id: string
           metadata?: Json | null
           original_path: string
+          seed?: number | null
           updated_at?: string
           user_id: string
           web_path: string
@@ -291,6 +293,7 @@ export type Database = {
           inference_id?: string
           metadata?: Json | null
           original_path?: string
+          seed?: number | null
           updated_at?: string
           user_id?: string
           web_path?: string
@@ -323,14 +326,17 @@ export type Database = {
           credits_spent: number
           error_message: string | null
           id: string
+          is_parent_job: boolean | null
           modal_job_id: string | null
           nb_takes: number | null
+          parent_job_id: string | null
           quality: string | null
           queue_type: string | null
           retry_after: string | null
           scene_id: string | null
           status: string
           style_id: string | null
+          sub_job_index: number | null
           updated_at: string | null
           user_id: string
           wardrobe_id: string | null
@@ -344,14 +350,17 @@ export type Database = {
           credits_spent?: number
           error_message?: string | null
           id?: string
+          is_parent_job?: boolean | null
           modal_job_id?: string | null
           nb_takes?: number | null
+          parent_job_id?: string | null
           quality?: string | null
           queue_type?: string | null
           retry_after?: string | null
           scene_id?: string | null
           status?: string
           style_id?: string | null
+          sub_job_index?: number | null
           updated_at?: string | null
           user_id: string
           wardrobe_id?: string | null
@@ -365,14 +374,17 @@ export type Database = {
           credits_spent?: number
           error_message?: string | null
           id?: string
+          is_parent_job?: boolean | null
           modal_job_id?: string | null
           nb_takes?: number | null
+          parent_job_id?: string | null
           quality?: string | null
           queue_type?: string | null
           retry_after?: string | null
           scene_id?: string | null
           status?: string
           style_id?: string | null
+          sub_job_index?: number | null
           updated_at?: string | null
           user_id?: string
           wardrobe_id?: string | null
@@ -390,6 +402,13 @@ export type Database = {
             columns: ["color_id"]
             isOneToOne: false
             referencedRelation: "style_colors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inference_jobs_parent_job_id_fkey"
+            columns: ["parent_job_id"]
+            isOneToOne: false
+            referencedRelation: "inference_jobs"
             referencedColumns: ["id"]
           },
           {
@@ -696,6 +715,7 @@ export type Database = {
           retry_count: number
           started_at: string | null
           status: string
+          training_params: Json | null
           updated_at: string | null
           user_id: string
         }
@@ -712,6 +732,7 @@ export type Database = {
           retry_count?: number
           started_at?: string | null
           status?: string
+          training_params?: Json | null
           updated_at?: string | null
           user_id: string
         }
@@ -728,6 +749,7 @@ export type Database = {
           retry_count?: number
           started_at?: string | null
           status?: string
+          training_params?: Json | null
           updated_at?: string | null
           user_id?: string
         }
@@ -1075,7 +1097,7 @@ export type Database = {
     Functions: {
       array_distinct: {
         Args: { arr: string[] } | { arr: unknown }
-        Returns: string[]
+        Returns: unknown
       }
       award_subscription_credits: {
         Args: {
@@ -1105,14 +1127,17 @@ export type Database = {
           credits_spent: number
           error_message: string | null
           id: string
+          is_parent_job: boolean | null
           modal_job_id: string | null
           nb_takes: number | null
+          parent_job_id: string | null
           quality: string | null
           queue_type: string | null
           retry_after: string | null
           scene_id: string | null
           status: string
           style_id: string | null
+          sub_job_index: number | null
           updated_at: string | null
           user_id: string
           wardrobe_id: string | null
@@ -1133,6 +1158,7 @@ export type Database = {
           retry_count: number
           started_at: string | null
           status: string
+          training_params: Json | null
           updated_at: string | null
           user_id: string
         }
@@ -1164,21 +1190,21 @@ export type Database = {
       get_revenue_data: {
         Args: { end_date: string; start_date: string }
         Returns: {
-          subscription_revenue: number
           credit_pack_revenue: number
           refund_amount: number
+          subscription_revenue: number
         }[]
       }
       get_top_users_by_generations: {
         Args: { limit_count?: number }
         Returns: {
-          id: string
+          avatar_url: string
           email: string
           full_name: string
-          avatar_url: string
           generation_count: number
-          training_count: number
+          id: string
           subscription_plan: string
+          training_count: number
         }[]
       }
       get_user_available_credits: {
@@ -1215,9 +1241,9 @@ export type Database = {
           p_user_id: string
         }
         Returns: {
-          success: boolean
-          refund_created: boolean
           error_message: string
+          refund_created: boolean
+          success: boolean
         }[]
       }
       should_trigger_inference_queue: {
@@ -1238,16 +1264,16 @@ export type Database = {
           p_user_id: string
         }
         Returns: {
-          success: boolean
           current_balance: number
           error_message: string
+          success: boolean
         }[]
       }
       spend_user_credits: {
         Args: {
           p_amount: number
-          p_description: string
-          p_metadata: Json
+          p_description?: string
+          p_metadata?: Json
           p_usage_type: string
           p_user_id: string
         }

@@ -13,11 +13,13 @@ export interface JobProgressData {
   progress: number;
   message: string;
   timestamp: number;
-  status: 'initializing' | 'queued' | 'pending' | 'running' | 'completed' | 'failed' | 'closed';
+  status: 'initializing' | 'queued' | 'pending' | 'running' | 'completed' | 'failed' | 'closed' | 'image_completed';
   estimated_remaining?: number;
   elapsed_time?: number;
   phase?: string;
   error_message?: string;
+  final_image_url?: string;
+  image_index?: number;
   [key: string]: any;
 }
 
@@ -53,6 +55,8 @@ class WebSocketConnectionManager {
   private statusListeners = new Map<string, Set<StatusChangeListener>>(); // Key: ${jobId}-${jobType}
   private readonly maxReconnectAttempts = 3;
   private readonly reconnectDelay = 1000; // 1 second
+  private pendingCloseTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  private readonly closeGraceMs = 2000; // Grace period before closing when last subscriber leaves
 
   /**
    * Subscribe to job progress updates
@@ -110,6 +114,9 @@ class WebSocketConnectionManager {
     }
     this.subscriptionsByJob.get(jobKey)!.add(subscriptionId);
 
+    // New subscriber – keep connection alive if a close was pending
+    this.cancelPendingClose(jobKey);
+
     // Create or reuse WebSocket connection
     this.ensureConnection(jobId, jobType);
 
@@ -150,9 +157,17 @@ class WebSocketConnectionManager {
     if (connection) {
       connection.subscriptions.delete(subscriptionId);
       
-      // Close connection if no more subscriptions
+      // If no more subscriptions, schedule a grace close
       if (connection.subscriptions.size === 0) {
-        this.closeConnection(jobKey);
+        this.cancelPendingClose(jobKey);
+        const timer = setTimeout(() => {
+          // If still no subscribers after grace period, close
+          const stillNoSubs = this.connections.get(jobKey)?.subscriptions.size === 0;
+          if (stillNoSubs) {
+            this.closeConnection(jobKey);
+          }
+        }, this.closeGraceMs);
+        this.pendingCloseTimers.set(jobKey, timer);
       }
     }
 
@@ -284,6 +299,14 @@ class WebSocketConnectionManager {
     }
   }
 
+  private cancelPendingClose(jobKey: string): void {
+    const timer = this.pendingCloseTimers.get(jobKey);
+    if (timer) {
+      clearTimeout(timer);
+      this.pendingCloseTimers.delete(jobKey);
+    }
+  }
+
   private createConnection(jobId: string, jobType: JobType): void {
     const baseUrl = this.getWebSocketUrl(jobType);
     if (!baseUrl) {
@@ -379,14 +402,10 @@ class WebSocketConnectionManager {
         
         const data: JobProgressData = JSON.parse(event.data);
         
-        // Debug: Log preview images in WebSocket messages
-        if (data.preview_images) {
-          console.log(`🎨 WebSocket Manager: Received preview_images for job ${jobId}:`, {
-            preview_count: data.preview_images.length,
-            preview_index: data.preview_index,
-            first_preview_length: data.preview_images[0]?.length || 0,
-            first_preview_type: data.preview_images[0]?.startsWith('data:image/') ? 'base64' : 'other'
-          });
+        // Safety: ignore packets for a different job to prevent cross-job mixing
+        if (data && typeof data.job_id === 'string' && data.job_id !== jobId) {
+          console.warn(`📡 WebSocket Manager: Ignoring message for mismatched job_id ${data.job_id} (connection for ${jobId})`);
+          return;
         }
         
         // Store latest data
@@ -396,22 +415,21 @@ class WebSocketConnectionManager {
         for (const subscriptionId of connection.subscriptions) {
           const subscription = this.subscriptions.get(subscriptionId);
           if (subscription) {
-            // Debug: Log what data is being passed to subscribers
-            if (data.preview_images) {
-              console.log(`🔄 WebSocket Manager: Passing preview data to subscriber ${subscriptionId} for job ${jobId}:`, {
-                has_preview_images: !!data.preview_images,
-                preview_count: data.preview_images?.length || 0,
-                preview_index: data.preview_index
-              });
-            }
             subscription.onProgress(data);
             
             // Handle completion
             if (data.status === 'completed') {
               subscription.onComplete(true);
+              // Close connection after completion to ensure UI immediately hides overlays
+              setTimeout(() => {
+                this.closeConnection(jobKey);
+              }, 100);
             } else if (data.status === 'failed') {
               subscription.onComplete(false, data.error_message);
-            } else if (data.status === 'closed' && data.close_connection) {
+              setTimeout(() => {
+                this.closeConnection(jobKey);
+              }, 100);
+            } else if (data.status === 'closed' && data.close_connection && data.final === true) {
               // Handle explicit close signal from server
               console.log(`📡 WebSocket Manager: Received close signal for job ${jobId}`);
               subscription.onComplete(true);
@@ -504,6 +522,7 @@ class WebSocketConnectionManager {
   private closeConnection(jobKey: string): void {
     const connection = this.connections.get(jobKey);
     if (connection) {
+      this.cancelPendingClose(jobKey);
       connection.websocket.close(1000, 'Manager cleanup');
       this.connections.delete(jobKey);
       this.emitStatusChange(jobKey, 'disconnected');

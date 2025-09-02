@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
 import { calculateImageCreditCost, getSubscriptionLimits, getInferenceSettings, type Quality } from "../_shared/pricing.ts";
+import { buildPronoun, buildSubjectPrompt, buildGlassesPrompt, buildFinalPrompt, safeJoin } from "../_shared/prompt.ts";
 
 interface InferenceRequest {
   user_id: string;
@@ -12,6 +13,7 @@ interface InferenceRequest {
   scene_id?: string;
   params?: Record<string, unknown>; // seed?, quality, nb_takes, aspect_ratio
   queue_type?: 'fast' | 'slow' | 'ultra';
+  prompt_override?: { enabled: boolean; prompt: string };
 }
 
 interface InferenceJob {
@@ -192,6 +194,7 @@ serve(async (req) => {
     // Parse request body
     const body: InferenceRequest = await req.json();
     const { user_id, character_id, style_id } = body;
+    console.log('🎯 inference-create inputs:', { user_id, character_id, style_id, styleIdType: typeof style_id });
 
     // Validate required fields
     if (!user_id || !character_id || !style_id) {
@@ -277,18 +280,17 @@ serve(async (req) => {
       );
     }
 
-    // Verify user owns the character and it's ready for inference
+    // Verify user owns the character; allow not-ready characters (we'll queue the job)
     const { data: character, error: characterError } = await supabase
       .from('characters')
       .select('id, user_id, status, lora_path, metadata')
       .eq('id', character_id)
       .eq('user_id', user_id)
-      .eq('status', 'ready') // Only allow inference on ready characters
       .single();
 
     if (characterError || !character) {
       return new Response(
-        JSON.stringify({ error: 'Character not found, not ready, or access denied' }),
+        JSON.stringify({ error: 'Character not found or access denied' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -296,9 +298,11 @@ serve(async (req) => {
     // Get style configuration from the styles table
     const { data: style, error: styleError } = await supabase
       .from('styles')
-      .select('*')
+      .select('id, prompt, lora_path')
       .eq('id', style_id)
       .single();
+    console.log('📝 inference-create style row:', style);
+    if (styleError) console.log('❗inference-create styleError:', styleError);
 
     if (styleError || !style) {
       return new Response(
@@ -338,24 +342,107 @@ serve(async (req) => {
       );
     }
 
-    // ----- Build prepared payload (prompt + workflow + loras) -----
-    // 1) Required character LoRA
-    const characterLora = character.lora_path as string | null;
-    if (!characterLora) {
+    const isCharacterReady = character.status === 'ready' && !!character.lora_path;
+
+    // Resolve option ids (UUIDs) up front so queued jobs also persist them
+    let resolvedWardrobeUuid: string | null = null;
+    if (body.wardrobe_id) {
+      const { data: wardrobeRow } = await supabase
+        .from('style_wardrobes')
+        .select('id')
+        .eq('value', body.wardrobe_id)
+        .maybeSingle();
+      resolvedWardrobeUuid = wardrobeRow?.id ?? null;
+    }
+
+    let resolvedColorUuid: string | null = null;
+    if (body.color_id) {
+      const { data: colorRow } = await supabase
+        .from('style_colors')
+        .select('id')
+        .eq('value', body.color_id)
+        .maybeSingle();
+      resolvedColorUuid = colorRow?.id ?? null;
+    }
+
+    let resolvedSceneUuid: string | null = null;
+    if (body.scene_id) {
+      const { data: sceneRow } = await supabase
+        .from('style_scenes')
+        .select('id')
+        .eq('value', body.scene_id)
+        .maybeSingle();
+      resolvedSceneUuid = sceneRow?.id ?? null;
+    }
+
+    // ----- If character not ready: create job as queued and return early -----
+    if (!isCharacterReady) {
+      // Generate job ID
+      const jobId = crypto.randomUUID();
+
+      const queuedJob: Partial<InferenceJob> = {
+        id: jobId,
+        user_id,
+        character_id,
+        style_id,
+        wardrobe_id: resolvedWardrobeUuid || undefined,
+        scene_id: resolvedSceneUuid || undefined,
+        color_id: resolvedColorUuid || undefined,
+        status: 'queued',
+        quality,
+        nb_takes: nbTakes,
+        aspect_ratio: aspectRatio,
+        queue_type: queueType,
+        credits_spent: creditCost,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      const { error: qInsertError } = await supabase
+        .from('inference_jobs')
+        .insert(queuedJob);
+
+      if (qInsertError) {
+        console.error('Failed to create queued inference job:', qInsertError);
+        // Attempt refund on failure to create job
+        const idempotencyKey = `refund_${jobId}`;
+        await supabase.rpc('refund_credits_with_idempotency', {
+          p_user_id: user_id,
+          p_job_id: jobId,
+          p_amount: creditCost,
+          p_reason: 'Refund for failed job creation (character not ready)',
+          p_idempotency_key: idempotencyKey
+        });
+        return new Response(
+          JSON.stringify({ error: 'Failed to create inference job' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
       return new Response(
-        JSON.stringify({ error: 'Character is missing lora_path; training must complete before inference.' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({
+          job_id: jobId,
+          status: 'queued',
+          message: 'Character is still training. Your inference was queued and will start automatically once training completes.',
+          credits_spent: creditCost,
+          remaining_credits: currentBalance - creditCost,
+          queue_info: { reason: 'character_not_ready' }
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
+    // ----- Build prepared payload (prompt + workflow + loras) -----
+    // 1) Required character LoRA
+    const characterLora = character.lora_path as string | null;
+
     // 2) Optional style LoRA
-    console.log('🎨 Style object:', JSON.stringify(style, null, 2));
-    console.log('🎯 Style lora_path:', style?.lora_path);
+    // Style row loaded; resolve style LoRA
     const styleLora = (style as any)?.lora_path ?? '';
 
     // 3) Optional wardrobe/color/scene pieces - lookup by value to get UUID and prompt
     let wardrobePrompt = '';
-    let wardrobeUuid: string | null = null;
+    let wardrobeUuid: string | null = resolvedWardrobeUuid;
     if (body.wardrobe_id) {
       const { data: wardrobeRow } = await supabase.from('style_wardrobes').select('*').eq('value', body.wardrobe_id).maybeSingle();
       if (wardrobeRow) {
@@ -365,7 +452,7 @@ serve(async (req) => {
     }
     
     let colorValue = '';
-    let colorUuid: string | null = null;
+    let colorUuid: string | null = resolvedColorUuid;
     if (body.color_id) {
       const { data: colorRow } = await supabase.from('style_colors').select('*').eq('value', body.color_id).maybeSingle();
       if (colorRow) {
@@ -380,10 +467,10 @@ serve(async (req) => {
     if (wardrobePrompt && colorValue) {
       wardrobePrompt = wardrobePrompt.replace(/\[color\]/g, colorValue);
     }
-    wardrobePrompt = `${pronoun} is wearing ${wardrobePrompt}.`;
+    wardrobePrompt = wardrobePrompt ? `${pronoun} is wearing ${wardrobePrompt}` : '';
     
     let scenePrompt = '';
-    let sceneUuid: string | null = null;
+    let sceneUuid: string | null = resolvedSceneUuid;
     if (body.scene_id) {
       const { data: sceneRow } = await supabase.from('style_scenes').select('*').eq('value', body.scene_id).maybeSingle();
       if (sceneRow) {
@@ -397,65 +484,32 @@ serve(async (req) => {
     const negativePrompt = (style as any)?.negative_prompt || '';
 
     // 5) Build subject prompt from character.metadata
-    function safeJoin(list: string[]): string {
-      const items = list.filter(Boolean);
-      if (items.length <= 1) return items[0] || '';
-      if (items.length === 2) return `${items[0]} and ${items[1]}`;
-      return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
-    }
-
-    function buildPronoun(gender: string | undefined | null): 'He' | 'She' | 'They' {
-      const g = (gender || '').toLowerCase();
-      if (g.startsWith('male') || g === 'man' || g === 'm') return 'He';
-      if (g.startsWith('female') || g === 'woman' || g === 'f') return 'She';
-      return 'They';
-    }
-
-    function buildSubjectPrompt(meta: any): { subject: string } {
-      const gender = meta?.gender as string | undefined;
-      const age = meta?.age as string | undefined;
-      const eyeColor = meta?.eyes?.color as string | undefined;
-      const hairColor = meta?.hair?.color as string | undefined;
-      const hairLength = meta?.hair?.length as string | undefined;
-      const hairStyles: string[] = Array.isArray(meta?.hair?.styles) ? meta.hair.styles : [];
-      const hairTexture = meta?.hair?.texture as string | undefined;
-
-      const pieces: string[] = [];
-      // Base lead-in
-      const who = gender ? `The subject is a ${gender}` : 'A person';
-      if (age) {
-        pieces.push(`${who} in ${age}`);
-      } else {
-        pieces.push(who);
-      }
-
-      // Hair
-      const hairBits: string[] = [];
-      if (hairLength) hairBits.push(hairLength);
-      if (hairColor) hairBits.push(`${hairColor} hair`);
-      let hairClause = hairBits.join(' ');
-      const styleList = safeJoin(hairStyles);
-      if (styleList) hairClause = hairClause ? `${hairClause}, ${styleList}` : styleList;
-      if (hairTexture) hairClause = hairClause ? `${hairClause}, ${hairTexture}` : hairTexture;
-      if (hairClause) pieces.push(`with ${hairClause}`);
-
-      // Eyes
-      if (eyeColor) pieces.push(`and ${eyeColor} eyes`);
-
-      const sentence = pieces.join(' ').replace(/\s+/g, ' ').trim();
-      const subject = sentence.endsWith('.') ? sentence : `${sentence}.`;
-
-      return { subject };
-    }
-
     const { subject: subjectPrompt } = buildSubjectPrompt(character?.metadata || {});
+    // glasses already merged into subject via shared builder; glassesPrompt kept for compatibility if needed
+    const glassesPrompt = '';
 
-    // 6) Final prompt assembly
-    const lines = [stylePrompt];
-    if (subjectPrompt) lines.push(subjectPrompt);
-    if (wardrobePrompt) lines.push(wardrobePrompt);
-    if (scenePrompt) lines.push(scenePrompt);
-    const finalPrompt = lines.join('\n');
+    // 6) Final prompt assembly (admin override supported)
+    // Ensure style prompt appears first; trim duplicate trailing dots in wardrobe
+    const wardrobeClean = wardrobePrompt ? (wardrobePrompt.endsWith('.') ? wardrobePrompt : `${wardrobePrompt}.`) : '';
+    let finalPrompt = buildFinalPrompt({ style: stylePrompt, subject: subjectPrompt, wardrobe: wardrobeClean, scene: scenePrompt });
+
+    // Admin-only prompt override: verify caller is admin using JWT
+    try {
+      const authHeaderRaw = req.headers.get('Authorization') || ''
+      const jwt = authHeaderRaw.startsWith('Bearer ')
+        ? authHeaderRaw.substring('Bearer '.length)
+        : authHeaderRaw
+      const { data: authData } = await (createClient(Deno.env.get('SUPABASE_URL') || '', Deno.env.get('SUPABASE_ANON_KEY') || '')).auth.getUser(jwt)
+      const callerId = authData?.user?.id
+      if (callerId && callerId === user_id && body?.prompt_override?.enabled && body?.prompt_override?.prompt) {
+        const { data: u } = await supabase.from('users').select('admin').eq('id', user_id).single()
+        if (u?.admin) {
+          finalPrompt = String(body.prompt_override.prompt)
+        }
+      }
+    } catch (_) {
+      // ignore and use default finalPrompt
+    }
 
     // 7) Workflow resolver (future-proof)
     function resolveWorkflow(s: any, params: any): string {
@@ -489,7 +543,8 @@ serve(async (req) => {
       queue_type: queueType,
       credits_spent: creditCost,
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
+      ...(body?.prompt_override?.enabled && body?.prompt_override?.prompt ? { prompt_override: { enabled: true, prompt: String(body.prompt_override.prompt) } } : {})
     };
 
     const { error: insertError } = await supabase
@@ -529,7 +584,7 @@ serve(async (req) => {
         .from('inference_jobs')
         .update({ status: 'queued', updated_at: new Date().toISOString() })
         .eq('id', jobId);
-      console.log(`🕐 Inference job ${jobId} queued due to per-user concurrent limit`);
+      // Queued due to per-user concurrent limit
       return new Response(
         JSON.stringify({
           job_id: jobId,
@@ -564,7 +619,7 @@ serve(async (req) => {
           JSON.stringify({
             job_id: jobId,
             status: 'queued',
-            message: 'Concurrent job limit reached. Job queued and will start automatically.',
+            message: 'Queued',
             queue_info: {
               concurrent_running: activeCount - 1,
               concurrent_limit: userLimit,
@@ -614,22 +669,7 @@ serve(async (req) => {
         }
       } as Record<string, unknown>;
 
-      console.log('🔍 Final LoRA values before job submission:');
-      console.log('  - characterLora:', characterLora);
-      console.log('  - styleLora:', styleLora);
-      console.log('  - style_lora in metadata:', styleLora || '');
-
-      console.log('Calling Modal ComfyUI API:', {
-        url: inferenceApiUrl,
-        job_id: jobId,
-        user_id,
-        character_id,
-        style_id,
-        credits_spent: creditCost,
-        quality,
-        nb_takes: nbTakes,
-        aspect_ratio: aspectRatio,
-      });
+      // Submit to Modal API
 
       // Get Modal authentication tokens
       const modalTokenId = Deno.env.get('MODAL_TOKEN_ID');
@@ -676,7 +716,6 @@ serve(async (req) => {
         .eq('id', jobId);
 
       const modalResult = await modalResponse.json();
-      console.log('Modal API response:', modalResult);
 
       // Update job with Modal job ID if provided, but keep status 'pending'
       if (modalResult.job_id) {
@@ -701,7 +740,7 @@ serve(async (req) => {
           nb_takes: nbTakes,
           aspect_ratio: aspectRatio,
           queue_type: queueType,
-          message: 'Inference submitted to provider and is pending execution'
+          message: 'Pending'
         }),
         {
           status: 200,

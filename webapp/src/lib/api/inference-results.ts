@@ -11,7 +11,7 @@ import type {
   GeneratedImage, 
   InferenceJobResult 
 } from '@/types/inference';
-import { getInferenceImageUrl } from '@/lib/utils/inference-images';
+import { getInferenceImageUrl } from '@/lib/utils/get-inference-image';
 
 /**
  * Fetch inference job results including generated images
@@ -56,7 +56,7 @@ export async function fetchInferenceJobResult(jobId: string): Promise<InferenceJ
 }
 
 // Re-export the shared utility for convenience
-export { getInferenceImageUrl } from '@/lib/utils/inference-images';
+export { getInferenceImageUrl } from '@/lib/utils/get-inference-image';
 
 /**
  * Subscribe to inference job completion and update thumbnails

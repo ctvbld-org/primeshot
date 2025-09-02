@@ -18,27 +18,7 @@
 .jobsList {
   display: flex;
   flex-direction: column;
-  gap: 0; /* No gap since InferenceJobGroup has its own margin */
-}
-
-.thumbnailGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 2rem;
-}
-
-@media (max-width: 768px) {
-  .thumbnailGrid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 12px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .thumbnailGrid {
-    grid-template-columns: repeat(5, 1fr);
-  }
+  gap: 32px;
 }
 
 .generatedStub {
@@ -247,12 +227,16 @@
 /* Infinite scrolling styles */
 .loadMoreTrigger {
   width: 100%;
-  min-height: 100px;
+  min-height: 200px; /* Increased height for better intersection detection */
   padding: 2rem 0;
   display: flex;
   justify-content: center;
   align-items: center;
   margin: 1rem 0;
+  /* Debug styling - can be removed later */
+  background: rgba(38, 210, 189, 0.1);
+  border: 2px dashed rgba(38, 210, 189, 0.3);
+  border-radius: 8px;
 }
 
 .loadingMore {
@@ -305,3 +289,54 @@
 }
 
 
+/* Skeleton sizing for loading header */
+.skeletonTitle {
+  width: 180px;
+  height: 20px;
+  border-radius: 6px;
+}
+
+.skeletonSubtitle {
+  width: 220px;
+  height: 14px;
+  border-radius: 6px;
+}
+
+.skeletonMeta {
+  width: 90px;
+  height: 12px;
+  border-radius: 6px;
+}
+
+.skeletonIcon {
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+}
+
+.skeletonContainer {
+  width: 100%;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 28px; /* rounded-md */
+  color: #9ca3af; /* gray-400 */
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.skeletonInner {
+  width: 100%;
+  height: 100%;
+  background-color: #e5e7eb; /* gray-200 */
+  border-radius: 28px; /* rounded-md */
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

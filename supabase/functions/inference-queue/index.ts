@@ -1,5 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { buildFinalPrompt, buildGlassesPrompt, buildPronoun, buildSubjectPrompt, safeJoin } from '../_shared/prompt.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,6 +19,10 @@ interface InferenceJobRow {
   modal_job_id?: string | null
   // Optional JSON field if present in DB
   settings?: any
+  prompt_override?: { enabled: boolean; prompt: string } | null
+  wardrobe_id?: string | null
+  color_id?: string | null
+  scene_id?: string | null
 }
 
 // Capacity is enforced in the claim RPC (Option B). No local checks needed here.
@@ -35,8 +40,8 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
   try {
     // Fetch character and style
     const [{ data: character }, { data: style }] = await Promise.all([
-      supabase.from('characters').select('id, lora_path, metadata').eq('id', job.character_id).single(),
-      supabase.from('styles').select('*').eq('id', job.style_id).single(),
+      supabase.from('characters').select('id, status, lora_path, metadata').eq('id', job.character_id).single(),
+      supabase.from('styles').select('id, prompt, lora_path').eq('id', job.style_id).single(),
     ])
 
     if (!character || !style) {
@@ -56,10 +61,19 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
     }
 
     // ----- Build prepared payload (mirror inference-create) -----
-    if (!character?.lora_path) {
+    if (character?.status !== 'failed') {
       await supabase
         .from('inference_jobs')
         .update({ status: 'failed', error_message: 'Character missing lora_path', updated_at: new Date().toISOString() })
+        .eq('id', job.id)
+      return false
+    }
+
+    // If character not ready yet, re-queue with a short delay instead of failing
+    if (character?.status === 'training') {
+      await supabase
+        .from('inference_jobs')
+        .update({ status: 'queued', retry_after: new Date(Date.now() + 60 * 1000).toISOString(), error_message: 'Character not ready yet', updated_at: new Date().toISOString() })
         .eq('id', job.id)
       return false
     }
@@ -82,60 +96,21 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
       const { data: s } = await supabase.from('style_scenes').select('*').eq('id', job.scene_id).maybeSingle()
       scenePrompt = (s?.prompt || s?.name || s?.title || '').toString()
     }
-    const stylePrompt = (style as any)?.prompt || (style as any)?.description || ''
-    const negativePrompt = (style as any)?.negative_prompt || ''
-
-    const safeJoin = (list: string[]) => {
-      const items = list.filter(Boolean)
-      if (items.length <= 1) return items[0] || ''
-      if (items.length === 2) return `${items[0]} and ${items[1]}`
-      return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`
-    }
-    const buildPronoun = (gender?: string | null) => {
-      const g = (gender || '').toLowerCase()
-      if (g.startsWith('male') || g === 'man' || g === 'm') return 'He'
-      if (g.startsWith('female') || g === 'woman' || g === 'f') return 'She'
-      return 'They'
-    }
-    const buildSubjectPrompt = (meta: any) => {
-      const gender = meta?.gender as string | undefined
-      const pronoun = buildPronoun(gender)
-      const age = meta?.age as string | undefined
-      const eyeColor = meta?.eyes?.color as string | undefined
-      const hairColor = meta?.hair?.color as string | undefined
-      const hairLength = meta?.hair?.length as string | undefined
-      const hairStyles: string[] = Array.isArray(meta?.hair?.styles) ? meta.hair.styles : []
-      const hairTexture = meta?.hair?.texture as string | undefined
-
-      const pieces: string[] = []
-      const who = gender ? `A ${gender}` : 'A person'
-      pieces.push(age ? `${who} in ${age}` : who)
-      const hairBits: string[] = []
-      if (hairLength) hairBits.push(hairLength)
-      if (hairColor) hairBits.push(`${hairColor} hair`)
-      let hairClause = hairBits.join(' ')
-      const styleList = safeJoin(hairStyles)
-      if (styleList) hairClause = hairClause ? `${hairClause}, ${styleList}` : styleList
-      if (hairTexture) hairClause = hairClause ? `${hairClause}, ${hairTexture}` : hairTexture
-      if (hairClause) pieces.push(`with ${hairClause}`)
-      if (eyeColor) pieces.push(`and ${eyeColor} eyes`)
-      const sentence = pieces.join(' ').replace(/\s+/g, ' ').trim()
-      const subject = sentence.endsWith('.') ? sentence : `${sentence}.`
-      return { subject, pronoun }
-    }
+    const stylePrompt = (style as any)?.prompt || ''
+    const negativePrompt = ''
 
     const { subject: subjectPrompt, pronoun } = buildSubjectPrompt(character?.metadata || {})
-    const wearLine = wardrobePrompt || colorValue ? `${pronoun} is wearing ${colorValue ? `a ${colorValue} ` : ''}${wardrobePrompt}.` : ''
-    const lines = [subjectPrompt]
-    if (wearLine) lines.push(wearLine)
-    if (stylePrompt) lines.push(stylePrompt)
-    if (scenePrompt) lines.push(scenePrompt)
-    const finalPrompt = lines.join('\n')
+    // glasses merged into subject in shared builder
+    const wearLine = wardrobePrompt || colorValue ? `${pronoun} is wearing ${colorValue ? `a ${colorValue} ` : ''}${wardrobePrompt}` : ''
+    const wardrobeClean = wearLine ? (wearLine.endsWith('.') ? wearLine : `${wearLine}.`) : ''
+    const finalPrompt = job?.prompt_override?.enabled && job?.prompt_override?.prompt
+      ? String(job.prompt_override.prompt)
+      : buildFinalPrompt({ style: stylePrompt, subject: subjectPrompt, wardrobe: wardrobeClean, scene: scenePrompt })
 
     const resolveWorkflow = (s: any, params: any): string => {
       const key = s?.workflow || s?.workflow_key || s?.workflow_s3_key
       if (typeof key === 'string' && key.length > 0) return key
-      return 'workflows/2_1/flux_lora.json'
+      return 'workflows/WAN2.1.json'
     }
     const workflowKey = resolveWorkflow(style, job?.settings || {})
 

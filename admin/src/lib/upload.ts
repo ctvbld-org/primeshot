@@ -26,28 +26,23 @@ export async function uploadImageToS3(
     // Decide variant widths by upload path
     const isOptions = /app-images\/placeholders\/options/.test(finalUploadPath)
     const variantWidths = isOptions ? [320, 640, 960] : [320, 640, 960, 1280, 1920, 2560]
-    const baseWidth = Math.max(...variantWidths)
+    // Server-side processing via /api/upload using Sharp
+    const form = new FormData()
+    form.append('file', file, file.name)
+    form.append('uploadPath', finalUploadPath)
+    form.append('processVariants', 'true')
+    form.append('baseName', baseName)
+    form.append('nextNum', String(nextNum))
+    form.append('variantWidths', JSON.stringify(variantWidths))
 
-    // Upload base (largest) without suffix (DB stores this)
-    const baseFileName = `${baseName}-${nextNum}.webp`
-    const baseBlob = await convertToWebP(file, baseWidth, baseWidth, 0.95)
-    await uploadBlob(baseBlob, baseFileName, finalUploadPath)
-    onProgress?.(25)
-
-    // Upload smaller variants with -w{width} suffix (exclude baseWidth to avoid duplicate)
-    const variantUploads = variantWidths
-      .filter((w) => w < baseWidth)
-      .map(async (w, idx, arr) => {
-        const q = w >= 1280 ? 0.92 : 0.88
-        const variantBlob = await convertToWebP(file, w, w, q)
-        const name = `${baseName}-${nextNum}-w${w}.webp`
-        await uploadBlob(variantBlob, name, finalUploadPath)
-        onProgress?.(25 + Math.round(((idx + 1) / arr.length) * 75))
-      })
-    await Promise.all(variantUploads)
+    onProgress?.(10)
+    const res = await fetch('/api/upload', { method: 'POST', body: form })
+    if (!res.ok) throw new Error('Upload failed')
+    const data = await res.json()
+    onProgress?.(100)
 
     // Return the base filename for DB storage
-    return baseFileName
+    return data.fileName || `${baseName}-${nextNum}.webp`
   } catch (error) {
     console.error('Upload error:', error)
     throw new Error('Failed to upload image')
@@ -80,96 +75,23 @@ export async function uploadOptionImageToS3(
 
     // Options cap at 960 and variants [320, 640, 960]
     const variantWidths = [320, 640, 960]
-    const baseWidth = 960
-    const baseFileName = `${baseName}-${nextNum}.webp`
+    const form = new FormData()
+    form.append('file', file, file.name)
+    form.append('uploadPath', uploadPath)
+    form.append('processVariants', 'true')
+    form.append('baseName', baseName)
+    form.append('nextNum', String(nextNum))
+    form.append('variantWidths', JSON.stringify(variantWidths))
 
-    const baseBlob = await convertToWebP(file, baseWidth, baseWidth, 0.95)
-    await uploadBlob(baseBlob, baseFileName, uploadPath)
-    onProgress?.(30)
+    onProgress?.(10)
+    const res = await fetch('/api/upload', { method: 'POST', body: form })
+    if (!res.ok) throw new Error('Upload failed')
+    const data = await res.json()
+    onProgress?.(100)
 
-    const variantUploads = variantWidths
-      .filter((w) => w < baseWidth)
-      .map(async (w, idx, arr) => {
-        const q = w >= 960 ? 0.92 : 0.88
-        const variantBlob = await convertToWebP(file, w, w, q)
-        const name = `${baseName}-${nextNum}-w${w}.webp`
-        await uploadBlob(variantBlob, name, uploadPath)
-        onProgress?.(30 + Math.round(((idx + 1) / arr.length) * 70))
-      })
-    await Promise.all(variantUploads)
-
-    return baseFileName
+    return data.fileName || `${baseName}-${nextNum}.webp`
   } catch (error) {
     console.error('Upload error:', error)
     throw new Error('Failed to upload image')
   }
-}
-
-async function convertToWebP(
-  file: File,
-  maxWidth: number = 2560,
-  maxHeight: number = 2560,
-  quality: number = 0.95
-): Promise<Blob> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    
-    reader.onload = (e) => {
-      const img = new Image()
-      
-      img.onload = () => {
-        const canvas = document.createElement('canvas')
-        const ctx = canvas.getContext('2d')!
-        
-        let width = img.width
-        let height = img.height
-        
-        // Calculate new dimensions while maintaining aspect ratio
-        if (width > maxWidth || height > maxHeight) {
-          const aspectRatio = width / height
-          
-          if (width > height) {
-            width = maxWidth
-            height = width / aspectRatio
-          } else {
-            height = maxHeight
-            width = height * aspectRatio
-          }
-        }
-        
-        canvas.width = width
-        canvas.height = height
-        
-        // Draw and convert to WebP
-        ctx.drawImage(img, 0, 0, width, height)
-        
-        canvas.toBlob(
-          (blob) => {
-            if (blob) {
-              resolve(blob)
-            } else {
-              reject(new Error('Failed to convert image'))
-            }
-          },
-          'image/webp',
-          quality // Quality
-        )
-      }
-      
-      img.onerror = () => reject(new Error('Failed to load image'))
-      img.src = e.target?.result as string
-    }
-    
-    reader.onerror = () => reject(new Error('Failed to read file'))
-    reader.readAsDataURL(file)
-  })
-}
-
-async function uploadBlob(blob: Blob, fileName: string, uploadPath: string): Promise<void> {
-  const formData = new FormData()
-  const wrapped = new File([blob], fileName, { type: 'image/webp' })
-  formData.append('file', wrapped, fileName)
-  formData.append('uploadPath', uploadPath)
-  const res = await fetch('/api/upload', { method: 'POST', body: formData })
-  if (!res.ok) throw new Error('Upload failed')
 }

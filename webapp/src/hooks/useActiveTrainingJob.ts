@@ -14,9 +14,25 @@ export interface ActiveTrainingJob {
   retry_count?: number;
 }
 
+// Simple in-memory cache (module scoped) so it's shared across hook instances
+// and persists while the page stays loaded.
+const CACHE_TTL_MS = 60_000;
+type CacheEntry = { job: ActiveTrainingJob | null; ts: number };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const globalAny: any = globalThis as any;
+const cacheMap: Map<string, CacheEntry> = globalAny.__activeTrainingJobCache || new Map();
+globalAny.__activeTrainingJobCache = cacheMap;
+
 export function useActiveTrainingJob(characterId: string | null) {
   const { isAuthenticated, user } = useAuth();
-  const [job, setJob] = useState<ActiveTrainingJob | null>(null);
+  const [job, setJob] = useState<ActiveTrainingJob | null>(() => {
+    if (!characterId) return null;
+    const cached = cacheMap.get(characterId);
+    if (cached && (Date.now() - cached.ts) < CACHE_TTL_MS) {
+      return cached.job;
+    }
+    return null;
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -28,6 +44,14 @@ export function useActiveTrainingJob(characterId: string | null) {
 
     const supabase = createClient();
     let channel: ReturnType<typeof supabase.channel> | null = null;
+
+    // Seed from cache to avoid initial flash
+    try {
+      const cached = cacheMap.get(characterId);
+      if (cached && (Date.now() - cached.ts) < CACHE_TTL_MS) {
+        setJob(cached.job);
+      }
+    } catch {}
 
     const fetchLatest = async () => {
       try {
@@ -43,7 +67,10 @@ export function useActiveTrainingJob(characterId: string | null) {
           .maybeSingle();
 
         if (error) throw error;
-        setJob((data as ActiveTrainingJob) || null);
+        const nextJob = (data as ActiveTrainingJob) || null;
+        setJob(nextJob);
+        // Update cache
+        cacheMap.set(characterId, { job: nextJob, ts: Date.now() });
         setError(null);
       } catch (e) {
         setError(e as Error);
@@ -68,10 +95,12 @@ export function useActiveTrainingJob(characterId: string | null) {
             // Keep the most recent by created_at via refetch when IDs differ
             if (!job || row.id === job.id) {
               setJob(row);
+              cacheMap.set(characterId, { job: row, ts: Date.now() });
             }
           } else {
             // Job finished (completed/failed) -> clear active job so UI hides progress
             setJob(null);
+            cacheMap.set(characterId, { job: null, ts: Date.now() });
           }
         }
       )

@@ -1,92 +1,34 @@
 {
-  "newStyle": {
-    "title": "Create new style",
-    "card": {
-      "alt": "Add new style",
-      "ariaLabel": "Add new style card",
-      "description": "Choose your photographic style,\nbackground and clothing.",
-      "button": "Add Style",
-      "buttonAriaLabel": "Add a new photography style"
-    }
-  },
-  "carousel": {
-    "label": "Photography style options"
-  },
-  "styleCard": {
-    "customize": "Customize",
-    "background": "Background",
-    "clothing": "Clothing",
-    "clothingColor": "Clothing Color",
-    "confirmDelete": {
-      "title": "Delete Style",
-      "description": "Are you sure you want to remove this style from your shoot?",
-      "confirm": "Remove",
-      "cancel": "Keep it"
-    },
-    "toast": {
-      "error": {
-        "title": "Error",
-        "description": "Failed to delete style. Please try again."
-      }
-    }
-  },
-  "errors": {
-    "loadStyles": "Failed to load styles"
-  },
-  "footer": {
-    "separator": {
-      "alt": "Footer Separator"
-    },
-    "styles": {
-      "label_zero": "Style",
-      "label_one": "Style",
-      "label_other": "Styles"
-    },
-    "upgrade": {
-      "text": "Add {{count}} extra styles and get",
-      "photosText": "photos for only",
-      "price": "US$ {{amount}}"
-    },
-    "emptyState": "Your style list is empty. Add a few looks to generate your perfect shoot.",
-    "price": {
-      "amount": "US$ {{amount}}"
-    },
-    "checkout": "Checkout",
-    "headshots": {
-      "count": "{{count}}",
-      "label_zero": "Headshot",
-      "label_one": "Headshot",
-      "label_other": "Headshots",
-      "perStyle": "({{count}} per style)",
-      "total": "{{count}} total headshots"
-    },
-    "perHeadshot": "${{amount}} per headshot",
-    "notSelected": "Not selected"
-  },
-  "toast": {
-    "successAddedStyle": {
-      "title": "Added to Shoot",
-      "description": "Style has been added to your shoot"
-    },
-    "successUpdatedStyle": {
-      "title": "Style updated",
-      "description": "Your style has been updated"
-    },
-    "errorUpdatedStyle": {
-      "title": "Update failed",
-      "description": "Failed to update style"
-    },
-    "errorSavingStyle": {
-      "title": "Error Saving Style",
-      "description": "Failed to save style"
-    },
-    "errorMissingData": {
-      "title": "Error",
-      "description": "Missing required data to save."
-    }
-  },
+  
   "titles": {
     "styleLabel": "Style",
-    "photoStyle": "Photo Style"
+    "photoStyle": "Photo Style",
+    "sceneLabel": "Scene",
+    "wardrobeLabel": "Clothing",
+    "characterLabel": "Character",
+    "settingsLabel": "Settings"
+  },
+  "shoot": {
+    "subtitle": "{{style}} with {{scene}} setting, wearing a {{wardrobe}} in {{color}}"
+  },
+  "character": {
+    "trainingQueued": "Queued",
+    "trainingPending": "Pending",
+    "trainingInitializing": "Initializing",
+    "remaining": "remaining",
+    "photos": "photos"
+  },
+  "qualities": {
+    "basic": "Basic",
+    "standard": "Standard",
+    "high": "High"
+  },
+  "labels": {
+    "credits": "{{count}} credits"
+  },
+  "settings": {
+    "numberOfTakes": "Number of Takes",
+    "quality": "Quality",
+    "aspectRatio": "Aspect Ratio"
   }
 } 

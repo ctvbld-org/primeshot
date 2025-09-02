@@ -20,7 +20,7 @@ export const s3Client = new S3Client({
 
 // Allowed file types and max size
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB - Increased limit for larger images
+const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB - allow modern phone photos
 
 // Folder paths
 const SOURCE_IMAGES_FOLDER = 'user-images/';

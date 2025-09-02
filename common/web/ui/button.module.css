@@ -98,20 +98,39 @@
 }
 
 .secondary {
-  background-color: #FF973C;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  gap: 8px;
+  min-height: 40px;
+  background: rgba(255, 255, 255, 0.08);
+  background-blend-mode: plus-lighter;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 16px;
+  color: #FFFFFF;
+  transition: background 0.2s ease;
+}
+
+.secondary:not(:disabled):hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.secondary:not(:disabled):active {
+  background: rgba(255, 255, 255, 1);
   color: #000000;
-  background-image: linear-gradient(92deg, #FF973C 4.48%, rgba(192, 177, 107, 0.97) 12.86%, rgba(137, 199, 149, 0.94) 23.67%, rgba(68, 227, 201, 0.90) 35.03%, rgba(109, 205, 160, 0.92) 47.05%, rgba(255, 151, 60, 0.9) 61.48%, rgba(255, 179, 112, 1) 70.43%);
-  box-shadow: 1px 1px 0px 0px rgba(255, 255, 255, 0.40) inset, 0px 2px 0px 0px rgba(255, 255, 255, 0.40) inset, 0px -1px 0px 0px #f1770c inset !important;
-  border-left: 1px solid rgba(0, 0, 0, 0.05);
-  border-right: 1px solid rgba(0, 0, 0, 0.05);
+  transition: background 0ms ease;
 }
 
-.secondary:after {
-  background: linear-gradient(180deg, rgba(255, 179, 112, 0.2) 0%, rgba(255, 151, 60, 0.9) 100%);
-}
-
-.secondary:disabled::after {
-  background: linear-gradient(180deg, #C0CED820 0%, #C0CED850 100%);
+.secondary:disabled {
+  background: rgba(255, 255, 255, 0.1);
+  color: #000;
+  cursor: not-allowed;
 }
 
 .tertiary {

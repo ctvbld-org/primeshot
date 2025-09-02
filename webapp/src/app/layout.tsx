@@ -12,6 +12,7 @@ import { LanguageProvider } from '@primeshot/common'
 import { DialogServiceProvider } from '@/contexts/DialogServiceContext'
 import { IntentHandler } from '@/components/providers/intent-handler'
 import { InferenceQueueProvider } from '@/contexts/inference-queue-context'
+import QueryParamCleaner from '@/components/shared/QueryParamCleaner'
 
 const inter = Inter({
   subsets: ["latin"],
@@ -33,6 +34,7 @@ export default function RootLayout({
                 <DialogServiceProvider>
                   <InferenceQueueProvider>
                     <IntentHandler />
+                    <QueryParamCleaner />
                     <Header rightSlot={<CreditsHeaderRight />} />
                     {children}
                     <Toaster />

@@ -12,7 +12,7 @@ import type {
   GeneratedImage, 
   InferenceJobWithImages 
 } from '@/types/inference';
-import { getInferenceImageUrl } from '@/lib/utils/inference-images';
+import { getInferenceImageUrl } from '@/lib/utils/get-inference-image';
 
 /**
  * Fetch active inference jobs for a user
@@ -193,7 +193,7 @@ export async function fetchInferenceJobsPaginated(
 }
 
 // Re-export the shared utility for convenience
-export { getInferenceImageUrl } from '@/lib/utils/inference-images';
+export { getInferenceImageUrl } from '@/lib/utils/get-inference-image';
 
 /**
  * Subscribe to real-time updates for inference jobs

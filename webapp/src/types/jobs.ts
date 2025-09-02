@@ -24,6 +24,13 @@ export interface TrainingJob {
 export interface TrainingStartRequest {
   user_id: string;
   character_id: string;
+  training_params?: {
+    min_steps?: number;
+    batch_size?: number;
+    resize_size?: number;
+    rank?: number;
+    steps?: number;
+  };
 }
 
 export interface TrainingStartResponse {
@@ -97,6 +104,7 @@ export interface InferenceStartRequest {
     seed?: number;
   };
   queue_type?: 'fast' | 'slow' | 'ultra';
+  prompt_override?: { enabled: boolean; prompt: string };
 }
 
 export interface InferenceStartResponse {

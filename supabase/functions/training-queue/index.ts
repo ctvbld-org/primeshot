@@ -74,13 +74,21 @@ async function startTrainingJob(supabase: any, job: TrainingJob): Promise<boolea
     }
 
     // Prepare training request data
+    // Fetch persisted admin overrides if present
+    const { data: jobRow } = await supabase
+      .from('training_jobs')
+      .select('training_params')
+      .eq('id', job.id)
+      .single();
+
     const trainingData = {
       user_id: job.user_id,
       character_id: job.character_id,
       character_name: character.name,
-      training_job_id: job.id
+      training_job_id: job.id,
+      ...(jobRow?.training_params || {})
     };
-
+    
     // Call Modal training API
     const modalResponse = await fetch(
       `${Deno.env.get('TRAINING_API_URL')}`,

@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { Button } from '@primeshot/common/web/ui/button'
-import { Badge } from '@primeshot/common/web/ui/badge'
 import { useCreditPacks, useCreditCosts } from '@/hooks/usePricingConfig'
 import { useAuth } from '@primeshot/common/hooks/AuthContext'
 import { toast } from 'sonner'
 import { getApiUrl } from '@/lib/api/client'
-import { CreditPackGrid } from './CreditPackGrid'
-import { getPriceIdForCredits } from './utils'
+import { getPriceIdForCredits, extractQualityCosts, getTrainingCost, formatValidity } from './utils'
+import { Icon } from '@primeshot/common/web/Icon'
+import styles from './SubscriptionDialogContent.module.css'
 
 interface CreditPackDialogContentProps {
   requiredCredits?: number
@@ -61,7 +61,8 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
     }
   }
 
-  // Icon/color/format now handled by CreditPackGrid
+  const qualityCosts = extractQualityCosts(creditCosts || {})
+  const trainingCost = getTrainingCost(creditCosts || {})
 
   const isRecommendedForUser = (pack: { credits: number }) => {
     if (!requiredCredits) return false
@@ -72,7 +73,7 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
     <div className="space-y-6 max-w-4xl">
       <div className="text-center">
         <h2 className="text-xl font-bold">Insufficient Credits</h2>
-        <p className="text-muted-foreground mt-2">
+        <p className={styles.subtleText}>
           {requiredCredits 
             ? `You need ${requiredCredits} credits for this action. Purchase a credit pack to continue.`
             : 'Top up your credits with one-time purchases to continue generating.'
@@ -80,21 +81,67 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
         </p>
       </div>
 
-      <CreditPackGrid
-        packs={packs}
-        creditCosts={creditCosts || {}}
-        onPurchase={(pack) => handlePurchase(pack)}
-        isProcessing={(name) => isLoading === name}
-        highlight={(pack) => isRecommendedForUser(pack as any)}
-        buttonVariant="primary"
-        buttonSize="sm"
-      />
+      <div className={styles.grid}>
+        {(packs || []).map((pack: any) => {
+          const perCredit = (pack.price / Math.max(pack.credits, 1)).toFixed(3)
+          const level = pack.credits >= 360 ? 'pro' : pack.credits >= 180 ? 'standard' : 'basic'
+          const highlight = isRecommendedForUser(pack)
+          return (
+            <div key={`${pack.name}-${pack.credits}`} className={`${styles.card} ${level} ${highlight ? styles.cardSelected : ''}`}>
+              <div className={styles.cardHead}>
+                <div className={styles.iconWrap}>
+                  {level === 'pro' ? (
+                    <Icon variant="insights" size={24} />
+                  ) : level === 'standard' ? (
+                    <Icon variant="scene" size={24} />
+                  ) : (
+                    <Icon variant="smilyFace" size={24} />
+                  )}
+                </div>
+              </div>
 
-      <div className="text-center text-xs text-muted-foreground">
-        <p>
-          Credits expire after the validity period and cannot be refunded. 
-          Credits are consumed when generation starts, regardless of output quality.
-        </p>
+              <div className={styles.cardTitle}>{pack.name}</div>
+
+              <div className={styles.priceBlock}>
+                <div className={styles.mainPrice}>${pack.price}<span className={styles.per}> one-time</span></div>
+                <div className={styles.priceSub}>${perCredit} per credit</div>
+              </div>
+
+              <div className={styles.divider} />
+
+              <div className={styles.includedBlock}>
+                <div className={styles.metaGrid}>
+                  <div className={styles.metaItem}><span className={styles.subtleText}>Credits:</span> {pack.credits.toLocaleString()}</div>
+                  {pack.validity_days != null && (
+                    <div className={styles.metaItem}><span className={styles.subtleText}>Validity:</span> {formatValidity(pack.validity_days)}</div>
+                  )}
+                </div>
+
+                <ul className={styles.features}>
+                  <li className={styles.featureItem}>Perfect for:</li>
+                  {qualityCosts.map((q) => (
+                    <li key={q.quality} className={styles.featureItem}>• {Math.floor(pack.credits / Math.max(q.cost, 1))} × {q.quality} images</li>
+                  ))}
+                  {!!trainingCost && (
+                    <li className={styles.featureItem}>• {Math.floor(pack.credits / Math.max(trainingCost, 1))} × LoRA trainings</li>
+                  )}
+                </ul>
+              </div>
+
+              <Button
+                className={styles.selectBtn}
+                onClick={() => handlePurchase(pack)}
+                disabled={isLoading === pack.name}
+              >
+                {isLoading === pack.name ? 'Processing…' : `Buy ${pack.name}`}
+              </Button>
+            </div>
+          )
+        })}
+      </div>
+
+      <div className={styles.mutedNote}>
+        Credits expire after the validity period and cannot be refunded. Credits are consumed when generation starts, regardless of output quality.
       </div>
     </div>
   )

@@ -143,6 +143,8 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
 
   return {
     createCharacterAction,
-    handleCreateCharacterClick
+    handleCreateCharacterClick,
+    requiresCreditsForTraining: needsCreditsForTraining,
+    trainingCost: characterTrainingCost
   }
 }

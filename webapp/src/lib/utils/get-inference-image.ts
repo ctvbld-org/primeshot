@@ -26,7 +26,6 @@ export function getInferenceImage(baseUrl: string, options: InferenceImageOption
   
   // Handle base64 data URLs (from WebSocket previews) - return as-is
   if (baseUrl.startsWith('data:image/')) {
-    console.log('🎨 Using base64 preview image directly');
     return baseUrl;
   }
   
@@ -134,3 +133,30 @@ export function getInferenceImageSrcSet(baseUrl: string): string {
 }
 
 export default getInferenceImage;
+
+// ===== Merged helpers from inference-images.ts =====
+
+/**
+ * Get the URL for an inference image using the app-images proxy
+ * Converts S3-style paths to proxy URLs for authenticated access.
+ */
+export function getInferenceImageUrl(imagePath: string, useWebVariant: boolean = true): string {
+  const cleanPath = imagePath.replace(/^s3:\/\/[^\/]+\//, '');
+  return `/api/app-images?path=${encodeURIComponent(cleanPath)}`;
+}
+
+/** Extract the base filename from an S3 path */
+export function getImageFilename(imagePath: string): string {
+  const cleanPath = imagePath.replace(/^s3:\/\/[^\/]+\//, '');
+  return cleanPath.split('/').pop() || '';
+}
+
+/** True if the path looks like a web variant */
+export function isWebVariant(imagePath: string): boolean {
+  return imagePath.toLowerCase().includes('/web/') || imagePath.toLowerCase().endsWith('.webp');
+}
+
+/** True if the path looks like an original variant */
+export function isOriginalVariant(imagePath: string): boolean {
+  return imagePath.toLowerCase().includes('/orig/');
+}

@@ -1,12 +1,15 @@
 'use client';
 
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import { InferenceThumbnailComponent } from './InferenceThumbnail';
 import { InferenceImageViewerDialog } from './InferenceImageViewerDialog';
 import { InferenceJob } from '@/hooks/useInferenceQueue';
 import { useDialogService } from '@/contexts/DialogServiceContext';
 import { useLazyImage } from '@/hooks/useLazyLoading';
+import { useStyle, useScene, useWardrobe, useColor, useSceneById, useWardrobeById, useColorById } from '@/hooks/useConfig';
+import { useTranslation } from 'react-i18next';
 import styles from './InferenceJobGroup.module.css';
+import { Icon } from '@primeshot/common/web/Icon';
 
 interface InferenceJobGroupProps {
   job: InferenceJob;
@@ -19,6 +22,36 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
     rootMargin: '300px', // Load images 300px before they come into view
     threshold: 0.1
   });
+  const { t } = useTranslation(['styles']);
+
+  // Helper to detect UUID vs value codes
+  const isUuid = (v?: string) => !!v && /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i.test(v);
+
+  // Load labels for subtitle (style always by id)
+  const { data: styleData } = useStyle(job.styleId as any);
+
+  // Scene: resolve by id if UUID, otherwise by value
+  const sceneId = job.sceneId || '';
+  const wardrobeId = job.wardrobeId || '';
+  const colorId = job.colorId || '';
+
+  const useSceneHook = isUuid(sceneId) ? useSceneById : useScene;
+  const useWardrobeHook = isUuid(wardrobeId) ? useWardrobeById : useWardrobe;
+  const useColorHook = isUuid(colorId) ? useColorById : useColor;
+
+  const { data: sceneData } = useSceneHook(sceneId || undefined as any);
+  const { data: wardrobeData } = useWardrobeHook(wardrobeId || undefined as any);
+  const { data: colorData } = useColorHook(colorId || undefined as any);
+
+  const subtitle = useMemo(() => {
+    const style = styleData?.name || '';
+    const scene = (sceneData as any)?.label || '';
+    const wardrobe = (wardrobeData as any)?.label || '';
+    const color = (colorData as any)?.label || '';
+    // Only render when all parts are available to avoid partial phrases
+    if (!style || !scene || !wardrobe || !color) return '';
+    return t('shoot.subtitle', { ns: 'styles', style, scene, wardrobe, color });
+  }, [styleData?.name, (sceneData as any)?.label, (wardrobeData as any)?.label, (colorData as any)?.label, t]);
 
   // Handle thumbnail click to open fullscreen viewer
   const handleThumbnailClick = (thumbnailIndex: number) => {
@@ -50,30 +83,33 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
     return `${diffInDays}d ago`;
   };
 
-  // Get status display
+  // Get status display - use job.message from WebSocket or fallback to status
   const getStatusDisplay = () => {
-    switch (job.status) {
-      case 'queued':
-        return 'Queued...';
-      case 'running':
-        return 'Generating...';
-      case 'completed':
-        return 'Completed';
-      case 'failed':
-        return 'Failed';
-      default:
-        return job.status;
-    }
+    // Use message from WebSocket (set by global status) or fallback to status
+    return job.message || job.status;
   };
 
   // Get progress if available
   const getProgress = () => {
-    if (job.status === 'completed') return 100;
-    if (job.status === 'failed') return 0;
+
+          const now = Date.now();
+      
+      // Use a stored start time for animation, or current time if first render
+      const animationKey = `animation_start_${job.id}`;
+      let animationStartTime = parseInt(sessionStorage.getItem(animationKey) || '0');
+      
+      if (!animationStartTime) {
+        animationStartTime = now;
+        sessionStorage.setItem(animationKey, animationStartTime.toString());
+      }
+      
+      const elapsed = now - animationStartTime;
+    const jobHash = job.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+    const totalDuration = 60000 + (jobHash % 20000);
+    const rawProgress = Math.min(elapsed / totalDuration, 1);
+    const curvedProgress = 100 * (1 - Math.exp(-3 * rawProgress));
     
-    // Calculate average progress from thumbnails
-    const totalProgress = job.thumbnails.reduce((sum, thumb) => sum + (thumb.progress || 0), 0);
-    return Math.round(totalProgress / job.thumbnails.length);
+    return Math.round(curvedProgress); // Let it reach 100% naturally
   };
 
   return (
@@ -81,26 +117,29 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
       {/* Job Header */}
       <div className={styles.jobHeader}>
         <div className={styles.jobTitle}>
-          <h3 className={styles.shootTitle}>SHOOT #{shootNumber.toString().padStart(3, '0')}</h3>
+          <div className={styles.titleRow}>
+            <h3 className={styles.shootTitle}>SHOOT #{shootNumber.toString().padStart(3, '0')}</h3>
+            <button className={styles.dotsMenuButton}><Icon variant="dotsMenu" size={16} /></button>
+            {!!subtitle && <span className={styles.jobSubtitle}>{subtitle}</span>}
+          </div>
           <div className={styles.jobMeta}>
-            <span className={styles.timeAgo}>{getTimeAgo(job.createdAt)}</span>
-            <span className={styles.separator}>•</span>
-            <span className={`${styles.status} ${styles[`status${job.status.charAt(0).toUpperCase() + job.status.slice(1)}`]}`}>
-              {getStatusDisplay()}
-            </span>
-            {job.status === 'running' && (
-              <>
-                <span className={styles.separator}>•</span>
-                <span className={styles.progress}>{getProgress()}%</span>
-              </>
+            {job.status === 'completed' && (
+              <span className={styles.timeAgo}>{getTimeAgo(job.createdAt)}</span>
+            )}
+            {job.status !== 'completed' && (
+              <span className={`${styles.status} ${styles[`status${job.status.charAt(0).toUpperCase() + job.status.slice(1)}`]}`}>
+                {getStatusDisplay()}
+                {job.status === 'starting' && (
+                    <span className={styles.progress}>({getProgress()}%)</span>
+                )}
+                <span className={styles.dots}>
+                  <span className={styles.dot}></span>
+                  <span className={styles.dot}></span>
+                  <span className={styles.dot}></span>
+                </span>
+              </span>
             )}
           </div>
-        </div>
-        
-        {/* Job Options Summary */}
-        <div className={styles.jobOptions}>
-          <span className={styles.optionItem}>{job.nbTakes} images</span>
-          {/* Add more options here when available from job data */}
         </div>
       </div>
 

@@ -5,6 +5,9 @@ import { useInfiniteInferenceJobs } from './useInfiniteInferenceJobs';
 import { useAuth } from '@/contexts/auth-context';
 import { InferenceThumbnail } from '@/components/home/InferenceThumbnail';
 import { webSocketManager } from '@/lib/websocket/connection-manager';
+import { getInferenceImage } from '@/lib/utils/get-inference-image';
+import { getInferenceImageUrl } from '@/lib/utils/get-inference-image';
+import { createClient as createSupabaseBrowserClient } from '@/lib/supabase/client';
 
 /**
  * Enhanced infinite inference jobs hook with WebSocket progress tracking
@@ -15,7 +18,339 @@ export function useInfiniteInferenceJobsWithProgress() {
   const { user } = useAuth();
   const activeConnections = useRef<Map<string, string>>(new Map()); // jobId -> subscriptionId
   const pollingIntervals = useRef<Map<string, NodeJS.Timeout>>(new Map()); // jobId -> interval
-  const previewTracking = useRef<Map<string, { currentThumbnail: number, lastPreviewIndex: number }>>(new Map()); // jobId -> tracking info
+  // Note: Preview tracking is no longer needed since we use image_index from sequential generation
+
+  // ===== Pending->Running DB watch with 30s hold =====
+  type DbWatcher = {
+    channel: any;
+    timerId: ReturnType<typeof setTimeout>;
+    holdUntil: number;
+    sawRunning: boolean;
+  };
+  const dbWatchers = useRef<Map<string, DbWatcher>>(new Map());
+  const messageHold = useRef<Set<string>>(new Set()); // while held, keep message as "Initializing…"
+
+  const holdKey = (jobId: string) => `inf_hold_until_${jobId}`;
+
+  const cleanupHold = useCallback((jobId: string) => {
+    const existing = dbWatchers.current.get(jobId);
+    if (existing) {
+      try { clearTimeout(existing.timerId); } catch {}
+      try { existing.channel?.unsubscribe?.(); } catch {}
+      dbWatchers.current.delete(jobId);
+    }
+    messageHold.current.delete(jobId);
+    if (typeof window !== 'undefined') {
+      try { window.localStorage.removeItem(holdKey(jobId)); } catch {}
+    }
+  }, []);
+
+  const startHoldAndWatchDb = useCallback(async (jobId: string, holdMs: number = 30000) => {
+    if (dbWatchers.current.has(jobId)) return; // already watching
+
+    // Initialize message hold and UI
+    messageHold.current.add(jobId);
+    infiniteJobs.updateJobMessage(jobId, 'Initializing');
+    infiniteJobs.updateJobStatus(jobId, 'initializing');
+
+    const holdUntil = Date.now() + Math.max(0, holdMs);
+    if (typeof window !== 'undefined') {
+      try { window.localStorage.setItem(holdKey(jobId), String(holdUntil)); } catch {}
+    }
+
+    const supabase = createSupabaseBrowserClient();
+
+    // Immediate status check to avoid missing a fast flip to 'running'
+    try {
+      const { data: immediate, error: immediateErr } = await supabase
+        .from('inference_jobs')
+        .select('status')
+        .eq('id', jobId)
+        .single();
+      if (!immediateErr && immediate?.status) {
+        if (immediate.status === 'running') {
+          // Release hold immediately
+          messageHold.current.delete(jobId);
+          infiniteJobs.updateJobStatus(jobId, 'generating');
+          infiniteJobs.updateJobMessage(jobId, 'Generating');
+          if (typeof window !== 'undefined') {
+            try { window.localStorage.removeItem(holdKey(jobId)); } catch {}
+          }
+          return; // No watcher needed
+        }
+        if (immediate.status === 'completed' || immediate.status === 'failed') {
+          cleanupHold(jobId);
+          return;
+        }
+      }
+    } catch {}
+
+    const channel = supabase
+      .channel(`inference_job_${jobId}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'inference_jobs',
+        filter: `id=eq.${jobId}`,
+      }, (payload: any) => {
+        const newRow = payload?.new as any;
+        const newStatus = newRow?.status as string | undefined;
+        if (!newStatus) return;
+
+        if (newStatus === 'running') {
+          const watcher = dbWatchers.current.get(jobId);
+          if (watcher) watcher.sawRunning = true;
+          // Map DB running -> UI generating and end hold immediately
+          infiniteJobs.updateJobStatus(jobId, 'generating');
+          infiniteJobs.updateJobMessage(jobId, 'Generating');
+          // End hold now so messages are no longer pinned
+          messageHold.current.delete(jobId);
+          try { if (watcher) clearTimeout(watcher.timerId); } catch {}
+          if (typeof window !== 'undefined') {
+            try { window.localStorage.removeItem(holdKey(jobId)); } catch {}
+          }
+          try { channel?.unsubscribe?.(); } catch {}
+          dbWatchers.current.delete(jobId);
+        }
+        if (newStatus === 'completed' || newStatus === 'failed') {
+          // Terminal: stop hold immediately
+          cleanupHold(jobId);
+        }
+      })
+      .subscribe();
+
+    const timerId = setTimeout(() => {
+      const watcher = dbWatchers.current.get(jobId);
+      const sawRunning = watcher?.sawRunning === true;
+      // End message hold
+      messageHold.current.delete(jobId);
+      if (!sawRunning) {
+        // If never saw running -> fall back to pending
+        infiniteJobs.updateJobStatus(jobId, 'pending');
+      }
+      // Clear persistence and unsubscribe
+      cleanupHold(jobId);
+    }, Math.max(0, holdMs));
+
+    dbWatchers.current.set(jobId, { channel, timerId, holdUntil, sawRunning: false });
+  }, [cleanupHold, infiniteJobs]);
+
+  const resumeHoldIfAny = useCallback((jobId: string) => {
+    if (dbWatchers.current.has(jobId)) return;
+    if (typeof window === 'undefined') return;
+    let stored: number | null = null;
+    try {
+      const raw = window.localStorage.getItem(holdKey(jobId));
+      if (raw) stored = parseInt(raw, 10);
+    } catch {}
+    if (!stored || Number.isNaN(stored)) return;
+    const remaining = stored - Date.now();
+    if (remaining > 50) {
+      startHoldAndWatchDb(jobId, remaining);
+    } else {
+      try { window.localStorage.removeItem(holdKey(jobId)); } catch {}
+    }
+  }, [startHoldAndWatchDb]);
+
+  // ===== Helper utilities (DRY) =====
+
+  const clampProgress = (p?: number) => p === undefined ? undefined : Math.round(Math.min(100, Math.max(0, p)));
+
+  const updateGlobalProgressIfNeeded = (jobId: string, data: any) => {
+    if ((data.status === 'initializing' || data.image_index === undefined) && typeof data.progress === 'number') {
+      infiniteJobs.updateJobProgress(jobId, data.progress);
+    }
+  };
+
+  const applyPreviewIfAny = (jobId: string, data: any, uiStatus: 'queued' | 'running' | 'completed' | 'failed') => {
+
+    if (!(data.preview_images && Array.isArray(data.preview_images) && data.preview_images.length > 0)) return;
+    if (typeof data.image_index !== 'number') return; // never map preview without a target index
+
+    const previewPath = data.preview_images[0];
+    const previewIndex = data.image_index;
+    if (!previewPath || previewIndex < 0) return;
+
+    const job = infiniteJobs.jobs.find(j => j.id === jobId);
+    const existing = job?.thumbnails[previewIndex];
+    if (existing?.status === 'completed') return; // never override completed
+
+    const previewUrl = getInferenceImage(previewPath);
+    const isBase64 = previewPath.startsWith('data:image/');
+    if (isBase64) {
+      try {
+        const [header, dataStr] = previewPath.split(',');
+        if (!header.includes('data:image/') || !dataStr || dataStr.length < 100) return;
+      } catch {
+        return;
+      }
+    }
+    infiniteJobs.updateThumbnail(jobId, previewIndex, {
+      status: uiStatus,
+      progress: clampProgress(data.progress),
+      webImageUrl: previewUrl,
+      imageUrl: previewUrl,
+    });
+  };
+
+  const applyTargetedProgress = (jobId: string, data: any, uiStatus: 'queued' | 'running' | 'completed' | 'failed') => {
+    const job = infiniteJobs.jobs.find(j => j.id === jobId);
+    if (!job) return;
+
+    if (typeof data.image_index === 'number') {
+      const index = data.image_index;
+      const target = job.thumbnails[index];
+      if (target && target.status !== 'completed') {
+        const updates: Partial<InferenceThumbnail> = { status: uiStatus };
+        const p = clampProgress(data.progress);
+        if (typeof p === 'number') updates.progress = p;
+        if (uiStatus === 'completed') updates.progress = 100;
+        if (uiStatus === 'failed') updates.errorMessage = data.error_message || 'Generation failed';
+        infiniteJobs.updateThumbnail(jobId, index, updates);
+      }
+    }
+  };
+
+  const applyCompletedImages = (jobId: string, data: any) => {
+    if (!(data.completed_images && Array.isArray(data.completed_images))) return;
+    data.completed_images.forEach((img: any) => {
+      if (!img || typeof img.index !== 'number') return;
+      const webUrl = img.web_path ? getInferenceImageUrl(img.web_path, true) : (img.base64 || img.web_base64);
+      const originalUrl = img.original_path ? getInferenceImageUrl(img.original_path, false) : (img.base64 || img.original_base64 || webUrl);
+      infiniteJobs.updateThumbnail(jobId, img.index, {
+        status: 'completed',
+        progress: 100,
+        webImageUrl: webUrl,
+        imageUrl: originalUrl
+      });
+    });
+  };
+
+  // Apply a single completed image using provided web/original paths from WS
+  const applyFinalImageUrl = (jobId: string, index: number, webPath: string, originalPath?: string) => {
+    if (!webPath || typeof index !== 'number' || index < 0) return;
+    const origPath = originalPath || webPath.replace('/web/', '/orig/').replace(/\.webp$/i, '.png');
+    const webUrl = getInferenceImageUrl(webPath, true);
+    const originalUrl = getInferenceImageUrl(origPath, false);
+    infiniteJobs.updateThumbnail(jobId, index, {
+      status: 'completed',
+      progress: 100,
+      webImageUrl: webUrl,
+      imageUrl: originalUrl
+    });
+  };
+
+  const fetchAndApplyResults = async (jobId: string, logPrefix: string, expectedCount?: number) => {
+    try {
+      const { fetchInferenceJobResult, getInferenceImageUrl } = await import('@/lib/api/inference-results');
+      const maxAttempts = 5;
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        const result = await fetchInferenceJobResult(jobId);
+        const images = result?.generated_images ?? [];
+        if (images.length > 0) {
+          images.forEach((image, _i) => {
+            // Derive 0-based index from IMG-XX in path to avoid DB order issues
+            let derivedIndex: number | null = null;
+            const src = image.web_path || image.original_path || '';
+            const m = src.match(/IMG-(\d+)/i);
+            if (m) {
+              const n = parseInt(m[1], 10);
+              if (!isNaN(n)) derivedIndex = Math.max(0, n - 1);
+            }
+            const targetIndex = derivedIndex ?? _i;
+            const webImageUrl = getInferenceImageUrl(image.web_path, true);
+            const originalImageUrl = getInferenceImageUrl(image.original_path, false);
+            infiniteJobs.updateThumbnail(jobId, targetIndex, {
+              status: 'completed',
+              imageUrl: originalImageUrl,
+              webImageUrl: webImageUrl,
+              progress: 100
+            });
+          });
+        }
+        if (!expectedCount || images.length >= expectedCount) {
+          if (images.length === 0) {
+            console.warn(`${logPrefix} No generated images found for completed job ${jobId}`);
+          }
+          break;
+        }
+        await new Promise(r => setTimeout(r, 800));
+      }
+    } catch (e) {
+      console.error(`${logPrefix} Failed to fetch images for completed job ${jobId}:`, e);
+    }
+  };
+
+  const handleProgress = (jobId: string, data: any) => {
+    // Strong guard: ignore packets that declare a different job_id
+    if (data && typeof data.job_id === 'string' && data.job_id !== jobId) {
+      console.warn(`🔒 Ignoring progress for mismatched job_id ${data.job_id} (expected ${jobId})`);
+      return;
+    }
+    
+    console.log(`📊 Progress update for job ${jobId}: ${data.status} - ${data.message || 'No message'}`);
+    
+    // Normalize status: treat 'running' as 'generating' for UI
+    const jobStatus = data.status === 'running' ? 'generating' : data.status;
+    // While on hold, keep message pinned to Initializing…
+    const message = messageHold.current.has(jobId) ? 'Initializing' : data.message;
+    
+    // Update job status and message directly from Modal
+    infiniteJobs.updateJobStatus(jobId, jobStatus);
+    if (message) {
+      infiniteJobs.updateJobMessage(jobId, message);
+    }
+    
+    // Update global progress if provided
+    if (typeof data.progress === 'number') {
+      updateGlobalProgressIfNeeded(jobId, data);
+    }
+    
+    // Handle per-image updates
+    const generationPhase = typeof data.image_index === 'number' || data.status === 'image_completed';
+    
+    // Determine UI status for thumbnails (simplified)
+    let uiStatus: 'queued' | 'running' | 'completed' | 'failed' = 'queued';
+    if (data.status === 'completed') uiStatus = 'completed';
+    else if (data.status === 'failed') uiStatus = 'failed';
+    else if (generationPhase || data.status === 'running' || data.status === 'generating') {
+      uiStatus = 'running';
+      // WS indicates generation started: release any hold immediately
+      if (messageHold.current.has(jobId)) {
+        messageHold.current.delete(jobId);
+        try {
+          const watcher = dbWatchers.current.get(jobId);
+          if (watcher) clearTimeout(watcher.timerId);
+        } catch {}
+        if (typeof window !== 'undefined') {
+          try { window.localStorage.removeItem(holdKey(jobId)); } catch {}
+        }
+        const existing = dbWatchers.current.get(jobId);
+        try { existing?.channel?.unsubscribe?.(); } catch {}
+        dbWatchers.current.delete(jobId);
+      }
+    }
+    
+    // live preview (only when image_index is provided and not completed)
+    applyPreviewIfAny(jobId, data, uiStatus);
+
+    // targeted progress for a specific thumbnail (never override completed)
+    applyTargetedProgress(jobId, data, uiStatus);
+
+    // mark individual images as completed when provided
+    applyCompletedImages(jobId, data);
+
+    // Handle per-image completion packets (from Modal)
+    if (data.status === 'image_completed') {
+      const idx = typeof data.image_index === 'number' ? data.image_index : undefined;
+      const web = data.final_image_url || data.webImageUrl;
+      const orig = data.imageUrl as string | undefined;
+      if (idx !== undefined && (typeof web === 'string' && web.length > 0)) {
+        applyFinalImageUrl(jobId, idx, web, orig);
+        return;
+      }
+    }
+  };
 
   // Connect to WebSocket for a specific job
   const connectToJob = useCallback((jobId: string) => {
@@ -40,240 +375,24 @@ export function useInfiniteInferenceJobsWithProgress() {
     
     console.log(`🔗 Using WebSocket URL: ${wsUrl}`);
     
-    // Update job status to running when connecting
-    infiniteJobs.updateJobStatus(jobId, 'running');
+    // Do not force 'running' status; show a temporary connecting message instead
+    if (!messageHold.current.has(jobId)) {
+      infiniteJobs.updateJobMessage(jobId, 'Connecting');
+      infiniteJobs.updateJobStatus(jobId, 'starting');
+    }
     
     // Use the centralized WebSocket manager
     import('@/lib/websocket/connection-manager').then(({ webSocketManager }) => {
       try {
         console.log(`🔌 Setting up WebSocket subscription for inference job ${jobId}`);
         const subscriptionId = webSocketManager.subscribe(jobId, 'inference', {
-          onProgress: (data) => {
-            console.log(`📈 WebSocket Progress for job ${jobId}:`, {
-              status: data.status,
-              progress: data.progress,
-              message: data.message,
-              timestamp: data.timestamp,
-              preview_images: data.preview_images ? `${data.preview_images.length} previews` : 'none',
-              completed_images: data.completed_images ? `${data.completed_images.length} completed` : 'none'
-            });
-            
-            // Debug: Check if preview_images exists in the data
-            if (data.preview_images) {
-              console.log(`🎨 Hook received preview_images for job ${jobId}:`, {
-                preview_images_type: typeof data.preview_images,
-                preview_images_length: data.preview_images?.length,
-                preview_index: data.preview_index,
-                first_preview_sample: data.preview_images[0]?.substring(0, 50) + '...'
-              });
-            } else {
-              console.log(`❌ Hook did NOT receive preview_images for job ${jobId}. Available keys:`, Object.keys(data));
-            }
-            
-            // Map database status to UI status
-            let uiStatus: 'queued' | 'running' | 'completed' | 'failed' = 'queued';
-            let jobStatus: 'queued' | 'running' | 'completed' | 'failed' = 'queued';
-            
-            switch (data.status) {
-              case 'running':
-                uiStatus = 'running';
-                jobStatus = 'running';
-                break;
-              case 'completed':
-                uiStatus = 'completed';
-                jobStatus = 'completed';
-                break;
-              case 'failed':
-                uiStatus = 'failed';
-                jobStatus = 'failed';
-                break;
-              case 'pending':
-                uiStatus = 'running';
-                jobStatus = 'running';
-                break;
-              case 'initializing':
-                uiStatus = 'running';
-                jobStatus = 'running';
-                break;
-              default:
-                uiStatus = 'queued';
-                jobStatus = 'queued';
-            }
-            
-            console.log(`🔄 Status mapping for job ${jobId}: ${data.status} → UI: ${uiStatus}, Job: ${jobStatus}`);
-            
-            // Update job status
-            infiniteJobs.updateJobStatus(jobId, jobStatus);
-            
-            // Debug: Check if job exists in queue
-            const currentJob = infiniteJobs.jobs.find(j => j.id === jobId);
-            if (!currentJob) {
-              console.error(`❌ Job ${jobId} not found in queue! Available jobs:`, infiniteJobs.jobs.map(j => j.id));
-              return;
-            }
-            
-            console.log(`🎯 Found job ${jobId} in queue with ${currentJob.thumbnails.length} thumbnails, current status: ${currentJob.status}`);
-            
-            // Debug: Log all received data keys
-            console.log(`📊 WebSocket data keys for job ${jobId}:`, Object.keys(data));
-            
-            // Handle preview images first (outside the thumbnail loop)
-            if (data.preview_images && Array.isArray(data.preview_images) && data.preview_images.length > 0) {
-              console.log(`🎨 Processing preview images for job ${jobId}:`, {
-                preview_count: data.preview_images.length,
-                preview_index: data.preview_index,
-                first_preview_length: data.preview_images[0]?.length || 0
-              });
-              const previewPath = data.preview_images[0]; // Take the first (and usually only) preview
-              const previewIndex = data.preview_index || 0; // Use the preview_index from WebSocket data
-              
-              if (previewPath && previewIndex >= 0) {
-                // Import the image URL utility
-                import('@/lib/utils/get-inference-image').then(({ getInferenceImage }) => {
-                  const previewUrl = getInferenceImage(previewPath);
-                  
-                  // Enhanced logging for base64 previews
-                  const isBase64 = previewPath.startsWith('data:image/');
-                  const logUrl = isBase64 
-                    ? `${previewPath.substring(0, 50)}... (base64, ${previewPath.length} chars)`
-                    : previewUrl;
-                  
-                  console.log(`🎨 Setting preview image for thumbnail ${previewIndex} of job ${jobId}: ${logUrl}`);
-                  
-                  // Validate base64 data before setting
-                  if (isBase64) {
-                    try {
-                      // Basic validation - check if it's a valid data URL
-                      const [header, data] = previewPath.split(',');
-                      if (!header.includes('data:image/') || !data || data.length < 100) {
-                        console.warn(`⚠️ Invalid base64 preview for job ${jobId}, preview_index ${previewIndex}`);
-                        return;
-                      }
-                      
-                      // Check size (warn if very large)
-                      if (previewPath.length > 100000) { // 100KB
-                        console.warn(`⚠️ Large base64 preview for job ${jobId}: ${previewPath.length} chars`);
-                      }
-                    } catch (e) {
-                      console.error(`❌ Base64 validation failed for job ${jobId}:`, e);
-                      return;
-                    }
-                  }
-                  
-                  // Update the specific thumbnail with the preview
-                  infiniteJobs.updateThumbnail(jobId, previewIndex, {
-                    status: uiStatus,
-                    progress: data.progress !== undefined ? Math.round(Math.min(100, Math.max(0, data.progress))) : undefined,
-                    webImageUrl: previewUrl, // Use preview as web image
-                    imageUrl: previewUrl // Also set as main image for now
-                  });
-                });
-              }
-            }
-            
-            // Always update thumbnails when we receive WebSocket data
-            const job = infiniteJobs.jobs.find(j => j.id === jobId);
-            if (job) {
-              console.log(`🎯 Updating ${job.thumbnails.length} thumbnails for job ${jobId}`);
-              
-              job.thumbnails.forEach((thumbnail, index) => {
-                const updates: Partial<InferenceThumbnail> = {
-                  status: uiStatus
-                };
-                
-                // Add progress if available
-                if (data.progress !== undefined && data.progress >= 0) {
-                  updates.progress = Math.round(Math.min(100, Math.max(0, data.progress)));
-                } else if (uiStatus === 'running') {
-                  // Provide estimated progress for running jobs without specific progress
-                  updates.progress = 50;
-                } else if (uiStatus === 'completed') {
-                  updates.progress = 100;
-                } else if (uiStatus === 'failed') {
-                  updates.errorMessage = data.error_message || 'Generation failed';
-                }
-                
-                // Regular update for this thumbnail
-                console.log(`📝 Updating thumbnail ${index} for job ${jobId}:`, updates);
-                infiniteJobs.updateThumbnail(jobId, index, updates);
-              });
-              
-              // Check for individual image completion in progress data
-              if (data.completed_images && Array.isArray(data.completed_images)) {
-                data.completed_images.forEach((completedImage: any) => {
-                  if (completedImage && typeof completedImage.index === 'number') {
-                    import('@/lib/utils/get-inference-image').then(({ getInferenceImage }) => {
-                      // Handle both base64 URLs and S3 paths
-                      const webUrl = completedImage.web_path 
-                        ? getInferenceImage(completedImage.web_path)
-                        : completedImage.base64 || completedImage.web_base64;
-                      
-                      const originalUrl = completedImage.original_path 
-                        ? getInferenceImage(completedImage.original_path)
-                        : completedImage.base64 || completedImage.original_base64 || webUrl;
-                      
-                      console.log(`✨ Individual image ${completedImage.index} completed for job ${jobId}:`, {
-                        webUrl: webUrl ? `${webUrl.substring(0, 50)}...` : 'none',
-                        originalUrl: originalUrl ? `${originalUrl.substring(0, 50)}...` : 'none',
-                        isBase64: webUrl?.startsWith('data:image/') || false
-                      });
-                      
-                      infiniteJobs.updateThumbnail(jobId, completedImage.index, {
-                        status: 'completed',
-                        progress: 100,
-                        webImageUrl: webUrl,
-                        imageUrl: originalUrl
-                      });
-                    });
-                  }
-                });
-              }
-            } else {
-              console.warn(`⚠️ Job ${jobId} not found in queue for progress update`);
-            }
-          },
+          onProgress: (data) => handleProgress(jobId, data),
           onComplete: async (success, error) => {
             console.log(`✅ Job ${jobId} completed. Success: ${success}`, error ? `Error: ${error}` : '');
             
             if (success) {
               infiniteJobs.updateJobStatus(jobId, 'completed');
-              
-              // Fetch generated images and update thumbnails
-              try {
-                console.log(`🔍 Fetching inference job result for ${jobId}...`);
-                const { fetchInferenceJobResult, getInferenceImageUrl } = await import('@/lib/api/inference-results');
-                const result = await fetchInferenceJobResult(jobId);
-                
-                console.log(`🔍 Fetched result for job ${jobId}:`, result);
-                
-                if (result && result.generated_images.length > 0) {
-                  // Update thumbnails with actual image URLs
-                  result.generated_images.forEach((image, index) => {
-                    const webImageUrl = getInferenceImageUrl(image.web_path, true);
-                    const originalImageUrl = getInferenceImageUrl(image.original_path, false);
-                    
-                    console.log(`🖼️ Updating thumbnail ${index} for job ${jobId}:`, {
-                      web_path: image.web_path,
-                      webImageUrl,
-                      original_path: image.original_path,
-                      originalImageUrl
-                    });
-                    
-                    infiniteJobs.updateThumbnail(jobId, index, {
-                      status: 'completed',
-                      imageUrl: originalImageUrl,
-                      webImageUrl: webImageUrl,
-                      progress: 100
-                    });
-                  });
-                  
-                  console.log(`🖼️ Updated ${result.generated_images.length} thumbnails for job ${jobId}`);
-                } else {
-                  console.warn(`⚠️ No generated images found for completed job ${jobId}`);
-                }
-              } catch (fetchError) {
-                console.error(`❌ Failed to fetch images for completed job ${jobId}:`, fetchError);
-              }
+              await fetchAndApplyResults(jobId, '🔍');
             } else {
               infiniteJobs.updateJobStatus(jobId, 'failed');
               // Mark all thumbnails as failed
@@ -288,9 +407,8 @@ export function useInfiniteInferenceJobsWithProgress() {
               }
             }
             
-            // Clean up connection and preview tracking
+            // Clean up connection
             activeConnections.current.delete(jobId);
-            previewTracking.current.delete(jobId);
           },
           onError: (error) => {
             console.error(`❌ WebSocket error for job ${jobId}:`, error);
@@ -307,9 +425,8 @@ export function useInfiniteInferenceJobsWithProgress() {
               });
             }
             
-            // Clean up connection and preview tracking
+            // Clean up connection
             activeConnections.current.delete(jobId);
-            previewTracking.current.delete(jobId);
           }
         });
         
@@ -376,8 +493,8 @@ export function useInfiniteInferenceJobsWithProgress() {
           clearInterval(pollInterval);
           console.log(`❌ Job ${jobId} failed via polling`);
         } else if (job.status === 'running' || job.status === 'pending') {
-          infiniteJobs.updateJobStatus(jobId, 'running');
-          console.log(`🔄 Job ${jobId} is running (via polling)`);
+          // Avoid forcing 'running' label; keep current status, only log
+          console.log(`🔄 Job ${jobId} is active (via polling): ${job.status}`);
         }
         
       } catch (error) {
@@ -403,9 +520,30 @@ export function useInfiniteInferenceJobsWithProgress() {
   // Auto-connect to active jobs and update their thumbnail states
   useEffect(() => {
     const activeJobs = infiniteJobs.jobs.filter(job => 
-      (job.status === 'queued' || job.status === 'running') &&
+      (job.status === 'queued' || job.status === 'generating' || job.status === 'initializing' || job.status === 'pending' || job.status === 'running' || (job as any).status === 'starting') &&
       !job.id.startsWith('placeholder_') // Don't connect to placeholder jobs
     );
+
+    // Resume any pending holds for jobs currently pending
+    activeJobs.forEach(job => {
+      if (job.status === 'pending') {
+        // Resume persisted hold if any
+        resumeHoldIfAny(job.id);
+        // If no watcher and no persisted hold, start a new hold now
+        if (!dbWatchers.current.has(job.id)) {
+          let hasStored = false;
+          if (typeof window !== 'undefined') {
+            try { hasStored = !!window.localStorage.getItem(holdKey(job.id)); } catch {}
+          }
+          if (!hasStored) {
+            startHoldAndWatchDb(job.id);
+          }
+        }
+      }
+      if (job.status === 'completed' || job.status === 'failed') {
+        cleanupHold(job.id);
+      }
+    });
 
     activeJobs.forEach(job => {
       // Check if we already have a connection for this job
@@ -414,10 +552,19 @@ export function useInfiniteInferenceJobsWithProgress() {
       }
 
       console.log(`🔌 Auto-connecting to job ${job.id} for thumbnail updates`);
+      // Normalize any preloaded DB status 'running' -> UI 'generating' before WS messages arrive
+      if (job.status === 'running') {
+        infiniteJobs.updateJobStatus(job.id, 'generating');
+        // Keep any existing message; do not pin
+      }
       
       // Subscribe to progress updates using the centralized WebSocket manager
       const subscriptionId = webSocketManager.subscribe(job.id, 'inference', {
         onProgress: (data) => {
+          if (data && typeof data.job_id === 'string' && data.job_id !== job.id) {
+            console.warn(`🔒 Auto-conn: ignoring packet for ${data.job_id} on connection for ${job.id}`);
+            return;
+          }
           const status = data.status;
           const progress = data.progress || 0;
           
@@ -428,78 +575,61 @@ export function useInfiniteInferenceJobsWithProgress() {
             console.log(`🎨 Auto-connection received preview_images for job ${job.id}:`, {
               preview_images_type: typeof data.preview_images,
               preview_images_length: data.preview_images?.length,
-              preview_index: data.preview_index,
+              image_index: data.image_index,
               first_preview_sample: data.preview_images[0]?.substring(0, 50) + '...'
             });
           }
           
-          // Handle preview images in auto-connection
-          if (data.preview_images && Array.isArray(data.preview_images) && data.preview_images.length > 0) {
-            const previewPath = data.preview_images[0]; // Take the first (and usually only) preview
-            const comfyPreviewIndex = data.preview_index || 0; // ComfyUI's internal preview counter
-            
-            if (previewPath) {
-              // Get or initialize preview tracking for this job
-              let tracking = previewTracking.current.get(job.id);
-              if (!tracking) {
-                tracking = { currentThumbnail: 0, lastPreviewIndex: -1 };
-                previewTracking.current.set(job.id, tracking);
+          // Global progress and previews with guards
+          updateGlobalProgressIfNeeded(job.id, data);
+          
+          // Determine UI status for thumbnails (simplified)
+          let uiStatus: 'queued' | 'running' | 'completed' | 'failed' = 'queued';
+          const statusStr = String(status);
+          if (statusStr === 'completed') uiStatus = 'completed';
+          else if (statusStr === 'failed') uiStatus = 'failed';
+          else if (typeof data.image_index === 'number' || statusStr === 'running' || statusStr === 'generating') {
+            uiStatus = 'running';
+            // WS indicates generation started: release any hold immediately
+            if (messageHold.current.has(job.id)) {
+              messageHold.current.delete(job.id);
+              try {
+                const watcher = dbWatchers.current.get(job.id);
+                if (watcher) clearTimeout(watcher.timerId);
+              } catch {}
+              if (typeof window !== 'undefined') {
+                try { window.localStorage.removeItem(holdKey(job.id)); } catch {}
               }
-              
-              // Since ComfyUI doesn't tell us which specific image in the batch each preview belongs to,
-              // we'll show the preview on all thumbnails to give users visual feedback that generation is happening
-              console.log(`🎨 Auto-connection setting preview for all thumbnails of job ${job.id} (ComfyUI preview_index: ${comfyPreviewIndex})`);
-              
-              // Import the image URL utility
-              import('@/lib/utils/get-inference-image').then(({ getInferenceImage }) => {
-                const previewUrl = getInferenceImage(previewPath);
-                
-                // Update all thumbnails with the same preview to show generation progress
-                job.thumbnails.forEach((_, index) => {
-                  infiniteJobs.updateThumbnail(job.id, index, {
-                    status: 'running',
-                    progress: Math.min(progress, 90),
-                    webImageUrl: previewUrl, // Use preview as web image
-                    imageUrl: previewUrl // Also set as main image for now
-                  });
-                });
-              });
+              const existing = dbWatchers.current.get(job.id);
+              try { existing?.channel?.unsubscribe?.(); } catch {}
+              dbWatchers.current.delete(job.id);
             }
           }
           
-          if (status === 'running' || status === 'pending' || status === 'initializing') {
-            infiniteJobs.updateJobStatus(job.id, 'running');
-            
-            // Update all thumbnails to running state (but don't override previews)
-            job.thumbnails.forEach((_, index) => {
-              // Only update if this thumbnail doesn't have a preview being set
-              if (!data.preview_images || data.preview_index !== index) {
-                infiniteJobs.updateThumbnail(job.id, index, {
-                  status: 'running',
-                  progress: Math.min(progress, 90) // Cap at 90% until completion
-                });
-              }
-            });
-          } else if (status === 'completed') {
-            infiniteJobs.updateJobStatus(job.id, 'completed');
-            
-            // Mark all thumbnails as completed
-            job.thumbnails.forEach((_, index) => {
-              infiniteJobs.updateThumbnail(job.id, index, {
-                status: 'completed',
-                progress: 100
-              });
-            });
-          } else if (status === 'failed') {
-            infiniteJobs.updateJobStatus(job.id, 'failed');
-            
-            // Mark all thumbnails as failed
-            job.thumbnails.forEach((_, index) => {
-              infiniteJobs.updateThumbnail(job.id, index, {
-                status: 'failed',
-                progress: 0
-              });
-            });
+          applyPreviewIfAny(job.id, data, uiStatus);
+
+          // Use Modal's status directly
+          const generationPhase = typeof data.image_index === 'number' || statusStr === 'image_completed';
+          
+          // Update job status and message directly from Modal (normalize running->generating)
+          const normStatus = statusStr === 'running' ? 'generating' : statusStr;
+          infiniteJobs.updateJobStatus(job.id, normStatus);
+          const msg = messageHold.current.has(job.id) ? 'Initializing' : data.message;
+          if (msg) {
+            infiniteJobs.updateJobMessage(job.id, msg);
+          }
+
+          applyTargetedProgress(job.id, data, uiStatus);
+
+          // Per-image completion: accept final_image_url or webImageUrl/imageUrl
+          if (statusStr === 'image_completed') {
+            const idx = typeof data.image_index === 'number' ? data.image_index : undefined;
+            const web = data.final_image_url || data.webImageUrl;
+            const orig = data.imageUrl as string | undefined;
+            if (idx !== undefined && (typeof web === 'string' && web.length > 0)) {
+              applyFinalImageUrl(job.id, idx, web, orig);
+              return;
+            }
           }
         },
         onComplete: async (success: boolean) => {
@@ -507,43 +637,8 @@ export function useInfiniteInferenceJobsWithProgress() {
           
           if (success) {
             infiniteJobs.updateJobStatus(job.id, 'completed');
-            
-            // Fetch generated images and update thumbnails
-            try {
-              console.log(`🔍 Auto-connection fetching inference job result for ${job.id}...`);
-              const { fetchInferenceJobResult, getInferenceImageUrl } = await import('@/lib/api/inference-results');
-              const result = await fetchInferenceJobResult(job.id);
-              
-              console.log(`🔍 Auto-connection fetched result for job ${job.id}:`, result);
-              
-              if (result && result.generated_images.length > 0) {
-                // Update thumbnails with actual image URLs
-                result.generated_images.forEach((image, index) => {
-                  const webImageUrl = getInferenceImageUrl(image.web_path, true);
-                  const originalImageUrl = getInferenceImageUrl(image.original_path, false);
-                  
-                  console.log(`🖼️ Auto-connection updating thumbnail ${index} for job ${job.id}:`, {
-                    web_path: image.web_path,
-                    webImageUrl,
-                    original_path: image.original_path,
-                    originalImageUrl
-                  });
-                  
-                  infiniteJobs.updateThumbnail(job.id, index, {
-                    status: 'completed',
-                    imageUrl: originalImageUrl,
-                    webImageUrl: webImageUrl,
-                    progress: 100
-                  });
-                });
-                
-                console.log(`🖼️ Auto-connection updated ${result.generated_images.length} thumbnails for job ${job.id}`);
-              } else {
-                console.warn(`⚠️ Auto-connection: No generated images found for completed job ${job.id}`);
-              }
-            } catch (fetchError) {
-              console.error(`❌ Auto-connection failed to fetch images for completed job ${job.id}:`, fetchError);
-            }
+            // Retry until we see all expected images (handles eventual DB consistency)
+            await fetchAndApplyResults(job.id, '🔍 Auto-connection', job.thumbnails.length);
           } else {
             infiniteJobs.updateJobStatus(job.id, 'failed');
             // Mark all thumbnails as failed
@@ -554,9 +649,6 @@ export function useInfiniteInferenceJobsWithProgress() {
               });
             });
           }
-          
-          // Clean up preview tracking on completion
-          previewTracking.current.delete(job.id);
         },
         onError: (error: string) => {
           console.error(`❌ WebSocket error for job ${job.id}:`, error);
@@ -570,8 +662,10 @@ export function useInfiniteInferenceJobsWithProgress() {
 
     // Cleanup subscriptions for jobs that are no longer active
     for (const [jobId, subscriptionId] of activeConnections.current.entries()) {
-      if (!activeJobs.find(job => job.id === jobId)) {
-        console.log(`🔌 Cleaning up WebSocket subscription for job ${jobId}`);
+      const job = infiniteJobs.jobs.find(j => j.id === jobId);
+      const isTerminal = job && (job.status === 'completed' || job.status === 'failed');
+      if (isTerminal) {
+        console.log(`🔌 Cleaning up WebSocket subscription for job ${jobId} (terminal status: ${job!.status})`);
         webSocketManager.unsubscribe(subscriptionId);
         activeConnections.current.delete(jobId);
       }
@@ -595,26 +689,25 @@ export function useInfiniteInferenceJobsWithProgress() {
       });
       pollingIntervals.current.clear();
       
-      // Clean up preview tracking
-      previewTracking.current.clear();
+      // Note: No preview tracking cleanup needed with sequential generation
     };
   }, []);
 
   // Create queued thumbnails (optimistic UI)
-  const createQueuedThumbnails = useCallback((nbTakes: number) => {
+  const createQueuedThumbnails = useCallback((nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string }) => {
     // Create a placeholder ID for the thumbnails (no WebSocket connection yet)
     const placeholderId = `placeholder_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
     // Use the addJob function from infiniteJobs to create the placeholder
-    infiniteJobs.addJob(placeholderId, nbTakes);
+    infiniteJobs.addJob(placeholderId, nbTakes, meta);
     
-    console.log(`📋 Created queued thumbnails with placeholder ${placeholderId} (${nbTakes} takes)`);
+    console.log(`📋 Created initializing thumbnails with placeholder ${placeholderId} (${nbTakes} takes)`);
     return placeholderId;
   }, [infiniteJobs]);
 
   // Calculate if any job is currently generating
   const isGenerating = infiniteJobs.jobs.some(job => 
-    job.status === 'queued' || job.status === 'running'
+    job.status === 'initializing' || job.status === 'queued' || job.status === 'running' || (job as any).status === 'starting'
   );
 
   return {
@@ -623,5 +716,12 @@ export function useInfiniteInferenceJobsWithProgress() {
     connectJobAfterCreation,
     createQueuedThumbnails,
     isGenerating,
+    // Expose helpers for the caller that orchestrates inference-create response
+    __internal__: {
+      startHoldAndWatchDb,
+      cleanupHold,
+      resumeHoldIfAny,
+      messageHold,
+    }
   };
 }

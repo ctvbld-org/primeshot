@@ -34,21 +34,27 @@ export function GalleryPlaceholder() {
     threshold: 0.1
   })
 
-  // Debug logging (can be removed in production)
-  // console.log('🔍 GalleryPlaceholder state:', { 
-  //   authLoading, 
-  //   isLoading, 
-  //   totalCount, 
-  //   jobsLength: jobs.length, 
-  //   hasMore, 
-  //   isLoadingMore,
-  //   error 
-  // });
-
-  if (authLoading || isLoading) {
+  if (isLoading || authLoading) {
     return (
-      <div className={styles.skeletonWrapper}>
-        <Skeleton className={styles.skeleton} />
+      <div className={styles.generatedSection}>
+        <div className={styles.jobsList}>
+          {[0, 1].map((i) => (
+            <div className={styles.jobGroup} key={`skeleton-${i}`}>
+              <div className={styles.jobHeader}>
+                <div className={styles.jobTitle}>
+                  <div className={styles.titleRow}>
+                    <Skeleton className={styles.skeletonTitle} />
+                    <Skeleton className={styles.skeletonIcon} aria-hidden />
+                    <Skeleton className={styles.skeletonSubtitle} />
+                  </div>
+                  <div className={styles.jobMeta}>
+                    <Skeleton className={styles.skeletonMeta} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
@@ -64,7 +70,7 @@ export function GalleryPlaceholder() {
   }
 
   // Authenticated with no inference jobs -> show the same placeholder
-  if (isAuthenticated && totalCount === 0) {
+  if (isAuthenticated && totalCount === 0 && !authLoading) {
     return (
       <div className={styles.placeholderCard} role="region" aria-label="How it works">
         <div className={styles.steps}>

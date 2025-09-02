@@ -163,13 +163,21 @@ export function TrainingProgressStep({
   // Do not gate the countdown on progress; show running label immediately and attach countdown when available
   const seconds = trainingProgress.getLiveCountdownSeconds?.() ?? null
   
-  // Determine if job is queued based on database status
-  const isInitializing = jobStatus?.status === 'initializing'
-  const isQueued = jobStatus?.status === 'queued'
-  const isPending = jobStatus?.status === 'pending'
-  const isRunning = jobStatus?.status === 'running'
-  const isCompleted = jobStatus?.status === 'completed'
-  const isFailed = jobStatus?.status === 'failed'
+  // Prefer WebSocket progress status when available; fall back to DB status
+  const wsStatus = (trainingProgress as any)?.progress?.status as string | undefined
+  const wsInitializing = wsStatus === 'initializing'
+  const wsQueued = wsStatus === 'queued' || wsStatus === 'pending'
+  const wsRunning = wsStatus === 'running'
+  const wsCompleted = wsStatus === 'completed'
+  const wsFailed = wsStatus === 'failed'
+
+  // Merge WS + DB states (WS takes precedence when present)
+  const isInitializing = wsStatus ? wsInitializing : jobStatus?.status === 'initializing'
+  const isQueued = wsStatus ? (wsQueued && !wsRunning && !wsCompleted && !wsFailed) : jobStatus?.status === 'queued'
+  const isPending = wsStatus ? (wsStatus === 'pending') : jobStatus?.status === 'pending'
+  const isRunning = wsStatus ? wsRunning : jobStatus?.status === 'running'
+  const isCompleted = wsStatus ? wsCompleted : jobStatus?.status === 'completed'
+  const isFailed = wsStatus ? wsFailed : jobStatus?.status === 'failed'
   const retryAfterIso = jobStatus?.retry_after || null
 
   // Show pending only if it persists beyond a short threshold to mask cold starts.
@@ -206,16 +214,14 @@ export function TrainingProgressStep({
 
   return (
     <>
-      {/* Hidden progress tracker - only show for running jobs */}
-      {isRunning && (
-        <ProgressTracker
-          key={`${characterId}-${trainingJobId}`}
-          modelId={characterId}
-          jobId={trainingJobId}
-          onProgressUpdate={handleProgressUpdate}
-          onComplete={handleTrainingComplete}
-        />
-      )}
+      {/* Always subscribe to WS progress; UI will decide messages via merged state */}
+      <ProgressTracker
+        key={`${characterId}-${trainingJobId}`}
+        modelId={characterId}
+        jobId={trainingJobId}
+        onProgressUpdate={handleProgressUpdate}
+        onComplete={handleTrainingComplete}
+      />
 
       <div className="flex flex-col items-center justify-center space-y-6 p-12">
         {/* Character Thumbnail */}

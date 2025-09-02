@@ -37,6 +37,10 @@ import { UploadPhotosStep } from './training/UploadPhotosStep'
 import { CharacterNameStep } from './training/CharacterNameStep'
 import { UploadProgressStep } from './training/UploadProgressStep'
 import { TrainingProgressStep } from './training/TrainingProgressStep'
+import dynamic from 'next/dynamic'
+
+// Code-split admin dialog so it is not bundled for non-admins
+const AdminTrainingOptionsDialog = dynamic(() => import('./training/AdminTrainingOptionsDialog'), { ssr: false })
 
 interface CharacterTrainingDialogProps {
   onComplete?: (characterId: string) => void
@@ -58,6 +62,12 @@ interface StepData {
   trainingJobId?: string
   bodyShotValidation?: { isValid: boolean; errors: string[] }
   isAnalyzing?: boolean
+  adminTrainingParams?: {
+    min_steps: number
+    batch_size: number
+    resize_size: number
+    rank: number
+  }
 }
 
 export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogProps) {
@@ -89,6 +99,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
 
   const [showCloseConfirmation, setShowCloseConfirmation] = useState(false)
   const [retryState, setRetryState] = useState<{ attempt: number; maxRetries: number; error?: Error } | null>(null)
+  const [showAdminOptions, setShowAdminOptions] = useState(false)
 
   const { 
     createCharacter,
@@ -213,8 +224,12 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
         }
         break
       case 'name':
-        // Process character creation and upload
-        await handleCreateCharacter()
+        // If admin, open admin training options first
+        if (user?.admin) {
+          setShowAdminOptions(true)
+        } else {
+          await handleCreateCharacter()
+        }
         break
     }
   }, [currentStep, stepData])
@@ -295,7 +310,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
   }, [stepData.qualityResults])
 
   // Handle character creation, payment, and upload
-  const handleCreateCharacter = useCallback(async () => {
+  const handleCreateCharacter = useCallback(async (overrideParams?: { min_steps: number; batch_size: number; resize_size: number; rank: number }) => {
     setIsProcessing(true)
     let createdCharacterId: string | undefined
     
@@ -341,7 +356,9 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
       // Start training with retry mechanism
       const trainingResponse = await startTraining({
         character_id: character.id,
-        user_id: user!.id
+        user_id: user!.id,
+        // Include admin params only if defined
+        training_params: overrideParams ?? stepData.adminTrainingParams
       }, (attempt, maxRetries, error) => {
         console.log(`Training API retry ${attempt}/${maxRetries}:`, error.message)
         setRetryState({ attempt, maxRetries, error })
@@ -577,6 +594,20 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
           )}
         </DialogBody>
       </DialogContent>
+
+      {/* Admin Options Dialog - only rendered for admins */}
+      {user?.admin && (
+        <AdminTrainingOptionsDialog
+          open={showAdminOptions}
+          onCancel={() => setShowAdminOptions(false)}
+          onConfirm={(params) => {
+            setShowAdminOptions(false)
+            setStepData(prev => ({ ...prev, adminTrainingParams: params }))
+            // proceed to create with these params
+            handleCreateCharacter(params)
+          }}
+        />
+      )}
 
       {/* Confirmation Modal */}
       <AlertDialog open={showCloseConfirmation} onOpenChange={setShowCloseConfirmation}>

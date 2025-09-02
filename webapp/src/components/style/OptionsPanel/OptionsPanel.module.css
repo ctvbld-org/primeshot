@@ -1,8 +1,49 @@
 .panel { width: 100%; color: inherit; }
 
-.header { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; }
+.header { display: flex; align-items: center; justify-content: space-between; padding: 12px 12px; gap: 10px; }
+.headerLeft { display: flex; align-items: center; gap: 8px; }
+.headerLeft > *:first-child { margin-right: 8px; }
 .title { font-weight: 600; opacity: 0.95; }
-.done { background: transparent; color: #b6e3e2; border: none; font-weight: 600; }
-.body { padding: 8px; }
-
+.searchBox { flex: 1; display: flex; align-items: center; position: relative; }
+.searchIcon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #eaeaea; z-index: 1; }
+.searchInput { 
+    background: rgba(255, 255, 255, 0);
+    font-size: 14px; 
+    max-width: 420px; 
+    height: 40px;
+    border-radius: 16px; padding: 8px 14px 8px 42px; color: #eaeaea; outline: none; 
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: background 150ms ease;
+}
+.searchInput:focus { 
+    background: rgba(255, 255, 255, 0.08);
+ }
+.headerRight { display: flex; align-items: center; gap: 8px; }
+.navButtons { display: flex; align-items: center; gap: 8px; }
+.navBtn { 
+    background: rgba(255, 255, 255, 0.08);
+    width: 40px; 
+    height: 40px; 
+    display: grid; 
+    place-items: center; 
+    border-radius: 16px; 
+    cursor: pointer; 
+    color: #eaeaea; 
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: background 150ms ease;
+}
+.navBtn:not(:disabled):hover { 
+    background: rgba(255,255,255,0.06); 
+}
+.navBtn:not(:disabled):active { 
+    background: rgba(255,255,255,1); 
+    transition: background 0ms ease;
+}
+.navBtn:disabled { 
+    opacity: .35; 
+    cursor: default;
+}
+.body { padding: 0 12px 12px; }
 

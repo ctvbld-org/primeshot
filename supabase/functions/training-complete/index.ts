@@ -136,7 +136,41 @@ serve(async (req) => {
       }
     }
 
-    // Process training queue after job completion
+    // If training failed, fail and refund any queued/pending/running inference jobs for this character
+    if (!success) {
+      try {
+        const { data: impacted } = await supabase
+          .from('inference_jobs')
+          .select('id, user_id, credits_spent')
+          .eq('character_id', trainingJob.character_id)
+          .in('status', ['queued','initializing','pending','running'])
+        if (Array.isArray(impacted) && impacted.length > 0) {
+          // Mark failed
+          await supabase
+            .from('inference_jobs')
+            .update({ status: 'failed', error_message: 'Training failed for this character', updated_at: new Date().toISOString() })
+            .eq('character_id', trainingJob.character_id)
+            .in('status', ['queued','initializing','pending','running'])
+          // Refund each
+          for (const j of impacted) {
+            if ((j as any)?.credits_spent > 0) {
+              const key = `inference_refund_${(j as any).id}`
+              await supabase.rpc('refund_credits_with_idempotency', {
+                p_user_id: (j as any).user_id,
+                p_job_id: (j as any).id,
+                p_amount: (j as any).credits_spent,
+                p_reason: 'Refund: training failed before inference could run',
+                p_idempotency_key: key
+              })
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Warning: failed to refund/close queued inference jobs:', e)
+      }
+    }
+
+    // Process training and inference queues after job completion
     let queueProcessingResult = null;
     try {
       console.log('🔄 Training job completed, processing queue...');
@@ -162,6 +196,26 @@ serve(async (req) => {
         console.log('✅ Queue processing completed:', queueProcessingResult);
       } else {
         console.error('❌ Queue processing failed:', await queueResponse.text());
+      }
+
+      // Additionally trigger inference queue in case jobs were waiting for this character
+      try {
+        const infRes = await fetch(
+          `${Deno.env.get('SUPABASE_URL')}/functions/v1/inference-queue`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
+            },
+            body: JSON.stringify({ trigger: 'training_completed' })
+          }
+        );
+        if (!infRes.ok) {
+          console.error('❌ Inference queue trigger failed:', await infRes.text());
+        }
+      } catch (e) {
+        console.error('Warning: inference queue trigger error (non-blocking):', e);
       }
     } catch (queueError) {
       console.error('Warning: Queue processing error (non-blocking):', queueError);

@@ -68,14 +68,6 @@ export function StylesCarousel() {
     loop: true,
   })
 
-  const stylesWithImages = useMemo(() => {
-    return photographyStyleOptions.map(style => ({
-      ...style,
-      genderSpecificImages: getStyleImages(style.preview_images),
-      translations: style.translations
-    }));
-  }, [photographyStyleOptions]);
-
   // Helper to determine if a slide index is near the current index in a looping carousel
   const isNearSelected = useCallback((idx: number, selected: number, total: number) => {
     const delta = Math.abs(idx - selected)
@@ -144,14 +136,20 @@ export function StylesCarousel() {
 
   if (isLoading || photographyStyleOptions.length === 0) {
     return (
-      <div className={styles.skeletonContainer}>
-        <div className={styles.skeletonInner} />
+      <div className={styles.container}>
+        <div className={styles.carouselWrapper} ref={emblaRef}>
+          <div className={styles.slidesContainer + ' ' + styles.skeletonContainer}>
+            <div className={styles.slide + ' ' + styles.skeletonInner}></div>
+            <div className={styles.slide + ' ' + styles.active + ' ' + styles.skeletonInner}></div>
+            <div className={styles.slide + ' ' + styles.skeletonInner}></div>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} data-styles-container>
       {/* Highlight overlay */}
       
       {/* Carousel container */}

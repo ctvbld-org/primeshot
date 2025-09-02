@@ -9,6 +9,12 @@ import { S3Client, DeleteObjectsCommand, ListObjectsV2Command } from "https://es
 interface TrainingRequest {
   user_id: string;
   character_id: string;
+  training_params?: {
+    min_steps?: number;
+    batch_size?: number;
+    resize_size?: number;
+    rank?: number;
+  };
 }
 
 interface TrainingJob {
@@ -314,6 +320,12 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    // Extract JWT and validate user
+    const authHeaderRaw = req.headers.get('Authorization') || ''
+    const jwt = authHeaderRaw.startsWith('Bearer ')
+      ? authHeaderRaw.substring('Bearer '.length)
+      : authHeaderRaw
+
     // Verify request method
     if (req.method !== 'POST') {
       return new Response(
@@ -324,7 +336,7 @@ serve(async (req) => {
 
     // Parse request body
     const body: TrainingRequest = await req.json();
-    const { user_id, character_id } = body;
+    const { user_id, character_id, training_params } = body;
 
     // Validate required fields
     if (!user_id || !character_id) {
@@ -333,6 +345,64 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    // Verify the JWT belongs to the provided user_id (prevents client spoofing)
+    try {
+      const { data: authData, error: authError } = await supabase.auth.getUser(jwt)
+      if (authError || !authData?.user) {
+        return new Response(
+          JSON.stringify({ error: 'Unauthorized' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      if (authData.user.id !== user_id) {
+        return new Response(
+          JSON.stringify({ error: 'Forbidden' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    } catch (_e) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Determine if user is admin (server-side authority)
+    let isAdmin = false
+    try {
+      const { data: usr } = await supabase
+        .from('users')
+        .select('admin')
+        .eq('id', user_id)
+        .single()
+      isAdmin = Boolean(usr?.admin)
+    } catch (_e) {
+      isAdmin = false
+    }
+
+    // Sanitize optional admin-only params
+    console.log('🔧 training_params (raw):', training_params)
+    const approvedParams: Record<string, number> = {}
+    if (isAdmin && training_params) {
+      const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v))
+      if (typeof training_params.min_steps === 'number') {
+        approvedParams.min_steps = clamp(Math.floor(training_params.min_steps), 100, 10000)
+      }
+      if (typeof (training_params as any).steps === 'number') {
+        approvedParams.steps = clamp(Math.floor((training_params as any).steps), 100, 10000)
+      }
+      if (typeof training_params.batch_size === 'number') {
+        approvedParams.batch_size = clamp(Math.floor(training_params.batch_size), 1, 8)
+      }
+      if (typeof training_params.resize_size === 'number') {
+        approvedParams.resize_size = clamp(Math.floor(training_params.resize_size), 512, 2048)
+      }
+      if (typeof training_params.rank === 'number') {
+        approvedParams.rank = clamp(Math.floor(training_params.rank), 1, 256)
+      }
+    }
+    console.log('✅ approvedParams:', approvedParams, 'isAdmin:', isAdmin)
 
     // Check subscription training limits first to know if this training counts towards included quota
     const trainingLimitsCheck = await checkTrainingLimits(supabase, user_id);
@@ -441,6 +511,18 @@ serve(async (req) => {
     const existingJob = await findExistingActiveJob(supabase, user_id, character_id);
     if (existingJob) {
       console.log(`🔁 Resuming existing training job ${existingJob.id} (status=${existingJob.status})`);
+      // If admin provided overrides on resume, persist them so queue path uses them
+      if (isAdmin && Object.keys(approvedParams).length > 0) {
+        try {
+          console.log(`📝 Updating training_params for existing job ${existingJob.id}:`, approvedParams);
+          await supabase
+            .from('training_jobs')
+            .update({ training_params: approvedParams, updated_at: new Date().toISOString() })
+            .eq('id', existingJob.id);
+        } catch (e) {
+          console.warn('Failed to persist admin training_params on existing job:', e);
+        }
+      }
       return new Response(
         JSON.stringify({
           job_id: existingJob.id,
@@ -508,7 +590,9 @@ serve(async (req) => {
       status: 'initializing',
       credits_spent: trainingCost,
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
+      // Persist admin-approved training params so queued jobs can use them later
+      ...(Object.keys(approvedParams).length > 0 ? { training_params: approvedParams } : {})
     };
 
     console.log(`💾 Inserting training job:`, trainingJob);
@@ -616,8 +700,11 @@ serve(async (req) => {
       user_id,
       character_id,
       job_id: jobId,
-      env: env
+      env: env,
+      // Spread approved admin-only params
+      ...approvedParams
     };
+    console.log('📤 Submitting Modal payload keys:', Object.keys(modalPayload));
 
     console.log('🚀 Starting real Modal training job:', modalPayload);
 

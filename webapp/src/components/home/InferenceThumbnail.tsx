@@ -1,8 +1,9 @@
 'use client';
 
-import { FC, useState, useCallback } from 'react';
+import { FC, useState, useCallback, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import styles from './InferenceThumbnail.module.css';
+import { getInferenceImageThumbnail, getInferenceImageCard } from '@/lib/utils/get-inference-image';
 
 export interface InferenceThumbnail {
   id: string;
@@ -24,44 +25,52 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
   thumbnail,
   onClick
 }) => {
-  const [imageLoaded, setImageLoaded] = useState(false);
+  // Track layered transition state between preview and final image
+  const [currentUrl, setCurrentUrl] = useState<string | undefined>(thumbnail.webImageUrl || thumbnail.imageUrl);
+  const [prevUrl, setPrevUrl] = useState<string | null>(null);
+  const [finalLoaded, setFinalLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const hasMountedRef = useRef(false);
   
   // Check if we're using a base64 preview
   const isBase64Preview = (thumbnail.webImageUrl || thumbnail.imageUrl)?.startsWith('data:image/');
+
+  // When incoming URL changes, preserve previous to enable crossfade
+  useEffect(() => {
+    const nextUrl = thumbnail.webImageUrl || thumbnail.imageUrl;
+    if (!nextUrl) return;
+    if (!currentUrl) {
+      setCurrentUrl(nextUrl);
+      return;
+    }
+    if (nextUrl !== currentUrl) {
+      setPrevUrl(currentUrl);
+      setCurrentUrl(nextUrl);
+      setFinalLoaded(false);
+    }
+  }, [thumbnail.webImageUrl, thumbnail.imageUrl]);
+
+  // Clear previous layer after crossfade completes
+  useEffect(() => {
+    if (!prevUrl || !finalLoaded) return;
+    const t = setTimeout(() => setPrevUrl(null), 320);
+    return () => clearTimeout(t);
+  }, [prevUrl, finalLoaded]);
   
-  const handleImageLoad = useCallback(() => {
-    // Small delay to ensure gradient is visible even for fast-loading images
+  const handleFinalImageLoad = useCallback(() => {
+    // Small delay to allow overlay fade
     setTimeout(() => {
-      setImageLoaded(true);
+      setFinalLoaded(true);
       setImageError(false);
-    }, 300);
+    }, 150);
   }, []);
   
   const handleImageError = useCallback((e: any) => {
     console.error(`❌ Image failed to load: ${thumbnail.webImageUrl || thumbnail.imageUrl}`, e);
     setImageError(true);
-    setImageLoaded(false);
+    setFinalLoaded(false);
   }, [thumbnail.webImageUrl, thumbnail.imageUrl]);
   
-  const getStatusText = () => {
-    switch (thumbnail.status) {
-      case 'queued':
-        return 'Queued...';
-      case 'running':
-        if (isBase64Preview) {
-          return thumbnail.progress ? `${Math.round(thumbnail.progress)}%` : 'Live Preview';
-        }
-        return thumbnail.progress ? `${Math.round(thumbnail.progress)}%` : 'Generating...';
-      case 'completed':
-        return '';
-      case 'failed':
-        return thumbnail.errorMessage || 'Failed';
-      default:
-        return '';
-    }
-  };
-
   const getStatusClass = () => {
     switch (thumbnail.status) {
       case 'queued':
@@ -77,98 +86,85 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
     }
   };
 
+  // Determine if we should apply zoom on initial mount only (no preview swap)
+  const shouldZoomOnMount = !hasMountedRef.current && !prevUrl;
+  useEffect(() => { hasMountedRef.current = true; }, []);
+
+  const hasAnyImage = Boolean(currentUrl || prevUrl);
+  const showDualLayer = Boolean(prevUrl && currentUrl && currentUrl !== prevUrl && !finalLoaded);
+
   return (
     <div 
       className={`${styles.thumbnail} ${getStatusClass()}`}
       onClick={onClick}
+      style={{ ['--stagger' as any]: thumbnail.index }}
     >
       {/* Image or placeholder */}
       <div className={styles.imageContainer}>
-        {/* Show gradient loader overlay when loading or generating, but hide when we have a preview image */}
-        {((thumbnail.status === 'running' && !isBase64Preview) || (!imageLoaded && !isBase64Preview)) && (
-          <div className={`${styles.gradientLoader} ${imageLoaded && thumbnail.status === 'completed' ? styles.fadeOut : ''}`}>
-            {thumbnail.status === 'running' && (
-              <div className={styles.generatingText}>Generating...</div>
-            )}
-            {thumbnail.status === 'queued' && (
-              <div className={styles.queuedText}>Queued</div>
-            )}
-          </div>
+        {/* Gradient loader: hide if we have a visible preview layer; fade out once final is loaded */}
+        {((thumbnail.status === 'running' && !prevUrl && !isBase64Preview) || (!finalLoaded && !prevUrl && !isBase64Preview)) && (
+          <div className={`${styles.gradientLoader} ${finalLoaded || thumbnail.status === 'completed' ? styles.fadeOut : ''}`} />
         )}
-        
-        {(thumbnail.webImageUrl || thumbnail.imageUrl) && !imageError ? (
+
+        {hasAnyImage && !imageError ? (
           <>
-            {isBase64Preview ? (
-              <Image
-                src={thumbnail.webImageUrl || thumbnail.imageUrl!}
-                alt={`Generated image ${thumbnail.index + 1}`}
-                fill
-                className={`${styles.image} ${imageLoaded ? styles.fadeIn : ''} ${thumbnail.status === 'running' ? styles.imageGenerating : ''} ${styles.base64Preview}`}
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                priority={thumbnail.status === 'completed'}
-                unoptimized={true} // Disable Next.js optimization for base64 images
-                onLoad={handleImageLoad}
-                onError={handleImageError}
-              />
-            ) : (
+            {/* Preview layer (only rendered while waiting for final to load) */}
+            {prevUrl && showDualLayer && (
               <img
-                src={thumbnail.webImageUrl || thumbnail.imageUrl!}
-                alt={`Generated image ${thumbnail.index + 1}`}
-                className={`${styles.image} ${imageLoaded ? styles.fadeIn : ''} ${thumbnail.status === 'running' ? styles.imageGenerating : ''}`}
+                src={prevUrl}
+                alt={`Generating preview ${thumbnail.index + 1}`}
+                className={`${styles.imageLayer} ${styles.visible}`}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                onLoad={handleImageLoad}
-                onError={handleImageError}
+                decoding="async"
               />
             )}
-            {/* Show overlay for preview images that are still generating */}
-            {thumbnail.status === 'running' && imageLoaded && (
-              <div className={styles.previewOverlay}>
-                <div className={styles.loadingSpinner} />
-                {isBase64Preview && (
-                  <div className={styles.previewBadge}>LIVE</div>
-                )}
-              </div>
+
+            {/* Final (or current) layer */}
+            {(() => {
+              const base = currentUrl!;
+              const isBase64 = base?.startsWith('data:image/');
+              if (isBase64) {
+                return (
+                  <Image
+                    src={base}
+                    alt={`Generated image ${thumbnail.index + 1}`}
+                    fill
+                    className={`${styles.imageLayer} ${finalLoaded || showDualLayer ? styles.visible : ''} ${shouldZoomOnMount ? styles.zoomOnMount : ''}`}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    priority={thumbnail.status === 'completed'}
+                    unoptimized={true}
+                    onLoad={handleFinalImageLoad}
+                    onError={handleImageError}
+                  />
+                );
+              }
+              const src480 = getInferenceImageThumbnail(base);
+              const src720 = getInferenceImageCard(base);
+              return (
+                <img
+                  src={src480}
+                  srcSet={`${src480} 480w, ${src720} 720w`}
+                  sizes="(max-width: 640px) 360px, 240px"
+                  alt={`Generated image ${thumbnail.index + 1}`}
+                  className={`${styles.imageLayer} ${finalLoaded || showDualLayer ? styles.visible : ''} ${shouldZoomOnMount ? styles.zoomOnMount : ''}`}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  loading="lazy"
+                  decoding="async"
+                  onLoad={handleFinalImageLoad}
+                  onError={handleImageError}
+                />
+              );
+            })()}
+
+            {/* Show overlay while generating (kept over preview/final until final is ready) */}
+            {thumbnail.status === 'running' && (prevUrl ? true : finalLoaded) && (
+              <div className={styles.previewOverlay}></div>
             )}
           </>
         ) : (
-          <div className={styles.placeholder}>
-            {thumbnail.status === 'running' && (
-              <>
-                <div className={styles.loadingSpinner} />
-                <div className={styles.generatingText}>Generating...</div>
-              </>
-            )}
-            {thumbnail.status === 'queued' && (
-              <div className={styles.queuedText}>Queued</div>
-            )}
-            {thumbnail.status === 'failed' && (
-              <div className={styles.failedText}>Failed to generate</div>
-            )}
-            {imageError && thumbnail.status === 'completed' && (
-              <div className={styles.errorText}>Image failed to load</div>
-            )}
-          </div>
+          <div className={styles.placeholder}></div>
         )}
       </div>
-
-      {/* Status overlay */}
-      {getStatusText() && (
-        <div className={styles.statusOverlay}>
-          <span className={styles.statusText}>
-            {getStatusText()}
-          </span>
-        </div>
-      )}
-
-      {/* Progress bar for generating state */}
-      {thumbnail.status === 'running' && thumbnail.progress && (
-        <div className={styles.progressContainer}>
-          <div 
-            className={styles.progressBar}
-            style={{ width: `${thumbnail.progress}%` }}
-          />
-        </div>
-      )}
     </div>
   );
 };

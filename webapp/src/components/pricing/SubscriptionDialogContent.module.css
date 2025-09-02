@@ -151,6 +151,53 @@
   opacity: 0.7;
 }
 
+/* Shared pricing helpers (used by subscriptions and credit packs) */
+.sectionIntro {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.subtleText {
+  opacity: 0.7;
+}
+
+.metaGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  background: rgba(0,0,0,0.06);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.metaItem {
+  font-size: 13px;
+}
+
+.priceSub {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.mutedNote {
+  text-align: center;
+  font-size: 12px;
+  opacity: 0.7;
+  margin-top: 16px;
+}
+
+.guideBlock {
+  margin-top: 24px;
+  background: rgba(0,0,0,0.06);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.guideTitle {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
 .features {
   margin: 10px 0 0;
   padding: 0;

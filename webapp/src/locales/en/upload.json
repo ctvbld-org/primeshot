@@ -121,7 +121,7 @@
     "dragDropMessage": "Drag and drop files here, or",
     "maxImagesReached": "You've reached the maximum number of images.",
     "browse": "browse",
-    "supportedFormats": "Supports JPEG, PNG up to 8Mb each"
+    "supportedFormats": "Supports JPEG, PNG up to 25Mb each"
   },
   "quality": {
     "high": "High quality",

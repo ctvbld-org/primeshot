@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import dynamic from 'next/dynamic'
 // Embla type import replaced with any to avoid cross-package type issues
 import Image from 'next/image'
 import { Icon } from '@primeshot/common/web/Icon'
@@ -29,20 +30,25 @@ import { CircleProgress } from '@primeshot/common/web/ui/circle-progress'
 import { Countdown } from '@/components/character/Countdown'
 import { useInferenceQueue } from '@/contexts/inference-queue-context'
 import { useCallback as useCallbackReact, useRef } from 'react'
+import { useCharacterImages } from '@/lib/hooks/use-character-images'
 
 import { OptionsPanel } from '../OptionsPanel/OptionsPanel'
+import { Loader } from '@primeshot/common/web/ui/loader'
 import { GenerateBarSelect } from './GenerateBarSelect'
 import { useCreateCharacter } from './useCreateCharacter'
 import { Button } from '@primeshot/common/web/ui/button'
+import { SegmentedControl } from '@primeshot/common/web/ui/segmented-control'
+const AdminInferenceOptionsDialog = dynamic(() => import('./AdminInferenceOptionsDialog'), { ssr: false })
 
 type PanelKey = 'styles' | 'scenes' | 'wardrobe' | 'characters' | 'settings' | null
 
 interface GenerateBarProps { emblaApi: any | null; onPanelToggle?: (open: boolean) => void }
 
 export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
-  const { t } = useTranslation(['styles', 'settings'])
+  const { t } = useTranslation(['styles', 'common'])
   const scenesLoader = makeCloudfrontLoader('app-images/placeholders/options/scenes')
   const wardrobesLoader = makeCloudfrontLoader('app-images/placeholders/options/wardrobes')
+  const stylesLoader = makeCloudfrontLoader('app-images/placeholders/styles')
   const { selectedStyleIndex, setSelectedStyleIndex, stylesData } = useStyleSelection()
   
   // Auth state for conditional data loading
@@ -59,6 +65,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const [selectedWardrobeValue, setSelectedWardrobeValue] = useState<string | null>(null)
   const [selectedGender, setSelectedGender] = useState<'man' | 'woman'>('woman')
   const [selectionVersion, setSelectionVersion] = useState(0)
+  const [isSwitchingGender, setIsSwitchingGender] = useState(false)
 
   // Validation error state for required selectors
   const [errors, setErrors] = useState<{ character?: boolean; scene?: boolean; wardrobe?: boolean; color?: boolean }>({})
@@ -142,8 +149,33 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
     return { scene: sceneLabel, wardrobe: wardrobeLabel, color: colorLabel }
   }, [currentStyle?.id, scenes, wardrobes, colors, selectedStyleIndex, selectionVersion])
 
-  const open = (panel: PanelKey) => { setOpenPanel(panel); onPanelToggle?.(true) }
-  const close = () => { setOpenPanel(null); setSelectedWardrobeValue(null); onPanelToggle?.(false) }
+  const checkSticky = useCallback(() => {
+    const el = barRef.current
+    const container = document.querySelector('[data-styles-container]') as HTMLElement | null
+    if (!el || !container) return
+    
+    const elRect = el.getBoundingClientRect()
+    const rect = container.getBoundingClientRect()
+    const getHeaderHeight = () => (document.querySelector('header')?.offsetHeight || 56)
+    
+    const nextSticky = (rect.y + rect.height - elRect.height - getHeaderHeight() - 6) < 6
+    setIsSticky(nextSticky)
+  }, [])
+
+  const open = (panel: PanelKey) => { 
+    setOpenPanel(panel); 
+    onPanelToggle?.(true)
+    // Check sticky state after panel opens
+    setTimeout(checkSticky, 300)
+  }
+  const close = () => { 
+    setOpenPanel(null); 
+    setSelectedWardrobeValue(null); 
+    setPanelQuery(''); 
+    onPanelToggle?.(false)
+    // Check sticky state after panel closes
+    setTimeout(checkSticky, 300)
+  }
 
   const onSelectStyle = useCallback((index: number) => {
     if (!stylesWithPreview[index]) return
@@ -157,13 +189,36 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
 
   const qualityOptions = useMemo(() => {
     const codes = (inferenceSettings?.qualities || []) as QualityCode[]
-    return codes.map(code => ({ label: code, value: code as QualityCode }))
-  }, [inferenceSettings])
+    const labels = (inferenceSettings?.quality_labels || {}) as Record<string, string>
+    return codes.map(code => ({
+      value: code as QualityCode,
+      // Title-friendly label (e.g., Basic, Standard, High)
+      label: t(`qualities.${code}` as any, { ns: 'styles', defaultValue: labels[code] || String(code) }),
+      // Segmented display (e.g., 1K, 2K, 4K)
+      display: t(`qualitiesValue.${code}` as any, { ns: 'styles', defaultValue: String(code).toUpperCase() })
+    }))
+  }, [inferenceSettings?.qualities, inferenceSettings?.quality_labels, t])
 
   const currentQualityLabel = useMemo(() => {
-    const labels = inferenceSettings?.quality_labels || {}
-    return (labels as any)[quality] || quality
-  }, [inferenceSettings?.quality_labels, quality])
+    const labels = (inferenceSettings?.quality_labels || {}) as Record<string, string>
+    const key = String(quality)
+    return t(`qualities.${key}` as any, { ns: 'styles', defaultValue: labels[key] || key })
+  }, [inferenceSettings?.quality_labels, quality, t])
+
+  // Aspect ratio title label (falls back to defaults when unset)
+  const currentAspectLabel = useMemo(() => {
+    const effective = aspectRatio || (inferenceSettings?.defaults?.aspect_ratio as string) || ((inferenceSettings?.aspect_ratios?.[0] as string) || '')
+    return effective
+  }, [aspectRatio, inferenceSettings?.defaults?.aspect_ratio, inferenceSettings?.aspect_ratios])
+
+  // Map aspect ratio string to icon variant id
+  const getAspectIcon = (ratio: string): any => {
+    const norm = String(ratio).replace(/\s/g, '')
+    if (norm === '1:1') return 'ar11'
+    if (norm === '2:3') return 'ar23'
+    if (norm === '3:2') return 'ar32'
+    return 'ar11'
+  }
 
   // Ensure stored quality stays valid if settings change (future-proof for new qualities like 8K)
   React.useEffect(() => {
@@ -188,13 +243,15 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const { runWithGates } = useActionGate(requiredCredits, 'inference')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [inferenceJobId, setInferenceJobId] = useState('')
+  const [showAdminInfer, setShowAdminInfer] = useState(false)
+  const [adminOverride, setAdminOverride] = useState<{ enabled: boolean; prompt: string } | null>(null)
   
   // Inference queue integration (only for job creation, not thumbnail management)
-  const { createQueuedThumbnails, updateJobWithRealId, isGenerating } = useInferenceQueue()
+  const { createQueuedThumbnails, updateJobWithRealId, updateJobStatus, updateJobMessage, isGenerating } = useInferenceQueue()
   
   const lastClickTimeRef = useRef<number>(0)
 
-  const onGenerate = useCallback(async () => {
+  const runGenerate = useCallback(async (override: { enabled: boolean; prompt: string } | null) => {
     let placeholderId: string | null = null;
     
     try {
@@ -235,14 +292,18 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
       const effectiveTakes = (nbTakes || (inferenceSettings?.defaults?.nb_takes as number)) as number
       const effectiveAspect = (aspectRatio || (inferenceSettings?.defaults?.aspect_ratio as string)) as string
 
-      // 🎯 OPTIMISTIC UI: Create queued thumbnails immediately (no WebSocket connection yet)
-      placeholderId = createQueuedThumbnails(effectiveTakes)
-
-      setIsSubmitting(true)
-
       const scene_id = sel?.scene || ''
       const wardrobe_id = sel?.wardrobe || ''
       const color_id = sel?.color || ''
+      // 🎯 OPTIMISTIC UI: Create queued thumbnails immediately with selection metadata
+      placeholderId = createQueuedThumbnails(effectiveTakes, {
+        styleId: currentStyle.id,
+        sceneId: scene_id,
+        wardrobeId: wardrobe_id,
+        colorId: color_id,
+      })
+
+      setIsSubmitting(true)
       const character_id = selectedCharacterId || ''
 
       const payload = {
@@ -261,15 +322,29 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
 
       // Make API call to get real job ID first
       const data = (await runWithGates(async () => {
-        return await startInference(payload as any)
+        return await startInference({ ...(payload as any), ...(override ? { prompt_override: override } : {}) })
       })) as any
       
       const realJobId = (data as any)?.job_id
+      const responseStatus = (data as any)?.status
       if (realJobId) {
         setInferenceJobId(realJobId)
         
-        // Update thumbnails with real job ID (WebSocket connection handled by useInferenceProgress)
+        // Update thumbnails with real job ID and status from inference-create response
         updateJobWithRealId(placeholderId, realJobId)
+        
+        // Update status based on inference-create response (queued/pending)
+        if (responseStatus) {
+          updateJobStatus(realJobId, responseStatus)
+          
+          // Update message based on response
+          const responseMessage = (data as any)?.message
+          if (responseMessage) {
+            updateJobMessage(realJobId, responseMessage)
+          }
+          
+          console.log(`📋 Updated job ${realJobId} status to: ${responseStatus}`)
+        }
       }
     } catch (e) {
       console.error('Generate error', e)
@@ -284,6 +359,14 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
       setIsSubmitting(false)
     }
   }, [isSubmitting, authUser?.id, currentStyle?.id, selectedCharacterId, nbTakes, quality, aspectRatio, inferenceSettings, runWithGates, createQueuedThumbnails, updateJobWithRealId])
+
+  const onGenerate = useCallback(async () => {
+    if (authUser?.admin) {
+      setShowAdminInfer(true)
+      return
+    }
+    await runGenerate(null)
+  }, [authUser?.admin, runGenerate])
 
   const refreshCharacters = React.useCallback(async () => {
     if (!authUser?.id) { setCharacters([]); return }
@@ -317,7 +400,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   }
 
   // Character creation hook
-  const { createCharacterAction, handleCreateCharacterClick } = useCreateCharacter({
+  const { createCharacterAction, handleCreateCharacterClick, requiresCreditsForTraining, trainingCost } = useCreateCharacter({
     characters,
     onSelectCharacter,
     refreshCharacters
@@ -325,51 +408,117 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
 
   // Selected-character active job/progress for the small selector thumbnail
   const { job: selectedJob } = useActiveTrainingJob(selectedCharacterId)
-  const selectedIsRunning = selectedJob?.status === 'running'
-  const selectedIsWaiting = !!selectedJob && (selectedJob.status === 'initializing' || selectedJob.status === 'queued' || selectedJob.status === 'pending')
-  // Always call hooks in the same order; pass empty jobId when not running
+  // Always call hook; provide empty jobId when no job to keep order stable
   const selectedTraining = useTrainingProgress({ jobId: selectedJob?.id || '' })
-  const selectedPct = selectedIsRunning ? selectedTraining.getProgressPercentage?.() ?? 0 : 0
+  const selectedWsStatus = (selectedTraining as any)?.progress?.status as string | undefined
+  // Prefer WS status when available to decide if overlay should be visible immediately on completion
+  const selectedHasActiveJob = selectedWsStatus
+    ? (selectedWsStatus !== 'completed' && selectedWsStatus !== 'failed')
+    : (!!selectedJob && (
+        selectedJob.status === 'running' ||
+        selectedJob.status === 'pending' ||
+        selectedJob.status === 'queued' ||
+        selectedJob.status === 'initializing'
+      ))
+  const selectedPct = selectedHasActiveJob ? (selectedTraining.getProgressPercentage?.() ?? 0) : 0
 
-  // Handle button click - either open popover or trigger guard function
+  // Handle Character button click: always open the panel (credit checks happen on create action)
   const handleButtonClick = useCallback(() => {
-    guard(() => {
-      open('characters') 
-    })();
-  }, [guard]);
+    open('characters')
+  }, []);
+
+  // Carousel + search state shared by panels
+  const viewportRef = React.useRef<HTMLDivElement>(null)
+  const [panelQuery, setPanelQuery] = useState('')
+  const [navState, setNavState] = useState({ canPrev: false, canNext: false })
+  const updateNavButtons = useCallback(() => {
+    const el = viewportRef.current
+    if (!el) return
+    const contentWidth = (el.firstElementChild as HTMLElement)?.scrollWidth || el.scrollWidth
+    const maxScrollLeft = Math.max(0, contentWidth - el.clientWidth)
+    // Use small epsilon to avoid floating rounding
+    const EPS = 1
+    setNavState({
+      canPrev: el.scrollLeft > EPS,
+      canNext: maxScrollLeft > EPS && el.scrollLeft < (maxScrollLeft - EPS),
+    })
+  }, [])
+  useEffect(() => {
+    updateNavButtons()
+    // Defer once more to ensure tab/panel transitions completed
+    const t0 = setTimeout(updateNavButtons, 0)
+    const raf = requestAnimationFrame(updateNavButtons)
+    const t = setTimeout(updateNavButtons, 350)
+    const el = viewportRef.current
+    let ro: ResizeObserver | undefined
+    if (el && 'ResizeObserver' in window) {
+      ro = new ResizeObserver(() => updateNavButtons())
+      ro.observe(el)
+      if (el.firstElementChild instanceof HTMLElement) ro.observe(el.firstElementChild)
+    }
+    const onResize = () => updateNavButtons()
+    window.addEventListener('resize', onResize)
+    return () => { cancelAnimationFrame(raf); clearTimeout(t); clearTimeout(t0); window.removeEventListener('resize', onResize); ro?.disconnect() }
+  }, [openPanel, stylesWithPreview, scenes, wardrobes, colors, panelQuery, updateNavButtons])
+  const handlePrev = useCallback(() => {
+    const el = viewportRef.current; if (!el) return
+    const current = el.scrollLeft
+    const target = Math.max(0, current - el.clientWidth)
+    // Fallback for browsers/environments that ignore smooth behavior
+    try { el.scrollTo({ left: target, behavior: 'smooth' }) } catch { el.scrollLeft = target }
+    setTimeout(updateNavButtons, 360)
+  }, [updateNavButtons])
+  const handleNext = useCallback(() => {
+    const el = viewportRef.current; if (!el) return
+    const rowWidth = (el.firstElementChild as HTMLElement)?.scrollWidth || el.scrollWidth
+    const maxScrollLeft = Math.max(0, rowWidth - el.clientWidth)
+    const current = el.scrollLeft
+    const target = Math.min(maxScrollLeft, current + el.clientWidth)
+    try { el.scrollTo({ left: target, behavior: 'smooth' }) } catch { el.scrollLeft = target }
+    setTimeout(updateNavButtons, 360)
+  }, [updateNavButtons])
 
   const renderPanel = () => {
     if (!openPanel) return null
+    // Shared carousel/search state
+    const [/*local*/] = []
     switch (openPanel) {
       case 'styles':
         return (
-          <OptionsPanel title={t('titles.styleLabel', { ns: 'styles' })} onClose={close}>
-            <div className={styles.itemsRow}>
-              {stylesWithPreview.map((s, idx) => (
+          <OptionsPanel title={t('titles.photoStyle', { ns: 'styles' })} onClose={close} onSearchChange={setPanelQuery} searchValue={panelQuery} canPrev={navState.canPrev} canNext={navState.canNext} onPrev={handlePrev} onNext={handleNext}>
+            <div ref={viewportRef} className={styles.carouselViewport} onScroll={updateNavButtons}>
+              <div className={styles.itemsRow} style={{ width: 'max-content' }}>
+              {stylesWithPreview.filter(s => !panelQuery || s.name.toLowerCase().includes(panelQuery.toLowerCase())).map((s, idx) => (
                 <button key={s.id} className={`${styles.itemCard} ${idx === selectedStyleIndex ? styles.itemSelected : ''}`} onClick={() => onSelectStyle(idx)}>
-                  {s.preview && (
-                    <Image src={s.preview} alt={s.name} width={80} height={80} className={styles.itemThumb} />
+                  {s.preview_images?.[0] && (
+                    <Image loader={stylesLoader} src={s.preview_images[0]} alt={s.name} width={80} height={80} className={styles.itemThumb} />
                   )}
                   <div className={styles.itemLabel}>{s.name}</div>
                 </button>
               ))}
+              </div>
             </div>
           </OptionsPanel>
         )
       case 'scenes': {
         const available = (currentStyle?.available_scenes || [])
-        const items = scenes.filter(s => available.includes(s.value))
+        const items = scenes.filter(s => available.includes(s.value)).filter(s => !panelQuery || s.label.toLowerCase().includes(panelQuery.toLowerCase()))
         return (
-          <OptionsPanel title={'Scene'} onClose={close}>
-            <div className={styles.itemsRow}>
-              {items.map(opt => (
-                <button key={opt.value} className={styles.itemCard} onClick={() => { storeStyleSelections(currentStyle.id, { scene: opt.value }); setSelectionVersion(v=>v+1); close() }}>
+          <OptionsPanel title={t('titles.sceneLabel', { ns: 'styles' })} onClose={close} onSearchChange={setPanelQuery} searchValue={panelQuery} canPrev={navState.canPrev} canNext={navState.canNext} onPrev={handlePrev} onNext={handleNext}>
+            <div ref={viewportRef} className={styles.carouselViewport} onScroll={updateNavButtons}>
+              <div className={styles.itemsRow} style={{ width: 'max-content' }}>
+              {items.map(opt => {
+                const sel = currentStyle ? getStoredStyleSelections(currentStyle.id).scene : null
+                const isSelected = sel === opt.value
+                return (
+                <button key={opt.value} className={`${styles.itemCard} ${isSelected ? styles.itemSelected : ''}`} onClick={() => { storeStyleSelections(currentStyle.id, { scene: opt.value }); setSelectionVersion(v=>v+1); close() }}>
                   {opt.image && (
                     <Image loader={scenesLoader} src={opt.image} alt={opt.label} width={80} height={80} className={styles.itemThumb} />
                   )}
                   <div className={styles.itemLabel}>{opt.label}</div>
-                </button>
-              ))}
+                </button>)
+              })}
+              </div>
             </div>
           </OptionsPanel>
         )
@@ -377,33 +526,69 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
       case 'wardrobe': {
         const availableWardrobes = (currentStyle?.available_wardrobes || [])
         const availableColors = (currentStyle?.available_colors || [])
-        const filteredWardrobes = wardrobes.filter(w => availableWardrobes.includes(w.value))
+        const filteredWardrobes = wardrobes.filter(w => availableWardrobes.includes(w.value)).filter(w => !panelQuery || w.label.toLowerCase().includes(panelQuery.toLowerCase()))
           .filter(w => {
             const gender = (w as any).gender as ('man'|'woman'|'unisex'|undefined)
             if (!gender || gender === 'unisex') return true
             return gender === selectedGender
           })
         const filteredColors = colors.filter(c => availableColors.includes(c.value))
+        const showingColors = !!selectedWardrobeValue
 
         return (
-          <OptionsPanel title={'Wardrobe'} onClose={close}>
-            {!selectedWardrobeValue ? (
-              <>
-                <div className={styles.segmented}>
-                  <button className={`${styles.segment} ${'man' === selectedGender ? styles.segmentActive : ''}`} onClick={() => setSelectedGender('man')}>Man</button>
-                  <button className={`${styles.segment} ${'woman' === selectedGender ? styles.segmentActive : ''}`} onClick={() => setSelectedGender('woman')}>Woman</button>
+          <OptionsPanel
+            title={t('titles.wardrobeLabel', { ns: 'styles' })}
+            onClose={close}
+            onSearchChange={showingColors ? undefined : setPanelQuery}
+            showSearch={!showingColors}
+            searchValue={panelQuery}
+            canPrev={!showingColors && navState.canPrev}
+            canNext={!showingColors && navState.canNext}
+            onPrev={!showingColors ? handlePrev : undefined}
+            onNext={!showingColors ? handleNext : undefined}
+            leftHeader={(
+              showingColors ? (
+                <button className={styles.backBtn} onClick={() => setSelectedWardrobeValue(null)} aria-label="Back">
+                  {t('buttons.back', { ns: 'common' })}
+                </button>
+              ) : (
+                <SegmentedControl
+                  className={styles.segmentedGender}
+                  options={[
+                    { value: 'woman', content: 'Woman' },
+                    { value: 'man', content: 'Man' }
+                  ]}
+                  value={selectedGender}
+                  onChange={(val) => {
+                    const v = String(val) as 'man' | 'woman'
+                    if (selectedGender === v) return
+                    setIsSwitchingGender(true)
+                    setTimeout(() => {
+                      setSelectedGender(v)
+                      setTimeout(() => setIsSwitchingGender(false), 40)
+                    }, 120)
+                  }}
+                  size="sm"
+                />
+              )
+            )}
+          >
+            {!showingColors ? (
+              <div ref={viewportRef} className={`${styles.carouselViewport} ${styles.fadeSwitch} ${isSwitchingGender ? styles.fadeSwitchHidden : ''}`} onScroll={updateNavButtons}>
+                <div className={styles.itemsRow} style={{ width: 'max-content' }}>
+                {filteredWardrobes.map(opt => {
+                  const sel = currentStyle ? getStoredStyleSelections(currentStyle.id).wardrobe : null
+                  const isSelected = sel === opt.value
+                  return (
+                  <button key={opt.value} className={`${styles.itemCard} ${isSelected ? styles.itemSelected : ''}`} onClick={() => setSelectedWardrobeValue(opt.value)}>
+                    {opt.image && (
+                      <Image loader={wardrobesLoader} src={opt.image} alt={opt.label} width={80} height={80} className={styles.itemThumb} />
+                    )}
+                    <div className={styles.itemLabel}>{opt.label}</div>
+                  </button>)
+                })}
                 </div>
-                <div className={styles.itemsRow}>
-                  {filteredWardrobes.map(opt => (
-                    <button key={opt.value} className={styles.itemCard} onClick={() => setSelectedWardrobeValue(opt.value)}>
-                      {opt.image && (
-                        <Image loader={wardrobesLoader} src={opt.image} alt={opt.label} width={80} height={80} className={styles.itemThumb} />
-                      )}
-                      <div className={styles.itemLabel}>{opt.label}</div>
-                    </button>
-                  ))}
-                </div>
-              </>
+              </div>
             ) : (
               <div className={styles.colorsRow}>
                 {filteredColors.map(col => (
@@ -411,7 +596,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                     storeStyleSelections(currentStyle.id, { wardrobe: selectedWardrobeValue!, color: col.value });
                     setSelectionVersion(v=>v+1);
                     close()
-                  }} title={col.label} />
+                  }} title={col.label} value={col.value} />
                 ))}
               </div>
             )}
@@ -420,20 +605,35 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
       }
       case 'characters': {
         return (
-          <OptionsPanel title={'Character'} onClose={close}>
-            <div className={styles.itemsRow}>
+          <OptionsPanel title={t('titles.characterLabel', { ns: 'styles' })} onClose={close} onSearchChange={setPanelQuery} searchValue={panelQuery} canPrev={navState.canPrev} canNext={navState.canNext} onPrev={handlePrev} onNext={handleNext}>
+            <div ref={viewportRef} className={styles.carouselViewport} onScroll={updateNavButtons}>
+              <div className={styles.itemsRow} style={{ width: 'max-content' }}>
               <button className={`${styles.itemCard} ${styles.createCard}`} onClick={handleCreateCharacterClick} disabled={createCharacterAction.type === 'limit_reached'}>
-                <Icon variant="plusFill" size={24} />
+                <Icon className={styles.createIcon} variant="plus" size={32} />
                 <div className={styles.itemLabel}>{createCharacterAction.message}</div>
+                {(createCharacterAction.type === 'credit_pack' || (requiresCreditsForTraining && trainingCost > 0)) && (
+                  <div className={styles.itemSubLabel}>
+                    {t('labels.credits', { ns: 'styles', count: createCharacterAction.credits || trainingCost })}
+                  </div>
+                )}
               </button>
-              {characters.map((m) => (
+              {characters.filter(m => !panelQuery || (m.name || '').toLowerCase().includes(panelQuery.toLowerCase())).map((m) => (
                 <CharacterCard
                   key={m.id}
                   character={m}
                   thumbUrl={characterThumbs[m.id]}
+                  selectedId={selectedCharacterId || ''}
                   onSelect={() => onSelectCharacter(m.id)}
+                  onDeleted={(id) => {
+                    // Optimistically remove from UI
+                    setCharacters(prev => prev.filter(c => c.id !== id))
+                    setCharacterThumbs(prev => { const copy = { ...prev }; delete (copy as any)[id]; return copy })
+                    // Also trigger a refresh to keep in sync with server
+                    refreshCharacters()
+                  }}
                 />
               ))}
+              </div>
             </div>
           </OptionsPanel>
         )
@@ -450,42 +650,40 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
           return idx > maxIdx
         }
         return (
-          <OptionsPanel className={styles.settingsPanel} title={'Settings'} onClose={close} showDone>
+          <OptionsPanel className={styles.settingsPanel} title={t('titles.settingsLabel', { ns: 'styles' })} onClose={close} showDone showSearch={false} leftHeader={(
+            <p className={styles.settingsTitle}>{t('titles.settingsLabel', { ns: 'styles' })}</p>
+          )}>
             <div className={styles.settingsColumn}>
-              <span className={styles.settingLabel}>Number of Takes</span>
-              <div className={styles.segmented}>
-                {(inferenceSettings?.nb_takes_options || []).map(n => (
-                  <button key={n} className={`${styles.segment} ${nbTakes === n ? styles.segmentActive : ''}`} onClick={() => { setNbTakes(n); save(STORAGE_KEYS.NB_TAKES, n) }}>{n}</button>
-                ))}
-              </div>
+              <span className={styles.settingLabel}>{t('settings.numberOfTakes', { ns: 'styles' })}</span>
+              <SegmentedControl
+                options={(inferenceSettings?.nb_takes_options || []).map(n => ({ value: n, content: n }))}
+                value={nbTakes}
+                onChange={(n) => { const v = Number(n); setNbTakes(v); save(STORAGE_KEYS.NB_TAKES, v) }}
+                fullWidth
+              />
             </div>
             <div className={styles.settingsColumn}>
-              <span className={styles.settingLabel}>Quality {currentQualityLabel}</span>
-              <div className={styles.segmented}>
-                {qualityOptions.map(opt => (
-                  <button
-                    key={opt.value}
-                    className={`${styles.segment} ${quality === opt.value ? styles.segmentActive : ''} ${gated(opt.value) ? styles.segmentDisabled : ''}`}
-                    disabled={gated(opt.value)}
-                    onClick={() => {
-                      const allowed = (inferenceSettings?.qualities || []) as string[]
-                      const q = sanitizeQuality(opt.value, allowed.length ? allowed : [String(opt.value)])
-                      setQuality(q)
-                      save(STORAGE_KEYS.QUALITY, q)
-                    }}
-                  >
-                     {opt.label}
-                  </button>
-                ))}
-              </div>
+              <span className={styles.settingLabel}>{t('settings.quality', { ns: 'styles' })} <span className={styles.currentLabel}>{currentQualityLabel}</span></span>
+              <SegmentedControl
+                options={qualityOptions.map(opt => ({ value: opt.value, content: opt.display, disabled: gated(opt.value) }))}
+                value={quality}
+                onChange={(v) => {
+                  const allowed = (inferenceSettings?.qualities || []) as string[]
+                  const q = sanitizeQuality(v, allowed.length ? allowed : [String(v)])
+                  setQuality(q)
+                  save(STORAGE_KEYS.QUALITY, q)
+                }}
+                fullWidth
+              />
             </div>
             <div className={styles.settingsColumn}>
-              <span className={styles.settingLabel}>Aspect Ratio</span>
-              <div className={styles.segmented}>
-                {(inferenceSettings?.aspect_ratios || []).map(r => (
-                  <button key={r} className={`${styles.segment} ${aspectRatio === r ? styles.segmentActive : ''}`} onClick={() => { setAspectRatio(r); save(STORAGE_KEYS.ASPECT_RATIO, r) }}>{r}</button>
-                ))}
-              </div>
+              <span className={styles.settingLabel}>{t('settings.aspectRatio', { ns: 'styles' })} <span className={styles.currentLabel}>{currentAspectLabel}</span></span>
+              <SegmentedControl
+                options={(inferenceSettings?.aspect_ratios || []).map(r => ({ value: r, content: <Icon variant={getAspectIcon(String(r))} size={16} /> }))}
+                value={aspectRatio || (inferenceSettings?.defaults?.aspect_ratio as string) || ((inferenceSettings?.aspect_ratios?.[0] as string) || '')}
+                onChange={(r) => { const v = String(r); setAspectRatio(v); save(STORAGE_KEYS.ASPECT_RATIO, v) }}
+                fullWidth
+              />
             </div>
           </OptionsPanel>
         )
@@ -497,21 +695,62 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const panelRef = React.useRef<HTMLDivElement>(null)
   React.useEffect(() => {
     if (openPanel && panelRef.current) {
-      const h = panelRef.current.scrollHeight + 16 /* breathing padding */
+      const h = panelRef.current.scrollHeight /* breathing padding */
       setPanelHeight(h)
     }
   }, [openPanel])
 
+  // Sticky behavior: stick below header when bar reaches top
+  const barRef = React.useRef<HTMLDivElement>(null)
+  const [isSticky, setIsSticky] = useState(false)
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+    const header = document.querySelector('header') as HTMLElement | null
+    const container = document.querySelector('[data-styles-container]') as HTMLElement | null
+    const getHeaderHeight = () => (header?.offsetHeight || 56)
+    const setHeaderVar = () => {
+      const h = getHeaderHeight()
+      document.documentElement.style.setProperty('--header-height', `${h}px`)
+    }
+    const onScroll = () => {
+      const el = barRef.current
+      if (!el) return
+      const elRect = el.getBoundingClientRect()
+      let nextSticky = isSticky
+
+      // Unstick when styles container shows 6px at bottom
+      if (container) {
+        const rect = container.getBoundingClientRect()
+
+        if ((rect.y + rect.height - elRect.height - getHeaderHeight() - 6) >= 6) {
+          nextSticky = false
+        } else {
+          nextSticky = true
+        }
+      }
+      setIsSticky(nextSticky)
+    }
+    setHeaderVar()
+    onScroll()
+    window.addEventListener('resize', setHeaderVar)
+    window.addEventListener('scroll', onScroll as any, { passive: true } as any)
+    return () => {
+      window.removeEventListener('resize', setHeaderVar)
+      window.removeEventListener('scroll', onScroll as any)
+    }
+  }, [])
+
   // Determine CSS classes for loading states
   const barClasses = [
     styles.bar,
+    isSticky ? styles.barSticky : '',
     openPanel ? styles.panelOpen : '',
     isDataLoading ? styles.barLoading : styles.barReady,
     !isDataLoading && authReady ? styles.barFadeIn : ''
   ].filter(Boolean).join(' ')
 
   return (
-    <div className={barClasses} style={openPanel ? ({ ['--panel-height' as any]: `${panelHeight}px` }) : undefined}>
+    <div ref={barRef} className={barClasses} style={openPanel ? ({ ['--panel-height' as any]: `${panelHeight}px` }) : undefined}>
       <div className={`${styles.content} ${openPanel ? styles.contentHidden : ''}`}>
         <div className={styles.leftContent}>
             {/* Style */}
@@ -519,8 +758,8 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 onClick={() => open('styles')}
                 ariaLabel="Select style"
                 variant="labeled"
-                thumbnail={currentStyle?.preview ? (
-                <Image src={currentStyle.preview} alt={currentStyle?.name || 'style'} width={32} height={32} className={styles.thumbImg} />
+                thumbnail={currentStyle?.preview_images?.[0] ? (
+                <Image loader={stylesLoader} src={currentStyle.preview_images[0]} alt={currentStyle?.name || 'style'} width={32} height={32} className={styles.thumbImg} />
                 ) : (
                 <Icon variant="scene" size={24} />
                 )}
@@ -538,7 +777,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                   const scene = scenes.find(s => s.value === sel)
                 
                   if (scene?.image) return <Image loader={scenesLoader} src={scene.image} alt={scene.label} width={32} height={32} className={styles.thumbImg} />
-                    return <Icon variant="scene" size={24} />
+                    return <Icon variant="scene" size={20} />
                   })()}
                 label={selectedLabels.scene || 'Scene'}
             />
@@ -557,13 +796,13 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                     <Image loader={wardrobesLoader} src={wrb.image} alt={wrb.label} width={32} height={32} className={styles.thumbImg} />
                     )
                 }
-                return <Icon variant="wardrobe" size={24} />
+                return <Icon variant="wardrobe" size={20} />
                 })()}
                 overlay={(() => {
                 const sel = currentStyle ? getStoredStyleSelections(currentStyle.id) : null
                 if (!sel?.color) return null
                 return (
-                    <span style={{ position: 'absolute', right: 2, bottom: 2, width: 8, height: 8, borderRadius: 9999, background: colors.find(c=>c.value===sel.color)?.color || '#fff', border: '1px solid rgba(0,0,0,0.4)' }} />
+                    <span className={styles.colorSelected} style={{ background: colors.find(c=>c.value===sel.color)?.color || '#fff' }} />
                 )
                 })()}
                 label={selectedLabels.wardrobe || 'Wardrobe'}
@@ -579,56 +818,86 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 className={errors.character ? styles.selectorError : ''}
                 thumbnail={(() => {
                 const url = selectedCharacterId ? characterThumbs[selectedCharacterId] : ''
-                if (url) return <Image src={url} alt="Character" width={32} height={32} className={styles.thumbImg} />
-                return <Icon variant="smilyFace" size={24} />
+                if (url) return <Image src={url} alt="Character" width={44} height={44} className={styles.thumbImg} />
+                return <span className={styles.characterIcon}><Image src="/logo-primeshot.svg" alt="Primeshot" width={32} height={32} /></span>
                 })()}
                 overlay={(
                 <>
-                    {selectedIsRunning && (
+                    {selectedHasActiveJob && (
                     <span className={styles.tinyProgress} aria-label="Training progress">
                         <CircleProgress className={styles.circleProgress} value={selectedPct} size={44} thickness={2} />
                     </span>
                     )}
-                    {selectedIsWaiting && <span className={styles.tinyTrainingDot} />}
                 </>
                 )}
             />
 
             {/* Settings */}
-            <GenerateBarSelect
-                onClick={() => open('settings')}
-                ariaLabel="Open settings"
-                variant="icon"
-                thumbnail={<Icon variant="settings" size={16} />}
-            />
+            <div className={styles.settingsContainer}>
+              <GenerateBarSelect
+                  onClick={() => open('settings')}
+                  ariaLabel="Open settings"
+                  variant="icon"
+                  thumbnail={<Icon variant="settings" size={16} />}
+              />
 
-            <div className={styles.credits}>{requiredCredits} credits</div>
-            <Button
-                variant="primary"
-                className={styles.generate}
-                icon={<Icon variant="generate" size={16} />}
-                iconSide='right'
-                onClick={() => guard(onGenerate)()}
-            >
-              Generate
-            </Button>
+              <div className={styles.credits}>{requiredCredits} credits</div>
+              <Button
+                  variant="primary"
+                  className={styles.generate}
+                  icon={<Icon variant="generate" size={16} />}
+                  iconSide='right'
+                  onClick={() => guard(onGenerate)()}
+              >
+                Generate
+              </Button>
+            </div>
         </div>
     </div>
 
-      {/* Panel slot */}
+      {/* Panel slot (restored) */}
       <div ref={panelRef} className={styles.panelSlot}>
         {renderPanel()}
       </div>
+
+      {authUser?.admin && (
+        <AdminInferenceOptionsDialog
+          open={showAdminInfer}
+          characterId={selectedCharacterId || ''}
+          styleId={currentStyle?.id || ''}
+          wardrobeId={(currentStyle ? getStoredStyleSelections(currentStyle.id).wardrobe : null) || undefined}
+          sceneId={(currentStyle ? getStoredStyleSelections(currentStyle.id).scene : null) || undefined}
+          colorId={(currentStyle ? getStoredStyleSelections(currentStyle.id).color : null) || undefined}
+          onCancel={() => setShowAdminInfer(false)}
+          onConfirm={async (override) => {
+            setAdminOverride(override)
+            setShowAdminInfer(false)
+            await runGenerate(override)
+          }}
+        />
+      )}
     </div>
   )
 }
 
 // Separate child to allow per-item hooks
-function CharacterCard({ character, thumbUrl, onSelect }: { character: any; thumbUrl?: string; onSelect: () => void }) {
+function CharacterCard({ character, thumbUrl, onSelect, onDeleted, selectedId }: { character: any; thumbUrl?: string; onSelect: () => void; onDeleted?: (id: string) => void; selectedId?: string }) {
+  const { t } = useTranslation(['styles'])
+  let waitingLabel = ''
   const { job } = useActiveTrainingJob(character.id)
   const isActive = !!job
   const isRunning = job?.status === 'running'
   const isWaiting = job && (job.status === 'initializing' || job.status === 'queued' || job.status === 'pending')
+  const { images } = useCharacterImages(character.id)
+  const uploadedCount = images?.length || 0
+  const { deleteCharacter } = useCharactersApi()
+  const { user } = useAuth()
+  const [showOverlay, setShowOverlay] = React.useState(false)
+  const [isDeleting, setIsDeleting] = React.useState(false)
+
+  if (isWaiting) {
+    waitingLabel = job?.status === 'queued' ? t('character.trainingQueued', { ns: 'styles' }) : job?.status === 'pending' ? t('character.trainingPending', { ns: 'styles' }) : t('character.trainingInitializing', { ns: 'styles' })
+  }
 
   // Always call hook; provide empty jobId when not active to keep order stable
   const training = useTrainingProgress({ jobId: job?.id || '' })
@@ -636,15 +905,16 @@ function CharacterCard({ character, thumbUrl, onSelect }: { character: any; thum
   const progressPct = isRunning ? training.getProgressPercentage?.() ?? 0 : 0
   const secondsLeft = isRunning ? training.getLiveCountdownSeconds?.() ?? 0 : 0
 
+  const isSelected = selectedId === character.id
   return (
-    <button className={styles.itemCard} onClick={onSelect}>
-      <div className={styles.itemThumb} style={{ width: 80, height: 80 }}>
+    <button className={`${styles.itemCard} ${styles.characterCard} ${(isRunning ? styles.itemActive : '')} ${isSelected ? styles.itemSelected : ''}`} onClick={onSelect}>
+      <div className={styles.itemThumb}>
         {thumbUrl ? (
           <Image
             src={thumbUrl}
             alt={character.name}
-            width={80}
-            height={80}
+            width={350}
+            height={350}
             className={`${styles.itemThumb} ${isActive ? styles.thumbBlur : ''}`}
           />
         ) : (
@@ -652,26 +922,78 @@ function CharacterCard({ character, thumbUrl, onSelect }: { character: any; thum
         )}
 
         {isRunning && (
-          <span className={styles.progressBadge} aria-label="Training progress">
-            <CircleProgress value={progressPct} size={32} thickness={2} />
-          </span>
+          <CircleProgress className={styles.progressBadge} aria-label="Training progress" value={progressPct} size={32} thickness={2} />
         )}
         {isWaiting && (
-          <span className={styles.statusPill}>Training…</span>
+          <span className={styles.statusPill}>{waitingLabel}</span>
         )}
+        {/* Hover menu trigger -> overlay */}
+        <div className={styles.cardMenuWrap} onClick={(e) => { e.stopPropagation(); setShowOverlay(true) }}>
+          <span aria-label="Character actions" className={styles.cardMenuBtn}>
+            <Icon variant="dotsMenu" size={20} />
+          </span>
+        </div>
       </div>
       <div className={styles.itemLabel}>{character.name}</div>
-      {isActive && (
-        <div className={styles.itemSubLabel}>
-          {isRunning ? (
-            <>
-              ~<Countdown seconds={secondsLeft} fallback="Calculating..." /> remaining
-            </>
-          ) : (
-            'Training…'
-          )}
-        </div>
-      )}
+      <div className={styles.itemSubLabel}>
+        {isRunning ? (
+          <>
+            ~<Countdown seconds={secondsLeft} fallback="Calculating" /> {t('character.remaining', { ns: 'styles' })}
+          </>
+        ) : isWaiting ? (
+          waitingLabel
+        ) : (
+          <>
+            {uploadedCount} {t('character.photos', { ns: 'styles' })}
+          </>
+        )}
+      </div>
+      {showOverlay && (
+          <div className={styles.cardOverlay} onClick={(e) => { e.stopPropagation(); /* keep panel open while overlay visible */ }}>
+            <div className={styles.overlayCenter} onClick={(e) => e.stopPropagation()}>
+              <div
+                className={styles.overlayClose}
+                role="button"
+                aria-label="Close overlay"
+                onClick={(e) => { e.stopPropagation(); setShowOverlay(false) }}
+              >
+                <Icon variant="cross" size={16} />
+              </div>
+              {isDeleting ? (
+                <Loader size="lg" className={styles.overlayLoader} />
+              ) : (
+                <div
+                  role="button"
+                  tabIndex={0}
+                  className={styles.overlayBtn + ' ' + styles.deleteBtn}
+                  onClick={async (e) => {
+                    e.stopPropagation()
+                    try {
+                      const ok = await (await import('@/lib/services/confirmationService')).confirmationService.confirm({
+                        title: t('character.deleteTitle', { ns: 'styles', defaultValue: 'Delete character?' }),
+                        description: t('character.deleteDesc', { ns: 'styles', defaultValue: 'This will permanently remove the character and uploaded photos.' }),
+                        confirmText: t('character.deleteConfirm', { ns: 'styles', defaultValue: 'Delete' }),
+                        variant: 'danger',
+                        icon: 'bin'
+                      })
+                      if (!ok) return
+                      setIsDeleting(true)
+                      await deleteCharacter(character.id, user?.id || '')
+                      // Let parent remove this card immediately
+                      onDeleted?.(character.id)
+                    } catch (err) {
+                      console.error('Delete failed', err)
+                      setIsDeleting(false)
+                    }
+                  }}
+                >
+                  <Icon variant="bin" size={18} />
+                  <span>{t('character.delete', { ns: 'styles', defaultValue: 'Delete' })}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
     </button>
   )
 }

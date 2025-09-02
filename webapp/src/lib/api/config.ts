@@ -72,6 +72,21 @@ export async function getSceneByValue(value: string): Promise<Scene | null> {
   return data as Scene;
 }
 
+// Get a specific scene by id
+export async function getSceneById(id: string): Promise<Scene | null> {
+  const { data, error } = await supabase
+    .from('style_scenes')
+    .select('*')
+    .eq('id', id)
+    .limit(1)
+    .single();
+  if (error) {
+    if ((error as any).code === 'PGRST116') return null; // Not found or multiple
+    throw error;
+  }
+  return data as Scene;
+}
+
 // Get a specific wardrobe by value
 export async function getWardrobeByValue(value: string): Promise<Wardrobe | null> {
   const { data, error } = await supabase
@@ -87,6 +102,21 @@ export async function getWardrobeByValue(value: string): Promise<Wardrobe | null
   return data as Wardrobe;
 }
 
+// Get a specific wardrobe by id
+export async function getWardrobeById(id: string): Promise<Wardrobe | null> {
+  const { data, error } = await supabase
+    .from('style_wardrobes')
+    .select('*')
+    .eq('id', id)
+    .limit(1)
+    .single();
+  if (error) {
+    if ((error as any).code === 'PGRST116') return null; // Not found or multiple
+    throw error;
+  }
+  return data as Wardrobe;
+}
+
 // Get a specific color by value
 export async function getColorByValue(value: string): Promise<Color | null> {
   const { data, error } = await supabase
@@ -97,6 +127,21 @@ export async function getColorByValue(value: string): Promise<Color | null> {
     .single();
   if (error) {
     if (error.code === 'PGRST116') return null; // Not found
+    throw error;
+  }
+  return data as Color;
+}
+
+// Get a specific color by id
+export async function getColorById(id: string): Promise<Color | null> {
+  const { data, error } = await supabase
+    .from('style_colors')
+    .select('*')
+    .eq('id', id)
+    .limit(1)
+    .single();
+  if (error) {
+    if ((error as any).code === 'PGRST116') return null; // Not found or multiple
     throw error;
   }
   return data as Color;

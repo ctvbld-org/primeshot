@@ -228,3 +228,9 @@
   border: var(--thickness) solid var(--border);
   mix-blend-mode: multiply;
 }
+
+@media (max-width: 620px) {
+  :root {
+    --site-padding: 76px 8px;
+  }
+}

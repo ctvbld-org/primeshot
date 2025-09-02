@@ -31,6 +31,21 @@ async function triggerQueue(type: 'training' | 'inference') {
   }
 }
 
+async function triggerCleanup() {
+  const url = `${Deno.env.get('SUPABASE_URL')}/functions/v1/inference-cleanup`
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+    },
+    body: JSON.stringify({ trigger: 'cron' }),
+  })
+  if (!res.ok) {
+    console.error(`inference-cleanup call failed`, res.status, await res.text())
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
   try {
@@ -44,6 +59,7 @@ serve(async (req) => {
     const startedAt = new Date().toISOString()
     let trainingTriggered = false
     let inferenceTriggered = false
+    let cleanupTriggered = false
 
     if (await shouldTrigger(supabase, 'training')) {
       await triggerQueue('training')
@@ -53,6 +69,10 @@ serve(async (req) => {
       await triggerQueue('inference')
       inferenceTriggered = true
     }
+    
+    // Always run cleanup check (it's fast and only acts if needed)
+    await triggerCleanup()
+    cleanupTriggered = true
 
     // Optionally run as a one-shot timer if called with ?loop=1
     const url = new URL(req.url)
@@ -62,6 +82,7 @@ serve(async (req) => {
         await new Promise((r) => setTimeout(r, intervalMs))
         if (await shouldTrigger(supabase, 'training')) await triggerQueue('training')
         if (await shouldTrigger(supabase, 'inference')) await triggerQueue('inference')
+        await triggerCleanup() // Run cleanup every cycle
       }
     }
 
@@ -71,6 +92,7 @@ serve(async (req) => {
         startedAt,
         trainingTriggered,
         inferenceTriggered,
+        cleanupTriggered,
         intervalMs,
         timestamp: new Date().toISOString(),
       }),
