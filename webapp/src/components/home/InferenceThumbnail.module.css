@@ -68,7 +68,7 @@
   justify-content: center;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+  background: rgba(42, 222, 216, 0.1);
   color: var(--color-text-secondary);
   position: relative;
   overflow: hidden;
@@ -223,17 +223,6 @@
   z-index: 2;
   position: relative;
   padding: 0 8px;
-}
-
-/* Enhanced placeholder for different states */
-.placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  color: var(--color-text-secondary);
 }
 
 /* Gradient Loader Overlay */

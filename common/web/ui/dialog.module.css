@@ -1,5 +1,5 @@
 .dialog {
-    --dialog-radius: 32px;
+    --dialog-radius: 22px;
 }
 
 /* Dialog Overlay */
@@ -32,9 +32,7 @@
     max-width: 700px;
     transform: translate(-50%, -50%);
     transition: all 300ms ease-out;
-    backdrop-filter: blur(50px);
-    -webkit-backdrop-filter: blur(50px);
-    border: 1px solid rgba(68, 227, 201, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .dialog.fullscreen {
@@ -82,8 +80,6 @@
 
 /* Dialog Content */
 .content {
-    background: radial-gradient(70% 70% at -1% -0.93%, rgba(68, 227, 201, 0.15) 0%, rgba(68, 227, 201, 0.00) 100%), #12181C;
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     border-radius: var(--dialog-radius);
     display: flex;
     flex-direction: column;

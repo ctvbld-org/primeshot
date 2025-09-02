@@ -5,6 +5,8 @@ import { useAuth } from '@/contexts/auth-context'
 import { Skeleton } from '@primeshot/common/web/ui/skeleton'
 import { Icon } from '@primeshot/common/web/Icon'
 import styles from './GalleryPlaceholder.module.css'
+import stylesInference from './InferenceJobGroup.module.css'
+import stylesThumbnail from './InferenceThumbnail.module.css'
 import { InferenceJobGroup } from './InferenceJobGroup'
 import { useInferenceQueue } from '@/contexts/inference-queue-context'
 import { useInfiniteScroll } from '@/hooks/useLazyLoading'
@@ -38,22 +40,29 @@ export function GalleryPlaceholder() {
     return (
       <div className={styles.generatedSection}>
         <div className={styles.jobsList}>
-          {[0, 1].map((i) => (
-            <div className={styles.jobGroup} key={`skeleton-${i}`}>
-              <div className={styles.jobHeader}>
-                <div className={styles.jobTitle}>
-                  <div className={styles.titleRow}>
-                    <Skeleton className={styles.skeletonTitle} />
-                    <Skeleton className={styles.skeletonIcon} aria-hidden />
-                    <Skeleton className={styles.skeletonSubtitle} />
-                  </div>
-                  <div className={styles.jobMeta}>
-                    <Skeleton className={styles.skeletonMeta} />
-                  </div>
+          <div className={stylesInference.jobGroup}>
+            <div className={stylesInference.jobHeader}>
+              <div className={stylesInference.jobTitle}>
+                <div className={stylesInference.titleRow}>
+                  <Skeleton className={stylesInference.shootTitle} style={{ background: 'rgba(42, 222, 216, 0.1)', borderRadius: '6px', width: '60px', height: '20px' }} />         
+                  <Skeleton className={stylesInference.dotsMenuButton}><Icon variant="dotsMenu" size={16} style={{ opacity: '0.5' }} /></Skeleton>
+                  <Skeleton className={stylesInference.jobSubtitle} style={{ background: 'rgba(42, 222, 216, 0.1)', borderRadius: '6px', width: '220px', height: '14px' }} />
+                </div>
+                <div className={stylesInference.jobMeta}>
+                  <Skeleton className={stylesInference.timeAgo} style={{ background: 'rgba(42, 222, 216, 0.1)', borderRadius: '6px', width: '40px', height: '12px' }} />
                 </div>
               </div>
             </div>
-          ))}
+            <div className={stylesInference.thumbnailGrid}>
+              {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+                <div className={stylesThumbnail.thumbnail} style={{ ['--stagger' as any]: i }}>
+                  <div className={`${stylesThumbnail.imageContainer} ${stylesThumbnail.statusGenerating}`}>
+                    <Skeleton className={stylesThumbnail.gradientLoader} style={{ opacity: '0.1' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     )

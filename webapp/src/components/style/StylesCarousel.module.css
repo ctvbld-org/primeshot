@@ -1,18 +1,17 @@
 .skeletonContainer {
   width: 100%;
-  height: 300px;
+  height: var(--carousel-height);
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 28px; /* rounded-md */
-  color: #9ca3af; /* gray-400 */
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 .skeletonInner {
   width: 100%;
   height: 100%;
-  background-color: #e5e7eb; /* gray-200 */
+  background-color: #2ADED810; /* gray-200 */
   border-radius: 28px; /* rounded-md */
 }
 
@@ -27,6 +26,8 @@
 
 /* Layout containers */
 .container {
+  --carousel-height: 340px;
+
   position: relative;
   width: 100%;
   max-width: 1280px;
@@ -91,7 +92,7 @@
 }
 
 .slideInner {
-  height: 340px;
+  height: var(--carousel-height);
   border-radius: 28px;
   overflow: hidden;
   position: relative;
@@ -211,16 +212,16 @@
 }
 
 @media (max-width: 560px) {
+  .container {
+    --carousel-height: 700px;
+  }
   .fixedThumb {
     display: none;
-  }
-  .slideInner {
-    height: 700px;
   }
 }
 
 @media (max-width: 480px) {
-  .slideInner {
-    height: 600px;
+  .container {
+    --carousel-height: 600px;
   }
 }

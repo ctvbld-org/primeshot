@@ -1,0 +1,47 @@
+.content {
+  z-index: 50; /* z-50 */
+  overflow: hidden; /* overflow-hidden */
+  border-radius: 7px; /* rounded-md */
+  border: 1px solid rgba(255, 255, 255, 0.06); /* border */
+  background: rgba(12, 16, 19, 0.4); /* bg-popover */
+  color: var(--text-popover-foreground, #111); /* text-popover-foreground */
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1.5px 4px rgba(0,0,0,0.04); /* shadow-md */
+  font-size: 12px; /* text-sm */
+  line-height: 1.25rem; /* text-sm line-height */
+  padding: 0.375rem 0.75rem; /* py-1.5 px-3 */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Basic enter/exit animations to replace animate-in/animate-out */
+.content[data-state="open"] {
+  animation: fadeZoomIn 150ms ease-out;
+}
+
+.content[data-state="closed"] {
+  animation: fadeZoomOut 150ms ease-in;
+}
+
+@keyframes fadeZoomIn {
+  from {
+    opacity: 0; /* fade-in-0 */
+    transform: scale(0.95); /* zoom-in-95 */
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeZoomOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0; /* fade-out-0 */
+    transform: scale(0.95); /* zoom-out-95 */
+  }
+}
+
+

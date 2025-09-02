@@ -10,6 +10,7 @@ import { useStyle, useScene, useWardrobe, useColor, useSceneById, useWardrobeByI
 import { useTranslation } from 'react-i18next';
 import styles from './InferenceJobGroup.module.css';
 import { Icon } from '@primeshot/common/web/Icon';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@primeshot/common/web/ui/tooltip';
 
 interface InferenceJobGroupProps {
   job: InferenceJob;
@@ -112,6 +113,45 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
     return Math.round(curvedProgress); // Let it reach 100% naturally
   };
 
+  const renderStatusBadge = () => {
+    const statusKey = job.status.charAt(0).toUpperCase() + job.status.slice(1);
+    const statusClass = `${styles.status} ${styles[`status${statusKey}`]}`;
+
+    const content = (
+      <span className={statusClass}>
+        <Icon variant="info" size={16} />
+        {getStatusDisplay()}
+        {job.status === 'starting' && (
+          <span className={styles.progress}>({getProgress()}%)</span>
+        )}
+        {job.status !== 'queued' && (
+          <span className={styles.dots}>
+            <span className={styles.dot}></span>
+            <span className={styles.dot}></span>
+            <span className={styles.dot}></span>
+          </span>
+        )}
+      </span>
+    );
+
+    if (job.status === 'pending' || job.status === 'queued') {
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>{content}</TooltipTrigger>
+            <TooltipContent side="top">
+              {job.status === 'pending'
+                ? t('status.tooltip.pending', { ns: 'styles' })
+                : t('status.tooltip.queued', { ns: 'styles' })}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+
+    return content;
+  };
+
   return (
     <div ref={lazyRef} className={styles.jobGroup}>
       {/* Job Header */}
@@ -127,17 +167,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
               <span className={styles.timeAgo}>{getTimeAgo(job.createdAt)}</span>
             )}
             {job.status !== 'completed' && (
-              <span className={`${styles.status} ${styles[`status${job.status.charAt(0).toUpperCase() + job.status.slice(1)}`]}`}>
-                {getStatusDisplay()}
-                {job.status === 'starting' && (
-                    <span className={styles.progress}>({getProgress()}%)</span>
-                )}
-                <span className={styles.dots}>
-                  <span className={styles.dot}></span>
-                  <span className={styles.dot}></span>
-                  <span className={styles.dot}></span>
-                </span>
-              </span>
+              renderStatusBadge()
             )}
           </div>
         </div>

@@ -30,5 +30,11 @@
     "numberOfTakes": "Number of Takes",
     "quality": "Quality",
     "aspectRatio": "Aspect Ratio"
+  },
+  "status": {
+    "tooltip": {
+      "pending": "Awaiting server availability during pick time",
+      "queued": "Limit reached, waiting for a generation to complete"
+    }
   }
 } 
