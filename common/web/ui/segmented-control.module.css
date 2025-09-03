@@ -51,6 +51,11 @@
   border: none;
 }
 
+.segment:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.9);
+  outline-offset: 2px;
+}
+
 .segmentActive {
   opacity: 1;
 }

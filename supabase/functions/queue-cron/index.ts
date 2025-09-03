@@ -1,10 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { corsHeaders } from '../_shared/cors.ts'
 
 async function shouldTrigger(supabase: any, type: 'training' | 'inference'): Promise<boolean> {
   const fn = type === 'training' ? 'should_trigger_training_queue' : 'should_trigger_inference_queue'
@@ -49,6 +45,13 @@ async function triggerCleanup() {
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
   try {
+    const authHeader = req.headers.get('authorization') ?? ''
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : ''
+    const expectedToken = Deno.env.get('CRON_SECRET') ?? ''
+    if (!expectedToken || token !== expectedToken) {
+      return new Response('Unauthorized', { status: 401, headers: corsHeaders })
+    }
+
     const intervalMs = Number(Deno.env.get('QUEUE_CRON_INTERVAL_MS') || 300000) // 5m default
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -76,7 +79,7 @@ serve(async (req) => {
 
     // Optionally run as a one-shot timer if called with ?loop=1
     const url = new URL(req.url)
-    if (url.searchParams.get('loop') === '1') {
+    if (url.searchParams.get('loop') === '1' && Deno.env.get('ALLOW_QUEUE_LOOP') === '1') {
       // Run a simple timer loop
       for (;;) {
         await new Promise((r) => setTimeout(r, intervalMs))

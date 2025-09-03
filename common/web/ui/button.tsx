@@ -12,7 +12,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   asChild?: boolean
   loading?: boolean
   icon?: React.ReactNode
-  iconSide?: string
+  iconSide?: 'left' | 'right'
 }
 
 interface AnimationState {

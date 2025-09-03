@@ -42,7 +42,7 @@
       "pending": "Pending",
       "queued": "Queued",
       "initializing": "Initializing",
-      "starting": "Starting",
+      "starting": "Starting up",
       "running": "Generating",
       "generating": "Generating",
       "completed": "Completed",

@@ -5,7 +5,6 @@ import { corsHeaders } from '../_shared/cors.ts'
 interface ImageSaveRequest {
   job_id: string
   image_index: number
-  user_id: string
   original_path: string
   web_path: string
   width: number
@@ -22,10 +21,34 @@ serve(async (req) => {
   }
 
   try {
+    if (req.method !== 'POST') {
+      return new Response(
+        JSON.stringify({ error: 'Method Not Allowed' }),
+        { status: 405, headers: { ...corsHeaders, 'Allow': 'POST, OPTIONS', 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Authenticate via shared WEBHOOK_SECRET (fallback to service role key for backward compat)
+    const authHeader = req.headers.get('authorization') || ''
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+    if (!serviceRoleKey || authHeader !== `Bearer ${serviceRoleKey}`) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    const contentType = req.headers.get('content-type') ?? ''
+    if (!contentType.includes('application/json')) {
+      return new Response(
+        JSON.stringify({ error: 'Unsupported Media Type, expected application/json' }),
+        { status: 415, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     const { 
       job_id, 
       image_index, 
-      user_id, 
       original_path, 
       web_path, 
       width, 
@@ -36,11 +59,11 @@ serve(async (req) => {
     }: ImageSaveRequest = await req.json()
 
     // Validate required fields
-    if (!job_id || image_index === undefined || !user_id || !original_path || !web_path) {
+    if (!job_id || image_index === undefined || !original_path || !web_path) {
       return new Response(
         JSON.stringify({ 
           error: 'Missing required fields', 
-          required: ['job_id', 'image_index', 'user_id', 'original_path', 'web_path'] 
+          required: ['job_id', 'image_index', 'original_path', 'web_path'] 
         }), 
         { 
           status: 400, 
@@ -62,11 +85,27 @@ serve(async (req) => {
       }
     })
 
+    // Derive user_id from the job record rather than trusting client input
+    const { data: job, error: jobError } = await supabase
+      .from('inference_jobs')
+      .select('id, user_id')
+      .eq('id', job_id)
+      .single()
+
+    if (jobError || !job) {
+      return new Response(
+        JSON.stringify({ error: 'Inference job not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    const resolvedUserId = job.user_id as string
+
     // Insert into generated_images table
     const { data: imageData, error: imageError } = await supabase
       .from('generated_images')
       .insert({
-        user_id,
+        user_id: resolvedUserId,
         inference_id: job_id,
         image_index,
         original_path,

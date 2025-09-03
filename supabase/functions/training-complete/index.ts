@@ -29,6 +29,16 @@ serve(async (req) => {
       );
     }
 
+    // Authorization: service role only (consistent with inference EFs)
+    const auth = req.headers.get('authorization') || '';
+    const expected = `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''}`;
+    if (!expected.trim() || auth !== expected) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Parse request body
     const { job_id, success, error_message }: TrainingCompleteRequest = await req.json();
 

@@ -44,8 +44,21 @@ serve(async (req) => {
       supabase.from('characters').select('metadata').eq('id', character_id).single(),
     ]);
 
-    const stylePrompt = (style as any)?.prompt || '';
+    if (styleError || !style) {
+      return new Response(JSON.stringify({ error: 'Style not found' }), {
+        status: 404,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
+    if (characterError || !character) {
+      return new Response(JSON.stringify({ error: 'Character not found' }), {
+        status: 404,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const stylePrompt = String(style.prompt || '');
     // Wardrobe/color by value (mirror inference-create)
     let wardrobePrompt = '';
     if (wardrobe_id) {

@@ -43,7 +43,8 @@ export function buildSubjectPrompt(meta: any): { subject: string; pronoun: 'He' 
   if (hairClause) pieces.push(`with ${hairClause}`)
 
   // Build eyes and glasses seamlessly
-  const eyesPart = eyeColor ? `and ${eyeColor} eyes` : ''
+  const hasWithClause = pieces.some(p => p.trim().startsWith('with '))
+  const eyesPart = eyeColor ? `${hasWithClause ? 'and' : 'with'} ${eyeColor} eyes` : ''
   const glassesPresent = (meta?.glasses?.present === true) || (String(meta?.glasses?.present || '').toLowerCase() === 'true')
   const glassesStyles = Array.isArray(meta?.glasses?.style) ? (meta.glasses.style as string[]) : []
   const glassesText = glassesPresent ? (glassesStyles.length ? `with ${joinWithOr(glassesStyles)} glasses` : 'with glasses') : ''

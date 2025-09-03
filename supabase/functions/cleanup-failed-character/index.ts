@@ -7,7 +7,6 @@ import { S3Client, DeleteObjectsCommand, ListObjectsV2Command } from "https://es
 
 interface CleanupRequest {
   character_id: string;
-  user_id: string;
   reason?: string;
 }
 
@@ -97,14 +96,38 @@ serve(async (req) => {
       );
     }
 
+    // Derive user_id from Authorization Bearer token
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: missing Authorization header' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseAuth = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: getUserError } = await supabaseAuth.auth.getUser();
+    if (getUserError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: invalid or expired token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    const user_id = user.id;
+
     // Parse request body
     const body: CleanupRequest = await req.json();
-    const { character_id, user_id, reason = 'Manual cleanup' } = body;
+    const { character_id, reason = 'Manual cleanup' } = body;
 
     // Validate required fields
-    if (!character_id || !user_id) {
+    if (!character_id) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields: character_id, user_id' }),
+        JSON.stringify({ error: 'Missing required field: character_id' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

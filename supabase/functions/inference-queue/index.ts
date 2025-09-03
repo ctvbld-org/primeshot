@@ -19,6 +19,10 @@ interface InferenceJobRow {
   modal_job_id?: string | null
   // Optional JSON field if present in DB
   settings?: any
+  // Persisted columns written by inference-create
+  quality?: string | null
+  nb_takes?: number | null
+  aspect_ratio?: string | null
   prompt_override?: { enabled: boolean; prompt: string } | null
   wardrobe_id?: string | null
   color_id?: string | null
@@ -76,31 +80,41 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
       return false
     }
 
-    const queueType: 'fast' | 'slow' = job?.settings?.queue_type === 'slow' ? 'slow' : 'fast'
-    const slowUrl = Deno.env.get('INFERENCE_SLOW_API_URL')
-    const defaultUrl = Deno.env.get('INFERENCE_API_URL')
-    const inferenceApiUrl = queueType === 'slow' ? (slowUrl || defaultUrl) : defaultUrl
+    // Force fast queue regardless of stored value
+    const queueType: 'fast' = 'fast'
+    const inferenceApiUrl = Deno.env.get('INFERENCE_API_URL')
     if (!inferenceApiUrl) {
       throw new Error('INFERENCE_API_URL environment variable not set')
     }
 
     // ----- Pre-flight checks -----
-    // If training failed, mark job failed and refund
+    // Character readiness
+    // If character still training, requeue with a short delay (race-safe)
+    if (character?.status === 'training') {
+      await supabase
+        .from('inference_jobs')
+        .update({ status: 'queued', retry_after: new Date(Date.now() + 60 * 1000).toISOString(), error_message: 'Character not ready yet', updated_at: new Date().toISOString() })
+        .eq('id', job.id)
+      return false
+    }
+
+    // If LoRA is missing, fail and refund
+    if (!character?.lora_path) {
+      await supabase
+        .from('inference_jobs')
+        .update({ status: 'failed', error_message: 'Character missing lora_path', updated_at: new Date().toISOString() })
+        .eq('id', job.id)
+      await refundIfAny('Refund: missing character lora_path')
+      return false
+    }
+
+    // Other failure states (e.g., explicit training failure)
     if (character?.status === 'failed') {
       await supabase
         .from('inference_jobs')
         .update({ status: 'failed', error_message: 'Character training failed', updated_at: new Date().toISOString() })
         .eq('id', job.id)
       await refundIfAny('Refund: character training failed before inference could run')
-      return false
-    }
-
-    // If character not ready or missing LoRA, requeue with a short delay (race-safe)
-    if (character?.status !== 'ready' || !character?.lora_path) {
-      await supabase
-        .from('inference_jobs')
-        .update({ status: 'queued', retry_after: new Date(Date.now() + 60 * 1000).toISOString(), error_message: 'Character not ready yet', updated_at: new Date().toISOString() })
-        .eq('id', job.id)
       return false
     }
 
@@ -141,6 +155,12 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
     }
     const workflowKey = resolveWorkflow(style, job?.settings || {})
 
+    // Resolve generation parameters. Prefer top-level columns persisted by inference-create,
+    // fall back to legacy settings JSON if present, and finally safe defaults.
+    const resolvedNbTakes = (job as any)?.nb_takes ?? job?.settings?.nb_takes ?? 5
+    const resolvedQuality = (job as any)?.quality ?? job?.settings?.quality ?? '1K'
+    const resolvedAspect = (job as any)?.aspect_ratio ?? job?.settings?.aspect_ratio ?? '1:1'
+
     const modalRequest = {
       user_id: job.user_id,
       job_id: job.id,
@@ -150,9 +170,9 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
       color_id: job.color_id,
       scene_id: job.scene_id,
       params: {
-        nb_takes: job?.settings?.nb_takes ?? 5,
-        quality: job?.settings?.quality ?? '1K',
-        aspect_ratio: job?.settings?.aspect_ratio ?? '1:1',
+        nb_takes: resolvedNbTakes,
+        quality: resolvedQuality,
+        aspect_ratio: resolvedAspect,
         seed: job?.settings?.seed ?? -1,
       },
       prepared: {
@@ -172,14 +192,38 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
       headers['Modal-Secret'] = tokenSecret
     }
 
-    const modalResponse = await fetch(inferenceApiUrl, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(modalRequest),
-    })
+    // Timeout + abort to avoid hangs
+    const controller = new AbortController()
+    const timeoutMs = Number(Deno.env.get('INFERENCE_HTTP_TIMEOUT_MS') ?? 30000)
+    const timeoutHandle = setTimeout(() => controller.abort(), timeoutMs)
+    let modalResponse: Response
+    try {
+      modalResponse = await fetch(inferenceApiUrl, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(modalRequest),
+        signal: controller.signal,
+      })
+    } finally {
+      clearTimeout(timeoutHandle)
+    }
 
     if (!modalResponse.ok) {
-      const errorText = await modalResponse.text()
+      // Treat provider rate limiting and server errors as transient → requeue (no refund)
+      if (modalResponse.status === 429 || modalResponse.status >= 500) {
+        const backoffMs = Number(Deno.env.get('INFERENCE_RETRY_BACKOFF_MS') ?? 90000)
+        await supabase
+          .from('inference_jobs')
+          .update({
+            status: 'queued',
+            retry_after: new Date(Date.now() + backoffMs).toISOString(),
+            error_message: `Provider ${modalResponse.status}; will retry`,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', job.id)
+        return false
+      }
+      const errorText = (await modalResponse.text()).slice(0, 512)
       await supabase
         .from('inference_jobs')
         .update({ status: 'failed', error_message: `Modal API error: ${errorText}`, updated_at: new Date().toISOString() })
@@ -202,9 +246,23 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
     return true
   } catch (error) {
     console.error(`Error starting inference job ${job.id}:`, error)
+    // Abort (timeout) → requeue (no refund)
+    if ((error as any)?.name === 'AbortError') {
+      const backoffMs = Number(Deno.env.get('INFERENCE_RETRY_BACKOFF_MS') ?? 90000)
+      await supabase
+        .from('inference_jobs')
+        .update({
+          status: 'queued',
+          retry_after: new Date(Date.now() + backoffMs).toISOString(),
+          error_message: 'Provider timeout; will retry',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', job.id)
+      return false
+    }
     await supabase
       .from('inference_jobs')
-      .update({ status: 'failed', error_message: `Queue error: ${error.message}`, updated_at: new Date().toISOString() })
+      .update({ status: 'failed', error_message: `Queue error: ${(error as Error)?.message ?? String(error)}`, updated_at: new Date().toISOString() })
       .eq('id', job.id)
     await refundIfAny('Refund: queue error before inference could start')
     return false

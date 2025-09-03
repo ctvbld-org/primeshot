@@ -1,10 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { corsHeaders } from '../_shared/cors.ts'
 
 interface TrainingJob {
   id: string;
@@ -50,11 +46,12 @@ async function startTrainingJob(supabase: any, job: TrainingJob): Promise<boolea
   try {
     // Capacity was enforced by the claim RPC (Option B). No additional checks here.
 
-    // Get character data
+    // Get character data with ownership validation
     const { data: character, error: characterError } = await supabase
       .from('characters')
-      .select('*')
+      .select('id, name, user_id')
       .eq('id', job.character_id)
+      .eq('user_id', job.user_id)
       .single();
 
     if (characterError || !character) {
@@ -89,34 +86,62 @@ async function startTrainingJob(supabase: any, job: TrainingJob): Promise<boolea
       ...(jobRow?.training_params || {})
     };
     
-    // Call Modal training API
-    const modalResponse = await fetch(
-      `${Deno.env.get('TRAINING_API_URL')}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Modal-Key': Deno.env.get('MODAL_TOKEN_ID') || '',
-          'Modal-Secret': Deno.env.get('MODAL_TOKEN_SECRET') || ''
-        },
-        body: JSON.stringify(trainingData)
-      }
-    );
+    // Call Modal training API with timeout
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort('timeout'), 30000);
+    let modalResponse: Response;
+    try {
+      modalResponse = await fetch(
+        `${Deno.env.get('TRAINING_API_URL')}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Modal-Key': Deno.env.get('MODAL_TOKEN_ID') || '',
+            'Modal-Secret': Deno.env.get('MODAL_TOKEN_SECRET') || ''
+          },
+          body: JSON.stringify(trainingData),
+          signal: controller.signal,
+        }
+      );
+    } finally {
+      clearTimeout(timeout);
+    }
 
     if (!modalResponse.ok) {
       const errorText = await modalResponse.text();
       console.error(`Modal API error for job ${job.id}:`, errorText);
-      
-      // Mark job as failed
-      await supabase
-        .from('training_jobs')
-        .update({
-          status: 'failed',
-          error_message: `Training API error: ${errorText}`,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', job.id);
-      
+      const status = modalResponse.status;
+      const isTransient = status === 429 || status >= 500;
+
+      if (isTransient) {
+        // Transient failure: requeue with exponential backoff
+        const retryCount = (job.retry_count ?? 0) + 1;
+        const backoffMinutes = Math.min(30, Math.max(2, Math.pow(2, retryCount)));
+        const retryAfter = new Date(Date.now() + backoffMinutes * 60 * 1000).toISOString();
+
+        await supabase
+          .from('training_jobs')
+          .update({
+            status: 'queued',
+            error_message: `Training API transient error (${status}): ${errorText}`,
+            retry_count: retryCount,
+            retry_after: retryAfter,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', job.id);
+      } else {
+        // Permanent failure
+        await supabase
+          .from('training_jobs')
+          .update({
+            status: 'failed',
+            error_message: `Training API error (${status}): ${errorText}`,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', job.id);
+      }
+
       return false;
     }
 

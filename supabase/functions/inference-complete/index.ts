@@ -14,6 +14,19 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  // Enforce POST and authenticate via shared WEBHOOK_SECRET
+  if (req.method !== 'POST') {
+    return new Response('Method Not Allowed', { status: 405, headers: corsHeaders })
+  }
+  const auth = req.headers.get('authorization') || ''
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+  if (!serviceRoleKey || auth !== `Bearer ${serviceRoleKey}`) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+
   try {
     const { job_id, success = true, error_message }: InferenceCompleteRequest = await req.json()
 

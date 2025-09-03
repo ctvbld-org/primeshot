@@ -389,9 +389,6 @@ serve(async (req) => {
       if (typeof training_params.steps === 'number') {
         approvedParams.steps = clamp(Math.floor(training_params.steps), 100, 10000)
       }
-      if (typeof (training_params as any).steps === 'number') {
-        approvedParams.steps = clamp(Math.floor((training_params as any).steps), 100, 10000)
-      }
       if (typeof training_params.batch_size === 'number') {
         approvedParams.batch_size = clamp(Math.floor(training_params.batch_size), 1, 8)
       }
@@ -708,6 +705,8 @@ serve(async (req) => {
 
     console.log('🚀 Starting real Modal training job:', modalPayload);
 
+    let controller: AbortController | null = null;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
     try {
       const trainingUrl = Deno.env.get('TRAINING_API_URL'); 
 
@@ -715,6 +714,10 @@ serve(async (req) => {
         throw new Error('TRAINING_API_URL env variable is not configured');  
       } 
       
+      // Add network timeout to prevent hanging edge invocation if provider stalls
+      controller = new AbortController();
+      timeout = setTimeout(() => controller.abort('timeout'), 30000);
+
       const modalResponse = await fetch(trainingUrl, {
         method: 'POST',
         headers: {
@@ -722,7 +725,8 @@ serve(async (req) => {
           'Modal-Key': Deno.env.get('MODAL_TOKEN_ID') || '',
           'Modal-Secret': Deno.env.get('MODAL_TOKEN_SECRET') || ''
         },
-        body: JSON.stringify(modalPayload)
+        body: JSON.stringify(modalPayload),
+        signal: controller!.signal
       });
 
       if (!modalResponse.ok) {
@@ -799,6 +803,12 @@ serve(async (req) => {
         }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    } finally {
+      try {
+        if (typeof timeout !== 'undefined') clearTimeout(timeout);
+      } catch (_e) {
+        // no-op
+      }
     }
 
   } catch (error) {

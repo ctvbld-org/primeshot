@@ -127,7 +127,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
     const content = (
       <span className={statusClass}>
         <span className={styles.statusText}>
-          {job.status !== 'starting' && job.status !== 'generating' && job.status !== 'initializing' && (
+          {(job.status === 'queued' || job.status === 'pending') && (
             <Icon variant="info" size={16} />
           )}
           {getStatusDisplay()}

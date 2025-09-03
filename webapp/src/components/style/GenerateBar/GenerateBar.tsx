@@ -39,6 +39,8 @@ import { useCreateCharacter } from './useCreateCharacter'
 import { Button } from '@primeshot/common/web/ui/button'
 import { SegmentedControl } from '@primeshot/common/web/ui/segmented-control'
 import { useToast } from '@primeshot/common/web/ui/use-toast'
+import { useOpenCreditPackDialog } from '@/hooks/useOpenCreditPackDialog'
+import { useQueryClient } from '@tanstack/react-query'
 const AdminInferenceOptionsDialog = dynamic(() => import('./AdminInferenceOptionsDialog'), { ssr: false })
 
 type PanelKey = 'styles' | 'scenes' | 'wardrobe' | 'characters' | 'settings' | null
@@ -138,6 +140,8 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
 
   // Jobs API (moved to top-level to avoid creating a new instance in handler)
   const { startInference } = useJobsApi()
+  const openCreditPackDialog = useOpenCreditPackDialog()
+  const queryClient = useQueryClient()
 
   const stylesWithPreview = useMemo(() => {
     return stylesData.map((s) => ({
@@ -320,15 +324,6 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
       const scene_id = sel?.scene || ''
       const wardrobe_id = sel?.wardrobe || ''
       const color_id = sel?.color || ''
-      // 🎯 OPTIMISTIC UI: Create queued thumbnails immediately with selection metadata
-      placeholderId = createQueuedThumbnails(effectiveTakes, {
-        styleId: currentStyle.id,
-        sceneId: scene_id,
-        wardrobeId: wardrobe_id,
-        colorId: color_id,
-      })
-
-      setIsSubmitting(true)
       const character_id = selectedCharacterId || ''
 
       const payload = {
@@ -347,7 +342,24 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
 
       // Make API call to get real job ID first
       const data = (await runWithGates(async () => {
-        return await startInference({ ...(payload as any), ...(override ? { prompt_override: override } : {}) })
+        // Create queued thumbnails only after passing gates
+        placeholderId = createQueuedThumbnails(effectiveTakes, {
+          styleId: currentStyle.id,
+          sceneId: scene_id,
+          wardrobeId: wardrobe_id,
+          colorId: color_id,
+        })
+
+        setIsSubmitting(true)
+        try {
+          return await startInference({ ...(payload as any), ...(override ? { prompt_override: override } : {}) })
+        } catch (err) {
+          // Mark placeholder as failed on API error
+          if (placeholderId) {
+            try { updateJobStatus(placeholderId, 'failed' as any) } catch {}
+          }
+          throw err
+        }
       })) as any
       
       const realJobId = (data as any)?.job_id
@@ -356,7 +368,9 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
         setInferenceJobId(realJobId)
         
         // Update thumbnails with real job ID and status from inference-create response
-        updateJobWithRealId(placeholderId, realJobId)
+        if (placeholderId) {
+          updateJobWithRealId(placeholderId, realJobId)
+        }
         
         // Update status based on inference-create response (queued/pending)
         if (responseStatus) {
@@ -385,6 +399,17 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
       // Show user-friendly error message
       // TODO: Integrate with toast/notification system
       console.error('Failed to start generation. Please try again.');
+      try {
+        const msg = (e as any)?.message || ''
+        if (typeof msg === 'string' && (msg.includes('Insufficient credits') || msg.includes('402'))) {
+          // Open credit packs dialog and refresh credit balance
+          try { openCreditPackDialog(requiredCredits) } catch {}
+          try {
+            await queryClient.invalidateQueries({ queryKey: ['creditBalance'] })
+            await queryClient.refetchQueries({ queryKey: ['creditBalance'] })
+          } catch {}
+        }
+      } catch {}
     } finally {
       setIsSubmitting(false)
     }
@@ -1049,7 +1074,7 @@ function CharacterCard({ character, thumbUrl, onSelect, onDeleted, selectedId }:
           </>
         )}
       </div>
-      {showOverlay || isFailed && (
+      {(showOverlay || isFailed) && (
           <div className={styles.cardOverlay} onClick={(e) => { e.stopPropagation(); /* keep panel open while overlay visible */ }}>
             <div
               className={styles.overlayClose}

@@ -40,7 +40,7 @@ function getApiUrl(path: string): string {
 
 export function AccountDialog({ triggerSlot }: AccountDialogProps) {
   const { user, signOut } = useAuth()
-  const { t } = useTranslation()
+  const { t } = useTranslation('account')
   const [activeTab, setActiveTab] = useState<TabKey>('profile')
   const [open, setOpen] = useState(false)
 

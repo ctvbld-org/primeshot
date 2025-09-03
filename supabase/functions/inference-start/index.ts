@@ -12,22 +12,40 @@ serve(async (req) => {
   }
 
   try {
+    // Enforce POST and authenticate via shared WEBHOOK_SECRET (fallback to service role key)
+    if (req.method !== 'POST') {
+      return new Response(
+        JSON.stringify({ error: 'Method Not Allowed' }),
+        { status: 405, headers: { ...corsHeaders, 'Allow': 'POST, OPTIONS', 'Content-Type': 'application/json' } }
+      );
+    }
+    const authHeader = req.headers.get('authorization') || '';
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+    if (!serviceRoleKey || authHeader !== `Bearer ${serviceRoleKey}`) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    if (req.method !== 'POST') {
+    const contentType = req.headers.get('content-type') ?? '';
+    if (!contentType.includes('application/json')) {
       return new Response(
-        JSON.stringify({ error: 'Method not allowed' }),
-        { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Unsupported Media Type, expected application/json' }),
+        { status: 415, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const { job_id }: InferenceStartedRequest = await req.json();
-    if (!job_id) {
+    const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!job_id || !UUID_V4_REGEX.test(job_id)) {
       return new Response(
-        JSON.stringify({ error: 'Missing required field: job_id' }),
+        JSON.stringify({ error: 'Invalid job_id: expected UUID' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -54,11 +72,21 @@ serve(async (req) => {
       );
     }
 
-    // Update to running when provider actually begins execution
-    const { error: updErr } = await supabase
+    // Update to running when provider actually begins execution (only from startable states)
+    const { data: updated, error: updErr } = await supabase
       .from('inference_jobs')
       .update({ status: 'running', updated_at: new Date().toISOString() })
-      .eq('id', job_id);
+      .eq('id', job_id)
+      .in('status', ['queued', 'initializing', 'pending'])
+      .select('id, status')
+      .maybeSingle();
+
+    if (!updErr && !updated) {
+      return new Response(
+        JSON.stringify({ ok: true, message: 'Job not in startable state' }),
+        { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     if (updErr) {
       return new Response(

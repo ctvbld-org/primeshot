@@ -18,7 +18,7 @@ export interface InferenceThumbnail {
 
 interface InferenceThumbnailProps {
   thumbnail: InferenceThumbnail;
-  jobStatus?: 'queued' | 'pending' | 'running' | 'completed' | 'failed' | 'initializing' | 'generating';
+  jobStatus?: 'queued' | 'pending' | 'running' | 'completed' | 'failed' | 'initializing' | 'generating' | 'starting';
   onClick?: () => void;
 }
 
@@ -31,8 +31,10 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
   const [currentUrl, setCurrentUrl] = useState<string | undefined>(thumbnail.webImageUrl || thumbnail.imageUrl);
   const [prevUrl, setPrevUrl] = useState<string | null>(null);
   const [finalLoaded, setFinalLoaded] = useState(false);
+  const [startZoom, setStartZoom] = useState(false);
   const [imageError, setImageError] = useState(false);
   const hasMountedRef = useRef(false);
+  const zoomTriggeredRef = useRef(false);
   
   // Check if we're using a base64 preview
   const isBase64Preview = (thumbnail.webImageUrl || thumbnail.imageUrl)?.startsWith('data:image/');
@@ -64,8 +66,13 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
     setTimeout(() => {
       setFinalLoaded(true);
       setImageError(false);
-    }, 150);
-  }, []);
+      // Trigger zoom only on the very first mount (no crossfade)
+      if (!hasMountedRef.current && !prevUrl) {
+        setStartZoom(true);
+        zoomTriggeredRef.current = true;
+      }
+    }, 200);
+  }, [prevUrl]);
   
   const handleImageError = useCallback((e: any) => {
     console.error(`❌ Image failed to load: ${thumbnail.webImageUrl || thumbnail.imageUrl}`, e);
@@ -77,7 +84,7 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
     switch (thumbnail.status) {
       case 'queued': {
         // Distinguish queued because job is queued vs queued while job is running
-        if (jobStatus === 'running' || jobStatus === 'pending' || jobStatus === 'initializing' || jobStatus === 'generating') {
+        if (jobStatus === 'running' || jobStatus === 'pending' || jobStatus === 'initializing' || jobStatus === 'generating' || jobStatus === 'starting') {
           return `${styles.statusInitializing}`;
         }
         return `${styles.statusQueued}`;
@@ -94,8 +101,19 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
   };
 
   // Determine if we should apply zoom on initial mount only (no preview swap)
-  const shouldZoomOnMount = !hasMountedRef.current && !prevUrl;
+  const shouldZoomOnMount = startZoom;
   useEffect(() => { hasMountedRef.current = true; }, []);
+
+  // If images are already cached and onLoad fires immediately or is skipped, ensure we still trigger zoom once
+  useEffect(() => {
+    if (!zoomTriggeredRef.current && currentUrl && !prevUrl) {
+      setTimeout(() => {
+        setStartZoom(true);
+        zoomTriggeredRef.current = true;
+      }, 200);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const hasAnyImage = Boolean(currentUrl || prevUrl);
   const showDualLayer = Boolean(prevUrl && currentUrl && currentUrl !== prevUrl && !finalLoaded);
@@ -136,7 +154,7 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
                     src={base}
                     alt={`Generated image ${thumbnail.index + 1}`}
                     fill
-                    className={`${styles.imageLayer} ${finalLoaded || showDualLayer ? styles.visible : ''} ${shouldZoomOnMount ? styles.zoomOnMount : ''}`}
+                    className={`${styles.imageLayer} ${(finalLoaded || showDualLayer || shouldZoomOnMount) ? styles.visible : ''} ${shouldZoomOnMount ? styles.zoomOnMount : ''}`}
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     priority={thumbnail.status === 'completed'}
                     unoptimized={true}
@@ -153,7 +171,7 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
                   srcSet={`${src480} 480w, ${src720} 720w`}
                   sizes="(max-width: 640px) 360px, 240px"
                   alt={`Generated image ${thumbnail.index + 1}`}
-                  className={`${styles.imageLayer} ${finalLoaded || showDualLayer ? styles.visible : ''} ${shouldZoomOnMount ? styles.zoomOnMount : ''}`}
+                  className={`${styles.imageLayer} ${(finalLoaded || showDualLayer || shouldZoomOnMount) ? styles.visible : ''} ${shouldZoomOnMount ? styles.zoomOnMount : ''}`}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   loading="lazy"
                   decoding="async"

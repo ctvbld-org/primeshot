@@ -258,6 +258,32 @@ url = ""
 # If enabled, the nonce check will be skipped. Required for local sign in with Google auth.
 skip_nonce_check = true
 
+[auth.external.apple]
+enabled = true
+client_id = "env(SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID)"
+# DO NOT commit your OAuth provider secret to git. Use environment variable substitution instead:
+secret = "env(SUPABASE_AUTH_EXTERNAL_APPLE_SECRET)"
+# Overrides the default auth redirectUrl.
+redirect_uri = "http://127.0.0.1:54321/auth/v1/callback"
+# Overrides the default auth provider URL. Used to support self-hosted gitlab, single-tenant Azure,
+# or any other third-party OIDC providers.
+url = ""
+# If enabled, the nonce check will be skipped. Required for local sign in with Google auth.
+skip_nonce_check = true
+
+[auth.external.azure]
+enabled = true
+client_id = "env(SUPABASE_AUTH_EXTERNAL_AZURE_CLIENT_ID)"
+# DO NOT commit your OAuth provider secret to git. Use environment variable substitution instead:
+secret = "env(SUPABASE_AUTH_EXTERNAL_AZURE_SECRET)"
+# Overrides the default auth redirectUrl.
+redirect_uri = "http://127.0.0.1:54321/auth/v1/callback"
+# Overrides the default auth provider URL. Used to support self-hosted gitlab, single-tenant Azure,
+# or any other third-party OIDC providers.
+url = ""
+# If enabled, the nonce check will be skipped. Required for local sign in with Google auth.
+skip_nonce_check = true
+
 [auth.external.linkedin_oidc]
 enabled = true
 client_id = "env(SUPABASE_AUTH_EXTERNAL_LINKEDIN_CLIENT_ID)"
@@ -303,6 +329,8 @@ TRAINING_API_URL = "env(TRAINING_API_URL)"
 INFERENCE_API_URL = "env(INFERENCE_API_URL)"
 MODAL_TOKEN_ID = "env(MODAL_TOKEN_ID)"
 MODAL_TOKEN_SECRET = "env(MODAL_TOKEN_SECRET)"
+INFERENCE_HTTP_TIMEOUT_MS = "env(INFERENCE_HTTP_TIMEOUT_MS)"
+INFERENCE_RETRY_BACKOFF_MS = "env(INFERENCE_RETRY_BACKOFF_MS)"
 STRIPE_SECRET_KEY = "env(STRIPE_SECRET_KEY)"
 AWS_ACCESS_KEY_ID = "env(AWS_ACCESS_KEY_ID)"
 AWS_SECRET_ACCESS_KEY = "env(AWS_SECRET_ACCESS_KEY)"

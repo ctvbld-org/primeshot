@@ -209,7 +209,8 @@ serve(async (req) => {
     const quality = (body.params as any)?.quality || settings.defaults.quality;
     const nbTakes = (body.params as any)?.nb_takes || settings.defaults.nb_takes;
     const aspectRatio = (body.params as any)?.aspect_ratio || settings.defaults.aspect_ratio;
-    const queueType: 'fast' | 'slow' = body.queue_type === 'slow' ? 'slow' : 'fast';
+    // Force fast queue globally
+    const queueType: 'fast' = 'fast';
 
     // Validate using DB-defined options
     if (!Number.isInteger(nbTakes) || !settings.nb_takes_options.includes(nbTakes)) {
@@ -496,21 +497,35 @@ serve(async (req) => {
     let finalPrompt = buildFinalPrompt({ style: stylePrompt, subject: subjectPrompt, wardrobe: wardrobeClean, scene: scenePrompt });
 
     // Admin-only prompt override: verify caller is admin using JWT
-    try {
-      const authHeaderRaw = req.headers.get('Authorization') || ''
-      const jwt = authHeaderRaw.startsWith('Bearer ')
-        ? authHeaderRaw.substring('Bearer '.length)
-        : authHeaderRaw
-      const { data: authData } = await (createClient(Deno.env.get('SUPABASE_URL') || '', Deno.env.get('SUPABASE_ANON_KEY') || '')).auth.getUser(jwt)
-      const callerId = authData?.user?.id
-      if (callerId && callerId === user_id && body?.prompt_override?.enabled && body?.prompt_override?.prompt) {
-        const { data: u } = await supabase.from('users').select('admin').eq('id', user_id).single()
-        if (u?.admin) {
-          finalPrompt = String(body.prompt_override.prompt)
+    if (body?.prompt_override?.enabled) {
+      try {
+        const authHeaderRaw = req.headers.get('Authorization') || '';
+        const jwt = authHeaderRaw.startsWith('Bearer ')
+          ? authHeaderRaw.substring('Bearer '.length)
+          : authHeaderRaw;
+        // Use service role client for admin check
+        const { data: authData, error: authError } = await supabase.auth.getUser(jwt);
+        if (authError) {
+          console.warn('Failed to verify JWT for admin override:', authError.message);
         }
+        const callerId = authData?.user?.id;
+        if (callerId && callerId === user_id && body?.prompt_override?.prompt) {
+          const { data: u, error: userErr } = await supabase
+            .from('users')
+            .select('admin')
+            .eq('id', user_id)
+            .single();
+          if (userErr) {
+            console.warn('Admin lookup failed:', userErr.message);
+          }
+          if (u?.admin) {
+            finalPrompt = String(body.prompt_override.prompt);
+            console.log('Admin prompt override applied for user:', user_id);
+          }
+        }
+      } catch (error) {
+        console.warn('Error during admin verification:', error);
       }
-    } catch (_) {
-      // ignore and use default finalPrompt
     }
 
     // 7) Workflow resolver (future-proof)
@@ -640,9 +655,7 @@ serve(async (req) => {
 
     // Call Modal ComfyUI API for real inference (Option B payload)
     try {
-      const slowUrl = Deno.env.get('INFERENCE_SLOW_API_URL');
-      const defaultUrl = Deno.env.get('INFERENCE_API_URL');
-      const inferenceApiUrl = queueType === 'slow' ? (slowUrl || defaultUrl) : defaultUrl;
+      const inferenceApiUrl = Deno.env.get('INFERENCE_API_URL');
       if (!inferenceApiUrl) {
         throw new Error('INFERENCE_API_URL environment variable not set');
       }
@@ -691,10 +704,15 @@ serve(async (req) => {
         headers['Modal-Secret'] = modalTokenSecret;
       }
 
+      // Add network timeout to prevent hanging edge invocation if provider stalls
+      let controller: AbortController | null = new AbortController();
+      let timeout: ReturnType<typeof setTimeout> | undefined = setTimeout(() => controller!.abort('timeout'), 30000);
+
       const modalResponse = await fetch(inferenceApiUrl, {
         method: 'POST',
         headers,
-        body: JSON.stringify(modalRequest)
+        body: JSON.stringify(modalRequest),
+        signal: controller!.signal
       });
 
       if (!modalResponse.ok) {
@@ -776,6 +794,12 @@ serve(async (req) => {
         }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    } finally {
+      try {
+        if (typeof timeout !== 'undefined') clearTimeout(timeout);
+      } catch (_e) {
+        // no-op
+      }
     }
 
   } catch (error) {
