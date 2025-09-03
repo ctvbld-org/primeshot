@@ -38,6 +38,7 @@ import { GenerateBarSelect } from './GenerateBarSelect'
 import { useCreateCharacter } from './useCreateCharacter'
 import { Button } from '@primeshot/common/web/ui/button'
 import { SegmentedControl } from '@primeshot/common/web/ui/segmented-control'
+import { useToast } from '@primeshot/common/web/ui/use-toast'
 const AdminInferenceOptionsDialog = dynamic(() => import('./AdminInferenceOptionsDialog'), { ssr: false })
 
 type PanelKey = 'styles' | 'scenes' | 'wardrobe' | 'characters' | 'settings' | null
@@ -63,7 +64,13 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const [openPanel, setOpenPanel] = useState<PanelKey>(null)
   // Wardrobe panel local UI state
   const [selectedWardrobeValue, setSelectedWardrobeValue] = useState<string | null>(null)
-  const [selectedGender, setSelectedGender] = useState<'man' | 'woman'>('woman')
+  const [selectedGender, setSelectedGender] = useState<'man' | 'woman'>(() => {
+    try {
+      const raw = localStorage.getItem('generation-wardrobe-gender')
+      const v = raw ? JSON.parse(raw) : null
+      return v === 'man' || v === 'woman' ? v : 'woman'
+    } catch { return 'woman' }
+  })
   const [selectionVersion, setSelectionVersion] = useState(0)
   const [isSwitchingGender, setIsSwitchingGender] = useState(false)
 
@@ -74,7 +81,8 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const STORAGE_KEYS = {
     NB_TAKES: 'generation-controls-nb-takes',
     ASPECT_RATIO: 'generation-controls-aspect-ratio',
-    QUALITY: 'generation-controls-quality'
+    QUALITY: 'generation-controls-quality',
+    WARDROBE_GENDER: 'generation-wardrobe-gender'
   }
 
   const load = (k: string, def: any) => {
@@ -165,6 +173,21 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const open = (panel: PanelKey) => { 
     setOpenPanel(panel); 
     onPanelToggle?.(true)
+    // When opening wardrobe, auto-switch gender to match stored wardrobe selection
+    if (panel === 'wardrobe') {
+      try {
+        const sel = currentStyle ? getStoredStyleSelections(currentStyle.id) : null
+        const wardVal = sel?.wardrobe || null
+        if (wardVal) {
+          const w = wardrobes.find(w => w.value === wardVal) as any
+          const g = (w?.gender as ('man'|'woman'|'unisex'|undefined))
+          if (g === 'man' || g === 'woman') {
+            if (g !== selectedGender) setSelectedGender(g)
+            save(STORAGE_KEYS.WARDROBE_GENDER, g)
+          }
+        }
+      } catch {}
+    }
     // Check sticky state after panel opens
     setTimeout(checkSticky, 300)
   }
@@ -245,6 +268,8 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const [inferenceJobId, setInferenceJobId] = useState('')
   const [showAdminInfer, setShowAdminInfer] = useState(false)
   const [adminOverride, setAdminOverride] = useState<{ enabled: boolean; prompt: string } | null>(null)
+  const { toast } = useToast()
+  const hasClearedFailedSelectionRef = useRef<boolean>(false)
   
   // Inference queue integration (only for job creation, not thumbnail management)
   const { createQueuedThumbnails, updateJobWithRealId, updateJobStatus, updateJobMessage, isGenerating } = useInferenceQueue()
@@ -337,10 +362,15 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
         if (responseStatus) {
           updateJobStatus(realJobId, responseStatus)
           
-          // Update message based on response
+          // Update message based on response (support i18n keys from API)
           const responseMessage = (data as any)?.message
-          if (responseMessage) {
-            updateJobMessage(realJobId, responseMessage)
+          const responseKey = (data as any)?.i18n_key
+          const responseParams = ((data as any)?.i18n_params || {}) as Record<string, any>
+          const translatedMessage = responseKey
+            ? t(responseKey as any, { ns: 'styles', defaultValue: responseMessage, ...responseParams })
+            : responseMessage
+          if (translatedMessage) {
+            updateJobMessage(realJobId, translatedMessage)
           }
           
           console.log(`📋 Updated job ${realJobId} status to: ${responseStatus}`)
@@ -388,8 +418,17 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
       const map: Record<string,string> = {}
       for (const [id, url] of entries) map[id] = url
       setCharacterThumbs(map)
+
+      // If the currently selected character is failed/deleted/missing, clear selection (no toast on page load)
+      if (selectedCharacterId) {
+        const selected = list.find((m: any) => m.id === selectedCharacterId)
+        if (!selected || selected.status === 'failed' || selected.status === 'deleted') {
+          try { localStorage.removeItem('character-selection') } catch {}
+          setSelectedCharacterId(null)
+        }
+      }
     } catch { setCharacters([]) }
-  }, [authUser?.id, getUserCharacters])
+  }, [authUser?.id, getUserCharacters, selectedCharacterId])
 
   React.useEffect(() => { refreshCharacters() }, [refreshCharacters])
 
@@ -400,7 +439,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   }
 
   // Character creation hook
-  const { createCharacterAction, handleCreateCharacterClick, requiresCreditsForTraining, trainingCost } = useCreateCharacter({
+  const { createCharacterAction, handleCreateCharacterClick, requiresCreditsForTraining, trainingCost, remainingIncludedTrainings, isOnHighestTier } = useCreateCharacter({
     characters,
     onSelectCharacter,
     refreshCharacters
@@ -409,7 +448,20 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   // Selected-character active job/progress for the small selector thumbnail
   const { job: selectedJob } = useActiveTrainingJob(selectedCharacterId)
   // Always call hook; provide empty jobId when no job to keep order stable
-  const selectedTraining = useTrainingProgress({ jobId: selectedJob?.id || '' })
+  const selectedTraining = useTrainingProgress({
+    jobId: selectedJob?.id || '',
+    onComplete: (success) => {
+      if (!success && selectedCharacterId) {
+        try { localStorage.removeItem('character-selection') } catch {}
+        setSelectedCharacterId(null)
+        toast({
+          title: t('character.trainingFailedTitle', { ns: 'styles', defaultValue: 'Training failed' }),
+          description: t('character.trainingFailedDesc', { ns: 'styles', defaultValue: 'This character cannot be used for generation. Please delete it and try again.' }),
+          variant: 'destructive'
+        })
+      }
+    }
+  })
   const selectedWsStatus = (selectedTraining as any)?.progress?.status as string | undefined
   // Prefer WS status when available to decide if overlay should be visible immediately on completion
   const selectedHasActiveJob = selectedWsStatus
@@ -421,6 +473,20 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
         selectedJob.status === 'initializing'
       ))
   const selectedPct = selectedHasActiveJob ? (selectedTraining.getProgressPercentage?.() ?? 0) : 0
+
+  // When the selected character's training fails, immediately clear selection and show a persistent error toast
+  useEffect(() => {
+    if (selectedWsStatus === 'failed' && selectedCharacterId && !hasClearedFailedSelectionRef.current) {
+      hasClearedFailedSelectionRef.current = true
+      try { localStorage.removeItem('character-selection') } catch {}
+      setSelectedCharacterId(null)
+      toast({
+        title: t('character.trainingFailedTitle', { ns: 'styles', defaultValue: 'Training failed' }),
+        description: t('character.trainingFailedDesc', { ns: 'styles', defaultValue: 'This character cannot be used for generation. Please delete it and try again.' }),
+        variant: 'destructive'
+      })
+    }
+  }, [selectedWsStatus, selectedCharacterId, toast, t])
 
   // Handle Character button click: always open the panel (credit checks happen on create action)
   const handleButtonClick = useCallback(() => {
@@ -565,6 +631,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                     setIsSwitchingGender(true)
                     setTimeout(() => {
                       setSelectedGender(v)
+                      save(STORAGE_KEYS.WARDROBE_GENDER, v)
                       setTimeout(() => setIsSwitchingGender(false), 40)
                     }, 120)
                   }}
@@ -580,7 +647,11 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                   const sel = currentStyle ? getStoredStyleSelections(currentStyle.id).wardrobe : null
                   const isSelected = sel === opt.value
                   return (
-                  <button key={opt.value} className={`${styles.itemCard} ${isSelected ? styles.itemSelected : ''}`} onClick={() => setSelectedWardrobeValue(opt.value)}>
+                  <button key={opt.value} className={`${styles.itemCard} ${isSelected ? styles.itemSelected : ''}`} onClick={() => {
+                    setSelectedWardrobeValue(opt.value)
+                    const g = (opt as any).gender as ('man'|'woman'|'unisex'|undefined)
+                    if (g === 'man' || g === 'woman') { if (g !== selectedGender) setSelectedGender(g); save(STORAGE_KEYS.WARDROBE_GENDER, g) }
+                  }}>
                     {opt.image && (
                       <Image loader={wardrobesLoader} src={opt.image} alt={opt.label} width={80} height={80} className={styles.itemThumb} />
                     )}
@@ -610,14 +681,33 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
               <div className={styles.itemsRow} style={{ width: 'max-content' }}>
               <button className={`${styles.itemCard} ${styles.createCard}`} onClick={handleCreateCharacterClick} disabled={createCharacterAction.type === 'limit_reached'}>
                 <Icon className={styles.createIcon} variant="plus" size={32} />
-                <div className={styles.itemLabel}>{createCharacterAction.message}</div>
-                {(createCharacterAction.type === 'credit_pack' || (requiresCreditsForTraining && trainingCost > 0)) && (
+                <div className={styles.itemLabel}>
+                  {createCharacterAction.type === 'upgrade_subscription' && t('labels.upgradePlanAddMore', { ns: 'styles' })}
+                  {createCharacterAction.type === 'credit_pack' && t('labels.upgradeOrBuyCredits', { ns: 'styles' })}
+                  {createCharacterAction.type === 'limit_reached' && t('labels.limitReached', { ns: 'styles' })}
+                  {createCharacterAction.type === 'create' && 'Create'}
+                  {createCharacterAction.type === 'subscription' && 'Create'}
+                </div>
+                {createCharacterAction.type === 'create' && remainingIncludedTrainings > 0 && (
+                  <div className={styles.itemSubLabel}>
+                    {t('labels.includedInPlan', { ns: 'styles', count: remainingIncludedTrainings })}
+                  </div>
+                )}
+                {createCharacterAction.type === 'credit_pack' && (
                   <div className={styles.itemSubLabel}>
                     {t('labels.credits', { ns: 'styles', count: createCharacterAction.credits || trainingCost })}
                   </div>
                 )}
+                {createCharacterAction.type === 'upgrade_subscription' && (
+                  <div className={styles.itemSubLabel}>
+                    {t('labels.limitReached', { ns: 'styles' })}
+                  </div>
+                )}
               </button>
-              {characters.filter(m => !panelQuery || (m.name || '').toLowerCase().includes(panelQuery.toLowerCase())).map((m) => (
+              {characters
+                .filter(m => m.status !== 'deleted')
+                .filter(m => !panelQuery || (m.name || '').toLowerCase().includes(panelQuery.toLowerCase()))
+                .map((m) => (
                 <CharacterCard
                   key={m.id}
                   character={m}
@@ -906,8 +996,17 @@ function CharacterCard({ character, thumbUrl, onSelect, onDeleted, selectedId }:
   const secondsLeft = isRunning ? training.getLiveCountdownSeconds?.() ?? 0 : 0
 
   const isSelected = selectedId === character.id
+  const isFailed = character.status === 'failed'
+
   return (
-    <button className={`${styles.itemCard} ${styles.characterCard} ${(isRunning ? styles.itemActive : '')} ${isSelected ? styles.itemSelected : ''}`} onClick={onSelect}>
+    <button
+      className={`${styles.itemCard} ${styles.characterCard} ${(isRunning ? styles.itemActive : '')} ${isSelected ? styles.itemSelected : ''} ${isFailed ? styles.itemFailed : ''}`}
+      onClick={() => {
+        // Do not allow selecting failed characters
+        if (isFailed) return
+        onSelect()
+      }}
+    >
       <div className={styles.itemThumb}>
         {thumbUrl ? (
           <Image
@@ -936,7 +1035,9 @@ function CharacterCard({ character, thumbUrl, onSelect, onDeleted, selectedId }:
       </div>
       <div className={styles.itemLabel}>{character.name}</div>
       <div className={styles.itemSubLabel}>
-        {isRunning ? (
+        {isFailed ? (
+          'Training failed'
+        ) : isRunning ? (
           <>
             ~<Countdown seconds={secondsLeft} fallback="Calculating" /> {t('character.remaining', { ns: 'styles' })}
           </>
@@ -948,50 +1049,48 @@ function CharacterCard({ character, thumbUrl, onSelect, onDeleted, selectedId }:
           </>
         )}
       </div>
-      {showOverlay && (
+      {showOverlay || isFailed && (
           <div className={styles.cardOverlay} onClick={(e) => { e.stopPropagation(); /* keep panel open while overlay visible */ }}>
-            <div className={styles.overlayCenter} onClick={(e) => e.stopPropagation()}>
-              <div
-                className={styles.overlayClose}
-                role="button"
-                aria-label="Close overlay"
-                onClick={(e) => { e.stopPropagation(); setShowOverlay(false) }}
-              >
-                <Icon variant="cross" size={16} />
-              </div>
-              {isDeleting ? (
-                <Loader size="lg" className={styles.overlayLoader} />
-              ) : (
-                <div
-                  role="button"
-                  tabIndex={0}
-                  className={styles.overlayBtn + ' ' + styles.deleteBtn}
-                  onClick={async (e) => {
-                    e.stopPropagation()
-                    try {
-                      const ok = await (await import('@/lib/services/confirmationService')).confirmationService.confirm({
-                        title: t('character.deleteTitle', { ns: 'styles', defaultValue: 'Delete character?' }),
-                        description: t('character.deleteDesc', { ns: 'styles', defaultValue: 'This will permanently remove the character and uploaded photos.' }),
-                        confirmText: t('character.deleteConfirm', { ns: 'styles', defaultValue: 'Delete' }),
-                        variant: 'danger',
-                        icon: 'bin'
-                      })
-                      if (!ok) return
-                      setIsDeleting(true)
-                      await deleteCharacter(character.id, user?.id || '')
-                      // Let parent remove this card immediately
-                      onDeleted?.(character.id)
-                    } catch (err) {
-                      console.error('Delete failed', err)
-                      setIsDeleting(false)
-                    }
-                  }}
-                >
-                  <Icon variant="bin" size={18} />
-                  <span>{t('character.delete', { ns: 'styles', defaultValue: 'Delete' })}</span>
-                </div>
-              )}
+            <div
+              className={styles.overlayClose}
+              role="button"
+              aria-label="Close overlay"
+              onClick={(e) => { e.stopPropagation(); setShowOverlay(false) }}
+            >
+              <Icon variant="cross" size={16} />
             </div>
+            {isDeleting ? (
+              <Loader size="lg" className={styles.overlayLoader} />
+            ) : (
+              <div
+                role="button"
+                tabIndex={0}
+                className={styles.overlayBtn + ' ' + styles.deleteBtn}
+                onClick={async (e) => {
+                  e.stopPropagation()
+                  try {
+                    const ok = await (await import('@/lib/services/confirmationService')).confirmationService.confirm({
+                      title: t('character.deleteTitle', { ns: 'styles', defaultValue: 'Delete character?' }),
+                      description: t('character.deleteDesc', { ns: 'styles', defaultValue: 'This will permanently remove the character and uploaded photos.' }),
+                      confirmText: t('character.deleteConfirm', { ns: 'styles', defaultValue: 'Delete' }),
+                      variant: 'danger',
+                      icon: 'bin'
+                    })
+                    if (!ok) return
+                    setIsDeleting(true)
+                    await deleteCharacter(character.id, user?.id || '')
+                    // Let parent remove this card immediately
+                    onDeleted?.(character.id)
+                  } catch (err) {
+                    console.error('Delete failed', err)
+                    setIsDeleting(false)
+                  }
+                }}
+              >
+                <Icon variant="bin" size={18} />
+                <span>{t('character.delete', { ns: 'styles', defaultValue: 'Delete' })}</span>
+              </div>
+            )}
           </div>
         )}
     </button>

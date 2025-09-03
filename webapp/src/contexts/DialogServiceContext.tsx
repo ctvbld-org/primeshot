@@ -2,7 +2,7 @@
 
 import { createContext, useState, useContext, useCallback, useEffect, type ReactNode } from 'react'
 import { Dialog, DialogContent } from '@primeshot/common/web/ui/dialog'
-import { DialogHeader, DialogTitle } from '@primeshot/common/web/ui/dialog'
+import { DialogTitle, DialogDescription } from '@primeshot/common/web/ui/dialog'
 
 interface DialogServiceValue {
   openDialog: (content: ReactNode) => void
@@ -56,13 +56,13 @@ export function DialogServiceProvider({ children }: { children: ReactNode }) {
       ) : (
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent fullscreen={derivedWrapperProps.fullscreen} noContainer={derivedWrapperProps.noContainer} panelKeepOpen={derivedWrapperProps.panelKeepOpen}>
-            {!derivedWrapperProps.hideHeader && (
-              <DialogHeader>
-                <DialogTitle style={{position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0}}>
-                  Dialog
-                </DialogTitle>
-              </DialogHeader>
-            )}
+            {/* Always include accessible title/description (visually hidden) */}
+            <DialogTitle style={{position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0}}>
+              Dialog
+            </DialogTitle>
+            <DialogDescription style={{position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0}}>
+              Content
+            </DialogDescription>
             {content}
           </DialogContent>
         </Dialog>

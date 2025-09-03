@@ -158,10 +158,12 @@
   border-radius: 0; 
   overflow: hidden; 
 }
-.itemCard:first-child {
+.itemCard:first-child,
+.itemCard:first-child::before {
   border-radius: 12px 0 0 12px;
 }
-.itemCard:last-child {
+.itemCard:last-child,
+.itemCard:last-child::after {
   border-radius: 0 12px 12px 0;
 }
 .itemCard::after {
@@ -179,7 +181,7 @@
 }
 
 .itemSelected::before { 
-  border: 1px solid #44E3C9; 
+  border: 2px solid #44E3C9; 
   position: absolute;
   content: '';
   top: 2px;
@@ -248,9 +250,15 @@
   background: rgba(0,0,0,0.6);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  padding: 12px;
   z-index: 3;
 }
-.overlayCenter { display: flex; align-items: center; justify-content: center; }
+.itemCard:first-child .cardOverlay {
+  border-radius: 12px 0 0 12px;
+}
+.itemCard:last-child .cardOverlay {
+  border-radius: 0 12px 12px 0;
+}
 .overlayClose { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; display: grid; place-items: center; background: rgba(255,255,255,0.14); border-radius: 999px; cursor: pointer; }
 .overlayClose:hover { background: rgba(255,255,255,0.24); }
 .overlayBtn {
@@ -349,6 +357,9 @@
 .createCard:disabled {
   cursor: not-allowed;
 }
+.createCard .itemLabel {
+  text-wrap: auto;
+}
 .createCard .itemLabel,
 .createCard .itemSubLabel {
   position: relative;
@@ -424,14 +435,43 @@
 
 .characterCard.itemActive .itemLabel,
 .characterCard.itemActive .itemSubLabel,
+.characterCard.itemFailed .itemLabel,
+.characterCard.itemFailed .itemSubLabel,
 .characterCard:not(.itemActive):hover .itemLabel,
 .characterCard:not(.itemActive):hover .itemSubLabel {
   transform: translateY(-30px) !important;
 }
 
 .characterCard:not(.itemActive):hover .itemSubLabel,
+.characterCard.itemFailed .itemSubLabel,
 .characterCard.itemActive .itemSubLabel {
   opacity: 0.7;
+}
+
+.characterCard.itemFailed::after {
+  opacity: 1;
+  background: rgba(99, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 0;
+}
+
+.characterCard.itemFailed .cardOverlay {
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0.6) 100%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  align-items: start;
+}
+
+.characterCard.itemFailed .overlayClose,
+.characterCard.itemFailed .overlayBtn {
+  display: none;
+}
+
+.characterCard.itemFailed .deleteBtn {
+  flex: 1 1 100%;
+  display: flex;
+  justify-content: center;
 }
 
 /* Training overlays */

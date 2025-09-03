@@ -1288,6 +1288,56 @@ Detected changes in:
 - webapp/src/components/home/InferenceThumbnail.tsx
 - webapp/src/components/style/GenerateBar/GenerateBar.tsx
 - webapp/src/lib/websocket/connection-manager.ts
+
+
+**Auto-update 2025-09-03**:
+Detected changes in:
+- admin/src/app/api/upload/route.ts
+- admin/src/components/styles/wardrobe-form-dialog.tsx
+- admin/src/lib/upload.ts
+- webapp/src/app/api/app-images/route.ts
+- webapp/src/app/api/inference/prompt-preview/route.ts
+- webapp/src/app/globals.css
+- webapp/src/app/layout.tsx
+- webapp/src/app/page.tsx
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/AdminTrainingOptionsDialog.tsx
+- webapp/src/components/character/training/TrainingProgressStep.tsx
+- webapp/src/components/home/GalleryPlaceholder.module.css
+- webapp/src/components/home/GalleryPlaceholder.tsx
+- webapp/src/components/home/InferenceImageViewerDialog.module.css
+- webapp/src/components/home/InferenceImageViewerDialog.tsx
+- webapp/src/components/home/InferenceJobGroup.module.css
+- webapp/src/components/home/InferenceJobGroup.tsx
+- webapp/src/components/home/InferenceThumbnail.module.css
+- webapp/src/components/home/InferenceThumbnail.tsx
+- webapp/src/components/pricing/CreditPackDialogContent.tsx
+- webapp/src/components/pricing/CreditPackGrid.tsx
+- webapp/src/components/pricing/CreditPackPricing.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.module.css
+- webapp/src/components/shared/QueryParamCleaner.tsx
+- webapp/src/components/style/GenerateBar/AdminInferenceOptionsDialog.tsx
+- webapp/src/components/style/GenerateBar/GenerateBar.module.css
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/components/style/GenerateBar/useCreateCharacter.tsx
+- webapp/src/components/style/OptionsPanel/OptionsPanel.module.css
+- webapp/src/components/style/OptionsPanel/OptionsPanel.tsx
+- webapp/src/components/style/StylesCarousel.module.css
+- webapp/src/components/style/StylesCarousel.tsx
+- webapp/src/contexts/DialogServiceContext.tsx
+- webapp/src/lib/api/config.ts
+- webapp/src/lib/api/inference-images.ts
+- webapp/src/lib/api/inference-job-management.ts
+- webapp/src/lib/api/inference-results.ts
+- webapp/src/lib/constants/stripe-reference.ts
+- webapp/src/lib/debug/inference-debug.ts
+- webapp/src/lib/hooks/use-file-upload.ts
+- webapp/src/lib/image-quality.ts
+- webapp/src/lib/s3.ts
+- webapp/src/lib/services/confirmationService.ts
+- webapp/src/lib/utils/get-inference-image.ts
+- webapp/src/lib/utils/inference-images.ts
+- webapp/src/lib/websocket/connection-manager.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

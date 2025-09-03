@@ -423,7 +423,9 @@ serve(async (req) => {
         JSON.stringify({
           job_id: jobId,
           status: 'queued',
-          message: 'Character is still training. Your inference was queued and will start automatically once training completes.',
+          message: "Waiting for character to finish training",
+          i18n_key: 'status.tooltip.queueReasons.character_not_ready',
+          i18n_params: {},
           credits_spent: creditCost,
           remaining_credits: currentBalance - creditCost,
           queue_info: { reason: 'character_not_ready' }
@@ -595,7 +597,9 @@ serve(async (req) => {
             current_running_jobs: concurrentLimits.currentRunningJobs,
             concurrent_jobs: concurrentLimits.concurrentJobs,
           },
-          message: 'Inference queued. It will start automatically when a slot becomes available.',
+          message: 'Concurrent job limit reached. Will start when slots are available.',
+          i18n_key: 'status.tooltip.queueReasons.concurrent_limit',
+          i18n_params: { current: concurrentLimits.currentRunningJobs, limit: concurrentLimits.concurrentJobs },
         }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -620,6 +624,8 @@ serve(async (req) => {
             job_id: jobId,
             status: 'queued',
             message: 'Queued',
+            i18n_key: 'status.tooltip.queueReasons.concurrent_limit',
+            i18n_params: { current: activeCount - 1, limit: userLimit },
             queue_info: {
               concurrent_running: activeCount - 1,
               concurrent_limit: userLimit,
@@ -703,7 +709,9 @@ serve(async (req) => {
           JSON.stringify({
             job_id: jobId,
             status: 'queued',
-            message: 'Temporary issue submitting to provider. We will retry automatically.'
+            message: 'Temporary issue submitting to provider. We will retry automatically.',
+            i18n_key: 'status.tooltip.queueReasons.provider_temporary_issue',
+            i18n_params: {},
           }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
@@ -740,7 +748,9 @@ serve(async (req) => {
           nb_takes: nbTakes,
           aspect_ratio: aspectRatio,
           queue_type: queueType,
-          message: 'Pending'
+          message: 'Pending',
+          i18n_key: 'status.tooltip.pending',
+          i18n_params: {},
         }),
         {
           status: 200,
@@ -760,7 +770,9 @@ serve(async (req) => {
         JSON.stringify({
           job_id: jobId,
           status: 'queued',
-          message: 'Temporary issue submitting to provider. We will retry automatically.'
+          message: 'Temporary issue submitting to provider. We will retry automatically.',
+          i18n_key: 'status.tooltip.queueReasons.provider_temporary_issue',
+          i18n_params: {},
         }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );

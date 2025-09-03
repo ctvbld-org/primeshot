@@ -18,11 +18,13 @@ export interface InferenceThumbnail {
 
 interface InferenceThumbnailProps {
   thumbnail: InferenceThumbnail;
+  jobStatus?: 'queued' | 'pending' | 'running' | 'completed' | 'failed' | 'initializing' | 'generating';
   onClick?: () => void;
 }
 
 export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
   thumbnail,
+  jobStatus,
   onClick
 }) => {
   // Track layered transition state between preview and final image
@@ -73,8 +75,13 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
   
   const getStatusClass = () => {
     switch (thumbnail.status) {
-      case 'queued':
-        return styles.statusQueued;
+      case 'queued': {
+        // Distinguish queued because job is queued vs queued while job is running
+        if (jobStatus === 'running' || jobStatus === 'pending' || jobStatus === 'initializing' || jobStatus === 'generating') {
+          return `${styles.statusInitializing}`;
+        }
+        return `${styles.statusQueued}`;
+      }
       case 'running':
         return styles.statusGenerating;
       case 'completed':

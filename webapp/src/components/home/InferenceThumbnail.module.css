@@ -247,38 +247,31 @@
   pointer-events: none;
 }
 
-/* Generating state gradient loader */
-.statusGenerating .gradientLoader {
-  background: rgba(42, 222, 216, 0.1);
-  animation: simpleOpacityPulse 2s ease-in-out infinite;
-  animation-delay: calc((var(--stagger, 0)) * 200ms);
-}
-
-/* Queued state gradient loader */
-.statusQueued .gradientLoader {
-  background: rgba(42, 222, 216, 0.1);
-  animation: simpleOpacityPulse 2s ease-in-out infinite;
-  animation-delay: calc((var(--stagger, 0)) * 200ms);
-}
-
-/* Default gradient loader (for image loading states) */
 .gradientLoader {
   background: rgba(42, 222, 216, 0.1);
+}
+.placeholder {
+  background: rgba(42, 222, 216, 0.1);
+}
+
+/* Generating state gradient loader */
+.statusGenerating .gradientLoader,
+.statusInitializing .gradientLoader,
+.statusGenerating .placeholder,
+.statusInitializing .placeholder {
   animation: simpleOpacityPulse 2s ease-in-out infinite;
   animation-delay: calc((var(--stagger, 0)) * 200ms);
 }
 
-/* Enhanced background for generating state */
-.statusGenerating .placeholder {
-  background: rgba(42, 222, 216, 0.1);
-  animation: simpleOpacityPulse 2s ease-in-out infinite;
-  animation-delay: calc((var(--stagger, 0)) * 200ms);
+.statusQueued .gradientLoader {
+  background: rgba(42, 222, 216, 0.02);
 }
-
-.statusQueued .placeholder {
-  background: rgba(42, 222, 216, 0.1);
-  animation: simpleOpacityPulse 2s ease-in-out infinite;
-  animation-delay: calc((var(--stagger, 0)) * 200ms);
+.statusFailed .gradientLoader {
+  background: rgba(239, 68, 68, 0.01);
+}
+.statusQueued .placeholder,
+.statusFailed .placeholder {
+  display: none;
 }
 
 @keyframes simpleOpacityPulse {

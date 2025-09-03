@@ -37,6 +37,29 @@ async function claimNextQueuedInferenceJob(supabase: any): Promise<InferenceJobR
 }
 
 async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<boolean> {
+  async function refundIfAny(reason: string) {
+    try {
+      const { data: row } = await supabase
+        .from('inference_jobs')
+        .select('credits_spent, user_id')
+        .eq('id', job.id)
+        .single()
+      const amount = (row?.credits_spent as number) || 0
+      const userId = (row?.user_id as string) || job.user_id
+      if (amount > 0 && userId) {
+        const key = `inference_failure_refund_${job.id}`
+        await supabase.rpc('refund_credits_with_idempotency', {
+          p_user_id: userId,
+          p_job_id: job.id,
+          p_amount: amount,
+          p_reason: reason,
+          p_idempotency_key: key,
+        })
+      }
+    } catch (e) {
+      console.error('Refund attempt failed (non-blocking):', e)
+    }
+  }
   try {
     // Fetch character and style
     const [{ data: character }, { data: style }] = await Promise.all([
@@ -49,6 +72,7 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
         .from('inference_jobs')
         .update({ status: 'failed', error_message: 'Character or style not found', updated_at: new Date().toISOString() })
         .eq('id', job.id)
+      await refundIfAny('Refund for failed inference: character or style not found')
       return false
     }
 
@@ -60,17 +84,19 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
       throw new Error('INFERENCE_API_URL environment variable not set')
     }
 
-    // ----- Build prepared payload (mirror inference-create) -----
-    if (character?.status !== 'failed') {
+    // ----- Pre-flight checks -----
+    // If training failed, mark job failed and refund
+    if (character?.status === 'failed') {
       await supabase
         .from('inference_jobs')
-        .update({ status: 'failed', error_message: 'Character missing lora_path', updated_at: new Date().toISOString() })
+        .update({ status: 'failed', error_message: 'Character training failed', updated_at: new Date().toISOString() })
         .eq('id', job.id)
+      await refundIfAny('Refund: character training failed before inference could run')
       return false
     }
 
-    // If character not ready yet, re-queue with a short delay instead of failing
-    if (character?.status === 'training') {
+    // If character not ready or missing LoRA, requeue with a short delay (race-safe)
+    if (character?.status !== 'ready' || !character?.lora_path) {
       await supabase
         .from('inference_jobs')
         .update({ status: 'queued', retry_after: new Date(Date.now() + 60 * 1000).toISOString(), error_message: 'Character not ready yet', updated_at: new Date().toISOString() })
@@ -78,6 +104,7 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
       return false
     }
 
+    // ----- Build prepared payload (mirror inference-create) -----
     const styleLora = (style as any)?.lora_path || ''
     const characterLora = character.lora_path as string
 
@@ -157,6 +184,7 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
         .from('inference_jobs')
         .update({ status: 'failed', error_message: `Modal API error: ${errorText}`, updated_at: new Date().toISOString() })
         .eq('id', job.id)
+      await refundIfAny('Refund: provider submission failed')
       return false
     }
 
@@ -178,6 +206,7 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
       .from('inference_jobs')
       .update({ status: 'failed', error_message: `Queue error: ${error.message}`, updated_at: new Date().toISOString() })
       .eq('id', job.id)
+    await refundIfAny('Refund: queue error before inference could start')
     return false
   }
 }

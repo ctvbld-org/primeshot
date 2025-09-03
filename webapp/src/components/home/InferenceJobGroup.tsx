@@ -11,6 +11,9 @@ import { useTranslation } from 'react-i18next';
 import styles from './InferenceJobGroup.module.css';
 import { Icon } from '@primeshot/common/web/Icon';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@primeshot/common/web/ui/tooltip';
+import { useInferenceQueue } from '@/contexts/inference-queue-context';
+import { useToast } from '@primeshot/common/web/ui/use-toast';
+import { Button } from '@primeshot/common/web/ui/button';
 
 interface InferenceJobGroupProps {
   job: InferenceJob;
@@ -24,6 +27,8 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
     threshold: 0.1
   });
   const { t } = useTranslation(['styles']);
+  const { removeJob } = useInferenceQueue();
+  const { toast } = useToast();
 
   // Helper to detect UUID vs value codes
   const isUuid = (v?: string) => !!v && /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i.test(v);
@@ -84,10 +89,12 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
     return `${diffInDays}d ago`;
   };
 
-  // Get status display - use job.message from WebSocket or fallback to status
+  // Get localized status label for the badge (do not show raw message here)
   const getStatusDisplay = () => {
-    // Use message from WebSocket (set by global status) or fallback to status
-    return job.message || job.status;
+    const raw = job.status || '';
+    const normalized = raw === 'running' ? 'generating' : raw;
+    const fallback = normalized ? (normalized.charAt(0).toUpperCase() + normalized.slice(1)) : '';
+    return t(`status.badge.${normalized}` as any, { ns: 'styles', defaultValue: fallback });
   };
 
   // Get progress if available
@@ -119,12 +126,16 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
 
     const content = (
       <span className={statusClass}>
-        <Icon variant="info" size={16} />
-        {getStatusDisplay()}
-        {job.status === 'starting' && (
-          <span className={styles.progress}>({getProgress()}%)</span>
-        )}
-        {job.status !== 'queued' && (
+        <span className={styles.statusText}>
+          {job.status !== 'starting' && job.status !== 'generating' && job.status !== 'initializing' && (
+            <Icon variant="info" size={16} />
+          )}
+          {getStatusDisplay()}
+          {job.status === 'starting' && (
+            <span className={styles.progress}>({getProgress()}%)</span>
+          )}
+        </span>
+        {job.status !== 'queued' && job.status !== 'failed' && (
           <span className={styles.dots}>
             <span className={styles.dot}></span>
             <span className={styles.dot}></span>
@@ -134,6 +145,19 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
       </span>
     );
 
+    if (job.status === 'failed') {
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>{content}</TooltipTrigger>
+            <TooltipContent side="top">
+              {job.message || 'Generation failed'}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+
     if (job.status === 'pending' || job.status === 'queued') {
       return (
         <TooltipProvider>
@@ -142,7 +166,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
             <TooltipContent side="top">
               {job.status === 'pending'
                 ? t('status.tooltip.pending', { ns: 'styles' })
-                : t('status.tooltip.queued', { ns: 'styles' })}
+                : (job.message || t('status.tooltip.queued', { ns: 'styles' }))}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -152,6 +176,26 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
     return content;
   };
 
+  const handleDelete = async () => {
+    try {
+      const ok = await (await import('@/lib/services/confirmationService')).confirmationService.confirm({
+        title: 'Delete shoot?',
+        description: 'This will remove the failed job from your gallery. This cannot be undone.',
+        confirmText: 'Delete',
+        variant: 'danger',
+        icon: 'bin'
+      });
+      if (!ok) return;
+      const { deleteInferenceJob } = await import('@/lib/api/inference-job-management');
+      await deleteInferenceJob(job.id, { soft: true });
+      removeJob(job.id);
+      toast({ title: 'Deleted', description: 'The failed shoot was removed.' });
+    } catch (e) {
+      console.error('Failed to delete job', e);
+      toast({ title: 'Delete failed', description: 'Please try again.', variant: 'destructive' });
+    }
+  };
+
   return (
     <div ref={lazyRef} className={styles.jobGroup}>
       {/* Job Header */}
@@ -159,14 +203,19 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
         <div className={styles.jobTitle}>
           <div className={styles.titleRow}>
             <h3 className={styles.shootTitle}>SHOOT #{shootNumber.toString().padStart(3, '0')}</h3>
-            <button className={styles.dotsMenuButton}><Icon variant="dotsMenu" size={16} /></button>
+            <span className={styles.dotsMenuButton}><Icon variant="dotsMenu" size={16} /></span>
             {!!subtitle && <span className={styles.jobSubtitle}>{subtitle}</span>}
           </div>
           <div className={styles.jobMeta}>
+            {job.status === 'failed' && (
+              <Button variant="ghost" className={`${styles.dotsMenuButton} ${styles.actionBtn}`} onClick={handleDelete} aria-label="Delete job">
+                <Icon variant="bin" size={16} />
+              </Button>
+            )}
             {job.status === 'completed' && (
               <span className={styles.timeAgo}>{getTimeAgo(job.createdAt)}</span>
             )}
-            {job.status !== 'completed' && (
+            {(job.status !== 'completed') && (
               renderStatusBadge()
             )}
           </div>
@@ -180,6 +229,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
             <InferenceThumbnailComponent
               key={thumbnail.id}
               thumbnail={thumbnail}
+              jobStatus={job.status as any}
               onClick={() => handleThumbnailClick(index)}
             />
           ))

@@ -10,7 +10,7 @@ interface TrainingRequest {
   user_id: string;
   character_id: string;
   training_params?: {
-    min_steps?: number;
+    steps?: number;
     batch_size?: number;
     resize_size?: number;
     rank?: number;
@@ -386,8 +386,8 @@ serve(async (req) => {
     const approvedParams: Record<string, number> = {}
     if (isAdmin && training_params) {
       const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v))
-      if (typeof training_params.min_steps === 'number') {
-        approvedParams.min_steps = clamp(Math.floor(training_params.min_steps), 100, 10000)
+      if (typeof training_params.steps === 'number') {
+        approvedParams.steps = clamp(Math.floor(training_params.steps), 100, 10000)
       }
       if (typeof (training_params as any).steps === 'number') {
         approvedParams.steps = clamp(Math.floor((training_params as any).steps), 100, 10000)

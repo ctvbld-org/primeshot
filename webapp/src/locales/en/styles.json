@@ -16,7 +16,9 @@
     "trainingPending": "Pending",
     "trainingInitializing": "Initializing",
     "remaining": "remaining",
-    "photos": "photos"
+    "photos": "photos",
+    "trainingFailedTitle": "Training failed",
+    "trainingFailedDesc": "This character cannot be used for generation. Please delete it and try again."
   },
   "qualities": {
     "basic": "Basic",
@@ -24,7 +26,11 @@
     "high": "High"
   },
   "labels": {
-    "credits": "{{count}} credits"
+    "credits": "{{count}} credits",
+    "includedInPlan": "{{count}} included in plan",
+    "limitReached": "Limit reached",
+    "upgradePlanAddMore": "Upgrade plan to add more",
+    "upgradeOrBuyCredits": "Upgrade plan or buy credit pack"
   },
   "settings": {
     "numberOfTakes": "Number of Takes",
@@ -32,9 +38,25 @@
     "aspectRatio": "Aspect Ratio"
   },
   "status": {
+    "badge": {
+      "pending": "Pending",
+      "queued": "Queued",
+      "initializing": "Initializing",
+      "starting": "Starting",
+      "running": "Generating",
+      "generating": "Generating",
+      "completed": "Completed",
+      "failed": "Failed",
+      "connecting": "Connecting"
+    },
     "tooltip": {
       "pending": "Awaiting server availability during pick time",
-      "queued": "Limit reached, waiting for a generation to complete"
+      "queued": "Limit reached, waiting for a generation to complete",
+      "queueReasons": {
+        "character_not_ready": "Character is training — will start automatically",
+        "concurrent_limit": "Limit reached ({{current}}/{{limit}}). Will start automatically",
+        "provider_temporary_issue": "Temporary issue submitting to provider. We will retry automatically."
+      }
     }
   }
 } 

@@ -25,7 +25,6 @@ export interface TrainingStartRequest {
   user_id: string;
   character_id: string;
   training_params?: {
-    min_steps?: number;
     batch_size?: number;
     resize_size?: number;
     rank?: number;

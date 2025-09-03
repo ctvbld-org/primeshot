@@ -15,8 +15,6 @@ interface UploadProgressStepProps {
 
 export function UploadProgressStep({ progress, totalFiles, retryState, currentUploadingFile, uploadedFiles = [] }: UploadProgressStepProps) {
   const { t } = useTranslation('upload')
-  
-  const uploadedCount = Math.floor((progress / 100) * totalFiles)
 
   // Keep showing a thumbnail between the last upload finishing and training starting
   const currentThumbnail = useMemo(() => {
@@ -27,6 +25,11 @@ export function UploadProgressStep({ progress, totalFiles, retryState, currentUp
   }, [currentUploadingFile, uploadedFiles])
 
   const clampedProgress = Math.max(0, Math.min(100, progress))
+  const estimatedUploadedCount = Math.floor((clampedProgress / 100) * Math.max(0, totalFiles))
+  const currentIndex = Math.min(
+    totalFiles,
+    Math.max(1, estimatedUploadedCount + (currentUploadingFile ? 1 : 0))
+  )
 
   return (
     <div className="flex flex-col items-center justify-center space-y-6 p-12">
@@ -57,8 +60,8 @@ export function UploadProgressStep({ progress, totalFiles, retryState, currentUp
               {t('errors.retryError', { message: retryState.error.message })}
             </span>
           ) : (
-            <span>
-              {t('upload.uploadingFiles')}
+            <span> 
+              {t('upload.uploadingFiles', { current: currentIndex, total: totalFiles })}
               <span className={styles.dots}>
                 <span className={styles.dot}></span>
                 <span className={styles.dot}></span>

@@ -63,7 +63,7 @@ interface StepData {
   bodyShotValidation?: { isValid: boolean; errors: string[] }
   isAnalyzing?: boolean
   adminTrainingParams?: {
-    min_steps: number
+    steps: number
     batch_size: number
     resize_size: number
     rank: number
@@ -310,7 +310,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
   }, [stepData.qualityResults])
 
   // Handle character creation, payment, and upload
-  const handleCreateCharacter = useCallback(async (overrideParams?: { min_steps: number; batch_size: number; resize_size: number; rank: number }) => {
+  const handleCreateCharacter = useCallback(async (overrideParams?: { batch_size: number; resize_size: number; rank: number; steps: number }) => {
     setIsProcessing(true)
     let createdCharacterId: string | undefined
     

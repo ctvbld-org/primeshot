@@ -64,7 +64,7 @@ export function useInfiniteInferenceJobsWithProgress() {
     try {
       const { data: immediate, error: immediateErr } = await supabase
         .from('inference_jobs')
-        .select('status')
+        .select('status, error_message')
         .eq('id', jobId)
         .single();
       if (!immediateErr && immediate?.status) {
@@ -79,6 +79,22 @@ export function useInfiniteInferenceJobsWithProgress() {
           return; // No watcher needed
         }
         if (immediate.status === 'completed' || immediate.status === 'failed') {
+          // Update UI immediately for terminal states
+          const uiStatus = immediate.status === 'completed' ? 'completed' : 'failed';
+          infiniteJobs.updateJobStatus(jobId, uiStatus as any);
+          if (uiStatus === 'failed') {
+            const msg = (immediate as any)?.error_message || 'Generation failed';
+            infiniteJobs.updateJobMessage(jobId, msg);
+            const job = infiniteJobs.jobs.find(j => j.id === jobId);
+            if (job) {
+              job.thumbnails.forEach((_, index) => {
+                infiniteJobs.updateThumbnail(jobId, index, {
+                  status: 'failed',
+                  errorMessage: msg
+                });
+              });
+            }
+          }
           cleanupHold(jobId);
           return;
         }
@@ -113,7 +129,22 @@ export function useInfiniteInferenceJobsWithProgress() {
           dbWatchers.current.delete(jobId);
         }
         if (newStatus === 'completed' || newStatus === 'failed') {
-          // Terminal: stop hold immediately
+          // Terminal: update UI and stop hold immediately
+          const uiStatus = newStatus === 'completed' ? 'completed' : 'failed';
+          infiniteJobs.updateJobStatus(jobId, uiStatus as any);
+          if (uiStatus === 'failed') {
+            const msg = (newRow as any)?.error_message || 'Generation failed';
+            infiniteJobs.updateJobMessage(jobId, msg);
+            const job = infiniteJobs.jobs.find(j => j.id === jobId);
+            if (job) {
+              job.thumbnails.forEach((_, index) => {
+                infiniteJobs.updateThumbnail(jobId, index, {
+                  status: 'failed',
+                  errorMessage: msg
+                });
+              });
+            }
+          }
           cleanupHold(jobId);
         }
       })

@@ -151,8 +151,9 @@ class ConfirmationService {
       ])
     ]);
 
-    // Open the dialog using the existing service
-    dialogServiceSingleton.openDialog(React.createElement('div', { hideHeader: true, panelKeepOpen: true } as any, confirmationContent));
+    // Open the dialog using the existing service. We no longer pass non-DOM props directly to div.
+    // Instead, rely on DialogService to always include an accessible title/description.
+    dialogServiceSingleton.openDialog(React.createElement('div', null, confirmationContent));
 
     return promise;
   }

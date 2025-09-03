@@ -134,7 +134,8 @@ export async function getTotalInferenceJobsCount(userId: string): Promise<number
     const { count, error } = await supabase
       .from('inference_jobs')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .neq('status', 'deleted');
 
     if (error) {
       console.error('Error fetching inference jobs count:', error);
@@ -177,6 +178,7 @@ export async function fetchInferenceJobsPaginated(
         )
       `)
       .eq('user_id', userId)
+      .neq('status', 'deleted')
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
@@ -226,4 +228,27 @@ export function subscribeToInferenceJobUpdates(
   return () => {
     subscription.unsubscribe();
   };
+}
+
+/**
+ * Delete an inference job
+ * - Soft (default): mark status as 'deleted'
+ * - Hard: remove row entirely
+ */
+export async function deleteInferenceJob(jobId: string, options?: { soft?: boolean }) {
+  const soft = options?.soft !== false; // default true
+  const supabase = createClient();
+  if (soft) {
+    const { error } = await supabase
+      .from('inference_jobs')
+      .update({ status: 'deleted' })
+      .eq('id', jobId);
+    if (error) throw error;
+  } else {
+    const { error } = await supabase
+      .from('inference_jobs')
+      .delete()
+      .eq('id', jobId);
+    if (error) throw error;
+  }
 }

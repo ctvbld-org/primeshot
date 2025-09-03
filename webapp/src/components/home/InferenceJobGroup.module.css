@@ -51,7 +51,7 @@
 
 .status {
   display: flex;
-  gap: 6px;
+  align-items: end;
   font-weight: 500;
   padding: 2px 6px;
   border-radius: 4px;
@@ -60,6 +60,11 @@
   color: #2ADED8;
 }
 
+.statusText {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 
 .separator {
   color: var(--color-text-tertiary);
@@ -146,6 +151,7 @@
   align-items: center;
   gap: 2px;
   margin-left: 1px;
+  margin-bottom: 3px;
 }
 
 .dot {
@@ -165,4 +171,8 @@
 
 .dots .dot:nth-child(3) {
   animation-delay: 0.4s;
+}
+
+.actionBtn {
+  color: #2ADED8;
 }
