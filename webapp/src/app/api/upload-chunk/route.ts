@@ -8,6 +8,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 import { z } from 'zod';
+import sharp from 'sharp';
 
 // Security limits
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
@@ -21,9 +22,16 @@ const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
 const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 // Metadata validation schema
+const normalizedBoxSchema = z.object({
+  x: z.number().min(0).max(1),
+  y: z.number().min(0).max(1),
+  width: z.number().min(0).max(1),
+  height: z.number().min(0).max(1),
+}).partial({});
+
 const chunkMetadataSchema = z.object({
   uploadId: z.string().uuid(),
-  faceModelId: z.string().uuid(),
+  characterId: z.string().uuid(),
   chunkIndex: z.number().int().min(0),
   totalChunks: z.number().int().min(1).max(MAX_CHUNKS)
     .refine(val => val <= MAX_CHUNKS, {
@@ -38,7 +46,9 @@ const chunkMetadataSchema = z.object({
   fileType: z.enum(ALLOWED_MIME_TYPES, {
     errorMap: () => ({ message: `Only ${ALLOWED_MIME_TYPES.join(', ')} files are allowed` })
   }),
-  qualityScore: z.number().int().min(0).max(100).optional()
+  qualityScore: z.number().int().min(0).max(100).optional(),
+  faceBox: normalizedBoxSchema.optional(),
+  isFirstImage: z.boolean().optional()
 }).refine(data => data.chunkIndex < data.totalChunks, {
   message: "chunkIndex must be less than totalChunks"
 });
@@ -216,34 +226,34 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    // Validate that the face model exists and belongs to the user
-    const { data: faceModel, error: faceModelError } = await supabase
-      .from('face_models')
+    // Validate that the character exists and belongs to the user
+    const { data: character, error: characterError } = await supabase
+      .from('characters')
       .select('id, user_id, status')
-      .eq('id', metadata.faceModelId)
+      .eq('id', metadata.characterId)
       .eq('user_id', user.id)
-      .neq('status', 'deleted') // Exclude soft-deleted face models
+      .neq('status', 'deleted') // Exclude soft-deleted characters
       .single();
 
-    if (faceModelError || !faceModel) {
-      console.error('Face model validation failed:', faceModelError);
+    if (characterError || !character) {
+      console.error('Character validation failed:', characterError);
       return NextResponse.json({ 
-        error: 'Face model not found or does not belong to user' 
+        error: 'Character not found or does not belong to user' 
       }, { status: 403 });
     }
 
-    // Check if face model is in appropriate status for uploading
-    if (faceModel.status !== 'queued') {
+    // Check if character is in appropriate status for uploading
+    if (character.status !== 'queued') {
       return NextResponse.json({ 
-        error: `Face model is in '${faceModel.status}' status and cannot accept uploads` 
+        error: `Character is in '${character.status}' status and cannot accept uploads` 
       }, { status: 400 });
     }
 
     // Only validate subscription on first chunk (chunk 0) to avoid repeating validation for every chunk
     if (metadata.chunkIndex === 0) {
-      console.log(`Validating subscription for face model training for user ${user.id}`);
+      console.log(`Validating subscription for character training for user ${user.id}`);
       
-      // Validate subscription and face model training permissions
+      // Validate subscription and character training permissions
       const { data: subscription, error: subscriptionError } = await supabase
         .from('user_subscriptions')
         .select('plan_name, status, current_period_end')
@@ -256,7 +266,7 @@ export async function POST(request: Request) {
       if (subscriptionError || !subscription) {
         console.error('No active subscription found:', subscriptionError);
         return NextResponse.json({ 
-          error: 'Active subscription required for face model training' 
+          error: 'Active subscription required for character training' 
         }, { status: 403 });
       }
 
@@ -273,29 +283,36 @@ export async function POST(request: Request) {
         }, { status: 500 });
       }
 
-      // Fetch face model training cost directly from database
-      const { data: creditCostData, error: costError } = await supabase
-        .from('credit_costs')
-        .select('value')
-        .eq('type', 'FACE_MODEL_TRAINING')
-        .single();
+      // Fetch character training cost using centralized pricing utility
+      let CHARACTER_TRAINING_CREDITS = 30; // Default fallback
+      try {
+        const { data: creditCosts, error: costError } = await supabase
+          .from('credit_costs')
+          .select('type, value');
 
-      if (costError) {
-        console.error('Failed to fetch face model training cost from database:', costError);
-        return NextResponse.json({ 
-          error: 'Failed to fetch pricing configuration' 
-        }, { status: 500 });
+        if (costError) {
+          console.error('Failed to fetch credit costs from database:', costError);
+        } else if (creditCosts) {
+          // Transform to key-value format for compatibility
+          const costsMap = creditCosts.reduce((acc: Record<string, number>, cost: any) => {
+            acc[cost.type] = cost.value;
+            return acc;
+          }, {} as Record<string, number>);
+
+          CHARACTER_TRAINING_CREDITS = costsMap['CHARACTER_TRAINING'] || 30;
+        }
+      } catch (error) {
+        console.error('Error fetching character training cost:', error);
+        // Use fallback value
       }
 
-      const FACE_MODEL_TRAINING_CREDITS = creditCostData?.value || 30; // Fallback to 30 credits
-
-      if (creditBalance < FACE_MODEL_TRAINING_CREDITS) {
+      if (creditBalance < CHARACTER_TRAINING_CREDITS) {
         return NextResponse.json({ 
-          error: `Insufficient credits for face model training. Need ${FACE_MODEL_TRAINING_CREDITS} credits, but only ${creditBalance} available.` 
+          error: `Insufficient credits for character training. Need ${CHARACTER_TRAINING_CREDITS} credits, but only ${creditBalance} available.` 
         }, { status: 403 });
       }
 
-      console.log('Subscription validation passed for face model upload');
+      console.log('Subscription validation passed for character upload');
     }
 
     const chunkBuffer = Buffer.from(await chunkBlob.arrayBuffer());
@@ -321,7 +338,7 @@ export async function POST(request: Request) {
         .insert({
           id: metadata.uploadId,
           user_id: user.id,
-          face_model_id: metadata.faceModelId,
+          character_id: metadata.characterId,
           file_name: metadata.fileName,
           file_size: metadata.fileSize,
           file_type: metadata.fileType,
@@ -427,18 +444,85 @@ export async function POST(request: Request) {
       // Upload original file to S3
       const cleanOriginalName = metadata.fileName.replace(/\.[^/.]+$/, '');
       const fileExtension = metadata.fileName.split('.').pop() || 'jpg';
-      const key = `user-images/${user.id}/${metadata.faceModelId}/source/${metadata.uploadId}-${cleanOriginalName}.${fileExtension}`;
+      const key = `user-images/${user.id}/training/${metadata.characterId}/source/${metadata.uploadId}-${cleanOriginalName}.${fileExtension}`;
       const url = await uploadToS3(finalBuffer, key, metadata.fileType);
 
       // Use original file dimensions (we'll set defaults since we're not processing)
       const safeWidth = 1;
       const safeHeight = 1;
 
+      // Only generate/upload thumbnail when uploading the first image (client-provided flag)
+      let thumbUrl: string | null = null;
+      const shouldCreateThumbnail = (metadata as any).isFirstImage === true;
+      if (shouldCreateThumbnail) {
+        try {
+          // Attempt face-aware crop if client provided a normalized face box
+          // Apply EXIF-based rotation first so metadata and crops use visual orientation
+          let thumbnailSharp = sharp(finalBuffer).rotate();
+          const meta = await thumbnailSharp.metadata();
+          const imgWidth = meta.width || 0;
+          const imgHeight = meta.height || 0;
+
+          const fb = (metadata as any).faceBox as { x: number; y: number; width: number; height: number } | undefined;
+          if (fb && imgWidth > 0 && imgHeight > 0 && fb.width > 0 && fb.height > 0) {
+            // Convert normalized box to pixels and add margin
+            const margin = 0.15; // 15% padding around face
+            const nx = Math.max(0, fb.x - margin);
+            const ny = Math.max(0, fb.y - margin);
+            const nw = Math.min(1 - nx, fb.width + margin * 2);
+            const nh = Math.min(1 - ny, fb.height + margin * 2);
+
+            // Create a square crop around the face box by expanding the shorter side
+            const px = Math.round(nx * imgWidth);
+            const py = Math.round(ny * imgHeight);
+            const pw = Math.round(nw * imgWidth);
+            const ph = Math.round(nh * imgHeight);
+
+            // Determine square side length
+            const side = Math.min(imgWidth, imgHeight, Math.max(pw, ph));
+
+            // Center square around face box center
+            const faceCenterX = px + pw / 2;
+            const faceCenterY = py + ph / 2;
+            let sx = Math.round(faceCenterX - side / 2);
+            let sy = Math.round(faceCenterY - side / 2);
+            // Clamp to image bounds
+            sx = Math.max(0, Math.min(imgWidth - side, sx));
+            sy = Math.max(0, Math.min(imgHeight - side, sy));
+
+            // If side is invalid, fallback later
+            if (side > 0 && sx >= 0 && sy >= 0 && sx + side <= imgWidth && sy + side <= imgHeight) {
+              // Ensure extraction happens after auto-rotation to match coordinates
+              thumbnailSharp = sharp(finalBuffer).rotate().extract({ left: sx, top: sy, width: side, height: side });
+            }
+          }
+
+          const thumbnailBuffer = await thumbnailSharp
+            .resize(400, 400, {
+              fit: 'cover',
+              // Fallback crop bias if no faceBox or invalid extract
+              position: 'attention',
+              withoutEnlargement: true,
+            })
+            .webp({ quality: 80 })
+            .toBuffer();
+
+          const thumbKey = `user-images/${user.id}/training/${metadata.characterId}/thumbnail.webp`;
+          const uploadedThumbUrl = await uploadToS3(thumbnailBuffer, thumbKey, 'image/webp');
+          // Ensure we always have a concrete string URL (some SDK typings mark Location as possibly undefined)
+          const bucket = process.env.AWS_S3_BUCKET;
+          const region = process.env.NEXT_PUBLIC_AWS_REGION || 'us-east-1';
+          thumbUrl = uploadedThumbUrl || (bucket ? `https://${bucket}.s3.${region}.amazonaws.com/${thumbKey}` : null);
+        } catch (thumbErr) {
+          console.error('Failed to generate/upload thumbnail.webp:', thumbErr);
+        }
+      }
+
               // Save to images table
         const imageData = {
           id: uuidv4(),
           user_id: user.id,
-          face_model_id: metadata.faceModelId,
+          character_id: metadata.characterId,
           url: url,
           file_name: `${cleanOriginalName}.${fileExtension}`,
           file_size: finalBuffer.length,
@@ -450,45 +534,39 @@ export async function POST(request: Request) {
 
       const validatedData = imageSchema.parse(imageData);
       const { error: dbError } = await supabase
-        .from('images')
+        .from('uploaded_images')
         .insert(validatedData);
 
       if (dbError) {
         throw new Error(`DB insert failed: ${dbError.message}`);
       }
 
-      // Increment image_count in face_models table
+      // Increment image_count in characters table
       const { error: updateCountError } = await supabase.rpc('increment_image_count', {
-        face_model_id: metadata.faceModelId
+        character_id: metadata.characterId
       });
 
       if (updateCountError) {
-        console.error('Failed to update face model image count:', updateCountError);
+        console.error('Failed to update character image count:', updateCountError);
         // Don't fail the upload, just log the error
       }
 
-      // Check if face model needs a thumbnail (first image uploaded)
-      const { data: faceModel } = await supabase
-        .from('face_models')
-        .select('thumbnail_url')
-        .eq('id', metadata.faceModelId)
-        .single();
-
-      // If face model doesn't have a thumbnail yet, set it to this image's URL
-      if (faceModel && !faceModel.thumbnail_url) {
+      // Attempt idempotent update: set thumbnail only if it's currently null
+      // Fallback: if thumbnail generation failed, use the original uploaded image URL
+      if (thumbUrl || url) {
         await supabase
-          .from('face_models')
-          .update({ thumbnail_url: url })
-          .eq('id', metadata.faceModelId);
-        
-        console.log(`Set thumbnail for face model ${metadata.faceModelId}: ${url}`);
+          .from('characters')
+          .update({ thumbnail_url: thumbUrl || url })
+          .eq('id', metadata.characterId)
+          .is('thumbnail_url', null);
+        console.log(`Attempted to set thumbnail for character ${metadata.characterId}: ${thumbUrl || url}`);
       }
 
-      // Update face model status to 'uploaded' since upload is complete
+      // Update character status to 'uploaded' since upload is complete
       await supabase
-        .from('face_models')
+        .from('characters')
         .update({ status: 'uploaded' })
-        .eq('id', metadata.faceModelId);
+        .eq('id', metadata.characterId);
 
       // Clean up chunks and session from database after successful upload
       console.log(`Starting cleanup for upload session: ${session.id}`);

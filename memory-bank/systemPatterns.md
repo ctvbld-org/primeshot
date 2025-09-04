@@ -986,6 +986,403 @@ Detected changes in:
 - webapp/src/app/globals.css
 - webapp/src/app/layout.tsx
 - webapp/src/lib/utils/get-styles-images.ts
+
+
+**Auto-update 2025-08-09**:
+Detected changes in:
+- admin/src/components/subscriptions/subscription-form-dialog.tsx
+- admin/src/components/subscriptions/subscriptions-table.tsx
+- webapp/src/app/api/cleanup-character/route.ts
+- webapp/src/app/api/cleanup-face-model/route.ts
+- webapp/src/app/api/pricing/character-limit/[planName]/route.ts
+- webapp/src/app/api/pricing/credit-costs/route.ts
+- webapp/src/app/api/pricing/subscriptions/route.ts
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/app/api/upload-chunk/route.ts
+- webapp/src/app/globals.css
+- webapp/src/app/page.tsx
+- webapp/src/components/character/CharacterSelector.module.css
+- webapp/src/components/character/CharacterSelector.tsx
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/Countdown.tsx
+- webapp/src/components/character/ProgressTracker.tsx
+- webapp/src/components/character/training/CharacterNameStep.tsx
+- webapp/src/components/character/training/ThumbnailStyles.module.css
+- webapp/src/components/character/training/TrainingProgressStep.tsx
+- webapp/src/components/character/training/UploadPhotosStep.tsx
+- webapp/src/components/character/training/UploadProgressStep.tsx
+- webapp/src/components/dashboard/CreditDashboard.tsx
+- webapp/src/components/face_model/FaceModelUploadDialog.tsx
+- webapp/src/components/face_model/steps/FaceModelNameStep.tsx
+- webapp/src/components/face_model/steps/ProfileFormStep.tsx
+- webapp/src/components/face_model/steps/TrainingProgressStep.tsx
+- webapp/src/components/face_model/steps/UploadPhotosStep.tsx
+- webapp/src/components/face_model/steps/UploadProgressStep.tsx
+- webapp/src/components/face_model/steps/UploadRequirementsStep.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/style/StylesCarousel.module.css
+- webapp/src/components/style/StylesCarousel.tsx
+- webapp/src/components/upload/FileUploader.module.css
+- webapp/src/components/upload/FileUploader.tsx
+- webapp/src/components/upload/ImageQualityScore.module.css
+- webapp/src/components/upload/ImageQualityScore.tsx
+- webapp/src/components/upload/ImageTooltip.module.css
+- webapp/src/components/upload/ImageTooltip.tsx
+- webapp/src/components/upload/RejectedImagesContent.module.css
+- webapp/src/components/upload/RejectedImagesContent.tsx
+- webapp/src/components/upload/RequirementsContent.tsx
+- webapp/src/components/upload/UploadFooter.module.css
+- webapp/src/components/upload/UploadFooter.tsx
+- webapp/src/components/upload/UploadRequirements.module.css
+- webapp/src/components/upload/UploadRequirements.tsx
+- webapp/src/components/upload/rejected-images-dialog.tsx
+- webapp/src/lib/api/characters.ts
+- webapp/src/lib/api/face-models.ts
+- webapp/src/lib/api/jobs.ts
+- webapp/src/lib/constants/pricing.ts
+- webapp/src/lib/constants/upload.ts
+- webapp/src/lib/hooks/use-character-images.ts
+- webapp/src/lib/hooks/use-character.ts
+- webapp/src/lib/hooks/use-face-model.ts
+- webapp/src/lib/hooks/use-file-upload.ts
+- webapp/src/lib/image-quality.ts
+- webapp/src/lib/s3.ts
+- webapp/src/lib/schemas.ts
+- webapp/src/lib/services/creditService.ts
+- webapp/src/lib/types.ts
+- webapp/src/lib/upload-utils.ts
+- webapp/src/lib/websocket/connection-manager.ts
+
+
+**Auto-update 2025-08-09**:
+Detected changes in:
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/ThumbnailStyles.module.css
+
+
+**Auto-update 2025-08-10**:
+Detected changes in:
+- webapp/src/app/api/cleanup-character/route.ts
+- webapp/src/app/api/upload-chunk/route.ts
+- webapp/src/app/api/user-images/route.ts
+- webapp/src/components/character/CharacterSelector.tsx
+- webapp/src/components/character/training/TrainingProgressStep.tsx
+- webapp/src/lib/hooks/use-character-images.ts
+- webapp/src/lib/image-quality.ts
+- webapp/src/lib/s3.ts
+
+
+**Auto-update 2025-08-12**:
+Detected changes in:
+- admin/src/components/styles/wardrobe-form-dialog.tsx
+- admin/src/components/styles/wardrobes-table.tsx
+- admin/src/components/subscriptions/credit-cost-form-dialog.tsx
+- admin/src/components/subscriptions/subscription-form-dialog.tsx
+- admin/src/components/subscriptions/subscriptions-table.tsx
+- webapp/src/app/api/upload-chunk/route.ts
+- webapp/src/app/layout.tsx
+- webapp/src/app/page.tsx
+- webapp/src/components/character/CharacterSelector.module.css
+- webapp/src/components/character/CharacterSelector.tsx
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/TrainingProgressStep.tsx
+- webapp/src/components/header/CreditsHeaderRight.module.css
+- webapp/src/components/header/CreditsHeaderRight.tsx
+- webapp/src/components/home/GalleryPlaceholder.module.css
+- webapp/src/components/home/GalleryPlaceholder.tsx
+- webapp/src/components/home/GenerationControls.module.css
+- webapp/src/components/home/GenerationControls.tsx
+- webapp/src/components/review/form-field.module.css
+- webapp/src/components/review/form-field.tsx
+- webapp/src/components/review/profile-form.module.css
+- webapp/src/components/review/profile-form.tsx
+- webapp/src/components/style/BaseDropdown.module.css
+- webapp/src/components/style/GenerateBar/GenerateBar.module.css
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/components/style/OptionButtons.tsx
+- webapp/src/components/style/OptionsPanel/OptionsPanel.module.css
+- webapp/src/components/style/OptionsPanel/OptionsPanel.tsx
+- webapp/src/components/style/SceneDropdown.module.css
+- webapp/src/components/style/SceneDropdown.tsx
+- webapp/src/components/style/StylesCarousel.module.css
+- webapp/src/components/style/StylesCarousel.tsx
+- webapp/src/components/style/WardrobeDropdown.module.css
+- webapp/src/components/style/WardrobeDropdown.tsx
+- webapp/src/lib/api/jobs.ts
+- webapp/src/lib/hooks/use-file-upload.ts
+- webapp/src/lib/hooks/use-inference-jobs-count.ts
+- webapp/src/lib/image-quality.ts
+- webapp/src/lib/types.ts
+- webapp/src/lib/upload-utils.ts
+- webapp/src/lib/websocket/connection-manager.ts
+
+
+**Auto-update 2025-08-12**:
+Detected changes in:
+- admin/src/app/api/admin/inference-settings/[key]/route.ts
+- admin/src/app/api/admin/inference-settings/route.ts
+- admin/src/app/inference/page.tsx
+- admin/src/components/inference/inference-settings-form-dialog.tsx
+- admin/src/components/inference/inference-settings-table.tsx
+- admin/src/components/layout/nav.tsx
+- admin/src/components/subscriptions/credit-costs-table.tsx
+- admin/src/components/subscriptions/subscription-form-dialog.tsx
+- admin/src/components/subscriptions/subscriptions-table.tsx
+- webapp/src/app/api/inference/settings/route.ts
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/dashboard/CreditDashboard.tsx
+- webapp/src/components/header/CreditsHeaderRight.tsx
+- webapp/src/components/pricing/CreditPackDialogContent.tsx
+- webapp/src/components/pricing/CreditPackPricing.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.module.css
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/style/GenerateBar/GenerateBar.module.css
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/components/style/GenerateBar/GenerateBarSelect.tsx
+- webapp/src/components/style/GenerateBar/useCreateCharacter.tsx
+- webapp/src/components/style/OptionsPanel/OptionsPanel.tsx
+- webapp/src/contexts/DialogServiceContext.tsx
+- webapp/src/lib/constants/pricing.ts
+- webapp/src/lib/services/creditService.ts
+
+
+**Auto-update 2025-08-13**:
+Detected changes in:
+- admin/src/app/api/admin/inference-settings/route.ts
+- admin/src/app/api/admin/style-colors/route.ts
+- admin/src/app/api/admin/style-scenes/route.ts
+- admin/src/app/api/admin/style-wardrobes/route.ts
+- admin/src/app/api/admin/styles/route.ts
+- admin/src/app/api/inference/settings/route.ts
+- admin/src/app/layout.tsx
+- admin/src/components/inference/inference-settings-form-dialog.tsx
+- admin/src/components/providers/AdminGuard.tsx
+- admin/src/components/styles/color-form-dialog.tsx
+- admin/src/components/styles/scene-form-dialog.tsx
+- admin/src/components/styles/scenes-table.tsx
+- admin/src/components/styles/style-form-dialog.tsx
+- admin/src/components/styles/styles-table.tsx
+- admin/src/components/styles/wardrobe-form-dialog.tsx
+- admin/src/components/styles/wardrobes-table.tsx
+- admin/src/lib/sync/detector.ts
+- admin/src/lib/sync/engine.ts
+- admin/src/lib/sync/types.ts
+- webapp/src/app/api/inference/settings/route.ts
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/components/pricing/CreditPackDialogContent.tsx
+- webapp/src/components/pricing/CreditPackGrid.tsx
+- webapp/src/components/pricing/CreditPackPricing.tsx
+- webapp/src/components/pricing/utils.tsx
+- webapp/src/components/style/GenerateBar/GenerateBar.module.css
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/components/style/GenerateBar/useCreateCharacter.tsx
+- webapp/src/components/style/OptionsPanel/OptionsPanel.tsx
+- webapp/src/lib/constants/pricing.ts
+
+
+**Auto-update 2025-08-15**:
+Detected changes in:
+- admin/src/app/api/images/list/route.ts
+- admin/src/app/api/media/delete/route.ts
+- admin/src/app/api/media/download/file/route.ts
+- admin/src/app/api/media/download/route.ts
+- admin/src/app/api/media/download/zip/route.ts
+- admin/src/app/api/media/folder/route.ts
+- admin/src/app/api/media/list/route.ts
+- admin/src/app/api/styles/[id]/route.ts
+- admin/src/app/dashboard/page.tsx
+- admin/src/app/layout.tsx
+- admin/src/app/media/page.tsx
+- admin/src/app/media/styles.module.css
+- admin/src/app/styles/page.tsx
+- admin/src/app/subscriptions/page.tsx
+- admin/src/components/inference/inference-settings-table.tsx
+- admin/src/components/layout/nav.tsx
+- admin/src/components/media/TreeNav.tsx
+- admin/src/components/media/tree.module.css
+- admin/src/components/styles/scene-form-dialog.tsx
+- admin/src/components/styles/scenes-table.tsx
+- admin/src/components/styles/style-form-dialog.tsx
+- admin/src/components/styles/styles-table.tsx
+- admin/src/components/styles/wardrobe-form-dialog.tsx
+- admin/src/components/styles/wardrobes-table.tsx
+- admin/src/components/ui/image-upload.tsx
+- admin/src/components/ui/multi-select.tsx
+- admin/src/lib/get-options-image.ts
+- admin/src/lib/upload.ts
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/components/style/StylesCarousel.tsx
+- webapp/src/lib/utils/cloudfrontLoader.ts
+- webapp/src/lib/utils/get-options-image.ts
+
+
+**Auto-update 2025-08-16**:
+Detected changes in:
+- admin/src/app/styles/page.tsx
+- admin/src/components/ui/image-upload.tsx
+
+
+**Auto-update 2025-08-20**:
+Detected changes in:
+- admin/src/app/api/upload/route.ts
+- admin/src/app/media/page.tsx
+- admin/src/components/styles/style-form-dialog.tsx
+- admin/src/lib/sync/detector.ts
+- admin/src/lib/sync/engine.ts
+- webapp/src/app/api/generation/config/route.ts
+- webapp/src/app/api/pricing/all/route.ts
+- webapp/src/app/layout.tsx
+- webapp/src/components/home/GalleryPlaceholder.module.css
+- webapp/src/components/home/GalleryPlaceholder.tsx
+- webapp/src/components/home/InferenceThumbnail.module.css
+- webapp/src/components/home/InferenceThumbnail.tsx
+- webapp/src/components/icons/icon.tsx
+- webapp/src/components/style/GenerateBar/GenerateBar.module.css
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/components/style/GenerateBar/GenerateBarSelect.tsx
+- webapp/src/components/style/StylesCarousel.module.css
+- webapp/src/components/style/StylesCarousel.tsx
+- webapp/src/components/upload/ImageTooltip.tsx
+- webapp/src/components/upload/UploadFooter.tsx
+- webapp/src/components/upload/UploadRequirements.tsx
+- webapp/src/contexts/inference-queue-context.tsx
+- webapp/src/lib/api/inference-images.ts
+- webapp/src/lib/api/inference-jobs.ts
+- webapp/src/lib/debug/inference-debug.ts
+- webapp/src/lib/hooks/use-inference-jobs-count.ts
+- webapp/src/lib/utils/get-inference-image.ts
+
+
+**Auto-update 2025-08-23**:
+Detected changes in:
+- admin/src/app/media/page.tsx
+- admin/src/components/ui/image-upload.tsx
+- webapp/src/app/api/app-images/route.ts
+- webapp/src/components/home/GalleryPlaceholder.module.css
+- webapp/src/components/home/GalleryPlaceholder.tsx
+- webapp/src/components/home/InferenceImageViewerDialog.module.css
+- webapp/src/components/home/InferenceImageViewerDialog.tsx
+- webapp/src/components/home/InferenceJobGroup.module.css
+- webapp/src/components/home/InferenceJobGroup.tsx
+- webapp/src/components/home/InferenceThumbnail.module.css
+- webapp/src/components/home/InferenceThumbnail.tsx
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/contexts/inference-queue-context.tsx
+- webapp/src/lib/api/inference-images.ts
+- webapp/src/lib/api/inference-job-management.ts
+- webapp/src/lib/api/inference-results.ts
+- webapp/src/lib/debug/inference-debug.ts
+- webapp/src/lib/hooks/use-inference-jobs-count.ts
+- webapp/src/lib/utils/get-inference-image.ts
+- webapp/src/lib/utils/inference-images.ts
+- webapp/src/lib/websocket/connection-manager.ts
+
+
+**Auto-update 2025-08-24**:
+Detected changes in:
+- webapp/src/components/home/GalleryPlaceholder.module.css
+- webapp/src/components/home/GalleryPlaceholder.tsx
+- webapp/src/components/home/InferenceThumbnail.module.css
+- webapp/src/components/home/InferenceThumbnail.tsx
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/lib/websocket/connection-manager.ts
+
+
+**Auto-update 2025-09-03**:
+Detected changes in:
+- admin/src/app/api/upload/route.ts
+- admin/src/components/styles/wardrobe-form-dialog.tsx
+- admin/src/lib/upload.ts
+- webapp/src/app/api/app-images/route.ts
+- webapp/src/app/api/inference/prompt-preview/route.ts
+- webapp/src/app/globals.css
+- webapp/src/app/layout.tsx
+- webapp/src/app/page.tsx
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/AdminTrainingOptionsDialog.tsx
+- webapp/src/components/character/training/TrainingProgressStep.tsx
+- webapp/src/components/home/GalleryPlaceholder.module.css
+- webapp/src/components/home/GalleryPlaceholder.tsx
+- webapp/src/components/home/InferenceImageViewerDialog.module.css
+- webapp/src/components/home/InferenceImageViewerDialog.tsx
+- webapp/src/components/home/InferenceJobGroup.module.css
+- webapp/src/components/home/InferenceJobGroup.tsx
+- webapp/src/components/home/InferenceThumbnail.module.css
+- webapp/src/components/home/InferenceThumbnail.tsx
+- webapp/src/components/pricing/CreditPackDialogContent.tsx
+- webapp/src/components/pricing/CreditPackGrid.tsx
+- webapp/src/components/pricing/CreditPackPricing.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.module.css
+- webapp/src/components/shared/QueryParamCleaner.tsx
+- webapp/src/components/style/GenerateBar/AdminInferenceOptionsDialog.tsx
+- webapp/src/components/style/GenerateBar/GenerateBar.module.css
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/components/style/GenerateBar/useCreateCharacter.tsx
+- webapp/src/components/style/OptionsPanel/OptionsPanel.module.css
+- webapp/src/components/style/OptionsPanel/OptionsPanel.tsx
+- webapp/src/components/style/StylesCarousel.module.css
+- webapp/src/components/style/StylesCarousel.tsx
+- webapp/src/contexts/DialogServiceContext.tsx
+- webapp/src/lib/api/config.ts
+- webapp/src/lib/api/inference-images.ts
+- webapp/src/lib/api/inference-job-management.ts
+- webapp/src/lib/api/inference-results.ts
+- webapp/src/lib/constants/stripe-reference.ts
+- webapp/src/lib/debug/inference-debug.ts
+- webapp/src/lib/hooks/use-file-upload.ts
+- webapp/src/lib/image-quality.ts
+- webapp/src/lib/s3.ts
+- webapp/src/lib/services/confirmationService.ts
+- webapp/src/lib/utils/get-inference-image.ts
+- webapp/src/lib/utils/inference-images.ts
+- webapp/src/lib/websocket/connection-manager.ts
+
+
+**Auto-update 2025-09-03**:
+Detected changes in:
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/UploadProgressStep.tsx
+- webapp/src/components/home/GalleryPlaceholder.tsx
+- webapp/src/components/home/InferenceJobGroup.module.css
+- webapp/src/components/home/InferenceJobGroup.tsx
+- webapp/src/components/home/InferenceThumbnail.module.css
+- webapp/src/components/home/InferenceThumbnail.tsx
+- webapp/src/components/style/GenerateBar/GenerateBar.module.css
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/components/style/GenerateBar/useCreateCharacter.tsx
+- webapp/src/contexts/DialogServiceContext.tsx
+- webapp/src/lib/api/inference-job-management.ts
+- webapp/src/lib/services/confirmationService.ts
+
+
+**Auto-update 2025-09-04**:
+Detected changes in:
+- webapp/src/components/home/InferenceJobGroup.tsx
+- webapp/src/components/home/InferenceThumbnail.tsx
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+
+
+**Auto-update 2025-09-04**:
+Detected changes in:
+- admin/src/app/api/upload/route.ts
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/app/api/upload-chunk/route.ts
+- webapp/src/components/character/training/AdminTrainingOptionsDialog.tsx
+- webapp/src/components/character/training/TrainingProgressStep.tsx
+- webapp/src/components/character/training/UploadPhotosStep.tsx
+- webapp/src/components/home/InferenceImageViewerDialog.module.css
+- webapp/src/components/home/InferenceImageViewerDialog.tsx
+- webapp/src/components/home/InferenceJobGroup.module.css
+- webapp/src/components/home/InferenceJobGroup.tsx
+- webapp/src/components/style/GenerateBar/AdminInferenceOptionsDialog.tsx
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/lib/api/characters.ts
+- webapp/src/lib/hooks/use-file-upload.ts
+- webapp/src/lib/image-quality.ts
+- webapp/src/lib/services/confirmationService.ts
+- webapp/src/lib/websocket/connection-manager.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

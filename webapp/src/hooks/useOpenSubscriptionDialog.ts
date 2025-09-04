@@ -10,6 +10,11 @@ export function useOpenSubscriptionDialog() {
   const { openDialog } = useDialogService()
 
   return useCallback((options?: SubscriptionDialogOptions) => {
-    openDialog(createElement(SubscriptionDialogContent, (options || {}) as any))
+    openDialog(
+      createElement(SubscriptionDialogContent, {
+        ...(options || {}),
+        fullscreen: true
+      } as any)
+    )
   }, [openDialog])
 } 

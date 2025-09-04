@@ -8,6 +8,7 @@ import { BannerProvider } from "@primeshot/common/web/ui/use-banner"
 import { Header } from '@primeshot/common'
 import { AuthProvider } from '@primeshot/common'
 import { LanguageProvider } from '@primeshot/common'
+import { AdminGuard } from '@/components/providers/AdminGuard'
 import { Nav } from '@/components/layout/nav'
 import { ProductionWarningBanner } from '@/components/layout/ProductionWarningBanner'
 import { RealtimeAnalyticsProvider } from '@/contexts/RealtimeAnalyticsContext'
@@ -35,12 +36,14 @@ export default function RootLayout({
                 <BannerProvider>
                   <ProductionWarningBanner />
                   <Header />
-                  <main className="flex flex-col min-h-screen w-full mx-auto space-y-6" style={{ paddingTop: 'calc(56px + var(--admin-banner-height, 0px))' }}>
-                    <Nav />
-                    <div className="flex-1 overflow-y-auto p-6">
-                      {children}
-                    </div>
-                  </main>
+                  <AdminGuard>
+                    <main className="flex flex-col min-h-screen w-full mx-auto space-y-6" style={{ paddingTop: 'calc(56px + var(--admin-banner-height, 0px))' }}>
+                      <Nav />
+                      <div className="flex-1 overflow-y-auto px-6">
+                        {children}
+                      </div>
+                    </main>
+                  </AdminGuard>
 
                   <Toaster />
                   <SyncButton />

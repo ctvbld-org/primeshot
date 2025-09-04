@@ -10,7 +10,7 @@ export function SignInModal() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="ghost" size="sm">
           {t('buttons.signIn', { defaultValue: 'Sign in' })}
         </Button>
       </DialogTrigger>

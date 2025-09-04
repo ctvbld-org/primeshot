@@ -1,9 +1,57 @@
 import { updateSession } from '@/lib/supabase/middleware'
-import type { NextRequest } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  // Update session using our shared middleware function
-  return await updateSession(request)
+  // Refresh/propagate Supabase session cookies first
+  let response = await updateSession(request)
+
+  const url = new URL(request.url)
+  const isAdminApi = url.pathname.startsWith('/api/admin/')
+
+  if (!isAdminApi) {
+    return response
+  }
+
+  // For /api/admin/*, verify the user is admin before allowing request through
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            request.cookies.set({ name, value, ...options })
+            response.cookies.set({ name, value, ...options })
+          })
+          response = NextResponse.next({
+            request: { headers: request.headers },
+          })
+        },
+      },
+    }
+  )
+
+  const { data: userData } = await supabase.auth.getUser()
+  const user = userData?.user
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const { data: dbUser, error } = await supabase
+    .from('users')
+    .select('admin')
+    .eq('id', user.id)
+    .single()
+
+  if (error || !dbUser?.admin) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  return response
 }
 
 export const config = {

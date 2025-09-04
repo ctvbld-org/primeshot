@@ -198,7 +198,7 @@ export function CreditCostFormDialog({
                   <FormItem>
                     <FormLabel>Type</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="e.g., 1K, 2K, 4K, FACE_MODEL_TRAINING" />
+                      <Input {...field} placeholder="e.g., 1K, 2K, 4K, CHARACTER_TRAINING" />
                     </FormControl>
                     <FormDescription>
                       The operation type that consumes credits

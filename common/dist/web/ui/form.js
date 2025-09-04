@@ -3,7 +3,7 @@ import { jsx as _jsx } from "react/jsx-runtime";
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { Controller, FormProvider, useFormContext, } from "react-hook-form";
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 import { Label } from "@primeshot/common/web/ui/label";
 const Form = FormProvider;
 const FormFieldContext = React.createContext({});
@@ -45,7 +45,7 @@ function FormControl({ ...props }) {
 }
 function FormDescription({ className, ...props }) {
     const { formDescriptionId } = useFormField();
-    return (_jsx("p", { "data-slot": "form-description", id: formDescriptionId, className: cn("text-muted-foreground text-sm", className), ...props }));
+    return (_jsx("p", { "data-slot": "form-description", id: formDescriptionId, className: cn("text-muted-foreground text-xs", className), ...props }));
 }
 function FormMessage({ className, ...props }) {
     var _a;

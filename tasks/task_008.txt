@@ -1,11 +1,15 @@
 # Task ID: 8
-# Title: Implement ComfyUI inference backend on Modal
+# Title: Replace legacy CLI execution with comfyui-api calls
 # Status: pending
-# Dependencies: None
-# Priority: high
-# Description: Set up the serverless inference backend using ComfyUI workflows on Modal.
+# Dependencies: 5, 7
+# Priority: low
+# Description: Remove the existing CLI-based execution path and replace with comfyui-api dynamic endpoint invocation.
 # Details:
-Finalize ComfyUI workflows (*.json) for each combination of style/ratio/quality. Build Modal HTTP endpoint `/inference/start` that accepts generation parameters. Implement WebSocket channel for job progress and partial output streaming. Create Supabase function `inference-start` to trigger Modal. Set up proper error handling and retry logic. Ensure efficient resource utilization with container pre-warming and auto-scaling.
+1. Identify all locations where 'comfy run' CLI commands are used
+2. Replace each CLI call with equivalent comfyui-api dynamic endpoint invocation
+3. Update parameter handling to match the new API format
+4. Add logging to track successful migrations
+5. Clean up any unused CLI-related code and dependencies
 
 # Test Strategy:
-Load test inference endpoint with various parameter combinations. Measure cold start and warm execution times. Verify WebSocket streaming works correctly. Test error cases and ensure proper error messages are returned.
+Compare results from old CLI path vs. new API path to ensure identical outputs. Test with various input parameters to verify compatibility. Measure performance differences between the two approaches.

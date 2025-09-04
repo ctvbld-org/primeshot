@@ -10,9 +10,10 @@ import type {
 import { SYNCABLE_TABLES } from './types'
 
 interface DatabaseRecord {
-  id: string | number
-  created_at: string | null
-  updated_at: string | null
+  id?: string | number
+  key?: string
+  created_at?: string | null
+  updated_at?: string | null
   [key: string]: any
 }
 
@@ -24,6 +25,8 @@ function getDisplayName(table: SyncableTable, record: DatabaseRecord): string {
     case 'style_wardrobes':
     case 'style_colors':
       return record.label || `${table.replace('style_', '')} ${record.id}`
+    case 'inference_settings':
+      return record.key || `Setting ${record.id}`
     case 'subscriptions':
       return record.display_name || record.name || `Subscription ${record.id}`
     case 'credit_packs':
@@ -49,13 +52,14 @@ function getFieldDisplayName(field: string): string {
     created_at: 'Created At',
     enabled: 'Enabled',
     active: 'Active',
+    key: 'Key',
   }
   return fieldMap[field] || field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
 }
 
 function calculateDiffs(sourceRecord: DatabaseRecord, targetRecord: DatabaseRecord): FieldDiff[] {
   const diffs: FieldDiff[] = []
-  const excludeFields = ['created_at', 'updated_at', 'id']
+  const excludeFields = ['created_at', 'updated_at', 'id', 'key']
   
   // Check all fields in source record
   for (const [field, newValue] of Object.entries(sourceRecord)) {
@@ -92,17 +96,16 @@ function calculateDiffs(sourceRecord: DatabaseRecord, targetRecord: DatabaseReco
 
 async function fetchTableData(env: Environment, table: SyncableTable): Promise<DatabaseRecord[]> {
   const client = createMultiEnvClient(env)
-  
-  const { data, error } = await client
-    .from(table)
-    .select('*')
-    .order('created_at', { ascending: false })
-  
+  // Prefer updated_at ordering if present; otherwise fall back
+  let { data, error } = await client.from(table).select('*').order('updated_at', { ascending: false } as any)
   if (error) {
-    throw new Error(`Failed to fetch ${table} from ${env}: ${error.message}`)
+    const res = await client.from(table).select('*')
+    if (res.error) {
+      throw new Error(`Failed to fetch ${table} from ${env}: ${res.error.message}`)
+    }
+    data = res.data
   }
-  
-  return data || []
+  return (data as DatabaseRecord[]) || []
 }
 
 function compareRecords(
@@ -111,20 +114,22 @@ function compareRecords(
   table: SyncableTable
 ): TableChange[] {
   const changes: TableChange[] = []
-  const targetMap = new Map(targetRecords.map(record => [record.id, record]))
-  const sourceMap = new Map(sourceRecords.map(record => [record.id, record]))
+  const pk: 'id' | 'key' = table === 'inference_settings' ? 'key' : 'id'
+  const targetMap = new Map(targetRecords.map(record => [record[pk] as any, record]))
+  const sourceMap = new Map(sourceRecords.map(record => [record[pk] as any, record]))
   
   console.log(`Comparing ${table}: ${sourceRecords.length} source records vs ${targetRecords.length} target records`)
   
   // Check for created and updated records
   for (const sourceRecord of sourceRecords) {
-    const targetRecord = targetMap.get(sourceRecord.id)
+    const sourceKey = (sourceRecord[pk] as any)
+    const targetRecord = targetMap.get(sourceKey)
     
     if (!targetRecord) {
       // Record exists in source but not in target - created
       console.log(`${table} ${sourceRecord.id}: CREATED (not in target)`)
       changes.push({
-        id: sourceRecord.id,
+        id: sourceKey ?? (sourceRecord.id as any),
         type: 'created',
         data: sourceRecord,
         displayName: getDisplayName(table, sourceRecord),
@@ -137,7 +142,7 @@ function compareRecords(
       if (diffs.length > 0) {
         console.log(`${table} ${sourceRecord.id}: UPDATED (${diffs.length} fields changed)`, diffs.map(d => d.field))
         changes.push({
-          id: sourceRecord.id,
+          id: sourceKey ?? (sourceRecord.id as any),
           type: 'updated',
           data: sourceRecord,
           displayName: getDisplayName(table, sourceRecord),
@@ -153,10 +158,11 @@ function compareRecords(
   
   // Check for deleted records (exist in target but not in source)
   for (const targetRecord of targetRecords) {
-    if (!sourceMap.has(targetRecord.id)) {
+    const targetKey = (targetRecord[pk] as any)
+    if (!sourceMap.has(targetKey)) {
       console.log(`${table} ${targetRecord.id}: DELETED (not in source)`)
       changes.push({
-        id: targetRecord.id,
+        id: targetKey ?? (targetRecord.id as any),
         type: 'deleted',
         data: targetRecord,
         displayName: getDisplayName(table, targetRecord),

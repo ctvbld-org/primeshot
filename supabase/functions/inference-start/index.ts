@@ -1,448 +1,112 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
-import { calculateImageCreditCost, getSubscriptionLimits, type Resolution } from "../_shared/pricing.ts";
 
-interface InferenceRequest {
-  user_id: string;
-  face_model_id: string;
-  style_id: string;
-  prompt?: string;
-  settings?: {
-    strength?: number;
-    guidance_scale?: number;
-    num_inference_steps?: number;
-    resolution?: '1K' | '2K' | '4K';
-    batch_size?: number;
-  };
-}
-
-interface InferenceJob {
-  id: string;
-  user_id: string;
-  face_model_id: string;
-  style_id: string;
-  status: 'queued' | 'pending' | 'processing' | 'completed' | 'failed';
-  progress: number;
-  modal_job_id?: string;
-  estimated_duration?: number;
-  created_at: string;
-  updated_at: string;
-  error_message?: string;
-  result_url?: string;
-  prompt?: string;
-  settings?: any;
-  credits_spent?: number;
-}
-
-// Credit calculation function - now uses shared configuration
-
-// Check if user can generate at requested resolution based on their subscription
-async function checkResolutionPermission(
-  supabase: any, 
-  userId: string, 
-  requestedResolution: '1K' | '2K' | '4K'
-): Promise<{ allowed: boolean; maxResolution?: string; userTier?: string }> {
-  // Get user's active subscription
-  const { data: subscription, error } = await supabase
-    .from('user_subscriptions')
-    .select('plan_name')
-    .eq('user_id', userId)
-    .eq('status', 'active')
-    .single();
-
-  if (error || !subscription) {
-    // No active subscription - only allow 1K
-    return { allowed: requestedResolution === '1K', maxResolution: '1K', userTier: 'none' };
-  }
-
-  // Get plan details from database instead of Stripe
-  try {
-    const limits = await getSubscriptionLimits(supabase, subscription.plan_name);
-    
-    if (!limits) {
-      console.error(`Failed to get subscription limits for plan: ${subscription.plan_name}`);
-      return { allowed: false };
-    }
-
-    const maxResolution = limits.max_resolution;
-    
-    const resolutionHierarchy = { '1K': 1, '2K': 2, '4K': 3 };
-    const userMaxLevel = resolutionHierarchy[maxResolution as keyof typeof resolutionHierarchy] || 1;
-    const requestedLevel = resolutionHierarchy[requestedResolution];
-
-    return {
-      allowed: requestedLevel <= userMaxLevel,
-      maxResolution,
-      userTier: subscription.plan_name
-    };
-  } catch (error) {
-    console.error('Error checking resolution permission:', error);
-    return { allowed: false };
-  }
+interface InferenceStartedRequest {
+  job_id: string;
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
-  const env = Deno.env.get('ENV') ?? 'prod';
-
   try {
+    // Enforce POST and authenticate via service role key
+    if (req.method !== 'POST') {
+      return new Response(
+        JSON.stringify({ error: 'Method Not Allowed' }),
+        { status: 405, headers: { ...corsHeaders, 'Allow': 'POST, OPTIONS', 'Content-Type': 'application/json' } }
+      );
+    }
+    const authHeader = req.headers.get('authorization') || '';
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+    if (!serviceRoleKey || authHeader !== `Bearer ${serviceRoleKey}`) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Verify request method
-    if (req.method !== 'POST') {
+    const contentType = req.headers.get('content-type') ?? '';
+    if (!contentType.includes('application/json')) {
       return new Response(
-        JSON.stringify({ error: 'Method not allowed' }),
-        { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Unsupported Media Type, expected application/json' }),
+        { status: 415, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Parse request body
-    const body: InferenceRequest = await req.json();
-    const { user_id, face_model_id, style_id, prompt, settings } = body;
-
-    // Validate required fields
-    if (!user_id || !face_model_id || !style_id) {
+    const { job_id }: InferenceStartedRequest = await req.json();
+    const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!job_id || !UUID_V4_REGEX.test(job_id)) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields: user_id, face_model_id, and style_id' }),
+        JSON.stringify({ error: 'Invalid job_id: expected UUID' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Extract settings
-    const resolution = settings?.resolution || '1K';
-    const batchSize = settings?.batch_size || 5;
-
-    // Validate batch_size limits
-    if (!Number.isInteger(batchSize) || batchSize < 5 || batchSize > 20) {
-      return new Response(
-        JSON.stringify({ 
-          error: 'Invalid batch_size',
-          details: 'batch_size must be an integer between 5 and 20',
-          provided_batch_size: batchSize
-        }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Calculate credit cost for this operation
-    const creditCost = await calculateImageCreditCost(supabase, resolution as Resolution, batchSize);
-
-    // Check user's credit balance
-    const { data: balanceData, error: balanceError } = await supabase
-      .rpc('get_user_available_credits', { user_uuid: user_id });
-
-    if (balanceError) {
-      console.error('Error getting user credit balance:', balanceError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to check credit balance' }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    }
-
-    const currentBalance = balanceData || 0;
-
-    if (currentBalance < creditCost) {
-      return new Response(
-        JSON.stringify({ 
-          error: 'Insufficient credits',
-          details: `Required: ${creditCost} credits, Available: ${currentBalance} credits`,
-          required_credits: creditCost,
-          available_credits: currentBalance
-        }),
-        { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Check resolution permission based on user's subscription
-    const resolutionCheck = await checkResolutionPermission(supabase, user_id, resolution);
-    if (!resolutionCheck.allowed) {
-      return new Response(
-        JSON.stringify({ 
-          error: `Resolution ${resolution} not allowed for your subscription tier`,
-          details: `Your plan allows up to ${resolutionCheck.maxResolution} resolution`,
-          max_allowed_resolution: resolutionCheck.maxResolution,
-          user_tier: resolutionCheck.userTier
-        }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Verify user owns the face model and it's ready for inference
-    const { data: faceModel, error: faceModelError } = await supabase
-      .from('face_models')
-      .select('id, user_id, status, lora_path')
-      .eq('id', face_model_id)
-      .eq('user_id', user_id)
-      .eq('status', 'ready') // Only allow inference on ready face models
-      .single();
-
-    if (faceModelError || !faceModel) {
-      return new Response(
-        JSON.stringify({ error: 'Face model not found, not ready, or access denied' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Get style configuration from the styles table
-    const { data: style, error: styleError } = await supabase
-      .from('styles')
-      .select('*')
-      .eq('id', style_id)
-      .single();
-
-    if (styleError || !style) {
-      return new Response(
-        JSON.stringify({ error: 'Style not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Spend credits BEFORE starting the job (non-refundable)
-    const { data: spendResult, error: spendError } = await supabase
-      .rpc('spend_user_credits', {
-        p_user_id: user_id,
-        p_amount: creditCost,
-        p_usage_type: 'image_generation',
-        p_description: `Image generation - ${resolution} resolution, ${batchSize} images`,
-        p_metadata: {
-          face_model_id,
-          style_id,
-          resolution,
-          batch_size: batchSize,
-          style_name: style.name
-        }
-      });
-
-    if (spendError || !spendResult) {
-      console.error('Error spending credits:', spendError);
-      return new Response(
-        JSON.stringify({ 
-          error: 'Failed to spend credits',
-          details: 'Insufficient balance or system error'
-        }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Generate job ID
-    const jobId = crypto.randomUUID();
-
-    // Create inference job record with credits spent
-    const inferenceJob: Partial<InferenceJob> = {
-      id: jobId,
-      user_id,
-      face_model_id,
-      style_id,
-      status: 'pending',
-      progress: 0,
-      estimated_duration: 45, // Default 45 seconds for inference
-      prompt: prompt || `A professional photo in ${style.name} style`,
-      settings: {
-        ...settings,
-        resolution,
-        batch_size: batchSize,
-        strength: settings?.strength || 0.8,
-        guidance_scale: settings?.guidance_scale || 7.5,
-        num_inference_steps: settings?.num_inference_steps || 30
-      },
-      credits_spent: creditCost,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-
-    const { error: insertError } = await supabase
+    // Fetch job to verify existence and current status
+    const { data: job, error: jobError } = await supabase
       .from('inference_jobs')
-      .insert(inferenceJob);
+      .select('id, status')
+      .eq('id', job_id)
+      .single();
 
-    if (insertError) {
-      console.error('Failed to create inference job:', insertError);
-      
-      // Refund credits if job creation failed with idempotency protection
-      const idempotencyKey = `refund_${jobId}`;
-      const { data: refundResult, error: refundError } = await supabase
-        .rpc('refund_credits_with_idempotency', {
-          p_user_id: user_id,
-          p_job_id: jobId,
-          p_amount: creditCost,
-          p_reason: `Refund for failed job creation - ${resolution} resolution`,
-          p_idempotency_key: idempotencyKey
-        });
-
-      if (refundError) {
-        console.error('Failed to process refund:', refundError);
-        // Continue with error response even if refund failed - this is logged for manual review
-      } else if (refundResult?.[0]?.success) {
-        console.log(`Refund processed for job ${jobId}: ${refundResult[0].refund_created ? 'new' : 'duplicate'} refund`);
-      }
-
+    if (jobError || !job) {
       return new Response(
-        JSON.stringify({ error: 'Failed to create inference job' }),
+        JSON.stringify({ error: 'Inference job not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // If already running or terminal, do nothing
+    if (job.status === 'running' || job.status === 'completed' || job.status === 'failed') {
+      return new Response(
+        JSON.stringify({ ok: true, message: `Job already ${job.status}` }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Update to running when provider actually begins execution (only from startable states)
+    const { data: updated, error: updErr } = await supabase
+      .from('inference_jobs')
+      .update({ status: 'running', updated_at: new Date().toISOString() })
+      .eq('id', job_id)
+      .in('status', ['queued', 'initializing', 'pending'])
+      .select('id, status')
+      .maybeSingle();
+
+    if (!updErr && !updated) {
+      return new Response(
+        JSON.stringify({ ok: true, message: 'Job not in startable state' }),
+        { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (updErr) {
+      return new Response(
+        JSON.stringify({ error: 'Failed to update inference job to running' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Call Modal ComfyUI API for real inference
-    try {
-      const inferenceApiUrl = Deno.env.get('INFERENCE_API_URL');
-      if (!inferenceApiUrl) {
-        throw new Error('INFERENCE_API_URL environment variable not set');
-      }
-
-      // Prepare Modal API request with resolution and batch size
-      const modalRequest = {
-        user_id,
-        workflow_name: style.workflow_name || 'flux_lora',
-        parameters: {
-          prompt: inferenceJob.prompt,
-          lora_path: faceModel.lora_path,
-          style_lora_path: style.lora_path,
-          strength: inferenceJob.settings?.strength || 0.8,
-          guidance_scale: inferenceJob.settings?.guidance_scale || 7.5,
-          num_inference_steps: inferenceJob.settings?.num_inference_steps || 30,
-          resolution: resolution === '1K' ? '1024x1024' : 
-                     resolution === '2K' ? '2048x2048' : '4096x4096',
-          batch_size: batchSize,
-          seed: -1, // Random seed
-          env: env
-        }
-      };
-
-      console.log('Calling Modal ComfyUI API:', {
-        url: inferenceApiUrl,
-        job_id: jobId,
-        user_id,
-        face_model_id,
-        style_id,
-        credits_spent: creditCost,
-        resolution,
-        batch_size: batchSize
-      });
-
-      // Get Modal authentication tokens
-      const modalTokenId = Deno.env.get('MODAL_TOKEN_ID');
-      const modalTokenSecret = Deno.env.get('MODAL_TOKEN_SECRET');
-
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json'
-      };
-
-      // Add Modal authentication if tokens are available
-      if (modalTokenId && modalTokenSecret) {
-        headers['Modal-Key'] = modalTokenId;
-        headers['Modal-Secret'] = modalTokenSecret;
-      }
-
-      const modalResponse = await fetch(inferenceApiUrl, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(modalRequest)
-      });
-
-      if (!modalResponse.ok) {
-        const errorText = await modalResponse.text();
-        console.error('Modal API error:', {
-          status: modalResponse.status,
-          statusText: modalResponse.statusText,
-          body: errorText
-        });
-        
-        // Update job status to failed
-        await supabase
-          .from('inference_jobs')
-          .update({
-            status: 'failed',
-            error_message: `Modal API error: ${modalResponse.status} ${modalResponse.statusText}`,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', jobId);
-
-        // Note: We don't refund credits here as the generation was attempted
-        // Credits are spent when the job starts, not when it completes
-
-        return new Response(
-          JSON.stringify({ 
-            error: 'Failed to start inference on Modal',
-            details: `${modalResponse.status}: ${errorText}`,
-            credits_spent: creditCost
-          }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      const modalResult = await modalResponse.json();
-      console.log('Modal API response:', modalResult);
-
-      // Update job with Modal job ID if provided
-      if (modalResult.style_id) {
-        await supabase
-          .from('inference_jobs')
-          .update({
-            modal_job_id: modalResult.style_id,
-            status: 'processing',
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', jobId);
-      }
-
-      return new Response(
-        JSON.stringify({
-          job_id: jobId,
-          modal_job_id: modalResult.style_id,
-          status: 'processing',
-          estimated_duration: 45,
-          credits_spent: creditCost,
-          remaining_credits: currentBalance - creditCost,
-          resolution,
-          batch_size: batchSize,
-          message: 'Inference job started successfully on Modal'
-        }),
-        {
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
-
-    } catch (modalError) {
-      console.error('Modal API call failed:', modalError);
-      
-      // Update job status to failed
-      await supabase
-        .from('inference_jobs')
-        .update({
-          status: 'failed',
-          error_message: `Failed to call Modal API: ${modalError.message}`,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', jobId);
-
-      // Note: We don't refund credits here as the generation was attempted
-
-      return new Response(
-        JSON.stringify({ 
-          error: 'Failed to start inference',
-          details: modalError.message,
-          credits_spent: creditCost
-        }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    return new Response(
+      JSON.stringify({ success: true, job_id, status: 'running' }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
 
   } catch (error) {
-    console.error('Inference start error:', error);
+    console.error('Inference started error:', error);
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
-}); 
+});
+
+

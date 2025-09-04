@@ -49,6 +49,7 @@ const nextConfig = {
   //     exclude: ['error'],
   //   },
   // },
+  reactStrictMode: false,
 }
 
 // Add dynamic hostname from environment variable if available

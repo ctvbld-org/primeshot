@@ -1,15 +1,15 @@
 import { createClient } from '@/lib/supabase/server'
+import { getApiUrl } from '@/lib/api/client'
 import Stripe from 'stripe'
-import { CREDIT_COSTS, calculateImageCredits } from '@/lib/constants/pricing'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-06-30.basil' as any
 })
 
 export interface CreditOperation {
-  type: 'image_generation' | 'face_model_training'
-  resolution?: '1K' | '2K' | '4K'
-  batchSize?: number
+  type: 'image_generation' | 'character_training'
+  quality?: '1K' | '2K' | '4K'
+  nbTakes?: number
   metadata?: Record<string, any>
 }
 
@@ -20,10 +20,10 @@ export interface SubscriptionPlan {
   interval: string
   planName: string
   creditsIncluded: number
-  maxResolution: string
-  faceModelTrainingIncluded: number
+  maxQuality: string
+  characterTrainingIncluded: number
   concurrentJobs: number
-  maxFaceModels: number
+  maxCharacters: number
 }
 
 export interface CreditPack {
@@ -40,6 +40,35 @@ export class CreditService {
   }
   private static cache = new Map<string, { data: any; timestamp: number }>()
   private static cacheExpiry = 5 * 60 * 1000 // 5 minutes
+
+  private async getCreditCosts(): Promise<{
+    IMAGE_GENERATION_1K: number
+    IMAGE_GENERATION_2K: number
+    IMAGE_GENERATION_4K: number
+    CHARACTER_TRAINING: number
+  }> {
+    const cacheKey = 'credit_costs'
+    const cached = CreditService.cache.get(cacheKey)
+    if (cached && Date.now() - cached.timestamp < CreditService.cacheExpiry) {
+      return cached.data
+    }
+
+    try {
+      const res = await fetch(getApiUrl('api/pricing/credit-costs'))
+      if (!res.ok) throw new Error('Failed to fetch credit costs')
+      const data = await res.json()
+      CreditService.cache.set(cacheKey, { data, timestamp: Date.now() })
+      return data
+    } catch {
+      // Fallback defaults
+      return {
+        IMAGE_GENERATION_1K: 1,
+        IMAGE_GENERATION_2K: 2,
+        IMAGE_GENERATION_4K: 3,
+        CHARACTER_TRAINING: 30
+      }
+    }
+  }
 
   /**
    * Get current credit balance for a user
@@ -69,12 +98,17 @@ export class CreditService {
    * Calculate credit cost based on operation type and parameters
    * Uses centralized CREDIT_COSTS configuration from pricing constants
    */
-  calculateCreditCost(operation: CreditOperation): number {
+  async calculateCreditCost(operation: CreditOperation): Promise<number> {
+    const costs = await this.getCreditCosts()
     switch (operation.type) {
-      case 'image_generation':
-        return calculateImageCredits(operation.resolution!, operation.batchSize || 1)
-      case 'face_model_training':
-        return CREDIT_COSTS.FACE_MODEL_TRAINING
+      case 'image_generation': {
+        const quality = operation.quality || '1K'
+        const nbTakes = operation.nbTakes || 1
+        const key = `IMAGE_GENERATION_${quality}` as keyof typeof costs
+        return (costs[key] || 1) * nbTakes
+      }
+      case 'character_training':
+        return costs.CHARACTER_TRAINING
       default:
         throw new Error(`Unknown operation type: ${operation.type}`)
     }
@@ -84,7 +118,7 @@ export class CreditService {
    * Spend credits for an operation (uses database FIFO function)
    */
   async spendCredits(userId: string, operation: CreditOperation): Promise<void> {
-    const creditCost = this.calculateCreditCost(operation)
+    const creditCost = await this.calculateCreditCost(operation)
     const supabase = await this.getSupabase()
     
     const { data, error } = await supabase
@@ -174,10 +208,10 @@ export class CreditService {
           interval: price.recurring?.interval || 'month',
           planName: product.metadata.plan_name || '',
           creditsIncluded: parseInt(product.metadata.credits_included || '0'),
-          maxResolution: product.metadata.max_resolution || '1K',
-          faceModelTrainingIncluded: parseInt(product.metadata.face_model_training_included || '0'),
-          concurrentJobs: parseInt(product.metadata.concurrent_jobs || '1'),
-          maxFaceModels: parseInt(product.metadata.max_face_models || '1')
+          maxQuality: product.metadata.max_quality || '1K',
+                characterTrainingIncluded: parseInt(product.metadata.character_training_included || '0'),
+      concurrentJobs: parseInt(product.metadata.concurrent_jobs || '1'),
+      maxCharacters: parseInt(product.metadata.max_characters || '1')
         }
       })
 
@@ -245,15 +279,15 @@ export class CreditService {
   }
 
   /**
-   * Check if user can generate images at specified resolution
+   * Check if user can generate images at specified quality
    */
-  async canGenerateAtResolution(userId: string, resolution: '1K' | '2K' | '4K'): Promise<boolean> {
+  async canGenerateAtQuality(userId: string, quality: '1K' | '2K' | '4K'): Promise<boolean> {
     const planDetails = await this.getUserPlanDetails(userId)
     if (!planDetails) return false
 
-    const resolutionHierarchy = { '1K': 1, '2K': 2, '4K': 3 }
-    const userMaxLevel = resolutionHierarchy[planDetails.maxResolution as keyof typeof resolutionHierarchy]
-    const requestedLevel = resolutionHierarchy[resolution]
+    const qualityHierarchy = { '1K': 1, '2K': 2, '4K': 3 }
+    const userMaxLevel = qualityHierarchy[planDetails.maxQuality as keyof typeof qualityHierarchy]
+    const requestedLevel = qualityHierarchy[quality]
 
     return requestedLevel <= userMaxLevel
   }
@@ -277,9 +311,9 @@ export class CreditService {
   }
 
   /**
-   * Check if user is within Face Model limits
+   * Check if user is within Character limits
    */
-  async checkFaceModelLimit(userId: string): Promise<boolean> {
+  async checkCharacterLimit(userId: string): Promise<boolean> {
     const planDetails = await this.getUserPlanDetails(userId)
     if (!planDetails) return false
 
@@ -291,7 +325,7 @@ export class CreditService {
       .eq('user_id', userId)
       .eq('status', 'completed')
 
-    return (count || 0) < planDetails.maxFaceModels
+    return (count || 0) < planDetails.maxCharacters
   }
 
   /**
@@ -336,11 +370,11 @@ export class CreditService {
     return {
       totalCreditsUsed: data?.reduce((sum: number, usage: any) => sum + usage.credits_used, 0) || 0,
       imageGeneration: data?.filter((u: any) => u.usage_type === 'image_generation').length || 0,
-      faceModelTraining: data?.filter((u: any) => u.usage_type === 'face_model_training').length || 0,
-      byResolution: {
-        '1K': data?.filter((u: any) => u.resolution === '1K').reduce((sum: number, u: any) => sum + u.credits_used, 0) || 0,
-        '2K': data?.filter((u: any) => u.resolution === '2K').reduce((sum: number, u: any) => sum + u.credits_used, 0) || 0,
-        '4K': data?.filter((u: any) => u.resolution === '4K').reduce((sum: number, u: any) => sum + u.credits_used, 0) || 0
+      characterTraining: data?.filter((u: any) => u.usage_type === 'character_training').length || 0,
+      byQuality: {
+        '1K': data?.filter((u: any) => u.quality === '1K').reduce((sum: number, u: any) => sum + u.credits_used, 0) || 0,
+        '2K': data?.filter((u: any) => u.quality === '2K').reduce((sum: number, u: any) => sum + u.credits_used, 0) || 0,
+        '4K': data?.filter((u: any) => u.quality === '4K').reduce((sum: number, u: any) => sum + u.credits_used, 0) || 0
       }
     }
   }

@@ -5,11 +5,12 @@ import useEmblaCarousel from 'embla-carousel-react'
 import { useStyles } from '@/hooks/useConfig'
 import { StyleConfigsSchema, type Style } from '@/types/styles'
 import Image from 'next/image'
+import { makeCloudfrontLoader } from '@/lib/utils/cloudfrontLoader'
 import { useTranslation } from 'react-i18next'
-import { Button } from '@primeshot/common/web/ui/button'
-import { Icon } from '@/components/icons/icon'
+import { Icon } from '@primeshot/common/web/Icon'
 import { getStyleImages } from '@/lib/utils/get-styles-images'
 import { useStyleSelection } from '@/contexts/style-selection-context'
+import { GenerateBar } from '@/components/style/GenerateBar/GenerateBar'
 import { getStoredSelectedStyleIndex, storeSelectedStyleIndex } from '@/lib/utils/style-storage'
 import styles from './StylesCarousel.module.css'
 
@@ -29,7 +30,13 @@ export function StylesCarousel() {
   const photographyStyleOptions = useMemo(() => {
     try {
       const validatedConfigs = StyleConfigsSchema.parse(styleConfigs)
-      return validatedConfigs.map((config: Style) => ({
+      // Sort by created_at DESC (newest first). Fallback to original order when missing.
+      const sorted = [...validatedConfigs].sort((a: any, b: any) => {
+        const at = a.created_at ? Date.parse(a.created_at as string) : 0
+        const bt = b.created_at ? Date.parse(b.created_at as string) : 0
+        return bt - at
+      })
+      return sorted.map((config: Style) => ({
         id: config.id,
         name: config.name,
         preview_images: config.preview_images,
@@ -57,16 +64,15 @@ export function StylesCarousel() {
     startIndex: 0, // Will be updated when styles load
     align: 'center',
     containScroll: false,
-    duration: 30
+    duration: 30,
+    loop: true,
   })
 
-  const stylesWithImages = useMemo(() => {
-    return photographyStyleOptions.map(style => ({
-      ...style,
-      genderSpecificImages: getStyleImages(style.preview_images),
-      translations: style.translations
-    }));
-  }, [photographyStyleOptions]);
+  // Helper to determine if a slide index is near the current index in a looping carousel
+  const isNearSelected = useCallback((idx: number, selected: number, total: number) => {
+    const delta = Math.abs(idx - selected)
+    return Math.min(delta, total - delta) <= 1 // within 1 slide on either side
+  }, [])
 
   // Load persisted selection and initialize carousel when styles are available
   useEffect(() => {
@@ -126,25 +132,25 @@ export function StylesCarousel() {
     return style[field] || ''
   }
 
-  const handleExploreStyles = () => {
-    // Add your navigation logic here - e.g., router.push('/app/styles')
-    for (const style of stylesWithImages) {
-      console.log('Explore style:', style.name)
-    }
-  }
+  // subtitle translation is constant per request
 
   if (isLoading || photographyStyleOptions.length === 0) {
     return (
-      <div className={styles.skeletonContainer}>
-        <div className={styles.skeletonInner} />
+      <div className={styles.container}>
+        <div className={styles.carouselWrapper} ref={emblaRef}>
+          <div className={styles.slidesContainer + ' ' + styles.skeletonContainer}>
+            <div className={styles.slide + ' ' + styles.skeletonInner}></div>
+            <div className={styles.slide + ' ' + styles.active + ' ' + styles.skeletonInner}></div>
+            <div className={styles.slide + ' ' + styles.skeletonInner}></div>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} data-styles-container>
       {/* Highlight overlay */}
-      <div className={styles.highlightOverlay} />
       
       {/* Carousel container */}
       <div className={styles.carouselWrapper} ref={emblaRef}>
@@ -158,21 +164,24 @@ export function StylesCarousel() {
                 {/* Single preview image */}
                 <div className={styles.imageWrapper}>
                   <Image
-                    src={style.preview_images.length > 0 ? getStyleImages([style.preview_images[0]])[0] : ''}
+                    loader={makeCloudfrontLoader('app-images/placeholders/styles')}
+                    src={style.preview_images.length > 0 ? style.preview_images[0] : ''}
                     alt={`${style.name} preview`}
                     fill
-                    sizes="500px"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 80vw, 1280px"
+                    quality={80}
+                    loading={isNearSelected(index, selectedIndex, photographyStyleOptions.length) ? 'eager' : 'lazy'}
+                    decoding="async"
                     className="object-cover"
                     priority={index === selectedIndex}
                   />
                   
                   <div className={`${styles.overlay} ${selectedIndex === index ? styles.active : ''}`}>
-                    {/* Title at top */}
-                    <div>
-                      <h3 className={styles.title}>
-                        {getTranslatedField(style, 'name')}
-                      </h3>
+                    <div className={styles.textBlock}>
+                      <div className={styles.subtitle}>{t('titles.photoStyle', { ns: 'styles' })}</div>
+                      <h3 className={styles.title}>{getTranslatedField(style, 'name')}</h3>
                     </div>
+                    <button className={styles.actionButton}>Examples</button>
                   </div>
                 </div>
               </div>
@@ -181,34 +190,47 @@ export function StylesCarousel() {
         </div>
       </div>
 
-      {/* Action button at bottom */}
-      <div className={styles.actionButtonWrapper}>
-        <Button 
-          onClick={() => handleExploreStyles()}
-          className={styles.actionButton}
+      {/* Navigation Buttons */}
+      <div className={styles.carouselButtons}>
+        <button
+          onClick={scrollPrev}
+          disabled={!canScrollPrev}
+          className={`${styles.navButton} ${styles.navButtonLeft}`}
+          aria-label={t('buttons.previous', { ns: 'common' })}
         >
-          {t('buttons.explore', { ns: 'common' })}
-        </Button>
+          <Icon variant="arrowLeft" size={20} />
+        </button>
+
+        <button
+          onClick={scrollNext}
+          disabled={!canScrollNext}
+          className={`${styles.navButton} ${styles.navButtonRight}`}
+          aria-label={t('buttons.next', { ns: 'common' })}
+        >
+          <Icon variant="arrowRight" size={20} />
+        </button>
       </div>
 
-      {/* Navigation Buttons */}
-      <button
-        onClick={scrollPrev}
-        disabled={!canScrollPrev}
-        className={`${styles.navButton} ${styles.navButtonLeft}`}
-        aria-label={t('buttons.previous', { ns: 'common' })}
-      >
-        <Icon variant="arrowLeft" size={20} />
-      </button>
+      {/* Fixed small thumbnail of the current style */}
+      <div className={styles.fixedThumb}>
+        {photographyStyleOptions[selectedIndex]?.preview_images?.[0] && (
+          <Image
+            loader={makeCloudfrontLoader('app-images/placeholders/styles')}
+            src={photographyStyleOptions[selectedIndex].preview_images[0]}
+            alt={photographyStyleOptions[selectedIndex].name}
+            width={123}
+            height={167}
+            quality={100}
+            className="object-cover rounded-lg"
+          />
+        )}
+      </div>
 
-      <button
-        onClick={scrollNext}
-        disabled={!canScrollNext}
-        className={`${styles.navButton} ${styles.navButtonRight}`}
-        aria-label={t('buttons.next', { ns: 'common' })}
-      >
-        <Icon variant="arrowRight" size={20} />
-      </button>
+      <GenerateBar emblaApi={emblaApi || null} onPanelToggle={(open) => {
+        const container = document.querySelector(`.${styles.container}`) as HTMLElement | null
+        if (!container) return
+        container.classList.toggle(styles.panelOpen, !!open)
+      }} />
     </div>
   )
 } 

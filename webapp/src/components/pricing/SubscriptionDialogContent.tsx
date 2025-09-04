@@ -1,7 +1,5 @@
 import { useState, useMemo } from 'react'
 import { Button } from '@primeshot/common/web/ui/button'
-import { Badge } from '@primeshot/common/web/ui/badge'
-import { RadioGroup, RadioGroupItem } from '@primeshot/common/web/ui/radio-group'
 import { useSubscriptionTiers, type SubscriptionTier } from '@/hooks/usePricingConfig'
 import { useCurrentSubscription } from '@/hooks/useCurrentSubscription'
 import { STRIPE_REFERENCE } from '@/lib/constants/stripe-reference'
@@ -9,11 +7,13 @@ import { toast } from 'sonner'
 import { useAuth } from '@primeshot/common/hooks/AuthContext'
 import { getApiUrl } from '@/lib/api/client'
 import { UpgradeConfirmationDialog } from './UpgradeConfirmationDialog'
+import { Icon } from '@primeshot/common/web/Icon'
+import styles from './SubscriptionDialogContent.module.css'
 
 // Context types for different upgrade scenarios
 export type SubscriptionDialogContext = 
-  | 'face-model-limit' 
-  | 'resolution-upgrade' 
+  | 'character-limit' 
+  | 'quality-upgrade' 
   | 'credit-upgrade' 
   | 'general'
 
@@ -21,7 +21,7 @@ export interface SubscriptionDialogContentProps {
   context?: SubscriptionDialogContext
   currentPlan?: string
   showOnlyUpgrades?: boolean
-  requiredFeature?: 'max_face_models' | 'max_resolution' | 'credits'
+  requiredFeature?: 'max_characters' | 'max_quality' | 'credits'
 }
 
 function formatPrice(price: number) { 
@@ -67,15 +67,15 @@ function getTierHierarchy(): Record<string, number> {
 // Context-specific messaging
 function getContextMessage(context?: SubscriptionDialogContext) {
   switch (context) {
-    case 'face-model-limit':
+    case 'character-limit':
       return {
-        title: 'Upgrade to Create More Face Models',
-        description: 'You\'ve reached your face model limit. Upgrade your plan to create additional face models and unlock more features.'
+        title: 'Upgrade to Create More Characters',
+        description: 'You\'ve reached your character limit. Upgrade your plan to create additional characters and unlock more features.'
       }
-    case 'resolution-upgrade':
+    case 'quality-upgrade':
       return {
-        title: 'Upgrade for Higher Resolution',
-        description: 'Upgrade your plan to generate images at higher resolutions and access premium features.'
+        title: 'Upgrade for Higher Quality',
+        description: 'Upgrade your plan to generate images at higher quality and access premium features.'
       }
     case 'credit-upgrade':
       return {
@@ -116,17 +116,22 @@ export function SubscriptionDialogContent({
   // Filter tiers based on upgrade requirements
   const filteredTiers = useMemo(() => {
     if (!subscriptionTiers) return []
-    
+
+    // When showing upgrades for an existing subscriber, include the current plan
+    // card as well (button will be disabled) and then all higher tiers.
     if (showOnlyUpgrades && effectiveCurrentPlan) {
       const hierarchy = getTierHierarchy()
       const currentLevel = hierarchy[effectiveCurrentPlan] || 0
-      
-      return subscriptionTiers.filter(tier => {
+
+      const currentTier = subscriptionTiers.find(t => t.name === effectiveCurrentPlan)
+      const upgradeTiers = subscriptionTiers.filter(tier => {
         const tierLevel = hierarchy[tier.name] || 0
         return tierLevel > currentLevel
       })
+
+      return currentTier ? [currentTier, ...upgradeTiers] : upgradeTiers
     }
-    
+
     return subscriptionTiers
   }, [subscriptionTiers, showOnlyUpgrades, effectiveCurrentPlan])
 
@@ -136,29 +141,31 @@ export function SubscriptionDialogContent({
   // Update selected tier when filtered tiers change
   useMemo(() => {
     if (filteredTiers.length > 0 && !selectedTier) {
-      // For upgrades, select the first (lowest) upgrade option
+      // For upgrades, prefer the first actual upgrade (skip current plan if present)
       // For new users, select the recommended tier or standard
       const defaultTier = showOnlyUpgrades 
-        ? filteredTiers[0]
+        ? (filteredTiers.find(t => t.name !== effectiveCurrentPlan) || filteredTiers[0])
         : filteredTiers.find(t => t.popular) || filteredTiers.find(t => t.name === 'standard') || filteredTiers[0]
-      
+
       setSelectedTier(defaultTier)
     }
-  }, [filteredTiers, selectedTier, showOnlyUpgrades])
+  }, [filteredTiers, selectedTier, showOnlyUpgrades, effectiveCurrentPlan])
 
-  const handlePurchase = async () => {
+  const handlePurchase = async (passedTier?: SubscriptionTier | null) => {
     if (!user) {
       toast.error('Please log in')
       return
     }
     
-    if (!selectedTier) {
+    const tierToPurchase = passedTier ?? selectedTier
+
+    if (!tierToPurchase) {
       toast.error('Please select a plan')
       return
     }
 
     // Get Stripe price ID based on tier name and billing cycle
-    const priceId = getStripePriceId(selectedTier.name, billingCycle)
+    const priceId = getStripePriceId(tierToPurchase.name, billingCycle)
     
     if (!priceId) {
       toast.error('Invalid subscription plan selected')
@@ -271,13 +278,38 @@ export function SubscriptionDialogContent({
 
   const contextMessage = getContextMessage(context)
 
-  // Show loading state
+  // Pricing helpers + derived values
+  const getCyclePrice = (tier: SubscriptionTier, cycle: 'monthly' | 'yearly') =>
+    cycle === 'yearly' ? tier.yearly_price : tier.monthly_price
+
+  const getPerCredit = (tier: SubscriptionTier, cycle: 'monthly' | 'yearly') => {
+    const credits = tier.credits || 0
+    if (!credits) return null
+    const price = getCyclePrice(tier, cycle)
+    return Math.round((price / credits) * 100) / 100
+  }
+
+  const getDiscountPct = (tier: SubscriptionTier, cycle: 'monthly' | 'yearly') => {
+    const price = getCyclePrice(tier, cycle)
+    const base = tier.original_price || 0
+    if (!base || base <= price) return 0
+    return Math.floor(((base - price) / base) * 100)
+  }
+
+  const overallAnnualSavePct = useMemo(() => {
+    if (!subscriptionTiers || subscriptionTiers.length === 0) return 0
+    const reference = subscriptionTiers.find(t => t.name === 'standard') || subscriptionTiers[0]
+    const monthlyTotal = reference.monthly_price * 12
+    const yearlyTotal = reference.yearly_price * 12
+    if (yearlyTotal >= monthlyTotal) return 0
+    return Math.floor(((monthlyTotal - yearlyTotal) / monthlyTotal) * 100)
+  }, [subscriptionTiers])
+
+  // Loading state (styled)
   if (tiersLoading) {
     return (
-      <div className="space-y-4">
-        <div className="text-center">
-          <h2 className="text-xl font-bold">Loading Plans...</h2>
-        </div>
+      <div className={styles.loadingWrap}>
+        <div className={styles.loadingTitle}>Loading Plans...</div>
       </div>
     )
   }
@@ -298,91 +330,106 @@ export function SubscriptionDialogContent({
 
   return (
     <>
-    <div className="space-y-6 max-w-4xl">
+    <div className={styles.root}>
       {/* Context-specific header */}
-      <div className="text-center">
-        <h2 className="text-xl font-bold">{contextMessage.title}</h2>
-        <p className="text-muted-foreground mt-2">{contextMessage.description}</p>
-      </div>
-
-      {/* Billing cycle toggle */}
-      <div className="flex justify-center gap-4">
-        <Button 
-          variant={billingCycle === 'monthly' ? 'primary' : 'secondary'} 
-          onClick={() => setBillingCycle('monthly')}
-        >
-          Monthly
-        </Button>
-        <Button 
-          variant={billingCycle === 'yearly' ? 'primary' : 'secondary'} 
-          onClick={() => setBillingCycle('yearly')}
-        >
-          Yearly
-        </Button>
+      <div className={styles.headerWrap}>
+        <h2 className={styles.headerTitle}>{contextMessage.title}</h2>
+        <div className={styles.toggleWrap}>
+          <button
+            className={`${styles.toggleBtn} ${billingCycle === 'monthly' ? styles.toggleActive : ''}`}
+            onClick={() => setBillingCycle('monthly')}
+          >
+            Monthly
+          </button>
+          <button
+            className={`${styles.toggleBtn} ${billingCycle === 'yearly' ? styles.toggleActive : ''}`}
+            onClick={() => setBillingCycle('yearly')}
+          >
+            Yearly
+          </button>
+          <span className={styles.toggleSave}>Save {overallAnnualSavePct}%</span>
+        </div>
       </div>
 
       {/* Tier selection */}
-      <RadioGroup 
-        value={selectedTier?.id.toString() || ''} 
-        onValueChange={(val) => {
-          const tier = filteredTiers.find(t => t.id.toString() === val)
-          if (tier) setSelectedTier(tier)
-        }} 
-        className="space-y-4"
-      >
-        {filteredTiers.map(tier => {
+      <div className={styles.grid}>
+        {filteredTiers.map((tier) => {
           const price = billingCycle === 'yearly' ? tier.yearly_price : tier.monthly_price
           const isSelected = selectedTier?.id === tier.id
           const isRecommended = tier.popular && !showOnlyUpgrades
-          
+          const name = tier.name
+          const isCurrentPlan = !!effectiveCurrentPlan && name === effectiveCurrentPlan
+
           return (
-            <label 
-              key={tier.id} 
-              className={`border rounded-lg p-4 flex justify-between items-center cursor-pointer transition-colors ${
-                isSelected ? 'border-primary bg-primary/5' : 'border-muted hover:border-muted-foreground/50'
-              }`}
-            > 
-              <div className="space-y-1 flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium capitalize">{tier.display_name}</span>
-                  {isRecommended && <Badge variant="default">Recommended</Badge>}
-                  {showOnlyUpgrades && <Badge variant="secondary">Upgrade</Badge>}
+            <div
+              key={tier.id}
+              className={`${styles.card} ${name} ${isRecommended ? styles.cardHighlight : ''} ${isSelected ? styles.cardSelected : ''}`}
+            >
+              <div className={styles.cardHead}>
+                <div className={styles.iconWrap}>
+                  {name === 'pro' ? (
+                    <Icon variant="insights" size={24} />
+                  ) : name === 'standard' ? (
+                    <Icon variant="scene" size={24} />
+                  ) : (
+                    <Icon variant="smilyFace" size={24} />
+                  )}
                 </div>
-                <p className="text-sm text-muted-foreground">{tier.description}</p>
-                
-                {/* Highlight required feature */}
-                {requiredFeature && (
-                  <div className="text-sm text-primary font-medium">
-                    {requiredFeature === 'max_face_models' && `${tier.max_face_models} Face Models`}
-                    {requiredFeature === 'max_resolution' && `Up to ${tier.max_resolution} Resolution`}
-                    {requiredFeature === 'credits' && `${tier.credits} Credits/month`}
-                  </div>
+                {getDiscountPct(tier, billingCycle) > 0 && (
+                  <span className={styles.discount}>Save {getDiscountPct(tier, billingCycle)}%</span>
                 )}
               </div>
-              
-              <div className="flex items-center gap-4">
-                <div className="text-right">
-                  <div className="text-xl font-bold">{formatPrice(price)}</div>
-                  <div className="text-sm text-muted-foreground">
-                    per {billingCycle === 'yearly' ? 'month' : 'month'}
-                  </div>
+
+              <div className={styles.cardTitle}>{tier.display_name}</div>
+              <div className={styles.priceBlock}>
+                {tier.original_price && tier.original_price > price && (
+                  <div className={styles.originalPrice}>${tier.original_price.toFixed(0)}</div>
+                )}
+                <div className={styles.mainPrice}>
+                  ${price.toFixed(0)}<span className={styles.per}>/ month</span>
                 </div>
-                <RadioGroupItem value={tier.id.toString()} id={tier.id.toString()} />
+                <div className={styles.billedNote}>Billed {billingCycle}</div>
               </div>
-            </label>
+
+              <div className={styles.divider} />
+
+              <div className={styles.includedBlock}>
+                <div className={styles.creditsLine}>
+                  <span className={styles.creditsCount}>{tier.credits.toLocaleString()} credits per month</span>
+                  {getPerCredit(tier, billingCycle) !== null && (
+                    <span className={styles.perCredit}>${getPerCredit(tier, billingCycle)!.toFixed(2)} per credit</span>
+                  )}
+                </div>
+                <ul className={styles.features}>
+                  {tier.max_quality && (
+                    <li className={styles.featureItem}>Up to {tier.max_quality} quality</li>
+                  )}
+                  {typeof tier.character_training_included === 'number' && tier.character_training_included > 0 && (
+                    <li className={styles.featureItem}>{tier.character_training_included}x Character Included</li>
+                  )}
+                  {typeof tier.max_characters === 'number' && (
+                    <li className={styles.featureItem}>Up to {tier.max_characters} Character Storage</li>
+                  )}
+                  {typeof tier.concurrent_jobs === 'number' && (
+                    <li className={styles.featureItem}>Up to {tier.concurrent_jobs} concurrent Shoots</li>
+                  )}
+                  {Array.isArray(tier.features) && tier.features.includes('commercial') && (
+                    <li className={styles.featureItem}>Commercial use</li>
+                  )}
+                </ul>
+              </div>
+
+              <Button
+                className={styles.selectBtn}
+                onClick={() => handlePurchase(tier)}
+                disabled={isCurrentPlan || (loading && isSelected)}
+              >
+                {isCurrentPlan ? 'Current Plan' : (loading && isSelected ? 'Processing…' : 'Select Plan')}
+              </Button>
+            </div>
           )
         })}
-      </RadioGroup>
-
-      {/* Purchase button */}
-      <Button 
-        className="w-full" 
-        onClick={handlePurchase} 
-        disabled={loading || !selectedTier}
-        size="lg"
-      >
-        {loading ? 'Processing…' : `${showOnlyUpgrades ? 'Upgrade to' : 'Purchase'} ${selectedTier?.display_name || 'Plan'}`}
-      </Button>
+      </div>
 
       {/* Full price notice for upgrades */}
       {showOnlyUpgrades && (

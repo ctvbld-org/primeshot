@@ -2,7 +2,7 @@
 
 import { createContext, useState, useContext, useCallback, useEffect, type ReactNode } from 'react'
 import { Dialog, DialogContent } from '@primeshot/common/web/ui/dialog'
-import { DialogHeader, DialogTitle } from '@primeshot/common/web/ui/dialog'
+import { DialogTitle, DialogDescription } from '@primeshot/common/web/ui/dialog'
 
 interface DialogServiceValue {
   openDialog: (content: ReactNode) => void
@@ -33,19 +33,40 @@ export function DialogServiceProvider({ children }: { children: ReactNode }) {
     dialogServiceSingleton.closeDialog = closeDialog
   }, [openDialog, closeDialog])
 
+  // Derive wrapper props from the provided content element
+  const derivedWrapperProps = (() => {
+    if (content && typeof content === 'object' && (content as any).type) {
+      const el = content as any
+      return {
+        fullscreen: Boolean(el.props?.fullscreen),
+        noContainer: Boolean(el.props?.noContainer),
+        selfManaged: Boolean(el.props?.selfManaged || el.props?.wrapWithDialog === false),
+        hideHeader: Boolean(el.props?.hideHeader),
+        panelKeepOpen: Boolean(el.props?.panelKeepOpen),
+      }
+    }
+    return { fullscreen: false, noContainer: false, selfManaged: false, hideHeader: false, panelKeepOpen: false }
+  })()
+
   return (
     <DialogServiceContext.Provider value={{ openDialog, closeDialog }}>
       {children}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
+      {derivedWrapperProps.selfManaged ? (
+        open ? <>{content}</> : null
+      ) : (
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent fullscreen={derivedWrapperProps.fullscreen} noContainer={derivedWrapperProps.noContainer} panelKeepOpen={derivedWrapperProps.panelKeepOpen}>
+            {/* Always include accessible title/description (visually hidden) */}
             <DialogTitle style={{position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0}}>
               Dialog
             </DialogTitle>
-          </DialogHeader>
-          {content}
-        </DialogContent>
-      </Dialog>
+            <DialogDescription style={{position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0}}>
+              Content
+            </DialogDescription>
+            {content}
+          </DialogContent>
+        </Dialog>
+      )}
     </DialogServiceContext.Provider>
   )
 }

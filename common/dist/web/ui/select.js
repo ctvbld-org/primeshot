@@ -3,7 +3,7 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { Icon } from "../Icon";
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 import styles from "./select.module.css";
 function Select({ ...props }) {
     return _jsx(SelectPrimitive.Root, { "data-slot": "select", ...props });

@@ -1,25 +1,17 @@
 # Task ID: 3
-# Title: Develop credit-based payment system
-# Status: pending
-# Dependencies: 8
-# Priority: high
-# Description: Implement the credit system for monetizing image generation with Stripe integration.
+# Title: Rename Modal app and implement WebSocket progress endpoint
+# Status: done
+# Dependencies: 1
+# Priority: medium
+# Description: Rename the Modal app and class to match the new naming convention and implement the WebSocket progress endpoint.
 # Details:
-Design Stripe products for credit packs and subscription options. Implement purchase flow using Stripe Checkout. Set up Stripe webhooks to handle successful payments. Create Supabase `credits` table with proper RLS policies. Implement middleware to check credit availability before generation. Add credit deduction logic that executes immediately on generation request. Implement refund mechanism for failed generations. Create admin dashboard for monitoring credit usage.
+1. Rename Modal app to 'primeshot-inference'
+2. Rename class to 'H100*' to reflect GPU naming
+3. Remove the existing 'health_check' endpoint
+4. Implement WebSocket 'progress' endpoint at wss://creativebuild--primeshot-inference-progress.modal.run
+5. Set up WebSocket handlers for connection, message, and disconnection
+6. Implement progress tracking and broadcasting mechanism
+7. Configure appropriate keepalive window (600-900 seconds)
 
 # Test Strategy:
-Test complete purchase flow in Stripe test mode. Verify webhooks correctly update user credits. Test credit deduction and refund logic. Ensure proper error handling for insufficient credits and failed payments.
-
-# Task ID: pricing-config-migration
-# Title: Refactor code to use DB-backed pricing config
-# Status: pending
-# Dependencies: pricing-db-migrations
-# Priority: high
-# Description: Refactor all code (frontend, backend, edge functions) to fetch pricing, tier, and credit config from the new DB tables via API or hooks. Remove or refactor @pricing-config.ts as needed.
-# Details:
-- Replace all usage of @pricing-config.ts and ENV pricing variables with DB/API calls
-- Update frontend hooks and backend logic to use new endpoints
-- Remove or convert @pricing-config.ts to a DB-backed cache (or eliminate it)
-# Test Strategy:
-- Test all pricing/tier/credit logic in the app for correctness
-- Change values in DB and verify app reflects changes without redeploy
+Test WebSocket connection and ensure progress updates are correctly broadcasted. Verify renamed endpoints are accessible. Check that the keepalive window is correctly applied.

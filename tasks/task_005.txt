@@ -1,11 +1,17 @@
 # Task ID: 5
-# Title: Refactor LoRA selector component
-# Status: pending
-# Dependencies: 1
-# Priority: medium
-# Description: Extract and adapt the face model selector to work in the new single-page layout with status indicators.
+# Title: Create dynamic workflow endpoint with dual output formats
+# Status: done
+# Dependencies: 1, 2, 4
+# Priority: high
+# Description: Implement a dynamic workflow endpoint in comfyui-api that produces both web-optimized WebP and high-resolution PNG outputs.
 # Details:
-Extract `FaceModelSelector` from `components/create/face_models.tsx`. Maintain WebSocket progress logic for LoRA training status. Implement dropdown with avatar and live progress indicators. Add 'Create/manage models' link that navigates to LoRA creation flow. Ensure automatic selection of default/last used LoRA persists. Handle edge cases like no available LoRAs or in-progress training.
+1. Design ComfyUI workflow with split branches before the upscaler
+2. Configure pre-upscale branch to resize to 1K and save as WebP with filename_prefix 'web_'
+3. Configure main branch to upscale to 2K/4K and save as PNG with filename_prefix 'orig_'
+4. Implement dynamic workflow endpoint in comfyui-api
+5. Configure S3 output to user-images/{user_id}/inference/{job_id}/web/ and /orig/ subfolders
+6. Ensure proper error handling for both output paths
+7. Add logging for successful/failed generation of each output format
 
 # Test Strategy:
-Unit test selection behavior and WebSocket connection handling. Verify status indicators update correctly. Test edge cases including no available models and models in various states (training, failed, ready).
+Test the endpoint with various input parameters. Verify both WebP and PNG outputs are correctly generated and saved to S3. Check image dimensions and quality of both formats.

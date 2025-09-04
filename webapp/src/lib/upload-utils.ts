@@ -12,13 +12,17 @@ export interface ChunkMetadata {
   fileName: string;
   fileType: string;
   uploadId: string;
-  faceModelId: string;
+  characterId: string;
   qualityScore?: number;
+  // Optional normalized face box hint from client analysis (0..1)
+  faceBox?: { x: number; y: number; width: number; height: number };
+  // Marks that this file is the first accepted image in the batch
+  isFirstImage?: boolean;
 }
 
 export function* createChunks(
   file: FileWithScore & { size: number; slice: File['slice'] },
-  faceModelId: string,
+  characterId: string,
   chunkSize: number = CHUNK_SIZE
 ): Generator<{ chunk: Blob; metadata: ChunkMetadata }> {
   if (!file.size) {
@@ -41,9 +45,11 @@ export function* createChunks(
       fileName: file.name || 'unnamed',
       fileType: file.type || 'application/octet-stream',
       uploadId,
-      faceModelId,
+      characterId,
       // API expects an integer (0-100). Round and clamp the score if provided.
-      qualityScore: file.score !== undefined ? Math.round(Math.min(100, Math.max(0, file.score))) : undefined
+      qualityScore: file.score !== undefined ? Math.round(Math.min(100, Math.max(0, file.score))) : undefined,
+      faceBox: file.faceBox,
+      isFirstImage: file.isFirstImage
     };
 
     yield { chunk, metadata };
@@ -127,10 +133,10 @@ function isDuplicateChunkError(err: any): boolean {
 
 export async function uploadFileInChunks(
   file: FileWithScore & { size: number; slice: File['slice'] },
-  faceModelId: string,
+  characterId: string,
   onProgress?: (progress: number) => void,
 ): Promise<string> {
-  const chunks = createChunks(file, faceModelId);
+  const chunks = createChunks(file, characterId);
   let uploadedChunks = 0;
   let uploadId: string | null = null;
 

@@ -1,11 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
-import { getFaceModelTrainingCost } from "../_shared/pricing.ts";
+import { getCharacterTrainingCost } from "../_shared/pricing.ts";
 
 interface TrainingCompleteRequest {
   job_id: string;
   success: boolean;
+  lora_path?: string; // required when success === true
   error_message?: string;
 }
 
@@ -29,8 +30,18 @@ serve(async (req) => {
       );
     }
 
+    // Authorization: service role only (consistent with inference EFs)
+    const auth = req.headers.get('authorization') || '';
+    const expected = `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''}`;
+    if (!expected.trim() || auth !== expected) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Parse request body
-    const { job_id, success, error_message }: TrainingCompleteRequest = await req.json();
+    const { job_id, success, error_message, lora_path }: TrainingCompleteRequest = await req.json();
 
     if (!job_id) {
       return new Response(
@@ -39,12 +50,22 @@ serve(async (req) => {
       );
     }
 
+    // Validate full UUID format to prevent truncated IDs
+    const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    if (!UUID_V4_REGEX.test(job_id)) {
+      console.error(`❌ Invalid job_id format (expected UUID): ${job_id}`)
+      return new Response(
+        JSON.stringify({ error: 'Invalid job_id format: expected UUID' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     console.log(`🏁 Completing training job: ${job_id}, success: ${success}`);
 
     // Get the training job details to access user_id and credits_spent
     const { data: trainingJob, error: jobError } = await supabase
       .from('training_jobs')
-      .select('user_id, face_model_id, credits_spent, status')
+      .select('user_id, character_id, credits_spent, status')
       .eq('id', job_id)
       .single();
 
@@ -68,10 +89,17 @@ serve(async (req) => {
       );
     }
 
-    // Update training job status
+    // Validate presence of lora_path when success is true
+    if (success && (!lora_path || typeof lora_path !== 'string' || lora_path.trim().length === 0)) {
+      return new Response(
+        JSON.stringify({ error: 'Missing required field: lora_path for successful training' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Update training job status. completed_at is managed by DB trigger.
     const updateData: any = {
       status: success ? 'completed' : 'failed',
-      completed_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
 
@@ -81,7 +109,7 @@ serve(async (req) => {
 
     const { error: updateError } = await supabase
       .from('training_jobs')
-      .update(updateData)
+      .update({ ...updateData, retry_after: null })
       .eq('id', job_id);
 
     if (updateError) {
@@ -92,18 +120,22 @@ serve(async (req) => {
       );
     }
 
-    // Update face model status
-    const faceModelStatus = success ? 'ready' : 'failed';
+    // Update character status (+ lora_path when successful) atomically
+    const characterStatus = success ? 'ready' : 'failed';
+    const characterUpdate: Record<string, any> = {
+      status: characterStatus,
+      updated_at: new Date().toISOString()
+    };
+    if (success && lora_path) {
+      characterUpdate.lora_path = lora_path;
+    }
     await supabase
-      .from('face_models')
-      .update({ 
-        status: faceModelStatus,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', trainingJob.face_model_id);
+      .from('characters')
+      .update(characterUpdate)
+      .eq('id', trainingJob.character_id);
 
     console.log(`✅ Updated training job ${job_id} to ${success ? 'completed' : 'failed'}`);
-    console.log(`✅ Updated face model ${trainingJob.face_model_id} to ${faceModelStatus}`);
+    console.log(`✅ Updated character ${trainingJob.character_id} to ${characterStatus}`);
 
     // Refund credits if training failed and credits were spent
     if (!success && trainingJob.credits_spent > 0) {
@@ -127,6 +159,92 @@ serve(async (req) => {
       }
     }
 
+    // If training failed, fail and refund any queued/pending/running inference jobs for this character
+    if (!success) {
+      try {
+        const { data: impacted } = await supabase
+          .from('inference_jobs')
+          .select('id, user_id, credits_spent')
+          .eq('character_id', trainingJob.character_id)
+          .in('status', ['queued','initializing','pending','running'])
+        if (Array.isArray(impacted) && impacted.length > 0) {
+          // Mark failed
+          await supabase
+            .from('inference_jobs')
+            .update({ status: 'failed', error_message: 'Training failed for this character', updated_at: new Date().toISOString() })
+            .eq('character_id', trainingJob.character_id)
+            .in('status', ['queued','initializing','pending','running'])
+          // Refund each
+          for (const j of impacted) {
+            if ((j as any)?.credits_spent > 0) {
+              const key = `inference_refund_${(j as any).id}`
+              await supabase.rpc('refund_credits_with_idempotency', {
+                p_user_id: (j as any).user_id,
+                p_job_id: (j as any).id,
+                p_amount: (j as any).credits_spent,
+                p_reason: 'Refund: training failed before inference could run',
+                p_idempotency_key: key
+              })
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Warning: failed to refund/close queued inference jobs:', e)
+      }
+    }
+
+    // Process training and inference queues after job completion
+    let queueProcessingResult = null;
+    try {
+      console.log('🔄 Training job completed, processing queue...');
+      
+      // Call training-queue function directly
+      const queueResponse = await fetch(
+        `${Deno.env.get('SUPABASE_URL')}/functions/v1/training-queue`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
+          },
+          body: JSON.stringify({
+            trigger: 'training_completed',
+            completed_job_id: job_id
+          })
+        }
+      );
+
+      if (queueResponse.ok) {
+        queueProcessingResult = await queueResponse.json();
+        console.log('✅ Queue processing completed:', queueProcessingResult);
+      } else {
+        console.error('❌ Queue processing failed:', await queueResponse.text());
+      }
+
+      // Trigger inference queue in case jobs were waiting for this character
+      try {
+        const infRes = await fetch(
+          `${Deno.env.get('SUPABASE_URL')}/functions/v1/inference-queue`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
+            },
+            body: JSON.stringify({ trigger: 'training_completed' })
+          }
+        );
+        if (!infRes.ok) {
+          console.error('❌ Inference queue trigger failed:', await infRes.text());
+        }
+      } catch (e) {
+        console.error('Warning: inference queue trigger error (non-blocking):', e);
+      }
+    } catch (queueError) {
+      console.error('Warning: Queue processing error (non-blocking):', queueError);
+      // Don't block training completion for queue processing errors
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -135,7 +253,12 @@ serve(async (req) => {
         credits_refunded: (!success && trainingJob.credits_spent > 0) ? trainingJob.credits_spent : 0,
         message: success 
           ? 'Training completed successfully' 
-          : `Training failed: ${error_message || 'Unknown error'}`
+          : `Training failed: ${error_message || 'Unknown error'}`,
+        queue_processing: queueProcessingResult ? {
+          triggered: true,
+          jobs_started: queueProcessingResult.jobs_started || 0,
+          available_slots: queueProcessingResult.available_slots || 0
+        } : { triggered: false }
       }),
       {
         status: 200,

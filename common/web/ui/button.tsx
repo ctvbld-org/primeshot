@@ -12,6 +12,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   asChild?: boolean
   loading?: boolean
   icon?: React.ReactNode
+  iconSide?: 'left' | 'right'
 }
 
 interface AnimationState {
@@ -31,10 +32,12 @@ const buttonVariants = ({
   size = 'md',
   className,
   loading,
+  iconSide = 'left',
 }: {
   variant?: ButtonVariant
   size?: ButtonSize
-  className?: string
+  className?: string    
+  iconSide?: string
   loading?: boolean
 } = {}) => {
   return cn(
@@ -42,12 +45,13 @@ const buttonVariants = ({
     variant && styles[variant],
     size && styles[`size-${size}`],
     loading && styles.loading,
+    iconSide && styles[`icon-${iconSide}`],
     className
   )
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', size = 'md', asChild = false, loading = false, children, disabled, icon, ...props }, ref) => {
+  ({ className, variant = 'primary', size = 'md', asChild = false, loading = false, children, disabled, icon, iconSide = 'left', ...props }, ref) => {
     const buttonRef = React.useRef<HTMLButtonElement>(null);
     const labelRef = React.useRef<HTMLSpanElement>(null);
     const iconRef = React.useRef<HTMLSpanElement>(null);
@@ -216,7 +220,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <Comp
         data-slot="button"
-        className={cn(buttonVariants({ variant, size, className, loading }), styles.btn)}
+        className={cn(buttonVariants({ variant, size, className, loading, iconSide }), styles.btn)}
         ref={combinedRef}
         disabled={disabled || loading}
         {...props}

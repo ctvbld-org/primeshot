@@ -1,11 +1,17 @@
 # Task ID: 4
-# Title: Implement floating option buttons and modals
-# Status: in-progress
-# Dependencies: 2
-# Priority: high
-# Description: Create the floating button system that anchors to the current carousel slide and opens modal option pickers.
+# Title: Develop warmup workflow for model preloading
+# Status: done
+# Dependencies: 1, 2
+# Priority: medium
+# Description: Create and implement a warmup workflow that preloads the checkpoint, VAE, and text encoder on container startup.
 # Details:
-Create a generic `OptionModal` component that can be reused for different option types. Refactor existing selectors (`background-image-selector.tsx`, `clothing-image-selector.tsx`, `clothing-color-selector.module.css`) to work as uncontrolled components within the modal. Implement the floating button UI that stays anchored to the current carousel slide. Connect modal state to application state store to update when modal closes. Ensure proper z-index management and animation transitions.
+1. Identify the specific checkpoint, VAE, and text encoder used in production
+2. Create a minimal ComfyUI workflow that loads these models
+3. Implement automatic execution of this workflow when the container starts
+4. Add timing measurements to quantify latency improvements
+5. Ensure models are cached on Modal volume for persistence
+6. Optimize the warmup process to minimize startup time
+7. Add logging to track warmup success/failure
 
 # Test Strategy:
-Test modal opening/closing behavior. Verify option selection correctly updates application state. Test button anchoring during carousel swipes. Ensure accessibility standards are met for modal dialogs.
+Measure cold start vs. warm start latency. Verify models are correctly loaded and cached. Test with multiple container restarts to ensure consistency.

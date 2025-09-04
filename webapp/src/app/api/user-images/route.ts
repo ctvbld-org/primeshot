@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
     // If imageId is provided, look up the image
     if (imageId) {
       const { data: image, error: imageError } = await supabase
-        .from('images')
+        .from('uploaded_images')
         .select('url')
         .eq('id', imageId)
         .eq('user_id', user.id)
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
     // If orderId is provided, look up all images for the order
     if (orderId) {
       const { data: images, error: imagesError } = await supabase
-        .from('images')
+        .from('uploaded_images')
         .select('url')
         .eq('order_id', orderId)
         .eq('user_id', user.id)
@@ -137,7 +137,7 @@ export async function DELETE(request: NextRequest) {
 
     // Get the image record to verify ownership and then delete it while returning its URL
     const { data: deleted, error: deleteError } = await supabase
-      .from('images')
+      .from('uploaded_images')
       .delete()
       .eq('id', imageId)
       .eq('user_id', user.id)

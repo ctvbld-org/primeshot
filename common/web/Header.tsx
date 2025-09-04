@@ -16,6 +16,8 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
   const { isAuthenticated, user } = useAuth();
 
+  // Right content can be provided by consumer app via rightSlot
+
   return (
     <header className={styles.header}>
       <div className={styles.container}>
@@ -34,7 +36,7 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
             <a href="/use-cases" className={styles.navLink}>Use Cases</a>
             <a href="/pricing" className={styles.navLink}>Pricing</a>
             {isAuthenticated && user?.admin && (
-              <a href="/admin/dashboard" className={styles.adminNavLink}>Admin</a>
+              <a href="/dashboard" className={styles.adminNavLink}>Admin</a>
             )}
           </nav>
         </div>

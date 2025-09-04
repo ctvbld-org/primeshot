@@ -56,10 +56,11 @@ interface FormData {
   yearly_price: number
   original_price: number
   credits: number
-  face_model_training_included: number
-  max_face_models: number
-  max_resolution: string
+  character_training_included: number
+  max_characters: number
+  max_quality: string
   concurrent_jobs: number
+  concurrent_trainings: number
   popular: boolean
   features?: Record<string, any>
   translations?: Record<string, any>
@@ -94,10 +95,11 @@ export function SubscriptionFormDialog({
       yearly_price: 0,
       original_price: 0,
       credits: 0,
-      face_model_training_included: 0,
-      max_face_models: 0,
-      max_resolution: '1K',
+      character_training_included: 0,
+      max_characters: 0,
+      max_quality: '1K',
       concurrent_jobs: 1,
+      concurrent_trainings: 2,
       popular: false,
       features: {},
       translations: {},
@@ -119,10 +121,11 @@ export function SubscriptionFormDialog({
       currentValues.yearly_price !== originalValues.yearly_price ||
       currentValues.original_price !== originalValues.original_price ||
       currentValues.credits !== originalValues.credits ||
-      currentValues.face_model_training_included !== originalValues.face_model_training_included ||
-      currentValues.max_face_models !== originalValues.max_face_models ||
-      currentValues.max_resolution !== originalValues.max_resolution ||
+      currentValues.character_training_included !== originalValues.character_training_included ||
+      currentValues.max_characters !== originalValues.max_characters ||
+      currentValues.max_quality !== originalValues.max_quality ||
       currentValues.concurrent_jobs !== originalValues.concurrent_jobs ||
+      currentValues.concurrent_trainings !== originalValues.concurrent_trainings ||
       currentValues.popular !== originalValues.popular ||
       JSON.stringify(currentValues.features) !== JSON.stringify(originalValues.features)
     )
@@ -161,10 +164,11 @@ export function SubscriptionFormDialog({
       yearly_price: subscription.yearly_price,
       original_price: subscription.original_price,
       credits: subscription.credits,
-      face_model_training_included: subscription.face_model_training_included,
-      max_face_models: subscription.max_face_models,
-      max_resolution: subscription.max_resolution,
+      character_training_included: subscription.character_training_included,
+      max_characters: subscription.max_characters,
+      max_quality: (subscription as any).max_quality,
       concurrent_jobs: subscription.concurrent_jobs,
+      concurrent_trainings: subscription.concurrent_trainings ?? 0,
       popular: subscription.popular || false,
       features: (subscription.features as Record<string, any>) || {},
       translations: (subscription.translations as Record<string, any>) || {},
@@ -176,10 +180,11 @@ export function SubscriptionFormDialog({
       yearly_price: 0,
       original_price: 0,
       credits: 0,
-      face_model_training_included: 0,
-      max_face_models: 0,
-      max_resolution: '1K',
+      character_training_included: 0,
+      max_characters: 0,
+      max_quality: '1K',
       concurrent_jobs: 1,
+      concurrent_trainings: 2,
       popular: false,
       features: {},
       translations: {},
@@ -298,7 +303,7 @@ export function SubscriptionFormDialog({
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
-                <FormField
+                <FormField  
                   control={form.control}
                   name="name"
                   render={({ field }) => (
@@ -460,14 +465,37 @@ export function SubscriptionFormDialog({
                     </FormItem>
                   )}
                 />
+              
+                <FormField
+                    control={form.control}
+                    name="concurrent_trainings"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Concurrent Trainings</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="number"
+                            min="1"
+                            placeholder="e.g., 1"
+                            onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Max concurrent generation jobs
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
               <div className="grid grid-cols-2 gap-4 items-start">
                 <FormField
                   control={form.control}
-                  name="face_model_training_included"
+                  name="character_training_included"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Included FaceModel Training</FormLabel>
+                      <FormLabel>Included Character Training</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
@@ -478,7 +506,7 @@ export function SubscriptionFormDialog({
                         />
                       </FormControl>
                       <FormDescription>
-                        Free face model trainings per month
+                        Free character trainings per month
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -487,10 +515,10 @@ export function SubscriptionFormDialog({
 
                 <FormField
                   control={form.control}
-                  name="max_face_models"
+                  name="max_characters"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Max FaceModels</FormLabel>
+                      <FormLabel>Max Characters</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
@@ -501,7 +529,7 @@ export function SubscriptionFormDialog({
                         />
                       </FormControl>
                       <FormDescription>
-                        Maximum face models allowed
+                        Maximum characters allowed
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -511,14 +539,14 @@ export function SubscriptionFormDialog({
 
               <FormField
                 control={form.control}
-                name="max_resolution"
+                name="max_quality"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Max Resolution</FormLabel>
+                    <FormLabel>Max Quality</FormLabel>
                     <FormControl>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select resolution" />
+                           <SelectValue placeholder="Select quality" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="1K">1K</SelectItem>
@@ -528,7 +556,7 @@ export function SubscriptionFormDialog({
                       </Select>
                     </FormControl>
                     <FormDescription>
-                      Maximum image resolution allowed
+                      Maximum image quality allowed
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

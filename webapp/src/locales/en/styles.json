@@ -1,91 +1,62 @@
 {
-  "newStyle": {
-    "title": "Create new style",
-    "card": {
-      "alt": "Add new style",
-      "ariaLabel": "Add new style card",
-      "description": "Choose your photographic style,\nbackground and clothing.",
-      "button": "Add Style",
-      "buttonAriaLabel": "Add a new photography style"
-    }
+  
+  "titles": {
+    "styleLabel": "Style",
+    "photoStyle": "Photo Style",
+    "sceneLabel": "Scene",
+    "wardrobeLabel": "Clothing",
+    "characterLabel": "Character",
+    "settingsLabel": "Settings"
   },
-  "carousel": {
-    "label": "Photography style options"
+  "shoot": {
+    "subtitle": "{{style}} with {{scene}} setting, wearing a {{wardrobe}} in {{color}}"
   },
-  "styleCard": {
-    "customize": "Customize",
-    "background": "Background",
-    "clothing": "Clothing",
-    "clothingColor": "Clothing Color",
-    "confirmDelete": {
-      "title": "Delete Style",
-      "description": "Are you sure you want to remove this style from your shoot?",
-      "confirm": "Remove",
-      "cancel": "Keep it"
+  "character": {
+    "trainingQueued": "Queued",
+    "trainingPending": "Pending",
+    "trainingInitializing": "Initializing",
+    "remaining": "remaining",
+    "photos": "photos",
+    "trainingFailedTitle": "Training failed",
+    "trainingFailedDesc": "This character cannot be used for generation. Please delete it and try again."
+  },
+  "qualities": {
+    "basic": "Basic",
+    "standard": "Standard",
+    "high": "High"
+  },
+  "labels": {
+    "credits": "{{count}} credits",
+    "includedInPlan": "{{count}} included in plan",
+    "limitReached": "Limit reached",
+    "upgradePlanAddMore": "Upgrade plan to add more",
+    "upgradeOrBuyCredits": "Upgrade plan or buy credit pack"
+  },
+  "settings": {
+    "numberOfTakes": "Number of Takes",
+    "quality": "Quality",
+    "aspectRatio": "Aspect Ratio"
+  },
+  "status": {
+    "badge": {
+      "pending": "Pending",
+      "queued": "Queued",
+      "initializing": "Initializing",
+      "starting": "Starting up",
+      "running": "Generating",
+      "generating": "Generating",
+      "completed": "Completed",
+      "failed": "Failed",
+      "connecting": "Connecting"
     },
-    "toast": {
-      "error": {
-        "title": "Error",
-        "description": "Failed to delete style. Please try again."
+    "tooltip": {
+      "pending": "Awaiting server availability - should proceed soon",
+      "queued": "Limit reached, waiting for a generation to complete",
+      "queueReasons": {
+        "character_not_ready": "Character is training — will start automatically",
+        "concurrent_limit": "Limit reached ({{current}}/{{limit}}). Will start automatically",
+        "provider_temporary_issue": "Temporary issue submitting to provider. We will retry automatically."
       }
     }
-  },
-  "errors": {
-    "loadStyles": "Failed to load styles"
-  },
-  "footer": {
-    "separator": {
-      "alt": "Footer Separator"
-    },
-    "styles": {
-      "label_zero": "Style",
-      "label_one": "Style",
-      "label_other": "Styles"
-    },
-    "upgrade": {
-      "text": "Add {{count}} extra styles and get",
-      "photosText": "photos for only",
-      "price": "US$ {{amount}}"
-    },
-    "emptyState": "Your style list is empty. Add a few looks to generate your perfect shoot.",
-    "price": {
-      "amount": "US$ {{amount}}"
-    },
-    "checkout": "Checkout",
-    "headshots": {
-      "count": "{{count}}",
-      "label_zero": "Headshot",
-      "label_one": "Headshot",
-      "label_other": "Headshots",
-      "perStyle": "({{count}} per style)",
-      "total": "{{count}} total headshots"
-    },
-    "perHeadshot": "${{amount}} per headshot",
-    "notSelected": "Not selected"
-  },
-  "toast": {
-    "successAddedStyle": {
-      "title": "Added to Shoot",
-      "description": "Style has been added to your shoot"
-    },
-    "successUpdatedStyle": {
-      "title": "Style updated",
-      "description": "Your style has been updated"
-    },
-    "errorUpdatedStyle": {
-      "title": "Update failed",
-      "description": "Failed to update style"
-    },
-    "errorSavingStyle": {
-      "title": "Error Saving Style",
-      "description": "Failed to save style"
-    },
-    "errorMissingData": {
-      "title": "Error",
-      "description": "Missing required data to save."
-    }
-  },
-  "titles": {
-    "styleLabel": "Style"
   }
 } 

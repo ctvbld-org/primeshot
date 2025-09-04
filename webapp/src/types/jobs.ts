@@ -2,8 +2,8 @@
 export interface TrainingJob {
   id: string;
   user_id: string;
-  face_model_id: string;
-  status: 'queued' | 'running' | 'completed' | 'failed';
+  character_id: string;
+  status: 'initializing' | 'queued' | 'pending' | 'running' | 'completed' | 'failed';
   progress: number;
   modal_job_id?: string;
   estimated_duration?: number;
@@ -14,7 +14,7 @@ export interface TrainingJob {
   updated_at: string;
   error_message?: string;
   message?: string; // Progress message from the progress tracker
-  face_models?: {
+  characters?: {
     id: string;
     name: string;
     status: string;
@@ -23,7 +23,13 @@ export interface TrainingJob {
 
 export interface TrainingStartRequest {
   user_id: string;
-  face_model_id: string;
+  character_id: string;
+  training_params?: {
+    batch_size?: number;
+    resize_size?: number;
+    rank?: number;
+    steps?: number;
+  };
 }
 
 export interface TrainingStartResponse {
@@ -32,17 +38,18 @@ export interface TrainingStartResponse {
   status: string;
   estimated_duration: number;
   message: string;
+  gpu_type?: string;
 }
 
 export interface TrainingProgressResponse {
   job_id: string;
-  face_model_id: string;
-  face_model?: {
+  character_id: string;
+  character?: {
     id: string;
     name: string;
     status: string;
   };
-  status: 'queued' | 'running' | 'completed' | 'failed';
+  status: 'initializing' | 'queued' | 'pending' | 'running' | 'completed' | 'failed';
   progress: number;
   modal_job_id?: string;
   estimated_duration?: number;
@@ -62,9 +69,9 @@ export interface TrainingProgressResponse {
 export interface InferenceJob {
   id: string;
   user_id: string;
-  face_model_id: string;
+  character_id: string;
   style_id: string;
-  status: 'queued' | 'pending' | 'processing' | 'completed' | 'failed';
+  status: 'initializing' | 'queued' | 'pending' | 'running' | 'completed' | 'failed';
   progress: number;
   modal_job_id?: string;
   estimated_duration?: number;
@@ -84,25 +91,38 @@ export interface InferenceSettings {
 
 export interface InferenceStartRequest {
   user_id: string;
-  face_model_id: string;
+  character_id: string;
   style_id: string;
-  prompt?: string;
-  settings?: InferenceSettings;
+  wardrobe_id?: string;
+  color_id?: string;
+  scene_id?: string;
+  params?: {
+    nb_takes?: number;
+    quality?: string;
+    aspect_ratio?: string;
+    seed?: number;
+  };
+  queue_type?: 'fast' | 'slow' | 'ultra';
+  prompt_override?: { enabled: boolean; prompt: string };
+  settings_override?: {
+    character?: { strength_model?: number; strength_clip?: number };
+    style?: { strength_model?: number; strength_clip?: number };
+  };
 }
 
 export interface InferenceStartResponse {
   job_id: string;
   modal_job_id?: string;
-  status: 'queued' | 'pending';
+  status: 'queued' | 'pending' | 'initializing';
   estimated_duration: number;
   message: string;
 }
 
 export interface InferenceProgressResponse {
   job_id: string;
-  face_model_id: string;
+  character_id: string;
   style_id: string;
-  face_model?: {
+  character?: {
     id: string;
     name: string;
     status: string;
@@ -113,7 +133,7 @@ export interface InferenceProgressResponse {
     description: string;
     thumbnail_url: string;
   };
-  status: 'queued' | 'pending' | 'processing' | 'completed' | 'failed';
+  status: 'initializing' | 'queued' | 'pending' | 'running' | 'completed' | 'failed';
   progress: number;
   modal_job_id?: string;
   estimated_duration?: number;
@@ -129,8 +149,8 @@ export interface InferenceProgressResponse {
   is_complete: boolean;
 }
 
-// Face Model Types
-export interface FaceModel {
+// Character Types
+export interface Character {
   id: string;
   user_id: string;
   name: string;

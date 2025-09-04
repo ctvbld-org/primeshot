@@ -58,33 +58,10 @@ export async function DELETE(
       )
     }
 
-    // Delete associated images using generic API
-    if (imageFilenames.length > 0) {
-      try {
-        const deleteResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/images/delete`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            images: imageFilenames,
-            s3Path: 'app-images/placeholders/styles'
-          })
-        })
-
-        if (!deleteResponse.ok) {
-          console.error('Failed to delete images via API')
-        }
-      } catch (error) {
-        console.error('Error calling image deletion API:', error)
-        // Don't fail the whole operation if image deletion fails
-      }
-    }
-
+    // Note: Do NOT delete S3 images here to avoid cross-environment data loss
     return NextResponse.json({ 
       success: true, 
-      message: 'Style and associated images deleted successfully',
-      deletedImages: imageFilenames.length
+      message: 'Style deleted successfully (images retained on S3)'
     })
 
   } catch (error) {

@@ -8,7 +8,7 @@
     "predev": "node memory-bank/scripts/detect-changes.js --auto",
     "dev": "turbo dev",
     "dev:webapp": "npm run dev --workspace=webapp",
-    "dev:admin": "npm run dev --workspace=admin", 
+    "dev:admin": "npm run dev --workspace=admin",
     "dev:website": "npm run dev --workspace=website",
     "build": "turbo build",
     "list": "task-master list",
@@ -33,9 +33,9 @@
     "ora": "^7.0.1"
   },
   "devDependencies": {
+    "@ngrok/ngrok": "^1.5.2",
     "@types/node": "^24.0.10",
     "concurrently": "^9.2.0",
-    "ngrok": "^5.0.0-beta.2",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.3",
     "turbo": "^2.5.4",

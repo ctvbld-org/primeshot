@@ -1,26 +1,17 @@
 # Task ID: 1
-# Title: Set up single-page layout structure
+# Title: Setup ComfyUI and comfyui-api in Modal container
 # Status: done
 # Dependencies: None
 # Priority: high
-# Description: Create the foundational layout for the new single-page UX with responsive design for mobile and desktop.
+# Description: Set up the Modal container with ComfyUI server and comfyui-api server running on the appropriate ports with proper configuration.
 # Details:
-Create a new page component at `src/pages/index.tsx` that implements the layout structure from the PRD. Include placeholder sections for: Styles Carousel, Floating Option Buttons, LoRA Selector, Generation Controls, and Gallery. Ensure responsive behavior with mobile-first approach where components stack vertically on smaller screens. Set up the necessary context providers for state management across components. Implement feature flag to toggle between old and new UX.
+1. Install Node 20 in the Modal container
+2. Clone the comfyui-api repository from ctvbld/comfyui-api@main
+3. Run npm ci --omit=dev to install dependencies
+4. Configure ComfyUI to run on localhost:8000
+5. Configure comfyui-api to run on localhost:9000
+6. Set up environment variables using Modal secrets
+7. Create startup script that launches both servers in the correct order
 
 # Test Strategy:
-Visual testing across multiple device sizes (mobile, tablet, desktop). Verify layout matches design spec with correct component placement and stacking behavior.
-
-# Task ID: pricing-db-schema-design
-# Title: Design DB schema for dynamic pricing (subscriptions, credit_packs, credit_costs)
-# Status: pending
-# Dependencies: 
-# Priority: high
-# Description: Design the database schema for dynamic pricing, including tables for subscriptions (tiers), credit_packs, and credit_costs. Remove cost_per_credit and savings fields from credit_packs as per user instruction.
-# Details:
-- Create a 'subscriptions' table with fields: id (PK), name, display_name, description, original_price, monthly_price, yearly_price, credits, max_resolution, face_model_training_included, concurrent_jobs, max_face_models, features (JSONB or text[]), popular (boolean), created_at, updated_at
-- Create a 'credit_packs' table with fields: id (PK), name, credits, price, validity_days, created_at, updated_at
-- Create a 'credit_costs' table with fields: id (PK), type (e.g., 'IMAGE_GENERATION_1K', 'IMAGE_GENERATION_2K', 'FACE_MODEL_TRAINING'), value (int), created_at, updated_at
-# Test Strategy:
-- Review schema with team
-- Ensure all current pricing config can be represented in the new tables
-- Validate with sample data
+Verify both servers start correctly with no errors. Test a basic request to ensure comfyui-api can successfully forward to ComfyUI. Check logs for proper initialization.

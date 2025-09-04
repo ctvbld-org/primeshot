@@ -1,0 +1,141 @@
+/* Shared thumbnail styles for training dialog steps */
+
+.thumbnailContainer {
+  position: relative;
+}
+
+.thumbnail {
+  width: 96px;
+  height: 96px;
+  border-radius: 30px;
+  overflow: hidden;
+  background-color: rgb(31, 41, 55); /* gray-800 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.thumbnailImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbnailPlaceholder {
+  color: rgb(156, 163, 175); /* gray-400 */
+  font-size: 14px;
+}
+
+.thumbnailGlow {
+  position: absolute;
+  inset: 0;
+  border-radius: 30px;
+  background-color: #44E3C9;
+  opacity: 0.2;
+  filter: blur(48px);
+  z-index: -10;
+}
+
+/* Text styling for consistent appearance */
+.statusContainer {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* space-y-2 */
+}
+
+.statusTitle {
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 500; /* font-medium */
+  color: white;
+}
+
+.statusDescription {
+  font-size: 0.875rem; /* text-sm */
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.infoContainer {
+  text-align: center;
+  max-width: 28rem; /* max-w-md */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* space-y-2 */
+}
+
+.infoText {
+  font-size: 0.75rem; /* text-xs */
+  color: rgb(107, 114, 128); /* text-muted-foreground */
+}
+
+.successText {
+  font-size: 0.75rem; /* text-xs */
+  color: #44E3C9;
+}
+
+/* Animated dots (fade + scale) used in uploading status */
+@keyframes dotFadePulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+.dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 4px;
+}
+
+.dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 9999px;
+  background-color: currentColor;
+  display: inline-block;
+  transform-origin: center;
+  opacity: 0;
+  animation: dotFadePulse 1.2s ease-in-out infinite;
+}
+
+.dots .dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dots .dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* For progress circle styling */
+.progressContainer {
+  position: relative;
+  width: 128px;
+  height: 128px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progressGlow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background-color: #44E3C9;
+  opacity: 0.2;
+  filter: blur(48px);
+  z-index: -10;
+}

@@ -26,12 +26,6 @@ const SERVER_STUB_RESULT = {
   hasFace: false,
   hasBody: false,
   faceDetectionSkipped: true,
-  genderDetectionSkipped: true,
-  detectedAge: undefined,
-  detectedAgeRange: undefined,
-  detectedBodyType: undefined,
-  hasGlasses: undefined,
-  confidenceScores: undefined,
   issues: [] as string[],
   eyesVisible: true,
   eyeDetectionSkipped: true,
@@ -64,8 +58,8 @@ const MIN_CONTRAST = 0.15; // Reduced from 0.4 - more realistic threshold
 const MAX_BLUR = 0.15; // Reduced from 0.5 - more realistic threshold
 
 // Constants for body detection
-const MIN_BODY_PERCENTAGE = 0.10; // 10% of images should include body
-const MAX_BODY_PERCENTAGE = 0.40; // 40% maximum for body shots
+const MIN_BODY_COUNT = 2; // Minimum 2 images with body shots
+const MAX_BODY_PERCENTAGE = 0.80; // 80% maximum for body shots
 
 // Add after other constants
 const MIN_EYE_CONFIDENCE = 0.3;
@@ -88,7 +82,7 @@ const MIN_AGE_CONFIDENCE = 0.6; // Minimum confidence for age detection
 
 // Contrast detection constants
 const MIN_ACCEPTABLE_CONTRAST = 0.05; // Minimum contrast to avoid completely flat images
-const MIN_SUBJECT_BACKGROUND_SEPARATION = 0.1; // Minimum separation between subject and background
+const MIN_SUBJECT_BACKGROUND_SEPARATION = 0.05; // Minimum separation between subject and background (relaxed)
 const FACE_PERIMETER_SAMPLE_WIDTH = 20; // Width of sampling area around face perimeter
 
 // Subject-background separation penalty tiers (AGGRESSIVE penalties for portrait quality):
@@ -133,21 +127,18 @@ export async function loadModels() {
     
     // Check if models are available at the path
     try {
-      console.log(`Loading TinyFaceDetector from ${modelPath}`);
+      //console.log(`Loading TinyFaceDetector from ${modelPath}`);
       await faceapi.nets.tinyFaceDetector.loadFromUri(modelPath);
-      console.log('TinyFaceDetector loaded successfully');
+      //console.log('TinyFaceDetector loaded successfully');
       
-      console.log(`Loading FaceLandmark68Net from ${modelPath}`);
+      //console.log(`Loading FaceLandmark68Net from ${modelPath}`);
       await faceapi.nets.faceLandmark68Net.loadFromUri(modelPath);
-      console.log('FaceLandmark68Net loaded successfully');
+      //console.log('FaceLandmark68Net loaded successfully');
       
-      console.log(`Loading SsdMobilenetv1 from ${modelPath}`);
-      await faceapi.nets.ssdMobilenetv1.loadFromUri(modelPath);
-      console.log('SsdMobilenetv1 loaded successfully');
+      // Note: We no longer preload SSD MobileNet. It will be loaded lazily
+      // only if TinyFaceDetector fails to detect a face.
 
-      console.log(`Loading AgeGenderNet from ${modelPath}`);
-      await faceapi.nets.ageGenderNet.loadFromUri(modelPath);
-      console.log('AgeGenderNet loaded successfully');
+      // AgeGenderNet removed: we no longer perform age/gender inference
       
       console.log('All face detection models loaded successfully');
     } catch (loadError) {
@@ -175,6 +166,8 @@ export interface ImageQualityResult {
   width: number;
   height: number;
   faceCount: number;
+  // Normalized face bounding box for primary face (0..1 coordinates)
+  faceBox?: { x: number; y: number; width: number; height: number };
   
   // Scores
   score: number;
@@ -194,22 +187,7 @@ export interface ImageQualityResult {
   hasBody: boolean;
   faceDetectionSkipped: boolean;
   
-  // Gender detection
-  detectedGender?: 'male' | 'female';
-  genderDetectionSkipped: boolean;
-  
-  // Auto-detection results for profile form
-  detectedAge?: number;
-  detectedAgeRange?: string; // Maps to AGE_RANGE_OPTIONS values
-  detectedBodyType?: string; // Maps to BODY_TYPE_OPTIONS values
-  hasGlasses?: boolean; // Simplified glasses detection (yes/no only)
-  
-  // Confidence scores for UI feedback
-  confidenceScores?: {
-    age?: number;
-    bodyType?: number;
-    glasses?: number;
-  };
+  // Removed age/gender/bodyType/glasses metadata
   
   // Additional info
   issues: string[];
@@ -220,13 +198,14 @@ export interface ImageQualityResult {
 }
 
 // Analyze image quality using face-api.js and browser canvas
-export async function analyzeImageQuality(file: File): Promise<ImageQualityResult> {
+export async function analyzeImageQuality(file: File, options?: { petMode?: boolean }): Promise<ImageQualityResult> {
   if (isServer) {
     // Return a stubbed "acceptable" result so server code relying on the
     // structure still works without errors.
     return SERVER_STUB_RESULT as any;
   }
   let modelsReady = false;
+  const petMode = !!options?.petMode;
   
   try {
     modelsReady = await loadModels();
@@ -263,20 +242,13 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
   let faceDetectionPerformed = false;
   let primaryFaceDetection: WithFaceLandmarks<{ detection: FaceDetection }> | null = null;
   
-  if (modelsReady && faceapi) {
+  if (!petMode && modelsReady && faceapi) {
     try {
-      // Load gender detection model if needed
-      if (!faceapi.nets.ageGenderNet.isLoaded) {
-        await faceapi.nets.ageGenderNet.loadFromUri('/models');
-      }
-
-      // First try with TinyFaceDetector with lower threshold and include gender detection
+      // First try with TinyFaceDetector with lower threshold
       const faceDetections = await faceapi.detectAllFaces(
         img, 
         new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 })
-      )
-      .withFaceLandmarks()
-      .withAgeAndGender();
+      ).withFaceLandmarks();
       
       // Set faceCount based on TinyFaceDetector results
       result.faceCount = faceDetections.length;
@@ -313,9 +285,10 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
       
       // If no faces detected, try SSD MobileNet as a fallback with lower threshold
       if (faceDetections.length === 0) {
-        // Load SSD model if needed
+        // Load SSD model lazily if needed (not preloaded)
         if (!faceapi.nets.ssdMobilenetv1.isLoaded) {
-          await faceapi.nets.ssdMobilenetv1.loadFromUri('/models');
+          const ssdModelPath = `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/face-models`;
+          await faceapi.nets.ssdMobilenetv1.loadFromUri(ssdModelPath);
         }
         
         // Detect with SSD model with a very low confidence threshold
@@ -326,7 +299,7 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
         
         console.log('SSD MobileNet face detection results:', ssdDetections.length > 0 ? 'Face detected' : 'No face detected');
         
-        if (ssdDetections.length > 0) {
+          if (ssdDetections.length > 0) {
           // SSD found faces that TinyFaceDetector missed
           faceDetectionPerformed = true;
           result.hasFace = true;
@@ -349,6 +322,19 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
           } else {
             result.faceScore = evaluateFacePosition(ssdDetections[0], width, height);
           }
+          
+            // Attach normalized face box for server-side thumbnail hints
+            const fb = ssdDetections[0].detection.box;
+            const bx = Math.max(0, fb.x) / width;
+            const by = Math.max(0, fb.y) / height;
+            const bw = Math.min(width, fb.width) / width;
+            const bh = Math.min(height, fb.height) / height;
+            result.faceBox = {
+              x: Math.min(1, Math.max(0, bx)),
+              y: Math.min(1, Math.max(0, by)),
+              width: Math.min(1, Math.max(0, bw)),
+              height: Math.min(1, Math.max(0, bh))
+            };
           
           if (result.faceScore < 0.7) {
             result.issues.push('Face position is not optimal.');
@@ -382,40 +368,22 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
             faceDetectionPerformed = true;
             result.hasFace = true;
             result.faceCount = rawFaceDetections.length;
-            
-            // Add gender detection for SSD MobileNet results
-            try {
-              if (!faceapi.nets.ageGenderNet.isLoaded) {
-                await faceapi.nets.ageGenderNet.loadFromUri('/models');
-              }
-              const genderDetection = await faceapi.detectSingleFace(img)
-                .withAgeAndGender();
-              
-              if (genderDetection && genderDetection.gender && genderDetection.genderProbability > 0.6) {
-                result.detectedGender = genderDetection.gender.toLowerCase() as 'male' | 'female';
-                result.genderDetectionSkipped = false;
-                
-                // Extract age information from SSD detection
-                if (genderDetection.age && genderDetection.age >= 18) {
-                  result.detectedAge = Math.round(genderDetection.age);
-                  result.detectedAgeRange = mapAgeToRange(result.detectedAge);
-                  
-                  // Initialize confidence scores object if not exists
-                  if (!result.confidenceScores) {
-                    result.confidenceScores = {};
-                  }
-                  result.confidenceScores.age = genderDetection.genderProbability;
-                }
-              } else {
-                result.genderDetectionSkipped = true;
-              }
-            } catch (genderError) {
-              console.error('Gender detection failed:', genderError);
-              result.genderDetectionSkipped = true;
-            }
-            
+                        
             // Since we don't have landmarks, estimate face score based on size and position
             const face = rawFaceDetections[0];
+            // Attach normalized face box from raw detection
+            if (face?.box) {
+              const bx = Math.max(0, face.box.x) / width;
+              const by = Math.max(0, face.box.y) / height;
+              const bw = Math.min(width, face.box.width) / width;
+              const bh = Math.min(height, face.box.height) / height;
+              result.faceBox = {
+                x: Math.min(1, Math.max(0, bx)),
+                y: Math.min(1, Math.max(0, by)),
+                width: Math.min(1, Math.max(0, bw)),
+                height: Math.min(1, Math.max(0, bh))
+              };
+            }
             const relativeSize = (face.box.width * face.box.height) / (width * height);
             const centerX = face.box.x + face.box.width / 2;
             const centerY = face.box.y + face.box.height / 2;
@@ -452,38 +420,17 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
         result.faceCount = 0;
         result.faceScore = 0.1; // Very low score for no face
         result.issues.push('No face detected.');
-        result.genderDetectionSkipped = true;
+        // gender detection removed
       } else if (faceDetections.length > 1) {
         result.hasFace = true;
         result.faceCount = faceDetections.length;
         result.issues.push('Multiple faces detected.');
         result.faceScore = 0.5;
-        result.genderDetectionSkipped = true;
+        // gender detection removed
       } else {
         // One face detected
         result.hasFace = true;
         result.faceCount = 1;
-        
-        // Get gender and age from detection
-        const detection = faceDetections[0];
-        if (detection.gender && detection.genderProbability > 0.6) {
-          result.detectedGender = detection.gender.toLowerCase() as 'male' | 'female';
-          result.genderDetectionSkipped = false;
-        } else {
-          result.genderDetectionSkipped = true;
-        }
-        
-        // Extract age information
-        if (detection.age && detection.age >= 18) {
-          result.detectedAge = Math.round(detection.age);
-          result.detectedAgeRange = mapAgeToRange(result.detectedAge);
-          
-          // Initialize confidence scores object if not exists
-          if (!result.confidenceScores) {
-            result.confidenceScores = {};
-          }
-          result.confidenceScores.age = detection.genderProbability; // Use same confidence as gender
-        }
         
         // Evaluate face position and size
         result.faceScore = evaluateFacePosition(faceDetections[0], width, height);
@@ -506,29 +453,14 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
           
           if (!eyeCheck.visible) {
             if (eyeCheck.confidence > MIN_EYE_CONFIDENCE) {
+              // Record as an issue, but do not hard-reject here. Scoring already penalizes covered eyes.
               result.issues.push('Eyes are not clearly visible (possibly covered by sunglasses or hair)');
-              result.isAcceptable = false;
             } else {
               // If confidence is low, add a warning but don't reject
               result.issues.push('Eye visibility could not be determined with high confidence');
             }
           }
-          
-          // Eye color and hair color detection removed - unreliable with canvas analysis
-          
-          // Glasses detection removed - not reliable enough
-          
-          // Detect body type (basic analysis)
-          const bodyTypeResult = detectBodyType(img, faceDetections[0]);
-          if (bodyTypeResult.confidence > 0.3) {
-            result.detectedBodyType = bodyTypeResult.bodyType;
-            
-            // Initialize confidence scores object if not exists
-            if (!result.confidenceScores) {
-              result.confidenceScores = {};
-            }
-            result.confidenceScores.bodyType = bodyTypeResult.confidence;
-          }
+                    
         }
       }
     } catch (error) {
@@ -536,22 +468,31 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
       result.hasBody = false;
       result.bodyScore = 0;
       result.faceDetectionSkipped = true;
-      result.genderDetectionSkipped = true;
+      // gender detection removed
       result.hasFace = false; 
       result.faceCount = 0;
       result.faceScore = 0.5; // Give a medium score as fallback
       result.issues.push('Face/body/gender detection was skipped.');
     }
-  } else {
+  } else if (!petMode) {
     // Models not available
     result.hasBody = false;
     result.bodyScore = 0;
     result.faceDetectionSkipped = true;
-    result.genderDetectionSkipped = true;
+    // gender detection removed
     result.hasFace = false;
     result.faceCount = 0;
     result.faceScore = 0.5; // Medium fallback score when face detection is skipped
     result.issues.push('Face/body/gender detection was skipped.');
+  } else {
+    // Pet mode: skip human face/eye detection entirely
+    result.hasBody = false;
+    result.bodyScore = 0;
+    result.faceDetectionSkipped = true;
+    result.hasFace = false;
+    result.faceCount = 0;
+    result.faceScore = 0.7; // neutral-passing when skipped
+    result.eyeDetectionSkipped = true;
   }
   
   // Analyze image stats using canvas
@@ -569,12 +510,12 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
   
   // Check contrast
   result.contrastScore = calculateContrastScore(stats.contrast, stats.subjectBackgroundSeparation);
-  if (result.contrastScore < 0.6) { // Reduced from 0.7 to be more forgiving
+  if (result.contrastScore < 0.5) { // Further reduced to be more forgiving
     // Check if the issue is specifically subject-background separation
     if (stats.subjectBackgroundSeparation !== undefined && stats.subjectBackgroundSeparation < MIN_SUBJECT_BACKGROUND_SEPARATION) {
-      if (stats.subjectBackgroundSeparation < 0.05) {
+      if (stats.subjectBackgroundSeparation < 0.03) {
         result.issues.push('Subject and background are nearly identical in tone - use a strongly contrasting background.');
-      } else if (stats.subjectBackgroundSeparation < 0.07) {
+      } else if (stats.subjectBackgroundSeparation < 0.05) {
         result.issues.push('Subject and background are too similar in tone - consider using a contrasting background.');
       } else {
         result.issues.push('Subject and background could be more distinct - try a different background color.');
@@ -588,18 +529,10 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
   
    // Check blur
   result.blurScore = calculateBlurScore(stats.blurValue);
-  const passesBlurTest = result.blurScore >= 0.8; // INCREASED from 0.75 for more aggressive blur rejection
+  const passesBlurTest = result.blurScore >= 0.5; // Relaxed from 0.8
   
-  // HARD REJECTION for severely blurred images (bypass overall scoring)
-  const HARD_BLUR_REJECTION_THRESHOLD = 0.2; // If blur score is below this, immediately reject
-  if (result.blurScore < HARD_BLUR_REJECTION_THRESHOLD) {
-    result.issues.push('Image is too blurry and does not meet minimum quality standards.');
-    result.isAcceptable = false; // Hard rejection - skip overall scoring
-    
-    // Clean up and return early
-    URL.revokeObjectURL(img.src);
-    return result;
-  }
+  // Remove hard auto-reject for blur: keep as warning and rely on overall score
+  // This prevents portrait-mode bokeh (sharp subject, blurry background) from failing outright.
   
   if (!passesBlurTest) {
     result.issues.push('Image appears to be blurry or lacks sufficient detail.');
@@ -612,10 +545,25 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
   result.score = rawOverallScore * 100; // Convert to 0-100 scale
   
   // Determine if image is acceptable
-  result.isAcceptable = isAcceptable(result);
+  result.isAcceptable = isAcceptable(result, { petMode });
   
   // Clean up
   URL.revokeObjectURL(img.src);
+  
+  // Attach normalized face box from primary detection if available
+  if (primaryFaceDetection) {
+    const fb = primaryFaceDetection.detection.box;
+    const bx = Math.max(0, fb.x) / width;
+    const by = Math.max(0, fb.y) / height;
+    const bw = Math.min(width, fb.width) / width;
+    const bh = Math.min(height, fb.height) / height;
+    result.faceBox = {
+      x: Math.min(1, Math.max(0, bx)),
+      y: Math.min(1, Math.max(0, by)),
+      width: Math.min(1, Math.max(0, bw)),
+      height: Math.min(1, Math.max(0, bh))
+    };
+  }
   
   return result;
 }
@@ -629,159 +577,6 @@ async function createImageElement(file: File): Promise<HTMLImageElement> {
     img.src = URL.createObjectURL(file);
   });
 }
-
-// Age detection helper function
-function mapAgeToRange(age: number): string {
-  if (age >= 18 && age <= 25) return '18-25';
-  if (age >= 26 && age <= 30) return '26-30';
-  if (age >= 31 && age <= 35) return '31-35';
-  if (age >= 36 && age <= 40) return '36-40';
-  if (age >= 41 && age <= 45) return '41-45';
-  if (age >= 46 && age <= 50) return '46-50';
-  if (age >= 51 && age <= 55) return '51-55';
-  if (age >= 56 && age <= 60) return '56-60';
-  if (age >= 61 && age <= 65) return '61-65';
-  if (age >= 66 && age <= 70) return '66-70';
-  if (age >= 71 && age <= 75) return '71-75';
-  if (age >= 76 && age <= 80) return '76-80';
-  if (age >= 81 && age <= 85) return '81-85';
-  if (age >= 86 && age <= 90) return '86-90';
-  return '86-90';
-}
-
-// Eye color and hair color detection functions removed - unreliable with canvas analysis
-
-// Body type detection function
-function detectBodyType(
-  img: HTMLImageElement,
-  faceDetection: WithFaceLandmarks<{ detection: FaceDetection }>
-): { bodyType: string; confidence: number } {
-  try {
-    // Basic body type classification based on face and image proportions
-    // This is a simplified approach since accurate body type detection requires full body analysis
-    
-    const face = faceDetection.detection.box;
-    const faceWidth = face.width;
-    const faceHeight = face.height;
-    const imageWidth = img.width;
-    const imageHeight = img.height;
-    
-    // Calculate face-to-image ratios
-    const faceToImageWidthRatio = faceWidth / imageWidth;
-    const faceToImageHeightRatio = faceHeight / imageHeight;
-    
-    // Calculate face position relative to image
-    const faceCenterX = face.x + faceWidth / 2;
-    const faceCenterY = face.y + faceHeight / 2;
-    const relativeX = faceCenterX / imageWidth;
-    const relativeY = faceCenterY / imageHeight;
-    
-    // Estimate body visibility and proportions
-    const hasBodySpace = relativeY < 0.6; // Face is in upper 60% suggests body might be visible
-    const faceAspectRatio = faceWidth / faceHeight;
-    
-    // Very simple heuristic-based classification
-    // Note: This is quite limited without full body detection
-    
-    let bodyType = 'average';
-    let confidence = 0.3; // Low confidence for basic heuristics
-    
-    if (hasBodySpace) {
-      // If we can see more than just the face, attempt basic classification
-      
-      // Wider face relative to image might suggest broader build
-      if (faceToImageWidthRatio > 0.25) {
-        if (faceAspectRatio > 1.1) {
-          bodyType = 'heavyset';
-          confidence = 0.4;
-        } else {
-          bodyType = 'muscular';
-          confidence = 0.35;
-        }
-      }
-      // Smaller face relative to image might suggest slimmer build
-      else if (faceToImageWidthRatio < 0.15) {
-        bodyType = 'slim';
-        confidence = 0.4;
-      }
-      // Face positioned higher might suggest taller build
-      else if (relativeY < 0.3 && faceToImageHeightRatio < 0.2) {
-        bodyType = 'tall';
-        confidence = 0.35;
-      }
-      // Face positioned lower might suggest shorter build  
-      else if (relativeY > 0.5 && faceToImageHeightRatio > 0.25) {
-        bodyType = 'short';
-        confidence = 0.35;
-      }
-      else {
-        bodyType = 'average';
-        confidence = 0.3;
-      }
-    }
-    
-    // Additional classification based on facial features
-    const landmarks = faceDetection.landmarks;
-    
-    try {
-      // Analyze jaw line for additional body type hints
-      const jaw = landmarks.getJawOutline();
-      if (jaw && jaw.length > 0) {
-        const jawWidth = Math.max(...jaw.map((p: any) => p.x)) - Math.min(...jaw.map((p: any) => p.x));
-        const jawToFaceRatio = jawWidth / faceWidth;
-        
-        // Strong jaw might indicate more muscular build
-        if (jawToFaceRatio > 0.8) {
-          if (bodyType === 'average') {
-            bodyType = 'muscular';
-            confidence = 0.4;
-          } else if (bodyType === 'muscular') {
-            confidence = Math.min(0.6, confidence + 0.1);
-          }
-        }
-        // Narrow jaw might indicate slimmer build
-        else if (jawToFaceRatio < 0.6) {
-          if (bodyType === 'average') {
-            bodyType = 'slim';
-            confidence = 0.4;
-          } else if (bodyType === 'slim') {
-            confidence = Math.min(0.6, confidence + 0.1);
-          }
-        }
-      }
-    } catch (landmarkError) {
-      // If landmark analysis fails, keep existing classification
-    }
-    
-    return {
-      bodyType,
-      confidence: Math.max(0.2, Math.min(0.7, confidence)) // Keep confidence reasonable
-    };
-    
-  } catch (error) {
-    console.error('Error detecting body type:', error);
-    return { bodyType: 'average', confidence: 0 };
-  }
-}
-
-/* 
-// DEPRECATED: Resolution is now a binary pass/fail check, not scored
-function checkResolution(width: number, height: number): number {
-  if (width < MIN_WIDTH || height < MIN_HEIGHT) {
-    const widthRatio = width / MIN_WIDTH;
-    const heightRatio = height / MIN_HEIGHT;
-    const ratio = Math.min(widthRatio, heightRatio);
-    
-    // More aggressive scoring for below-minimum dimensions
-    // If either dimension is less than 70% of minimum, score drops rapidly
-    if (ratio < 0.7) {
-      return ratio * 0.5; // Halve the score for significantly undersized images
-    }
-    return ratio * 0.7; // 70% max score for any undersized dimension
-  }
-  return 1;
-}
-*/
 
 function evaluateFacePosition(detection: WithFaceLandmarks<{ detection: FaceDetection }>, imgWidth: number, imgHeight: number): number {
   const face = detection.detection;
@@ -934,17 +729,13 @@ function detectBlur(canvas: HTMLCanvasElement, faceDetection: WithFaceLandmarks<
   const width = canvas.width;
   const height = canvas.height;
   
-  // Method 1: Face-focused blur detection if face is available
+  // Compute face-focused blur when a face is available
+  let faceBlur: number | null = null;
   if (faceDetection) {
-    const faceBlur = detectFaceRegionBlur(canvas, faceDetection);
-    
-    // If face detection gives reasonable results, use it
-    if (faceBlur > 0.05) {
-      return faceBlur;
-    }
+    faceBlur = detectFaceRegionBlur(canvas, faceDetection);
   }
   
-  // Method 2: Multiple full-image blur detection algorithms
+  // Multiple full-image blur detection algorithms (background may be intentionally blurred)
   const results = {
     varianceOfLaplacian: detectBlurVarianceOfLaplacian(canvas),
     tenengrad: detectBlurTenengrad(canvas),
@@ -953,7 +744,6 @@ function detectBlur(canvas: HTMLCanvasElement, faceDetection: WithFaceLandmarks<
   };
   
   // Combine multiple methods with weighting
-  // Weight more reliable methods higher
   const combinedScore = (
     results.varianceOfLaplacian * 0.3 +
     results.tenengrad * 0.25 +
@@ -961,8 +751,14 @@ function detectBlur(canvas: HTMLCanvasElement, faceDetection: WithFaceLandmarks<
     results.modifiedLaplacian * 0.2
   );
   
-  // Don't cap the minimum - let the actual differences show through
-  return Math.min(0.95, combinedScore);
+  const globalScore = Math.min(0.95, combinedScore);
+  
+  // Prefer the sharper face region over globally blurred backgrounds (portrait-mode bokeh)
+  if (faceBlur !== null) {
+    return Math.min(0.95, Math.max(faceBlur, globalScore));
+  }
+  
+  return globalScore;
 }
 
 // Face-region focused blur detection
@@ -1196,18 +992,18 @@ function calculateContrastScore(contrast: number, subjectBackgroundSeparation?: 
     
     const separationRatio = subjectBackgroundSeparation / MIN_SUBJECT_BACKGROUND_SEPARATION;
     
-    // Extremely aggressive penalty - poor separation should almost guarantee failure
+    // Less aggressive penalties – allow borderline images to pass
     let maxScoreWithPoorSeparation;
     
-    if (subjectBackgroundSeparation < 0.05) {
-      // Very poor separation (< 5% difference) - severe penalty
-      maxScoreWithPoorSeparation = 0.35; // Almost guaranteed failure
-    } else if (subjectBackgroundSeparation < 0.07) {
-      // Poor separation (5-7% difference) - major penalty
-      maxScoreWithPoorSeparation = 0.45;
-    } else {
-      // Moderate separation issue (7-10% difference) - significant penalty
+    if (subjectBackgroundSeparation < 0.035) {
+      // Very poor separation – still penalize but not an auto-fail
       maxScoreWithPoorSeparation = 0.55;
+    } else if (subjectBackgroundSeparation < 0.055) {
+      // Poor separation – moderate cap
+      maxScoreWithPoorSeparation = 0.65;
+    } else {
+      // Mild separation issue – light cap
+      maxScoreWithPoorSeparation = 0.75;
     }
     
     // Calculate base score then apply harsh separation penalty
@@ -1350,22 +1146,48 @@ function calculateOverallScore(result: ImageQualityResult): number {
   return score;
 }
 
-// Add function to check body percentage requirements
-export function checkBodyPercentageRequirements(results: Record<string, ImageQualityResult>): boolean {
-  if (isServer) return true;
+// Add function to check body shot requirements
+export function checkBodyShotRequirements(results: Record<string, ImageQualityResult>): { 
+  isValid: boolean; 
+  bodyCount: number; 
+  totalImages: number; 
+  bodyPercentage: number;
+  errors: string[];
+} {
+  if (isServer) return { isValid: true, bodyCount: 0, totalImages: 0, bodyPercentage: 0, errors: [] };
+  
   const totalImages = Object.keys(results).length;
-  if (totalImages === 0) return false;
+  if (totalImages === 0) return { isValid: false, bodyCount: 0, totalImages: 0, bodyPercentage: 0, errors: ['No images uploaded'] };
   
   const bodyCount = Object.values(results).filter(r => r.hasBody).length;
   const bodyPercentage = bodyCount / totalImages;
   
-  return bodyPercentage >= MIN_BODY_PERCENTAGE && bodyPercentage <= MAX_BODY_PERCENTAGE;
+  const errors: string[] = [];
+  
+  // Check minimum body count
+  if (bodyCount < MIN_BODY_COUNT) {
+    errors.push(`Need at least ${MIN_BODY_COUNT} body shots (currently have ${bodyCount})`);
+  }
+  
+  // Check maximum percentage
+  if (bodyPercentage > MAX_BODY_PERCENTAGE) {
+    errors.push(`Too many body shots (${Math.round(bodyPercentage * 100)}%). Maximum ${Math.round(MAX_BODY_PERCENTAGE * 100)}% allowed`);
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    bodyCount,
+    totalImages,
+    bodyPercentage,
+    errors
+  };
 }
 
-function isAcceptable(result: ImageQualityResult): boolean {
+function isAcceptable(result: ImageQualityResult, opts?: { petMode?: boolean }): boolean {
   // Track critical failures separately
   const criticalFailures: string[] = [];
   const warnings: string[] = [];
+  const petMode = !!opts?.petMode;
 
   // HARD REQUIREMENT: Check for minimum dimensions first
   // This is a binary pass/fail - no gradual scoring
@@ -1377,27 +1199,32 @@ function isAcceptable(result: ImageQualityResult): boolean {
     return false;
   }
   
-  // Check for single face
+  // Check for single face (skip as critical when pet mode)
   result.hasSingleFace = result.faceCount === 1;
   result.hasFace = result.faceCount === 1;
-  if (!result.hasSingleFace) {
-    if (result.faceCount === 0) {
-      criticalFailures.push('No face detected in the image');
-    } else {
-      criticalFailures.push('Multiple faces detected in the image');
+  if (!petMode) {
+    if (!result.hasSingleFace) {
+      if (result.faceCount === 0) {
+        criticalFailures.push('No face detected in the image');
+      } else {
+        criticalFailures.push('Multiple faces detected in the image');
+      }
     }
   }
 
   // Check eye visibility as a critical factor
   const hasVisibleEyes = result.eyeDetectionSkipped || result.eyesVisible;
-  if (!result.eyeDetectionSkipped && !result.eyesVisible) {
-    criticalFailures.push('Eyes are not clearly visible (possibly covered by sunglasses or hair)');
+  if (!petMode) {
+    if (!result.eyeDetectionSkipped && !result.eyesVisible) {
+      // No longer a critical failure: already penalized in score; keep as warning
+      warnings.push('Eyes are not clearly visible (possibly covered by sunglasses or hair)');
+    }
   }
 
   // Gender matching removed - no longer checking gender validation
   
   // Check for overall quality score
-  result.hasGoodScore = result.score >= 0.55;
+  result.hasGoodScore = result.score >= 0.5; // Relaxed overall score threshold
   if (!result.hasGoodScore) {
     if (criticalFailures.length === 0) {
       // Only add as a critical failure if there are no other critical issues
@@ -1691,6 +1518,7 @@ function initializeResult(width: number, height: number): ImageQualityResult {
     width,
     height,
     faceCount: 0,
+    faceBox: undefined,
     score: 0,
     faceScore: 0,
     bodyScore: 0,
@@ -1705,12 +1533,6 @@ function initializeResult(width: number, height: number): ImageQualityResult {
     hasFace: false,
     hasBody: false,
     faceDetectionSkipped: false,
-    genderDetectionSkipped: true,
-    detectedAge: undefined,
-    detectedAgeRange: undefined,
-    detectedBodyType: undefined,
-    hasGlasses: undefined,
-    confidenceScores: undefined,
     issues: [],
     eyesVisible: false,
     eyeDetectionSkipped: false

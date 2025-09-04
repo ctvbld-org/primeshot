@@ -38,3 +38,8 @@ supabase/config/auth.json
 
 # Claude
 .claude/
+
+# Added by Claude Task Master
+# Task files
+tasks.json
+tasks/ 

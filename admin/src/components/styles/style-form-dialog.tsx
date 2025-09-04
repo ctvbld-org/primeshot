@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -42,7 +43,7 @@ import { toast } from 'sonner'
 import type { Database } from '@/types/supabase'
 import { shouldTranslateRow, translateRow, getTranslatableColumns } from '@/lib/translation'
 import { useToast } from '@primeshot/common/web/ui/use-toast'
-import getOptionsImage from '@/lib/get-options-image'
+import { getSceneOptionImage, getWardrobeOptionImage } from '@/lib/get-options-image'
 
 // Add TagWithImage component
 function TagWithImage({ label, img, color }: { label: string; img?: string; color?: string }) {
@@ -74,6 +75,7 @@ type Color = Database['public']['Tables']['style_colors']['Row']
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   prompt: z.string().optional(),
+  lora_path: z.string().optional(),
   preview_images: z.array(z.string()).min(1, 'At least one preview image is required'),
   available_scenes: z.array(z.string()).min(1, 'At least one scene is required'),
   available_wardrobes: z.array(z.string()).min(1, 'At least one wardrobe is required'),
@@ -139,6 +141,7 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
     defaultValues: {
       name: '',
       prompt: '',
+      lora_path: '',
       preview_images: [],
       available_scenes: [],
       available_wardrobes: [],
@@ -156,6 +159,7 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
     return (
       currentValues.name !== originalValues.name ||
       currentValues.prompt !== originalValues.prompt ||
+      currentValues.lora_path !== originalValues.lora_path ||
       JSON.stringify(currentValues.preview_images.sort()) !== JSON.stringify(originalValues.preview_images.sort()) ||
       JSON.stringify(currentValues.available_scenes.sort()) !== JSON.stringify(originalValues.available_scenes.sort()) ||
       JSON.stringify(currentValues.available_wardrobes.sort()) !== JSON.stringify(originalValues.available_wardrobes.sort()) ||
@@ -191,6 +195,7 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
     const newValues: FormData = style ? {
       name: style.name,
       prompt: style.prompt || '',
+      lora_path: style.lora_path || '',
       preview_images: style.preview_images as string[] || [],
       available_scenes: style.available_scenes || [],
       available_wardrobes: style.available_wardrobes || [],
@@ -198,6 +203,7 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
     } : {
       name: '',
       prompt: '',
+      lora_path: '',
       preview_images: [],
       available_scenes: [],
       available_wardrobes: [],
@@ -218,41 +224,27 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
   const mutation = useMutation({
     mutationFn: async (data: FormData & { translations?: any }) => {
       if (style) {
-        // For updates, check if any images were removed and delete them
-        const oldImages = (style.preview_images as string[]) || []
-        const newImages = data.preview_images || []
-        const removedImages = oldImages.filter(img => !newImages.includes(img))
-        
-        if (removedImages.length > 0) {
-          try {
-            await fetch('/api/images/delete', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                images: removedImages,
-                s3Path: 'app-images/placeholders/styles'
-              })
-            })
-          } catch (error) {
-            console.error('Failed to delete removed style images:', error)
-            // Don't fail the whole operation if image deletion fails
-          }
+        // Update (retain S3 images even if removed from this style)
+        const res = await fetch('/api/admin/styles', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: style.id, ...data }),
+        })
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}))
+          throw new Error(err.error || 'Failed to update style')
         }
-
-        // Update
-        const { error } = await supabase
-          .from('styles')
-          .update(data)
-          .eq('id', style.id)
-        if (error) throw error
       } else {
         // Create
-        const { error } = await supabase
-          .from('styles')
-          .insert([data])
-        if (error) throw error
+        const res = await fetch('/api/admin/styles', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        })
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}))
+          throw new Error(err.error || 'Failed to create style')
+        }
       }
     },
     onSuccess: () => {
@@ -268,9 +260,14 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
     },
   })
 
+  // Defer upload integration for preview images
+  const uploaders = React.useRef<(() => Promise<string[]>)[]>([])
+  const registerUploader = (u: () => Promise<string[]>) => { uploaders.current.push(u) }
+
   const onSubmit = async (data: FormData) => {
     setIsLoading(true)
     try {
+      for (const up of uploaders.current) { await up() }
       const columns = getTranslatableColumns('styles')
       const needsTranslation = shouldTranslateRow(style ?? undefined, data, columns)
       let translations = style?.translations || null
@@ -335,6 +332,23 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
 
               <FormField
                 control={form.control}
+                name="lora_path"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>LoRA Path</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="/data/style_loras/.../wan_lora_****_****.safetensors" />
+                    </FormControl>
+                    <FormDescription>
+                      Optional path to the LoRA model file for this style
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="preview_images"
                 render={({ field }) => (
                   <FormItem>
@@ -345,6 +359,8 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
                         onChange={field.onChange}
                         styleName={form.watch('name')}
                         uploadPath="app-images/placeholders/styles"
+                        deferUpload
+                        onRegisterUploader={registerUploader}
                         maxFiles={5}
                       />
                     </FormControl>
@@ -371,11 +387,12 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
                         placeholder="Select scenes"
                         showImages
                         className="border-input bg-background hover:bg-background"
+                        resolveImageUrl={(opt)=> opt.image ? (getSceneOptionImage as any)(opt.image) : ''}
                         renderTag={(option) => (
                           <Badge variant="outline" className="text-xs px-0 flex-shrink-0">
                             <TagWithImage 
                               label={option.label} 
-                              img={option.image ? getOptionsImage(option.image) : undefined} 
+                              img={option.image ? getSceneOptionImage(option.image) : undefined} 
                             />
                           </Badge>
                         )}
@@ -404,11 +421,12 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
                         placeholder="Select wardrobes"
                         showImages
                         className="border-input bg-background hover:bg-background"
+                        resolveImageUrl={(opt)=> opt.image ? (getWardrobeOptionImage as any)(opt.image) : ''}
                         renderTag={(option) => (
                           <Badge variant="secondary" className="text-xs px-0 flex-shrink-0">
                             <TagWithImage 
                               label={option.label} 
-                              img={option.image ? getOptionsImage(option.image) : undefined} 
+                              img={option.image ? getWardrobeOptionImage(option.image) : undefined} 
                             />
                           </Badge>
                         )}

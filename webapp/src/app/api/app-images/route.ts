@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { s3Client } from '@/lib/s3';
+import { createClient } from '@/lib/supabase/server';
 
 /**
  * API route for proxying S3 image requests through our server
@@ -19,7 +20,8 @@ const isValidPath = (path: string) => {
     (
       path.startsWith('app-images/') || 
       path.startsWith('app-images/placeholders/') ||
-      path.startsWith('app-images/placeholders/options/')
+      path.startsWith('app-images/placeholders/options/') ||
+      path.startsWith('user-images/') // Allow user-generated inference images
     ) && 
     // AND has a valid file extension
     /\.(jpg|jpeg|png|webp|svg)$/i.test(path)
@@ -58,6 +60,23 @@ export async function GET(request: Request) {
     if (!isValidPath(path)) {
       return NextResponse.json({ error: 'Invalid path parameter' }, { status: 400 });
     }
+
+    // For user-images, verify authentication and authorization
+    if (path.startsWith('user-images/')) {
+      const supabase = await createClient();
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+      if (authError || !user) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+
+      // Verify the user has access to this image
+      // Extract user_id from the path (format: user-images/{user_id}/...)
+      const pathParts = path.split('/');
+      if (pathParts[1] !== user.id) {
+        return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+      }
+    }
     
     // First generate a signed URL that we can fetch
     const command = new GetObjectCommand({
@@ -68,15 +87,25 @@ export async function GET(request: Request) {
     // Generate a short-lived signed URL
     const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 60 });
     
-    // Fetch the data from the signed URL
-    const response = await fetch(signedUrl);
-    
-    if (!response.ok) {
-      return NextResponse.json(
-        { error: `Failed to retrieve image: ${response.statusText}` }, 
-        { status: response.status }
-      );
-    }
+    // Fetch the data from the signed URL with retry (up to 3 attempts, backoff)
+    const tryFetch = async (url: string, attempts = 3): Promise<Response> => {
+      let lastErr: any = null;
+      for (let i = 0; i < attempts; i++) {
+        try {
+          const res = await fetch(url, { cache: 'no-store' });
+          if (res.ok) return res;
+          lastErr = new Error(res.statusText || `HTTP ${res.status}`);
+        } catch (e) {
+          lastErr = e;
+        }
+        // simple exponential backoff: 200ms, 400ms
+        const delayMs = 200 * Math.pow(2, i);
+        await new Promise(r => setTimeout(r, delayMs));
+      }
+      throw lastErr || new Error('Unknown fetch error');
+    };
+
+    const response = await tryFetch(signedUrl, 3);
     
     // Get the image data
     const imageData = await response.arrayBuffer();

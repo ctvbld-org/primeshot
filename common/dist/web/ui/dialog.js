@@ -19,8 +19,8 @@ function DialogClose({ ...props }) {
 }
 const DialogOverlay = React.forwardRef(({ className, ...props }, ref) => (_jsx(DialogPrimitive.Overlay, { ref: ref, "data-slot": "dialog-overlay", className: `${styles.overlay} ${className || ''}`, ...props })));
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
-function DialogContent({ className, children, ...props }) {
-    return (_jsxs(DialogPortal, { "data-slot": "dialog-portal", children: [_jsx(DialogOverlay, {}), _jsx(DialogPrimitive.Content, { "data-slot": "dialog-content", className: `${styles.dialog} ${className || ''}`, ...props, children: _jsx("div", { className: styles.content, children: children }) })] }));
+function DialogContent({ className, children, fullscreen = false, noContainer = false, ...props }) {
+    return (_jsxs(DialogPortal, { "data-slot": "dialog-portal", children: [_jsx(DialogOverlay, {}), _jsx(DialogPrimitive.Content, { "data-slot": "dialog-content", className: `${styles.dialog} ${(fullscreen || noContainer) ? styles.fullscreen : ''} ${noContainer ? styles.noContainer : ''} ${className || ''}`, ...props, children: _jsx("div", { className: styles.content, children: children }) })] }));
 }
 function DialogHeader({ className, children, ...props }) {
     const { t } = useTranslation('common');

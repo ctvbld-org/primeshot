@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@primeshot/common/web/ui/alert-dialog';
 import { Icon } from '@primeshot/common/web/Icon';
@@ -90,31 +92,29 @@ class ConfirmationService {
         padding: '1.5rem',
         backgroundColor: '#083533',
         border: '1px solid rgba(229,251,250,0.2)',
-        borderRadius: '0.5rem',
+        borderRadius: '32px',
         color: 'white',
         maxWidth: '28rem',
         width: '100%'
       }
     }, [
-      // Header with icon and title
-      React.createElement('div', { key: 'header', style: { marginBottom: '1rem' } }, [
-        icon && React.createElement('div', {
-          key: 'icon',
-          style: { display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }
-        }, React.createElement(Icon, { variant: icon as any, size: 48, className: styles.icon })),
-        React.createElement('h2', {
-          key: 'title',
-          style: { fontSize: '1.125rem', fontWeight: '600', textAlign: 'center', marginBottom: '0.5rem' }
-        }, title),
-        React.createElement('p', {
-          key: 'description',
-          style: { fontSize: '0.875rem', color: '#9ca3af', textAlign: 'center', lineHeight: '1.4' }
-        }, description)
-      ]),
+      // Inline title/description (no dialog header wrapper)
+      icon && React.createElement('div', {
+        key: 'icon',
+        style: { display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.75rem' }
+      }, React.createElement(Icon, { variant: icon as any, size: 48, className: styles.icon })),
+      React.createElement('h2', {
+        key: 'title',
+        style: { fontSize: '1.125rem', fontWeight: '600', textAlign: 'center', marginBottom: '0.5rem' }
+      }, title),
+      React.createElement('p', {
+        key: 'description',
+        style: { fontSize: '0.875rem', color: '#9ca3af', textAlign: 'center', lineHeight: '1.4', marginBottom: '1rem' }
+      }, description),
       // Footer with buttons
       React.createElement('div', {
         key: 'footer',
-        style: { display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginTop: '1.5rem' }
+        style: { display: 'flex', gap: '0.5rem', justifyContent: 'center', marginTop: '1.5rem' }
       }, [
         React.createElement('button', {
           key: 'cancel',
@@ -153,8 +153,9 @@ class ConfirmationService {
       ])
     ]);
 
-    // Open the dialog using the existing service
-    dialogServiceSingleton.openDialog(confirmationContent);
+    // Open the dialog using the existing service. We no longer pass non-DOM props directly to div.
+    // Instead, rely on DialogService to always include an accessible title/description.
+    dialogServiceSingleton.openDialog(React.createElement('div', null, confirmationContent));
 
     return promise;
   }

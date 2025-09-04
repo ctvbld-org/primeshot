@@ -19,6 +19,7 @@ interface UseFileUploadOptions {
   chunkSize?: number
   existingImages?: FileWithScore[]
   onRemoveExistingImage?: (imageId: string) => void
+  petMode?: boolean
 }
 
 interface FileProgress {
@@ -42,10 +43,11 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
 
   // Split options into separate constants for better memoization
   const {
-    maxSize = 100 * 1024 * 1024,
+    maxSize = 25 * 1024 * 1024,
     allowedTypes = ['image/jpeg', 'image/png'],
     maxFiles = UPLOAD_CONSTANTS.MAX_IMAGES,
-    existingImages = []
+    existingImages = [],
+    petMode = false
   } = useMemo(() => {
     return options;
   }, [options]);
@@ -60,7 +62,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
       const existingFileStates = existingImages.map((file: FileWithScore) => ({
         file: file as unknown as File,
         previewUrl: file.url,
-        qualityResult: {
+          qualityResult: {
           width: 0,
           height: 0,
           faceCount: 1,
@@ -77,9 +79,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
           isAcceptable: true,
           hasFace: true,
           hasBody: true,
-          faceDetectionSkipped: false,
-          genderDetectionSkipped: false,
-          genderMatchesUser: true,
+            faceDetectionSkipped: false,
           eyesVisible: true,
           eyeDetectionSkipped: false,
           issues: []
@@ -231,7 +231,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
         try {
           // Random delay between 400ms and 800ms
           await delay(Math.floor(Math.random() * (800 - 400 + 1)) + 400)
-          const result = await analyzeImageQuality(file)
+          const result = await analyzeImageQuality(file, { petMode })
           results[file.name] = result
           
           if (result.isAcceptable) {
@@ -278,7 +278,6 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
             hasFace: false,
             hasBody: false,
             faceDetectionSkipped: true,
-            genderDetectionSkipped: true,
             eyesVisible: false,
             eyeDetectionSkipped: true,
             issues: ['Analysis error']
@@ -301,7 +300,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
       for (let i = currentIndex; i < files.length; i++) {
         const file = files[i]
         try {
-          const result = await analyzeImageQuality(file)
+          const result = await analyzeImageQuality(file, { petMode })
           results[file.name] = result
           
           // Collect rejected file state but don't add it yet
@@ -333,7 +332,6 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
             hasFace: false,
             hasBody: false,
             faceDetectionSkipped: true,
-            genderDetectionSkipped: true,
             eyesVisible: false,
             eyeDetectionSkipped: true,
             issues: ['Analysis error']
@@ -485,7 +483,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     setFileStates([])
   }
 
-  const uploadFile = async (file: File, orderId: string, faceModelId: string) => {
+  const uploadFile = async (file: File, orderId: string, characterId: string) => {
     const index = fileStates.findIndex(state => state.file === file)
     if (index === -1) return
 
@@ -498,7 +496,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     try {
       const url = await uploadFileInChunks(
         file,
-        faceModelId,
+        characterId,
         (progress: number) => {
           setFileStates(prev => prev.map((state, i) => 
             i === index 

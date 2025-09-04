@@ -58,8 +58,10 @@ export async function executSync(request: SyncRequest): Promise<SyncResult> {
         throw new Error(`Failed to fetch target data for ${table}: ${targetData.error.message}`)
       }
       
-      const sourceMap = new Map((sourceData.data || []).map(r => [r.id, r]))
-      const targetMap = new Map((targetData.data || []).map(r => [r.id, r]))
+      // Use correct primary key for each table type
+      const pk: 'id' | 'key' = table === 'inference_settings' ? 'key' : 'id'
+      const sourceMap = new Map((sourceData.data || []).map(r => [r[pk], r]))
+      const targetMap = new Map((targetData.data || []).map(r => [r[pk], r]))
       
       // Process each selected change ID
       for (const changeId of changeIds) {
@@ -71,6 +73,7 @@ export async function executSync(request: SyncRequest): Promise<SyncResult> {
             // CREATE operation
             console.log(`Creating record ${changeId} in ${table}`)
             const { created_at, updated_at, ...recordData } = sourceRecord
+            // Inference settings uses key PK; ensure id is not sent if not present
             
             const { error: insertError } = await targetClient
               .from(table as SyncableTable)
@@ -88,7 +91,7 @@ export async function executSync(request: SyncRequest): Promise<SyncResult> {
             const { error: updateError } = await targetClient
               .from(table as SyncableTable)
               .update(recordData as any)
-              .eq('id', changeId)
+              .eq(['inference_settings'].includes(table) ? 'key' : 'id', changeId as any)
             
             if (updateError) {
               throw new Error(`Failed to update record ${changeId}: ${updateError.message}`)
@@ -101,7 +104,7 @@ export async function executSync(request: SyncRequest): Promise<SyncResult> {
             const { error: deleteError } = await targetClient
               .from(table as SyncableTable)
               .delete()
-              .eq('id', changeId)
+              .eq(['inference_settings'].includes(table) ? 'key' : 'id', changeId as any)
             
             if (deleteError) {
               throw new Error(`Failed to delete record ${changeId}: ${deleteError.message}`)

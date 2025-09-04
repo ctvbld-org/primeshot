@@ -9,6 +9,9 @@ import {
   getSceneByValue,
   getWardrobeByValue,
   getColorByValue,
+  getSceneById,
+  getWardrobeById,
+  getColorById,
 } from '@/lib/api/config';
 
 const CACHE_KEYS = {
@@ -33,11 +36,12 @@ export function useStyles() {
   });
 }
 
-export function useStyle(id: StyleId) {
+export function useStyle(id: StyleId | undefined) {
   return useQuery({
-    queryKey: CACHE_KEYS.styleById(id),
-    queryFn: () => getStyleConfigById(id),
+    queryKey: id ? CACHE_KEYS.styleById(id) : ['style', 'none'],
+    queryFn: () => getStyleConfigById(id as StyleId),
     staleTime: ONE_WEEK_IN_MS,
+    enabled: !!id,
   });
 }
 
@@ -81,6 +85,16 @@ export function useScene(value: string) {
   });
 }
 
+// Fetch by id (new)
+export function useSceneById(id?: string) {
+  return useQuery({
+    queryKey: ['sceneById', id],
+    queryFn: () => getSceneById(id as string),
+    staleTime: ONE_WEEK_IN_MS,
+    enabled: !!id,
+  });
+}
+
 export function useWardrobe(value: string) {
   return useQuery({
     queryKey: CACHE_KEYS.wardrobeByValue(value),
@@ -90,11 +104,29 @@ export function useWardrobe(value: string) {
   });
 }
 
+export function useWardrobeById(id?: string) {
+  return useQuery({
+    queryKey: ['wardrobeById', id],
+    queryFn: () => getWardrobeById(id as string),
+    staleTime: ONE_WEEK_IN_MS,
+    enabled: !!id,
+  });
+}
+
 export function useColor(value: string) {
   return useQuery({
     queryKey: CACHE_KEYS.colorByValue(value),
     queryFn: () => getColorByValue(value),
     staleTime: ONE_WEEK_IN_MS,
     enabled: !!value,
+  });
+}
+
+export function useColorById(id?: string) {
+  return useQuery({
+    queryKey: ['colorById', id],
+    queryFn: () => getColorById(id as string),
+    staleTime: ONE_WEEK_IN_MS,
+    enabled: !!id,
   });
 }
