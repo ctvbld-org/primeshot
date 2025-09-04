@@ -25,7 +25,7 @@ function getApiUrl(path) {
 export function AccountDialog({ triggerSlot }) {
     var _a, _b, _c, _d, _e, _f;
     const { user, signOut } = useAuth();
-    const { t } = useTranslation();
+    const { t } = useTranslation('account');
     const [activeTab, setActiveTab] = useState('profile');
     const [open, setOpen] = useState(false);
     // Subscription state

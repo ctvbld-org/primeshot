@@ -23,9 +23,7 @@
       "@/lib/*": ["src/lib/*"],         
       "@/hooks/*": ["src/hooks/*"],
       "@/components/*": ["src/components/*"],
-      "@/constants/*": ["src/components/constants/*"],
-      "@primeshot/common": ["../common/index.ts"],
-      "@primeshot/common/*": ["../common/*"]
+      "@/constants/*": ["src/components/constants/*"]
     },
     "baseUrl": "."
   },

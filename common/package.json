@@ -2,16 +2,17 @@
   "name": "@primeshot/common",
   "version": "0.0.1",
   "main": "dist/index.js",
-  "types": "src/index.ts",
+  "types": "dist/index.d.ts",
   "files": ["dist"],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && node scripts/postbuild.mjs",
     "watch": "tsc -w -p tsconfig.json --preserveWatchOutput"
   },
   "dependencies": {
     "dotenv": "^17.0.1",
     "stripe": "^18.3.0",
-    "archiver": "^6.0.2"
+    "archiver": "^6.0.2",
+    "embla-carousel-react": "^8.6.0"
   },
   "peerDependencies": {
     "react": ">=18",
@@ -19,13 +20,43 @@
     "react-i18next": ">=15"
   },
   "exports": {
-    "./hooks/*": "./hooks/*", 
-    "./lib/*": "./lib/*", 
-    "./lib/stripe/*": "./lib/stripe/*",
-    "./web/*": "./web/*",
-    "./hooks": "./hooks/index.ts",
-    "./lib": "./lib/index.ts",
-    "./web": "./web/index.ts",
-    ".": "./index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./locales/*": {
+      "default": "./dist/locales/*"
+    },
+    "./locales/en/*": {
+      "default": "./dist/locales/en/*"
+    },
+    "./hooks": {
+      "types": "./dist/hooks/index.d.ts",
+      "default": "./dist/hooks/index.js"
+    },
+    "./lib": {
+      "types": "./dist/lib/index.d.ts",
+      "default": "./dist/lib/index.js"
+    },
+    "./web": {
+      "types": "./dist/web/index.d.ts",
+      "default": "./dist/web/index.js"
+    },
+    "./hooks/*": {
+      "types": "./dist/hooks/*.d.ts",
+      "default": "./dist/hooks/*.js"
+    },
+    "./lib/*": {
+      "types": "./dist/lib/*.d.ts",
+      "default": "./dist/lib/*.js"
+    },
+    "./lib/stripe/*": {
+      "types": "./dist/lib/stripe/*.d.ts",
+      "default": "./dist/lib/stripe/*.js"
+    },
+    "./web/*": {
+      "types": "./dist/web/*.d.ts",
+      "default": "./dist/web/*.js"
+    }
   }
 } 

@@ -1,0 +1,142 @@
+.dropdownMenuSubTrigger {
+  display: flex;
+  cursor: default;
+  user-select: none;
+  align-items: center;
+  border-radius: 0.25rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-top: 0.375rem;
+  padding-bottom: 0.375rem;
+  font-size: 0.875rem;
+  outline: none;
+}
+.dropdownMenuSubTrigger:focus {
+  background: var(--accent, #f3f4f6);
+}
+.dropdownMenuSubTrigger[data-state="open"] {
+  background: var(--accent, #f3f4f6);
+}
+.dropdownMenuSubTrigger.inset {
+  padding-left: 2rem;
+}
+
+.dropdownMenuSubContent {
+  z-index: 50;
+  min-width: 8rem;
+  overflow: hidden;
+  border-radius: 0.375rem;
+  border: 1px solid var(--border, #e5e7eb);
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
+  padding: 0.25rem;
+  backdrop-filter: blur(4px);
+  /* Animations and data-state classes would be handled via keyframes */
+}
+
+.dropdownMenuContent {
+  z-index: 50;
+  min-width: 8rem;
+  overflow: hidden;
+  border-radius: 0.375rem;
+  border: 1px solid var(--border, #e5e7eb);
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1.5px 4px rgba(0,0,0,0.04);
+  padding: 0.25rem;
+  backdrop-filter: blur(4px);
+  /* Animations and data-state classes would be handled via keyframes */
+}
+
+.dropdownMenuItem {
+  position: relative;
+  display: flex;
+  cursor: pointer;
+  user-select: none;
+  align-items: center;
+  border-radius: 0.25rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-top: 0.375rem;
+  padding-bottom: 0.375rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: background 0.2s, color 0.2s;
+}
+.dropdownMenuItem:focus {
+  background: var(--accent, #f3f4f6);
+  color: var(--accent-foreground, #111);
+}
+.dropdownMenuItem[data-disabled] {
+  pointer-events: none;
+  opacity: 0.5;
+}
+.dropdownMenuItem.inset {
+  padding-left: 2rem;
+}
+
+.dropdownMenuCheckboxItem,
+.dropdownMenuRadioItem {
+  position: relative;
+  display: flex;
+  cursor: default;
+  user-select: none;
+  align-items: center;
+  border-radius: 0.25rem;
+  padding-top: 0.375rem;
+  padding-bottom: 0.375rem;
+  padding-left: 2rem;
+  padding-right: 0.5rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: background 0.2s, color 0.2s;
+}
+.dropdownMenuCheckboxItem:focus,
+.dropdownMenuRadioItem:focus {
+  background: var(--accent, #f3f4f6);
+  color: var(--accent-foreground, #111);
+}
+.dropdownMenuCheckboxItem[data-disabled],
+.dropdownMenuRadioItem[data-disabled] {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.dropdownMenuIndicator {
+  position: absolute;
+  left: 0.5rem;
+  display: flex;
+  height: 0.875rem;
+  width: 0.875rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropdownMenuLabel {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-top: 0.375rem;
+  padding-bottom: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.dropdownMenuLabel.inset {
+  padding-left: 2rem;
+}
+
+.dropdownMenuSeparator {
+  margin-left: -0.25rem;
+  margin-right: -0.25rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+  height: 1px;
+  background: var(--muted, #e5e7eb);
+}
+
+.dropdownMenuShortcut {
+  margin-left: auto;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  opacity: 0.6;
+} 

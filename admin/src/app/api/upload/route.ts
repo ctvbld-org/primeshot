@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
           .rotate()
           .resize({ width, height: width, fit: 'inside', withoutEnlargement: true, kernel: sharp.kernel.lanczos3 })
           .sharpen()
-          .webp({ quality, effort: 5, nearLossless: false, smartSubsample: false, chromaSubsampling: '4:4:4' as any })
+          .webp({ quality, effort: 5, nearLossless: false, smartSubsample: false })
           .toBuffer()
       }
 

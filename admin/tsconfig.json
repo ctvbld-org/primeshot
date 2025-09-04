@@ -22,9 +22,7 @@
       "@/*": ["src/*"],
       "@/lib/*": ["src/lib/*"],         
       "@/hooks/*": ["src/hooks/*"],
-      "@/components/*": ["src/components/*"],
-      "@primeshot/common": ["../common/index.ts"],
-      "@primeshot/common/*": ["../common/*"]
+      "@/components/*": ["src/components/*"]
     },
     "baseUrl": "."
   },

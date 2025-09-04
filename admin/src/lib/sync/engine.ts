@@ -60,8 +60,8 @@ export async function executSync(request: SyncRequest): Promise<SyncResult> {
       
       // Use correct primary key for each table type
       const pk: 'id' | 'key' = table === 'inference_settings' ? 'key' : 'id'
-      const sourceMap = new Map((sourceData.data || []).map(r => [r[pk], r]))
-      const targetMap = new Map((targetData.data || []).map(r => [r[pk], r]))
+      const sourceMap = new Map((sourceData.data as any[] || []).map((r: any) => [r[pk], r]))
+      const targetMap = new Map((targetData.data as any[] || []).map((r: any) => [r[pk], r]))
       
       // Process each selected change ID
       for (const changeId of changeIds) {

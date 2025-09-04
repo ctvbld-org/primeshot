@@ -7,11 +7,13 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     asChild?: boolean;
     loading?: boolean;
     icon?: React.ReactNode;
+    iconSide?: 'left' | 'right';
 }
-declare const buttonVariants: ({ variant, size, className, loading, }?: {
+declare const buttonVariants: ({ variant, size, className, loading, iconSide, }?: {
     variant?: ButtonVariant;
     size?: ButtonSize;
     className?: string;
+    iconSide?: string;
     loading?: boolean;
 }) => string;
 declare const Button: React.ForwardRefExoticComponent<ButtonProps & React.RefAttributes<HTMLButtonElement>>;

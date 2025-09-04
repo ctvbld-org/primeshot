@@ -460,7 +460,7 @@ export default function MediaPage() {
 // Mount upload dialog at end of page render
 
 // Upload configuration dialog
-export function UploadDialog({ open, onOpenChange, sizeEnabled, setSizeEnabled, isUploading, onConfirm, fileCount }:{
+function UploadDialog({ open, onOpenChange, sizeEnabled, setSizeEnabled, isUploading, onConfirm, fileCount }:{
   open: boolean; onOpenChange: (v:boolean)=>void;
   sizeEnabled: Record<number, boolean>;
   setSizeEnabled: (v: Record<number, boolean>)=>void;

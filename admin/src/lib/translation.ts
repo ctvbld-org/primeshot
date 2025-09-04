@@ -1,6 +1,15 @@
 // Utility functions for admin translation automation
 import axios from 'axios'
 
+// Ensure API calls respect Next.js basePath in production
+function getApiPath(path: string): string {
+  if (typeof window !== 'undefined') {
+    const hasAdminPrefix = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')
+    return hasAdminPrefix ? `/admin${path}` : path
+  }
+  return path
+}
+
 // Keep in sync with API config
 const translationColumns: Record<string, string[]> = {
   styles: ['name'],
@@ -33,7 +42,7 @@ export async function translateRow(
   row: Record<string, any>,
   targetLanguages: string[] = getTargetLanguages()
 ): Promise<Record<string, any>> {
-  const res = await axios.post('/api/translate', {
+  const res = await axios.post(getApiPath('/api/translate'), {
     table,
     rows: [row],
     targetLanguages,

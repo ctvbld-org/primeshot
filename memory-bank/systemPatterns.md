@@ -1383,6 +1383,22 @@ Detected changes in:
 - webapp/src/lib/image-quality.ts
 - webapp/src/lib/services/confirmationService.ts
 - webapp/src/lib/websocket/connection-manager.ts
+
+
+**Auto-update 2025-09-04**:
+Detected changes in:
+- webapp/src/components/character/training/UploadPhotosStep.tsx
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/components/style/GenerateBar/useCreateCharacter.tsx
+
+
+**Auto-update 2025-09-04**:
+Detected changes in:
+- admin/src/app/api/admin/inference-settings/[key]/route.ts
+- admin/src/app/api/upload/route.ts
+- admin/src/app/media/page.tsx
+- admin/src/lib/sync/engine.ts
+- admin/src/lib/translation.ts
 ## Component Organization
 
 Components are organized by feature and reusability:
