@@ -147,7 +147,7 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
             </p>
             <div className="mt-3 flex items-center justify-center gap-2 text-sm text-[#C0CED8]">
               <Checkbox checked={petMode} onCheckedChange={(v) => setPetMode(!!v)} id="pet-mode" />
-              <label htmlFor="pet-mode">Pet mode (skip human face checks)</label>
+              <label htmlFor="pet-mode">Pet mode</label>
             </div>
             
             {/* Body shot validation errors */}

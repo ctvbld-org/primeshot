@@ -269,7 +269,7 @@ redirect_uri = "http://127.0.0.1:54321/auth/v1/callback"
 # or any other third-party OIDC providers.
 url = ""
 # If enabled, the nonce check will be skipped. Required for local sign in with Google auth.
-skip_nonce_check = true
+skip_nonce_check = false
 
 [auth.external.azure]
 enabled = true
@@ -280,9 +280,9 @@ secret = "env(SUPABASE_AUTH_EXTERNAL_AZURE_SECRET)"
 redirect_uri = "http://127.0.0.1:54321/auth/v1/callback"
 # Overrides the default auth provider URL. Used to support self-hosted gitlab, single-tenant Azure,
 # or any other third-party OIDC providers.
-url = ""
+url = "env(SUPABASE_AUTH_EXTERNAL_AZURE_URL)"
 # If enabled, the nonce check will be skipped. Required for local sign in with Google auth.
-skip_nonce_check = true
+skip_nonce_check = false
 
 [auth.external.linkedin_oidc]
 enabled = true
