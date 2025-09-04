@@ -516,8 +516,10 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
 
   // Handle Character button click: always open the panel (credit checks happen on create action)
   const handleButtonClick = useCallback(() => {
+    // Ensure the character list reflects latest state before opening panel
+    try { refreshCharacters() } catch {}
     open('characters')
-  }, []);
+  }, [refreshCharacters]);
 
   // Carousel + search state shared by panels
   const viewportRef = React.useRef<HTMLDivElement>(null)

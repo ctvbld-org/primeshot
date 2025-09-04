@@ -1362,6 +1362,27 @@ Detected changes in:
 - webapp/src/components/home/InferenceJobGroup.tsx
 - webapp/src/components/home/InferenceThumbnail.tsx
 - webapp/src/components/style/GenerateBar/GenerateBar.tsx
+
+
+**Auto-update 2025-09-04**:
+Detected changes in:
+- admin/src/app/api/upload/route.ts
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/app/api/upload-chunk/route.ts
+- webapp/src/components/character/training/AdminTrainingOptionsDialog.tsx
+- webapp/src/components/character/training/TrainingProgressStep.tsx
+- webapp/src/components/character/training/UploadPhotosStep.tsx
+- webapp/src/components/home/InferenceImageViewerDialog.module.css
+- webapp/src/components/home/InferenceImageViewerDialog.tsx
+- webapp/src/components/home/InferenceJobGroup.module.css
+- webapp/src/components/home/InferenceJobGroup.tsx
+- webapp/src/components/style/GenerateBar/AdminInferenceOptionsDialog.tsx
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/lib/api/characters.ts
+- webapp/src/lib/hooks/use-file-upload.ts
+- webapp/src/lib/image-quality.ts
+- webapp/src/lib/services/confirmationService.ts
+- webapp/src/lib/websocket/connection-manager.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

@@ -8,6 +8,8 @@ import { useOpenSubscriptionDialog } from '@/hooks/useOpenSubscriptionDialog'
 import { useOpenCreditPackDialog } from '@/hooks/useOpenCreditPackDialog'
 import { useCreditGuard } from '@/hooks/useCreditGuard'
 import { CharacterTrainingDialog } from '@/components/character/CharacterTrainingDialog'
+import { useCharactersApi } from '@/lib/api/characters'
+import { useAuth } from '@/contexts/auth-context'
 
 interface UseCreateCharacterProps {
   characters: any[]
@@ -26,6 +28,8 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
   const queryClient = useQueryClient()
   const characterTrainingCost = getCharacterTrainingCost(creditCosts)
   const creditGuard = useCreditGuard(characterTrainingCost)
+  const { getActiveCharacterCount } = useCharactersApi()
+  const { user } = useAuth()
 
   const remainingCharacterTrainings = React.useMemo(() => {
     if (!subscription) return 0
@@ -146,10 +150,29 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
         break;
       
       case 'create':
-        openCharacterTrainingDialog();
+        // Final server-side limit check to avoid stale client list issues
+        ;(async () => {
+          try {
+            const uid = user?.id
+            if (uid && subscription?.plan_name && subscriptionTiers) {
+              const latestCount = await getActiveCharacterCount(uid)
+              const limit = getCharacterLimit(subscription.plan_name, subscriptionTiers)
+              if (latestCount >= limit) {
+                openSubscriptionDialog({
+                  context: 'character-limit',
+                  currentPlan: subscription.plan_name,
+                  showOnlyUpgrades: true,
+                  requiredFeature: 'max_characters'
+                })
+                return
+              }
+            }
+          } catch {}
+          openCharacterTrainingDialog()
+        })()
         break;
     }
-  }, [createCharacterAction, creditGuard, openCharacterTrainingDialog, openSubscriptionDialog, openCreditPackDialog, subscription?.plan_name]);
+  }, [createCharacterAction, creditGuard, openCharacterTrainingDialog, openSubscriptionDialog, openCreditPackDialog, subscription?.plan_name, subscriptionTiers, getActiveCharacterCount, user?.id]);
 
   return {
     createCharacterAction,

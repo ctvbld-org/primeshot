@@ -50,7 +50,7 @@
       "connecting": "Connecting"
     },
     "tooltip": {
-      "pending": "Awaiting server availability during pick time",
+      "pending": "Awaiting server availability - should proceed soon",
       "queued": "Limit reached, waiting for a generation to complete",
       "queueReasons": {
         "character_not_ready": "Character is training — will start automatically",

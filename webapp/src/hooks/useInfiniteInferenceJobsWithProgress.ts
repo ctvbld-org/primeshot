@@ -31,6 +31,20 @@ export function useInfiniteInferenceJobsWithProgress() {
   const messageHold = useRef<Set<string>>(new Set()); // while held, keep message as "Initializing…"
 
   const holdKey = (jobId: string) => `inf_hold_until_${jobId}`;
+  const holdDoneKey = (jobId: string) => `inf_hold_done_${jobId}`;
+
+  const setHoldDone = (jobId: string) => {
+    if (typeof window === 'undefined') return;
+    try { window.localStorage.setItem(holdDoneKey(jobId), '1'); } catch {}
+  };
+  const clearHoldDone = (jobId: string) => {
+    if (typeof window === 'undefined') return;
+    try { window.localStorage.removeItem(holdDoneKey(jobId)); } catch {}
+  };
+  const hasHoldDone = (jobId: string) => {
+    if (typeof window === 'undefined') return false;
+    try { return !!window.localStorage.getItem(holdDoneKey(jobId)); } catch { return false; }
+  };
 
   const cleanupHold = useCallback((jobId: string) => {
     const existing = dbWatchers.current.get(jobId);
@@ -47,6 +61,8 @@ export function useInfiniteInferenceJobsWithProgress() {
 
   const startHoldAndWatchDb = useCallback(async (jobId: string, holdMs: number = 30000) => {
     if (dbWatchers.current.has(jobId)) return; // already watching
+    // Do not start another hold after it has completed once for this job
+    if (hasHoldDone(jobId)) return;
 
     // Initialize message hold and UI
     messageHold.current.add(jobId);
@@ -76,6 +92,7 @@ export function useInfiniteInferenceJobsWithProgress() {
           if (typeof window !== 'undefined') {
             try { window.localStorage.removeItem(holdKey(jobId)); } catch {}
           }
+          clearHoldDone(jobId);
           return; // No watcher needed
         }
         if (immediate.status === 'completed' || immediate.status === 'failed') {
@@ -96,6 +113,7 @@ export function useInfiniteInferenceJobsWithProgress() {
             }
           }
           cleanupHold(jobId);
+          clearHoldDone(jobId);
           return;
         }
       }
@@ -127,6 +145,7 @@ export function useInfiniteInferenceJobsWithProgress() {
           }
           try { channel?.unsubscribe?.(); } catch {}
           dbWatchers.current.delete(jobId);
+          clearHoldDone(jobId);
         }
         if (newStatus === 'completed' || newStatus === 'failed') {
           // Terminal: update UI and stop hold immediately
@@ -146,6 +165,7 @@ export function useInfiniteInferenceJobsWithProgress() {
             }
           }
           cleanupHold(jobId);
+          clearHoldDone(jobId);
         }
       })
       .subscribe();
@@ -161,6 +181,8 @@ export function useInfiniteInferenceJobsWithProgress() {
       }
       // Clear persistence and unsubscribe
       cleanupHold(jobId);
+      // Mark that we finished the one-time hold for this job
+      setHoldDone(jobId);
     }, Math.max(0, holdMs));
 
     dbWatchers.current.set(jobId, { channel, timerId, holdUntil, sawRunning: false });
@@ -169,6 +191,8 @@ export function useInfiniteInferenceJobsWithProgress() {
   const resumeHoldIfAny = useCallback((jobId: string) => {
     if (dbWatchers.current.has(jobId)) return;
     if (typeof window === 'undefined') return;
+    // If we've already completed an earlier hold for this job, do not resume
+    if (hasHoldDone(jobId)) return;
     let stored: number | null = null;
     try {
       const raw = window.localStorage.getItem(holdKey(jobId));
@@ -563,16 +587,19 @@ export function useInfiniteInferenceJobsWithProgress() {
         // If no watcher and no persisted hold, start a new hold now
         if (!dbWatchers.current.has(job.id)) {
           let hasStored = false;
+          let hasDone = false;
           if (typeof window !== 'undefined') {
             try { hasStored = !!window.localStorage.getItem(holdKey(job.id)); } catch {}
+            try { hasDone = !!window.localStorage.getItem(holdDoneKey(job.id)); } catch {}
           }
-          if (!hasStored) {
+          if (!hasStored && !hasDone) {
             startHoldAndWatchDb(job.id);
           }
         }
       }
       if (job.status === 'completed' || job.status === 'failed') {
         cleanupHold(job.id);
+        clearHoldDone(job.id);
       }
     });
 
@@ -634,6 +661,7 @@ export function useInfiniteInferenceJobsWithProgress() {
               const existing = dbWatchers.current.get(job.id);
               try { existing?.channel?.unsubscribe?.(); } catch {}
               dbWatchers.current.delete(job.id);
+              clearHoldDone(job.id);
             }
           }
           

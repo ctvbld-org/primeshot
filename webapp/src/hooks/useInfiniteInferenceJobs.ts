@@ -98,14 +98,22 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
           const thumbnails: InferenceThumbnail[] = Array.from({ length: nbTakes }, (_, index) => ({
             id: uuidv4(),
             jobId: dbJob.id,
-            status: dbJob.status === 'pending' || dbJob.status === 'running' ? 'running' : 'queued',
+            // Only show running overlay for true running. Pending/queued remain queued and use jobStatus to show initializing overlay.
+            status: dbJob.status === 'running' ? 'running' : 'queued',
             index,
             progress: dbJob.status === 'running' ? 50 : 0
           }));
 
+          // Preserve DB job-level status so the UI can distinguish pending vs queued
+          const uiJobStatus = ((): 'queued' | 'pending' | 'running' => {
+            if (dbJob.status === 'running') return 'running';
+            if (dbJob.status === 'pending') return 'pending';
+            return 'queued';
+          })();
+
           allJobs.push({
             id: dbJob.id,
-            status: dbJob.status === 'pending' || dbJob.status === 'running' ? 'running' : 'queued',
+            status: uiJobStatus,
             thumbnails,
             createdAt: new Date(dbJob.created_at),
             nbTakes,
