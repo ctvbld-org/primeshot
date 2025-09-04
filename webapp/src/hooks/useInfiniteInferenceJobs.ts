@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { InferenceThumbnail } from '@/components/home/InferenceThumbnail';
 import { useAuth } from '@/contexts/auth-context';
 import { InferenceJob } from '@/hooks/useInferenceQueue';
+import { getApiUrl } from '@/lib/api/client';
 
 interface UseInfiniteInferenceJobsReturn {
   jobs: InferenceJob[];
@@ -53,6 +54,7 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
         getTotalInferenceJobsCount,
         getInferenceImageUrl 
       } = await import('@/lib/api/inference-job-management');
+      const { charactersApi } = await import('@/lib/api/characters');
       
       // Fetch total count and initial jobs in parallel
       const [totalCountResult, initialJobs] = await Promise.all([
@@ -72,6 +74,17 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
         const n = parseInt(m[1], 10);
         return isNaN(n) ? null : Math.max(0, n - 1);
       };
+
+      // Prepare character map for initial page
+      const initialCharacterIds = Array.from(new Set(initialJobs.map((j: any) => j.character_id).filter(Boolean)));
+      let initialCharMap: Record<string, { name?: string; thumbnail_url?: string }> = {};
+      try {
+        const chars = await charactersApi.getCharactersByIds(initialCharacterIds);
+        initialCharMap = (chars || []).reduce((acc: any, c: any) => {
+          acc[c.id] = { name: c.name, thumbnail_url: c.thumbnail_url };
+          return acc;
+        }, {} as Record<string, { name?: string; thumbnail_url?: string }>);
+      } catch {}
 
       // Convert all initial jobs to UI format
       initialJobs.forEach(dbJob => {
@@ -100,6 +113,11 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
             sceneId: (dbJob as any).scene_id,
             wardrobeId: (dbJob as any).wardrobe_id,
             colorId: (dbJob as any).color_id,
+            quality: (dbJob as any).quality || undefined,
+            aspectRatio: (dbJob as any).aspect_ratio || undefined,
+            characterId: (dbJob as any).character_id || undefined,
+            characterName: (dbJob as any).character_id ? initialCharMap[(dbJob as any).character_id]?.name : undefined,
+            characterThumbnailUrl: (dbJob as any).character_id ? initialCharMap[(dbJob as any).character_id]?.thumbnail_url as any : undefined,
           });
 
           activeJobIds.current.add(dbJob.id);
@@ -125,6 +143,11 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
             sceneId: (dbJob as any).scene_id,
             wardrobeId: (dbJob as any).wardrobe_id,
             colorId: (dbJob as any).color_id,
+            quality: (dbJob as any).quality || undefined,
+            aspectRatio: (dbJob as any).aspect_ratio || undefined,
+            characterId: (dbJob as any).character_id || undefined,
+            characterName: (dbJob as any).character_id ? initialCharMap[(dbJob as any).character_id]?.name : undefined,
+            characterThumbnailUrl: (dbJob as any).character_id ? initialCharMap[(dbJob as any).character_id]?.thumbnail_url as any : undefined,
           });
         } else {
           // Completed job - create thumbnails with images
@@ -168,6 +191,11 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
             sceneId: (dbJob as any).scene_id,
             wardrobeId: (dbJob as any).wardrobe_id,
             colorId: (dbJob as any).color_id,
+            quality: (dbJob as any).quality || undefined,
+            aspectRatio: (dbJob as any).aspect_ratio || undefined,
+            characterId: (dbJob as any).character_id || undefined,
+            characterName: (dbJob as any).character_id ? initialCharMap[(dbJob as any).character_id]?.name : undefined,
+            characterThumbnailUrl: (dbJob as any).character_id ? initialCharMap[(dbJob as any).character_id]?.thumbnail_url as any : undefined,
           });
         }
       });
@@ -204,6 +232,7 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
       setError(null);
 
       const { fetchInferenceJobsPaginated, getInferenceImageUrl } = await import('@/lib/api/inference-job-management');
+      const { charactersApi } = await import('@/lib/api/characters');
       
       const moreJobs = await fetchInferenceJobsPaginated(user.id, JOBS_PER_PAGE, offset);
       
@@ -213,6 +242,17 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
       }
 
       const newJobs: InferenceJob[] = [];
+
+      // Build character map for this page
+      const pageCharacterIds = Array.from(new Set(moreJobs.map((j: any) => j.character_id).filter(Boolean)));
+      let pageCharMap: Record<string, { name?: string; thumbnail_url?: string }> = {};
+      try {
+        const chars = await charactersApi.getCharactersByIds(pageCharacterIds);
+        pageCharMap = (chars || []).reduce((acc: any, c: any) => {
+          acc[c.id] = { name: c.name, thumbnail_url: c.thumbnail_url };
+          return acc;
+        }, {} as Record<string, { name?: string; thumbnail_url?: string }>);
+      } catch {}
 
       moreJobs.forEach(dbJob => {
         // Skip if already exists (shouldn't happen but safety check)
@@ -234,7 +274,12 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
             thumbnails,
             createdAt: new Date(dbJob.created_at),
             nbTakes,
-            message: (dbJob as any).error_message || 'Generation failed'
+            message: (dbJob as any).error_message || 'Generation failed',
+            quality: (dbJob as any).quality || undefined,
+            aspectRatio: (dbJob as any).aspect_ratio || undefined,
+            characterId: (dbJob as any).character_id || undefined,
+            characterName: (dbJob as any).character_id ? pageCharMap[(dbJob as any).character_id]?.name : undefined,
+            characterThumbnailUrl: (dbJob as any).character_id ? pageCharMap[(dbJob as any).character_id]?.thumbnail_url as any : undefined,
           });
         } else {
           const nbTakes = dbJob.nb_takes || (dbJob.generated_images?.length ?? 0) || 1;
@@ -277,7 +322,12 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
             status: 'completed',
             thumbnails,
             createdAt: new Date(dbJob.created_at),
-            nbTakes
+            nbTakes,
+            quality: (dbJob as any).quality || undefined,
+            aspectRatio: (dbJob as any).aspect_ratio || undefined,
+            characterId: (dbJob as any).character_id || undefined,
+            characterName: (dbJob as any).character_id ? pageCharMap[(dbJob as any).character_id]?.name : undefined,
+            characterThumbnailUrl: (dbJob as any).character_id ? pageCharMap[(dbJob as any).character_id]?.thumbnail_url as any : undefined,
           });
         }
       });

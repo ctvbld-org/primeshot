@@ -458,10 +458,14 @@ class WebSocketConnectionManager {
 
     websocket.onerror = (error) => {
       console.error(`📡 WebSocket Manager: Error for ${jobType} job ${jobId}:`, error);
+      // Treat onerror as transient – close to trigger onclose → reconnect logic.
       connection.isConnecting = false;
       connection.isConnected = false;
-      this.emitStatusChange(jobKey, 'error', 'WebSocket connection error');
-      this.notifySubscribersError(connection, 'WebSocket connection error');
+      this.emitStatusChange(jobKey, 'reconnecting', 'WebSocket error; attempting reconnect');
+      try {
+        websocket.close();
+      } catch {}
+      // Do NOT notify subscribers as an error here; allow reconnect or HTTP fallback to complete the job
     };
 
     websocket.onclose = (event) => {

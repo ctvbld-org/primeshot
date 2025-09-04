@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@primeshot/common/web/ui/alert-dialog';
 import { Icon } from '@primeshot/common/web/Icon';

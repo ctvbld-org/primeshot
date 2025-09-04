@@ -58,6 +58,7 @@ export function useJobProgress({
 
   const subscriptionIdRef = useRef<string | null>(null);
   const latestTimestampRef = useRef<number>(0);
+  const previousKeyRef = useRef<string | null>(null);
 
   // Store stable references to callback functions
   const onCompleteRef = useRef(onComplete);
@@ -71,6 +72,17 @@ export function useJobProgress({
   useEffect(() => {
     onErrorRef.current = onError;
   }, [onError]);
+
+  // Reset local state whenever the target job changes to avoid stale UI
+  useEffect(() => {
+    const key = jobId && jobType ? `${jobType}:${jobId}` : '';
+    if (previousKeyRef.current !== key) {
+      previousKeyRef.current = key;
+      latestTimestampRef.current = 0;
+      setProgress(null);
+      setConnectionStatus({ isConnected: false, isConnecting: false, error: null });
+    }
+  }, [jobId, jobType]);
 
   // Subscribe to job progress when jobId or jobType changes
   useEffect(() => {

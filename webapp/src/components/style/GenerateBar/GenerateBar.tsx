@@ -41,6 +41,7 @@ import { SegmentedControl } from '@primeshot/common/web/ui/segmented-control'
 import { useToast } from '@primeshot/common/web/ui/use-toast'
 import { useOpenCreditPackDialog } from '@/hooks/useOpenCreditPackDialog'
 import { useQueryClient } from '@tanstack/react-query'
+import { confirmationService } from '@/lib/services/confirmationService'
 const AdminInferenceOptionsDialog = dynamic(() => import('./AdminInferenceOptionsDialog'), { ssr: false })
 
 type PanelKey = 'styles' | 'scenes' | 'wardrobe' | 'characters' | 'settings' | null
@@ -271,7 +272,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [inferenceJobId, setInferenceJobId] = useState('')
   const [showAdminInfer, setShowAdminInfer] = useState(false)
-  const [adminOverride, setAdminOverride] = useState<{ enabled: boolean; prompt: string } | null>(null)
+  const [adminOverride, setAdminOverride] = useState<{ prompt_override: { enabled: boolean; prompt: string } | null; settings_override: { character?: { strength_model?: number; strength_clip?: number }; style?: { strength_model?: number; strength_clip?: number } } | null } | null>(null)
   const { toast } = useToast()
   const hasClearedFailedSelectionRef = useRef<boolean>(false)
   
@@ -280,7 +281,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   
   const lastClickTimeRef = useRef<number>(0)
 
-  const runGenerate = useCallback(async (override: { enabled: boolean; prompt: string } | null) => {
+  const runGenerate = useCallback(async (override: { prompt_override: { enabled: boolean; prompt: string } | null; settings_override: { character?: { strength_model?: number; strength_clip?: number }; style?: { strength_model?: number; strength_clip?: number } } | null } | null) => {
     let placeholderId: string | null = null;
     
     try {
@@ -352,7 +353,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
 
         setIsSubmitting(true)
         try {
-          return await startInference({ ...(payload as any), ...(override ? { prompt_override: override } : {}) })
+          return await startInference({ ...(payload as any), ...(override?.prompt_override ? { prompt_override: override.prompt_override } : {}), ...(override?.settings_override ? { settings_override: override.settings_override } : {}) })
         } catch (err) {
           // Mark placeholder as failed on API error
           if (placeholderId) {
@@ -718,6 +719,11 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                     {t('labels.includedInPlan', { ns: 'styles', count: remainingIncludedTrainings })}
                   </div>
                 )}
+                {createCharacterAction.type === 'create' && remainingIncludedTrainings === 0 && requiresCreditsForTraining && (
+                  <div className={styles.itemSubLabel}>
+                    {t('labels.credits', { ns: 'styles', count: trainingCost })}
+                  </div>
+                )}
                 {createCharacterAction.type === 'credit_pack' && (
                   <div className={styles.itemSubLabel}>
                     {t('labels.credits', { ns: 'styles', count: createCharacterAction.credits || trainingCost })}
@@ -1001,8 +1007,6 @@ function CharacterCard({ character, thumbUrl, onSelect, onDeleted, selectedId }:
   let waitingLabel = ''
   const { job } = useActiveTrainingJob(character.id)
   const isActive = !!job
-  const isRunning = job?.status === 'running'
-  const isWaiting = job && (job.status === 'initializing' || job.status === 'queued' || job.status === 'pending')
   const { images } = useCharacterImages(character.id)
   const uploadedCount = images?.length || 0
   const { deleteCharacter } = useCharactersApi()
@@ -1010,12 +1014,39 @@ function CharacterCard({ character, thumbUrl, onSelect, onDeleted, selectedId }:
   const [showOverlay, setShowOverlay] = React.useState(false)
   const [isDeleting, setIsDeleting] = React.useState(false)
 
-  if (isWaiting) {
-    waitingLabel = job?.status === 'queued' ? t('character.trainingQueued', { ns: 'styles' }) : job?.status === 'pending' ? t('character.trainingPending', { ns: 'styles' }) : t('character.trainingInitializing', { ns: 'styles' })
-  }
-
   // Always call hook; provide empty jobId when not active to keep order stable
   const training = useTrainingProgress({ jobId: job?.id || '' })
+
+  // Prefer WebSocket-reported status over DB status if available
+  const wsStatus = (training as any)?.progress?.status as (string | undefined)
+  const effectiveStatus = (wsStatus || job?.status || '') as string
+
+  // Pending display delay to avoid brief flashes during cold starts
+  const [pendingSince, setPendingSince] = React.useState<number | null>(null)
+  React.useEffect(() => {
+    const status = wsStatus ?? job?.status
+    if (status === 'pending') {
+      if (pendingSince === null) setPendingSince(Date.now())
+    } else if (pendingSince !== null) {
+      setPendingSince(null)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wsStatus, job?.status])
+
+  const PENDING_DISPLAY_DELAY_MS = Number(process.env.NEXT_PUBLIC_PENDING_DISPLAY_DELAY_MS ?? 15000)
+  const isPending = effectiveStatus === 'pending'
+  const shouldShowPending = isPending && (pendingSince !== null && Date.now() - pendingSince >= PENDING_DISPLAY_DELAY_MS)
+
+  const isRunning = effectiveStatus === 'running'
+  const isWaiting = effectiveStatus === 'initializing' || effectiveStatus === 'queued' || effectiveStatus === 'pending'
+
+  if (isWaiting) {
+    waitingLabel = effectiveStatus === 'queued'
+      ? t('character.trainingQueued', { ns: 'styles' })
+      : (shouldShowPending
+        ? t('character.trainingPending', { ns: 'styles' })
+        : t('character.trainingInitializing', { ns: 'styles' }))
+  }
 
   const progressPct = isRunning ? training.getProgressPercentage?.() ?? 0 : 0
   const secondsLeft = isRunning ? training.getLiveCountdownSeconds?.() ?? 0 : 0
@@ -1047,9 +1078,6 @@ function CharacterCard({ character, thumbUrl, onSelect, onDeleted, selectedId }:
 
         {isRunning && (
           <CircleProgress className={styles.progressBadge} aria-label="Training progress" value={progressPct} size={32} thickness={2} />
-        )}
-        {isWaiting && (
-          <span className={styles.statusPill}>{waitingLabel}</span>
         )}
         {/* Hover menu trigger -> overlay */}
         <div className={styles.cardMenuWrap} onClick={(e) => { e.stopPropagation(); setShowOverlay(true) }}>
@@ -1094,7 +1122,7 @@ function CharacterCard({ character, thumbUrl, onSelect, onDeleted, selectedId }:
                 onClick={async (e) => {
                   e.stopPropagation()
                   try {
-                    const ok = await (await import('@/lib/services/confirmationService')).confirmationService.confirm({
+                    const ok = await confirmationService.confirm({
                       title: t('character.deleteTitle', { ns: 'styles', defaultValue: 'Delete character?' }),
                       description: t('character.deleteDesc', { ns: 'styles', defaultValue: 'This will permanently remove the character and uploaded photos.' }),
                       confirmText: t('character.deleteConfirm', { ns: 'styles', defaultValue: 'Delete' }),

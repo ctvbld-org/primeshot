@@ -548,6 +548,9 @@ serve(async (req) => {
       );
     }
 
+    // Generate job ID up front for traceability across spend/insert/provider
+    const jobId = crypto.randomUUID();
+
     // Spend credits BEFORE starting the training job (non-refundable) if cost > 0
     if (trainingCost > 0) {
       const { data: spendResult, error: spendError } = await supabase.rpc(
@@ -559,6 +562,7 @@ serve(async (req) => {
           p_description: `Character training`,
           p_metadata: {
             character_id,
+            job_id: jobId,
           },
         },
       );
@@ -574,10 +578,6 @@ serve(async (req) => {
         );
       }
     }
-
-    // Generate job ID 
-    const jobId = crypto.randomUUID();
-    console.log(`🆔 Generated job ID: ${jobId}`);
 
     // Create training job record with credits spent
     const trainingJob: Partial<TrainingJob> = {

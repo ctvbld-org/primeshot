@@ -45,21 +45,25 @@ export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm
         <DialogBody className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="steps">Steps</Label>
+            <p className="text-[12px] text-muted-foreground">Between 2600 and 2700 seems to drive the best results but need to compare properly</p>
             <Input id="steps" type="number" value={steps} step={100}
-              onChange={(e) => setSteps(parseInt(e.target.value, 10))} min={1500} max={5000} />
+              onChange={(e) => setSteps(parseInt(e.target.value, 10))} min={2500} max={2800} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="batch_size">Batch size</Label>
+            <p className="text-[12px] text-muted-foreground">Lower produces better quality but slower training</p>
             <Input id="batch_size" type="number" value={batchSize} step={1}
-              onChange={(e) => setBatchSize(parseInt(e.target.value, 10))} min={4} max={12} />
+              onChange={(e) => setBatchSize(parseInt(e.target.value, 10))} min={4} max={10} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="resize_size">Resize size</Label>
+            <p className="text-[12px] text-muted-foreground">Higher produces better quality but slower training</p>
             <Input id="resize_size" type="number" value={resizeSize} step={128}
               onChange={(e) => setResizeSize(parseInt(e.target.value, 10))} min={512} max={2048} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="rank">LoRA rank</Label>
+            <p className="text-[12px] text-muted-foreground">Higher produces better quality</p>
             <Input id="rank" type="number" value={rank} step={16}
               onChange={(e) => setRank(parseInt(e.target.value, 10))} min={16} max={256} />
           </div>

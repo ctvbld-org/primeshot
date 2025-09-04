@@ -6,6 +6,7 @@ import { useToast } from '@primeshot/common/web/ui/use-toast'
 import { FileUploader } from '@/components/upload/FileUploader'
 
 import { useFileUpload } from '@/lib/hooks/use-file-upload'
+import { Checkbox } from '@primeshot/common/web/ui/checkbox'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 import { UploadFooter } from '@/components/upload/UploadFooter'
 import { ImageQualityResult, checkBodyShotRequirements } from '@/lib/image-quality'
@@ -23,6 +24,7 @@ interface UploadPhotosStepProps {
 export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
   const { t } = useTranslation('upload')
   const { toast } = useToast()
+  const [petMode, setPetMode] = useState(false)
   
 
 
@@ -47,7 +49,8 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
     currentFileIndex,
   } = useFileUpload({
     existingImages: existingImagesWithScore,
-    onRemoveExistingImage: () => {}
+    onRemoveExistingImage: () => {},
+    petMode
   })
   
   const acceptedFiles = useMemo(() => {
@@ -139,6 +142,10 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
             <p className="font-normal text-[12px] leading-[14px] text-[#C0CED8] mt-2">
               {t('common.description')}
             </p>
+            <div className="mt-3 flex items-center justify-center gap-2 text-sm text-[#C0CED8]">
+              <Checkbox checked={petMode} onCheckedChange={(v) => setPetMode(!!v)} id="pet-mode" />
+              <label htmlFor="pet-mode">Pet mode (skip human face checks)</label>
+            </div>
             
             {/* Body shot validation errors */}
             {!isAnalyzing && acceptedFiles.length >= UPLOAD_CONSTANTS.MIN_IMAGES && !bodyShotValidation.isValid && (

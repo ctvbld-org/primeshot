@@ -96,6 +96,13 @@
   margin: 0 0 24px 0;
 }
 
+.subtitle {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
+  margin: -12px 0 16px 0;
+}
+
 .metadataGrid {
   display: flex;
   flex-direction: column;
@@ -118,6 +125,30 @@
   font-size: 14px;
   font-weight: 500;
   color: white;
+}
+
+.characterBlock {
+  margin-top: 8px;
+}
+
+.characterRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.characterAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.characterName {
+  font-size: 14px;
+  font-weight: 500;
 }
 
 /* Floating download original button in image area */

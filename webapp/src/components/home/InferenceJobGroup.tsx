@@ -14,6 +14,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@prime
 import { useInferenceQueue } from '@/contexts/inference-queue-context';
 import { useToast } from '@primeshot/common/web/ui/use-toast';
 import { Button } from '@primeshot/common/web/ui/button';
+import { confirmationService } from '@/lib/services/confirmationService';
 
 interface InferenceJobGroupProps {
   job: InferenceJob;
@@ -69,6 +70,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
           initialImageIndex={thumbnailIndex}
           fullscreen={true}
           noContainer={true}
+          shootNumber={shootNumber}
         />
       );
     }
@@ -178,7 +180,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
 
   const handleDelete = async () => {
     try {
-      const ok = await (await import('@/lib/services/confirmationService')).confirmationService.confirm({
+      const ok = await confirmationService.confirm({
         title: 'Delete shoot?',
         description: 'This will remove the failed job from your gallery. This cannot be undone.',
         confirmText: 'Delete',
@@ -189,10 +191,10 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
       const { deleteInferenceJob } = await import('@/lib/api/inference-job-management');
       await deleteInferenceJob(job.id, { soft: true });
       removeJob(job.id);
-      toast({ title: 'Deleted', description: 'The failed shoot was removed.' });
+      toast({ title: 'Deleted', description: 'The failed shoot was removed.', duration: 3500 });
     } catch (e) {
       console.error('Failed to delete job', e);
-      toast({ title: 'Delete failed', description: 'Please try again.', variant: 'destructive' });
+      toast({ title: 'Delete failed', description: 'Please try again.', variant: 'destructive', duration: 4000 });
     }
   };
 

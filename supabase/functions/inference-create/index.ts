@@ -204,6 +204,32 @@ serve(async (req) => {
       );
     }
 
+    // Enforce user authentication: require valid JWT and ensure it matches body.user_id unless caller is admin
+    const authHeader = req.headers.get('Authorization') || '';
+    const token = authHeader.startsWith('Bearer ')
+      ? authHeader.slice('Bearer '.length)
+      : authHeader;
+    const { data: authData, error: authErr } = await supabase.auth.getUser(token);
+    if (authErr || !authData?.user) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    if (authData.user.id !== user_id) {
+      const { data: u, error: adminErr } = await supabase
+        .from('users')
+        .select('admin')
+        .eq('id', authData.user.id)
+        .single();
+      if (adminErr || !u?.admin) {
+        return new Response(
+          JSON.stringify({ error: 'Forbidden' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
     // Extract params/settings with DB-driven defaults
     const settings = await getInferenceSettings(supabase);
     const quality = (body.params as any)?.quality || settings.defaults.quality;
@@ -314,6 +340,9 @@ serve(async (req) => {
 
     // Allow multiple jobs even with identical params; concurrency limits handle execution order
 
+    // Generate job ID up front for traceability across spend/insert/provider
+    const jobId = crypto.randomUUID();
+
     // Spend credits BEFORE starting the job (non-refundable, aligned with training)
     const { data: spendResult, error: spendError } = await supabase
       .rpc('spend_user_credits', {
@@ -328,7 +357,7 @@ serve(async (req) => {
           nb_takes: nbTakes,
           aspect_ratio: aspectRatio,
           style_name: style.name,
-          job_id: crypto.randomUUID()
+          job_id: jobId
         }
       });
 
@@ -378,9 +407,6 @@ serve(async (req) => {
 
     // ----- If character not ready: create job as queued and return early -----
     if (!isCharacterReady) {
-      // Generate job ID
-      const jobId = crypto.randomUUID();
-
       const queuedJob: Partial<InferenceJob> = {
         id: jobId,
         user_id,
@@ -536,9 +562,6 @@ serve(async (req) => {
       return 'WAN2.1.json';
     }
     const workflowKey = resolveWorkflow(style, (body as any)?.params || {});
-
-    // Generate job ID
-    const jobId = crypto.randomUUID();
 
     // Determine if we need to queue based on user's concurrent limits
     const concurrentLimits = await checkInferenceConcurrentLimits(supabase, user_id);

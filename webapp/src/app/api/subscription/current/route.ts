@@ -64,13 +64,13 @@ export async function GET() {
     const creditsUsedThisPeriod = creditsUsed?.reduce((total, credit) => total + Math.abs(credit.credits), 0) || 0
 
     // Calculate Character training usage in current billing period
-    // Count all training jobs that have started (queued, running, completed)
+    // Count all training jobs that have started (initializing, queued, pending, running, completed)
     // since the user has consumed their included quota once training begins
     const { data: characterTraining, error: loraError } = await supabase
       .from('training_jobs')
       .select('id')
       .eq('user_id', user.id)
-      .in('status', ['queued', 'running', 'completed'])
+      .in('status', ['initializing', 'queued', 'pending', 'running', 'completed'])
       .gte('created_at', periodStart.toISOString())
       .lt('created_at', periodEnd.toISOString())
 

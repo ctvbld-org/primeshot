@@ -28,7 +28,7 @@ serve(async (req) => {
       )
     }
 
-    // Authenticate via shared WEBHOOK_SECRET (fallback to service role key for backward compat)
+    // Authenticate via shared service role key
     const authHeader = req.headers.get('authorization') || ''
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
     if (!serviceRoleKey || authHeader !== `Bearer ${serviceRoleKey}`) {
@@ -101,10 +101,10 @@ serve(async (req) => {
 
     const resolvedUserId = job.user_id as string
 
-    // Insert into generated_images table
+    // Upsert into generated_images table (idempotent on inference_id + image_index)
     const { data: imageData, error: imageError } = await supabase
       .from('generated_images')
-      .insert({
+      .upsert({
         user_id: resolvedUserId,
         inference_id: job_id,
         image_index,
@@ -115,7 +115,7 @@ serve(async (req) => {
         format,
         bytes,
         seed
-      })
+      }, { onConflict: 'inference_id,image_index' })
       .select()
       .single()
 
@@ -123,7 +123,7 @@ serve(async (req) => {
       console.error(`❌ Failed to save image ${image_index} for job ${job_id}:`, imageError)
       return new Response(
         JSON.stringify({ 
-          error: 'Failed to save image to database', 
+          error: 'Failed to upsert image to database', 
           details: imageError.message 
         }), 
         { 
@@ -133,7 +133,7 @@ serve(async (req) => {
       )
     }
 
-    console.log(`✅ Successfully saved image ${image_index} for job ${job_id}`)
+    console.log(`✅ Successfully upserted image ${image_index} for job ${job_id}`)
 
     return new Response(
       JSON.stringify({ 

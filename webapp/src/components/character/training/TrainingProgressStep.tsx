@@ -261,7 +261,7 @@ export function TrainingProgressStep({
             ) : (
               <>
                 <span>{titleNode}</span>
-                {!isRunning && seconds === null && (
+                {((!isRunning && seconds === null) || !isQueued || !isPending || !isFailed) && (
                   <span className={styles.dots}>
                     <span className={styles.dot}></span>
                     <span className={styles.dot}></span>

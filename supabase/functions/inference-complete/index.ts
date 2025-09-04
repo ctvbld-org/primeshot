@@ -14,7 +14,7 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
-  // Enforce POST and authenticate via shared WEBHOOK_SECRET
+  // Enforce POST and authenticate
   if (req.method !== 'POST') {
     return new Response('Method Not Allowed', { status: 405, headers: corsHeaders })
   }

@@ -92,9 +92,11 @@ serve(async (req) => {
       scene: scenePrompt,
     });
 
-
     return new Response(
-      JSON.stringify({ prompt: finalPrompt, metadata: character?.metadata || null }),
+      JSON.stringify({ 
+        prompt: finalPrompt, 
+        metadata: character?.metadata || null
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {

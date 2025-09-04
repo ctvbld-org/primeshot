@@ -81,40 +81,36 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
     }
 
     // Force fast queue regardless of stored value
-    const queueType: 'fast' = 'fast'
     const inferenceApiUrl = Deno.env.get('INFERENCE_API_URL')
     if (!inferenceApiUrl) {
       throw new Error('INFERENCE_API_URL environment variable not set')
     }
 
     // ----- Pre-flight checks -----
-    // Character readiness
-    // If character still training, requeue with a short delay (race-safe)
-    if (character?.status === 'training') {
-      await supabase
-        .from('inference_jobs')
-        .update({ status: 'queued', retry_after: new Date(Date.now() + 60 * 1000).toISOString(), error_message: 'Character not ready yet', updated_at: new Date().toISOString() })
-        .eq('id', job.id)
-      return false
-    }
+    // Use a short backoff for character readiness (configurable, default 30s)
+    const readyBackoffMs = Number(Deno.env.get('INFERENCE_CHARACTER_READY_RETRY_MS') ?? 30000)
 
-    // If LoRA is missing, fail and refund
-    if (!character?.lora_path) {
-      await supabase
-        .from('inference_jobs')
-        .update({ status: 'failed', error_message: 'Character missing lora_path', updated_at: new Date().toISOString() })
-        .eq('id', job.id)
-      await refundIfAny('Refund: missing character lora_path')
-      return false
-    }
-
-    // Other failure states (e.g., explicit training failure)
+    // Explicit training failure → fail immediately with refund
     if (character?.status === 'failed') {
       await supabase
         .from('inference_jobs')
         .update({ status: 'failed', error_message: 'Character training failed', updated_at: new Date().toISOString() })
         .eq('id', job.id)
       await refundIfAny('Refund: character training failed before inference could run')
+      return false
+    }
+
+    // If character still training OR LoRA not yet written, requeue shortly (race-safe)
+    if (character?.status === 'training' || !character?.lora_path) {
+      await supabase
+        .from('inference_jobs')
+        .update({
+          status: 'queued',
+          retry_after: new Date(Date.now() + readyBackoffMs).toISOString(),
+          error_message: 'Character not ready yet',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', job.id)
       return false
     }
 
@@ -155,11 +151,18 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
     }
     const workflowKey = resolveWorkflow(style, job?.settings || {})
 
+    // Fetch overrides from DB to ensure we have latest persisted values
+    const { data: jobRow } = await supabase
+      .from('inference_jobs')
+      .select('settings_override, prompt_override, nb_takes, quality, aspect_ratio')
+      .eq('id', job.id)
+      .maybeSingle()
+
     // Resolve generation parameters. Prefer top-level columns persisted by inference-create,
     // fall back to legacy settings JSON if present, and finally safe defaults.
-    const resolvedNbTakes = (job as any)?.nb_takes ?? job?.settings?.nb_takes ?? 5
-    const resolvedQuality = (job as any)?.quality ?? job?.settings?.quality ?? '1K'
-    const resolvedAspect = (job as any)?.aspect_ratio ?? job?.settings?.aspect_ratio ?? '1:1'
+    const resolvedNbTakes = (jobRow as any)?.nb_takes ?? (job as any)?.nb_takes ?? job?.settings?.nb_takes ?? 5
+    const resolvedQuality = (jobRow as any)?.quality ?? (job as any)?.quality ?? job?.settings?.quality ?? '1K'
+    const resolvedAspect = (jobRow as any)?.aspect_ratio ?? (job as any)?.aspect_ratio ?? job?.settings?.aspect_ratio ?? '1:1'
 
     const modalRequest = {
       user_id: job.user_id,
@@ -177,11 +180,12 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
       },
       prepared: {
         workflow: workflowKey,
-        prompt: finalPrompt,
+        prompt: (jobRow as any)?.prompt_override?.enabled && (jobRow as any)?.prompt_override?.prompt ? String((jobRow as any).prompt_override.prompt) : finalPrompt,
         negative_prompt: negativePrompt,
         character_lora: characterLora,
         style_lora: styleLora || '',
-      }
+      },
+      ...(jobRow?.settings_override ? { settings_override: jobRow.settings_override } : {})
     }
 
     const headers: Record<string, string> = { 'Content-Type': 'application/json' }

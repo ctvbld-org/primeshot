@@ -6,6 +6,7 @@ import { getCharacterTrainingCost } from "../_shared/pricing.ts";
 interface TrainingCompleteRequest {
   job_id: string;
   success: boolean;
+  lora_path?: string; // required when success === true
   error_message?: string;
 }
 
@@ -40,7 +41,7 @@ serve(async (req) => {
     }
 
     // Parse request body
-    const { job_id, success, error_message }: TrainingCompleteRequest = await req.json();
+    const { job_id, success, error_message, lora_path }: TrainingCompleteRequest = await req.json();
 
     if (!job_id) {
       return new Response(
@@ -88,6 +89,14 @@ serve(async (req) => {
       );
     }
 
+    // Validate presence of lora_path when success is true
+    if (success && (!lora_path || typeof lora_path !== 'string' || lora_path.trim().length === 0)) {
+      return new Response(
+        JSON.stringify({ error: 'Missing required field: lora_path for successful training' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Update training job status. completed_at is managed by DB trigger.
     const updateData: any = {
       status: success ? 'completed' : 'failed',
@@ -111,14 +120,18 @@ serve(async (req) => {
       );
     }
 
-    // Update character status
+    // Update character status (+ lora_path when successful) atomically
     const characterStatus = success ? 'ready' : 'failed';
+    const characterUpdate: Record<string, any> = {
+      status: characterStatus,
+      updated_at: new Date().toISOString()
+    };
+    if (success && lora_path) {
+      characterUpdate.lora_path = lora_path;
+    }
     await supabase
       .from('characters')
-      .update({ 
-        status: characterStatus,
-        updated_at: new Date().toISOString()
-      })
+      .update(characterUpdate)
       .eq('id', trainingJob.character_id);
 
     console.log(`✅ Updated training job ${job_id} to ${success ? 'completed' : 'failed'}`);
@@ -208,7 +221,7 @@ serve(async (req) => {
         console.error('❌ Queue processing failed:', await queueResponse.text());
       }
 
-      // Additionally trigger inference queue in case jobs were waiting for this character
+      // Trigger inference queue in case jobs were waiting for this character
       try {
         const infRes = await fetch(
           `${Deno.env.get('SUPABASE_URL')}/functions/v1/inference-queue`,

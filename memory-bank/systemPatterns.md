@@ -1355,6 +1355,13 @@ Detected changes in:
 - webapp/src/contexts/DialogServiceContext.tsx
 - webapp/src/lib/api/inference-job-management.ts
 - webapp/src/lib/services/confirmationService.ts
+
+
+**Auto-update 2025-09-04**:
+Detected changes in:
+- webapp/src/components/home/InferenceJobGroup.tsx
+- webapp/src/components/home/InferenceThumbnail.tsx
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

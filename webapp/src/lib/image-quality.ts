@@ -82,7 +82,7 @@ const MIN_AGE_CONFIDENCE = 0.6; // Minimum confidence for age detection
 
 // Contrast detection constants
 const MIN_ACCEPTABLE_CONTRAST = 0.05; // Minimum contrast to avoid completely flat images
-const MIN_SUBJECT_BACKGROUND_SEPARATION = 0.1; // Minimum separation between subject and background
+const MIN_SUBJECT_BACKGROUND_SEPARATION = 0.05; // Minimum separation between subject and background (relaxed)
 const FACE_PERIMETER_SAMPLE_WIDTH = 20; // Width of sampling area around face perimeter
 
 // Subject-background separation penalty tiers (AGGRESSIVE penalties for portrait quality):
@@ -198,13 +198,14 @@ export interface ImageQualityResult {
 }
 
 // Analyze image quality using face-api.js and browser canvas
-export async function analyzeImageQuality(file: File): Promise<ImageQualityResult> {
+export async function analyzeImageQuality(file: File, options?: { petMode?: boolean }): Promise<ImageQualityResult> {
   if (isServer) {
     // Return a stubbed "acceptable" result so server code relying on the
     // structure still works without errors.
     return SERVER_STUB_RESULT as any;
   }
   let modelsReady = false;
+  const petMode = !!options?.petMode;
   
   try {
     modelsReady = await loadModels();
@@ -241,7 +242,7 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
   let faceDetectionPerformed = false;
   let primaryFaceDetection: WithFaceLandmarks<{ detection: FaceDetection }> | null = null;
   
-  if (modelsReady && faceapi) {
+  if (!petMode && modelsReady && faceapi) {
     try {
       // First try with TinyFaceDetector with lower threshold
       const faceDetections = await faceapi.detectAllFaces(
@@ -452,8 +453,8 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
           
           if (!eyeCheck.visible) {
             if (eyeCheck.confidence > MIN_EYE_CONFIDENCE) {
+              // Record as an issue, but do not hard-reject here. Scoring already penalizes covered eyes.
               result.issues.push('Eyes are not clearly visible (possibly covered by sunglasses or hair)');
-              result.isAcceptable = false;
             } else {
               // If confidence is low, add a warning but don't reject
               result.issues.push('Eye visibility could not be determined with high confidence');
@@ -473,7 +474,7 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
       result.faceScore = 0.5; // Give a medium score as fallback
       result.issues.push('Face/body/gender detection was skipped.');
     }
-  } else {
+  } else if (!petMode) {
     // Models not available
     result.hasBody = false;
     result.bodyScore = 0;
@@ -483,6 +484,15 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
     result.faceCount = 0;
     result.faceScore = 0.5; // Medium fallback score when face detection is skipped
     result.issues.push('Face/body/gender detection was skipped.');
+  } else {
+    // Pet mode: skip human face/eye detection entirely
+    result.hasBody = false;
+    result.bodyScore = 0;
+    result.faceDetectionSkipped = true;
+    result.hasFace = false;
+    result.faceCount = 0;
+    result.faceScore = 0.7; // neutral-passing when skipped
+    result.eyeDetectionSkipped = true;
   }
   
   // Analyze image stats using canvas
@@ -500,12 +510,12 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
   
   // Check contrast
   result.contrastScore = calculateContrastScore(stats.contrast, stats.subjectBackgroundSeparation);
-  if (result.contrastScore < 0.6) { // Reduced from 0.7 to be more forgiving
+  if (result.contrastScore < 0.5) { // Further reduced to be more forgiving
     // Check if the issue is specifically subject-background separation
     if (stats.subjectBackgroundSeparation !== undefined && stats.subjectBackgroundSeparation < MIN_SUBJECT_BACKGROUND_SEPARATION) {
-      if (stats.subjectBackgroundSeparation < 0.05) {
+      if (stats.subjectBackgroundSeparation < 0.03) {
         result.issues.push('Subject and background are nearly identical in tone - use a strongly contrasting background.');
-      } else if (stats.subjectBackgroundSeparation < 0.07) {
+      } else if (stats.subjectBackgroundSeparation < 0.05) {
         result.issues.push('Subject and background are too similar in tone - consider using a contrasting background.');
       } else {
         result.issues.push('Subject and background could be more distinct - try a different background color.');
@@ -519,18 +529,10 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
   
    // Check blur
   result.blurScore = calculateBlurScore(stats.blurValue);
-  const passesBlurTest = result.blurScore >= 0.8; // INCREASED from 0.75 for more aggressive blur rejection
+  const passesBlurTest = result.blurScore >= 0.5; // Relaxed from 0.8
   
-  // HARD REJECTION for severely blurred images (bypass overall scoring)
-  const HARD_BLUR_REJECTION_THRESHOLD = 0.2; // If blur score is below this, immediately reject
-  if (result.blurScore < HARD_BLUR_REJECTION_THRESHOLD) {
-    result.issues.push('Image is too blurry and does not meet minimum quality standards.');
-    result.isAcceptable = false; // Hard rejection - skip overall scoring
-    
-    // Clean up and return early
-    URL.revokeObjectURL(img.src);
-    return result;
-  }
+  // Remove hard auto-reject for blur: keep as warning and rely on overall score
+  // This prevents portrait-mode bokeh (sharp subject, blurry background) from failing outright.
   
   if (!passesBlurTest) {
     result.issues.push('Image appears to be blurry or lacks sufficient detail.');
@@ -543,7 +545,7 @@ export async function analyzeImageQuality(file: File): Promise<ImageQualityResul
   result.score = rawOverallScore * 100; // Convert to 0-100 scale
   
   // Determine if image is acceptable
-  result.isAcceptable = isAcceptable(result);
+  result.isAcceptable = isAcceptable(result, { petMode });
   
   // Clean up
   URL.revokeObjectURL(img.src);
@@ -727,17 +729,13 @@ function detectBlur(canvas: HTMLCanvasElement, faceDetection: WithFaceLandmarks<
   const width = canvas.width;
   const height = canvas.height;
   
-  // Method 1: Face-focused blur detection if face is available
+  // Compute face-focused blur when a face is available
+  let faceBlur: number | null = null;
   if (faceDetection) {
-    const faceBlur = detectFaceRegionBlur(canvas, faceDetection);
-    
-    // If face detection gives reasonable results, use it
-    if (faceBlur > 0.05) {
-      return faceBlur;
-    }
+    faceBlur = detectFaceRegionBlur(canvas, faceDetection);
   }
   
-  // Method 2: Multiple full-image blur detection algorithms
+  // Multiple full-image blur detection algorithms (background may be intentionally blurred)
   const results = {
     varianceOfLaplacian: detectBlurVarianceOfLaplacian(canvas),
     tenengrad: detectBlurTenengrad(canvas),
@@ -746,7 +744,6 @@ function detectBlur(canvas: HTMLCanvasElement, faceDetection: WithFaceLandmarks<
   };
   
   // Combine multiple methods with weighting
-  // Weight more reliable methods higher
   const combinedScore = (
     results.varianceOfLaplacian * 0.3 +
     results.tenengrad * 0.25 +
@@ -754,8 +751,14 @@ function detectBlur(canvas: HTMLCanvasElement, faceDetection: WithFaceLandmarks<
     results.modifiedLaplacian * 0.2
   );
   
-  // Don't cap the minimum - let the actual differences show through
-  return Math.min(0.95, combinedScore);
+  const globalScore = Math.min(0.95, combinedScore);
+  
+  // Prefer the sharper face region over globally blurred backgrounds (portrait-mode bokeh)
+  if (faceBlur !== null) {
+    return Math.min(0.95, Math.max(faceBlur, globalScore));
+  }
+  
+  return globalScore;
 }
 
 // Face-region focused blur detection
@@ -989,18 +992,18 @@ function calculateContrastScore(contrast: number, subjectBackgroundSeparation?: 
     
     const separationRatio = subjectBackgroundSeparation / MIN_SUBJECT_BACKGROUND_SEPARATION;
     
-    // Extremely aggressive penalty - poor separation should almost guarantee failure
+    // Less aggressive penalties – allow borderline images to pass
     let maxScoreWithPoorSeparation;
     
-    if (subjectBackgroundSeparation < 0.05) {
-      // Very poor separation (< 5% difference) - severe penalty
-      maxScoreWithPoorSeparation = 0.35; // Almost guaranteed failure
-    } else if (subjectBackgroundSeparation < 0.07) {
-      // Poor separation (5-7% difference) - major penalty
-      maxScoreWithPoorSeparation = 0.45;
-    } else {
-      // Moderate separation issue (7-10% difference) - significant penalty
+    if (subjectBackgroundSeparation < 0.035) {
+      // Very poor separation – still penalize but not an auto-fail
       maxScoreWithPoorSeparation = 0.55;
+    } else if (subjectBackgroundSeparation < 0.055) {
+      // Poor separation – moderate cap
+      maxScoreWithPoorSeparation = 0.65;
+    } else {
+      // Mild separation issue – light cap
+      maxScoreWithPoorSeparation = 0.75;
     }
     
     // Calculate base score then apply harsh separation penalty
@@ -1180,10 +1183,11 @@ export function checkBodyShotRequirements(results: Record<string, ImageQualityRe
   };
 }
 
-function isAcceptable(result: ImageQualityResult): boolean {
+function isAcceptable(result: ImageQualityResult, opts?: { petMode?: boolean }): boolean {
   // Track critical failures separately
   const criticalFailures: string[] = [];
   const warnings: string[] = [];
+  const petMode = !!opts?.petMode;
 
   // HARD REQUIREMENT: Check for minimum dimensions first
   // This is a binary pass/fail - no gradual scoring
@@ -1195,27 +1199,32 @@ function isAcceptable(result: ImageQualityResult): boolean {
     return false;
   }
   
-  // Check for single face
+  // Check for single face (skip as critical when pet mode)
   result.hasSingleFace = result.faceCount === 1;
   result.hasFace = result.faceCount === 1;
-  if (!result.hasSingleFace) {
-    if (result.faceCount === 0) {
-      criticalFailures.push('No face detected in the image');
-    } else {
-      criticalFailures.push('Multiple faces detected in the image');
+  if (!petMode) {
+    if (!result.hasSingleFace) {
+      if (result.faceCount === 0) {
+        criticalFailures.push('No face detected in the image');
+      } else {
+        criticalFailures.push('Multiple faces detected in the image');
+      }
     }
   }
 
   // Check eye visibility as a critical factor
   const hasVisibleEyes = result.eyeDetectionSkipped || result.eyesVisible;
-  if (!result.eyeDetectionSkipped && !result.eyesVisible) {
-    criticalFailures.push('Eyes are not clearly visible (possibly covered by sunglasses or hair)');
+  if (!petMode) {
+    if (!result.eyeDetectionSkipped && !result.eyesVisible) {
+      // No longer a critical failure: already penalized in score; keep as warning
+      warnings.push('Eyes are not clearly visible (possibly covered by sunglasses or hair)');
+    }
   }
 
   // Gender matching removed - no longer checking gender validation
   
   // Check for overall quality score
-  result.hasGoodScore = result.score >= 0.55;
+  result.hasGoodScore = result.score >= 0.5; // Relaxed overall score threshold
   if (!result.hasGoodScore) {
     if (criticalFailures.length === 0) {
       // Only add as a critical failure if there are no other critical issues

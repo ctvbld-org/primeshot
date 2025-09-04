@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    // Enforce POST and authenticate via shared WEBHOOK_SECRET (fallback to service role key)
+    // Enforce POST and authenticate via service role key
     if (req.method !== 'POST') {
       return new Response(
         JSON.stringify({ error: 'Method Not Allowed' }),

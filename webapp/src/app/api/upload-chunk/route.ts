@@ -457,7 +457,8 @@ export async function POST(request: Request) {
       if (shouldCreateThumbnail) {
         try {
           // Attempt face-aware crop if client provided a normalized face box
-          let thumbnailSharp = sharp(finalBuffer);
+          // Apply EXIF-based rotation first so metadata and crops use visual orientation
+          let thumbnailSharp = sharp(finalBuffer).rotate();
           const meta = await thumbnailSharp.metadata();
           const imgWidth = meta.width || 0;
           const imgHeight = meta.height || 0;
@@ -491,7 +492,8 @@ export async function POST(request: Request) {
 
             // If side is invalid, fallback later
             if (side > 0 && sx >= 0 && sy >= 0 && sx + side <= imgWidth && sy + side <= imgHeight) {
-              thumbnailSharp = sharp(finalBuffer).extract({ left: sx, top: sy, width: side, height: side });
+              // Ensure extraction happens after auto-rotation to match coordinates
+              thumbnailSharp = sharp(finalBuffer).rotate().extract({ left: sx, top: sy, width: side, height: side });
             }
           }
 
@@ -550,13 +552,14 @@ export async function POST(request: Request) {
       }
 
       // Attempt idempotent update: set thumbnail only if it's currently null
-      if (thumbUrl) {
+      // Fallback: if thumbnail generation failed, use the original uploaded image URL
+      if (thumbUrl || url) {
         await supabase
           .from('characters')
-          .update({ thumbnail_url: thumbUrl })
+          .update({ thumbnail_url: thumbUrl || url })
           .eq('id', metadata.characterId)
           .is('thumbnail_url', null);
-        console.log(`Attempted to set thumbnail for character ${metadata.characterId}: ${thumbUrl}`);
+        console.log(`Attempted to set thumbnail for character ${metadata.characterId}: ${thumbUrl || url}`);
       }
 
       // Update character status to 'uploaded' since upload is complete

@@ -34,6 +34,23 @@ class CharactersApiClient {
     return { character: character };
   }
 
+  async getCharactersByIds(ids: string[]): Promise<Pick<Character, 'id' | 'name' | 'thumbnail_url'>[]> {
+    if (!ids || ids.length === 0) return [];
+    const unique = Array.from(new Set(ids.filter(Boolean)));
+    if (unique.length === 0) return [];
+
+    const { data, error } = await supabase
+      .from('characters')
+      .select('id, name, thumbnail_url')
+      .in('id', unique);
+
+    if (error) {
+      throw new Error(`Failed to fetch characters by ids: ${error.message}`);
+    }
+
+    return (data || []) as any;
+  }
+
   async getUserCharacters(userId: string): Promise<Character[]> {
     const { data: characters, error } = await supabase
       .from('characters')
@@ -135,6 +152,15 @@ export function useCharactersApi() {
     }
   }, []);
 
+  const getCharactersByIds = useCallback(async (ids: string[]): Promise<Pick<Character, 'id' | 'name' | 'thumbnail_url'>[]> => {
+    try {
+      return await charactersApi.getCharactersByIds(ids);
+    } catch (error) {
+      console.error('Failed to get characters by ids:', error);
+      throw error;
+    }
+  }, []);
+
   const getActiveCharacterCount = useCallback(async (userId: string): Promise<number> => {
     try {
       return await charactersApi.getActiveCharacterCount(userId);
@@ -178,5 +204,6 @@ export function useCharactersApi() {
     getCharacter,
     updateCharacterStatus,
     deleteCharacter,
+    getCharactersByIds,
   };
 }

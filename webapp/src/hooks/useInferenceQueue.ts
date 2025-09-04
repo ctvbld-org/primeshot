@@ -20,6 +20,12 @@ export interface InferenceJob {
   sceneId?: string;
   wardrobeId?: string;
   colorId?: string;
+  // New enriched metadata
+  quality?: string;
+  aspectRatio?: string;
+  characterId?: string;
+  characterName?: string;
+  characterThumbnailUrl?: string;
 }
 
 interface UseInferenceQueueReturn {
@@ -57,6 +63,7 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
     const loadActiveJobs = async () => {
       try {
         const { fetchActiveInferenceJobs, fetchCompletedInferenceJobs, fetchInferenceJob, getInferenceImageUrl } = await import('@/lib/api/inference-job-management');
+        const { charactersApi } = await import('@/lib/api/characters');
         
         // Fetch both active and recent completed jobs
         const [activeJobs, completedJobs] = await Promise.all([
@@ -67,6 +74,22 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
         console.log(`📊 Found ${activeJobs.length} active jobs and ${completedJobs.length} completed jobs for user ${user.id}`);
 
         const allJobs: InferenceJob[] = [];
+
+        // Batch fetch character names/thumbnails
+        const characterIds = Array.from(new Set([
+          ...activeJobs.map((j: any) => j.character_id).filter(Boolean),
+          ...completedJobs.map((j: any) => j.character_id).filter(Boolean),
+        ]));
+        let charMap: Record<string, { name?: string; thumbnail_url?: string }> = {};
+        try {
+          const chars = await charactersApi.getCharactersByIds(characterIds);
+          charMap = (chars || []).reduce((acc: any, c: any) => {
+            acc[c.id] = { name: c.name, thumbnail_url: c.thumbnail_url };
+            return acc;
+          }, {} as Record<string, { name?: string; thumbnail_url?: string }>);
+        } catch (e) {
+          console.warn('Failed to batch fetch characters', e);
+        }
 
         // Convert active database jobs to UI format
         activeJobs.forEach(dbJob => {
@@ -89,7 +112,13 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
             styleId: dbJob.style_id,
             sceneId: dbJob.scene_id || undefined,
             wardrobeId: dbJob.wardrobe_id || undefined,
-            colorId: dbJob.color_id || undefined
+            colorId: dbJob.color_id || undefined,
+            // New enriched fields
+            quality: (dbJob as any).quality || undefined,
+            aspectRatio: (dbJob as any).aspect_ratio || undefined,
+            characterId: (dbJob as any).character_id || undefined,
+            characterName: (dbJob as any).character_id ? charMap[(dbJob as any).character_id]?.name : undefined,
+            characterThumbnailUrl: (dbJob as any).character_id ? charMap[(dbJob as any).character_id]?.thumbnail_url as any : undefined,
           });
 
           activeJobIds.current.add(dbJob.id);
@@ -129,7 +158,13 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
             styleId: dbJob.style_id,
             sceneId: dbJob.scene_id || undefined,
             wardrobeId: dbJob.wardrobe_id || undefined,
-            colorId: dbJob.color_id || undefined
+            colorId: dbJob.color_id || undefined,
+            // New enriched fields
+            quality: (dbJob as any).quality || undefined,
+            aspectRatio: (dbJob as any).aspect_ratio || undefined,
+            characterId: (dbJob as any).character_id || undefined,
+            characterName: (dbJob as any).character_id ? charMap[(dbJob as any).character_id]?.name : undefined,
+            characterThumbnailUrl: (dbJob as any).character_id ? charMap[(dbJob as any).character_id]?.thumbnail_url as any : undefined,
           });
         });
 

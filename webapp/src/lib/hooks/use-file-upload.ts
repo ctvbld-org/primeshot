@@ -19,6 +19,7 @@ interface UseFileUploadOptions {
   chunkSize?: number
   existingImages?: FileWithScore[]
   onRemoveExistingImage?: (imageId: string) => void
+  petMode?: boolean
 }
 
 interface FileProgress {
@@ -45,7 +46,8 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     maxSize = 25 * 1024 * 1024,
     allowedTypes = ['image/jpeg', 'image/png'],
     maxFiles = UPLOAD_CONSTANTS.MAX_IMAGES,
-    existingImages = []
+    existingImages = [],
+    petMode = false
   } = useMemo(() => {
     return options;
   }, [options]);
@@ -229,7 +231,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
         try {
           // Random delay between 400ms and 800ms
           await delay(Math.floor(Math.random() * (800 - 400 + 1)) + 400)
-          const result = await analyzeImageQuality(file)
+          const result = await analyzeImageQuality(file, { petMode })
           results[file.name] = result
           
           if (result.isAcceptable) {
@@ -298,7 +300,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
       for (let i = currentIndex; i < files.length; i++) {
         const file = files[i]
         try {
-          const result = await analyzeImageQuality(file)
+          const result = await analyzeImageQuality(file, { petMode })
           results[file.name] = result
           
           // Collect rejected file state but don't add it yet

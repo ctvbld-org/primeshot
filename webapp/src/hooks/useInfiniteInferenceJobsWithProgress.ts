@@ -321,8 +321,8 @@ export function useInfiniteInferenceJobsWithProgress() {
     
     console.log(`📊 Progress update for job ${jobId}: ${data.status} - ${data.message || 'No message'}`);
     
-    // Normalize status: treat 'running' as 'generating' for UI
-    const jobStatus = data.status === 'running' ? 'generating' : data.status;
+    // Normalize status: treat 'running' and 'image_completed' as 'generating' for UI
+    const jobStatus = (data.status === 'running' || data.status === 'image_completed') ? 'generating' : data.status;
     // While on hold, keep message pinned to Initializing…
     const message = messageHold.current.has(jobId) ? 'Initializing' : data.message;
     
@@ -344,7 +344,7 @@ export function useInfiniteInferenceJobsWithProgress() {
     let uiStatus: 'queued' | 'running' | 'completed' | 'failed' = 'queued';
     if (data.status === 'completed') uiStatus = 'completed';
     else if (data.status === 'failed') uiStatus = 'failed';
-    else if (generationPhase || data.status === 'running' || data.status === 'generating') {
+    else if (generationPhase || data.status === 'running' || data.status === 'generating' || data.status === 'image_completed') {
       uiStatus = 'running';
       // WS indicates generation started: release any hold immediately
       if (messageHold.current.has(jobId)) {
@@ -643,7 +643,8 @@ export function useInfiniteInferenceJobsWithProgress() {
           const generationPhase = typeof data.image_index === 'number' || statusStr === 'image_completed';
           
           // Update job status and message directly from Modal (normalize running->generating)
-          const normStatus = statusStr === 'running' ? 'generating' : statusStr;
+          // Normalize job-level status: keep UI at 'generating' during per-image completions
+          const normStatus = (statusStr === 'running' || statusStr === 'image_completed') ? 'generating' : statusStr;
           infiniteJobs.updateJobStatus(job.id, normStatus);
           const msg = messageHold.current.has(job.id) ? 'Initializing' : data.message;
           if (msg) {
@@ -723,6 +724,62 @@ export function useInfiniteInferenceJobsWithProgress() {
       // Note: No preview tracking cleanup needed with sequential generation
     };
   }, []);
+
+  // Global realtime subscription to reflect DB status changes (e.g., queued -> failed)
+  useEffect(() => {
+    if (!user?.id) return;
+    const supabase = createSupabaseBrowserClient();
+
+    const channel = supabase
+      .channel(`inference_jobs_user_${user.id}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'inference_jobs',
+        filter: `user_id=eq.${user.id}`,
+      }, async (payload: any) => {
+        const row = payload?.new as any;
+        const id = row?.id as string;
+        const status = row?.status as string;
+        if (!id || !status) return;
+
+        if (status === 'failed') {
+          const msg = row?.error_message || 'Generation failed';
+          infiniteJobs.updateJobStatus(id, 'failed');
+          infiniteJobs.updateJobMessage(id, msg);
+          const job = infiniteJobs.jobs.find(j => j.id === id);
+          if (job) {
+            job.thumbnails.forEach((_, index) => {
+              infiniteJobs.updateThumbnail(id, index, { status: 'failed', errorMessage: msg });
+            });
+          }
+          return;
+        }
+
+        if (status === 'completed') {
+          infiniteJobs.updateJobStatus(id, 'completed');
+          await fetchAndApplyResults(id, '🔍 Realtime');
+          return;
+        }
+
+        if (status === 'running') {
+          infiniteJobs.updateJobStatus(id, 'generating');
+          return;
+        }
+
+        if (status === 'pending') {
+          // Ensure pending is reflected and resume any hold watcher
+          infiniteJobs.updateJobStatus(id, 'pending' as any);
+          resumeHoldIfAny(id);
+          return;
+        }
+      })
+      .subscribe();
+
+    return () => {
+      try { channel.unsubscribe(); } catch {}
+    };
+  }, [user?.id, infiniteJobs, resumeHoldIfAny, fetchAndApplyResults]);
 
   // Create queued thumbnails (optimistic UI)
   const createQueuedThumbnails = useCallback((nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string }) => {

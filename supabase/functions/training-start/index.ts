@@ -30,7 +30,7 @@ serve(async (req) => {
       );
     }
 
-    const supabase = createClient(
+    const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
@@ -53,7 +53,7 @@ serve(async (req) => {
     }
 
     // Fetch job to get current status and character_id
-    const { data: job, error: jobError } = await supabase
+    const { data: job, error: jobError } = await supabaseAdmin
       .from('training_jobs')
       .select('id, status, character_id')
       .eq('id', job_id)
@@ -74,12 +74,12 @@ serve(async (req) => {
       );
     }
 
-    // Update job to running atomically only if currently queued; DB trigger will set started_at
-    const { data: updated, error: updErr } = await supabase
+    // Update job to running atomically if currently queued/pending/initializing; DB trigger will set started_at
+    const { data: updated, error: updErr } = await supabaseAdmin
       .from('training_jobs')
       .update({ status: 'running', updated_at: new Date().toISOString() })
       .eq('id', job_id)
-      .eq('status', 'queued')
+      .in('status', ['queued', 'pending', 'initializing'])
       .select('id');
 
     if (updErr) {
@@ -98,7 +98,7 @@ serve(async (req) => {
 
     // Reflect character status as training (best-effort)
     if (job.character_id) {
-      await supabase
+      await supabaseAdmin
         .from('characters')
         .update({ status: 'training', updated_at: new Date().toISOString() })
         .eq('id', job.character_id);

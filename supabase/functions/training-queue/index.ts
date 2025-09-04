@@ -78,32 +78,56 @@ async function startTrainingJob(supabase: any, job: TrainingJob): Promise<boolea
       .eq('id', job.id)
       .single();
 
+    // Safely parse training_params whether it’s already an object or a JSON string
+    let overrides = jobRow?.training_params as unknown;
+    if (typeof overrides === 'string') {
+      try {
+        overrides = JSON.parse(overrides);
+      } catch {
+        overrides = {};
+      }
+    }
+
     const trainingData = {
       user_id: job.user_id,
       character_id: job.character_id,
       character_name: character.name,
       training_job_id: job.id,
-      ...(jobRow?.training_params || {})
+      // Only spread if overrides is a plain object
+      ...(overrides && typeof overrides === 'object' ? overrides : {})
     };
-    
+    // Validate provider configuration
+    const trainingApiUrl = Deno.env.get('TRAINING_API_URL') || ''
+    const modalKey = Deno.env.get('MODAL_TOKEN_ID') || ''
+    const modalSecret = Deno.env.get('MODAL_TOKEN_SECRET') || ''
+    if (!trainingApiUrl || !modalKey || !modalSecret) {
+      await supabase
+        .from('training_jobs')
+        .update({
+          status: 'failed',
+          error_message:
+            'Provider configuration missing (TRAINING_API_URL/MODAL_TOKEN_ID/MODAL_TOKEN_SECRET)',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', job.id)
+      return false
+    }
+
     // Call Modal training API with timeout
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort('timeout'), 30000);
-    let modalResponse: Response;
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort('timeout'), 30000)
+    let modalResponse: Response
     try {
-      modalResponse = await fetch(
-        `${Deno.env.get('TRAINING_API_URL')}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Modal-Key': Deno.env.get('MODAL_TOKEN_ID') || '',
-            'Modal-Secret': Deno.env.get('MODAL_TOKEN_SECRET') || ''
-          },
-          body: JSON.stringify(trainingData),
-          signal: controller.signal,
-        }
-      );
+      modalResponse = await fetch(trainingApiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Modal-Key': modalKey,
+          'Modal-Secret': modalSecret,
+        },
+        body: JSON.stringify(trainingData),
+        signal: controller.signal,
+      })
     } finally {
       clearTimeout(timeout);
     }

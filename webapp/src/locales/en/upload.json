@@ -74,7 +74,7 @@
     "checkingQuality": "Checking lighting, framing, and sharpness."
   },
   "upload": {
-    "uploadingFiles": "Loading your best looks {{current}}/{{total}}",
+    "uploadingFiles": "Loading your best looks {{current}} of {{total}}",
     "uploadingInfo": "Please keep this page open until upload completes."
   },
   "errors": {

@@ -104,6 +104,10 @@ export interface InferenceStartRequest {
   };
   queue_type?: 'fast' | 'slow' | 'ultra';
   prompt_override?: { enabled: boolean; prompt: string };
+  settings_override?: {
+    character?: { strength_model?: number; strength_clip?: number };
+    style?: { strength_model?: number; strength_clip?: number };
+  };
 }
 
 export interface InferenceStartResponse {
