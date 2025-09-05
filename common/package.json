@@ -5,7 +5,7 @@
   "types": "dist/index.d.ts",
   "files": ["dist"],
   "scripts": {
-    "build": "tsc -p tsconfig.json && node scripts/postbuild.mjs",
+    "build": "tsc -p tsconfig.json && node -e \"const fs=require('fs');const path=require('path');const src=path.resolve('web');const dst=path.resolve('dist','web');(function copy(p,q){fs.mkdirSync(q,{recursive:true});for(const e of fs.readdirSync(p,{withFileTypes:true})){const sp=path.join(p,e.name);const dq=path.join(q,e.name);if(e.isDirectory()){copy(sp,dq)}else if(e.isFile()&&e.name.endsWith('.css')){fs.mkdirSync(path.dirname(dq),{recursive:true});fs.copyFileSync(sp,dq)}}})(src,dst);console.log('[common] Copied CSS to dist/web');\"",
     "watch": "tsc -w -p tsconfig.json --preserveWatchOutput"
   },
   "dependencies": {

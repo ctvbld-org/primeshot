@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 import { S3Client, GetObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3'
-import { createZipStreamFromS3 } from '@primeshot/common'
+import { createZipStreamFromS3 } from '@primeshot/common/lib/zip'
 
 export const runtime = 'nodejs'
 

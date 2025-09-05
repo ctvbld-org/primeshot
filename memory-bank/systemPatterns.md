@@ -1399,6 +1399,16 @@ Detected changes in:
 - admin/src/app/media/page.tsx
 - admin/src/lib/sync/engine.ts
 - admin/src/lib/translation.ts
+
+
+**Auto-update 2025-09-04**:
+Detected changes in:
+- webapp/src/app/api/payment/credit-pack-checkout/route.ts
+- webapp/src/app/api/payment/subscription-checkout/route.ts
+- webapp/src/app/api/payment/webhook/route.ts
+- webapp/src/app/api/subscription/customer-portal/route.ts
+- webapp/src/app/api/subscription/preview-upgrade/route.ts
+- webapp/src/lib/services/creditService.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

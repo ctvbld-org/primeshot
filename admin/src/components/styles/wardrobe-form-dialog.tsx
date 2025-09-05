@@ -204,7 +204,7 @@ export function WardrobeFormDialog({
 
   const createMutation = useMutation({
     mutationFn: async (data: WardrobeFormValues & { translations?: any }) => {
-      const res = await fetch('/api/admin/style-wardrobes', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/api/admin/style-wardrobes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -240,7 +240,7 @@ export function WardrobeFormDialog({
   const updateMutation = useMutation({
     mutationFn: async (data: WardrobeFormValues & { translations?: any }) => {
       if (!wardrobe) throw new Error('No wardrobe to update')
-      const res = await fetch('/api/admin/style-wardrobes', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/api/admin/style-wardrobes`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: wardrobe.id, ...data }),

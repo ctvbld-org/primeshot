@@ -10,6 +10,7 @@ import styles from './SubscriptionDialogContent.module.css'
 
 interface CreditPackDialogContentProps {
   requiredCredits?: number
+  fullscreen?: boolean
 }
 
 export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogContentProps) {

@@ -225,7 +225,7 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
     mutationFn: async (data: FormData & { translations?: any }) => {
       if (style) {
         // Update (retain S3 images even if removed from this style)
-        const res = await fetch('/api/admin/styles', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/api/admin/styles`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: style.id, ...data }),
@@ -236,7 +236,7 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
         }
       } else {
         // Create
-        const res = await fetch('/api/admin/styles', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/api/admin/styles`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
