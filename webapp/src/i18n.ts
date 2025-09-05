@@ -117,7 +117,10 @@ export const resources = {
     // }
 } as const;
 
-i18n
+// Create a dedicated instance to avoid SSR/global conflicts
+const i18nInstance = i18n.createInstance();
+
+i18nInstance
   // Detect user language
   // Learn more: https://github.com/i18next/i18next-browser-languageDetector
   .use(LanguageDetector)
@@ -145,4 +148,4 @@ i18n
     }
   });
 
-export default i18n; 
+export default i18nInstance; 
