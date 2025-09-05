@@ -1,15 +1,13 @@
 'use client'
 
-import { useEffect } from 'react'
+import React from 'react'
+import { I18nextProvider } from 'react-i18next'
+import i18n from '@/i18n'
 
-// Initialize i18n configuration
-import '@/i18n'
-
-export function I18nInitializer() {
-  useEffect(() => {
-    // i18n is already initialized by the import above
-    // This component ensures it happens at the right time in the React lifecycle
-  }, [])
-  
-  return null
+export function I18nInitializer({ children }: { children: React.ReactNode }) {
+  return (
+    <I18nextProvider i18n={i18n}>
+      {children}
+    </I18nextProvider>
+  )
 }

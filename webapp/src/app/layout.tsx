@@ -28,24 +28,25 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${carb.variable} ${inter.className} dark`}>
-        <I18nInitializer />
-        <AuthProvider>
-          <LanguageProvider>
-            <QueryProvider>
-              <BannerProvider>
-                <DialogServiceProvider>
-                  <InferenceQueueProvider>
-                    <IntentHandler />
-                    <QueryParamCleaner />
-                    <Header rightSlot={<CreditsHeaderRight />} />
-                    {children}
-                    <Toaster />
-                  </InferenceQueueProvider>
-                </DialogServiceProvider>
-              </BannerProvider>
-            </QueryProvider>
-          </LanguageProvider>
-        </AuthProvider>
+        <I18nInitializer>
+          <AuthProvider>
+            <LanguageProvider>
+              <QueryProvider>
+                <BannerProvider>
+                  <DialogServiceProvider>
+                    <InferenceQueueProvider>
+                      <IntentHandler />
+                      <QueryParamCleaner />
+                      <Header rightSlot={<CreditsHeaderRight />} />
+                      {children}
+                      <Toaster />
+                    </InferenceQueueProvider>
+                  </DialogServiceProvider>
+                </BannerProvider>
+              </QueryProvider>
+            </LanguageProvider>
+          </AuthProvider>
+        </I18nInitializer>
       </body>
     </html>
   )
