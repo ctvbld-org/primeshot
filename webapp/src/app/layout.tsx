@@ -9,6 +9,7 @@ import { Header } from '@primeshot/common'
 import { CreditsHeaderRight } from '@/components/header/CreditsHeaderRight'
 import { AuthProvider } from '@primeshot/common'
 import { LanguageProvider } from '@primeshot/common'
+import I18nInitializer from '@/components/providers/I18nInitializer'
 import { DialogServiceProvider } from '@/contexts/DialogServiceContext'
 import { IntentHandler } from '@/components/providers/intent-handler'
 import { InferenceQueueProvider } from '@/contexts/inference-queue-context'
@@ -28,6 +29,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${carb.variable} ${inter.className} dark`}>
         <AuthProvider>
+          <I18nInitializer>
           <LanguageProvider>
             <QueryProvider>
               <BannerProvider>
@@ -43,6 +45,7 @@ export default function RootLayout({
               </BannerProvider>
             </QueryProvider>
           </LanguageProvider>
+          </I18nInitializer>
         </AuthProvider>
       </body>
     </html>

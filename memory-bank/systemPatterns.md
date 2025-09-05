@@ -1409,6 +1409,15 @@ Detected changes in:
 - webapp/src/app/api/subscription/customer-portal/route.ts
 - webapp/src/app/api/subscription/preview-upgrade/route.ts
 - webapp/src/lib/services/creditService.ts
+
+
+**Auto-update 2025-09-05**:
+Detected changes in:
+- admin/src/app/api/media/download/zip/route.ts
+- admin/src/app/globals.css
+- admin/src/components/styles/style-form-dialog.tsx
+- admin/src/components/styles/wardrobe-form-dialog.tsx
+- webapp/src/components/pricing/CreditPackDialogContent.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:
