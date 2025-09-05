@@ -18,13 +18,16 @@ import dotenv from 'dotenv'
 
 // Parse command line arguments
 const args = process.argv.slice(2)
-const environment = args.includes('--prod') ? 'prod' : 'test'
+const environment = args.includes('--prod') ? 'prod' : args.includes('--staging') ? 'staging' : 'test'
 const skipCleanup = args.includes('--skip-cleanup')
 
 // Load appropriate environment file
 if (environment === 'prod') {
   console.log('🔴 PRODUCTION MODE - Using .env file')
   dotenv.config({ path: '.env' })
+} else if (environment === 'staging') {
+  console.log('🔴 STAGING MODE - Using .env file')
+  dotenv.config({ path: '.env.staging' })
 } else {
   console.log('🟡 TEST MODE - Using .env.local file')
   dotenv.config({ path: '.env.local' })

@@ -722,6 +722,11 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                     Requires active subscription
                   </div>
                 )}
+                {createCharacterAction.type === 'subscription' && (
+                  <div className={styles.itemSubLabel}>
+                    Requires active subscription
+                  </div>
+                )}
                 {createCharacterAction.type === 'create' && remainingIncludedTrainings > 0 && (
                   <div className={styles.itemSubLabel}>
                     {t('labels.includedInPlan', { ns: 'styles', count: remainingIncludedTrainings })}

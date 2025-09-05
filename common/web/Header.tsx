@@ -36,7 +36,7 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
             <a href="/use-cases" className={styles.navLink}>Use Cases</a>
             <a href="/pricing" className={styles.navLink}>Pricing</a>
             {isAuthenticated && user?.admin && (
-              <a href="/dashboard" className={styles.adminNavLink}>Admin</a>
+              <a href="/admin" className={styles.adminNavLink}>Admin</a>
             )}
           </nav>
         </div>
