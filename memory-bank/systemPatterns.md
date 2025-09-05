@@ -1436,6 +1436,12 @@ Detected changes in:
 - webapp/src/components/style/GenerateBar/GenerateBar.tsx
 - webapp/src/components/style/GenerateBar/useCreateCharacter.tsx
 - website/src/app/page.tsx
+
+
+**Auto-update 2025-09-05**:
+Detected changes in:
+- webapp/src/app/layout.tsx
+- webapp/src/components/providers/RootProviders.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

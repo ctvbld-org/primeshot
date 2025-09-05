@@ -12,11 +12,7 @@ export function LanguageProvider({ children }) {
             try {
                 setIsLoading(true);
                 const saved = typeof window !== 'undefined' ? localStorage.getItem('i18nextLng') : null;
-                const fallbackOpt = i18n.options.fallbackLng;
-                const fallback = Array.isArray(fallbackOpt)
-                    ? fallbackOpt[0]
-                    : (typeof fallbackOpt === 'string' ? fallbackOpt : 'en');
-                const lang = saved || fallback;
+                const lang = saved || i18n.options.fallbackLng;
                 await i18n.changeLanguage(lang);
                 setCurrentLanguage(lang);
             }

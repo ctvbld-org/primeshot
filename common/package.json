@@ -10,8 +10,7 @@
     "build": "tsc -p tsconfig.json && node -e \"const fs=require('fs');const path=require('path');const copy=(s,d,f)=>{fs.mkdirSync(d,{recursive:true});for(const e of fs.readdirSync(s,{withFileTypes:true})){const sp=path.join(s,e.name);const dp=path.join(d,e.name);if(e.isDirectory())copy(sp,dp,f);else if(e.isFile()&&f(e.name)){fs.mkdirSync(path.dirname(dp),{recursive:true});fs.copyFileSync(sp,dp)}}};copy(path.resolve('web'),path.resolve('dist','web'),n=>n.endsWith('.css'));copy(path.resolve('locales'),path.resolve('dist','locales'),n=>n.endsWith('.json'));console.log('[common] Copied CSS and locales');\"",
     "watch": "tsc -w -p tsconfig.json --preserveWatchOutput",
     "watch:assets": "chokidar \"web/**/*.css\" \"locales/**/*.json\" -c \"node scripts/postbuild.mjs\"",
-    "dev": "concurrently -k \"npm:watch\" \"npm:watch:assets\"",
-    "prepare": "npm run build"
+    "dev": "concurrently -k \"npm:watch\" \"npm:watch:assets\""
   },
   "dependencies": {
     "archiver": "^6.0.2",
@@ -22,7 +21,9 @@
   "peerDependencies": {
     "react": ">=18",
     "react-dom": ">=18",
-    "react-i18next": ">=15"
+    "react-i18next": ">=15",
+    "i18next": ">=25",
+    "i18next-browser-languagedetector": ">=8"
   },
   "devDependencies": {
     "chokidar-cli": "3.0.0",

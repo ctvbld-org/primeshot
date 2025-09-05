@@ -14,6 +14,7 @@ const nextConfig = {
       path: false,
       stream: false,
     }
+
     // Path alias so imports like "@/constants/profile-options" work in monorepo
     config.resolve.alias['@/constants'] = path.join(__dirname, 'src/components/constants')
 
