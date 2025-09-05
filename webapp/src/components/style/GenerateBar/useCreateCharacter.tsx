@@ -29,7 +29,7 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
   const characterTrainingCost = getCharacterTrainingCost(creditCosts)
   const creditGuard = useCreditGuard(characterTrainingCost)
   const { getActiveCharacterCount } = useCharactersApi()
-  const { user } = useAuth()
+  const { user, isAuthenticated } = useAuth()
 
   const remainingCharacterTrainings = React.useMemo(() => {
     if (!subscription) return 0
@@ -70,6 +70,10 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
 
   // Determine what should happen when Create Character button is clicked
   const createCharacterAction = useMemo(() => {
+    // If not authenticated, require sign in first
+    if (!isAuthenticated) {
+      return { type: 'auth', message: 'Create' }
+    }
     // Require active subscription before any other gating (credits, limits)
     const hasActiveSubscription = !!subscription && subscription.status === 'active'
     if (!hasActiveSubscription) {
@@ -92,6 +96,7 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
     // All checks passed - allow creation
     return { type: 'create', message: 'Create' };
   }, [
+    isAuthenticated,
     subscription,
     hasReachedCharacterLimit, 
     isOnHighestTier, 

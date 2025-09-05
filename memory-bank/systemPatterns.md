@@ -1409,6 +1409,39 @@ Detected changes in:
 - webapp/src/app/api/subscription/customer-portal/route.ts
 - webapp/src/app/api/subscription/preview-upgrade/route.ts
 - webapp/src/lib/services/creditService.ts
+
+
+**Auto-update 2025-09-05**:
+Detected changes in:
+- admin/src/app/api/media/download/zip/route.ts
+- admin/src/app/globals.css
+- admin/src/components/styles/style-form-dialog.tsx
+- admin/src/components/styles/wardrobe-form-dialog.tsx
+- webapp/src/components/pricing/CreditPackDialogContent.tsx
+
+
+**Auto-update 2025-09-05**:
+Detected changes in:
+- webapp/src/app/layout.tsx
+- webapp/src/components/providers/I18nInitializer.tsx
+
+
+**Auto-update 2025-09-05**:
+Detected changes in:
+- admin/src/app/media/page.tsx
+- webapp/src/app/layout.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/providers/I18nInitializer.tsx
+- webapp/src/components/providers/I18nProvider.tsx
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/components/style/GenerateBar/useCreateCharacter.tsx
+- website/src/app/page.tsx
+
+
+**Auto-update 2025-09-05**:
+Detected changes in:
+- webapp/src/app/layout.tsx
+- webapp/src/components/providers/RootProviders.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

@@ -26,12 +26,25 @@ const nextConfig: NextConfig = {
     ],
   },
   async rewrites() {
-    return [
-        {
-          source: '/create',
-          destination: `${process.env.NEXT_PUBLIC_WEBAPP_URL}/create`,
-        },
-    ];
+    const rules = [] as { source: string; destination: string }[];
+
+    const webapp = process.env.NEXT_PUBLIC_WEBAPP_URL;
+    if (webapp) {
+      rules.push(
+        { source: '/create', destination: `${webapp}/create` },
+        { source: '/create/:path*', destination: `${webapp}/create/:path*` },
+      );
+    }
+
+    const admin = process.env.NEXT_PUBLIC_ADMIN_URL;
+    if (admin) {
+      rules.push(
+        { source: '/admin', destination: `${admin}/admin` },
+        { source: '/admin/:path*', destination: `${admin}/admin/:path*` },
+      );
+    }
+
+    return rules;
   },
   basePath: '',
   assetPrefix: '',

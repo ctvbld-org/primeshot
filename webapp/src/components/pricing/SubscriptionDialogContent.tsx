@@ -101,7 +101,7 @@ export function SubscriptionDialogContent({
   showOnlyUpgrades = false,
   requiredFeature
 }: SubscriptionDialogContentProps = {}) {
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly')
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly')
   const [loading, setLoading] = useState(false)
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [upgradePreview, setUpgradePreview] = useState<any>(null)

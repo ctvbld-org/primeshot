@@ -2,7 +2,6 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import '@/i18n';
 const LanguageContext = createContext(undefined);
 export function LanguageProvider({ children }) {
     const { i18n } = useTranslation();

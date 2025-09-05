@@ -24,7 +24,7 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
         <div className={styles.leftSection}>
           {/* logo */}
           <a href="/">
-            <Image src="/logo-primeshot.svg" alt="Primeshot" width={32} height={32} />
+            <Image src={(process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/assets/logo-primeshot.svg` : '/app-images/assets/logo-primeshot.svg')} alt="Primeshot" width={32} height={32} />
           </a>
         </div>
 

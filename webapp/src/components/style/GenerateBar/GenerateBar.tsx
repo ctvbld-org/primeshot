@@ -715,7 +715,13 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                   {createCharacterAction.type === 'limit_reached' && t('labels.limitReached', { ns: 'styles' })}
                   {createCharacterAction.type === 'create' && 'Create'}
                   {createCharacterAction.type === 'subscription' && 'Create'}
+                  {createCharacterAction.type === 'auth' && 'Create'}
                 </div>
+                {createCharacterAction.type === 'auth' && (
+                  <div className={styles.itemSubLabel}>
+                    Requires active subscription
+                  </div>
+                )}
                 {createCharacterAction.type === 'create' && remainingIncludedTrainings > 0 && (
                   <div className={styles.itemSubLabel}>
                     {t('labels.includedInPlan', { ns: 'styles', count: remainingIncludedTrainings })}
@@ -942,7 +948,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 thumbnail={(() => {
                 const url = selectedCharacterId ? characterThumbs[selectedCharacterId] : ''
                 if (url) return <Image src={url} alt="Character" width={44} height={44} className={styles.thumbImg} />
-                return <span className={styles.characterIcon}><Image src="/logo-primeshot.svg" alt="Primeshot" width={32} height={32} /></span>
+                return <span className={styles.characterIcon}><Image src={(process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/assets/logo-primeshot.svg` : '/app-images/assets/logo-primeshot.svg')} alt="Primeshot" width={32} height={32} /></span>
                 })()}
                 overlay={(
                 <>

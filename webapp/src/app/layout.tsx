@@ -3,6 +3,7 @@ import { carb } from '@/fonts'
 import './globals.css'
 
 import { QueryProvider } from '@/components/providers/query-provider'
+import { I18nInitializer } from '@/components/providers/I18nInitializer'
 import { Toaster } from "@primeshot/common/web/ui/toaster"
 import { BannerProvider } from "@primeshot/common/web/ui/use-banner"
 import { Header } from '@primeshot/common'
@@ -27,23 +28,25 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${carb.variable} ${inter.className} dark`}>
-        <AuthProvider>
-          <LanguageProvider>
-            <QueryProvider>
-              <BannerProvider>
-                <DialogServiceProvider>
-                  <InferenceQueueProvider>
-                    <IntentHandler />
-                    <QueryParamCleaner />
-                    <Header rightSlot={<CreditsHeaderRight />} />
-                    {children}
-                    <Toaster />
-                  </InferenceQueueProvider>
-                </DialogServiceProvider>
-              </BannerProvider>
-            </QueryProvider>
-          </LanguageProvider>
-        </AuthProvider>
+        <I18nInitializer>
+          <AuthProvider>
+            <LanguageProvider>
+              <QueryProvider>
+                <BannerProvider>
+                  <DialogServiceProvider>
+                    <InferenceQueueProvider>
+                      <IntentHandler />
+                      <QueryParamCleaner />
+                      <Header rightSlot={<CreditsHeaderRight />} />
+                      {children}
+                      <Toaster />
+                    </InferenceQueueProvider>
+                  </DialogServiceProvider>
+                </BannerProvider>
+              </QueryProvider>
+            </LanguageProvider>
+          </AuthProvider>
+        </I18nInitializer>
       </body>
     </html>
   )
