@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { useDialogService } from '@/contexts/DialogServiceContext'
-import { Dialog, DialogContent, DialogBody, DialogFooter, DialogTitle } from '@primeshot/common/web/ui/dialog'
+import { Dialog, DialogContent, DialogBody, DialogFooter, DialogTitle, DialogDescription } from '@primeshot/common/web/ui/dialog'
 import { Button, buttonVariants } from '@primeshot/common/web/ui/button'
 import {
   AlertDialog,
@@ -491,6 +491,12 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
       <DialogContent fullscreen className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col !p-0">
         {/* Hidden DialogTitle for accessibility */}
         <DialogTitle className="sr-only">{getDialogTitle()}</DialogTitle>
+        <DialogDescription className="sr-only">
+          {currentStep === 'upload' ? 'Upload photos to create your character' : 
+           currentStep === 'name' ? 'Name your character' : 
+           currentStep === 'training' ? 'Character training in progress' : 
+           'Character creation dialog'}
+        </DialogDescription>
         <div className="flex flex-row items-center justify-between px-6 py-4 min-h-[64px]">
           <div className="flex items-center gap-3">
             {canGoBack && (
