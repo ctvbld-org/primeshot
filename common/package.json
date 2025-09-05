@@ -54,6 +54,9 @@
       "types": "./dist/lib/stripe/*.d.ts",
       "default": "./dist/lib/stripe/*.js"
     },
+    "./locales/*": {
+      "default": "./dist/locales/*"
+    },
     "./web/*": {
       "types": "./dist/web/*.d.ts",
       "default": "./dist/web/*.js"
