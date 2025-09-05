@@ -48,6 +48,8 @@ function getEnvironment(): 'test' | 'production' {
 function getStripePriceId(tierName: string, billingCycle: 'monthly' | 'yearly'): string | null {
   const env = getEnvironment()
   const stripeConfig = STRIPE_REFERENCE[env]
+
+  console.log('ENV FOR STRIPE PRICE ID', env)
   
   const tierConfig = stripeConfig.subscriptions[tierName as keyof typeof stripeConfig.subscriptions]
   if (!tierConfig) return null
