@@ -5,7 +5,6 @@ const isProd = process.env.VERCEL_TARGET_ENV !== 'local'
 const nextConfig = {
   basePath: isProd ? '/create' : '',
   assetPrefix: isProd ? '/create' : '',
-  transpilePackages: ['@primeshot/common'],
   webpack: (config, { isServer }) => {
     // Ignore Node.js specific modules in face-api.js
     config.resolve.fallback = {
@@ -15,13 +14,6 @@ const nextConfig = {
       path: false,
       stream: false,
     }
-
-    // Force single copies of shared libs across workspaces
-    config.resolve.alias['react'] = path.resolve(__dirname, 'node_modules/react')
-    config.resolve.alias['react-dom'] = path.resolve(__dirname, 'node_modules/react-dom')
-    config.resolve.alias['react-i18next'] = path.resolve(__dirname, 'node_modules/react-i18next')
-    config.resolve.alias['i18next'] = path.resolve(__dirname, 'node_modules/i18next')
-
     // Path alias so imports like "@/constants/profile-options" work in monorepo
     config.resolve.alias['@/constants'] = path.join(__dirname, 'src/components/constants')
 

@@ -7,6 +7,7 @@
     "dev": "concurrently --names \"NEXT,STRIPE,NGROK\" --prefix-colors \"blue,yellow,magenta\" \"next dev --port 3000\" \"stripe listen --forward-to localhost:3000/api/payment/webhook\" \"node ../scripts/dev-ngrok.cjs\"",
     "dev:no-stripe": "next dev --port 3000",
     "dev:no-types": "next dev --port 3000",
+    "prebuild": "npm --prefix ../common ci && npm --prefix ../common run build && npm i ../common --no-save",
     "build": "next build",
     "build:no-types": "next build",
     "start": "next start",
