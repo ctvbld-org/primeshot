@@ -715,7 +715,13 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                   {createCharacterAction.type === 'limit_reached' && t('labels.limitReached', { ns: 'styles' })}
                   {createCharacterAction.type === 'create' && 'Create'}
                   {createCharacterAction.type === 'subscription' && 'Create'}
+                  {createCharacterAction.type === 'auth' && 'Create'}
                 </div>
+                {createCharacterAction.type === 'auth' && (
+                  <div className={styles.itemSubLabel}>
+                    Requires active subscription
+                  </div>
+                )}
                 {createCharacterAction.type === 'create' && remainingIncludedTrainings > 0 && (
                   <div className={styles.itemSubLabel}>
                     {t('labels.includedInPlan', { ns: 'styles', count: remainingIncludedTrainings })}

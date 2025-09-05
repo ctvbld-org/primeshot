@@ -9,7 +9,7 @@ import { Header } from '@primeshot/common'
 import { CreditsHeaderRight } from '@/components/header/CreditsHeaderRight'
 import { AuthProvider } from '@primeshot/common'
 import { LanguageProvider } from '@primeshot/common'
-import I18nInitializer from '@/components/providers/I18nInitializer'
+import I18nProviderClient from '@/components/providers/I18nProvider'
 import { DialogServiceProvider } from '@/contexts/DialogServiceContext'
 import { IntentHandler } from '@/components/providers/intent-handler'
 import QueryParamCleaner from '@/components/shared/QueryParamCleaner'
@@ -29,23 +29,23 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${carb.variable} ${inter.className} dark`}>
         <AuthProvider>
-          <I18nInitializer>
-          <LanguageProvider>
-            <QueryProvider>
-              <BannerProvider>
-                <DialogServiceProvider>
-                  <InferenceQueueProvider>
-                    <IntentHandler />
-                    <QueryParamCleaner />
-                    <Header rightSlot={<CreditsHeaderRight />} />
-                    {children}
-                    <Toaster />
-                  </InferenceQueueProvider>
-                </DialogServiceProvider>
-              </BannerProvider>
-            </QueryProvider>
-          </LanguageProvider>
-          </I18nInitializer>
+          <I18nProviderClient>
+            <LanguageProvider>
+              <QueryProvider>
+                <BannerProvider>
+                  <DialogServiceProvider>
+                    <InferenceQueueProvider>
+                      <IntentHandler />
+                      <QueryParamCleaner />
+                      <Header rightSlot={<CreditsHeaderRight />} />
+                      {children}
+                      <Toaster />
+                    </InferenceQueueProvider>
+                  </DialogServiceProvider>
+                </BannerProvider>
+              </QueryProvider>
+            </LanguageProvider>
+          </I18nProviderClient>
         </AuthProvider>
       </body>
     </html>
