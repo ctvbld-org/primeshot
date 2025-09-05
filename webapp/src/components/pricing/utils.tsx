@@ -15,8 +15,8 @@ export function extractQualityCosts(creditCosts: CreditCostsMap = {}, limit: num
 export const getTrainingCost = (creditCosts?: CreditCostsMap) => creditCosts?.['CHARACTER_TRAINING']
 
 export function getStripeEnv(): 'test' | 'production' {
-  if (typeof process !== 'undefined' && process.env.VERCEL_TARGET_ENV) {
-    return process.env.VERCEL_TARGET_ENV === 'production' ? 'production' : 'test'
+  if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_VERCEL_TARGET_ENV) {
+    return process.env.NEXT_PUBLIC_VERCEL_TARGET_ENV === 'production' ? 'production' : 'test'
   }
   return (typeof process !== 'undefined' && process.env.NODE_ENV === 'production') ? 'production' : 'test'
 }

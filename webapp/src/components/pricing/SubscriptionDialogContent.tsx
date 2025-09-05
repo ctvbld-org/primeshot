@@ -30,9 +30,9 @@ function formatPrice(price: number) {
 
 // Get environment for Stripe reference
 function getEnvironment(): 'test' | 'production' {
-  // Check Vercel environment first
-  if (typeof process !== 'undefined' && process.env.VERCEL_TARGET_ENV) {
-    return process.env.VERCEL_TARGET_ENV === 'production' ? 'production' : 'test'
+  // Check client-side Vercel environment first
+  if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_VERCEL_TARGET_ENV) {
+    return process.env.NEXT_PUBLIC_VERCEL_TARGET_ENV === 'production' ? 'production' : 'test'
   }
   
   // Fallback to NODE_ENV
