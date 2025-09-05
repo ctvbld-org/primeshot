@@ -71,6 +71,7 @@ export default function MediaPage() {
   const [sizeEnabled, setSizeEnabled] = useState<Record<number, boolean>>({
     320: true, 640: true, 960: true, 1280: true, 1920: true, 2560: true
   })
+  const [convertToWebp, setConvertToWebp] = useState(true)
   const [isUploading, setIsUploading] = useState(false)
   const [isExpandingFolders, setIsExpandingFolders] = useState(false)
 
@@ -110,6 +111,7 @@ export default function MediaPage() {
     const files = e.target.files ? Array.from(e.target.files) : []
     if (files.length === 0) return
     setPendingFiles(files)
+    setConvertToWebp(true) // default for each selection
     
     console.log('Files selected:', files.map(f => f.name))
     console.log('Is workflow folder:', isWorkflowFolder)
@@ -181,6 +183,7 @@ export default function MediaPage() {
         }
       }
       
+      setShowUpload(false)
       setPendingFiles([])
       refresh()
       toast.success(`Uploaded ${files.length} file(s)`)
@@ -450,7 +453,10 @@ export default function MediaPage() {
         sizeEnabled={sizeEnabled}
         setSizeEnabled={setSizeEnabled}
         isUploading={isUploading}
-        onConfirm={doUploadWithVariants}
+        convertToWebp={convertToWebp}
+        setConvertToWebp={setConvertToWebp}
+        onConfirmConvert={doUploadWithVariants}
+        onConfirmDirect={()=> doDirectUpload()}
         fileCount={pendingFiles.length}
       />
     </div>
@@ -460,12 +466,15 @@ export default function MediaPage() {
 // Mount upload dialog at end of page render
 
 // Upload configuration dialog
-function UploadDialog({ open, onOpenChange, sizeEnabled, setSizeEnabled, isUploading, onConfirm, fileCount }:{
+function UploadDialog({ open, onOpenChange, sizeEnabled, setSizeEnabled, isUploading, convertToWebp, setConvertToWebp, onConfirmConvert, onConfirmDirect, fileCount }:{
   open: boolean; onOpenChange: (v:boolean)=>void;
   sizeEnabled: Record<number, boolean>;
   setSizeEnabled: (v: Record<number, boolean>)=>void;
   isUploading: boolean;
-  onConfirm: () => void;
+  convertToWebp: boolean;
+  setConvertToWebp: (v: boolean)=>void;
+  onConfirmConvert: () => void;
+  onConfirmDirect: () => void;
   fileCount: number;
 }){
   const sizes = [320,640,960,1280,1920,2560]
@@ -478,6 +487,11 @@ function UploadDialog({ open, onOpenChange, sizeEnabled, setSizeEnabled, isUploa
         </DialogHeader>
         <DialogBody>
           <div style={{marginBottom:8}}>Selected files: {fileCount}</div>
+          <label style={{display:'flex', alignItems:'center', gap:8, marginBottom:8}}>
+            <input type="checkbox" checked={convertToWebp} onChange={(e)=> setConvertToWebp(e.target.checked)} />
+            <span>Convert to WebP</span>
+          </label>
+          {convertToWebp && (
           <div style={{display:'flex', flexDirection:'column', gap:8}}>
             <label style={{display:'flex', alignItems:'center', gap:8}}>
               <input type="checkbox" checked={allOn} onChange={(e)=>{
@@ -494,11 +508,16 @@ function UploadDialog({ open, onOpenChange, sizeEnabled, setSizeEnabled, isUploa
               ))}
             </div>
           </div>
+          )}
         </DialogBody>
         <DialogFooter>
           <div style={{marginLeft:'auto', display:'flex', gap:8}}>
             <Button variant="outline" onClick={()=>onOpenChange(false)} disabled={isUploading}>Cancel</Button>
-            <Button onClick={onConfirm} disabled={isUploading}>{isUploading ? 'Uploading…' : 'Upload'}</Button>
+            {convertToWebp ? (
+              <Button onClick={onConfirmConvert} disabled={isUploading}>{isUploading ? 'Uploading…' : 'Upload'}</Button>
+            ) : (
+              <Button onClick={onConfirmDirect} disabled={isUploading}>{isUploading ? 'Uploading…' : 'Upload as original'}</Button>
+            )}
           </div>
         </DialogFooter>
       </DialogContent>

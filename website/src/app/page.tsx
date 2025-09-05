@@ -53,7 +53,7 @@ export default function Home() {
           <Image src="/cross.svg" alt="" width={24} height={24} className="absolute bottom-4 sm:bottom-8 right-4 sm:right-8 w-5 h-5" />
           <div className="space-y-8 pt-16">
             <Link href="/" className="select-none">
-              <Image src="/logo-primeshot.svg" alt="Primeshot" width={64} height={64} className="w-16 h-16 animate-fade-in-up-delay-1" />
+              <Image src={(process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/assets/logo-primeshot.svg` : '/app-images/assets/logo-primeshot.svg')} alt="Primeshot" width={64} height={64} className="w-16 h-16 animate-fade-in-up-delay-1" />
             </Link>
               
             <div className="flex flex-col space-y-8 max-w-xs">

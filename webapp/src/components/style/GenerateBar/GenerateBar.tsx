@@ -942,7 +942,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 thumbnail={(() => {
                 const url = selectedCharacterId ? characterThumbs[selectedCharacterId] : ''
                 if (url) return <Image src={url} alt="Character" width={44} height={44} className={styles.thumbImg} />
-                return <span className={styles.characterIcon}><Image src="/logo-primeshot.svg" alt="Primeshot" width={32} height={32} /></span>
+                return <span className={styles.characterIcon}><Image src={(process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/assets/logo-primeshot.svg` : '/app-images/assets/logo-primeshot.svg')} alt="Primeshot" width={32} height={32} /></span>
                 })()}
                 overlay={(
                 <>

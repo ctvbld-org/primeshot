@@ -1418,6 +1418,12 @@ Detected changes in:
 - admin/src/components/styles/style-form-dialog.tsx
 - admin/src/components/styles/wardrobe-form-dialog.tsx
 - webapp/src/components/pricing/CreditPackDialogContent.tsx
+
+
+**Auto-update 2025-09-05**:
+Detected changes in:
+- webapp/src/app/layout.tsx
+- webapp/src/components/providers/I18nInitializer.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

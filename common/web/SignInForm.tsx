@@ -23,7 +23,7 @@ export function SignInForm() {
   return (
     <div className={styles.card}>
       <div className={styles.logoContainer}>
-        <Image src="/logo-primeshot.svg" alt="Primeshot" width={64} height={64} />
+        <Image src={(process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/assets/logo-primeshot.svg` : '/app-images/assets/logo-primeshot.svg')} alt="Primeshot" width={64} height={64} />
       </div>
       <div className={styles.headingContainer}>
         <h1 className={styles.heading}>{t('signin.title')}</h1>

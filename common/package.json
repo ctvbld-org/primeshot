@@ -3,21 +3,29 @@
   "version": "0.0.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "tsc -p tsconfig.json && node -e \"const fs=require('fs');const path=require('path');const src=path.resolve('web');const dst=path.resolve('dist','web');(function copy(p,q){fs.mkdirSync(q,{recursive:true});for(const e of fs.readdirSync(p,{withFileTypes:true})){const sp=path.join(p,e.name);const dq=path.join(q,e.name);if(e.isDirectory()){copy(sp,dq)}else if(e.isFile()&&e.name.endsWith('.css')){fs.mkdirSync(path.dirname(dq),{recursive:true});fs.copyFileSync(sp,dq)}}})(src,dst);console.log('[common] Copied CSS to dist/web');\"",
-    "watch": "tsc -w -p tsconfig.json --preserveWatchOutput"
+    "build": "tsc -p tsconfig.json && node scripts/postbuild.mjs",
+    "watch": "tsc -w -p tsconfig.json --preserveWatchOutput",
+    "watch:assets": "chokidar \"web/**/*.css\" \"locales/**/*.json\" -c \"node scripts/postbuild.mjs\"",
+    "dev": "concurrently -k \"npm:watch\" \"npm:watch:assets\""
   },
   "dependencies": {
-    "dotenv": "^17.0.1",
-    "stripe": "^18.3.0",
     "archiver": "^6.0.2",
-    "embla-carousel-react": "^8.6.0"
+    "dotenv": "^17.0.1",
+    "embla-carousel-react": "^8.6.0",
+    "stripe": "^18.3.0"
   },
   "peerDependencies": {
     "react": ">=18",
     "react-dom": ">=18",
     "react-i18next": ">=15"
+  },
+  "devDependencies": {
+    "chokidar-cli": "3.0.0",
+    "concurrently": "9.2.1"
   },
   "exports": {
     ".": {
@@ -54,12 +62,9 @@
       "types": "./dist/lib/stripe/*.d.ts",
       "default": "./dist/lib/stripe/*.js"
     },
-    "./locales/*": {
-      "default": "./dist/locales/*"
-    },
     "./web/*": {
       "types": "./dist/web/*.d.ts",
       "default": "./dist/web/*.js"
     }
   }
-} 
+}
