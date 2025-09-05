@@ -1424,6 +1424,18 @@ Detected changes in:
 Detected changes in:
 - webapp/src/app/layout.tsx
 - webapp/src/components/providers/I18nInitializer.tsx
+
+
+**Auto-update 2025-09-05**:
+Detected changes in:
+- admin/src/app/media/page.tsx
+- webapp/src/app/layout.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/providers/I18nInitializer.tsx
+- webapp/src/components/providers/I18nProvider.tsx
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/components/style/GenerateBar/useCreateCharacter.tsx
+- website/src/app/page.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:
