@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogBody, DialogFooter, DialogHeader, DialogTi
 import { Button } from '@primeshot/common/web/ui/button'
 import { Input } from '@primeshot/common/web/ui/input'
 import { Label } from '@primeshot/common/web/ui/label'
+import { getApiUrl } from '@/lib/api/client'
 
 interface Props {
   open: boolean
@@ -33,7 +34,7 @@ export function AdminInferenceOptionsDialog({ open, characterId, styleId, wardro
     setLoading(true)
     ;(async () => {
       try {
-        const res = await fetch('/api/inference/prompt-preview', {
+        const res = await fetch(getApiUrl('/api/inference/prompt-preview'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ character_id: characterId, style_id: styleId, wardrobe_id: wardrobeId, scene_id: sceneId, color_id: colorId })
