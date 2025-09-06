@@ -222,7 +222,6 @@
   width:var(--size);
   height:var(--size);
   position:absolute;
-  inset:0;
   pointer-events:none;
   background: conic-gradient(transparent calc(var(--value)*1%), var(--color) 0);
   border: var(--thickness) solid var(--border);
