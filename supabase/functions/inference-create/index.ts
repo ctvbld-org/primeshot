@@ -14,6 +14,7 @@ interface InferenceRequest {
   params?: Record<string, unknown>; // seed?, quality, nb_takes, aspect_ratio
   queue_type?: 'fast' | 'slow' | 'ultra';
   prompt_override?: { enabled: boolean; prompt: string };
+  settings_override?: Record<string, any>;
 }
 
 interface InferenceJob {
@@ -40,6 +41,7 @@ interface InferenceJob {
   color_id?: string;
   character_id: string;
   credits_spent?: number;
+  settings_override?: Record<string, any>;
 }
 
 // Credit calculation function - now uses shared configuration
@@ -425,7 +427,9 @@ serve(async (req) => {
         queue_type: queueType,
         credits_spent: creditCost,
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        ...(body?.prompt_override?.enabled && body?.prompt_override?.prompt ? { prompt_override: { enabled: true, prompt: String(body.prompt_override.prompt) } } : {}),
+        ...(body?.settings_override ? { settings_override: body.settings_override } : {})
       };
 
       const { error: qInsertError } = await supabase
@@ -587,7 +591,8 @@ serve(async (req) => {
       credits_spent: creditCost,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      ...(body?.prompt_override?.enabled && body?.prompt_override?.prompt ? { prompt_override: { enabled: true, prompt: String(body.prompt_override.prompt) } } : {})
+      ...(body?.prompt_override?.enabled && body?.prompt_override?.prompt ? { prompt_override: { enabled: true, prompt: String(body.prompt_override.prompt) } } : {}),
+      ...(body?.settings_override ? { settings_override: body.settings_override } : {})
     };
 
     const { error: insertError } = await supabase
@@ -686,18 +691,13 @@ serve(async (req) => {
         throw new Error('INFERENCE_API_URL environment variable not set');
       }
 
-      // Determine environment based on Supabase URL
-      const env = Deno.env.get('SUPABASE_URL')?.includes('localhost') ? 'dev' : 'prod';
+      // Determine environment from ENV variable (same as training)
+      const env = Deno.env.get('ENV') ?? 'prod';
 
       // Prepare Modal API request with quality and nbTakes
       const modalRequest = {
         user_id,
         job_id: jobId,
-        character_id,
-        style_id,
-        wardrobe_id: body.wardrobe_id,
-        color_id: body.color_id,
-        scene_id: body.scene_id,
         env: env, // Add environment flag like training
         params: {
           nb_takes: nbTakes,
@@ -711,7 +711,8 @@ serve(async (req) => {
           negative_prompt: negativePrompt,
           character_lora: characterLora,
           style_lora: styleLora || ''
-        }
+        },
+        settings_override: (body as any)?.settings_override || null
       } as Record<string, unknown>;
 
       // Submit to Modal API

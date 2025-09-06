@@ -1442,6 +1442,24 @@ Detected changes in:
 Detected changes in:
 - webapp/src/app/layout.tsx
 - webapp/src/components/providers/RootProviders.tsx
+
+
+**Auto-update 2025-09-06**:
+Detected changes in:
+- admin/src/app/globals.css
+- webapp/src/app/globals.css
+- webapp/src/app/layout.tsx
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/UploadProgressStep.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/pricing/utils.tsx
+- webapp/src/components/providers/I18nInitializer.tsx
+- webapp/src/components/providers/RootProviders.tsx
+- webapp/src/components/style/GenerateBar/AdminInferenceOptionsDialog.tsx
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/lib/constants/stripe-reference.ts
+- webapp/src/lib/constants/stripe-reference_old.ts
+- webapp/src/lib/websocket/connection-manager.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

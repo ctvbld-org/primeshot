@@ -360,6 +360,9 @@ AWS_SECRET_ACCESS_KEY = "env(AWS_SECRET_ACCESS_KEY)"
 AWS_REGION = "env(AWS_REGION)"
 AWS_S3_BUCKET = "env(AWS_S3_BUCKET)"
 
+[remotes.staging.edge_runtime.secrets]
+ENV = "staging"
+
 [analytics]
 enabled = true
 port = 54327
