@@ -537,7 +537,7 @@ class WebSocketConnectionManager {
   private getWebSocketUrl(jobType: JobType): string | null {
     switch (jobType) {
       case 'training':
-        return process.env.NEXT_PUBLIC_TRAINING_WEBSOCKET_URL || null;
+        return process.env.NEXT_PUBLIC_TRAINING_WEBSOCKET_URL || 'wss://creativebuild--training-websocket-progress.modal.run';
       case 'inference':
         return process.env.NEXT_PUBLIC_INFERENCE_WEBSOCKET_URL || 'wss://creativebuild--primeshot-inference-progress.modal.run';
       default:

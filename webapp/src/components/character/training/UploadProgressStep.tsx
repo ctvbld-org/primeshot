@@ -8,12 +8,13 @@ import { CircleProgress } from '@primeshot/common/web/ui/circle-progress'
 interface UploadProgressStepProps {
   progress: number
   totalFiles: number
+  uploadedFileCount?: number
   retryState?: { attempt: number; maxRetries: number; error?: Error } | null
   currentUploadingFile?: File | null
   uploadedFiles?: File[]
 }
 
-export function UploadProgressStep({ progress, totalFiles, retryState, currentUploadingFile, uploadedFiles = [] }: UploadProgressStepProps) {
+export function UploadProgressStep({ progress, totalFiles, uploadedFileCount = 0, retryState, currentUploadingFile, uploadedFiles = [] }: UploadProgressStepProps) {
   const { t } = useTranslation('upload')
 
   // Keep showing a thumbnail between the last upload finishing and training starting
@@ -24,11 +25,11 @@ export function UploadProgressStep({ progress, totalFiles, retryState, currentUp
     return URL.createObjectURL(fileToShow)
   }, [currentUploadingFile, uploadedFiles])
 
-  const clampedProgress = Math.max(0, Math.min(100, progress))
-  const estimatedUploadedCount = Math.floor((clampedProgress / 100) * Math.max(0, totalFiles))
+  // Use actual uploaded file count instead of estimating from progress
+  // This prevents the counter from going backwards
   const currentIndex = Math.min(
     totalFiles,
-    Math.max(1, estimatedUploadedCount + (currentUploadingFile ? 1 : 0))
+    Math.max(1, uploadedFileCount + (currentUploadingFile ? 1 : 0))
   )
 
   return (

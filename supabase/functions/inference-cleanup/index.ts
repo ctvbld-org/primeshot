@@ -1,11 +1,14 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { corsHeaders } from '../_shared/cors.ts' 
+import { getCorsHeaders } from '../_shared/cors.ts' 
 
 serve(async (req) => {
+  // Get dynamic CORS headers based on request origin
+  const dynamicCorsHeaders = getCorsHeaders(req);
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: dynamicCorsHeaders })
   }
 
   try {
@@ -32,7 +35,7 @@ serve(async (req) => {
         JSON.stringify({ error: 'Failed to check cleanup status', details: checkError.message }), 
         { 
           status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } 
         }
       )
     }
@@ -46,7 +49,7 @@ serve(async (req) => {
           cleaned_jobs: [],
           timestamp: new Date().toISOString()
         }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -60,7 +63,7 @@ serve(async (req) => {
         JSON.stringify({ error: 'Cleanup failed', details: cleanupError.message }), 
         { 
           status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } 
         }
       )
     }
@@ -79,14 +82,14 @@ serve(async (req) => {
         cleaned_jobs: cleanedJobs || [],
         timestamp: new Date().toISOString()
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
     )
 
   } catch (error) {
     console.error('❌ Inference cleanup error:', error)
     return new Response(
       JSON.stringify({ error: 'Internal server error', details: (error as Error).message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
     )
   }
 })

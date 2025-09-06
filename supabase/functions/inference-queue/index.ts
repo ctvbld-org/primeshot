@@ -1,6 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { corsHeaders } from '../_shared/cors.ts'  
+import { getCorsHeaders } from '../_shared/cors.ts'  
 import { buildFinalPrompt, buildGlassesPrompt, buildPronoun, buildSubjectPrompt, safeJoin } from '../_shared/prompt.ts'
 
 interface InferenceJobRow {
@@ -287,8 +287,11 @@ async function processInferenceQueue(supabase: any): Promise<{ processed: number
 }
 
 serve(async (req) => {
+  // Get dynamic CORS headers based on request origin
+  const dynamicCorsHeaders = getCorsHeaders(req);
+  
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: dynamicCorsHeaders })
   }
 
   try {
@@ -302,13 +305,13 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ success: true, ...result, timestamp: new Date().toISOString() }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
     console.error('Inference queue error:', error)
     return new Response(
       JSON.stringify({ error: 'Internal server error', details: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
     )
   }
 })

@@ -78,7 +78,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         options: { emailRedirectTo: getCallbackUrl() }
       })
       if (error) throw error
-      window.location.href = `/auth/verify?email=${encodeURIComponent(email)}`
+      // Handle basePath for staging environment
+      const basePath = typeof window !== 'undefined' && window.location.pathname.startsWith('/create') ? '/create' : ''
+      window.location.href = `${basePath}/auth/verify?email=${encodeURIComponent(email)}`
     } catch (error) {
       setState(prev => ({ ...prev, error: formatAuthError(error as Error) }))
     } finally {

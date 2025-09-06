@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders } from "../_shared/cors.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
 import { getCharacterTrainingCost } from "../_shared/pricing.ts";
 
 interface TrainingCompleteRequest {
@@ -11,9 +11,12 @@ interface TrainingCompleteRequest {
 }
 
 serve(async (req) => {
+  // Get dynamic CORS headers based on request origin
+  const dynamicCorsHeaders = getCorsHeaders(req);
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response('ok', { headers: dynamicCorsHeaders });
   }
 
   try {
@@ -26,7 +29,7 @@ serve(async (req) => {
     if (req.method !== 'POST') {
       return new Response(
         JSON.stringify({ error: 'Method not allowed' }),
-        { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 405, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -36,7 +39,7 @@ serve(async (req) => {
     if (!expected.trim() || auth !== expected) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -46,7 +49,7 @@ serve(async (req) => {
     if (!job_id) {
       return new Response(
         JSON.stringify({ error: 'Missing required field: job_id' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -56,7 +59,7 @@ serve(async (req) => {
       console.error(`❌ Invalid job_id format (expected UUID): ${job_id}`)
       return new Response(
         JSON.stringify({ error: 'Invalid job_id format: expected UUID' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -73,7 +76,7 @@ serve(async (req) => {
       console.error(`❌ Training job not found: ${job_id}`, jobError);
       return new Response(
         JSON.stringify({ error: 'Training job not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 404, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -85,7 +88,7 @@ serve(async (req) => {
           message: `Training job already ${trainingJob.status}`,
           job_id 
         }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -93,7 +96,7 @@ serve(async (req) => {
     if (success && (!lora_path || typeof lora_path !== 'string' || lora_path.trim().length === 0)) {
       return new Response(
         JSON.stringify({ error: 'Missing required field: lora_path for successful training' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -116,7 +119,7 @@ serve(async (req) => {
       console.error(`❌ Failed to update training job status:`, updateError);
       return new Response(
         JSON.stringify({ error: 'Failed to update training job status' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -262,7 +265,7 @@ serve(async (req) => {
       }),
       {
         status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' }
       }
     );
 
@@ -270,7 +273,7 @@ serve(async (req) => {
     console.error('Training completion error:', error);
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 }); 

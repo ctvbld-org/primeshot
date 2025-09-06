@@ -1,14 +1,17 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders } from "../_shared/cors.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 interface InferenceStartedRequest {
   job_id: string;
 }
 
 serve(async (req) => {
+  // Get dynamic CORS headers based on request origin
+  const dynamicCorsHeaders = getCorsHeaders(req);
+  
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response('ok', { headers: dynamicCorsHeaders });
   }
 
   try {
@@ -16,7 +19,7 @@ serve(async (req) => {
     if (req.method !== 'POST') {
       return new Response(
         JSON.stringify({ error: 'Method Not Allowed' }),
-        { status: 405, headers: { ...corsHeaders, 'Allow': 'POST, OPTIONS', 'Content-Type': 'application/json' } }
+        { status: 405, headers: { ...dynamicCorsHeaders, 'Allow': 'POST, OPTIONS', 'Content-Type': 'application/json' } }
       );
     }
     const authHeader = req.headers.get('authorization') || '';
@@ -24,7 +27,7 @@ serve(async (req) => {
     if (!serviceRoleKey || authHeader !== `Bearer ${serviceRoleKey}`) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -37,7 +40,7 @@ serve(async (req) => {
     if (!contentType.includes('application/json')) {
       return new Response(
         JSON.stringify({ error: 'Unsupported Media Type, expected application/json' }),
-        { status: 415, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 415, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -46,7 +49,7 @@ serve(async (req) => {
     if (!job_id || !UUID_V4_REGEX.test(job_id)) {
       return new Response(
         JSON.stringify({ error: 'Invalid job_id: expected UUID' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -60,7 +63,7 @@ serve(async (req) => {
     if (jobError || !job) {
       return new Response(
         JSON.stringify({ error: 'Inference job not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 404, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -68,7 +71,7 @@ serve(async (req) => {
     if (job.status === 'running' || job.status === 'completed' || job.status === 'failed') {
       return new Response(
         JSON.stringify({ ok: true, message: `Job already ${job.status}` }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -84,27 +87,27 @@ serve(async (req) => {
     if (!updErr && !updated) {
       return new Response(
         JSON.stringify({ ok: true, message: 'Job not in startable state' }),
-        { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 409, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     if (updErr) {
       return new Response(
         JSON.stringify({ error: 'Failed to update inference job to running' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     return new Response(
       JSON.stringify({ success: true, job_id, status: 'running' }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
     console.error('Inference started error:', error);
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });

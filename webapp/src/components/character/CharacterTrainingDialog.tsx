@@ -95,6 +95,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
 
   const [isProcessing, setIsProcessing] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [uploadedFileCount, setUploadedFileCount] = useState(0)
   const [currentUploadingFile, setCurrentUploadingFile] = useState<File | null>(null)
 
   const [showCloseConfirmation, setShowCloseConfirmation] = useState(false)
@@ -275,6 +276,10 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
     const uploadedUrls: string[] = []
     let uploadedCount = 0
 
+    // Reset upload progress and count
+    setUploadProgress(0)
+    setUploadedFileCount(0)
+
     for (const file of files) {
       try {
         // Set current uploading file
@@ -291,13 +296,21 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
           fileWithScore,
           characterId,
           (progress) => {
-            const overallProgress = ((uploadedCount + progress / 100) / files.length) * 100
-            setUploadProgress(overallProgress)
+            // Calculate progress for current file (0-100)
+            const currentFileProgress = progress / 100
+            // Calculate overall progress: (completed files + current file progress) / total files
+            const overallProgress = ((uploadedCount + currentFileProgress) / files.length) * 100
+            setUploadProgress(Math.min(100, overallProgress))
           }
         )
         
         uploadedUrls.push(url)
         uploadedCount++
+        setUploadedFileCount(uploadedCount)
+        
+        // Update progress to reflect completed file
+        const overallProgress = (uploadedCount / files.length) * 100
+        setUploadProgress(Math.min(100, overallProgress))
       } catch (error) {
         console.error(`Failed to upload ${file.name}:`, error)
         throw error
@@ -581,6 +594,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
             <UploadProgressStep
               progress={uploadProgress}
               totalFiles={stepData.uploadedFiles.length}
+              uploadedFileCount={uploadedFileCount}
               retryState={retryState}
               currentUploadingFile={currentUploadingFile}
               uploadedFiles={stepData.uploadedFiles}

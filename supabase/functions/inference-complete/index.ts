@@ -1,6 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { corsHeaders } from '../_shared/cors.ts'
+import { getCorsHeaders } from '../_shared/cors.ts'
 
 interface InferenceCompleteRequest {
   job_id: string
@@ -9,21 +9,24 @@ interface InferenceCompleteRequest {
 }
 
 serve(async (req) => {
+  // Get dynamic CORS headers based on request origin
+  const dynamicCorsHeaders = getCorsHeaders(req);
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: dynamicCorsHeaders })
   }
 
   // Enforce POST and authenticate
   if (req.method !== 'POST') {
-    return new Response('Method Not Allowed', { status: 405, headers: corsHeaders })
+    return new Response('Method Not Allowed', { status: 405, headers: dynamicCorsHeaders })
   }
   const auth = req.headers.get('authorization') || ''
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
   if (!serviceRoleKey || auth !== `Bearer ${serviceRoleKey}`) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' },
     })
   }
 
@@ -35,7 +38,7 @@ serve(async (req) => {
         JSON.stringify({ error: 'Missing job_id' }), 
         { 
           status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } 
         }
       )
     }
@@ -77,7 +80,7 @@ serve(async (req) => {
         }), 
         { 
           status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } 
         }
       )
     }
@@ -108,7 +111,7 @@ serve(async (req) => {
         status: success ? 'completed' : 'failed' 
       }), 
       {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' }
       }
     )
 
@@ -118,7 +121,7 @@ serve(async (req) => {
       JSON.stringify({ error: 'Internal server error' }), 
       {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' }
       }
     )
   }

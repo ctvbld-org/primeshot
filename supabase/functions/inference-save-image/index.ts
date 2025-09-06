@@ -1,6 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { corsHeaders } from '../_shared/cors.ts'
+import { getCorsHeaders } from '../_shared/cors.ts'
 
 interface ImageSaveRequest {
   job_id: string
@@ -15,16 +15,19 @@ interface ImageSaveRequest {
 }
 
 serve(async (req) => {
+  // Get dynamic CORS headers based on request origin
+  const dynamicCorsHeaders = getCorsHeaders(req);
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: dynamicCorsHeaders })
   }
 
   try {
     if (req.method !== 'POST') {
       return new Response(
         JSON.stringify({ error: 'Method Not Allowed' }),
-        { status: 405, headers: { ...corsHeaders, 'Allow': 'POST, OPTIONS', 'Content-Type': 'application/json' } }
+        { status: 405, headers: { ...dynamicCorsHeaders, 'Allow': 'POST, OPTIONS', 'Content-Type': 'application/json' } }
       )
     }
 
@@ -34,7 +37,7 @@ serve(async (req) => {
     if (!serviceRoleKey || authHeader !== `Bearer ${serviceRoleKey}`) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -42,7 +45,7 @@ serve(async (req) => {
     if (!contentType.includes('application/json')) {
       return new Response(
         JSON.stringify({ error: 'Unsupported Media Type, expected application/json' }),
-        { status: 415, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 415, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -67,7 +70,7 @@ serve(async (req) => {
         }), 
         { 
           status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } 
         }
       )
     }
@@ -95,7 +98,7 @@ serve(async (req) => {
     if (jobError || !job) {
       return new Response(
         JSON.stringify({ error: 'Inference job not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 404, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -128,7 +131,7 @@ serve(async (req) => {
         }), 
         { 
           status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } 
         }
       )
     }
@@ -143,7 +146,7 @@ serve(async (req) => {
         image_id: imageData?.id 
       }), 
       {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' }
       }
     )
 
@@ -153,7 +156,7 @@ serve(async (req) => {
       JSON.stringify({ error: 'Internal server error' }), 
       {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' }
       }
     )
   }

@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders } from "../_shared/cors.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
 import { calculateImageCreditCost, getSubscriptionLimits, getInferenceSettings, type Quality } from "../_shared/pricing.ts";
 import { buildPronoun, buildSubjectPrompt, buildGlassesPrompt, buildFinalPrompt, safeJoin } from "../_shared/prompt.ts";
 
@@ -170,9 +170,12 @@ async function findExistingActiveInferenceJob(
 }
 
 serve(async (req) => {
+  // Get dynamic CORS headers based on request origin
+  const dynamicCorsHeaders = getCorsHeaders(req);
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response('ok', { headers: dynamicCorsHeaders });
   }
 
   const env = Deno.env.get('ENV') ?? 'prod';
@@ -187,7 +190,7 @@ serve(async (req) => {
     if (req.method !== 'POST') {
       return new Response(
         JSON.stringify({ error: 'Method not allowed' }),
-        { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 405, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -200,7 +203,7 @@ serve(async (req) => {
     if (!user_id || !character_id || !style_id) {
       return new Response(
         JSON.stringify({ error: 'Missing required fields: user_id, character_id, and style_id' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -213,7 +216,7 @@ serve(async (req) => {
     if (authErr || !authData?.user) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
     if (authData.user.id !== user_id) {
@@ -225,7 +228,7 @@ serve(async (req) => {
       if (adminErr || !u?.admin) {
         return new Response(
           JSON.stringify({ error: 'Forbidden' }),
-          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 403, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
         );
       }
     }
@@ -246,7 +249,7 @@ serve(async (req) => {
           details: `nb_takes must be one of: ${settings.nb_takes_options.join(', ')}`,
           provided_number_of_takes: nbTakes
         }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -257,7 +260,7 @@ serve(async (req) => {
           details: `quality must be one of: ${settings.qualities.join(', ')}`,
           provided_quality: quality
         }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -274,7 +277,7 @@ serve(async (req) => {
         JSON.stringify({ error: 'Failed to check credit balance' }),
         {
           status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' },
         }
       );
     }
@@ -289,7 +292,7 @@ serve(async (req) => {
           required_credits: creditCost,
           available_credits: currentBalance
         }),
-        { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 402, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -303,7 +306,7 @@ serve(async (req) => {
           max_allowed_quality: qualityCheck.maxQuality,
           user_tier: qualityCheck.userTier
         }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 403, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -318,7 +321,7 @@ serve(async (req) => {
     if (characterError || !character) {
       return new Response(
         JSON.stringify({ error: 'Character not found or access denied' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 404, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -334,7 +337,7 @@ serve(async (req) => {
     if (styleError || !style) {
       return new Response(
         JSON.stringify({ error: 'Style not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 404, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -368,7 +371,7 @@ serve(async (req) => {
           error: 'Failed to spend credits',
           details: 'Insufficient balance or system error'
         }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -442,7 +445,7 @@ serve(async (req) => {
         });
         return new Response(
           JSON.stringify({ error: 'Failed to create inference job' }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
@@ -457,7 +460,7 @@ serve(async (req) => {
           remaining_credits: currentBalance - creditCost,
           queue_info: { reason: 'character_not_ready' }
         }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -614,7 +617,7 @@ serve(async (req) => {
 
       return new Response(
         JSON.stringify({ error: 'Failed to create inference job' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -639,7 +642,7 @@ serve(async (req) => {
           i18n_key: 'status.tooltip.queueReasons.concurrent_limit',
           i18n_params: { current: concurrentLimits.currentRunningJobs, limit: concurrentLimits.concurrentJobs },
         }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -669,7 +672,7 @@ serve(async (req) => {
               concurrent_limit: userLimit,
             }
           }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
         );
       }
     } catch (e) {
@@ -754,7 +757,7 @@ serve(async (req) => {
             i18n_key: 'status.tooltip.queueReasons.provider_temporary_issue',
             i18n_params: {},
           }),
-          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 200, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
@@ -795,7 +798,7 @@ serve(async (req) => {
         }),
         {
           status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' }
         }
       );
 
@@ -815,7 +818,7 @@ serve(async (req) => {
           i18n_key: 'status.tooltip.queueReasons.provider_temporary_issue',
           i18n_params: {},
         }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     } finally {
       try {
@@ -829,7 +832,7 @@ serve(async (req) => {
     console.error('Inference start error:', error);
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 }); 

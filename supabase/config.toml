@@ -348,7 +348,6 @@ deno_version = 1
 
 [edge_runtime.secrets]
 ENV = "env(ENV)"
-ALLOWED_ORIGINS = "env(ALLOWED_ORIGINS)"
 TRAINING_API_URL = "env(TRAINING_API_URL)"
 INFERENCE_API_URL = "env(INFERENCE_API_URL)"
 MODAL_TOKEN_ID = "env(MODAL_TOKEN_ID)"
