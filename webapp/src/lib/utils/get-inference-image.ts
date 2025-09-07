@@ -142,7 +142,9 @@ export default getInferenceImage;
  */
 export function getInferenceImageUrl(imagePath: string, useWebVariant: boolean = true): string {
   const cleanPath = imagePath.replace(/^s3:\/\/[^\/]+\//, '');
-  return `/api/app-images?path=${encodeURIComponent(cleanPath)}`;
+  // Import getApiUrl dynamically to avoid circular dependencies
+  const { getApiUrl } = require('@/lib/api/client');
+  return getApiUrl(`/api/app-images?path=${encodeURIComponent(cleanPath)}`);
 }
 
 /** Extract the base filename from an S3 path */
