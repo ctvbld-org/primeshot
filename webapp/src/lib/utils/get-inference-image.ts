@@ -142,8 +142,10 @@ export default getInferenceImage;
  */
 export function getInferenceImageUrl(imagePath: string, useWebVariant: boolean = true): string {
   const cleanPath = imagePath.replace(/^s3:\/\/[^\/]+\//, '');
-  // Import getApiUrl dynamically to avoid circular dependencies
-  const { getApiUrl } = require('@/lib/api/client');
+  // Use dynamic import to avoid circular dependencies
+  const getApiUrl = (typeof window !== 'undefined' && window.location.pathname.startsWith('/create')) 
+    ? (path: string) => `/create${path}`
+    : (path: string) => path;
   return getApiUrl(`/api/app-images?path=${encodeURIComponent(cleanPath)}`);
 }
 
