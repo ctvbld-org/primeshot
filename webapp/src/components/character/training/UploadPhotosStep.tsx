@@ -4,6 +4,7 @@ import React, { useState, useCallback, useMemo } from 'react'
 import { useTranslation, Trans } from 'react-i18next'
 import { useToast } from '@primeshot/common/web/ui/use-toast'
 import { FileUploader } from '@/components/upload/FileUploader'
+import { useAuth } from '@/contexts/auth-context'
 
 import { useFileUpload } from '@/lib/hooks/use-file-upload'
 import { Checkbox } from '@primeshot/common/web/ui/checkbox'
@@ -24,7 +25,13 @@ interface UploadPhotosStepProps {
 export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
   const { t } = useTranslation('upload')
   const { toast } = useToast()
+  const { user: authUser } = useAuth()
   const [petMode, setPetMode] = useState(false)
+  
+  // Admin users have different limits
+  const isAdmin = authUser?.admin
+  const minImages = isAdmin ? 1 : UPLOAD_CONSTANTS.MIN_IMAGES
+  const maxImages = isAdmin ? 999 : UPLOAD_CONSTANTS.MAX_IMAGES
   
 
 
@@ -72,7 +79,7 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
 
   // Body shot validation
   const bodyShotValidation = useMemo(() => {
-    if (petMode) {
+    if (petMode || isAdmin) {
       return { isValid: true, errors: [] as string[] };
     }
     // Use only current quality results since component state is preserved
@@ -84,7 +91,7 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
       isValid: validation.isValid,
       errors: validation.errors
     };
-  }, [acceptedFiles, qualityResults, petMode])
+  }, [acceptedFiles, qualityResults, petMode, isAdmin])
 
   // Update parent component when files change
   React.useEffect(() => {
@@ -93,7 +100,7 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
   }, [acceptedFiles, qualityResults, bodyShotValidation, isAnalyzing, onFilesUpdate])
 
   const titleContent = useMemo(() => {
-    if (acceptedFiles.length >= UPLOAD_CONSTANTS.MIN_IMAGES) {
+    if (acceptedFiles.length >= minImages) {
       return (
         <Trans
           ns="upload"
@@ -105,17 +112,32 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
     }
     
     if (selectedFiles.length > 0) {
+      if (isAdmin) {
+        return (
+          <span className="text-[#FF973C]">
+            Need at least 1 image to proceed ({acceptedFiles.length} accepted)
+          </span>
+        )
+      }
       return (
         <Trans
           ns="upload"
           i18nKey="common.titleNeedMore"
           values={{ 
-            minImages: UPLOAD_CONSTANTS.MIN_IMAGES - acceptedFiles.length, 
-            maxImages: UPLOAD_CONSTANTS.MAX_IMAGES - acceptedFiles.length, 
-            count: UPLOAD_CONSTANTS.MAX_IMAGES - acceptedFiles.length 
+            minImages: minImages - acceptedFiles.length, 
+            maxImages: maxImages - acceptedFiles.length, 
+            count: maxImages - acceptedFiles.length 
           }}
           components={{ highlight: <span className="text-[#FF973C]" /> }}
         />
+      )
+    }
+    
+    if (isAdmin) {
+      return (
+        <span className="text-[#FF973C]">
+          Upload any number of images (Admin mode)
+        </span>
       )
     }
     
@@ -123,11 +145,11 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
       <Trans
         ns="upload"
         i18nKey="common.titleNoImages"
-        values={{ minImages: UPLOAD_CONSTANTS.MIN_IMAGES, maxImages: UPLOAD_CONSTANTS.MAX_IMAGES }}
+        values={{ minImages, maxImages }}
         components={{ highlight: <span className="text-[#FF973C]" /> }}
       />
     )
-  }, [acceptedFiles.length, selectedFiles.length, t])
+  }, [acceptedFiles.length, selectedFiles.length, minImages, maxImages, isAdmin, t])
 
   const handleDialogClose = useCallback(() => {
     clearRejectedFiles()
@@ -151,7 +173,7 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
             </div>
             
             {/* Body shot validation errors */}
-            {!isAnalyzing && acceptedFiles.length >= UPLOAD_CONSTANTS.MIN_IMAGES && !bodyShotValidation.isValid && (
+            {!isAnalyzing && acceptedFiles.length >= minImages && !bodyShotValidation.isValid && (
               <div className="mt-4 p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
                 <div className="text-red-400 text-sm font-medium mb-1">
                   Body Shot Requirements Not Met
@@ -170,12 +192,12 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
               handleNewFiles={handleNewFiles}
               addFiles={addFiles}
               acceptedFiles={acceptedFiles}
-              isReady={acceptedFiles.length >= UPLOAD_CONSTANTS.MIN_IMAGES}
+              isReady={acceptedFiles.length >= minImages}
               isAnalyzing={isAnalyzing}
               analyzingCount={analyzingCount}
               isUploading={false}
               uploadedCount={0}
-              disabled={acceptedFiles.length >= UPLOAD_CONSTANTS.MAX_IMAGES}
+              disabled={!isAdmin && acceptedFiles.length >= maxImages}
               currentUploadingIndex={null}
               uploadedFiles={[]}
               isTransitioningToReview={false}
@@ -184,8 +206,8 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
 
           <UploadFooter
             acceptedFiles={acceptedFiles}
-            minImages={UPLOAD_CONSTANTS.MIN_IMAGES}
-            maxImages={UPLOAD_CONSTANTS.MAX_IMAGES}
+            minImages={minImages}
+            maxImages={isAdmin ? 999 : maxImages}
             onReviewClick={() => {}}
             isUploading={false}
             onRemoveFile={removeFile}

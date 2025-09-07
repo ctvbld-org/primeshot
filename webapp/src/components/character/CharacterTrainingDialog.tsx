@@ -110,6 +110,10 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
 
   const { getActiveCharacterCount } = useCharactersApi()
 
+  // Admin users have different limits
+  const isAdmin = user?.admin
+  const minImages = isAdmin ? 1 : UPLOAD_CONSTANTS.MIN_IMAGES
+
   // Check if we're in a critical step where closing should be prevented
   const isInCriticalStep = useMemo(() => {
     return ['uploading'].includes(currentStep) || (currentStep === 'training' && !stepData.trainingJobId)
@@ -220,7 +224,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
   const handleNext = useCallback(async () => {
     switch (currentStep) {
       case 'upload':
-        if (stepData.uploadedFiles.length >= UPLOAD_CONSTANTS.MIN_IMAGES) {
+        if (stepData.uploadedFiles.length >= minImages) {
           setCurrentStep('name')
         }
         break
@@ -233,7 +237,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
         }
         break
     }
-  }, [currentStep, stepData])
+  }, [currentStep, stepData, minImages])
 
   // Handle back navigation
   const handleBack = useCallback(() => {
@@ -488,9 +492,9 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
     switch (currentStep) {
       case 'upload':
         return (
-          stepData.uploadedFiles.length < UPLOAD_CONSTANTS.MIN_IMAGES ||
+          stepData.uploadedFiles.length < minImages ||
           stepData.isAnalyzing ||
-          !stepData.bodyShotValidation?.isValid
+          (!isAdmin && !stepData.bodyShotValidation?.isValid)
         )
       case 'name':
         return !stepData.characterName.trim() || isProcessing
