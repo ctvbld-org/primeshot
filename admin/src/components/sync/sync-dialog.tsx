@@ -26,6 +26,7 @@ import { getEnvironmentLabel, type Environment } from '@/lib/supabase/multi-env'
 import { ChangesSummary } from './changes-summary'
 import { SyncProgress } from './sync-progress'
 import type { SyncComparison, SyncRequest, SyncResult } from '@/lib/sync/types'
+import { getApiUrl } from '@/lib/api'
 
 interface SyncDialogProps {
   open: boolean
@@ -43,7 +44,7 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
   const { data: envInfo } = useQuery({
     queryKey: ['environment-info'],
     queryFn: async () => {
-      const response = await fetch('/api/sync/compare')
+      const response = await fetch(getApiUrl('/api/sync/compare'))
       if (!response.ok) throw new Error('Failed to fetch environment info')
       return response.json()
     },
@@ -54,7 +55,7 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
   const { data: comparison, isLoading: isComparing, refetch: refetchComparison } = useQuery({
     queryKey: ['sync-comparison', selectedTarget],
     queryFn: async (): Promise<SyncComparison> => {
-      const response = await fetch('/api/sync/compare', {
+      const response = await fetch(getApiUrl('/api/sync/compare'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ target: selectedTarget }),
@@ -90,7 +91,7 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
     mutationFn: async (request: Omit<SyncRequest, 'source'>) => {
       console.log('Starting sync with request:', request)
       
-      const response = await fetch('/api/sync/execute', {
+      const response = await fetch(getApiUrl('/api/sync/execute'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(request),

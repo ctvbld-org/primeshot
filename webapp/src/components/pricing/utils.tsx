@@ -23,13 +23,21 @@ export function getStripeEnv(): 'test' | 'production' {
 
 export function getPriceIdForCredits(credits: number): string | null {
   const env = getStripeEnv()
-  const map: Record<number, keyof typeof STRIPE_REFERENCE[typeof env]['creditPacks']> = {
-    90: 'credits_90',
-    180: 'credits_180',
-    360: 'credits_360',
+  const packs: any = (STRIPE_REFERENCE as any)[env]?.creditPacks ?? {}
+
+  // Fast path: exact key like "credits_276"
+  const exactKey = `credits_${credits}`
+  if (packs[exactKey]?.price) return packs[exactKey].price as string
+
+  // Fallback: scan keys and match numeric part for robustness
+  for (const key of Object.keys(packs)) {
+    if (!key.startsWith('credits_')) continue
+    const n = Number(key.slice('credits_'.length))
+    if (Number.isFinite(n) && n === credits) {
+      return packs[key]?.price ?? null
+    }
   }
-  const key = map[credits]
-  return key ? STRIPE_REFERENCE[env].creditPacks[key].price : null
+  return null
 }
 
 export const getPackIcon = (credits: number, size: 5 | 6 = 5) => {

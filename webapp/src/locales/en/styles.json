@@ -30,7 +30,8 @@
     "includedInPlan": "{{count}} included in plan",
     "limitReached": "Limit reached",
     "upgradePlanAddMore": "Upgrade plan to add more",
-    "upgradeOrBuyCredits": "Upgrade plan or buy credit pack"
+    "upgradeOrBuyCredits": "Upgrade plan or buy credit pack",
+    "buyCredits": "Buy credit pack"
   },
   "settings": {
     "numberOfTakes": "Number of Takes",

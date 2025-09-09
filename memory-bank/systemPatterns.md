@@ -1460,6 +1460,13 @@ Detected changes in:
 - webapp/src/lib/constants/stripe-reference.ts
 - webapp/src/lib/constants/stripe-reference_old.ts
 - webapp/src/lib/websocket/connection-manager.ts
+
+
+**Auto-update 2025-09-07**:
+Detected changes in:
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/UploadPhotosStep.tsx
+- webapp/src/lib/utils/get-inference-image.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

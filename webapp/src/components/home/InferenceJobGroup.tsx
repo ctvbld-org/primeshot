@@ -102,24 +102,24 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
   // Get progress if available
   const getProgress = () => {
 
-          const now = Date.now();
-      
-      // Use a stored start time for animation, or current time if first render
-      const animationKey = `animation_start_${job.id}`;
-      let animationStartTime = parseInt(sessionStorage.getItem(animationKey) || '0');
-      
-      if (!animationStartTime) {
-        animationStartTime = now;
-        sessionStorage.setItem(animationKey, animationStartTime.toString());
-      }
-      
-      const elapsed = now - animationStartTime;
-    const jobHash = job.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-    const totalDuration = 60000 + (jobHash % 20000);
-    const rawProgress = Math.min(elapsed / totalDuration, 1);
-    const curvedProgress = 100 * (1 - Math.exp(-3 * rawProgress));
-    
-    return Math.round(curvedProgress); // Let it reach 100% naturally
+    const now = Date.now();
+
+    // Reset the animation when status changes by including it in the key
+    const animationKey = `animation_start_${job.id}_${job.status}`;
+    let animationStartTime = parseInt(sessionStorage.getItem(animationKey) || '0', 10);
+
+    if (!animationStartTime) {
+      animationStartTime = now;
+      sessionStorage.setItem(animationKey, animationStartTime.toString());
+    }
+
+    const elapsed = now - animationStartTime;
+    const jobHash = job.id.split('').reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
+    const totalDuration = 60000 + (jobHash % 20000); // 60–80s range per job
+
+    // Linear ramp, capped at 95% while in non-completed statuses
+    const linear = Math.min(elapsed / totalDuration, 0.95);
+    return Math.floor(linear * 100);
   };
 
   const renderStatusBadge = () => {

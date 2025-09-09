@@ -429,20 +429,32 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
     try {
       const list = await getUserCharacters(authUser.id)
       setCharacters(list)
-      const entries = await Promise.all(
-        list
-          .filter((m: any) => !!m.thumbnail_url)
-          .map(async (m: any) => {
-            try {
-              const res = await fetch(getApiUrl(`/api/user-images?url=${encodeURIComponent(m.thumbnail_url)}`))
-              if (!res.ok) return [m.id, ''] as const
-              const { url } = await res.json()
-              return [m.id, url] as const
-            } catch { return [m.id, ''] as const }
-          })
-      )
+      // Convert any stored S3/CloudFront URL or key into our proxied /api/app-images URL
+      const toAppImagesUrl = (raw: string | null | undefined): string => {
+        try {
+          if (!raw) return ''
+          // If already a key path, pass through
+          if (raw.startsWith('user-images/') || raw.startsWith('app-images/')) {
+            return getApiUrl(`/api/app-images?path=${encodeURIComponent(raw)}`)
+          }
+          // Otherwise parse as URL and extract the S3 key
+          const u = new URL(raw)
+          const pathname = decodeURIComponent(u.pathname.replace(/^\/+/, ''))
+          if (!pathname) return ''
+          // Strip any leading bucket segment if present and keep from user-images/ or app-images/
+          const idxUser = pathname.indexOf('user-images/')
+          const idxApp = pathname.indexOf('app-images/')
+          const key = idxUser >= 0 ? pathname.slice(idxUser) : (idxApp >= 0 ? pathname.slice(idxApp) : pathname)
+          return getApiUrl(`/api/app-images?path=${encodeURIComponent(key)}`)
+        } catch { return '' }
+      }
+
       const map: Record<string,string> = {}
-      for (const [id, url] of entries) map[id] = url
+      for (const m of list) {
+        if (m.thumbnail_url) {
+          map[m.id] = toAppImagesUrl(m.thumbnail_url)
+        }
+      }
       setCharacterThumbs(map)
 
       // If the currently selected character is failed/deleted/missing, clear selection (no toast on page load)
@@ -711,7 +723,8 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 <Icon className={styles.createIcon} variant="plus" size={32} />
                 <div className={styles.itemLabel}>
                   {createCharacterAction.type === 'upgrade_subscription' && t('labels.upgradePlanAddMore', { ns: 'styles' })}
-                  {createCharacterAction.type === 'credit_pack' && t('labels.upgradeOrBuyCredits', { ns: 'styles' })}
+                  {createCharacterAction.type === 'credit_pack' && t('labels.buyCredits', { ns: 'styles' })}
+                  {createCharacterAction.type === 'upgrade_or_credit_pack' && t('labels.upgradeOrBuyCredits', { ns: 'styles' })}
                   {createCharacterAction.type === 'limit_reached' && t('labels.limitReached', { ns: 'styles' })}
                   {createCharacterAction.type === 'create' && 'Create'}
                   {createCharacterAction.type === 'subscription' && 'Create'}
@@ -952,7 +965,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 className={errors.character ? styles.selectorError : ''}
                 thumbnail={(() => {
                 const url = selectedCharacterId ? characterThumbs[selectedCharacterId] : ''
-                if (url) return <Image src={url} alt="Character" width={44} height={44} className={styles.thumbImg} />
+                if (url) return <Image src={url} alt="Character" width={44} height={44} className={styles.thumbImg} unoptimized />
                 return <span className={styles.characterIcon}><Image src={(process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/assets/logo-primeshot.svg` : '/app-images/assets/logo-primeshot.svg')} alt="Primeshot" width={32} height={32} /></span>
                 })()}
                 overlay={(
@@ -1084,6 +1097,7 @@ function CharacterCard({ character, thumbUrl, onSelect, onDeleted, selectedId }:
             width={350}
             height={350}
             className={`${styles.itemThumb} ${isActive ? styles.thumbBlur : ''}`}
+            unoptimized
           />
         ) : (
           <div className={styles.thumb}>#{character.name?.[0] || 'C'}</div>

@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
-import { getApiUrl } from '@/lib/api/client';
 import { FileWithScore } from './types';
+import { createClient } from '@/lib/supabase/client';
 
 // Size of each chunk in bytes (2MB)
 export const CHUNK_SIZE = 2 * 1024 * 1024;
@@ -61,14 +61,30 @@ export async function uploadChunk(
   metadata: ChunkMetadata,
   onProgress?: (progress: number) => void
 ): Promise<Response> {
+  const supabase = createClient();
+  
+  // Get the current session for authentication
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  
+  if (sessionError || !session) {
+    throw new Error('Authentication required for upload');
+  }
+
   const formData = new FormData();
   formData.append('chunk', chunk);
   formData.append('metadata', JSON.stringify(metadata));
 
+  // Use Supabase Edge Function URL
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const edgeFunctionUrl = `${supabaseUrl}/functions/v1/upload-chunk`;
+
   return new Promise<Response>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     
-    xhr.open('POST', getApiUrl('api/upload-chunk'));
+    xhr.open('POST', edgeFunctionUrl);
+    
+    // Add authentication header
+    xhr.setRequestHeader('Authorization', `Bearer ${session.access_token}`);
     
     xhr.upload.addEventListener('progress', (event) => {
       if (event.lengthComputable && onProgress) {
@@ -100,18 +116,37 @@ export async function uploadChunk(
 
 export async function cleanupFailedUpload(uploadId: string): Promise<void> {
   try {
-    const response = await fetch(getApiUrl('api/cleanup-upload'), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ uploadId }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.warn('Failed to cleanup upload:', errorData.error || response.statusText);
+    const supabase = createClient();
+    
+    // Get the current session for authentication
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !session) {
+      console.warn('Cannot cleanup upload: authentication required');
+      return;
     }
+
+    // Delete chunks first (due to foreign key constraint)
+    const { error: deleteChunksError } = await supabase
+      .from('upload_chunks')
+      .delete()
+      .eq('session_id', uploadId);
+
+    if (deleteChunksError) {
+      console.warn('Failed to cleanup chunks:', deleteChunksError);
+    }
+
+    // Delete the upload session
+    const { error: deleteSessionError } = await supabase
+      .from('upload_sessions')
+      .delete()
+      .eq('id', uploadId);
+
+    if (deleteSessionError) {
+      console.warn('Failed to cleanup session:', deleteSessionError);
+    }
+
+    console.log('Successfully cleaned up failed upload:', uploadId);
   } catch (error) {
     console.warn('Error during upload cleanup:', error);
   }

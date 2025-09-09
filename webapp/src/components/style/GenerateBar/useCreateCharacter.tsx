@@ -90,7 +90,13 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
     
     // Check credits for paid training
     if (needsCreditsForTraining && !hasSufficientCredits) {
-      return { type: 'credit_pack', message: 'Create', credits: characterTrainingCost };
+      // If user is on highest tier, they can only buy credits
+      if (isOnHighestTier) {
+        return { type: 'credit_pack', message: 'Create', credits: characterTrainingCost };
+      } else {
+        // If user can upgrade, show upgrade or buy credits option
+        return { type: 'upgrade_or_credit_pack', message: 'Create', credits: characterTrainingCost };
+      }
     }
 
     // All checks passed - allow creation
@@ -147,6 +153,10 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
         break;
       
       case 'credit_pack':
+        openCreditPackDialog(createCharacterAction.credits);
+        break;
+      
+      case 'upgrade_or_credit_pack':
         openCreditPackDialog(createCharacterAction.credits);
         break;
       
