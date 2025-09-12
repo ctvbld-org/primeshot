@@ -542,7 +542,13 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
   
   // Calculate overall score
   const rawOverallScore = calculateOverallScore(result);
-  result.score = rawOverallScore * 100; // Convert to 0-100 scale
+  // Calibrate displayed percentage to avoid inflated totals:
+  // - Slight high-end compression via exponent
+  // - Global reduction factor to align with perceived quality
+  const calibratedPercent = Math.round(
+    Math.min(100, Math.max(0, Math.pow(rawOverallScore, 1.1) * 100 * 0.85))
+  );
+  result.score = calibratedPercent;
   
   // Determine if image is acceptable
   result.isAcceptable = isAcceptable(result, { petMode });
@@ -1223,8 +1229,8 @@ function isAcceptable(result: ImageQualityResult, opts?: { petMode?: boolean }):
 
   // Gender matching removed - no longer checking gender validation
   
-  // Check for overall quality score
-  result.hasGoodScore = result.score >= 0.5; // Relaxed overall score threshold
+  // Check for overall quality score (percent-based threshold)
+  result.hasGoodScore = result.score >= 60; // 60% or higher considered good
   if (!result.hasGoodScore) {
     if (criticalFailures.length === 0) {
       // Only add as a critical failure if there are no other critical issues

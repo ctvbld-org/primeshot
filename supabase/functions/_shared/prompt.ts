@@ -78,3 +78,62 @@ export function buildFinalPrompt(parts: { style?: string; subject?: string; glas
 }
 
 
+/**
+ * Fill a complete style prompt template that contains placeholders like [gender], [eyes], [scene], [wardrobe].
+ * - gender: uses meta.gender as-is
+ * - eyes: builds "<color> eyes" and appends " and glasses" if present; if only glasses present, uses "glasses"
+ * - scene: uses provided scene prompt
+ * - wardrobe: uses provided wardrobe prompt (with color already applied by caller)
+ * Applies light cleanup to avoid artifacts when optional values are missing (e.g., "with ,").
+ */
+export function fillStylePrompt(
+  template: string,
+  args: { meta: any; wardrobe?: string; scene?: string }
+): string {
+  try {
+    const meta = args?.meta || {}
+    const gender = (meta?.gender ?? '') as string
+
+    const eyeColor = (meta?.eyes?.color ?? '') as string
+    const glassesPresent = (meta?.glasses?.present === true) || (String(meta?.glasses?.present || '').toLowerCase() === 'true')
+
+    let eyesText = ''
+    if (eyeColor) eyesText = `${eyeColor} eyes`
+    if (glassesPresent) eyesText = eyesText ? `${eyesText} and glasses` : 'glasses'
+
+    const sceneText = String(args?.scene ?? '')
+    const wardrobeText = String(args?.wardrobe ?? '')
+
+    let result = String(template || '')
+
+    const replacements: Record<string, string> = {
+      gender,
+      eyes: eyesText,
+      scene: sceneText,
+      wardrobe: wardrobeText,
+    }
+
+    for (const key of Object.keys(replacements)) {
+      const value = replacements[key] ?? ''
+      const re = new RegExp(`\\[${key}\\]`, 'g')
+      result = result.replace(re, value)
+    }
+
+    // Cleanup common artifacts when optional placeholders are empty
+    // Remove sequences like "with ," that appear when [eyes] is empty in "with [eyes],"
+    result = result.replace(/\bwith\s*,/gi, '')
+    // Remove "Wearing ." if wardrobe is empty
+    result = result.replace(/\bWearing\s*\./g, '')
+    // Fix stray double spaces before punctuation
+    result = result.replace(/\s+([,\.])/g, '$1')
+    // Collapse multiple spaces
+    result = result.replace(/\s{2,}/g, ' ').trim()
+
+    return result
+  } catch (_e) {
+    // Fail-safe: return template unchanged on unexpected errors
+    return String(template || '')
+  }
+}
+
+

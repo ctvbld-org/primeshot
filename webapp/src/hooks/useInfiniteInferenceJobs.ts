@@ -16,7 +16,7 @@ interface UseInfiniteInferenceJobsReturn {
   error: string | null;
   loadMore: () => Promise<void>;
   refresh: () => Promise<void>;
-  addJob: (jobId: string, nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string }) => void;
+  addJob: (jobId: string, nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string; aspectRatio?: string; quality?: string }) => void;
   updateJobWithRealId: (placeholderId: string, realJobId: string) => void;
   updateJobStatus: (jobId: string, status: string) => void;
   updateJobProgress: (jobId: string, progress: number) => void;
@@ -362,7 +362,7 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
   }, [loadInitialJobs]);
 
   // Add new job (for real-time updates)
-  const addJob = useCallback((jobId: string, nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string }) => {
+  const addJob = useCallback((jobId: string, nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string; aspectRatio?: string; quality?: string }) => {
     const thumbnails: InferenceThumbnail[] = Array.from({ length: nbTakes }, (_, index) => ({
       id: uuidv4(),
       jobId,
@@ -381,6 +381,9 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
       sceneId: meta?.sceneId,
       wardrobeId: meta?.wardrobeId,
       colorId: meta?.colorId,
+      // carry UI settings for sidebar immediately on active jobs
+      aspectRatio: meta?.aspectRatio,
+      quality: meta?.quality,
     };
 
     setJobs(prev => [newJob, ...prev]);

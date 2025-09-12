@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
-import { buildPronoun, buildSubjectPrompt, buildGlassesPrompt, buildFinalPrompt } from "../_shared/prompt.ts";
+import { fillStylePrompt } from "../_shared/prompt.ts";
 
 interface PreviewRequest {
   character_id: string;
@@ -73,10 +73,7 @@ serve(async (req) => {
       const { data: c } = await supabase.from('style_colors').select('value').eq('value', color_id).maybeSingle();
       if (c) colorValue = (c.value || '').toString();
     }
-    const gender = character?.metadata?.gender as string | undefined;
-    const pronoun = buildPronoun(gender);
     if (wardrobePrompt && colorValue) wardrobePrompt = wardrobePrompt.replace(/\[color\]/g, colorValue);
-    const wearLine = wardrobePrompt ? `${pronoun} is wearing ${wardrobePrompt}.` : '';
 
     // Scene by value
     let scenePrompt = '';
@@ -85,15 +82,7 @@ serve(async (req) => {
       if (s) scenePrompt = (s.prompt || s.name || s.title || '').toString();
     }
 
-    const { subject: subjectPrompt } = buildSubjectPrompt(character?.metadata || {});
-    // Glasses are merged into subject by shared builder; avoid duplicate line
-    const wardrobeClean = wearLine.replace(/\.+$/, '.');
-    const finalPrompt = buildFinalPrompt({
-      style: stylePrompt,
-      subject: subjectPrompt,
-      wardrobe: wardrobeClean,
-      scene: scenePrompt,
-    });
+    const finalPrompt = fillStylePrompt(stylePrompt, { meta: character?.metadata || {}, wardrobe: wardrobePrompt, scene: scenePrompt });
 
     return new Response(
       JSON.stringify({ 

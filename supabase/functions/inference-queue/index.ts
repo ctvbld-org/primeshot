@@ -1,7 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders } from '../_shared/cors.ts'  
-import { buildFinalPrompt, buildGlassesPrompt, buildPronoun, buildSubjectPrompt, safeJoin } from '../_shared/prompt.ts'
+import { fillStylePrompt } from '../_shared/prompt.ts'
 
 interface InferenceJobRow {
   id: string
@@ -132,13 +132,14 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
     const stylePrompt = (style as any)?.prompt || ''
     const negativePrompt = ''
 
-    const { subject: subjectPrompt, pronoun } = buildSubjectPrompt(character?.metadata || {})
-    // glasses merged into subject in shared builder
-    const wearLine = wardrobePrompt || colorValue ? `${pronoun} is wearing ${colorValue ? `a ${colorValue} ` : ''}${wardrobePrompt}` : ''
-    const wardrobeClean = wearLine ? (wearLine.endsWith('.') ? wearLine : `${wearLine}.`) : ''
+    if (wardrobePrompt && colorValue) {
+      wardrobePrompt = wardrobePrompt.replace(/\[color\]/g, colorValue)
+    }
+
+    const builtPrompt = fillStylePrompt(stylePrompt, { meta: character?.metadata || {}, wardrobe: wardrobePrompt, scene: scenePrompt })
     const finalPrompt = job?.prompt_override?.enabled && job?.prompt_override?.prompt
       ? String(job.prompt_override.prompt)
-      : buildFinalPrompt({ style: stylePrompt, subject: subjectPrompt, wardrobe: wardrobeClean, scene: scenePrompt })
+      : builtPrompt
 
     const resolveWorkflow = (s: any, params: any): string => {
       const key = s?.workflow || s?.workflow_key || s?.workflow_s3_key

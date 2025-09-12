@@ -157,7 +157,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
     // Create download link
     const link = document.createElement('a');
     link.href = imageUrl;
-    link.download = `shoot-${shootNumber.toString().padStart(3, '0')}-img-${currentImageIndex + 1}.png`;
+    link.download = `primeshot-shoot-${shootNumber.toString().padStart(3, '0')}-img-${currentImageIndex + 1}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -259,7 +259,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
             const original = getInferenceImageOriginal(base);
             const link = document.createElement('a');
             link.href = original;
-            link.download = `shoot-${shootNumber.toString().padStart(3, '0')}-img-${currentImageIndex + 1}.png`;
+            link.download = `primeshot-shoot-${shootNumber.toString().padStart(3, '0')}-img-${currentImageIndex + 1}.png`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);

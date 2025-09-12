@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { calculateImageCreditCost, getSubscriptionLimits, getInferenceSettings, type Quality } from "../_shared/pricing.ts";
-import { buildPronoun, buildSubjectPrompt, buildGlassesPrompt, buildFinalPrompt, safeJoin } from "../_shared/prompt.ts";
+import { fillStylePrompt } from "../_shared/prompt.ts";
 
 interface InferenceRequest {
   user_id: string;
@@ -498,12 +498,9 @@ serve(async (req) => {
     }
 
     // Replace [color] placeholder in wardrobe prompt with actual color value
-    const gender = character?.metadata?.gender as string | undefined;
-    const pronoun = buildPronoun(gender);
     if (wardrobePrompt && colorValue) {
       wardrobePrompt = wardrobePrompt.replace(/\[color\]/g, colorValue);
     }
-    wardrobePrompt = wardrobePrompt ? `${pronoun} is wearing ${wardrobePrompt}` : '';
     
     let scenePrompt = '';
     let sceneUuid: string | null = resolvedSceneUuid;
@@ -519,15 +516,8 @@ serve(async (req) => {
     const stylePrompt = (style as any)?.prompt || '';
     const negativePrompt = (style as any)?.negative_prompt || '';
 
-    // 5) Build subject prompt from character.metadata
-    const { subject: subjectPrompt } = buildSubjectPrompt(character?.metadata || {});
-    // glasses already merged into subject via shared builder; glassesPrompt kept for compatibility if needed
-    const glassesPrompt = '';
-
-    // 6) Final prompt assembly (admin override supported)
-    // Ensure style prompt appears first; trim duplicate trailing dots in wardrobe
-    const wardrobeClean = wardrobePrompt ? (wardrobePrompt.endsWith('.') ? wardrobePrompt : `${wardrobePrompt}.`) : '';
-    let finalPrompt = buildFinalPrompt({ style: stylePrompt, subject: subjectPrompt, wardrobe: wardrobeClean, scene: scenePrompt });
+    // 5) Final prompt assembly from complete style template
+    let finalPrompt = fillStylePrompt(stylePrompt, { meta: character?.metadata || {}, wardrobe: wardrobePrompt, scene: scenePrompt });
 
     // Admin-only prompt override: verify caller is admin using JWT
     if (body?.prompt_override?.enabled) {
@@ -698,6 +688,8 @@ serve(async (req) => {
       const modalRequest = {
         user_id,
         job_id: jobId,
+        character_id,
+        style_id,
         env: env, // Add environment flag like training
         params: {
           nb_takes: nbTakes,
@@ -712,6 +704,10 @@ serve(async (req) => {
           character_lora: characterLora,
           style_lora: styleLora || ''
         },
+        // Option identifiers to aid provider-side telemetry/routing
+        wardrobe_id: wardrobeUuid || null,
+        color_id: colorUuid || null,
+        scene_id: sceneUuid || null,
         settings_override: (body as any)?.settings_override || null
       } as Record<string, unknown>;
 

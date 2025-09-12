@@ -810,7 +810,7 @@ export function useInfiniteInferenceJobsWithProgress() {
   }, [user?.id, infiniteJobs, resumeHoldIfAny, fetchAndApplyResults]);
 
   // Create queued thumbnails (optimistic UI)
-  const createQueuedThumbnails = useCallback((nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string }) => {
+  const createQueuedThumbnails = useCallback((nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string; aspectRatio?: string; quality?: string }) => {
     // Create a placeholder ID for the thumbnails (no WebSocket connection yet)
     const placeholderId = `placeholder_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     

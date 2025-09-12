@@ -1481,6 +1481,22 @@ Detected changes in:
 - webapp/src/components/style/GenerateBar/useCreateCharacter.tsx
 - webapp/src/lib/constants/stripe-reference.ts
 - webapp/src/lib/upload-utils.ts
+
+
+**Auto-update 2025-09-12**:
+Detected changes in:
+- webapp/src/app/api/app-images/route.ts
+- webapp/src/app/api/upload-chunk/route.ts
+- webapp/src/components/home/InferenceJobGroup.module.css
+- webapp/src/components/home/InferenceJobGroup.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/pricing/utils.tsx
+- webapp/src/components/style/GenerateBar/AdminInferenceOptionsDialog.tsx
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/lib/constants/stripe-reference.ts
+- webapp/src/lib/constants/upload.ts
+- webapp/src/lib/hooks/use-character-images.ts
+- webapp/src/lib/upload-utils.ts
 ## Component Organization
 
 Components are organized by feature and reusability:
