@@ -107,6 +107,25 @@ export async function GET(request: Request) {
 
     const response = await tryFetch(signedUrl, 3);
     
+    // Propagate S3 entity tags for conditional caching
+    const s3ETag = response.headers.get('ETag') || response.headers.get('etag') || undefined;
+    const ifNoneMatch = request.headers.get('if-none-match') || undefined;
+
+    // Cache-control: public for app-images (static assets), private for user-images
+    const isUserImage = path.startsWith('user-images/');
+    const cacheControl = isUserImage
+      ? 'private, max-age=31536000, immutable, stale-while-revalidate=86400'
+      : 'public, max-age=31536000, immutable, stale-while-revalidate=86400';
+
+    // If client already has this version, return 304 Not Modified
+    if (s3ETag && ifNoneMatch && ifNoneMatch.replace(/"/g, '') === s3ETag.replace(/"/g, '')) {
+      const h = new Headers();
+      h.set('ETag', s3ETag);
+      h.set('Cache-Control', cacheControl);
+      h.set('Content-Type', response.headers.get('Content-Type') || getMimeType(path));
+      return new Response(null, { status: 304, headers: h });
+    }
+
     // Get the image data
     const imageData = await response.arrayBuffer();
     
@@ -114,7 +133,10 @@ export async function GET(request: Request) {
     const headers = new Headers();
     headers.set('Content-Type', response.headers.get('Content-Type') || getMimeType(path));
     headers.set('Content-Length', response.headers.get('Content-Length') || String(imageData.byteLength));
-    headers.set('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
+    headers.set('Cache-Control', cacheControl);
+    if (s3ETag) headers.set('ETag', s3ETag);
+    const lastMod = response.headers.get('Last-Modified') || response.headers.get('last-modified');
+    if (lastMod) headers.set('Last-Modified', lastMod);
     
     // Return the image data directly
     return new Response(imageData, { 

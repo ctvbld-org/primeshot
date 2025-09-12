@@ -24,13 +24,13 @@ import { useCreditGuard } from '@/hooks/useCreditGuard'
 import { getApiUrl } from '@/lib/api/client'
 import { useJobsApi } from '@/lib/api/jobs'
 import { useActionGate } from '@/hooks/useActionGate'
-import { useActiveTrainingJob } from '@/hooks/useActiveTrainingJob'
+import type { ActiveTrainingJob } from '@/hooks/useActiveTrainingJob'
 import { useTrainingProgress, useInferenceProgress } from '@/hooks/useJobProgress'
 import { CircleProgress } from '@primeshot/common/web/ui/circle-progress'
 import { Countdown } from '@/components/character/Countdown'
 import { useInferenceQueue } from '@/contexts/inference-queue-context'
 import { useCallback as useCallbackReact, useRef } from 'react'
-import { useCharacterImages } from '@/lib/hooks/use-character-images'
+// Batched counts replace per-card image fetch
 
 import { OptionsPanel } from '../OptionsPanel/OptionsPanel'
 import { Loader } from '@primeshot/common/web/ui/loader'
@@ -349,6 +349,8 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
           sceneId: scene_id,
           wardrobeId: wardrobe_id,
           colorId: color_id,
+          aspectRatio: effectiveAspect,
+          quality: effectiveQuality,
         })
 
         setIsSubmitting(true)
@@ -424,9 +426,50 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
     await runGenerate(null)
   }, [authUser?.admin, runGenerate])
 
+  // Introduce TTL for character list refresh when panel opens
+  const CHARACTER_LIST_TTL_MS = 60_000
+  const lastCharactersRefreshRef = React.useRef<number>(0)
+  const isRefreshingRef = React.useRef<boolean>(false)
+  const selectedCharacterIdRef = React.useRef<string | null>(selectedCharacterId)
+  React.useEffect(() => { selectedCharacterIdRef.current = selectedCharacterId }, [selectedCharacterId])
+
+  // Batched uploaded counts and active jobs for all characters
+  const [uploadedCounts, setUploadedCounts] = useState<Record<string, number>>({})
+  const [activeJobs, setActiveJobs] = useState<Record<string, ActiveTrainingJob | null>>({})
+
+  const fetchBatchedCharacterData = React.useCallback(async (ids: string[]) => {
+    if (!ids.length) { setUploadedCounts({}); setActiveJobs({}); return }
+    try {
+      const supabase = (await import('@/lib/supabase/client')).createClient()
+      // Uploaded counts
+      const { data: countRows, error: countErr } = await supabase.rpc('get_uploaded_image_counts', { character_ids: ids })
+      if (!countErr && Array.isArray(countRows)) {
+        const map: Record<string, number> = {}
+        for (const row of countRows as any[]) { if (row?.character_id) map[row.character_id] = Number(row.uploaded_count) || 0 }
+        setUploadedCounts(map)
+      } else {
+        setUploadedCounts({})
+      }
+      // Active jobs (latest per character)
+      const { data: jobRows, error: jobErr } = await supabase.rpc('get_active_training_jobs')
+      if (!jobErr && Array.isArray(jobRows)) {
+        const map: Record<string, ActiveTrainingJob | null> = {}
+        for (const row of jobRows as any[]) { if (row?.character_id) map[row.character_id] = row as ActiveTrainingJob }
+        setActiveJobs(map)
+      } else {
+        setActiveJobs({})
+      }
+    } catch {
+      setUploadedCounts({})
+      setActiveJobs({})
+    }
+  }, [])
+
   const refreshCharacters = React.useCallback(async () => {
+    if (isRefreshingRef.current) return
     if (!authUser?.id) { setCharacters([]); return }
     try {
+      isRefreshingRef.current = true
       const list = await getUserCharacters(authUser.id)
       setCharacters(list)
       // Convert any stored S3/CloudFront URL or key into our proxied /api/app-images URL
@@ -458,17 +501,113 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
       setCharacterThumbs(map)
 
       // If the currently selected character is failed/deleted/missing, clear selection (no toast on page load)
-      if (selectedCharacterId) {
-        const selected = list.find((m: any) => m.id === selectedCharacterId)
+      if (selectedCharacterIdRef.current) {
+        const selected = list.find((m: any) => m.id === selectedCharacterIdRef.current)
         if (!selected || selected.status === 'failed' || selected.status === 'deleted') {
           try { localStorage.removeItem('character-selection') } catch {}
           setSelectedCharacterId(null)
         }
       }
-    } catch { setCharacters([]) }
-  }, [authUser?.id, getUserCharacters, selectedCharacterId])
+      // Fetch batched data for current list
+      try { await fetchBatchedCharacterData(list.map((m:any)=>m.id).filter(Boolean)) } catch {}
 
-  React.useEffect(() => { refreshCharacters() }, [refreshCharacters])
+      // stamp last refresh
+      try { lastCharactersRefreshRef.current = Date.now() } catch {}
+    } catch { setCharacters([]) }
+    finally { isRefreshingRef.current = false }
+  }, [authUser?.id, getUserCharacters, fetchBatchedCharacterData])
+
+  // Ensure characters are fetched once auth is ready (fixes empty chip after hard refresh)
+  React.useEffect(() => {
+    if (!authUser?.id) return
+    const isNeverFetched = !lastCharactersRefreshRef.current
+    const isStale = (Date.now() - (lastCharactersRefreshRef.current || 0)) > CHARACTER_LIST_TTL_MS
+    if ((isNeverFetched || isStale) && !isRefreshingRef.current) {
+      try { refreshCharacters() } catch {}
+    }
+  }, [authUser?.id, refreshCharacters])
+
+  // If a selected character exists but its thumbnail isn't loaded yet, refresh in background
+  React.useEffect(() => {
+    if (!selectedCharacterId) return
+    if (characterThumbs[selectedCharacterId]) return
+    if (isRefreshingRef.current) return
+    try { refreshCharacters() } catch {}
+  }, [selectedCharacterId, characterThumbs, refreshCharacters])
+
+  // Realtime updates for active jobs and uploaded image counts (single channel)
+  React.useEffect(() => {
+    if (!authUser?.id) return
+
+    let supabase: any
+    let channel: any
+
+    ;(async () => {
+      try {
+        const mod = await import('@/lib/supabase/client')
+        supabase = mod.createClient()
+
+        const ACTIVE_STATUSES = ['initializing', 'queued', 'pending', 'running']
+
+        channel = supabase
+          .channel(`genbar-realtime-${authUser.id}`)
+          // Training jobs updates for this user
+          .on('postgres_changes', {
+            event: '*',
+            schema: 'public',
+            table: 'training_jobs',
+            filter: `user_id=eq.${authUser.id}`,
+          }, (payload: any) => {
+            const row = (payload.new || payload.old) as any
+            if (!row?.character_id) return
+            const charId = row.character_id as string
+            const status = String(row.status || '')
+
+            setActiveJobs(prev => {
+              const current = prev[charId] || null
+              // If job is active, keep the latest by created_at
+              if (ACTIVE_STATUSES.includes(status)) {
+                if (!current) return { ...prev, [charId]: row }
+                const next = (new Date(row.created_at).getTime() >= new Date((current as any).created_at).getTime()) ? row : current
+                if (next !== current) return { ...prev, [charId]: next as any }
+                return prev
+              }
+              // If job finished and it matches current, clear it
+              if (current && (current as any).id === row.id) {
+                const copy = { ...prev }
+                copy[charId] = null
+                return copy
+              }
+              return prev
+            })
+          })
+          // Uploaded images changes for this user → adjust counts
+          .on('postgres_changes', {
+            event: '*',
+            schema: 'public',
+            table: 'uploaded_images',
+            filter: `user_id=eq.${authUser.id}`,
+          }, (payload: any) => {
+            const isInsert = payload.eventType === 'INSERT'
+            const isDelete = payload.eventType === 'DELETE'
+            const row = (isDelete ? payload.old : payload.new) as any
+            const charId = row?.character_id as (string | undefined)
+            if (!charId) return
+            setUploadedCounts(prev => {
+              const current = prev[charId] || 0
+              const next = isInsert ? current + 1 : (isDelete ? Math.max(0, current - 1) : current)
+              if (next === current) return prev
+              return { ...prev, [charId]: next }
+            })
+          })
+          .subscribe()
+      } catch {}
+    })()
+
+    return () => {
+      try { if (supabase && channel) supabase.removeChannel(channel) } catch {}
+    }
+  }, [authUser?.id])
 
   const onSelectCharacter = (modelId: string) => {
     try { localStorage.setItem('character-selection', JSON.stringify({ modelId })) } catch {}
@@ -484,7 +623,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   })
 
   // Selected-character active job/progress for the small selector thumbnail
-  const { job: selectedJob } = useActiveTrainingJob(selectedCharacterId)
+  const selectedJob: ActiveTrainingJob | null = selectedCharacterId ? (activeJobs[selectedCharacterId] || null) : null
   // Always call hook; provide empty jobId when no job to keep order stable
   const selectedTraining = useTrainingProgress({
     jobId: selectedJob?.id || '',
@@ -528,9 +667,12 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
 
   // Handle Character button click: always open the panel (credit checks happen on create action)
   const handleButtonClick = useCallback(() => {
-    // Ensure the character list reflects latest state before opening panel
-    try { refreshCharacters() } catch {}
+    // Open immediately for better responsiveness; refresh in background if stale
     open('characters')
+    const isStale = (Date.now() - (lastCharactersRefreshRef.current || 0)) > CHARACTER_LIST_TTL_MS
+    if (isStale && !isRefreshingRef.current) {
+      try { refreshCharacters() } catch {}
+    }
   }, [refreshCharacters]);
 
   // Carousel + search state shared by panels
@@ -769,6 +911,8 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                   key={m.id}
                   character={m}
                   thumbUrl={characterThumbs[m.id]}
+                  uploadedCount={uploadedCounts[m.id] || 0}
+                  job={activeJobs[m.id] || null}
                   selectedId={selectedCharacterId || ''}
                   onSelect={() => onSelectCharacter(m.id)}
                   onDeleted={(id) => {
@@ -1028,13 +1172,10 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
 }
 
 // Separate child to allow per-item hooks
-function CharacterCard({ character, thumbUrl, onSelect, onDeleted, selectedId }: { character: any; thumbUrl?: string; onSelect: () => void; onDeleted?: (id: string) => void; selectedId?: string }) {
+function CharacterCard({ character, thumbUrl, uploadedCount = 0, job, onSelect, onDeleted, selectedId }: { character: any; thumbUrl?: string; uploadedCount?: number; job: ActiveTrainingJob | null; onSelect: () => void; onDeleted?: (id: string) => void; selectedId?: string }) {
   const { t } = useTranslation(['styles'])
   let waitingLabel = ''
-  const { job } = useActiveTrainingJob(character.id)
   const isActive = !!job
-  const { images } = useCharacterImages(character.id)
-  const uploadedCount = images?.length || 0
   const { deleteCharacter } = useCharactersApi()
   const { user } = useAuth()
   const [showOverlay, setShowOverlay] = React.useState(false)

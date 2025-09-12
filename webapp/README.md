@@ -36,11 +36,13 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
-# Amazon S3
-NEXT_PUBLIC_AWS_REGION=your_aws_region
-NEXT_PUBLIC_S3_BUCKET=your_s3_bucket_name
+# Amazon S3 (server-side for presigning; do not expose secrets client-side)
+AWS_REGION=your_aws_region
+AWS_S3_BUCKET=your_s3_bucket_name
 AWS_ACCESS_KEY_ID=your_aws_access_key
 AWS_SECRET_ACCESS_KEY=your_aws_secret_key
+# Optional if using temporary credentials
+# AWS_SESSION_TOKEN=your_session_token
 ```
 
 ## Getting Started

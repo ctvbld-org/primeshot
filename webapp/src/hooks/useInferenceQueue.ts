@@ -31,7 +31,7 @@ export interface InferenceJob {
 interface UseInferenceQueueReturn {
   jobs: InferenceJob[];
   addJob: (jobId: string, nbTakes: number) => void;
-  createQueuedThumbnails: (nbTakes: number) => string; // Returns placeholder ID
+  createQueuedThumbnails: (nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string; aspectRatio?: string; quality?: string }) => string; // Returns placeholder ID
   updateJobWithRealId: (placeholderId: string, realJobId: string) => void;
   updateJobStatus: (jobId: string, status: InferenceJob['status']) => void;
   updateJobMessage: (jobId: string, message?: string) => void;
@@ -273,7 +273,7 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
     }, 3000); // 3 second delay to allow for job initialization
   }, []);
 
-  const createQueuedThumbnails = useCallback((nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string }) => {
+  const createQueuedThumbnails = useCallback((nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string; aspectRatio?: string; quality?: string }) => {
     // Create a placeholder ID for the thumbnails (no WebSocket connection yet)
     const placeholderId = `placeholder_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
@@ -294,6 +294,9 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
       sceneId: meta?.sceneId,
       wardrobeId: meta?.wardrobeId,
       colorId: meta?.colorId,
+      // Ensure correct aspect ratio/quality classes while initializing
+      aspectRatio: meta?.aspectRatio,
+      quality: meta?.quality,
     };
 
     setJobs(prev => [newJob, ...prev]);

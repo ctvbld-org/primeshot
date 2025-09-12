@@ -4,10 +4,10 @@
  * Script to programmatically create Stripe products and prices
  * 
  * Usage:
- *   node setup-stripe-products.js                    # Uses .env.local (test mode)
- *   node setup-stripe-products.js --prod             # Uses .env (production mode)
- *   node setup-stripe-products.js --skip-cleanup     # Keep existing products
- *   node setup-stripe-products.js --prod --skip-cleanup  # Production + keep existing
+ *   tsx common/lib/stripe/setup-stripe-products.ts                    # Uses .env.local (test mode)
+ *   tsx common/lib/stripe/setup-stripe-products.ts --prod             # Uses .env (production mode)
+ *   tsx common/lib/stripe/setup-stripe-products.ts --skip-cleanup     # Keep existing products
+ *   tsx common/lib/stripe/setup-stripe-products.ts --prod --skip-cleanup  # Production + keep existing
  * 
  * Requires STRIPE_SECRET_KEY and SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY environment variables
  */
@@ -18,18 +18,18 @@ import dotenv from 'dotenv'
 
 // Parse command line arguments
 const args = process.argv.slice(2)
-const environment = args.includes('--prod') ? 'prod' : args.includes('--staging') ? 'staging' : 'test'
+const environment = args.includes('--prod') ? 'production' : args.includes('--staging') ? 'staging' : 'dev'
 const skipCleanup = args.includes('--skip-cleanup')
 
 // Load appropriate environment file
-if (environment === 'prod') {
+if (environment === 'production') {
   console.log('🔴 PRODUCTION MODE - Using .env file')
   dotenv.config({ path: '.env' })
 } else if (environment === 'staging') {
-  console.log('🔴 STAGING MODE - Using .env file')
+  console.log('🟠 STAGING MODE - Using .env.staging file')
   dotenv.config({ path: '.env.staging' })
 } else {
-  console.log('🟡 TEST MODE - Using .env.local file')
+  console.log('🟢 DEV MODE - Using .env.local file')
   dotenv.config({ path: '.env.local' })
 }
 
@@ -45,7 +45,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
   console.error('❌ SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required')
-  console.error(`Please add these to your ${environment === 'prod' ? '.env' : '.env.local'} file`)
+  console.error(`Please add these to your ${environment === 'production' ? '.env' : environment === 'staging' ? '.env.staging' : '.env.local'} file`)
   process.exit(1)
 }
 
@@ -111,10 +111,9 @@ async function cleanupExistingProducts() {
     
     // Filter for Primeshot products (by name pattern or metadata)
     const primeshotProducts = products.data.filter(product => 
-      product.active && ( // Only target active products
-        product.name.includes('Primeshot') || 
-        product.name.includes('Credits') ||
-        (product.metadata && (product.metadata.tier_type === 'subscription' || product.metadata.tier_type === 'credit_pack'))
+      product.active && (
+        (product.metadata && product.metadata.env === environment) &&
+        (product.metadata.tier_type === 'subscription' || product.metadata.tier_type === 'credit_pack')
       )
     )
     
@@ -185,7 +184,8 @@ async function createSubscriptionProducts(subscriptionTiers) {
           character_training_included: tier.character_training_included.toString(),
           concurrent_jobs: tier.concurrent_jobs.toString(),
           max_characters: tier.max_characters.toString(),
-          tier_type: 'subscription'
+          tier_type: 'subscription',
+          env: environment
         }
       })
       
@@ -200,7 +200,8 @@ async function createSubscriptionProducts(subscriptionTiers) {
         },
         metadata: {
           billing_cycle: 'monthly',
-          plan_name: tier.name
+          plan_name: tier.name,
+          env: environment
         }
       })
       
@@ -218,7 +219,8 @@ async function createSubscriptionProducts(subscriptionTiers) {
           },
           metadata: {
             billing_cycle: 'yearly',
-            plan_name: tier.name
+            plan_name: tier.name,
+            env: environment
           }
         })
       }
@@ -262,7 +264,8 @@ async function createCreditPackProducts(creditPacks) {
           credits: pack.credits.toString(),
           validity_days: pack.validity_days.toString(),
           pack_id: `credits_${pack.credits}`,
-          tier_type: 'credit_pack'
+          tier_type: 'credit_pack',
+          env: environment
         }
       })
       
@@ -274,7 +277,8 @@ async function createCreditPackProducts(creditPacks) {
         currency: 'usd',
         metadata: {
           pack_id: `credits_${pack.credits}`,
-          credits: pack.credits.toString()
+          credits: pack.credits.toString(),
+          env: environment
         }
       })
       
@@ -304,11 +308,10 @@ async function updatePricingFile(subscriptionResults, creditPackResults) {
   const __filename = fileURLToPath(import.meta.url)
   const __dirname = path.dirname(__filename)
   
-  const stripeRefPath = path.join(__dirname, '../../../webapp/src/lib/constants/stripe-reference.ts')
+  const stripeRefPath = path.join(__dirname, './stripe-reference.ts')
   
   // Determine which environment we're updating
-  const isProduction = process.argv.includes('--prod')
-  const envKey = isProduction ? 'production' : 'test'
+  const envKey = environment
   
   console.log(`📝 Updating ${envKey} environment price IDs...`)
   
@@ -359,7 +362,7 @@ async function updatePricingFile(subscriptionResults, creditPackResults) {
       content = content.replace(productPattern, `$1${result.product}'`)
     }
   } else {
-    // Create new file with both environments
+    // Create new file with all environments
     console.log('📝 Creating new stripe-reference.ts file...')
     
     const createEnvironmentData = (env) => {
@@ -387,7 +390,9 @@ ${creditPackResults.map(pack => `      ${pack.pack}: {
 // This is the SINGLE SOURCE OF TRUTH for all Stripe price and product IDs
 
 export const STRIPE_REFERENCE = {
-${createEnvironmentData('test')},
+${createEnvironmentData('dev')},
+  
+${createEnvironmentData('staging')},
   
 ${createEnvironmentData('production')}
 }
@@ -430,7 +435,7 @@ async function main() {
     await updatePricingFile(subscriptionResults, creditPackResults)
     
     console.log('\n🎉 Stripe setup completed successfully!')
-    const envMode = process.argv.includes('--prod') ? 'production' : 'test'
+    const envMode = environment
     console.log('\n📋 Summary:')
     if (!skipCleanup) {
       console.log('✅ Archived existing active Primeshot products')

@@ -15,7 +15,7 @@ interface Props {
   sceneId?: string
   colorId?: string
   onCancel: () => void
-  onConfirm: (overrides: { prompt_override: { enabled: boolean; prompt: string } | null; settings_override: { character?: { strength_model?: number; strength_clip?: number }; style?: { strength_model?: number; strength_clip?: number } } | null }) => void
+  onConfirm: (overrides: { prompt_override: { enabled: boolean; prompt: string } | null; settings_override: Record<string, any> | null }) => void
 }
 
 export function AdminInferenceOptionsDialog({ open, characterId, styleId, wardrobeId, sceneId, colorId, onCancel, onConfirm }: Props) {
@@ -24,10 +24,7 @@ export function AdminInferenceOptionsDialog({ open, characterId, styleId, wardro
   const [prompt, setPrompt] = useState('')
   const [metadata, setMetadata] = useState<any>(null)
   const [settingsEnabled, setSettingsEnabled] = useState(false)
-  const [charStrengthModel, setCharStrengthModel] = useState<number>(1)
-  const [charStrengthClip, setCharStrengthClip] = useState<number>(1)
-  const [styleStrengthModel, setStyleStrengthModel] = useState<number>(0.4)
-  const [styleStrengthClip, setStyleStrengthClip] = useState<number>(0.4)
+  const [settingsJson, setSettingsJson] = useState<string>('')
 
   useEffect(() => {
     if (!open) return
@@ -50,24 +47,20 @@ export function AdminInferenceOptionsDialog({ open, characterId, styleId, wardro
     })()
   }, [open, characterId, styleId, wardrobeId, sceneId])
 
-  const clamp01 = (v: number) => Math.min(1, Math.max(0, Math.round(v * 10) / 10))
-
   const handleConfirm = useCallback(() => {
     const prompt_override = enabled && prompt.trim() ? { enabled: true, prompt } : null
-    const settings_override = settingsEnabled
-      ? {
-          character: {
-            strength_model: clamp01(charStrengthModel),
-            strength_clip: clamp01(charStrengthClip),
-          },
-          style: {
-            strength_model: clamp01(styleStrengthModel),
-            strength_clip: clamp01(styleStrengthClip),
-          },
-        }
-      : null
+    let settings_override: Record<string, any> | null = null
+    if (settingsEnabled) {
+      try {
+        const parsed = settingsJson.trim() ? JSON.parse(settingsJson) : {}
+        settings_override = parsed && typeof parsed === 'object' ? parsed : null
+      } catch {
+        alert('Settings JSON is invalid')
+        return
+      }
+    }
     onConfirm({ prompt_override, settings_override })
-  }, [enabled, prompt, settingsEnabled, charStrengthModel, charStrengthClip, styleStrengthModel, styleStrengthClip, onConfirm])
+  }, [enabled, prompt, settingsEnabled, settingsJson, onConfirm])
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onCancel() }}>
@@ -78,29 +71,18 @@ export function AdminInferenceOptionsDialog({ open, characterId, styleId, wardro
         <DialogBody className="space-y-4">
           <div className="flex items-center gap-2">
             <Input className="flex-0" id="enable_settings_override" type="checkbox" checked={settingsEnabled} onChange={(e) => setSettingsEnabled(e.target.checked)} />
-            <Label htmlFor="enable_settings_override">Enable settings override</Label>
+            <Label htmlFor="enable_settings_override">Enable node overrides (JSON by node title)</Label>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="char_strength_model">Character strength (model)</Label>
-              <Input id="char_strength_model" type="number" min={0} max={1} step={0.1} value={charStrengthModel} disabled={!settingsEnabled}
-                onChange={(e) => setCharStrengthModel(Number(e.target.value))} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="char_strength_clip">Character strength (clip)</Label>
-              <Input id="char_strength_clip" type="number" min={0} max={1} step={0.1} value={charStrengthClip} disabled={!settingsEnabled}
-                onChange={(e) => setCharStrengthClip(Number(e.target.value))} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="style_strength_model">Style strength (model)</Label>
-              <Input id="style_strength_model" type="number" min={0} max={1} step={0.1} value={styleStrengthModel} disabled={!settingsEnabled}
-                onChange={(e) => setStyleStrengthModel(Number(e.target.value))} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="style_strength_clip">Style strength (clip)</Label>
-              <Input id="style_strength_clip" type="number" min={0} max={1} step={0.1} value={styleStrengthClip} disabled={!settingsEnabled}
-                onChange={(e) => setStyleStrengthClip(Number(e.target.value))} />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="settings_json">Overrides JSON</Label>
+            <textarea
+              id="settings_json"
+              className="w-full min-h-[220px] rounded-md border border-border bg-background/50 p-2 font-mono text-sm"
+              placeholder='{"CharacterLora":{"strength_model":0.8,"strength_clip":0.8},"FilmGrain":{"grain_intensity":0.1}}'
+              value={settingsJson}
+              onChange={(e) => setSettingsJson(e.target.value)}
+              disabled={!settingsEnabled}
+            />
           </div>
           <div className="flex items-center gap-2">
             <Input className="flex-0" id="enable_override" type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} />

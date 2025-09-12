@@ -1,6 +1,7 @@
 import React from 'react'
 import { Coins, Package, Wallet } from 'lucide-react'
-import { STRIPE_REFERENCE } from '@/lib/constants/stripe-reference'
+import { STRIPE_REFERENCE } from '@primeshot/common/lib/stripe/stripe-reference'
+import { getStripeEnv } from '@primeshot/common/lib/stripe/env'
 
 export type CreditCostsMap = Record<string, number>
 
@@ -14,12 +15,7 @@ export function extractQualityCosts(creditCosts: CreditCostsMap = {}, limit: num
 
 export const getTrainingCost = (creditCosts?: CreditCostsMap) => creditCosts?.['CHARACTER_TRAINING']
 
-export function getStripeEnv(): 'test' | 'production' {
-  if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_VERCEL_TARGET_ENV) {
-    return process.env.NEXT_PUBLIC_VERCEL_TARGET_ENV === 'production' ? 'production' : 'test'
-  }
-  return (typeof process !== 'undefined' && process.env.NODE_ENV === 'production') ? 'production' : 'test'
-}
+export { getStripeEnv }
 
 export function getPriceIdForCredits(credits: number): string | null {
   const env = getStripeEnv()

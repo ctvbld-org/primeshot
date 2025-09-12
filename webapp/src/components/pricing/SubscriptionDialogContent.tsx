@@ -2,7 +2,8 @@ import { useState, useMemo } from 'react'
 import { Button } from '@primeshot/common/web/ui/button'
 import { useSubscriptionTiers, type SubscriptionTier } from '@/hooks/usePricingConfig'
 import { useCurrentSubscription } from '@/hooks/useCurrentSubscription'
-import { STRIPE_REFERENCE } from '@/lib/constants/stripe-reference'
+import { STRIPE_REFERENCE } from '@primeshot/common/lib/stripe/stripe-reference'
+import { getStripeEnv } from '@primeshot/common/lib/stripe/env'
 import { toast } from 'sonner'
 import { useAuth } from '@primeshot/common/hooks/AuthContext'
 import { getApiUrl } from '@/lib/api/client'
@@ -29,20 +30,7 @@ function formatPrice(price: number) {
 }
 
 // Get environment for Stripe reference
-function getEnvironment(): 'test' | 'production' {
-  // Check client-side Vercel environment first
-  if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_VERCEL_TARGET_ENV) {
-    return process.env.NEXT_PUBLIC_VERCEL_TARGET_ENV === 'production' ? 'production' : 'test'
-  }
-  
-  // Fallback to NODE_ENV
-  if (typeof process !== 'undefined' && process.env.NODE_ENV === 'production') {
-    return 'production'
-  }
-  
-  // Default to test for safety
-  return 'test'
-}
+const getEnvironment = getStripeEnv
 
 // Get Stripe price ID for a subscription tier
 function getStripePriceId(tierName: string, billingCycle: 'monthly' | 'yearly'): string | null {

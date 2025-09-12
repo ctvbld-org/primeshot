@@ -110,6 +110,16 @@
   overflow: hidden;
 }
 
+/* Aspect ratio classes to control children (placeholders and thumbnails) */
+.thumbnailGrid.ar11 .thumbnailPlaceholder { aspect-ratio: 1 / 1; min-height: 0; }
+.thumbnailGrid.ar23 .thumbnailPlaceholder { aspect-ratio: 2 / 3; min-height: 0; }
+.thumbnailGrid.ar32 .thumbnailPlaceholder { aspect-ratio: 3 / 2; min-height: 0; }
+
+/* If InferenceThumbnailComponent uses an img wrapper, scope generic aspect rule */
+.thumbnailGrid.ar11 > * { aspect-ratio: 1 / 1; min-height: 0; }
+.thumbnailGrid.ar23 > * { aspect-ratio: 2 / 3; min-height: 0; }
+.thumbnailGrid.ar32 > * { aspect-ratio: 3 / 2; min-height: 0; }
+
 @media (max-width: 768px) {
   .thumbnailGrid {
     grid-template-columns: repeat(1, 1fr);

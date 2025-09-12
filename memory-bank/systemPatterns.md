@@ -1467,6 +1467,20 @@ Detected changes in:
 - webapp/src/components/character/CharacterTrainingDialog.tsx
 - webapp/src/components/character/training/UploadPhotosStep.tsx
 - webapp/src/lib/utils/get-inference-image.ts
+
+
+**Auto-update 2025-09-09**:
+Detected changes in:
+- admin/src/components/sync/sync-dialog.tsx
+- admin/src/lib/api.ts
+- webapp/src/app/api/inference/prompt-preview/route.ts
+- webapp/src/components/character/training/AdminTrainingOptionsDialog.tsx
+- webapp/src/components/home/InferenceJobGroup.tsx
+- webapp/src/components/pricing/utils.tsx
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/components/style/GenerateBar/useCreateCharacter.tsx
+- webapp/src/lib/constants/stripe-reference.ts
+- webapp/src/lib/upload-utils.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

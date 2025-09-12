@@ -198,6 +198,18 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
     }
   };
 
+  // Determine aspect ratio class immediately, even for freshly created placeholder jobs
+  const runtimeAR = useMemo(() => {
+    if (job.aspectRatio) return job.aspectRatio;
+    try {
+      const raw = typeof window !== 'undefined' ? localStorage.getItem('generation-controls-aspect-ratio') : null;
+      const v = raw ? JSON.parse(raw) : '';
+      return typeof v === 'string' ? v : '';
+    } catch {
+      return '';
+    }
+  }, [job.aspectRatio]);
+
   return (
     <div ref={lazyRef} className={styles.jobGroup}>
       {/* Job Header */}
@@ -225,7 +237,12 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
       </div>
 
       {/* Thumbnails Grid - Only render when visible or loading */}
-      <div className={styles.thumbnailGrid}>
+      <div className={[
+        styles.thumbnailGrid,
+        runtimeAR === '2:3' ? styles.ar23 : '',
+        runtimeAR === '3:2' ? styles.ar32 : '',
+        runtimeAR === '1:1' ? styles.ar11 : ''
+      ].filter(Boolean).join(' ')}>
         {isVisible ? (
           job.thumbnails.map((thumbnail, index) => (
             <InferenceThumbnailComponent
