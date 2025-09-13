@@ -2,6 +2,9 @@
 
 // Early guard to detect server-side environment
 const isServer = typeof window === 'undefined';
+// Env toggles (replaced at build time in Next.js)
+const QC_EYE_LENIENT = typeof process !== 'undefined' && process.env.NEXT_PUBLIC_QC_EYE_LENIENCY === '1';
+const QC_DEBUG = typeof process !== 'undefined' && process.env.NEXT_PUBLIC_QC_DEBUG === '1';
 
 // If we are running on the server, we short-circuit the heavy browser-only logic
 // with safe fallbacks so that static prerendering and other SSR phases don't
@@ -63,11 +66,12 @@ const MAX_BODY_PERCENTAGE = 0.80; // 80% maximum for body shots
 
 // Add after other constants
 const MIN_EYE_CONFIDENCE = 0.3;
-const MIN_EYE_BRIGHTNESS = 0.12;
-const MIN_EYE_CONTRAST = 0.15;
-const MAX_DARKNESS_RATIO = 0.6;
-const MIN_BRIGHTNESS_VARIANCE = 0.05;
-const MAX_COLOR_UNIFORMITY = 0.8; // Maximum allowed color uniformity (for detecting tinted lenses)
+// More lenient thresholds to reduce false "sunglasses" detection from normal lighting/glasses
+const MIN_EYE_BRIGHTNESS = QC_EYE_LENIENT ? 0.06 : 0.08; // Further reduced to be more forgiving
+const MIN_EYE_CONTRAST = QC_EYE_LENIENT ? 0.08 : 0.1;    // Reduced from previous values
+const MAX_DARKNESS_RATIO = QC_EYE_LENIENT ? 0.8 : 0.7;   // Increased to allow more shadow tolerance
+const MIN_BRIGHTNESS_VARIANCE = 0.03;                    // Reduced to allow more uniform lighting
+const MAX_COLOR_UNIFORMITY = QC_EYE_LENIENT ? 0.95 : 0.85; // Increased to reduce false tinted lens detection
 const EYE_REGION_SIZE = 25;
 
 // Age detection constants
@@ -244,10 +248,10 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
   
   if (!petMode && modelsReady && faceapi) {
     try {
-      // First try with TinyFaceDetector with lower threshold
+      // First try with TinyFaceDetector with more conservative threshold to reduce false positives
       const faceDetections = await faceapi.detectAllFaces(
         img, 
-        new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.2 })
+        new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.3 }) // Increased from 0.2 to reduce false detections
       ).withFaceLandmarks();
       
       // Set faceCount based on TinyFaceDetector results
@@ -291,10 +295,10 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
           await faceapi.nets.ssdMobilenetv1.loadFromUri(ssdModelPath);
         }
         
-        // Detect with SSD model with a very low confidence threshold
+        // Detect with SSD model with more conservative threshold
         const ssdDetections = await faceapi.detectAllFaces(
           img,
-          new faceapi.SsdMobilenetv1Options({ minConfidence: 0.1 })
+          new faceapi.SsdMobilenetv1Options({ minConfidence: 0.15 }) // Increased from 0.1 to reduce false positives
         ).withFaceLandmarks();
         
         console.log('SSD MobileNet face detection results:', ssdDetections.length > 0 ? 'Face detected' : 'No face detected');
@@ -309,18 +313,33 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
           primaryFaceDetection = ssdDetections[0];
           
           // Use the largest face if multiple are detected
-          if (ssdDetections.length > 1) {
+          // Filter out small detections that might be false positives
+          const significantSsdFaces = ssdDetections.filter((detection: WithFaceLandmarks<{ detection: FaceDetection }>) => {
+            const faceArea = detection.detection.box.width * detection.detection.box.height;
+            const imageArea = width * height;
+            const relativeSize = faceArea / imageArea;
+            return relativeSize > 0.01; // Face must be at least 1% of image area
+          });
+          
+          result.faceCount = significantSsdFaces.length;
+          
+          if (significantSsdFaces.length > 1) {
             // Sort by face box area (largest first)
-            ssdDetections.sort((a: WithFaceLandmarks<{ detection: FaceDetection }>, b: WithFaceLandmarks<{ detection: FaceDetection }>) => {
+            significantSsdFaces.sort((a: WithFaceLandmarks<{ detection: FaceDetection }>, b: WithFaceLandmarks<{ detection: FaceDetection }>) => {
               const areaA = a.detection.box.width * a.detection.box.height;
               const areaB = b.detection.box.width * b.detection.box.height;
               return areaB - areaA;
             });
             
-            result.faceScore = evaluateFacePosition(ssdDetections[0], width, height);
+            result.faceScore = evaluateFacePosition(significantSsdFaces[0], width, height);
             result.issues.push('Multiple faces detected.');
+            primaryFaceDetection = significantSsdFaces[0];
+          } else if (significantSsdFaces.length === 1) {
+            result.faceScore = evaluateFacePosition(significantSsdFaces[0], width, height);
+            primaryFaceDetection = significantSsdFaces[0];
           } else {
-            result.faceScore = evaluateFacePosition(ssdDetections[0], width, height);
+            result.faceScore = 0.1;
+            result.issues.push('No clear face detected.');
           }
           
             // Attach normalized face box for server-side thumbnail hints
@@ -360,17 +379,26 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
           console.log('Trying SSD MobileNet without landmarks as last resort');
           const rawFaceDetections = await faceapi.detectAllFaces(
             img,
-            new faceapi.SsdMobilenetv1Options({ minConfidence: 0.05 })
+            new faceapi.SsdMobilenetv1Options({ minConfidence: 0.08 }) // Increased from 0.05 to reduce false positives
           );
           
-          if (rawFaceDetections.length > 0) {
-            console.log('SSD MobileNet (raw) detected faces:', rawFaceDetections.length);
+          // Filter raw detections for significant faces
+          const significantRawFaces = rawFaceDetections.filter((face: any) => {
+            if (!face?.box) return false;
+            const faceArea = face.box.width * face.box.height;
+            const imageArea = width * height;
+            const relativeSize = faceArea / imageArea;
+            return relativeSize > 0.01; // Face must be at least 1% of image area
+          });
+          
+          if (significantRawFaces.length > 0) {
+            console.log('SSD MobileNet (raw) detected significant faces:', significantRawFaces.length);
             faceDetectionPerformed = true;
             result.hasFace = true;
-            result.faceCount = rawFaceDetections.length;
+            result.faceCount = significantRawFaces.length;
                         
             // Since we don't have landmarks, estimate face score based on size and position
-            const face = rawFaceDetections[0];
+            const face = significantRawFaces[0];
             // Attach normalized face box from raw detection
             if (face?.box) {
               const bx = Math.max(0, face.box.x) / width;
@@ -404,7 +432,12 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
             }
             
             result.faceScore = Math.min(1, Math.max(0.4, (sizeScore * 0.6 + positionScore * 0.4)));
-            result.issues.push('Face detection succeeded using fallback method. Results may vary.');
+            
+            if (significantRawFaces.length > 1) {
+              result.issues.push('Multiple faces detected using fallback method.');
+            } else {
+              result.issues.push('Face detection succeeded using fallback method. Results may vary.');
+            }
           }
         } catch (rawDetectionError) {
           console.error('Error with raw face detection:', rawDetectionError);
@@ -422,10 +455,31 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
         result.issues.push('No face detected.');
         // gender detection removed
       } else if (faceDetections.length > 1) {
-        result.hasFace = true;
-        result.faceCount = faceDetections.length;
-        result.issues.push('Multiple faces detected.');
-        result.faceScore = 0.5;
+        // Filter out very small detections that might be false positives
+        const significantFaces = faceDetections.filter((detection: WithFaceLandmarks<{ detection: FaceDetection }>) => {
+          const faceArea = detection.detection.box.width * detection.detection.box.height;
+          const imageArea = img.width * img.height;
+          const relativeSize = faceArea / imageArea;
+          return relativeSize > 0.01; // Face must be at least 1% of image area to be considered significant
+        });
+        
+        result.hasFace = significantFaces.length > 0;
+        result.faceCount = significantFaces.length;
+        
+        if (significantFaces.length > 1) {
+          result.issues.push('Multiple faces detected.');
+          result.faceScore = 0.5;
+        } else if (significantFaces.length === 1) {
+          // Only one significant face after filtering
+          result.faceScore = evaluateFacePosition(significantFaces[0], width, height);
+          if (result.faceScore < 0.7) {
+            result.issues.push('Face position is not optimal.');
+          }
+        } else {
+          // No significant faces after filtering
+          result.faceScore = 0.1;
+          result.issues.push('No clear face detected.');
+        }
         // gender detection removed
       } else {
         // One face detected
@@ -451,14 +505,8 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
           result.eyesVisible = eyeCheck.visible;
           result.eyeDetectionSkipped = false;
           
-          if (!eyeCheck.visible) {
-            if (eyeCheck.confidence > MIN_EYE_CONFIDENCE) {
-              // Record as an issue, but do not hard-reject here. Scoring already penalizes covered eyes.
-              result.issues.push('Eyes are not clearly visible (possibly covered by sunglasses or hair)');
-            } else {
-              // If confidence is low, add a warning but don't reject
-              result.issues.push('Eye visibility could not be determined with high confidence');
-            }
+          if (!eyeCheck.visible && QC_DEBUG) {
+            console.debug('Eye check: invisible with confidence', eyeCheck.confidence);
           }
                     
         }
@@ -529,7 +577,7 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
   
    // Check blur
   result.blurScore = calculateBlurScore(stats.blurValue);
-  const passesBlurTest = result.blurScore >= 0.5; // Relaxed from 0.8
+  const passesBlurTest = result.blurScore >= 0.4; // Further relaxed from 0.5 to 0.4
   
   // Remove hard auto-reject for blur: keep as warning and rely on overall score
   // This prevents portrait-mode bokeh (sharp subject, blurry background) from failing outright.
@@ -542,11 +590,10 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
   
   // Calculate overall score
   const rawOverallScore = calculateOverallScore(result);
-  // Calibrate displayed percentage to avoid inflated totals:
-  // - Slight high-end compression via exponent
-  // - Global reduction factor to align with perceived quality
+  // Less aggressive calibration to avoid unfairly low scores:
+  // - Reduced compression and higher scaling factor
   const calibratedPercent = Math.round(
-    Math.min(100, Math.max(0, Math.pow(rawOverallScore, 1.1) * 100 * 0.85))
+    Math.min(100, Math.max(0, Math.pow(rawOverallScore, 1.05) * 100 * 0.98)) // Reduced exponent and increased scaling
   );
   result.score = calibratedPercent;
   
@@ -571,6 +618,10 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
     };
   }
   
+  // Ensure issues are unique
+  if (result.issues.length > 1) {
+    result.issues = Array.from(new Set(result.issues));
+  }
   return result;
 }
 
@@ -1053,37 +1104,36 @@ function calculateContrastScore(contrast: number, subjectBackgroundSeparation?: 
 }
 
 function calculateBlurScore(blur: number): number {
-  // AGGRESSIVE blur scoring - much stricter thresholds
+  // More balanced blur scoring - less aggressive thresholds for better user experience
   // Blur values typically range from 0.3 to 0.8 after our detection improvements
   
-  // AGGRESSIVE blur thresholds - raised for stricter requirements  
-  const EXCELLENT_BLUR_THRESHOLD = 0.8;   // Only very sharp images get excellent scores
-  const GOOD_BLUR_THRESHOLD = 0.6;        // Raised threshold for good sharpness
-  const ACCEPTABLE_BLUR_THRESHOLD = 0.4;  // Raised minimum acceptable sharpness  
-  const POOR_BLUR_THRESHOLD = 0.15;        // Raised threshold for poor sharpness
+  // Balanced blur thresholds - more forgiving for normal photos
+  const EXCELLENT_BLUR_THRESHOLD = 0.7;   // Reduced from 0.8 - more images can get excellent scores
+  const GOOD_BLUR_THRESHOLD = 0.45;       // Reduced from 0.6 - more forgiving for good sharpness
+  const ACCEPTABLE_BLUR_THRESHOLD = 0.25; // Reduced from 0.4 - more realistic minimum
+  const POOR_BLUR_THRESHOLD = 0.1;        // Reduced from 0.15 - only truly blurry images penalized
 
-  // Excellent sharpness - only truly crisp images get high scores
+  // Excellent sharpness - crisp images get high scores
   if (blur >= EXCELLENT_BLUR_THRESHOLD) {
-    const normalizedScore = 1; // Scale 0.8-1.0 to 0.85-1.0
-    const finalScore = Math.min(1, normalizedScore);
-    return finalScore;
+    const normalizedScore = 0.9 + (blur - EXCELLENT_BLUR_THRESHOLD) * 0.33; // Scale 0.7-1.0 to 0.9-1.0
+    return Math.min(1, normalizedScore);
   }
   
-  // Good sharpness - reasonably sharp images but lower max scores
+  // Good sharpness - reasonably sharp images get good scores
   if (blur >= GOOD_BLUR_THRESHOLD) {
-    const normalizedScore = 0.95 + (blur - GOOD_BLUR_THRESHOLD) * 1.0; // Scale 0.6-0.8 to 0.65-0.85  
+    const normalizedScore = 0.75 + (blur - GOOD_BLUR_THRESHOLD) * 0.6; // Scale 0.45-0.7 to 0.75-0.9
     return normalizedScore;
   }
   
-  // Acceptable sharpness - lower scores, harder to pass
+  // Acceptable sharpness - decent scores for normal photos
   if (blur >= ACCEPTABLE_BLUR_THRESHOLD) {
-    const normalizedScore = 0.45 + (blur - ACCEPTABLE_BLUR_THRESHOLD) * 1.0; // Scale 0.4-0.6 to 0.45-0.65
+    const normalizedScore = 0.6 + (blur - ACCEPTABLE_BLUR_THRESHOLD) * 0.75; // Scale 0.25-0.45 to 0.6-0.75
     return normalizedScore;
   }
   
-  // Poor sharpness - significantly reduced scores  
+  // Poor sharpness - reduced but not harsh scores
   if (blur >= POOR_BLUR_THRESHOLD) {
-    const normalizedScore = 0.25 + (blur - POOR_BLUR_THRESHOLD) * 1.0; // Scale 0.2-0.4 to 0.25-0.45
+    const normalizedScore = 0.4 + (blur - POOR_BLUR_THRESHOLD) * 1.33; // Scale 0.1-0.25 to 0.4-0.6
     return normalizedScore;
   }
   
@@ -1109,8 +1159,15 @@ function calculateOverallScore(result: ImageQualityResult): number {
     eyes: 0.1       // Eye visibility weight
   };
   
-  // Binary face score: 1 for single face, 0 for no face or multiple faces
-  let faceScore = result.faceCount === 1 ? 1 : 0;
+  // More nuanced face score: still prefer single face but don't completely penalize edge cases
+  let faceScore;
+  if (result.faceCount === 1) {
+    faceScore = 1; // Perfect score for single face
+  } else if (result.faceCount === 0) {
+    faceScore = 0.1; // Low but not zero score for no face (may be pet mode or artistic shot)
+  } else {
+    faceScore = 0.3; // Reduced penalty for multiple faces (may be filtered false positives)
+  }
   
   // If face detection was skipped, redistribute weights
   if (result.faceDetectionSkipped) {
@@ -1141,10 +1198,10 @@ function calculateOverallScore(result: ImageQualityResult): number {
     weights.eyes * (result.eyesVisible ? 1 : 0)
   );
 
-  // Apply critical penalties
+  // Apply softer eye visibility penalties to reduce false rejections
   if (!result.eyeDetectionSkipped && !result.eyesVisible) {
-    // Significant penalty for covered eyes (reduces score by 50%)
-    score *= 0.5;
+    // Much softer penalty - treat as quality reduction, not failure
+    score *= QC_EYE_LENIENT ? 0.9 : 0.75; // Reduced from 0.85/0.5 to 0.9/0.75
   }
 
   // Gender matching removed - no longer penalizing gender detection
@@ -1218,19 +1275,19 @@ function isAcceptable(result: ImageQualityResult, opts?: { petMode?: boolean }):
     }
   }
 
-  // Check eye visibility as a critical factor
+  // Check eye visibility as a warning factor (not critical failure)
   const hasVisibleEyes = result.eyeDetectionSkipped || result.eyesVisible;
   if (!petMode) {
     if (!result.eyeDetectionSkipped && !result.eyesVisible) {
-      // No longer a critical failure: already penalized in score; keep as warning
-      warnings.push('Eyes are not clearly visible (possibly covered by sunglasses or hair)');
+      // Treat as warning only - don't make it a critical failure
+      warnings.push('Eyes may not be clearly visible (check for sunglasses, hair, or poor lighting)');
     }
   }
 
   // Gender matching removed - no longer checking gender validation
   
   // Check for overall quality score (percent-based threshold)
-  result.hasGoodScore = result.score >= 60; // 60% or higher considered good
+  result.hasGoodScore = result.score >= 50; // Reduced from 60% to 50% to be more forgiving
   if (!result.hasGoodScore) {
     if (criticalFailures.length === 0) {
       // Only add as a critical failure if there are no other critical issues
@@ -1371,25 +1428,29 @@ async function checkEyesVisible(img: HTMLImageElement, landmarks: any, ctx: Canv
     const leftAnalysis = analyzeEyeRegion(leftRegion);
     const rightAnalysis = analyzeEyeRegion(rightRegion);
 
-    // Stricter eye visibility detection
+    // More balanced eye visibility detection - less prone to false positives
     const isEyeVisible = (analysis: ReturnType<typeof analyzeEyeRegion>) => {
-      // Enhanced sunglasses detection including semi-transparent lenses
+      // More conservative sunglasses detection - only flag obvious cases
       const hasSunglassesCharacteristics = 
-        // Very dark with uniform appearance
-        (analysis.darknessRatio > MAX_DARKNESS_RATIO && analysis.brightnessVariance < MIN_BRIGHTNESS_VARIANCE) ||
-        // Extremely dark with no contrast
-        (analysis.brightness < MIN_EYE_BRIGHTNESS && analysis.darknessRatio > 0.7) ||
-        // Semi-transparent or colored lenses (high color uniformity with moderate darkness)
-        (analysis.colorUniformity > MAX_COLOR_UNIFORMITY && analysis.darknessRatio > 0.4);
+        // Very dark AND uniform AND low contrast (all three conditions required)
+        (analysis.darknessRatio > MAX_DARKNESS_RATIO && 
+         analysis.brightnessVariance < MIN_BRIGHTNESS_VARIANCE && 
+         analysis.brightness < MIN_EYE_BRIGHTNESS * 0.7) ||
+        // Extremely dark with very high uniformity (clear sunglasses case)
+        (analysis.brightness < MIN_EYE_BRIGHTNESS * 0.5 && 
+         analysis.colorUniformity > MAX_COLOR_UNIFORMITY && 
+         analysis.darknessRatio > 0.8);
       
-      // Natural eye characteristics
+      // More lenient natural eye characteristics
       const hasNaturalEyeCharacteristics = 
-        // Good brightness and some variance
-        (analysis.brightness > MIN_EYE_BRIGHTNESS && analysis.colorUniformity < MAX_COLOR_UNIFORMITY) ||
-        // Or clear eye features with enough contrast and color variation
-        (analysis.hasHighContrast && analysis.brightnessVariance > MIN_BRIGHTNESS_VARIANCE);
+        // Decent brightness OR some color variation
+        (analysis.brightness > MIN_EYE_BRIGHTNESS || analysis.colorUniformity < MAX_COLOR_UNIFORMITY) ||
+        // OR has some contrast and brightness variance (normal lighting variations)
+        (analysis.hasHighContrast || analysis.brightnessVariance > MIN_BRIGHTNESS_VARIANCE) ||
+        // OR reasonable brightness with moderate darkness ratio (shadows/lighting)
+        (analysis.brightness > MIN_EYE_BRIGHTNESS * 0.8 && analysis.darknessRatio < MAX_DARKNESS_RATIO);
       
-      return !hasSunglassesCharacteristics && hasNaturalEyeCharacteristics;
+      return !hasSunglassesCharacteristics || hasNaturalEyeCharacteristics;
     };
 
     const leftVisible = isEyeVisible(leftAnalysis);
@@ -1404,10 +1465,19 @@ async function checkEyesVisible(img: HTMLImageElement, landmarks: any, ctx: Canv
     );
 
     // Both eyes must be visible
-    return {
+    const result = {
       visible: leftVisible && rightVisible,
       confidence: confidence
-    };
+    } as const;
+    if (QC_DEBUG) {
+      console.debug('Eye analysis', {
+        left: leftAnalysis,
+        right: rightAnalysis,
+        visible: result.visible,
+        confidence: result.confidence
+      });
+    }
+    return result;
   } catch (error) {
     console.error('Error checking eye visibility:', error);
     return { visible: false, confidence: 0 };
