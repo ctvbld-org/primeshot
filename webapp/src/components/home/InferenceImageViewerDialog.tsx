@@ -10,6 +10,7 @@ import styles from './InferenceImageViewerDialog.module.css';
 import { useStyle, useScene, useWardrobe, useColor, useSceneById, useWardrobeById, useColorById } from '@/hooks/useConfig';
 import { useTranslation } from 'react-i18next';
 import { getApiUrl } from '@/lib/api/client';
+import { useOptionalInferenceQueue } from '@/contexts/inference-queue-context';
 
 // Simple module-level preloaded image cache to avoid duplicate network requests
 const preloadedImages = new Set<string>();
@@ -39,20 +40,27 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
   const [imageLoading, setImageLoading] = useState(true);
   const [characterImageUrl, setCharacterImageUrl] = useState<string | null>(null);
   const { t } = useTranslation(['styles']);
+  const queue = useOptionalInferenceQueue();
 
-  const currentThumbnail = job.thumbnails[currentImageIndex];
-  const completedThumbnails = job.thumbnails.filter(thumb => thumb.status === 'completed');
+  // Use live-updating job from queue context if available
+  const activeJob = useMemo(() => {
+    const jobs = queue?.jobs;
+    return jobs?.find(j => j.id === job.id) || job;
+  }, [queue?.jobs, job]);
+
+  const currentThumbnail = activeJob.thumbnails[currentImageIndex];
+  const completedThumbnails = activeJob.thumbnails.filter(thumb => thumb.status === 'completed');
 
   // Helper to detect UUID vs value codes (copied from group component)
   const isUuid = (v?: string) => !!v && /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i.test(v);
-  const useSceneHook = isUuid(job.sceneId) ? useSceneById : useScene;
-  const useWardrobeHook = isUuid(job.wardrobeId) ? useWardrobeById : useWardrobe;
-  const useColorHook = isUuid(job.colorId) ? useColorById : useColor;
+  const useSceneHook = isUuid(activeJob.sceneId) ? useSceneById : useScene;
+  const useWardrobeHook = isUuid(activeJob.wardrobeId) ? useWardrobeById : useWardrobe;
+  const useColorHook = isUuid(activeJob.colorId) ? useColorById : useColor;
 
-  const { data: styleData } = useStyle(job.styleId as any);
-  const { data: sceneData } = useSceneHook((job.sceneId || undefined) as any);
-  const { data: wardrobeData } = useWardrobeHook((job.wardrobeId || undefined) as any);
-  const { data: colorData } = useColorHook((job.colorId || undefined) as any);
+  const { data: styleData } = useStyle(activeJob.styleId as any);
+  const { data: sceneData } = useSceneHook((activeJob.sceneId || undefined) as any);
+  const { data: wardrobeData } = useWardrobeHook((activeJob.wardrobeId || undefined) as any);
+  const { data: colorData } = useColorHook((activeJob.colorId || undefined) as any);
 
   const subtitle = useMemo(() => {
     const style = styleData?.name || '';
@@ -66,7 +74,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
   // Resolve character avatar URL if present
   useEffect(() => {
     const run = async () => {
-      const raw = job.characterThumbnailUrl;
+      const raw = activeJob.characterThumbnailUrl;
       if (!raw) { setCharacterImageUrl(null); return; }
       try {
         const res = await fetch(getApiUrl(`/api/user-images?url=${encodeURIComponent(raw)}`));
@@ -78,7 +86,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
       }
     };
     run();
-  }, [job.characterThumbnailUrl]);
+  }, [activeJob.characterThumbnailUrl]);
 
   // Reset loading state when image index changes
   useEffect(() => {
@@ -93,27 +101,27 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
       } else if (event.key === 'ArrowLeft') {
         event.preventDefault();
         setCurrentImageIndex(prev => 
-          prev > 0 ? prev - 1 : job.thumbnails.length - 1
+          prev > 0 ? prev - 1 : activeJob.thumbnails.length - 1
         );
       } else if (event.key === 'ArrowRight') {
         event.preventDefault();
         setCurrentImageIndex(prev => 
-          prev < job.thumbnails.length - 1 ? prev + 1 : 0
+          prev < activeJob.thumbnails.length - 1 ? prev + 1 : 0
         );
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [closeDialog, job.thumbnails.length]);
+  }, [closeDialog, activeJob.thumbnails.length]);
 
   // Prefetch neighbor images (±2) for snappier navigation
   useEffect(() => {
     const neighborOffsets = [-2, -1, 1, 2];
-    const total = job.thumbnails.length;
+    const total = activeJob.thumbnails.length;
     for (const offset of neighborOffsets) {
       const idx = (currentImageIndex + offset + total) % total;
-      const neighbor = job.thumbnails[idx];
+      const neighbor = activeJob.thumbnails[idx];
       if (!neighbor || neighbor.status !== 'completed') continue;
       const base = neighbor.webImageUrl || neighbor.imageUrl || '';
       if (!base) continue;
@@ -135,7 +143,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
         setTimeout(() => preloadImage(original), 0);
       }
     }
-  }, [currentImageIndex, job.thumbnails, currentThumbnail]);
+  }, [currentImageIndex, activeJob.thumbnails, currentThumbnail]);
 
   // Handle image loading
   const handleImageLoad = useCallback(() => {
@@ -185,7 +193,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
   }
   // Format aspect ratio with orientation
   const aspectRatioText = useMemo(() => {
-    const v = job.aspectRatio || '';
+    const v = activeJob.aspectRatio || '';
     if (!v) return '';
     let w = 0, h = 0;
     if (v.includes(':')) {
@@ -200,21 +208,21 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
     let orient = '';
     if (w && h) orient = w === h ? 'Square' : (w > h ? 'Landscape' : 'Portrait');
     return orient ? `${base} (${orient})` : base;
-  }, [job.aspectRatio]);
+  }, [activeJob.aspectRatio]);
 
-  const qualityText = useMemo(() => (job.quality ? String(job.quality).toUpperCase() : ''), [job.quality]);
+  const qualityText = useMemo(() => (activeJob.quality ? String(activeJob.quality).toUpperCase() : ''), [activeJob.quality]);
 
   // Time ago helper
   const timeAgoText = useMemo(() => {
     const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - job.createdAt.getTime()) / (1000 * 60));
+    const diffInMinutes = Math.floor((now.getTime() - activeJob.createdAt.getTime()) / (1000 * 60));
     if (diffInMinutes < 1) return 'Just now';
     if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
     const diffInHours = Math.floor(diffInMinutes / 60);
     if (diffInHours < 24) return `${diffInHours}h ago`;
     const diffInDays = Math.floor(diffInHours / 24);
     return `${diffInDays}d ago`;
-  }, [job.createdAt]);
+  }, [activeJob.createdAt]);
 
   // Prefer web variant for faster display; fallback to original
   const mainImageUrl = currentThumbnail.webImageUrl || currentThumbnail.imageUrl || '';
@@ -300,14 +308,14 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
           </div>
 
           {/* Character block */}
-          {(job.characterName || characterImageUrl) && (
+          {(activeJob.characterName || characterImageUrl) && (
             <div className={styles.characterBlock}>
               <div className={styles.metadataLabel}>Character</div>
               <div className={styles.characterRow}>
                 {characterImageUrl && (
-                  <img src={characterImageUrl} alt={job.characterName || 'Character'} className={styles.characterAvatar} />
+                  <img src={characterImageUrl} alt={activeJob.characterName || 'Character'} className={styles.characterAvatar} />
                 )}
-                <span className={styles.characterName}>{job.characterName || ''}</span>
+                <span className={styles.characterName}>{activeJob.characterName || ''}</span>
               </div>
             </div>
           )}
@@ -346,13 +354,13 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
 
       {/* Thumbnail strip */}
       <div className={styles.thumbnailStrip}>
-        {job.thumbnails.map((thumbnail, index) => (
+        {activeJob.thumbnails.map((thumbnail, index) => (
           <div
             key={thumbnail.id}
             className={`${styles.thumbnailItem} ${
               index === currentImageIndex ? styles.thumbnailActive : ''
             } ${thumbnail.status !== 'completed' ? styles.thumbnailDisabled : ''}`}
-            onClick={() => thumbnail.status === 'completed' && handleThumbnailClick(index)}
+            onClick={() => handleThumbnailClick(index)}
           >
             {thumbnail.webImageUrl || thumbnail.imageUrl ? (
               (() => {

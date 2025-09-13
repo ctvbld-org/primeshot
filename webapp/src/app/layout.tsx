@@ -33,15 +33,15 @@ export default function RootLayout({
             <LanguageProvider>
               <QueryProvider>
                 <BannerProvider>
-                  <DialogServiceProvider>
-                    <InferenceQueueProvider>
+                  <InferenceQueueProvider>
+                    <DialogServiceProvider>
                       <IntentHandler />
                       <QueryParamCleaner />
                       <Header rightSlot={<CreditsHeaderRight />} />
                       {children}
                       <Toaster />
-                    </InferenceQueueProvider>
-                  </DialogServiceProvider>
+                    </DialogServiceProvider>
+                  </InferenceQueueProvider>
                 </BannerProvider>
               </QueryProvider>
             </LanguageProvider>
