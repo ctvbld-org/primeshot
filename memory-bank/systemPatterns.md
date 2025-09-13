@@ -1497,6 +1497,14 @@ Detected changes in:
 - webapp/src/lib/constants/upload.ts
 - webapp/src/lib/hooks/use-character-images.ts
 - webapp/src/lib/upload-utils.ts
+
+
+**Auto-update 2025-09-13**:
+Detected changes in:
+- webapp/src/app/layout.tsx
+- webapp/src/components/home/InferenceImageViewerDialog.tsx
+- webapp/src/contexts/inference-queue-context.tsx
+- webapp/src/lib/image-quality.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

@@ -19,6 +19,35 @@ export function buildPronoun(gender?: string | null): 'He' | 'She' | 'They' {
   return 'They'
 }
 
+/**
+ * Builds a compact subject phrase like:
+ *  - "woman, blond hair with blue eyes"
+ *  - "woman, long brown hair"
+ *  - "woman with blue eyes"
+ *  - "subject, blond hair with blue eyes"
+ * Does not include trailing punctuation, age, or glasses.
+ */
+export function buildSubjectCompact(meta: any): string {
+  const gender = (meta?.gender || '').toString().trim()
+  const base = gender || 'subject'
+
+  const hairColor = (meta?.hair?.color || '').toString().trim()
+  const hairLength = (meta?.hair?.length || '').toString().trim()
+  const eyesColor = (meta?.eyes?.color || '').toString().trim()
+
+  let phrase = base
+
+  const hairParts: string[] = []
+  // if (hairLength) hairParts.push(hairLength)
+  if (hairColor) hairParts.push(`${hairColor} hair`)
+  const hairText = hairParts.join(' ')
+  if (hairText) phrase = `${phrase}, ${hairText}`
+
+  if (eyesColor) phrase = `${phrase} with ${eyesColor} eyes`
+
+  return phrase.replace(/\s+/g, ' ').trim()
+}
+
 export function buildSubjectPrompt(meta: any): { subject: string; pronoun: 'He' | 'She' | 'They' } {
   const gender = meta?.gender as string | undefined
   const age = meta?.age as string | undefined
@@ -79,9 +108,8 @@ export function buildFinalPrompt(parts: { style?: string; subject?: string; glas
 
 
 /**
- * Fill a complete style prompt template that contains placeholders like [gender], [eyes], [scene], [wardrobe].
- * - gender: uses meta.gender as-is
- * - eyes: builds "<color> eyes" and appends " and glasses" if present; if only glasses present, uses "glasses"
+ * Fill a complete style prompt template supporting placeholders: [subject], [scene], [wardrobe].
+ * - subject: compact phrase like "woman, blond hair with blue eyes"
  * - scene: uses provided scene prompt
  * - wardrobe: uses provided wardrobe prompt (with color already applied by caller)
  * Applies light cleanup to avoid artifacts when optional values are missing (e.g., "with ,").
@@ -92,14 +120,7 @@ export function fillStylePrompt(
 ): string {
   try {
     const meta = args?.meta || {}
-    const gender = (meta?.gender ?? '') as string
-
-    const eyeColor = (meta?.eyes?.color ?? '') as string
-    const glassesPresent = (meta?.glasses?.present === true) || (String(meta?.glasses?.present || '').toLowerCase() === 'true')
-
-    let eyesText = ''
-    if (eyeColor) eyesText = `${eyeColor} eyes`
-    if (glassesPresent) eyesText = eyesText ? `${eyesText} and glasses` : 'glasses'
+    const subjectText = buildSubjectCompact(meta)
 
     const sceneText = String(args?.scene ?? '')
     const wardrobeText = String(args?.wardrobe ?? '')
@@ -107,8 +128,7 @@ export function fillStylePrompt(
     let result = String(template || '')
 
     const replacements: Record<string, string> = {
-      gender,
-      eyes: eyesText,
+      subject: subjectText,
       scene: sceneText,
       wardrobe: wardrobeText,
     }
