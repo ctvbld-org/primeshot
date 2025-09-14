@@ -198,17 +198,12 @@ async function ensureSubscriptionRecord(
         devLog(`Updating subscription record: ${subscriptionId} from ${existingSubscription.plan_name} to ${latestPlanName}`);
         
         // Use type-safe access to subscription period properties
-        const subscriptionWithPeriods = subscription as Stripe.Subscription & {
-          current_period_start?: number;
-          current_period_end?: number;
-        };
-
-        const currentPeriodStart = subscriptionWithPeriods.current_period_start 
-          ? new Date(subscriptionWithPeriods.current_period_start * 1000).toISOString() 
+        const currentPeriodStart = (subscription as any).current_period_start 
+          ? new Date((subscription as any).current_period_start * 1000).toISOString() 
           : null;
 
-        const currentPeriodEnd = subscriptionWithPeriods.current_period_end 
-          ? new Date(subscriptionWithPeriods.current_period_end * 1000).toISOString() 
+        const currentPeriodEnd = (subscription as any).current_period_end 
+          ? new Date((subscription as any).current_period_end * 1000).toISOString() 
           : null;
 
 
@@ -279,17 +274,12 @@ async function ensureSubscriptionRecord(
     const planName = product?.metadata?.plan_name || '';
 
     // Use type-safe access to subscription period properties
-    const subscriptionWithPeriods = subscription as Stripe.Subscription & {
-      current_period_start?: number;
-      current_period_end?: number;
-    };
-
-    const currentPeriodStart = subscriptionWithPeriods.current_period_start 
-      ? new Date(subscriptionWithPeriods.current_period_start * 1000).toISOString() 
+    const currentPeriodStart = (subscription as any).current_period_start 
+      ? new Date((subscription as any).current_period_start * 1000).toISOString() 
       : null;
 
-    const currentPeriodEnd = subscriptionWithPeriods.current_period_end 
-      ? new Date(subscriptionWithPeriods.current_period_end * 1000).toISOString() 
+    const currentPeriodEnd = (subscription as any).current_period_end 
+      ? new Date((subscription as any).current_period_end * 1000).toISOString() 
       : null;
 
     // Create subscription record using atomic RPC function

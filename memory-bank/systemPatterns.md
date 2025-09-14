@@ -1510,6 +1510,22 @@ Detected changes in:
 **Auto-update 2025-09-13**:
 Detected changes in:
 - webapp/src/lib/image-quality.ts
+
+
+**Auto-update 2025-09-14**:
+Detected changes in:
+- webapp/src/app/api/payment/webhook/route.ts
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/app/api/subscription/customer-portal/route.ts
+- webapp/src/app/api/subscription/sync/route.ts
+- webapp/src/app/api/webhooks/stripe/route.ts
+- webapp/src/components/header/CreditsHeaderRight.tsx
+- webapp/src/components/home/InferenceImageViewerDialog.module.css
+- webapp/src/components/home/InferenceImageViewerDialog.tsx
+- webapp/src/components/home/InferenceJobGroup.module.css
+- webapp/src/components/home/InferenceJobGroup.tsx
+- webapp/src/components/home/InferenceThumbnail.module.css
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:
