@@ -21,24 +21,23 @@ export function buildPronoun(gender?: string | null): 'He' | 'She' | 'They' {
 
 /**
  * Builds a compact subject phrase like:
- *  - "woman, blond hair with blue eyes"
- *  - "woman, long brown hair"
- *  - "woman with blue eyes"
- *  - "subject, blond hair with blue eyes"
+ *  - "woman, early 20s, blond hair with blue eyes"
+ *  - "woman, late 20s, long brown hair"
  * Does not include trailing punctuation, age, or glasses.
  */
 export function buildSubjectCompact(meta: any): string {
   const gender = (meta?.gender || '').toString().trim()
+  const age = (meta?.age || '').toString().trim()
   const base = gender || 'subject'
 
   const hairColor = (meta?.hair?.color || '').toString().trim()
-  const hairLength = (meta?.hair?.length || '').toString().trim()
   const eyesColor = (meta?.eyes?.color || '').toString().trim()
 
   let phrase = base
 
+  if (age) phrase = `${phrase}, ${age}`
+
   const hairParts: string[] = []
-  // if (hairLength) hairParts.push(hairLength)
   if (hairColor) hairParts.push(`${hairColor} hair`)
   const hairText = hairParts.join(' ')
   if (hairText) phrase = `${phrase}, ${hairText}`
@@ -46,45 +45,6 @@ export function buildSubjectCompact(meta: any): string {
   if (eyesColor) phrase = `${phrase} with ${eyesColor} eyes`
 
   return phrase.replace(/\s+/g, ' ').trim()
-}
-
-export function buildSubjectPrompt(meta: any): { subject: string; pronoun: 'He' | 'She' | 'They' } {
-  const gender = meta?.gender as string | undefined
-  const age = meta?.age as string | undefined
-  const eyeColor = meta?.eyes?.color as string | undefined
-  const hairColor = meta?.hair?.color as string | undefined
-  const hairLength = meta?.hair?.length as string | undefined
-  const hairStyles: string[] = Array.isArray(meta?.hair?.styles) ? meta.hair.styles : []
-  const hairTexture = meta?.hair?.texture as string | undefined
-  const pronoun = buildPronoun(gender)
-
-  const pieces: string[] = []
-  const who = gender ? `The subject is a ${gender}` : 'A person'
-  if (age) pieces.push(`${who} in ${age}`); else pieces.push(who)
-
-  const hairBits: string[] = []
-  if (hairLength) hairBits.push(hairLength)
-  if (hairColor) hairBits.push(`${hairColor} hair`)
-  let hairClause = hairBits.join(' ')
-  //const styleList = safeJoin(hairStyles)
-  //if (styleList) hairClause = hairClause ? `${hairClause}, ${styleList}` : styleList
-  //if (hairTexture) hairClause = hairClause ? `${hairClause}, ${hairTexture}` : hairTexture
-  if (hairClause) pieces.push(`with ${hairClause}`)
-
-  // Build eyes and glasses seamlessly
-  const hasWithClause = pieces.some(p => p.trim().startsWith('with '))
-  const eyesPart = eyeColor ? `${hasWithClause ? 'and' : 'with'} ${eyeColor} eyes` : ''
-  const glassesPresent = (meta?.glasses?.present === true) || (String(meta?.glasses?.present || '').toLowerCase() === 'true')
-  const glassesStyles = Array.isArray(meta?.glasses?.style) ? (meta.glasses.style as string[]) : []
-  const glassesText = glassesPresent ? (glassesStyles.length ? `with ${joinWithOr(glassesStyles)} glasses` : 'with glasses') : ''
-
-  if (eyesPart && glassesText) pieces.push(`${eyesPart} ${glassesText}`)
-  else if (eyesPart) pieces.push(eyesPart)
-  else if (glassesText) pieces.push(glassesText)
-
-  const sentence = pieces.join(' ').replace(/\s+/g, ' ').trim()
-  const subject = sentence.endsWith('.') ? sentence : `${sentence}.`
-  return { subject, pronoun }
 }
 
 export function buildGlassesPrompt(meta: any): string {
