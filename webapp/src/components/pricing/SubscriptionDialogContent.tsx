@@ -99,7 +99,7 @@ export function SubscriptionDialogContent({
   // Determine current plan from props or subscription data
   // Only consider it a current plan if the subscription is active or pending cancellation
   const hasActivePlan = currentSubscription && 
-    (currentSubscription.status === 'active' || currentSubscription.cancel_at_period_end === true)
+    (currentSubscription.status === 'active' || (currentSubscription as any).cancel_at_period_end === true)
   const effectiveCurrentPlan = currentPlan || (hasActivePlan ? currentSubscription?.plan_name : null)
 
   // Filter tiers based on upgrade requirements
@@ -175,7 +175,7 @@ export function SubscriptionDialogContent({
       toast.info('Opening Stripe customer portal...')
       
       // Get current subscription ID for the portal flow
-      const subscriptionId = currentSubscription?.stripe_subscription_id
+      const subscriptionId = (currentSubscription as any)?.stripe_subscription_id
       
       // Create portal session with subscription update confirm flow
       const portalUrl = `api/subscription/customer-portal?flow=subscription_update_confirm&priceId=${encodeURIComponent(priceId)}${subscriptionId ? `&subscriptionId=${encodeURIComponent(subscriptionId)}` : ''}`
