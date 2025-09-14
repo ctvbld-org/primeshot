@@ -3,31 +3,20 @@
   position: relative;
   width: 100vw;
   height: 100vh;
-  background: #000;
   display: flex;
   overflow: hidden;
 }
 
 /* Close button */
 .closeButton {
-  position: absolute;
-  top: 24px;
-  left: 24px;
+  position: fixed;
+  top: 16px;
+  right: 16px;
   z-index: 10;
-  background: rgba(0, 0, 0, 0.6);
-  border: none;
-  border-radius: 8px;
-  padding: 12px;
   color: white;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
-.closeButton:hover {
-  background: rgba(0, 0, 0, 0.8);
-}
+.iconButton { height: 40px; width: 40px; padding: 0; border-radius: 8px; }
 
 /* Main image area */
 .imageArea {
@@ -36,17 +25,21 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  padding: 24px;
-  padding-right: 0;
+  padding: 64px;
 }
 
 .mainImage {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  border-radius: 12px;
+  height: 100%;
+  max-width: 1024px;
+  max-height: 1024px;
   transition: opacity 0.3s ease;
+  border-radius: 6px;
 }
+
+/* Aspect ratio variants for main image */
+.mainAR11 { aspect-ratio: 1 / 1; }
+.mainAR23 { aspect-ratio: 2 / 3; }
+.mainAR32 { aspect-ratio: 3 / 2; }
 
 .imageLoading {
   position: absolute;
@@ -56,6 +49,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.gradientLoader {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: rgba(42, 222, 216, 0.1);
+  opacity: 1;
+  transition: opacity 0.4s ease-out;
+}
+
+.fadeOut {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .loadingSpinner {
@@ -74,14 +81,14 @@
 
 /* Right sidebar */
 .sidebar {
-  width: 320px;
-  background: rgba(18, 24, 28, 0.95);
+  width: 360px;
+  background: #0b0b0b;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-left: 1px solid rgba(68, 227, 201, 0.1);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
-  padding: 24px;
+  padding: 24px 16px;
   color: white;
 }
 
@@ -154,22 +161,10 @@
 /* Floating download original button in image area */
 .downloadOriginalButton {
   position: absolute;
-  right: 24px;
-  bottom: 24px;
+  right: 16px;
+  bottom: 16px;
   z-index: 10;
-  background: rgba(0, 0, 0, 0.6);
-  border: none;
-  border-radius: 8px;
-  padding: 12px;
   color: white;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-.downloadOriginalButton:hover {
-  background: rgba(0, 0, 0, 0.8);
 }
 
 .timeAgo {
@@ -181,28 +176,19 @@
 /* Action buttons */
 .actions {
   display: flex;
-  gap: 12px;
-  padding-top: 24px;
-  border-top: 1px solid rgba(68, 227, 201, 0.1);
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .actionButton {
-  flex: 1;
-  background: rgba(68, 227, 201, 0.1);
-  border: 1px solid rgba(68, 227, 201, 0.2);
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
   border-radius: 8px;
-  padding: 12px;
-  color: #44E3C9;
-  cursor: pointer;
-  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.actionButton:hover {
-  background: rgba(68, 227, 201, 0.2);
-  border-color: rgba(68, 227, 201, 0.4);
 }
 
 .actionButton:disabled {
@@ -210,43 +196,36 @@
   cursor: not-allowed;
 }
 
-.actionButton:disabled:hover {
-  background: rgba(68, 227, 201, 0.1);
-  border-color: rgba(68, 227, 201, 0.2);
-}
-
 /* Thumbnail strip */
 .thumbnailStrip {
   width: 120px;
-  background: rgba(18, 24, 28, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-left: 1px solid rgba(68, 227, 201, 0.1);
-  padding: 24px 16px;
+  background: #0b0b0b;
+  border-right: none;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0 8px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  align-items: center;
+  gap: 1px;
   overflow-y: auto;
 }
 
 .thumbnailItem {
   position: relative;
-  width: 88px;
-  height: 88px;
-  border-radius: 8px;
+  width: 64px;
+  border-radius: 0;
   overflow: hidden;
   cursor: pointer;
-  border: 2px solid transparent;
+  border: 0;
   transition: all 0.2s ease;
 }
 
-.thumbnailItem:hover {
-  border-color: rgba(68, 227, 201, 0.4);
-}
+.thumbAR11 .thumbnailItem { height: 64px; }
+.thumbAR23 .thumbnailItem { height: calc(64px * 1.5); }
+.thumbAR32 .thumbnailItem { height: calc(64px * 0.6667); }
 
 .thumbnailActive {
-  border-color: #44E3C9 !important;
-  box-shadow: 0 0 0 1px #44E3C9;
+  outline: 2px solid #44E3C9;
 }
 
 .thumbnailDisabled {
@@ -262,6 +241,25 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* Animate generating thumbnails in the strip similar to grid placeholders */
+.thumbnailGenerating {
+  position: relative;
+}
+.thumbnailGenerating::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(42, 222, 216, 0.1);
+  animation: simpleOpacityPulse 2s ease-in-out infinite;
+  animation-delay: calc((var(--stagger, 0)) * 200ms);
+}
+
+@keyframes simpleOpacityPulse {
+  0% { background: rgba(42, 222, 216, 0.1); }
+  50% { background: rgba(42, 222, 216, 0.2); }
+  100% { background: rgba(42, 222, 216, 0.1); }
 }
 
 .thumbnailPlaceholder {
@@ -299,63 +297,39 @@
 
 /* Responsive design */
 @media (max-width: 1024px) {
+  .viewer { flex-direction: column; }
   .sidebar {
-    width: 280px;
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    order: 2;
   }
   
   .thumbnailStrip {
-    width: 100px;
+    width: 100%;
+    height: 80px;
+    flex: 1 0 80px;
+    flex-direction: row;
+    padding: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    order: 0;
   }
   
   .thumbnailItem {
-    width: 68px;
-    height: 68px;
+    height: 80px !important;
+    width: auto;
+    flex-shrink: 0;
+  }
+
+  .imageArea { 
+    order: 1; 
+    padding: 20px;
+    flex: 1 1 70%;
+    height: 70%; 
   }
 }
 
 @media (max-width: 768px) {
-  .viewer {
-    flex-direction: column;
-  }
-  
-  .imageArea {
-    flex: 1;
-    padding: 16px;
-  }
-  
-  .sidebar {
-    width: 100%;
-    height: auto;
-    flex-direction: row;
-    padding: 16px;
-    gap: 16px;
-  }
-  
-  .metadata {
-    flex: 1;
-  }
-  
-  .actions {
-    padding-top: 0;
-    border-top: none;
-    border-left: 1px solid rgba(68, 227, 201, 0.1);
-    padding-left: 16px;
-    flex-direction: column;
-    width: 120px;
-  }
-  
-  .thumbnailStrip {
-    width: 100%;
-    height: 100px;
-    flex-direction: row;
-    padding: 12px 16px;
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
-  
-  .thumbnailItem {
-    flex-shrink: 0;
-    width: 76px;
-    height: 76px;
-  }
+  .imageArea { padding: 8px; }
 }

@@ -236,7 +236,75 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
         </div>
       </div>
 
-      {/* Thumbnails Grid - Only render when visible or loading */}
+      {/* Mobile hero layout (<768px) */}
+      <div
+        className={[
+          styles.mobileHeroWrap,
+          runtimeAR === '2:3' ? styles.ar23 : '',
+          runtimeAR === '3:2' ? styles.ar32 : '',
+          runtimeAR === '1:1' ? styles.ar11 : ''
+        ].filter(Boolean).join(' ')}
+      >
+        <div className={[
+          styles.mobileHero,
+          runtimeAR === '2:3' ? styles.ar23 : '',
+          runtimeAR === '3:2' ? styles.ar32 : '',
+          runtimeAR === '1:1' ? styles.ar11 : ''
+        ].filter(Boolean).join(' ')}>
+          <div className={styles.heroAspect}>
+            {(() => {
+              const firstThumb = job.thumbnails[0];
+              return (
+                <InferenceThumbnailComponent
+                  key={firstThumb?.id}
+                  thumbnail={firstThumb}
+                  jobStatus={job.status as any}
+                  onClick={() => handleThumbnailClick(0)}
+                />
+              );
+            })()}
+          </div>
+
+          {/* Bottom-left stacked preview circles */}
+          {(() => {
+            const previews = job.thumbnails
+              .filter(t => !!(t.webImageUrl || t.imageUrl));
+            const display = previews.slice(0, 4);
+            const extra = Math.max(previews.length - display.length, 0);
+            return (
+              <div className={styles.previewStack} aria-label="Thumbnails preview">
+                {display.map((t, idx) => (
+                  <div key={`pv-${t.id}`} className={styles.previewCircle} style={{ zIndex: 20 - idx }}>
+                    {/* Use webImageUrl if available, fallback to imageUrl */}
+                    {t.webImageUrl || t.imageUrl ? (
+                      <img src={(t.webImageUrl || t.imageUrl) as string} alt={`Preview ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <div />
+                    )}
+                  </div>
+                ))}
+                {extra > 0 && (
+                  <div className={`${styles.previewCircle} ${styles.moreCircle}`} style={{ zIndex: 10 }}>
+                    {`+${extra}`}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* Bottom-right View all button */}
+          <Button
+            variant="secondary"
+            className={styles.viewAllBtn}
+            onClick={() => handleThumbnailClick(0)}
+            aria-label="View all images"
+          >
+            View all
+          </Button>
+        </div>
+      </div>
+
+      {/* Thumbnails Grid - desktop and tablets */}
       <div className={[
         styles.thumbnailGrid,
         runtimeAR === '2:3' ? styles.ar23 : '',

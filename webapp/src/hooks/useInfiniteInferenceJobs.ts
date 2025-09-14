@@ -219,6 +219,46 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
       const hasMoreJobs = allJobs.length < totalCountResult;
       setHasMore(hasMoreJobs);
       
+      // Hydrate any already-generated images for ACTIVE jobs on initial load
+      // This fixes the refresh case where some images are done but WS hasn't replayed yet
+      try {
+        const { fetchInferenceJob, getInferenceImageUrl: giu } = await import('@/lib/api/inference-job-management');
+        const activeDbJobs = initialJobs.filter((j: any) => ['queued', 'pending', 'running'].includes(j.status));
+        await Promise.all(activeDbJobs.map(async (j: any) => {
+          try {
+            const full = await fetchInferenceJob(j.id);
+            const images = full?.generated_images || [];
+            if (!images || images.length === 0) return;
+            setJobs(prev => prev.map(job => {
+              if (job.id !== j.id) return job;
+              const updated = [...job.thumbnails];
+              images.forEach((img: any, _i: number) => {
+                const derivedIndex = ((): number => {
+                  const m = (img.web_path || '').match(/IMG-(\d+)/i) || (img.original_path || '').match(/IMG-(\d+)/i);
+                  if (m) {
+                    const n = parseInt(m[1], 10);
+                    if (!isNaN(n)) return Math.max(0, n - 1);
+                  }
+                  return _i;
+                })();
+                if (derivedIndex < 0 || derivedIndex >= updated.length) return;
+                updated[derivedIndex] = {
+                  ...updated[derivedIndex],
+                  status: 'completed',
+                  progress: 100,
+                  webImageUrl: giu(img.web_path),
+                  imageUrl: giu(img.original_path)
+                } as any;
+              });
+              return { ...job, thumbnails: updated };
+            }));
+          } catch (e) {
+            console.warn('Initial hydration failed for job', j.id, e);
+          }
+        }));
+      } catch (e) {
+        console.warn('Initial hydration step failed:', e);
+      }
 
 
     } catch (err) {

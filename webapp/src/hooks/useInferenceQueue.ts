@@ -182,7 +182,17 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
             .map(async (j) => {
               try {
                 const full = await fetchInferenceJob(j.id);
-                const images = full?.generated_images || [];
+                let images = full?.generated_images || [];
+                // Fallback: some backends expose results via a different endpoint
+                if (!images || images.length === 0) {
+                  try {
+                    const { fetchInferenceJobResult } = await import('@/lib/api/inference-results');
+                    const result = await fetchInferenceJobResult(j.id);
+                    images = result?.generated_images || [];
+                  } catch (e) {
+                    // ignore
+                  }
+                }
                 if (images.length > 0) {
                   setJobs(prev => prev.map(queueJob => {
                     if (queueJob.id !== j.id) return queueJob;

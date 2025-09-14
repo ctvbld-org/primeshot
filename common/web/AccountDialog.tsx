@@ -13,6 +13,8 @@ import styles from './AccountDialog.module.css'
 interface AccountDialogProps {
   /** Optional custom trigger element. Must be a single element (use asChild). */
   triggerSlot?: React.ReactNode
+  /** Optional handler to open credit purchase dialog from host app */
+  onBuyCredits?: () => void
 }
 
 type TabKey = 'profile' | 'subscription' | 'settings' | 'support'
@@ -24,12 +26,14 @@ type SubscriptionInfo = {
   current_period_end: string
   credits_included: number
   credits_used_this_period: number
+  cancel_at_period_end?: boolean
+  stripe_subscription_id?: string
 }
 
 function getApiUrl(path: string): string {
   if (/^https?:\/\//.test(path)) return path
   const normalized = path.startsWith('/') ? path : `/${path}`
-  // Next.js basePath handling for client-side calls (see memory rule)
+  // Next.js basePath handling for client-side calls
   try {
     if (typeof window !== 'undefined' && window.location.pathname.startsWith('/create')) {
       return `/create${normalized}`
@@ -38,7 +42,7 @@ function getApiUrl(path: string): string {
   return normalized
 }
 
-export function AccountDialog({ triggerSlot }: AccountDialogProps) {
+export function AccountDialog({ triggerSlot, onBuyCredits }: AccountDialogProps) {
   const { user, signOut } = useAuth()
   const { t } = useTranslation('account')
   const [activeTab, setActiveTab] = useState<TabKey>('profile')
@@ -47,36 +51,37 @@ export function AccountDialog({ triggerSlot }: AccountDialogProps) {
   // Subscription state
   const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null)
   const [creditBalance, setCreditBalance] = useState<number | null>(null)
-  const [isSubLoading, setIsSubLoading] = useState(false)
-  const [isPortalLoading, setIsPortalLoading] = useState(false)
-  const [portalUrl, setPortalUrl] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isActionLoading, setIsActionLoading] = useState(false)
 
   useEffect(() => {
-    const load = async () => {
+    const loadSubscriptionData = async () => {
       if (!user || !open) return
-      setIsSubLoading(true)
+      
+      setIsLoading(true)
       try {
-        const [subRes, balRes, portalRes] = await Promise.all([
+        const [subRes, balRes] = await Promise.all([
           fetch(getApiUrl('api/subscription/current')),
           fetch(getApiUrl('api/credits/balance')),
-          fetch(getApiUrl('api/subscription/customer-portal'), { method: 'POST' }),
         ])
-        if (subRes.ok) setSubscription(await subRes.json())
+        
+        if (subRes.ok) {
+          const sub = await subRes.json()
+          setSubscription(sub)
+        }
+        
         if (balRes.ok) {
           const { balance } = await balRes.json()
           setCreditBalance(balance)
         }
-        if (portalRes.ok) {
-          const { url } = await portalRes.json()
-          setPortalUrl(url)
-        } else {
-          setPortalUrl(null)
-        }
+      } catch (error) {
+        console.error('Failed to load subscription data:', error)
       } finally {
-        setIsSubLoading(false)
+        setIsLoading(false)
       }
     }
-    load()
+    
+    loadSubscriptionData()
   }, [open, user])
 
   if (!user) return null
@@ -88,24 +93,36 @@ export function AccountDialog({ triggerSlot }: AccountDialogProps) {
     return [parts[0] || '', parts.slice(1).join(' ')]
   }, [user.full_name])
 
-  const handleOpenPortal = async () => {
+  const openPortal = async (flow?: 'cancel') => {
+    setIsActionLoading(true)
     try {
-      setIsPortalLoading(true)
-      if (!portalUrl) {
-        // Fallback: fetch once if not available
-        const res = await fetch(getApiUrl('api/subscription/customer-portal'), { method: 'POST' })
-        if (res.ok) {
-          const { url } = await res.json()
-          setPortalUrl(url)
-          window.open(url, '_blank', 'noopener,noreferrer')
-          return
-        }
+      const url = flow === 'cancel' 
+        ? `api/subscription/customer-portal?flow=cancel&subscriptionId=${subscription?.stripe_subscription_id || ''}`
+        : 'api/subscription/customer-portal'
+        
+      const res = await fetch(getApiUrl(url), { method: 'POST' })
+      
+      if (!res.ok) throw new Error('Failed to open customer portal')
+      
+      const { url: portalUrl } = await res.json()
+      
+      if (flow === 'cancel') {
+        window.location.href = portalUrl
+      } else {
+        window.open(portalUrl, '_blank', 'noopener,noreferrer')
       }
-      if (portalUrl) window.open(portalUrl, '_blank', 'noopener,noreferrer')
+    } catch (error) {
+      console.error('Portal error:', error)
     } finally {
-      setIsPortalLoading(false)
+      setIsActionLoading(false)
     }
   }
+
+  const isCanceled = subscription?.status === 'canceled' || subscription?.cancel_at_period_end === true
+  const isFullyCanceled = subscription?.status === 'canceled'
+  const periodEndText = subscription?.current_period_end
+    ? new Date(subscription.current_period_end).toLocaleDateString()
+    : undefined
 
   const sidebarItems: { key: TabKey; label: string; icon: React.ReactNode }[] = [
     { key: 'profile', label: 'Profile', icon: <Icon variant="smilyFace" size={18} /> },
@@ -195,31 +212,78 @@ export function AccountDialog({ triggerSlot }: AccountDialogProps) {
                     <div className={styles.planLeft}>
                       <span className={styles.planDot} />
                       <div className={styles.planTexts}>
-                        <div className={styles.planName}>{subscription?.plan_name ?? 'No plan'}</div>
-                        {subscription?.current_period_end && (
-                          <div className={styles.planSub}>
-                            Renews {new Date(subscription.current_period_end).toLocaleDateString()}
-                          </div>
+                        <div className={styles.planName}>
+                          {isLoading ? 'Loading...' : subscription?.plan_name || 'No plan'}
+                        </div>
+                        {!isLoading && subscription && (
+                          isCanceled ? (
+                            <div className={styles.planSub}>
+                              <span style={{ color: '#ff5e57', marginRight: 8 }}>Cancelled</span>
+                              {!isFullyCanceled && periodEndText && <span>Expires {periodEndText}</span>}
+                            </div>
+                          ) : (
+                            <div className={styles.planSub}>
+                              Renews {periodEndText}
+                            </div>
+                          )
                         )}
                       </div>
                     </div>
                     <div className={styles.planActions}>
-                      <Button size="sm" variant="secondary" onClick={handleOpenPortal} disabled={isPortalLoading}>
-                        {isPortalLoading ? 'Opening…' : 'Manage'}
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={handleOpenPortal} disabled={isPortalLoading}>
-                        Cancel
-                      </Button>
+                      {!isLoading && (
+                        <>
+                          <Button 
+                            size="sm" 
+                            variant="secondary" 
+                            onClick={() => openPortal()} 
+                            disabled={isActionLoading}
+                          >
+                            {isActionLoading ? 'Opening…' : 'Manage'}
+                          </Button>
+                          {subscription ? (
+                            isCanceled ? (
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                onClick={() => openPortal()} 
+                                disabled={isActionLoading}
+                              >
+                                Renew
+                              </Button>
+                            ) : (
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                onClick={() => openPortal('cancel')} 
+                                disabled={isActionLoading}
+                              >
+                                Cancel
+                              </Button>
+                            )
+                          ) : (
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              onClick={() => openPortal()} 
+                              disabled={isActionLoading}
+                            >
+                              Choose plan
+                            </Button>
+                          )}
+                        </>
+                      )}
                     </div>
                   </div>
 
                   <div className={styles.creditsBlock}>
                     <div className={styles.creditsHeader}>
                       <span>Credit Balance</span>
-                      <button className={styles.buyCredits} onClick={handleOpenPortal}>Buy credits</button>
+                      <button className={styles.buyCredits} onClick={onBuyCredits ?? (() => openPortal())}>
+                        Buy credits
+                      </button>
                     </div>
                     <div className={styles.creditsValue}>
-                      {isSubLoading ? '—' : creditBalance ?? 0}
+                      {isLoading ? '—' : creditBalance ?? 0}
                       <span className={styles.creditsTotal}>
                         /{subscription?.credits_included ?? 0}
                       </span>
@@ -267,10 +331,10 @@ export function AccountDialog({ triggerSlot }: AccountDialogProps) {
 
               {activeTab === 'support' && (
                 <section className={styles.section}>
-                  <h2 className={styles.title}>We’re here to help</h2>
+                  <h2 className={styles.title}>We're here to help</h2>
                   <div className={styles.supportList}>
                     <div className={styles.supportItem}>
-                      <div className={styles.supportLabel}>FAQ’s</div>
+                      <div className={styles.supportLabel}>FAQ's</div>
                       <a className={styles.supportLink} href="https://help.primeshot.ai" target="_blank" rel="noreferrer">
                         Check out our Help Center
                       </a>

@@ -14,18 +14,18 @@ export async function GET() {
       )
     }
 
-    // Get current active subscription
+    // Get most recent subscription (active or canceled)
     const { data: subscription, error: subError } = await supabase
       .from('user_subscriptions')
       .select('*')
       .eq('user_id', user.id)
-      .eq('status', 'active')
+      .order('updated_at', { ascending: false })
       .order('created_at', { ascending: false })
       .limit(1)
       .single()
 
     if (subError || !subscription) {
-      // User doesn't have an active subscription
+      // No subscription rows; return null so UI shows "no plan"
       return NextResponse.json(null)
     }
 
@@ -41,8 +41,8 @@ export async function GET() {
     }
 
     // Calculate credits used in current billing period
-    const periodStart = new Date(subscription.current_period_start)
-    const periodEnd = new Date(subscription.current_period_end)
+    const periodStart = subscription.current_period_start ? new Date(subscription.current_period_start) : new Date(0)
+    const periodEnd = subscription.current_period_end ? new Date(subscription.current_period_end) : new Date()
 
     const { data: creditsUsed, error: usageError } = await supabase
       .from('user_credits')

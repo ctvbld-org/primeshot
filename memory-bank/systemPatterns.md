@@ -1505,6 +1505,11 @@ Detected changes in:
 - webapp/src/components/home/InferenceImageViewerDialog.tsx
 - webapp/src/contexts/inference-queue-context.tsx
 - webapp/src/lib/image-quality.ts
+
+
+**Auto-update 2025-09-13**:
+Detected changes in:
+- webapp/src/lib/image-quality.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

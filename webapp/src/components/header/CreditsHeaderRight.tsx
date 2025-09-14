@@ -9,11 +9,13 @@ import { Avatar } from '@primeshot/common/web/ui/avatar'
 import { useCreditBalance } from '@/hooks/useCreditBalance'
 import { useCurrentSubscription } from '@/hooks/useCurrentSubscription'
 import { ProgressCircle } from '@primeshot/common/web/ui/progress-circle'
+import { useOpenCreditPackDialog } from '@/hooks/useOpenCreditPackDialog'
 
 export function CreditsHeaderRight() {
   const { isAuthenticated, user } = useAuth()
   const { data: creditBalance } = useCreditBalance()
   const { data: subscription } = useCurrentSubscription()
+  const openCreditPackDialog = useOpenCreditPackDialog()
 
   if (!isAuthenticated) {
     return <SignInModal />
@@ -42,6 +44,7 @@ export function CreditsHeaderRight() {
           </div>
         </div>
       }
+      onBuyCredits={() => openCreditPackDialog()}
     />
   )
 }

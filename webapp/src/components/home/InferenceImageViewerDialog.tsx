@@ -2,6 +2,7 @@
 
 import { FC, useState, useEffect, useCallback, useMemo } from 'react';
 import { Icon } from '@primeshot/common/web/Icon';
+import { Button } from '@primeshot/common/web/ui/button';
 import { useDialogService } from '@/contexts/DialogServiceContext';
 import { InferenceJob } from '@/hooks/useInferenceQueue';
 import { InferenceThumbnail } from '@/components/home/InferenceThumbnail';
@@ -226,31 +227,45 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
 
   // Prefer web variant for faster display; fallback to original
   const mainImageUrl = currentThumbnail.webImageUrl || currentThumbnail.imageUrl || '';
+  const thumbArClass = useMemo(() => {
+    const v = (activeJob.aspectRatio || '').toLowerCase();
+    if (v.includes('1:1') || v.includes('square')) return styles.thumbAR11;
+    if (v.includes('3:2') || /3\s*[:_\/]\s*2/.test(v) || /5\s*[:_\/]\s*4/.test(v) || v.includes('landscape')) return styles.thumbAR32;
+    // default to portrait-like 2:3 / 4:5
+    return styles.thumbAR23;
+  }, [activeJob.aspectRatio]);
+  const imageArClass = useMemo(() => {
+    const v = (activeJob.aspectRatio || '').toLowerCase();
+    if (v.includes('1:1') || v.includes('square')) return styles.mainAR11;
+    if (v.includes('3:2') || /3\s*[:_\/]\s*2/.test(v) || /5\s*[:_\/]\s*4/.test(v) || v.includes('landscape')) return styles.mainAR32;
+    return styles.mainAR23;
+  }, [activeJob.aspectRatio]);
+  const isGenerating = useMemo(() => {
+    const s = (activeJob.status || '').toLowerCase();
+    return s === 'running' || s === 'pending' || s === 'initializing' || currentThumbnail.status === 'running' || currentThumbnail.status === 'queued';
+  }, [activeJob.status, currentThumbnail.status]);
   
   return (
     <div className={styles.viewer}>
       {/* Close button */}
-      <button 
-        className={styles.closeButton}
+      <Button 
+        variant="ghost"
+        className={`${styles.closeButton} ${styles.iconButton}`}
         onClick={closeDialog}
         aria-label="Close viewer"
       >
-        <Icon variant="cross" size={24} />
-      </button>
+        <Icon variant="cross" size={32} />
+      </Button>
 
       {/* Main image area */
       }
       <div className={styles.imageArea}>
-        {imageLoading && (
-          <div className={styles.imageLoading}>
-            <div className={styles.loadingSpinner} />
-          </div>
-        )}
+        <div className={`${styles.gradientLoader} ${(!imageLoading && !isGenerating) ? styles.fadeOut : ''}`} />
         {mainImageUrl && (
           <img
             src={mainImageUrl}
             alt={`Generated image ${currentImageIndex + 1}`}
-            className={styles.mainImage}
+            className={`${styles.mainImage} ${imageArClass}`}
             onLoad={handleImageLoad}
             onError={handleImageError}
             loading="eager"
@@ -259,8 +274,9 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
           />
         )}
         {/* Floating download original button */}
-        <button
-          className={styles.downloadOriginalButton}
+        <Button
+          variant="ghost"
+          className={`${styles.downloadOriginalButton} ${styles.iconButton}`}
           onClick={() => {
             const base = currentThumbnail.webImageUrl || currentThumbnail.imageUrl || '';
             if (!base) return;
@@ -275,8 +291,8 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
           aria-label="Download original image"
           disabled={!currentThumbnail.webImageUrl && !currentThumbnail.imageUrl}
         >
-          <Icon variant="download" size={20} />
-        </button>
+          <Icon variant="download" size={18} />
+        </Button>
       </div>
 
       {/* Right sidebar */}
@@ -325,41 +341,50 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
 
         {/* Action buttons */}
         <div className={styles.actions}>
-          <button
-            className={styles.actionButton}
+          <Button
+            variant="ghost"
+            className={`${styles.actionButton} ${styles.iconButton}`}
             onClick={handleDownload}
             aria-label="Download image"
             disabled={!currentThumbnail.imageUrl && !currentThumbnail.webImageUrl}
           >
-            <Icon variant="download" size={20} />
-          </button>
+            <Icon variant="download" size={18} />
+          </Button>
           
-          <button
-            className={styles.actionButton}
+          <Button
+            variant="ghost"
+            className={`${styles.actionButton} ${styles.iconButton}`}
             onClick={handleDelete}
             aria-label="Delete image"
           >
-            <Icon variant="bin" size={20} />
-          </button>
+            <Icon variant="bin" size={18} />
+          </Button>
           
-          <button
-            className={styles.actionButton}
+          <Button
+            variant="ghost"
+            className={`${styles.actionButton} ${styles.iconButton}`}
             onClick={handleRegenerate}
             aria-label="Regenerate image"
           >
-            <Icon variant="generate" size={20} />
-          </button>
+            <Icon variant="generate" size={18} />
+          </Button>
         </div>
       </div>
 
       {/* Thumbnail strip */}
-      <div className={styles.thumbnailStrip}>
-        {activeJob.thumbnails.map((thumbnail, index) => (
+      <div className={`${styles.thumbnailStrip} ${thumbArClass}`}>
+        {activeJob.thumbnails.map((thumbnail, index) => {
+          const hasImage = Boolean(thumbnail.webImageUrl || thumbnail.imageUrl);
+          const generating = (thumbnail.status === 'running' || thumbnail.status === 'queued') && !hasImage;
+          return (
           <div
             key={thumbnail.id}
-            className={`${styles.thumbnailItem} ${
+            className={`${styles.thumbnailItem} ${thumbArClass} ${
               index === currentImageIndex ? styles.thumbnailActive : ''
-            } ${thumbnail.status !== 'completed' ? styles.thumbnailDisabled : ''}`}
+            } ${thumbnail.status !== 'completed' ? styles.thumbnailDisabled : ''} ${
+              generating ? styles.thumbnailGenerating : ''
+            }`}
+            style={{ ['--stagger' as any]: thumbnail.index }}
             onClick={() => handleThumbnailClick(index)}
           >
             {thumbnail.webImageUrl || thumbnail.imageUrl ? (
@@ -396,7 +421,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
               </div>
             )}
           </div>
-        ))}
+        );})}
       </div>
     </div>
   );

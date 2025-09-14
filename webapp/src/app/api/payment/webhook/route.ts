@@ -170,7 +170,7 @@ async function ensureSubscriptionRecord(
     // First, try to find existing subscription record
     const { data: existingSubscription } = await supabase
       .from('user_subscriptions')
-      .select('user_id, stripe_price_id, plan_name')
+      .select('user_id, stripe_price_id, plan_name, cancel_at_period_end, current_period_start, current_period_end')
       .eq('stripe_subscription_id', subscriptionId)
       .single();
 
@@ -187,8 +187,13 @@ async function ensureSubscriptionRecord(
       const product = firstItem?.price?.product as Stripe.Product;
       const latestPlanName = product?.metadata?.plan_name || '';
 
-      // Update if price ID or plan name has changed
-      if (latestPriceId !== existingSubscription.stripe_price_id || latestPlanName !== existingSubscription.plan_name) {
+      // Check if subscription details have changed (price, plan, or cancellation status)
+      const cancelAtPeriodEndChanged = subscription.cancel_at_period_end !== (existingSubscription as any).cancel_at_period_end;
+
+      // Update if price ID, plan name, or cancellation status has changed
+      if (latestPriceId !== existingSubscription.stripe_price_id || 
+          latestPlanName !== existingSubscription.plan_name ||
+          cancelAtPeriodEndChanged) {
         const isUpgrade = latestPlanName !== existingSubscription.plan_name;
         devLog(`Updating subscription record: ${subscriptionId} from ${existingSubscription.plan_name} to ${latestPlanName}`);
         
@@ -206,18 +211,25 @@ async function ensureSubscriptionRecord(
           ? new Date(subscriptionWithPeriods.current_period_end * 1000).toISOString() 
           : null;
 
+
+        // Preserve existing period dates if new ones are null (common during cancellation)
+        const preservedPeriodStart = currentPeriodStart || (existingSubscription as any).current_period_start;
+        const preservedPeriodEnd = currentPeriodEnd || (existingSubscription as any).current_period_end;
+
         // Update subscription record with new details
-        const { error: updateError } = await supabase.rpc('upsert_subscription', {
+        const rpcParams = {
           p_user_id: existingSubscription.user_id,
           p_stripe_subscription_id: subscription.id,
           p_stripe_customer_id: customerId,
           p_stripe_price_id: latestPriceId,
           p_plan_name: latestPlanName,
           p_status: subscription.status,
-          p_current_period_start: currentPeriodStart,
-          p_current_period_end: currentPeriodEnd,
-          p_cancel_at_period_end: subscription.cancel_at_period_end || false
-        });
+          p_current_period_start: preservedPeriodStart,
+          p_current_period_end: preservedPeriodEnd,
+          p_cancel_at_period_end: Boolean(subscription.cancel_at_period_end)
+        };
+        
+        const { error: updateError } = await supabase.rpc('upsert_subscription', rpcParams);
 
         if (updateError) {
           console.error('Error updating subscription record:', updateError.message);
@@ -290,7 +302,7 @@ async function ensureSubscriptionRecord(
       p_status: subscription.status,
       p_current_period_start: currentPeriodStart,
       p_current_period_end: currentPeriodEnd,
-      p_cancel_at_period_end: subscription.cancel_at_period_end || false
+      p_cancel_at_period_end: Boolean(subscription.cancel_at_period_end)
     });
 
     if (error) {

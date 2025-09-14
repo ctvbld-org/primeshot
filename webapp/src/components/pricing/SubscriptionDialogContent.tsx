@@ -7,7 +7,6 @@ import { getStripeEnv } from '@primeshot/common/lib/stripe/env'
 import { toast } from 'sonner'
 import { useAuth } from '@primeshot/common/hooks/AuthContext'
 import { getApiUrl } from '@/lib/api/client'
-import { UpgradeConfirmationDialog } from './UpgradeConfirmationDialog'
 import { Icon } from '@primeshot/common/web/Icon'
 import styles from './SubscriptionDialogContent.module.css'
 
@@ -93,15 +92,15 @@ export function SubscriptionDialogContent({
 }: SubscriptionDialogContentProps = {}) {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly')
   const [loading, setLoading] = useState(false)
-  const [showConfirmation, setShowConfirmation] = useState(false)
-  const [upgradePreview, setUpgradePreview] = useState<any>(null)
-  const [selectedPriceId, setSelectedPriceId] = useState<string>('')
   const { user } = useAuth()
   const { data: subscriptionTiers, isLoading: tiersLoading } = useSubscriptionTiers()
   const { data: currentSubscription } = useCurrentSubscription()
 
   // Determine current plan from props or subscription data
-  const effectiveCurrentPlan = currentPlan || currentSubscription?.plan_name
+  // Only consider it a current plan if the subscription is active or pending cancellation
+  const hasActivePlan = currentSubscription && 
+    (currentSubscription.status === 'active' || currentSubscription.cancel_at_period_end === true)
+  const effectiveCurrentPlan = currentPlan || (hasActivePlan ? currentSubscription?.plan_name : null)
 
   // Filter tiers based on upgrade requirements
   const filteredTiers = useMemo(() => {
@@ -173,44 +172,28 @@ export function SubscriptionDialogContent({
   const handleUpgradePreview = async (priceId: string) => {
     setLoading(true)
     try {
-      const res = await fetch(getApiUrl('/api/subscription/preview-upgrade'), {
+      toast.info('Opening Stripe customer portal...')
+      
+      // Get current subscription ID for the portal flow
+      const subscriptionId = currentSubscription?.stripe_subscription_id
+      
+      // Create portal session with subscription update confirm flow
+      const portalUrl = `api/subscription/customer-portal?flow=subscription_update_confirm&priceId=${encodeURIComponent(priceId)}${subscriptionId ? `&subscriptionId=${encodeURIComponent(subscriptionId)}` : ''}`
+      
+      const portalRes = await fetch(getApiUrl(portalUrl), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ priceId })
+        headers: { 'Content-Type': 'application/json' }
       })
       
-      if (!res.ok) {
-        const error = await res.json()
-        throw new Error(error.error || 'Failed to preview upgrade')
+      if (!portalRes.ok) {
+        throw new Error('Failed to open customer portal')
       }
       
-      const result = await res.json()
+      const portalData = await portalRes.json()
+      window.location.href = portalData.url
       
-      // Handle redirect response (when preview fails)
-      if (result.redirect) {
-        toast.info(result.message || 'Opening Stripe customer portal...')
-        
-        // Call customer portal endpoint
-        const portalRes = await fetch(getApiUrl('/api/subscription/customer-portal'), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        })
-        
-        if (portalRes.ok) {
-          const portalData = await portalRes.json()
-          window.location.href = portalData.url
-        } else {
-          throw new Error('Failed to open customer portal')
-        }
-        return
-      }
-      
-      // Handle normal preview response
-      setUpgradePreview(result)
-      setSelectedPriceId(priceId)
-      setShowConfirmation(true)
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to preview upgrade')
+      toast.error(error instanceof Error ? error.message : 'Failed to open upgrade preview')
     } finally {
       setLoading(false)
     }
@@ -259,12 +242,6 @@ export function SubscriptionDialogContent({
     }
   }
 
-  const handleConfirmUpgrade = async () => {
-    if (!selectedPriceId) return
-    
-    setShowConfirmation(false)
-    await handleDirectPurchase(selectedPriceId)
-  }
 
   const contextMessage = getContextMessage(context)
 
@@ -429,13 +406,5 @@ export function SubscriptionDialogContent({
       )}
     </div>
 
-    {/* Upgrade Confirmation Dialog */}
-    <UpgradeConfirmationDialog
-      isOpen={showConfirmation}
-      onClose={() => setShowConfirmation(false)}
-      onConfirm={handleConfirmUpgrade}
-      preview={upgradePreview}
-      isLoading={loading}
-    />
   </>
 )} 
