@@ -65,6 +65,7 @@ export async function fetchCompletedInferenceJobs(
           height,
           format,
           bytes,
+          favourite,
           created_at
         )
       `)
@@ -106,6 +107,7 @@ export async function fetchInferenceJob(jobId: string): Promise<InferenceJobWith
           height,
           format,
           bytes,
+          favourite,
           created_at
         )
       `)
@@ -174,6 +176,7 @@ export async function fetchInferenceJobsPaginated(
           height,
           format,
           bytes,
+          favourite,
           created_at
         )
       `)

@@ -222,16 +222,16 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
       value: code as QualityCode,
       // Title-friendly label (e.g., Basic, Standard, High)
       label: t(`qualities.${code}` as any, { ns: 'styles', defaultValue: labels[code] || String(code) }),
-      // Segmented display (e.g., 1K, 2K, 4K)
-      display: t(`qualitiesValue.${code}` as any, { ns: 'styles', defaultValue: String(code).toUpperCase() })
+      // Segmented display now uses DB-provided label to avoid duplicating sources
+      display: (() => {
+        const raw = labels[code] || String(code).toUpperCase()
+        const i18nKey = String(raw).toLowerCase().replace(/[^a-z]/g, '')
+        return t(`qualities.${i18nKey}` as any, { ns: 'styles', defaultValue: raw })
+      })()
     }))
   }, [inferenceSettings?.qualities, inferenceSettings?.quality_labels, t])
 
-  const currentQualityLabel = useMemo(() => {
-    const labels = (inferenceSettings?.quality_labels || {}) as Record<string, string>
-    const key = String(quality)
-    return t(`qualities.${key}` as any, { ns: 'styles', defaultValue: labels[key] || key })
-  }, [inferenceSettings?.quality_labels, quality, t])
+  // Removed current quality title adornment; pills already show the active choice
 
   // Aspect ratio title label (falls back to defaults when unset)
   const currentAspectLabel = useMemo(() => {
@@ -340,6 +340,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
           aspect_ratio: effectiveAspect
         }
       }
+
 
       // Make API call to get real job ID first
       const data = (await runWithGates(async () => {
@@ -954,7 +955,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
               />
             </div>
             <div className={styles.settingsColumn}>
-              <span className={styles.settingLabel}>{t('settings.quality', { ns: 'styles' })} <span className={styles.currentLabel}>{currentQualityLabel}</span></span>
+              <span className={styles.settingLabel}>{t('settings.quality', { ns: 'styles' })}</span>
               <SegmentedControl
                 options={qualityOptions.map(opt => ({ value: opt.value, content: opt.display, disabled: gated(opt.value) }))}
                 value={quality}
@@ -1294,7 +1295,7 @@ function CharacterCard({ character, thumbUrl, uploadedCount = 0, job, onSelect, 
                       title: t('character.deleteTitle', { ns: 'styles', defaultValue: 'Delete character?' }),
                       description: t('character.deleteDesc', { ns: 'styles', defaultValue: 'This will permanently remove the character and uploaded photos.' }),
                       confirmText: t('character.deleteConfirm', { ns: 'styles', defaultValue: 'Delete' }),
-                      variant: 'danger',
+                      variant: 'destructive',
                       icon: 'bin'
                     })
                     if (!ok) return

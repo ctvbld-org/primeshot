@@ -15,8 +15,7 @@
     "generate": "task-master generate",
     "parse-prd": "task-master parse-prd",
     "detect-changes": "node memory-bank/scripts/detect-changes.js",
-    "setup-stripe": "tsx common/lib/stripe/setup-stripe-products.ts",
-    "sync-pricing": "tsx scripts/sync-pricing.ts"
+    "setup-stripe": "tsx common/lib/stripe/setup-stripe-products.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",

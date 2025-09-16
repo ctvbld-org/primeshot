@@ -129,14 +129,19 @@ export async function GET(request: Request) {
     // Get the image data
     const imageData = await response.arrayBuffer();
     
-    // Set appropriate headers
+    // Set appropriate headers (force correct mime type based on requested path)
     const headers = new Headers();
-    headers.set('Content-Type', response.headers.get('Content-Type') || getMimeType(path));
-    headers.set('Content-Length', response.headers.get('Content-Length') || String(imageData.byteLength));
+    headers.set('Content-Type', getMimeType(path));
+    headers.set('Content-Length', String(imageData.byteLength));
     headers.set('Cache-Control', cacheControl);
     if (s3ETag) headers.set('ETag', s3ETag);
     const lastMod = response.headers.get('Last-Modified') || response.headers.get('last-modified');
     if (lastMod) headers.set('Last-Modified', lastMod);
+    // Ensure inline display in browsers/devtools
+    try {
+      const filename = path.split('/').pop() || 'image';
+      headers.set('Content-Disposition', `inline; filename="${filename}"`);
+    } catch {}
     
     // Return the image data directly
     return new Response(imageData, { 

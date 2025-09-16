@@ -1,12 +1,13 @@
 'use client';
 
-import { FC, useMemo } from 'react';
+import { FC, useMemo, useState } from 'react';
 import { InferenceThumbnailComponent } from './InferenceThumbnail';
 import { InferenceImageViewerDialog } from './InferenceImageViewerDialog';
 import { InferenceJob } from '@/hooks/useInferenceQueue';
 import { useDialogService } from '@/contexts/DialogServiceContext';
 import { useLazyImage } from '@/hooks/useLazyLoading';
 import { useStyle, useScene, useWardrobe, useColor, useSceneById, useWardrobeById, useColorById } from '@/hooks/useConfig';
+import { useAuth } from '@/contexts/auth-context';
 import { useTranslation } from 'react-i18next';
 import styles from './InferenceJobGroup.module.css';
 import { Icon } from '@primeshot/common/web/Icon';
@@ -15,6 +16,7 @@ import { useInferenceQueue } from '@/contexts/inference-queue-context';
 import { useToast } from '@primeshot/common/web/ui/use-toast';
 import { Button } from '@primeshot/common/web/ui/button';
 import { confirmationService } from '@/lib/services/confirmationService';
+import { useJobsApi } from '@/lib/api/jobs';
 
 interface InferenceJobGroupProps {
   job: InferenceJob;
@@ -22,25 +24,35 @@ interface InferenceJobGroupProps {
 }
 
 export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber }) => {
+  const [isDeleting, setIsDeleting] = useState(false);
   const { openDialog } = useDialogService();
   const { ref: lazyRef, isVisible } = useLazyImage({
     rootMargin: '300px', // Load images 300px before they come into view
     threshold: 0.1
   });
   const { t } = useTranslation(['styles']);
-  const { removeJob } = useInferenceQueue();
+  const inferenceQueue = useInferenceQueue();
+  const { removeJob, createQueuedThumbnails, updateJobWithRealId, updateJobStatus } = inferenceQueue;
   const { toast } = useToast();
+  const { startInference } = useJobsApi();
+  const { user } = useAuth();
+
+  // Use live-updating job from queue context if available
+  const activeJob = useMemo(() => {
+    const jobs = inferenceQueue?.jobs;
+    return jobs?.find(j => j.id === job.id) || job;
+  }, [inferenceQueue?.jobs, job]);
 
   // Helper to detect UUID vs value codes
   const isUuid = (v?: string) => !!v && /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i.test(v);
 
   // Load labels for subtitle (style always by id)
-  const { data: styleData } = useStyle(job.styleId as any);
+  const { data: styleData } = useStyle(activeJob.styleId as any);
 
   // Scene: resolve by id if UUID, otherwise by value
-  const sceneId = job.sceneId || '';
-  const wardrobeId = job.wardrobeId || '';
-  const colorId = job.colorId || '';
+  const sceneId = activeJob.sceneId || '';
+  const wardrobeId = activeJob.wardrobeId || '';
+  const colorId = activeJob.colorId || '';
 
   const useSceneHook = isUuid(sceneId) ? useSceneById : useScene;
   const useWardrobeHook = isUuid(wardrobeId) ? useWardrobeById : useWardrobe;
@@ -60,19 +72,34 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
     return t('shoot.subtitle', { ns: 'styles', style, scene, wardrobe, color });
   }, [styleData?.name, (sceneData as any)?.label, (wardrobeData as any)?.label, (colorData as any)?.label, t]);
 
+  // Filter out deleted/failed thumbnails that have no image URLs (same logic as in viewer dialog)
+  const visibleThumbnails = useMemo(() => {
+    return activeJob.thumbnails.filter(thumb => {
+      // Keep thumbnails that have images or are still generating
+      return thumb.webImageUrl || thumb.imageUrl || 
+             (thumb.status === 'running' || thumb.status === 'queued');
+    });
+  }, [activeJob.thumbnails]);
+
   // Handle thumbnail click to open fullscreen viewer
   const handleThumbnailClick = (thumbnailIndex: number) => {
     // Only open dialog for completed images
-    if (job.thumbnails[thumbnailIndex]?.status === 'completed') {
-      openDialog(
-        <InferenceImageViewerDialog
-          job={job}
-          initialImageIndex={thumbnailIndex}
-          fullscreen={true}
-          noContainer={true}
-          shootNumber={shootNumber}
-        />
-      );
+    if (activeJob.thumbnails[thumbnailIndex]?.status === 'completed') {
+      // Convert original array index to filtered array index
+      const clickedThumbnail = activeJob.thumbnails[thumbnailIndex];
+      const filteredIndex = visibleThumbnails.findIndex(thumb => thumb.id === clickedThumbnail.id);
+      
+      if (filteredIndex !== -1) {
+        openDialog(
+          <InferenceImageViewerDialog
+            job={activeJob}
+            initialImageIndex={filteredIndex}
+            fullscreen={true}
+            noContainer={true}
+            shootNumber={shootNumber}
+          />
+        );
+      }
     }
   };
 
@@ -93,7 +120,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
 
   // Get localized status label for the badge (do not show raw message here)
   const getStatusDisplay = () => {
-    const raw = job.status || '';
+    const raw = activeJob.status || '';
     const normalized = raw === 'running' ? 'generating' : raw;
     const fallback = normalized ? (normalized.charAt(0).toUpperCase() + normalized.slice(1)) : '';
     return t(`status.badge.${normalized}` as any, { ns: 'styles', defaultValue: fallback });
@@ -105,7 +132,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
     const now = Date.now();
 
     // Reset the animation when status changes by including it in the key
-    const animationKey = `animation_start_${job.id}_${job.status}`;
+    const animationKey = `animation_start_${activeJob.id}_${activeJob.status}`;
     let animationStartTime = parseInt(sessionStorage.getItem(animationKey) || '0', 10);
 
     if (!animationStartTime) {
@@ -114,7 +141,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
     }
 
     const elapsed = now - animationStartTime;
-    const jobHash = job.id.split('').reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
+    const jobHash = activeJob.id.split('').reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
     const totalDuration = 60000 + (jobHash % 20000); // 60–80s range per job
 
     // Linear ramp, capped at 95% while in non-completed statuses
@@ -123,21 +150,21 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
   };
 
   const renderStatusBadge = () => {
-    const statusKey = job.status.charAt(0).toUpperCase() + job.status.slice(1);
+    const statusKey = activeJob.status.charAt(0).toUpperCase() + activeJob.status.slice(1);
     const statusClass = `${styles.status} ${styles[`status${statusKey}`]}`;
 
     const content = (
       <span className={statusClass}>
         <span className={styles.statusText}>
-          {(job.status === 'queued' || job.status === 'pending') && (
+          {(activeJob.status === 'queued' || activeJob.status === 'pending') && (
             <Icon variant="info" size={16} />
           )}
           {getStatusDisplay()}
-          {job.status === 'starting' && (
+          {activeJob.status === 'starting' && (
             <span className={styles.progress}>({getProgress()}%)</span>
           )}
         </span>
-        {job.status !== 'queued' && job.status !== 'failed' && (
+        {activeJob.status !== 'queued' && activeJob.status !== 'failed' && (
           <span className={styles.dots}>
             <span className={styles.dot}></span>
             <span className={styles.dot}></span>
@@ -147,28 +174,28 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
       </span>
     );
 
-    if (job.status === 'failed') {
+    if (activeJob.status === 'failed') {
       return (
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>{content}</TooltipTrigger>
             <TooltipContent side="top">
-              {job.message || 'Generation failed'}
+              {activeJob.message || 'Generation failed'}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       );
     }
 
-    if (job.status === 'pending' || job.status === 'queued') {
+    if (activeJob.status === 'pending' || activeJob.status === 'queued') {
       return (
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>{content}</TooltipTrigger>
             <TooltipContent side="top">
-              {job.status === 'pending'
+              {activeJob.status === 'pending'
                 ? t('status.tooltip.pending', { ns: 'styles' })
-                : (job.message || t('status.tooltip.queued', { ns: 'styles' }))}
+                : (activeJob.message || t('status.tooltip.queued', { ns: 'styles' }))}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -182,25 +209,132 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
     try {
       const ok = await confirmationService.confirm({
         title: 'Delete shoot?',
-        description: 'This will remove the failed job from your gallery. This cannot be undone.',
+        description: 'This will remove the failed shoot from your gallery. This cannot be undone.',
         confirmText: 'Delete',
-        variant: 'danger',
+        variant: 'destructive',
         icon: 'bin'
       });
       if (!ok) return;
+      
+      // Start the delete animation
+      setIsDeleting(true);
+      
       const { deleteInferenceJob } = await import('@/lib/api/inference-job-management');
-      await deleteInferenceJob(job.id, { soft: true });
-      removeJob(job.id);
-      toast({ title: 'Deleted', description: 'The failed shoot was removed.', duration: 3500 });
+      await deleteInferenceJob(activeJob.id, { soft: true });
+      removeJob(activeJob.id);
     } catch (e) {
       console.error('Failed to delete job', e);
+      setIsDeleting(false); // Reset animation state on error
       toast({ title: 'Delete failed', description: 'Please try again.', variant: 'destructive', duration: 4000 });
+    }
+  };
+
+  const handleRerun = async () => {
+    let placeholderId: string | null = null;
+    
+    try {
+      // Extract parameters from the current job to recreate it
+      // We need to ensure all required fields are present
+      if (!activeJob.characterId || !activeJob.styleId) {
+        toast({ 
+          title: 'Cannot rerun', 
+          description: 'Missing required job information.', 
+          variant: 'destructive', 
+          duration: 4000 
+        });
+        return;
+      }
+
+      // Convert UUIDs back to values for inference-create API
+      // The backend expects value strings, not UUIDs
+      // Use the already loaded data from the hooks above
+      let sceneValue = '';
+      let wardrobeValue = '';
+      let colorValue = '';
+
+      // Use the data that's already been loaded by the hooks
+      if (activeJob.sceneId && isUuid(activeJob.sceneId)) {
+        sceneValue = (sceneData as any)?.value || '';
+      } else {
+        sceneValue = activeJob.sceneId || '';
+      }
+
+      if (activeJob.wardrobeId && isUuid(activeJob.wardrobeId)) {
+        wardrobeValue = (wardrobeData as any)?.value || '';
+      } else {
+        wardrobeValue = activeJob.wardrobeId || '';
+      }
+
+      if (activeJob.colorId && isUuid(activeJob.colorId)) {
+        colorValue = (colorData as any)?.value || '';
+      } else {
+        colorValue = activeJob.colorId || '';
+      }
+
+
+      // Create placeholder thumbnails first (this is what shows the loading UI)
+      placeholderId = createQueuedThumbnails(activeJob.nbTakes || 1, {
+        styleId: activeJob.styleId,
+        sceneId: sceneValue,
+        wardrobeId: wardrobeValue,
+        colorId: colorValue,
+        aspectRatio: activeJob.aspectRatio,
+        quality: activeJob.quality,
+      });
+
+      const request = {
+        user_id: user?.id || '',
+        character_id: activeJob.characterId,
+        style_id: activeJob.styleId,
+        wardrobe_id: wardrobeValue,
+        color_id: colorValue,
+        scene_id: sceneValue,
+        params: {
+          nb_takes: activeJob.nbTakes || 1,
+          quality: activeJob.quality,
+          aspect_ratio: activeJob.aspectRatio,
+        },
+      };
+
+
+      const data = await startInference(request);
+      
+      // Handle the response to connect placeholder with real job
+      const realJobId = (data as any)?.job_id;
+      const responseStatus = (data as any)?.status;
+      
+      if (realJobId && placeholderId) {
+        // Update thumbnails with real job ID
+        updateJobWithRealId(placeholderId, realJobId);
+        
+        // Update status based on response
+        if (responseStatus) {
+          updateJobStatus(realJobId, responseStatus);
+        }
+      }
+
+    } catch (e) {
+      console.error('Failed to rerun job', e);
+      
+      // Mark placeholder as failed on API error
+      if (placeholderId) {
+        try { 
+          updateJobStatus(placeholderId, 'failed' as any); 
+        } catch {}
+      }
+      
+      toast({ 
+        title: 'Rerun failed', 
+        description: 'Please try again.', 
+        variant: 'destructive', 
+        duration: 4000 
+      });
     }
   };
 
   // Determine aspect ratio class immediately, even for freshly created placeholder jobs
   const runtimeAR = useMemo(() => {
-    if (job.aspectRatio) return job.aspectRatio;
+    if (activeJob.aspectRatio) return activeJob.aspectRatio;
     try {
       const raw = typeof window !== 'undefined' ? localStorage.getItem('generation-controls-aspect-ratio') : null;
       const v = raw ? JSON.parse(raw) : '';
@@ -208,10 +342,10 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
     } catch {
       return '';
     }
-  }, [job.aspectRatio]);
+  }, [activeJob.aspectRatio]);
 
   return (
-    <div ref={lazyRef} className={styles.jobGroup}>
+    <div ref={lazyRef} className={styles.jobGroup + (isDeleting ? ' ' + styles.deleting : '')}>
       {/* Job Header */}
       <div className={styles.jobHeader}>
         <div className={styles.jobTitle}>
@@ -221,15 +355,38 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
             {!!subtitle && <span className={styles.jobSubtitle}>{subtitle}</span>}
           </div>
           <div className={styles.jobMeta}>
-            {job.status === 'failed' && (
-              <Button variant="ghost" className={`${styles.dotsMenuButton} ${styles.actionBtn}`} onClick={handleDelete} aria-label="Delete job">
-                <Icon variant="bin" size={16} />
-              </Button>
+            <div className={styles.jobMetaButtons}>
+              {(activeJob.status !== 'running' && activeJob.status !== 'generating' && activeJob.status !== 'starting') && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" className={`${styles.dotsMenuButton} ${styles.actionBtn}`} onClick={handleDelete} aria-label="Delete shoot">
+                      <Icon variant="bin" size={16} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    Delete shoot
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              )}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" className={`${styles.dotsMenuButton} ${styles.actionBtn}`} onClick={handleRerun} aria-label="Rerun shoot">
+                      <Icon variant="restart" size={16} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    Rerun shoot
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            {activeJob.status === 'completed' && (
+              <span className={styles.timeAgo}>{getTimeAgo(activeJob.createdAt)}</span>
             )}
-            {job.status === 'completed' && (
-              <span className={styles.timeAgo}>{getTimeAgo(job.createdAt)}</span>
-            )}
-            {(job.status !== 'completed') && (
+            {(activeJob.status !== 'completed') && (
               renderStatusBadge()
             )}
           </div>
@@ -253,12 +410,12 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
         ].filter(Boolean).join(' ')}>
           <div className={styles.heroAspect}>
             {(() => {
-              const firstThumb = job.thumbnails[0];
+              const firstThumb = activeJob.thumbnails[0];
               return (
                 <InferenceThumbnailComponent
                   key={firstThumb?.id}
                   thumbnail={firstThumb}
-                  jobStatus={job.status as any}
+                  jobStatus={activeJob.status as any}
                   onClick={() => handleThumbnailClick(0)}
                 />
               );
@@ -267,15 +424,17 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
 
           {/* Bottom-left stacked preview circles */}
           {(() => {
-            const previews = job.thumbnails
-              .filter(t => !!(t.webImageUrl || t.imageUrl));
-            const display = previews.slice(0, 4);
-            const extra = Math.max(previews.length - display.length, 0);
+            // Show all thumbnails, including deleted ones (empty squares)
+            const allThumbnails = activeJob.thumbnails;
+            const display = allThumbnails.slice(0, 4);
+            const extra = Math.max(allThumbnails.length - display.length, 0);
+            const validImages = allThumbnails.filter(t => !!(t.webImageUrl || t.imageUrl));
+            
             return (
               <div className={styles.previewStack} aria-label="Thumbnails preview">
                 {display.map((t, idx) => (
                   <div key={`pv-${t.id}`} className={styles.previewCircle} style={{ zIndex: 20 - idx }}>
-                    {/* Use webImageUrl if available, fallback to imageUrl */}
+                    {/* Use webImageUrl if available, fallback to imageUrl, or show empty square */}
                     {t.webImageUrl || t.imageUrl ? (
                       <img src={(t.webImageUrl || t.imageUrl) as string} alt={`Preview ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
@@ -312,17 +471,17 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
         runtimeAR === '1:1' ? styles.ar11 : ''
       ].filter(Boolean).join(' ')}>
         {isVisible ? (
-          job.thumbnails.map((thumbnail, index) => (
+          activeJob.thumbnails.map((thumbnail, index) => (
             <InferenceThumbnailComponent
               key={thumbnail.id}
               thumbnail={thumbnail}
-              jobStatus={job.status as any}
+              jobStatus={activeJob.status as any}
               onClick={() => handleThumbnailClick(index)}
             />
           ))
         ) : (
           // Render placeholder thumbnails when not visible to maintain layout
-          job.thumbnails.map((thumbnail, index) => (
+          activeJob.thumbnails.map((thumbnail, index) => (
             <div
               key={`placeholder-${thumbnail.id}`}
               className={styles.thumbnailPlaceholder}

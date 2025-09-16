@@ -36,6 +36,7 @@ export async function fetchInferenceJobResult(jobId: string): Promise<InferenceJ
           height,
           format,
           bytes,
+          favourite,
           created_at
         )
       `)
@@ -91,4 +92,59 @@ export function subscribeToInferenceJobUpdates(
   return () => {
     subscription.unsubscribe();
   };
+}
+
+/**
+ * Toggle favourite flag for a generated image
+ */
+export async function setImageFavourite(imageId: string, favourite: boolean, opts?: { retries?: number }) {
+  const supabase = createClient();
+  const retries = Math.max(0, Math.min(3, opts?.retries ?? 2));
+  let lastErr: any = null;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const { error } = await supabase
+        .from('generated_images')
+        .update({ favourite })
+        .eq('id', imageId);
+      if (error) throw error;
+      return { id: imageId, favourite } as { id: string; favourite: boolean };
+    } catch (e: any) {
+      lastErr = e;
+      const message: string = (e?.message || '').toLowerCase();
+      const code: string | undefined = e?.code || e?.status?.toString?.();
+      const isTimeout = message.includes('statement timeout') || code === '57014';
+      if (isTimeout && attempt < retries) {
+        await new Promise(r => setTimeout(r, 200 * (attempt + 1)));
+        continue;
+      }
+      throw e;
+    }
+  }
+  throw lastErr;
+}
+
+export async function getImageFavourite(imageId: string): Promise<boolean | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('generated_images')
+    .select('favourite')
+    .eq('id', imageId)
+    .maybeSingle();
+  if (error) return null;
+  return (data as any)?.favourite ?? null;
+}
+
+/** Delete a generated image: S3 variants + DB row. Returns remaining count on the job. */
+export async function deleteGeneratedImage(imageId: string): Promise<{ success: boolean; remaining: number; jobId: string }> {
+  const res = await fetch('/api/inference/delete-generated-image', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ imageId })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.error || 'Failed to delete image');
+  }
+  return res.json();
 }

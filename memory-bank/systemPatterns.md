@@ -1526,6 +1526,13 @@ Detected changes in:
 - webapp/src/components/home/InferenceJobGroup.tsx
 - webapp/src/components/home/InferenceThumbnail.module.css
 - webapp/src/components/pricing/SubscriptionDialogContent.tsx
+
+
+**Auto-update 2025-09-15**:
+Detected changes in:
+- webapp/src/app/api/payment/webhook/route.ts
+- webapp/src/app/api/webhooks/stripe/route.ts
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

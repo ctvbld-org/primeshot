@@ -11,6 +11,10 @@ export interface InferenceThumbnail {
   status: 'queued' | 'running' | 'completed' | 'failed';
   imageUrl?: string;
   webImageUrl?: string;
+  // Database generated_images.id to allow updates like favourite toggles
+  imageId?: string;
+  // Whether this image is marked as favourite in DB
+  favourite?: boolean;
   index: number;
   progress?: number;
   errorMessage?: string;
@@ -42,7 +46,17 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
   // When incoming URL changes, preserve previous to enable crossfade
   useEffect(() => {
     const nextUrl = thumbnail.webImageUrl || thumbnail.imageUrl;
-    if (!nextUrl) return;
+    
+    // Handle case where image is deleted (nextUrl becomes undefined)
+    if (!nextUrl) {
+      if (currentUrl || prevUrl) {
+        setPrevUrl(null);
+        setCurrentUrl(undefined);
+        setFinalLoaded(false);
+      }
+      return;
+    }
+    
     if (!currentUrl) {
       setCurrentUrl(nextUrl);
       return;
@@ -52,7 +66,7 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
       setCurrentUrl(nextUrl);
       setFinalLoaded(false);
     }
-  }, [thumbnail.webImageUrl, thumbnail.imageUrl]);
+  }, [thumbnail.webImageUrl, thumbnail.imageUrl, currentUrl, prevUrl]);
 
   // Clear previous layer after crossfade completes
   useEffect(() => {
@@ -115,12 +129,22 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Remove zoomOnMount class after animation completes to enable smooth hover transitions
+  useEffect(() => {
+    if (startZoom) {
+      const timer = setTimeout(() => {
+        setStartZoom(false);
+      }, 600); // Match the fadeInScale animation duration (0.6s)
+      return () => clearTimeout(timer);
+    }
+  }, [startZoom]);
+
   const hasAnyImage = Boolean(currentUrl || prevUrl);
   const showDualLayer = Boolean(prevUrl && currentUrl && currentUrl !== prevUrl && !finalLoaded);
 
   return (
     <div 
-      className={`${styles.thumbnail} ${getStatusClass()}`}
+      className={`${styles.thumbnail} ${getStatusClass()} ${!hasAnyImage ? styles.empty : ''}`}
       onClick={onClick}
       style={{ ['--stagger' as any]: thumbnail.index }}
     >

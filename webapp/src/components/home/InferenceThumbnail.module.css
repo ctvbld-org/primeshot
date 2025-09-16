@@ -6,6 +6,11 @@
   cursor: pointer;
 }
 
+.empty {
+  cursor: default;
+  pointer-events: none;
+}
+
 .imageContainer {
   position: relative;
   width: 100%;
@@ -19,7 +24,11 @@
   height: 100%;
   object-fit: cover;
   opacity: 0;
-  transition: opacity 0.28s ease;
+  transition: opacity 0.28s ease, transform 0.3s ease-out;
+}
+
+.imageLayer:hover {
+  transform: scale(1.06);
 }
 
 .visible {
@@ -54,6 +63,17 @@
   100% {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@keyframes zoomIn {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.06);
   }
 }
 

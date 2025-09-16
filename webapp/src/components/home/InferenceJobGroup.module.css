@@ -49,6 +49,13 @@
   position: relative;
 }
 
+.jobMetaButtons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+}
+
 .status {
   display: flex;
   align-items: end;
@@ -226,4 +233,32 @@
 
 .actionBtn {
   color: #2ADED8;
+}
+
+/* Delete animation */
+.deleting {
+  animation: deleteAnimation 10s ease-out forwards;
+}
+
+/* Disable all other animations and transitions during delete */
+.deleting * {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Disable hover effects during delete */
+.deleting *:hover {
+  transform: none !important;
+  animation: none !important;
+}
+
+@keyframes deleteAnimation {
+  0% {
+    opacity: 1;
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 0;
+    filter: blur(16px);
+  }
 }

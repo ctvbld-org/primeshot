@@ -130,20 +130,46 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
 
           activeJobIds.current.add(dbJob.id);
         } else if (dbJob.status === 'failed') {
-          // Failed job - create thumbnails marked as failed and surface error message
-          const failedThumbnails: InferenceThumbnail[] = Array.from({ length: nbTakes }, (_, index) => ({
-            id: uuidv4(),
-            jobId: dbJob.id,
-            status: 'failed',
-            index,
-            progress: 0,
-            errorMessage: (dbJob as any).error_message || 'Generation failed'
-          }));
+          // Failed job - but try to surface any images that were actually generated
+          const nbTakes = dbJob.nb_takes || ((dbJob as any).generated_images?.length ?? 0) || 1;
+          const thumbnailsTemp: (InferenceThumbnail | undefined)[] = new Array(nbTakes).fill(undefined);
+          const imgs: any[] = (dbJob as any).generated_images || [];
+          imgs.forEach((image: any, _i: number) => {
+            const derivedIndex = ((): number => {
+              const m = (image.web_path || '').match(/IMG-(\d+)/i) || (image.original_path || '').match(/IMG-(\d+)/i);
+              if (m) { const n = parseInt(m[1], 10); if (!isNaN(n)) return Math.max(0, n - 1); }
+              return _i;
+            })();
+            if (derivedIndex < 0 || derivedIndex >= nbTakes) return;
+            thumbnailsTemp[derivedIndex] = {
+              id: uuidv4(),
+              jobId: dbJob.id,
+              status: 'completed',
+              index: derivedIndex,
+              progress: 100,
+              imageUrl: getInferenceImageUrl(image.original_path),
+              webImageUrl: getInferenceImageUrl(image.web_path),
+              imageId: image.id,
+            } as InferenceThumbnail;
+          });
+          for (let i = 0; i < nbTakes; i++) {
+            if (!thumbnailsTemp[i]) {
+              thumbnailsTemp[i] = {
+                id: uuidv4(),
+                jobId: dbJob.id,
+                status: 'failed',
+                index: i,
+                progress: 0,
+                errorMessage: (dbJob as any).error_message || 'Generation failed'
+              } as InferenceThumbnail;
+            }
+          }
+          const thumbnails = thumbnailsTemp as InferenceThumbnail[];
 
           allJobs.push({
             id: dbJob.id,
             status: 'failed',
-            thumbnails: failedThumbnails,
+            thumbnails,
             createdAt: new Date(dbJob.created_at),
             nbTakes,
             message: (dbJob as any).error_message || 'Generation failed',
@@ -171,7 +197,9 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
               index: derivedIndex,
               progress: 100,
               imageUrl: getInferenceImageUrl(image.original_path),
-              webImageUrl: getInferenceImageUrl(image.web_path)
+              webImageUrl: getInferenceImageUrl(image.web_path),
+              imageId: image.id,
+              favourite: (image as any).favourite === true
             } as InferenceThumbnail;
           });
 
@@ -247,7 +275,9 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
                   status: 'completed',
                   progress: 100,
                   webImageUrl: giu(img.web_path),
-                  imageUrl: giu(img.original_path)
+                  imageUrl: giu(img.original_path),
+                  imageId: img.id,
+                  favourite: (img as any).favourite === true
                 } as any;
               });
               return { ...job, thumbnails: updated };

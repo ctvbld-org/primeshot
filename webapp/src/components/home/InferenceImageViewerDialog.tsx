@@ -1,17 +1,25 @@
 'use client';
 
 import { FC, useState, useEffect, useCallback, useMemo } from 'react';
+import React from 'react';
+import useEmblaCarousel from 'embla-carousel-react';
 import { Icon } from '@primeshot/common/web/Icon';
 import { Button } from '@primeshot/common/web/ui/button';
+import { Dialog as PSDialog, DialogContent as PSDialogContent } from '@primeshot/common/web/ui/dialog';
+import confirmStyles from '@/lib/services/confirmation.module.css';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@primeshot/common/web/ui/tooltip';
+import { useToast } from '@primeshot/common/web/ui/use-toast';
 import { useDialogService } from '@/contexts/DialogServiceContext';
 import { InferenceJob } from '@/hooks/useInferenceQueue';
 import { InferenceThumbnail } from '@/components/home/InferenceThumbnail';
-import { getInferenceImageOriginal, getInferenceImageThumbnail, getInferenceImageCard } from '@/lib/utils/get-inference-image';
+import { getInferenceImageOriginal, getInferenceImageThumbnail, getInferenceImageCard, getInferenceImageUrl } from '@/lib/utils/get-inference-image';
 import styles from './InferenceImageViewerDialog.module.css';
 import { useStyle, useScene, useWardrobe, useColor, useSceneById, useWardrobeById, useColorById } from '@/hooks/useConfig';
 import { useTranslation } from 'react-i18next';
+import { useGenerationConfig } from '@/hooks/useGenerationConfig';
 import { getApiUrl } from '@/lib/api/client';
 import { useOptionalInferenceQueue } from '@/contexts/inference-queue-context';
+import { Loader } from '@primeshot/common/web/ui/loader';
 
 // Simple module-level preloaded image cache to avoid duplicate network requests
 const preloadedImages = new Set<string>();
@@ -40,8 +48,28 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
   const [currentImageIndex, setCurrentImageIndex] = useState(initialImageIndex);
   const [imageLoading, setImageLoading] = useState(true);
   const [characterImageUrl, setCharacterImageUrl] = useState<string | null>(null);
+  const [showOriginal, setShowOriginal] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [overlaySrc, setOverlaySrc] = useState<string | null>(null);
+  const [overlayActive, setOverlayActive] = useState(false);
   const { t } = useTranslation(['styles']);
   const queue = useOptionalInferenceQueue();
+  const { toast } = useToast();
+  const [favAnimatingKey, setFavAnimatingKey] = useState<number>(0);
+  const [isTogglingFav, setIsTogglingFav] = useState(false);
+  const [showFavConfirm, setShowFavConfirm] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const stripRef = React.useRef<HTMLDivElement | null>(null);
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    startIndex: Math.max(0, Math.min(initialImageIndex, (job?.thumbnails?.length || 1) - 1)),
+    align: 'center',
+    containScroll: false,
+    duration: 30,
+    loop: false,
+  });
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
 
   // Use live-updating job from queue context if available
   const activeJob = useMemo(() => {
@@ -49,8 +77,50 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
     return jobs?.find(j => j.id === job.id) || job;
   }, [queue?.jobs, job]);
 
-  const currentThumbnail = activeJob.thumbnails[currentImageIndex];
-  const completedThumbnails = activeJob.thumbnails.filter(thumb => thumb.status === 'completed');
+  // Filter out deleted/failed thumbnails that have no image URLs
+  const visibleThumbnails = useMemo(() => {
+    return activeJob.thumbnails.filter(thumb => {
+      // Keep thumbnails that have images or are still generating
+      return thumb.webImageUrl || thumb.imageUrl || 
+             (thumb.status === 'running' || thumb.status === 'queued');
+    });
+  }, [activeJob.thumbnails]);
+
+  // Ensure currentImageIndex is valid for the filtered array
+  useEffect(() => {
+    if (visibleThumbnails.length > 0 && currentImageIndex >= visibleThumbnails.length) {
+      setCurrentImageIndex(Math.max(0, visibleThumbnails.length - 1));
+    }
+  }, [visibleThumbnails.length, currentImageIndex]);
+
+  const currentThumbnail = visibleThumbnails[currentImageIndex];
+  const completedThumbnails = visibleThumbnails.filter(thumb => thumb.status === 'completed');
+
+  const isFavourite = Boolean(currentThumbnail?.favourite);
+
+  const toggleFavourite = useCallback(async () => {
+    if (!currentThumbnail?.imageId) return;
+    if (isTogglingFav) return;
+    setIsTogglingFav(true);
+    // optimistic update
+    try {
+      queue?.updateThumbnail(activeJob.id, currentImageIndex, { favourite: !isFavourite });
+      const { setImageFavourite } = await import('@/lib/api/inference-images');
+      await setImageFavourite(currentThumbnail.imageId, !isFavourite, { retries: 2 });
+      // retrigger animation when setting to true
+      if (!isFavourite) {
+        setFavAnimatingKey(k => k + 1);
+        setShowFavConfirm(true);
+        setTimeout(() => setShowFavConfirm(false), 700);
+      }
+    } catch (e: any) {
+      // revert
+      queue?.updateThumbnail(activeJob.id, currentImageIndex, { favourite: isFavourite });
+      toast({ title: 'Failed to update favourite', description: e?.message || 'Please try again', variant: 'destructive' });
+    } finally {
+      setIsTogglingFav(false);
+    }
+  }, [currentThumbnail?.imageId, isFavourite, queue, activeJob.id, currentImageIndex, toast, isTogglingFav]);
 
   // Helper to detect UUID vs value codes (copied from group component)
   const isUuid = (v?: string) => !!v && /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i.test(v);
@@ -94,6 +164,13 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
     setImageLoading(true);
   }, [currentImageIndex]);
 
+  // Reset original display when switching images/jobs
+  useEffect(() => {
+    setShowOriginal(false);
+    setOverlayActive(false);
+    setOverlaySrc(null);
+  }, [currentImageIndex, activeJob.id]);
+
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -101,28 +178,24 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
         closeDialog();
       } else if (event.key === 'ArrowLeft') {
         event.preventDefault();
-        setCurrentImageIndex(prev => 
-          prev > 0 ? prev - 1 : activeJob.thumbnails.length - 1
-        );
+        emblaApi?.scrollPrev();
       } else if (event.key === 'ArrowRight') {
         event.preventDefault();
-        setCurrentImageIndex(prev => 
-          prev < activeJob.thumbnails.length - 1 ? prev + 1 : 0
-        );
+        emblaApi?.scrollNext();
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [closeDialog, activeJob.thumbnails.length]);
+  }, [closeDialog, visibleThumbnails.length, emblaApi]);
 
   // Prefetch neighbor images (±2) for snappier navigation
   useEffect(() => {
     const neighborOffsets = [-2, -1, 1, 2];
-    const total = activeJob.thumbnails.length;
+    const total = visibleThumbnails.length;
     for (const offset of neighborOffsets) {
       const idx = (currentImageIndex + offset + total) % total;
-      const neighbor = activeJob.thumbnails[idx];
+      const neighbor = visibleThumbnails[idx];
       if (!neighbor || neighbor.status !== 'completed') continue;
       const base = neighbor.webImageUrl || neighbor.imageUrl || '';
       if (!base) continue;
@@ -131,20 +204,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
       preloadImage(getInferenceImageThumbnail(base));
       preloadImage(getInferenceImageCard(base));
     }
-
-    // Idle prefetch the original for the current image (useful for immediate download)
-    const base = currentThumbnail?.webImageUrl || currentThumbnail?.imageUrl || '';
-    const original = base ? getInferenceImageOriginal(base) : '';
-    const ric = (window as any).requestIdleCallback as undefined | ((cb: () => void) => number);
-    if (original) {
-      if (typeof ric === 'function') {
-        ric(() => preloadImage(original));
-      } else {
-        // Fallback to setTimeout if requestIdleCallback isn't available
-        setTimeout(() => preloadImage(original), 0);
-      }
-    }
-  }, [currentImageIndex, activeJob.thumbnails, currentThumbnail]);
+  }, [currentImageIndex, visibleThumbnails, currentThumbnail]);
 
   // Handle image loading
   const handleImageLoad = useCallback(() => {
@@ -157,25 +217,110 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
   }, [currentThumbnail]);
 
   // Action handlers
-  const handleDownload = useCallback(() => {
+  const handleDownload = useCallback(async () => {
     if (!currentThumbnail?.imageUrl && !currentThumbnail?.webImageUrl) return;
-    
-    // Use imageUrl (original) for download, fallback to webImageUrl
-    const imageUrl = currentThumbnail.imageUrl || currentThumbnail.webImageUrl!;
-    
-    // Create download link
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    link.download = `primeshot-shoot-${shootNumber.toString().padStart(3, '0')}-img-${currentImageIndex + 1}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }, [currentThumbnail, shootNumber, currentImageIndex]);
+    setIsDownloading(true);
+
+    try {
+      // Use imageUrl (original) for download, fallback to webImageUrl
+      const imageUrl = currentThumbnail.imageUrl || currentThumbnail.webImageUrl!;
+      const filename = `primeshot-shoot-${shootNumber.toString().padStart(3, '0')}-img-${(currentThumbnail.index + 1).toString().padStart(2, '0')}.png`;
+      
+      // Fetch the image as blob to ensure filename is respected
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      
+      // Create blob URL and download
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up blob URL
+      URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Download failed:', error);
+      // Fallback to direct link if blob download fails
+      try {
+        const imageUrl = currentThumbnail.imageUrl || currentThumbnail.webImageUrl!;
+        const filename = `primeshot-shoot-${shootNumber.toString().padStart(3, '0')}-img-${(currentThumbnail.index + 1).toString().padStart(2, '0')}.png`;
+        const link = document.createElement('a');
+        link.href = imageUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (fallbackError) {
+        console.error('Fallback download also failed:', fallbackError);
+      }
+    } finally {
+      setTimeout(() => setIsDownloading(false), 1200);
+    }
+  }, [currentThumbnail, shootNumber]);
+
+  const performDelete = useCallback(async () => {
+    if (!currentThumbnail?.imageId) return;
+    // Disable UI and pulse main image
+    setIsDownloading(true);
+    setIsDeleting(true);
+    setOverlayActive(true);
+
+    try {
+      const { deleteGeneratedImage } = await import('@/lib/api/inference-images');
+      const result = await deleteGeneratedImage(currentThumbnail.imageId);
+      
+      // Find the original index in the full thumbnails array
+      const originalIndex = activeJob.thumbnails.findIndex(thumb => thumb.id === currentThumbnail.id);
+      if (originalIndex !== -1) {
+        // Remove the image from current job thumbnails list
+        queue?.updateThumbnail(activeJob.id, originalIndex, { status: 'failed', webImageUrl: undefined, imageUrl: undefined });
+        // Also update the activeJob reference locally
+        try {
+          (activeJob as any).thumbnails[originalIndex] = {
+            ...(activeJob as any).thumbnails[originalIndex],
+            webImageUrl: undefined,
+            imageUrl: undefined,
+            status: 'failed'
+          };
+        } catch {}
+      }
+      
+      // After deletion, adjust current index for the filtered visible thumbnails
+      // The visibleThumbnails will be recalculated and this item will be filtered out
+      setTimeout(() => {
+        // Use setTimeout to let the visibleThumbnails recalculate first
+        setCurrentImageIndex(prevIndex => {
+          // If we're at the last visible item and it gets deleted, go to previous
+          if (prevIndex >= visibleThumbnails.length - 1) {
+            return Math.max(0, visibleThumbnails.length - 2);
+          }
+          // Otherwise stay at the same index (which will now show the next image)
+          return prevIndex;
+        });
+      }, 0);
+      
+      if (!result.remaining) {
+        queue?.updateJobStatus(activeJob.id, 'deleted' as any);
+      }
+    } catch (e) {
+      console.error('Failed to delete image', e);
+    } finally {
+      setTimeout(() => {
+        // isDelete flag semantics reserved for future disabling logic of other buttons
+        setIsDeleting(false);
+        setIsDownloading(false);
+        setOverlayActive(false);
+      }, 600);
+    }
+  }, [currentThumbnail?.imageId, currentThumbnail?.id, queue, activeJob.id, activeJob.thumbnails, visibleThumbnails.length]);
 
   const handleDelete = useCallback(() => {
-    // TODO: Implement delete functionality
-    console.log('Delete image:', currentThumbnail?.id);
-  }, [currentThumbnail]);
+    if (!currentThumbnail?.imageId) return;
+    setConfirmOpen(true);
+  }, [currentThumbnail?.imageId]);
 
   const handleRegenerate = useCallback(() => {
     // TODO: Implement regenerate functionality
@@ -183,15 +328,11 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
   }, [currentThumbnail]);
 
   const handleThumbnailClick = useCallback((index: number) => {
-    // Only change state if clicking a different thumbnail
     if (index !== currentImageIndex) {
-      setCurrentImageIndex(index);
+      emblaApi?.scrollTo(index);
     }
-  }, [currentImageIndex]);
+  }, [currentImageIndex, emblaApi]);
 
-  if (!currentThumbnail) {
-    return null;
-  }
   // Format aspect ratio with orientation
   const aspectRatioText = useMemo(() => {
     const v = activeJob.aspectRatio || '';
@@ -211,7 +352,15 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
     return orient ? `${base} (${orient})` : base;
   }, [activeJob.aspectRatio]);
 
-  const qualityText = useMemo(() => (activeJob.quality ? String(activeJob.quality).toUpperCase() : ''), [activeJob.quality]);
+  const { data: gen } = useGenerationConfig();
+  const qualityText = useMemo(() => {
+    const code = String(activeJob.quality || '');
+    const map = gen?.inferenceSettings?.quality_labels || {};
+    const raw = map[code] || (code ? code.toUpperCase() : '');
+    // Map DB label to i18n key: Basic/Medium/High → basic/medium/high
+    const i18nKey = String(raw).toLowerCase().replace(/[^a-z]/g, '');
+    return t(`qualities.${i18nKey}` as any, { ns: 'styles', defaultValue: raw });
+  }, [activeJob.quality, gen?.inferenceSettings?.quality_labels, t]);
 
   // Time ago helper
   const timeAgoText = useMemo(() => {
@@ -225,8 +374,79 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
     return `${diffInDays}d ago`;
   }, [activeJob.createdAt]);
 
-  // Prefer web variant for faster display; fallback to original
-  const mainImageUrl = currentThumbnail.webImageUrl || currentThumbnail.imageUrl || '';
+  // Prefer web variant for faster display; allow toggling to original
+  const baseImageUrl = currentThumbnail?.webImageUrl || currentThumbnail?.imageUrl || '';
+  const resolveOriginalFromBase = useCallback((base: string): string => {
+    if (!base) return '';
+    if (currentThumbnail?.imageUrl) return currentThumbnail.imageUrl;
+    try {
+      // If it's proxied, rebuild through helper to ensure correct encoding
+      if (base.includes('/api/app-images?path=')) {
+        const u = new URL(base, typeof window !== 'undefined' ? window.location.origin : 'http://localhost');
+        const pathParam = u.searchParams.get('path') || '';
+        const decoded = decodeURIComponent(pathParam);
+        const swapped = decoded.replace('/web/', '/orig/').replace(/\.webp$/i, '.png');
+        return getInferenceImageUrl(swapped, false);
+      }
+    } catch {}
+    return getInferenceImageOriginal(base);
+  }, [currentThumbnail?.imageUrl]);
+
+  // Try multiple candidate original URLs in case of format/path variations
+  const buildOriginalCandidates = useCallback((base: string): string[] => {
+    const candidates: string[] = [];
+    const primary = resolveOriginalFromBase(base);
+    if (primary) candidates.push(primary);
+    try {
+      if (primary.includes('/api/app-images?path=')) {
+        const u = new URL(primary, typeof window !== 'undefined' ? window.location.origin : 'http://localhost');
+        const pathParam = u.searchParams.get('path') || '';
+        const decoded = decodeURIComponent(pathParam);
+        // alt extensions
+        const jpg = decoded.replace(/\.(png|webp)$/i, '.jpg');
+        const jpeg = decoded.replace(/\.(png|webp)$/i, '.jpeg');
+        const altDir = decoded.replace('/orig/', '/original/');
+        if (jpg !== decoded) candidates.push(getInferenceImageUrl(jpg, false));
+        if (jpeg !== decoded) candidates.push(getInferenceImageUrl(jpeg, false));
+        if (altDir !== decoded) candidates.push(getInferenceImageUrl(altDir, false));
+      }
+    } catch {}
+    return Array.from(new Set(candidates));
+  }, [resolveOriginalFromBase]);
+
+  // (Deprecated) swapped-image flow removed in favor of overlay-only
+
+  // Unified handler: preload original and show in overlay without touching base img
+  const loadAndShowOriginal = useCallback(async () => {
+    const base = currentThumbnail?.webImageUrl || currentThumbnail?.imageUrl || '';
+    const candidates = buildOriginalCandidates(base);
+    let loadedUrl: string | null = null;
+    for (const url of candidates) {
+      const ok = await new Promise<boolean>((resolve) => {
+        try {
+          const img = new Image();
+          img.onload = () => resolve(true);
+          img.onerror = () => resolve(false);
+          img.src = url;
+        } catch { resolve(false); }
+      });
+      if (ok) { loadedUrl = url; break; }
+    }
+    if (!loadedUrl) {
+      toast({ title: 'Original unavailable', description: 'Could not load original image variant.', variant: 'destructive' });
+      return false;
+    }
+    // Only populate the overlay image; do NOT change the base image tag
+    setOverlaySrc(loadedUrl);
+    setOverlayActive(true);
+    setShowOriginal(true); // hide the button after activation
+    return true;
+  }, [buildOriginalCandidates, currentThumbnail?.webImageUrl, currentThumbnail?.imageUrl, toast]);
+
+  const mainImageUrl = showOriginal ? resolveOriginalFromBase(baseImageUrl) : baseImageUrl;
+
+  // Direct DOM ref to swap src after preload for seamless transition
+  const mainImgRef = React.useRef<HTMLImageElement | null>(null);
   const thumbArClass = useMemo(() => {
     const v = (activeJob.aspectRatio || '').toLowerCase();
     if (v.includes('1:1') || v.includes('square')) return styles.thumbAR11;
@@ -242,15 +462,101 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
   }, [activeJob.aspectRatio]);
   const isGenerating = useMemo(() => {
     const s = (activeJob.status || '').toLowerCase();
-    return s === 'running' || s === 'pending' || s === 'initializing' || currentThumbnail.status === 'running' || currentThumbnail.status === 'queued';
-  }, [activeJob.status, currentThumbnail.status]);
+    return s === 'running' || s === 'pending' || s === 'initializing' || currentThumbnail?.status === 'running' || currentThumbnail?.status === 'queued';
+  }, [activeJob.status, currentThumbnail?.status]);
+
+  // Embla selection sync
+  useEffect(() => {
+    if (!emblaApi) return;
+    const onSelect = () => {
+      const newIndex = emblaApi.selectedScrollSnap();
+      setCurrentImageIndex(newIndex);
+      setCanScrollPrev(emblaApi.canScrollPrev());
+      setCanScrollNext(emblaApi.canScrollNext());
+    };
+    const onResize = () => {
+      // Force Embla to recalc sizes when container/image dimensions change
+      requestAnimationFrame(() => {
+        emblaApi.reInit();
+        onSelect();
+      });
+    };
+    emblaApi.on('select', onSelect);
+    emblaApi.on('reInit', onSelect);
+    // Ensure correct starting slide
+    try { emblaApi.scrollTo(Math.min(currentImageIndex, Math.max(0, visibleThumbnails.length - 1)), true); } catch {}
+    onSelect();
+    window.addEventListener('resize', onResize);
+    return () => {
+      emblaApi.off('select', onSelect);
+      emblaApi.off('reInit', onSelect);
+      window.removeEventListener('resize', onResize);
+    };
+  }, [emblaApi, visibleThumbnails.length]); // Remove currentImageIndex dependency
+
+  // Re-init when the number of slides or aspect ratio class changes
+  useEffect(() => {
+    emblaApi?.reInit();
+  }, [emblaApi, visibleThumbnails.length, imageArClass]);
+
+  // Carousel navigation
+  const goPrev = useCallback(() => {
+    setCurrentImageIndex((prev) => {
+      const total = visibleThumbnails.length;
+      if (total <= 1) return prev;
+      return prev > 0 ? prev - 1 : total - 1;
+    });
+  }, [visibleThumbnails.length]);
+
+  const goNext = useCallback(() => {
+    setCurrentImageIndex((prev) => {
+      const total = visibleThumbnails.length;
+      if (total <= 1) return prev;
+      return prev < total - 1 ? prev + 1 : 0;
+    });
+  }, [visibleThumbnails.length]);
+
+  // Keep active thumbnail visible when navigating
+  useEffect(() => {
+    const el = stripRef.current;
+    if (!el) return;
+    const child = el.children.item(currentImageIndex) as HTMLElement | null;
+    if (!child) return;
+    try {
+      child.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+    } catch {
+      // no-op
+    }
+  }, [currentImageIndex]);
   
+  if (!currentThumbnail) {
+    return null;
+  }
+
   return (
     <div className={styles.viewer}>
+      {/* Inline confirm dialog layered over the viewer */}
+      {confirmOpen && (
+        <PSDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+          <PSDialogContent>
+            <div className={confirmStyles.container}>
+              <div className={confirmStyles.content}>
+                <Icon className={confirmStyles.icon} variant="bin" size={40} aria-hidden="true" style={{ color: '#FF3535' }} />
+                <h2 className={confirmStyles.title}>Delete image?</h2>
+                <p className={confirmStyles.description}>This will permanently delete the image and can’t be undone.</p>
+              </div>
+              <div className={confirmStyles.footer}>
+                <Button variant="destructive" size="sm" className={confirmStyles.button} onClick={() => { setConfirmOpen(false); performDelete(); }}>Delete</Button>
+                <Button variant="secondary" size="sm" className={confirmStyles.button} onClick={() => setConfirmOpen(false)}>Cancel</Button>
+              </div>
+            </div>
+          </PSDialogContent>
+        </PSDialog>
+      )}
       {/* Close button */}
       <Button 
         variant="ghost"
-        className={`${styles.closeButton} ${styles.iconButton}`}
+        className={styles.closeButton}
         onClick={closeDialog}
         aria-label="Close viewer"
       >
@@ -260,120 +566,215 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
       {/* Main image area */
       }
       <div className={styles.imageArea}>
-        <div className={`${styles.gradientLoader} ${(!imageLoading && !isGenerating) ? styles.fadeOut : ''}`} />
-        {mainImageUrl && (
-          <img
-            src={mainImageUrl}
-            alt={`Generated image ${currentImageIndex + 1}`}
-            className={`${styles.mainImage} ${imageArClass}`}
-            onLoad={handleImageLoad}
-            onError={handleImageError}
-            loading="eager"
-            decoding="async"
-            style={{ opacity: imageLoading ? 0 : 1 }}
-          />
-        )}
-        {/* Floating download original button */}
-        <Button
-          variant="ghost"
-          className={`${styles.downloadOriginalButton} ${styles.iconButton}`}
-          onClick={() => {
-            const base = currentThumbnail.webImageUrl || currentThumbnail.imageUrl || '';
-            if (!base) return;
-            const original = getInferenceImageOriginal(base);
-            const link = document.createElement('a');
-            link.href = original;
-            link.download = `primeshot-shoot-${shootNumber.toString().padStart(3, '0')}-img-${currentImageIndex + 1}.png`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-          }}
-          aria-label="Download original image"
-          disabled={!currentThumbnail.webImageUrl && !currentThumbnail.imageUrl}
-        >
-          <Icon variant="download" size={18} />
-        </Button>
+        <div className={`${styles.imageContainer} ${isGenerating ? styles.imageContainerGenerating : ''}`}>
+          <div className={styles.emblaViewport} ref={emblaRef}>
+            <div className={styles.emblaContainer}>
+              {visibleThumbnails.map((thumb, idx) => {
+                const base = thumb.webImageUrl || thumb.imageUrl || '';
+                const isActive = idx === currentImageIndex;
+                const src = isActive ? mainImageUrl : base;
+                return (
+                  <div className={styles.emblaSlide} key={thumb.id} aria-hidden={!isActive}>
+                    {src && (
+                      <img
+                        src={src}
+                        alt={`Generated image ${idx + 1}`}
+                        className={`${styles.mainImage} ${imageArClass}`}
+                        ref={isActive ? mainImgRef : undefined}
+                        onLoad={isActive ? handleImageLoad : undefined}
+                        onError={isActive ? handleImageError : undefined}
+                        loading={isActive ? 'eager' : 'lazy'}
+                        decoding="async"
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          {/* Carousel navigation buttons */}
+          <div className={styles.carouselButtons} aria-label="Carousel navigation">
+            <button
+              className={styles.navButton}
+              onClick={() => emblaApi?.scrollPrev()}
+              disabled={!canScrollPrev || visibleThumbnails.length <= 1}
+              aria-label="Previous image"
+            >
+              <Icon variant="arrowLeft" size={20} />
+            </button>
+            <button
+              className={styles.navButton}
+              onClick={() => emblaApi?.scrollNext()}
+              disabled={!canScrollNext || visibleThumbnails.length <= 1}
+              aria-label="Next image"
+            >
+              <Icon variant="arrowRight" size={20} />
+            </button>
+          </div>
+          { overlaySrc && (
+            <>
+              <img
+                data-overlay="true"
+                src={overlaySrc || ''}
+                alt=""
+                aria-hidden="true"
+                className={`${styles.mainImage} ${styles.overlayImage} ${imageArClass}`}
+                decoding="async"
+                style={{ position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none', display: overlayActive ? 'block' : 'none' }}
+              />
+              <Button
+                variant="ghost"
+                className={`${styles.downloadOriginalButton} ${styles.iconButton}`}
+                onClick={loadAndShowOriginal}
+                aria-label="Display original image"
+              >
+                <Icon variant="download" size={18} />
+                Display original
+              </Button>
+            </>
+          )}
+          
+          {/* Deletion loading overlay */}
+          {isDeleting && (
+            <div className={styles.deletionOverlay}>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Right sidebar */}
       <div className={styles.sidebar}>
         {/* Image metadata */}
         <div className={styles.metadata}>
-          <h3 className={styles.title}>
-            Shoot {shootNumber} IMG {currentImageIndex + 1}
-          </h3>
+          <div className={styles.metadataHeader}>
+            <h3 className={styles.title}>
+              Shoot {shootNumber} <span className={styles.imageIndex}>IMG {currentImageIndex + 1}</span>
+            </h3>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className={`${styles.iconButton} ${styles.favButton} ${isFavourite ? styles.favActive : ''} ${isTogglingFav ? styles.favBeating : ''}`}
+                    aria-label="Favorite"
+                    aria-pressed={isFavourite}
+                    onClick={toggleFavourite}
+                    disabled={isTogglingFav || !currentThumbnail?.imageId}
+                    data-anim-key={favAnimatingKey}
+                  >
+                    <span className={`${styles.favIconWrapper} ${isFavourite ? styles.favIconActive : ''}`}>
+                      <Icon variant={isFavourite ? 'heart' : 'heartOutline'} size={16} />
+                    </span>
+                    {showFavConfirm && (
+                      <span className={styles.favConfirm} aria-hidden="true">
+                        <Icon className={styles.favConfirmIcon} variant="heart" size={18} />
+                      </span>
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{isFavourite ? 'Remove from Favourites' : 'Add to Favourites'}</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           {!!subtitle && (
-            <div className={styles.subtitle}>{subtitle}</div>
+            <>
+              <div className={styles.subtitle}>{subtitle}</div>
+              <hr className={styles.metadataSeparator} />
+            </>
           )}
           
-          <div className={styles.metadataGrid}>
-            <div className={styles.metadataItem}>
-              <span className={styles.metadataLabel}>Aspect Ratio</span>
-              <span className={styles.metadataValue}>{aspectRatioText}</span>
+          <div className={styles.metadataSection}>
+            <div className={styles.metadataGrid}>
+              {[
+                { label: 'Aspect Ratio', value: aspectRatioText },
+                { label: 'Quality', value: qualityText },
+                { label: 'Model', value: 'Primeshot v1' },
+              ].map((item) => (
+                <div className={styles.metadataItem} key={item.label}>
+                  <p className={styles.metadataLabel}>{item.label}</p>
+                  <p className={styles.metadataValue}>{item.value}</p>
+                </div>
+              ))}
             </div>
-            
-            <div className={styles.metadataItem}>
-              <span className={styles.metadataLabel}>Quality</span>
-              <span className={styles.metadataValue}>{qualityText}</span>
-            </div>
-            
-            <div className={styles.metadataItem}>
-              <span className={styles.metadataLabel}>Model</span>
-              <span className={styles.metadataValue}>Primeshot v1</span>
-            </div>
-          </div>
 
-          {/* Character block */}
-          {(activeJob.characterName || characterImageUrl) && (
-            <div className={styles.characterBlock}>
-              <div className={styles.metadataLabel}>Character</div>
+            <hr className={styles.metadataSeparator} />
+
+            {/* Character block */}
+            {(activeJob.characterName || characterImageUrl) && (
               <div className={styles.characterRow}>
                 {characterImageUrl && (
                   <img src={characterImageUrl} alt={activeJob.characterName || 'Character'} className={styles.characterAvatar} />
                 )}
-                <span className={styles.characterName}>{activeJob.characterName || ''}</span>
+                <div className={styles.characterName}>
+                  <p className={styles.metadataLabel}>Character</p>
+                  <p className={styles.metadataValue}>{activeJob.characterName || ''}</p>
+                </div>
               </div>
-            </div>
-          )}
-
-          <div className={styles.timeAgo}>{timeAgoText}</div>
+            )}
+          </div>
         </div>
 
         {/* Action buttons */}
-        <div className={styles.actions}>
-          <Button
-            variant="ghost"
-            className={`${styles.actionButton} ${styles.iconButton}`}
-            onClick={handleDownload}
-            aria-label="Download image"
-            disabled={!currentThumbnail.imageUrl && !currentThumbnail.webImageUrl}
-          >
-            <Icon variant="download" size={18} />
-          </Button>
-          
-          <Button
-            variant="ghost"
-            className={`${styles.actionButton} ${styles.iconButton}`}
-            onClick={handleDelete}
-            aria-label="Delete image"
-          >
-            <Icon variant="bin" size={18} />
-          </Button>
-          
-          <Button
-            variant="ghost"
-            className={`${styles.actionButton} ${styles.iconButton}`}
-            onClick={handleRegenerate}
-            aria-label="Regenerate image"
-          >
-            <Icon variant="generate" size={18} />
-          </Button>
+        <div className={styles.metadataFooter}>
+          <p className={styles.timeAgo}>{timeAgoText}</p>
+          <div className={styles.actions}>
+            <TooltipProvider>
+              {[
+                {
+                  key: 'delete',
+                  label: 'Delete',
+                  icon: 'bin' as const,
+                  onClick: handleDelete,
+                  aria: 'Delete image',
+                  loading: isDeleting,
+                },
+                {
+                  key: 'download',
+                  label: 'Download',
+                  icon: 'download' as const,
+                  onClick: handleDownload,
+                  aria: 'Download image',
+                  disabled: !currentThumbnail.imageUrl && !currentThumbnail.webImageUrl,
+                  loading: isDownloading,
+                },
+                // {
+                //   key: 'share',
+                //   label: 'Share',
+                //   icon: 'restart' as const,
+                //   onClick: handleRegenerate,
+                //   aria: 'Share on social',
+                // },
+                // {
+                //   key: 'regenerate',
+                //   label: 'Rerun',
+                //   icon: 'restart' as const,
+                //   onClick: handleRegenerate,
+                //   aria: 'Rerun the shoot',
+                // },
+              ].map((a) => (
+                <Tooltip key={a.key}>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className={`${styles.actionButton} ${styles.iconButton}`}
+                      onClick={a.onClick}
+                      aria-label={a.aria}
+                      disabled={a.disabled || a.loading}
+                    >
+                      {a.loading ? <Loader size="sm" /> : <Icon variant={a.icon} size={18} />}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">{a.label}</TooltipContent>
+                </Tooltip>
+              ))}
+            </TooltipProvider>
+          </div>
         </div>
       </div>
 
       {/* Thumbnail strip */}
-      <div className={`${styles.thumbnailStrip} ${thumbArClass}`}>
-        {activeJob.thumbnails.map((thumbnail, index) => {
+      <div className={`${styles.thumbnailStrip} ${thumbArClass}`} ref={stripRef}>
+        {visibleThumbnails.map((thumbnail, index) => {
           const hasImage = Boolean(thumbnail.webImageUrl || thumbnail.imageUrl);
           const generating = (thumbnail.status === 'running' || thumbnail.status === 'queued') && !hasImage;
           return (

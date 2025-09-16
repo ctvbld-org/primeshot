@@ -276,7 +276,9 @@ export function useInfiniteInferenceJobsWithProgress() {
         status: 'completed',
         progress: 100,
         webImageUrl: webUrl,
-        imageUrl: originalUrl
+        imageUrl: originalUrl,
+        imageId: img.id,
+        favourite: (img as any).favourite === true
       });
     });
   };
@@ -319,7 +321,9 @@ export function useInfiniteInferenceJobsWithProgress() {
               status: 'completed',
               imageUrl: originalImageUrl,
               webImageUrl: webImageUrl,
-              progress: 100
+              progress: 100,
+              imageId: image.id,
+              favourite: (image as any).favourite === true
             });
           });
         }
@@ -449,8 +453,8 @@ export function useInfiniteInferenceJobsWithProgress() {
               infiniteJobs.updateJobStatus(jobId, 'completed');
               await fetchAndApplyResults(jobId, '🔍');
             } else {
+              // Failure: still try to fetch any images that were produced
               infiniteJobs.updateJobStatus(jobId, 'failed');
-              // Mark all thumbnails as failed
               const job = infiniteJobs.jobs.find(j => j.id === jobId);
               if (job) {
                 job.thumbnails.forEach((_, index) => {
@@ -460,12 +464,13 @@ export function useInfiniteInferenceJobsWithProgress() {
                   });
                 });
               }
+              await fetchAndApplyResults(jobId, '🔍 Failed-job fetch');
             }
             
             // Clean up connection
             activeConnections.current.delete(jobId);
           },
-          onError: (error) => {
+          onError: async (error) => {
             console.error(`❌ WebSocket error for job ${jobId}:`, error);
             infiniteJobs.updateJobStatus(jobId, 'failed');
             
@@ -479,6 +484,8 @@ export function useInfiniteInferenceJobsWithProgress() {
                 });
               });
             }
+            // Try to recover any images despite the error
+            await fetchAndApplyResults(jobId, '🔍 WS error fetch');
             
             // Clean up connection
             activeConnections.current.delete(jobId);

@@ -133,7 +133,9 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
             index,
             progress: 100,
             imageUrl: getInferenceImageUrl(image.original_path),
-            webImageUrl: getInferenceImageUrl(image.web_path)
+            webImageUrl: getInferenceImageUrl(image.web_path),
+            imageId: image.id,
+            favourite: (image as any).favourite === true
           }));
 
           // Fill remaining slots if there are fewer images than expected takes
@@ -208,6 +210,8 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
                           progress: 100,
                           webImageUrl: webUrl,
                           imageUrl: originalUrl,
+                          imageId: img.id,
+                          favourite: (img as any).favourite === true
                         };
                       }
                     });

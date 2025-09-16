@@ -20,7 +20,7 @@ export function useGenerationConfig() {
   return useQuery<GenerationConfig>({
     queryKey: ['generationConfig'],
     queryFn: async () => {
-      const res = await fetch(getApiUrl('api/generation/config'))
+      const res = await fetch(getApiUrl('api/inference/config'))
       if (!res.ok) throw new Error('Failed to fetch generation config')
       const raw = await res.json()
       

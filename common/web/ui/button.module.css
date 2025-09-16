@@ -170,9 +170,8 @@
 }
 
 .destructive {
-  background-color: var(--destructive);
+  background-color: #FF3535;
   color: #fff;
-  background-image: linear-gradient(92deg, #D00 4.48%, rgba(84, 0, 0, 0.90) 35.03%, #D00 70.43%);
   box-shadow: none !important;
 }
 
@@ -190,9 +189,10 @@
 
 /* Sizes */
 .size-sm {
-  height: 2.25rem;
+  height: 40px;
   padding: 0 0.75rem;
-  font-size: 0.875rem;
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .size-md {

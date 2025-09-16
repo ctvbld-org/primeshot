@@ -68,7 +68,7 @@
   justify-content: flex-start;
   width: 100%; 
   padding: 8px 10px; 
-  gap: 32px; 
+  gap: 8px; 
   transition: opacity 150ms ease; 
 }
 
