@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Input } from '@primeshot/common/web/ui/input'
 import { Label } from '@primeshot/common/web/ui/label'
 import { Button } from '@primeshot/common/web/ui/button'
-import styles from './ThumbnailStyles.module.css'
+import styles from '../CharacterTrainingDialog.module.css'
 
 interface CharacterNameStepProps {
   thumbnail: File | null

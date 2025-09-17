@@ -1295,11 +1295,16 @@ function isAcceptable(result: ImageQualityResult, opts?: { petMode?: boolean }):
     }
   }
 
-  // Add all critical failures to issues
-  result.issues = [...result.issues, ...warnings];
+  // Add all critical failures and warnings to issues for UI display
+  result.issues = [...result.issues, ...criticalFailures, ...warnings];
   
   // Image is acceptable only if there are no critical failures
   result.isAcceptable = criticalFailures.length === 0;
+  
+  // Defensive fallback: ensure at least one human-friendly reason exists when rejected
+  if (!result.isAcceptable && result.issues.length === 0) {
+    result.issues.push('This photo didn\'t meet the quality requirements. Try a front-facing, well-lit photo.');
+  }
   
   return result.isAcceptable;
 }

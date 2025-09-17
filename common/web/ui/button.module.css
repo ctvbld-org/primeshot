@@ -207,10 +207,23 @@
   font-size: 0.875rem;
 }
 
-.size-icon {
-  height: 2.5rem;
-  width: 2.5rem;
+.iconOnly {
   padding: 0;
+}
+
+.iconOnly.size-sm {
+  height: 40px;
+  width: 40px;
+}
+
+.iconOnly.size-md {
+  height: 3rem;
+  width: 3rem;
+}
+
+.iconOnly.size-lg {
+  height: 2.75rem;
+  width: 2.75rem;
 }
 
 /* Loading state */

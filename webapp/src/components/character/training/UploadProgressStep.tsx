@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import styles from './ThumbnailStyles.module.css'
+import styles from '../CharacterTrainingDialog.module.css'
 import { CircleProgress } from '@primeshot/common/web/ui/circle-progress'
 
 interface UploadProgressStepProps {

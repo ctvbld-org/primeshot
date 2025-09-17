@@ -5,6 +5,7 @@ import { cn } from "../../lib/utils"
 
 type ButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'destructive' | 'outline' | 'ghost' | 'link'
 type ButtonSize = 'sm' | 'md' | 'lg' | 'icon'
+type ButtonIconOnly = false | true
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant
@@ -13,6 +14,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean
   icon?: React.ReactNode
   iconSide?: 'left' | 'right'
+  iconOnly?: ButtonIconOnly
 }
 
 interface AnimationState {
@@ -33,12 +35,14 @@ const buttonVariants = ({
   className,
   loading,
   iconSide = 'left',
+  iconOnly = false,
 }: {
   variant?: ButtonVariant
   size?: ButtonSize
   className?: string    
   iconSide?: string
   loading?: boolean
+  iconOnly?: ButtonIconOnly
 } = {}) => {
   return cn(
     styles.base,
@@ -46,12 +50,13 @@ const buttonVariants = ({
     size && styles[`size-${size}`],
     loading && styles.loading,
     iconSide && styles[`icon-${iconSide}`],
+    iconOnly && styles.iconOnly,
     className
   )
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', size = 'md', asChild = false, loading = false, children, disabled, icon, iconSide = 'left', ...props }, ref) => {
+  ({ className, variant = 'primary', size = 'md', asChild = false, loading = false, children, disabled, icon, iconSide = 'left', iconOnly = false, ...props }, ref) => {
     const buttonRef = React.useRef<HTMLButtonElement>(null);
     const labelRef = React.useRef<HTMLSpanElement>(null);
     const iconRef = React.useRef<HTMLSpanElement>(null);
@@ -220,7 +225,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <Comp
         data-slot="button"
-        className={cn(buttonVariants({ variant, size, className, loading, iconSide }), styles.btn)}
+        className={cn(buttonVariants({ variant, size, className, loading, iconSide, iconOnly }), styles.btn)}
         ref={combinedRef}
         disabled={disabled || loading}
         {...props}

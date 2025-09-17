@@ -1533,6 +1533,27 @@ Detected changes in:
 - webapp/src/app/api/payment/webhook/route.ts
 - webapp/src/app/api/webhooks/stripe/route.ts
 - webapp/src/components/pricing/SubscriptionDialogContent.tsx
+
+
+**Auto-update 2025-09-16**:
+Detected changes in:
+- webapp/src/app/api/app-images/route.ts
+- webapp/src/app/api/generation/config/route.ts
+- webapp/src/app/api/inference/config/route.ts
+- webapp/src/app/api/inference/delete-generated-image/route.ts
+- webapp/src/app/layout.tsx
+- webapp/src/components/home/InferenceImageViewerDialog.module.css
+- webapp/src/components/home/InferenceImageViewerDialog.tsx
+- webapp/src/components/home/InferenceJobGroup.module.css
+- webapp/src/components/home/InferenceJobGroup.tsx
+- webapp/src/components/home/InferenceThumbnail.module.css
+- webapp/src/components/home/InferenceThumbnail.tsx
+- webapp/src/components/style/GenerateBar/GenerateBar.module.css
+- webapp/src/components/style/GenerateBar/GenerateBar.tsx
+- webapp/src/lib/api/inference-images.ts
+- webapp/src/lib/api/inference-job-management.ts
+- webapp/src/lib/services/confirmation.module.css
+- webapp/src/lib/services/confirmationService.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

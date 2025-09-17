@@ -31,6 +31,7 @@ import { ImageQualityResult } from '@/lib/image-quality'
 import { useCreditCosts, getCharacterTrainingCost, useSubscriptionTiers } from '@/hooks/usePricingConfig'
 import { useCreditBalance } from '@/hooks/useCreditBalance'
 import { getApiUrl } from '@/lib/api/client'
+import styles from './CharacterTrainingDialog.module.css'
 
 // Import step components
 import { UploadPhotosStep } from './training/UploadPhotosStep'
@@ -505,33 +506,35 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
 
   return (
     <Dialog open onOpenChange={handleOpenChange}>
-      <DialogContent fullscreen className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col !p-0">
+      <DialogContent fullscreen className={styles.dialogContent}>
         {/* Hidden DialogTitle for accessibility */}
-        <DialogTitle className="sr-only">{getDialogTitle()}</DialogTitle>
-        <DialogDescription className="sr-only">
+        <DialogTitle className={styles.srOnly}>{getDialogTitle()}</DialogTitle>
+        <DialogDescription className={styles.srOnly}>
           {currentStep === 'upload' ? 'Upload photos to create your character' : 
            currentStep === 'name' ? 'Name your character' : 
            currentStep === 'training' ? 'Character training in progress' : 
            'Character creation dialog'}
         </DialogDescription>
-        <div className="flex flex-row items-center justify-between px-6 py-4 min-h-[64px]">
-          <div className="flex items-center gap-3">
+        <div className={styles.header}>
+          <div className={styles.headerLeft}>
             {canGoBack && (
               <Button
                 variant="ghost"
-                size="icon"
+                size="sm"
+                iconOnly
                 onClick={handleBack}
-                className="h-8 w-8"
+                className={styles.iconButtonSmall}
               >
-                <Icon variant="arrowLeft" className="h-4 w-4" />
+                <Icon variant="arrowLeft" className={styles.iconSmall} />
               </Button>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className={styles.headerRight}>
             {/* Cancel Button - only show for upload and name steps */}
             {(currentStep === 'upload' || currentStep === 'name') && (
               <Button
-                variant="outline"
+                variant="ghost"
+                size="sm"
                 onClick={handleClose}
               >
                 {t('common:cancel')}
@@ -541,9 +544,10 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
             {/* Next Button - only show for upload step */}
             {currentStep === 'upload' && (
               <Button
+                variant="primary"
+                size="sm"
                 onClick={handleNext}
                 disabled={isNextDisabled()}
-                variant="primary"
               >
                 {t('common:next')}
               </Button>
@@ -551,9 +555,9 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
           </div>
         </div>
 
-        <DialogBody className="flex-1 overflow-y-auto">
+        <DialogBody className={styles.dialogBody}>
           {/* Upload Photos Step - Always rendered, hidden when not active */}
-          <div className={currentStep === 'upload' ? 'flex h-full overflow-hidden' : 'hidden'}>
+          <div className={currentStep === 'upload' ? styles.stepVisible : styles.stepHidden}>
             <UploadPhotosStep
               onFilesUpdate={(files, qualityResults, bodyShotValidation, isAnalyzing) => {
                 setStepData(prev => {
@@ -578,7 +582,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
           </div>
 
           {/* Character Name Step - Always rendered, hidden when not active */}
-          <div className={currentStep === 'name' ? 'flex h-full items-center justify-center' : 'hidden'}>
+          <div className={currentStep === 'name' ? styles.stepCentered : styles.stepHidden}>
             <CharacterNameStep
               thumbnail={stepData.uploadedFiles[0]}
               value={stepData.characterName}
@@ -594,7 +598,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
           </div>
           
           {/* Upload Progress Step - Always rendered, hidden when not active */}
-          <div className={currentStep === 'uploading' ? 'flex h-full items-center justify-center' : 'hidden'}>
+          <div className={currentStep === 'uploading' ? styles.stepCentered : styles.stepHidden}>
             <UploadProgressStep
               progress={uploadProgress}
               totalFiles={stepData.uploadedFiles.length}
@@ -607,7 +611,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
           
           {/* Training Progress Step - Conditionally rendered since it needs IDs */}
           {stepData.characterId && stepData.trainingJobId && (
-            <div className={currentStep === 'training' ? 'flex h-full items-center justify-center' : 'hidden'}>
+            <div className={currentStep === 'training' ? styles.stepCentered : styles.stepHidden}>
               <TrainingProgressStep
                 characterId={stepData.characterId}
                 trainingJobId={stepData.trainingJobId}
@@ -641,7 +645,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
             <AlertDialogDescription>
               {t('upload:confirmClose.description')}
               {needsCloseConfirmation && (
-                <div className="mt-2 text-sm text-muted-foreground">
+                <div className={styles.confirmProgress}>
                   {getProgressMessage()}
                 </div>
               )}

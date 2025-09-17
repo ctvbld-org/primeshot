@@ -48,11 +48,31 @@ type FaceBox = { x: number; y: number; width: number; height: number } | undefin
 
 interface InitResponse { uploadId: string; key: string; partSize: number; contentType: string }
 
+function getBasePath(): string {
+  // Prefer explicit env var in prod
+  const env = (process.env.NEXT_PUBLIC_BASE_PATH || '').trim();
+  if (env) return env.startsWith('/') ? env.replace(/\/$/, '') : `/${env.replace(/\/$/, '')}`;
+
+  // Fallback to Next runtime data on client
+  if (typeof window !== 'undefined') {
+    const ap = (window as any).__NEXT_DATA__?.assetPrefix as string | undefined;
+    if (ap) return ap.startsWith('/') ? ap.replace(/\/$/, '') : `/${ap.replace(/\/$/, '')}`;
+  }
+
+  return '';
+}
+
+function withBasePath(path: string): string {
+  const base = getBasePath();
+  const p = path.startsWith('/') ? path : `/${path}`;
+  return `${base}${p}`;
+}
+
 async function authAndEndpoint() {
   const supabase = createClient();
   const { data: { session }, error } = await supabase.auth.getSession();
   if (error || !session) throw new Error('Authentication required for upload');
-  const apiBase = '/api/upload-chunk';
+  const apiBase = withBasePath('/api/upload-chunk');
   return { apiBase };
 }
 

@@ -11,7 +11,7 @@ import { useAuth } from '@/contexts/auth-context'
 import { useDialogService } from '@/contexts/DialogServiceContext'
 import { getApiUrl } from '@/lib/api/client'
 import type { Character } from '@/types/jobs'
-import styles from './ThumbnailStyles.module.css'
+import styles from '../CharacterTrainingDialog.module.css'
 import { Button } from '@primeshot/common/web/ui/button'
 
 interface TrainingProgressStepProps {

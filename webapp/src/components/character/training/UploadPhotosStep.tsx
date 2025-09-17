@@ -14,6 +14,7 @@ import { ImageQualityResult, checkBodyShotRequirements } from '@/lib/image-quali
 import { RequirementsContent } from '@/components/upload/RequirementsContent'
 import { RejectedImagesContent } from '@/components/upload/RejectedImagesContent'
 import type { FileWithScore } from '@/lib/types'
+import styles from '../CharacterTrainingDialog.module.css'
 
 interface UploadPhotosStepProps {
   onFilesUpdate: (files: File[], qualityResults: Record<string, ImageQualityResult>, bodyShotValidation: { isValid: boolean; errors: string[] }, isAnalyzing: boolean) => void
@@ -99,58 +100,6 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
     onFilesUpdate(acceptedFiles, qualityResults, bodyShotValidation, isAnalyzing)
   }, [acceptedFiles, qualityResults, bodyShotValidation, isAnalyzing, onFilesUpdate])
 
-  const titleContent = useMemo(() => {
-    if (acceptedFiles.length >= minImages) {
-      return (
-        <Trans
-          ns="upload"
-          i18nKey="common.titleReady"
-          values={{ count: acceptedFiles.length }}
-          components={{ highlight: <span className="text-[#44E3C9]" /> }}
-        />
-      )
-    }
-    
-    if (selectedFiles.length > 0) {
-      if (isAdmin) {
-        return (
-          <span className="text-[#FF973C]">
-            Need at least 1 image to proceed ({acceptedFiles.length} accepted)
-          </span>
-        )
-      }
-      return (
-        <Trans
-          ns="upload"
-          i18nKey="common.titleNeedMore"
-          values={{ 
-            minImages: minImages - acceptedFiles.length, 
-            maxImages: maxImages - acceptedFiles.length, 
-            count: maxImages - acceptedFiles.length 
-          }}
-          components={{ highlight: <span className="text-[#FF973C]" /> }}
-        />
-      )
-    }
-    
-    if (isAdmin) {
-      return (
-        <span className="text-[#FF973C]">
-          Upload any number of images (Admin mode)
-        </span>
-      )
-    }
-    
-    return (
-      <Trans
-        ns="upload"
-        i18nKey="common.titleNoImages"
-        values={{ minImages, maxImages }}
-        components={{ highlight: <span className="text-[#FF973C]" /> }}
-      />
-    )
-  }, [acceptedFiles.length, selectedFiles.length, minImages, maxImages, isAdmin, t])
-
   const handleDialogClose = useCallback(() => {
     clearRejectedFiles()
   }, [clearRejectedFiles])
@@ -158,27 +107,21 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
   return (
     <>
       {/* Left Column - Upload Area */}
-      <div className="flex-1 flex flex-col relative min-h-0 pr-6">
-        <div className="text-[#C0CED8] text-center space-y-6 flex-1 flex flex-col">
+      <div className={styles.uploadLeftColumn}>
+        <div className={styles.uploadLeftContent}>
           <div>
-            <h2 className="text-[24px] leading-[28px] font-normal tracking-tight">
-              {titleContent}
-            </h2>
-            <p className="font-normal text-[12px] leading-[14px] text-[#C0CED8] mt-2">
-              {t('common.description')}
-            </p>
-            <div className="mt-3 flex items-center justify-center gap-2 text-sm text-[#C0CED8]">
+            <div className={styles.petModeToggle}>
               <Checkbox checked={petMode} onCheckedChange={(v) => setPetMode(!!v)} id="pet-mode" />
               <label htmlFor="pet-mode">Pet mode</label>
             </div>
             
             {/* Body shot validation errors */}
             {!isAnalyzing && acceptedFiles.length >= minImages && !bodyShotValidation.isValid && (
-              <div className="mt-4 p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
-                <div className="text-red-400 text-sm font-medium mb-1">
+              <div className={styles.bodyShotError}>
+                <div className={styles.bodyShotErrorTitle}>
                   Body Shot Requirements Not Met
                 </div>
-                <ul className="text-red-300 text-xs space-y-1">
+                <ul className={styles.bodyShotErrorList}>
                   {bodyShotValidation.errors.map((error, index) => (
                     <li key={index}>• {error}</li>
                   ))}
@@ -187,7 +130,7 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
             )}
           </div>
         
-          <div className="flex justify-center flex-1">        
+          <div className={styles.uploaderContainer}>        
             <FileUploader 
               handleNewFiles={handleNewFiles}
               addFiles={addFiles}
@@ -220,7 +163,7 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
       </div>
 
       {/* Right Column - Sidebar */}
-      <div className="w-[400px] bg-[#0A0A0B] border-l border-[#202A32] flex flex-col overflow-hidden">
+      <div className={styles.sidebar}>
         {/* Rejected Images Section - shown when there are rejected files */}
         <RejectedImagesContent
           files={rejectedFiles}
