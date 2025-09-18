@@ -281,7 +281,8 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
             faceDetectionSkipped: true,
             eyesVisible: false,
             eyeDetectionSkipped: true,
-            issues: ['Analysis error']
+            issues: ['Analysis error'],
+            i18nIssues: [] as Array<{ key: string; params?: Record<string, string | number> }>
           }
           results[file.name] = errorResult
           
@@ -335,7 +336,8 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
             faceDetectionSkipped: true,
             eyesVisible: false,
             eyeDetectionSkipped: true,
-            issues: ['Analysis error']
+            issues: ['Analysis error'],
+            i18nIssues: [] as Array<{ key: string; params?: Record<string, string | number> }>
           }
           results[file.name] = errorResult
           

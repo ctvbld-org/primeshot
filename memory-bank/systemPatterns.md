@@ -1619,6 +1619,11 @@ Detected changes in:
 **Auto-update 2025-09-18**:
 Detected changes in:
 - webapp/src/components/shared/ConfirmDialog.tsx
+
+
+**Auto-update 2025-09-18**:
+Detected changes in:
+- webapp/src/lib/hooks/use-file-upload.ts
 ## Component Organization
 
 Components are organized by feature and reusability:
