@@ -41,7 +41,8 @@ interface IconProps extends React.SVGProps<SVGSVGElement> {
     | 'restart'
     | 'maximize'
     | 'heart'
-    | 'heartOutline';
+    | 'heartOutline'
+    | 'secure';
 }
 
 export function Icon({ size = 28, className, variant, ...props }: IconProps) {
@@ -83,7 +84,8 @@ export function Icon({ size = 28, className, variant, ...props }: IconProps) {
     restart: "0 0 16 16",
     maximize: "0 0 16 16",
     heart: "0 0 16 16",
-    heartOutline: "0 0 16 16"
+    heartOutline: "0 0 16 16",
+    secure: "0 0 16 16"
   } as const;
 
   const icons = {
@@ -282,8 +284,10 @@ export function Icon({ size = 28, className, variant, ...props }: IconProps) {
     ),
     heart: (
       <path d="M11.2516 2C10.2516 2 9.30156 2.4 8.60156 3.1L8.00156 3.7L7.45156 3.15C6.00156 1.65 3.60156 1.65 2.15156 3.1L2.10156 3.15C0.601562 4.65 0.601562 7.05 2.10156 8.55L8.00156 14.5L13.9016 8.55C15.4016 7.05 15.4016 4.65 13.9016 3.15C13.2016 2.4 12.2516 2 11.2516 2Z" fill="#FA383B"/>
+    ),
+    secure: (
+      <path d="M8 15.416L4.9121 13.7696C4.03174 13.3012 3.29552 12.602 2.78248 11.7469C2.26944 10.8919 1.99893 9.9132 2 8.91602V2.41602C2.00028 2.15088 2.10573 1.89669 2.2932 1.70922C2.48068 1.52174 2.73487 1.41629 3 1.41602H13C13.2651 1.41629 13.5193 1.52174 13.7068 1.70922C13.8943 1.89669 13.9997 2.15088 14 2.41602V8.91602C14.0011 9.9132 13.7306 10.8919 13.2175 11.7469C12.7045 12.602 11.9683 13.3012 11.0879 13.7696L8 15.416ZM3 2.41602V8.91602C2.99914 9.73192 3.22048 10.5327 3.64028 11.2323C4.06007 11.9319 4.66246 12.504 5.3828 12.8872L8 14.2827L10.6172 12.8872C11.3375 12.504 11.9399 11.9319 12.3597 11.2323C12.7795 10.5327 13.0009 9.73192 13 8.91602V2.41602H3Z" fill="currentColor"/>
     )
-
   } as Record<string, React.ReactNode>;
 
   const computedClassName = [className, variant, 'size-[var(--icon-size)]']

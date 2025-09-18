@@ -229,13 +229,6 @@ justify-content: center;
 display: none;
 }
 
-/* Confirmation modal progress text */
-.confirmProgress {
-margin-top: 0.5rem; /* mt-2 */
-font-size: 0.875rem; /* text-sm */
-color: rgba(255, 255, 255, 0.6); /* text-muted-foreground approximation */
-}
-
 /* UploadPhotosStep layout */
 .uploadLeftColumn {
 flex: 1 1 auto; /* flex-1 */
@@ -243,7 +236,7 @@ display: flex;
 flex-direction: column;
 position: relative;
 min-height: 0;
-padding-right: 1.5rem; /* pr-6 */
+padding: 40px; /* pr-6 */
 }
 
 .uploadLeftContent {
@@ -256,14 +249,14 @@ flex: 1 1 auto; /* flex-1 */
 }
 
 .petModeToggle {
-display: none;
-margin-top: 0.75rem; /* mt-3 */
-display: flex;
-align-items: center;
-justify-content: center;
-gap: 0.5rem; /* gap-2 */
-font-size: 0.875rem; /* text-sm */
-color: #C0CED8;
+    display: none !important;
+    margin-top: 0.75rem; /* mt-3 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem; /* gap-2 */
+    font-size: 0.875rem; /* text-sm */
+    color: #C0CED8;
 }
 
 .bodyShotError {
@@ -299,10 +292,46 @@ flex: 1 1 auto; /* flex-1 */
 }
 
 .sidebar {
-width: 300px;
-background-color: #0A0A0B;
-border-left: 1px solid #202A32; /* border-l border-[#202A32] */
-display: flex;
-flex-direction: column;
-overflow: hidden;
+    width: 300px;
+    min-width: 240px;
+    background-color: #0A0A0B;
+    border-left: 1px solid #202A32; /* border-l border-[#202A32] */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+.sidebar:before {  
+    background: linear-gradient(180deg, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0) 100%);
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 140px;
+    z-index: 1;
+}
+
+@media (max-width: 640px) {    
+    .uploadLeftColumn {
+      padding: 16px;
+    }
+}
+
+@media (max-width: 510px) {    
+    .stepUploadPhotos {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .stepUploadPhotos .uploadLeftColumn,
+    .stepUploadPhotos .sidebar {
+      flex: 1 1 100%;
+      width: 100%;
+    }
+
+    .sidebar:before {
+        display: none;
+    }
 }

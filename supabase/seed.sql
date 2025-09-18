@@ -688,18 +688,6 @@ INSERT INTO "public"."subscriptions" ("id", "name", "display_name", "description
 
 
 --
--- Data for Name: upload_sessions; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-
-
---
--- Data for Name: upload_chunks; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-
-
---
 -- Data for Name: uploaded_images; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 

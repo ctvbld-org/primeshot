@@ -1580,6 +1580,21 @@ Detected changes in:
 - webapp/src/components/upload/UploadFooter.module.css
 - webapp/src/components/upload/UploadFooter.tsx
 - webapp/src/lib/constants/upload.ts
+
+
+**Auto-update 2025-09-18**:
+Detected changes in:
+- admin/src/app/auth/callback/route.ts
+- admin/src/app/auth/signout/route.ts
+- webapp/src/app/api/subscription/customer-portal/route.ts
+- webapp/src/app/auth/callback/route.ts
+- webapp/src/app/auth/signout/route.ts
+- webapp/src/components/character/training/CharacterNameStep.tsx
+- webapp/src/components/pricing/CreditPackDialogContent.tsx
+- webapp/src/components/pricing/CreditPackPricing.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/lib/api/client.ts
+- webapp/src/lib/upload-utils.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

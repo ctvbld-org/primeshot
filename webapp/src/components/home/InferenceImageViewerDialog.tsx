@@ -6,6 +6,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { Icon } from '@primeshot/common/web/Icon';
 import { Button } from '@primeshot/common/web/ui/button';
 import { Dialog as PSDialog, DialogContent as PSDialogContent } from '@primeshot/common/web/ui/dialog';
+import ConfirmDialog from '@/components/shared/ConfirmDialog';
 import confirmStyles from '@/lib/services/confirmation.module.css';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@primeshot/common/web/ui/tooltip';
 import { useToast } from '@primeshot/common/web/ui/use-toast';
@@ -537,21 +538,18 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
     <div className={styles.viewer}>
       {/* Inline confirm dialog layered over the viewer */}
       {confirmOpen && (
-        <PSDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-          <PSDialogContent>
-            <div className={confirmStyles.container}>
-              <div className={confirmStyles.content}>
-                <Icon className={confirmStyles.icon} variant="bin" size={40} aria-hidden="true" style={{ color: '#FF3535' }} />
-                <h2 className={confirmStyles.title}>Delete image?</h2>
-                <p className={confirmStyles.description}>This will permanently delete the image and can’t be undone.</p>
-              </div>
-              <div className={confirmStyles.footer}>
-                <Button variant="destructive" size="sm" className={confirmStyles.button} onClick={() => { setConfirmOpen(false); performDelete(); }}>Delete</Button>
-                <Button variant="secondary" size="sm" className={confirmStyles.button} onClick={() => setConfirmOpen(false)}>Cancel</Button>
-              </div>
-            </div>
-          </PSDialogContent>
-        </PSDialog>
+        <ConfirmDialog
+          open={confirmOpen}
+          onOpenChange={setConfirmOpen}
+          title="Delete image?"
+          description="This will permanently delete the image and can’t be undone."
+          confirmText="Delete"
+          cancelText="Cancel"
+          onConfirm={() => { setConfirmOpen(false); performDelete(); }}
+          onCancel={() => setConfirmOpen(false)}
+          iconVariant="bin"
+          confirmVariant="destructive"
+        />
       )}
       {/* Close button */}
       <Button 

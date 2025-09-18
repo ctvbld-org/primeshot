@@ -58,16 +58,7 @@ export async function POST(request: Request) {
       console.log(`Deleted images from database for character: ${characterId}`)
     }
 
-    // Delete upload sessions and chunks
-    const { error: deleteSessionsError } = await supabase
-      .from('upload_sessions')
-      .delete()
-      .eq('character_id', characterId)
-
-    if (deleteSessionsError) {
-      console.error('Failed to delete upload sessions:', deleteSessionsError)
-      // Continue with character deletion
-    }
+    // Note: legacy upload_sessions table has been removed
 
     // Note: We keep training_jobs for analytics and audit trail
     // The soft delete approach maintains referential integrity

@@ -33,7 +33,7 @@ export function CharacterNameStep({
   totalTrainings,
   usedTrainings
 }: CharacterNameStepProps) {
-  const { t } = useTranslation('upload')
+  const { t } = useTranslation(['upload', 'styles'])
   const [thumbnailUrl, setThumbnailUrl] = useState<string>('')
 
   useEffect(() => {
@@ -88,10 +88,17 @@ export function CharacterNameStep({
       {/* Credit Information */}
       <div className="text-center space-y-1">
         <p className="text-sm text-[#44E3C9]">
-          {needsCredits 
-            ? t('character.creditsRequired', { credits })
-            : `Included in plan (${usedTrainings !== undefined ? usedTrainings + 1 : 1} of ${totalTrainings || 1})`
-          }
+          {(() => {
+            // Align with tile logic in GenerateBar: show remaining included trainings
+            if (needsCredits) {
+              return t('labels.credits', { ns: 'styles', count: credits })
+            }
+            const remaining =
+              typeof remainingTrainings === 'number'
+                ? Math.max(0, remainingTrainings)
+                : Math.max(0, (totalTrainings ?? 0) - (usedTrainings ?? 0))
+            return t('labels.includedInPlan', { ns: 'styles', count: remaining })
+          })()}
         </p>
       </div>
     </div>

@@ -26,7 +26,7 @@
       "expression": "Keep your expression neutral or naturally friendly.",
       "avoid": "Avoid filters, hats, heavy makeup, or AI-generated images.",
       "clothing": "Wear plain clothing with solid colors or soft patterns.",
-      "quantity": "Upload <highlight>{{minImages}} to {{maxImages}}</highlight> different photos with varied angles and lighting."
+      "quantity": "Upload {{minImages}} different photos with varied angles and lighting."
     },
     "tipBox": "Natural light, facial variety, and clear framing help the AI create more accurate, professional results.",
     "dodonts": {
@@ -118,7 +118,7 @@
   },
   "uploader": {
     "dropMessage": "Go ahead, drop it like it's hot! 🔥",
-    "dragDropMessage": "Drag and drop files here, or",
+    "dragDropMessage": "Drag and drop {{count}} photos here, or",
     "maxImagesReached": "You've reached the maximum number of images.",
     "browse": "browse",
     "supportedFormats": "Supports JPEG, PNG up to 25Mb each"
@@ -132,6 +132,48 @@
       "description": "The following images need improvement. Please review and try again.",
       "close": "Close",
       "continue": "Replace or continue without"
+    },
+    "issues": {
+      "image": {
+        "lowResolution": "Low resolution image. Minimum size is {{minWidth}}x{{minHeight}}px.",
+        "tooDark": "Image is too dark.",
+        "tooBright": "Image is too bright."
+      },
+      "contrast": {
+        "poorOrFlat": "Image has poor contrast or appears too flat.",
+        "separation": {
+          "nearlyIdentical": "Subject and background are nearly identical in tone - use a strongly contrasting background.",
+          "tooSimilar": "Subject and background are too similar in tone - consider using a contrasting background.",
+          "couldBeMoreDistinct": "Subject and background could be more distinct - try a different background color."
+        }
+      },
+      "sharpness": {
+        "tooBlurry": "Image appears to be blurry or lacks sufficient detail."
+      },
+      "face": {
+        "none": "No face detected.",
+        "multiple": "Multiple faces detected.",
+        "positionNotOptimal": "Face position is not optimal.",
+        "detectFallbackInfo": "Face detection succeeded using fallback method. Results may vary.",
+        "detectFallbackMultiple": "Multiple faces detected using fallback method.",
+        "detectSkipped": "Face detection was skipped."
+      },
+      "eyes": {
+        "maybeNotVisible": "Eyes may not be clearly visible (check for sunglasses, hair, or poor lighting)."
+      },
+      "score": {
+        "tooLow": "Image quality score is too low."
+      },
+      "reject": {
+        "genericHint": "This photo didn't meet the quality requirements. Try a front-facing, well-lit photo."
+      },
+      "body": {
+        "minRequired": "Need at least {{min}} body shots (currently have {{current}})",
+        "tooMany": "Too many body shots ({{currentPercent}}%). Maximum {{maxPercent}}% allowed"
+      },
+      "upload": {
+        "none": "No images uploaded"
+      }
     }
   },
   "accessibility": {

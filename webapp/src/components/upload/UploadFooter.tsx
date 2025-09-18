@@ -226,13 +226,13 @@ export function UploadFooter({
               t('accessibility.emptyPhotoSlot', { number: index + 1 })
             }
           >
-            {file && imageUrl ? (
+            {file && imageUrl && (
               <>
                 <img 
                   src={imageUrl}
                   alt={t('accessibility.photoPreview', { number: index + 1 })}
                   className={cn(
-                    "w-full h-full object-cover rounded-lg transition-all duration-300",
+                    "w-full h-full object-cover transition-all duration-300",
                     isUploading && !isUploaded && !isCurrentlyUploading && "opacity-60",
                     isCurrentlyUploading && "opacity-70"
                   )}
@@ -261,14 +261,12 @@ export function UploadFooter({
                   </div>
                 )}
               </>
-            ) : (
-              index + 1
             )}
           </div>
         </PopoverTrigger>
         {file && !isCurrentlyAnalyzing && !isCurrentlyUploading && !isUploading && (
           <PopoverContent 
-            className="w-auto p-0 border-none shadow-none bg-transparent" 
+            className={styles.popoverContent}
             align="center"
             side="top"
             sideOffset={16}

@@ -4,16 +4,7 @@ import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { useDialogService } from '@/contexts/DialogServiceContext'
 import { Dialog, DialogContent, DialogBody, DialogFooter, DialogTitle, DialogDescription } from '@primeshot/common/web/ui/dialog'
 import { Button, buttonVariants } from '@primeshot/common/web/ui/button'
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from '@primeshot/common/web/ui/alert-dialog'
+import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { useTranslation } from 'react-i18next'
 import { useToast } from '@primeshot/common/web/ui/use-toast'
 import { useCreditGuard } from '@/hooks/useCreditGuard'
@@ -537,7 +528,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
                 size="sm"
                 onClick={handleClose}
               >
-                {t('common:cancel')}
+                {t('buttons.cancel', { ns: 'common' })}
               </Button>
             )}
             
@@ -549,7 +540,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
                 onClick={handleNext}
                 disabled={isNextDisabled()}
               >
-                {t('common:next')}
+                {t('buttons.next', { ns: 'common' })}
               </Button>
             )}
           </div>
@@ -557,7 +548,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
 
         <DialogBody className={styles.dialogBody}>
           {/* Upload Photos Step - Always rendered, hidden when not active */}
-          <div className={currentStep === 'upload' ? styles.stepVisible : styles.stepHidden}>
+          <div className={ cn(currentStep === 'upload' ? styles.stepVisible : styles.stepHidden, styles.stepUploadPhotos)}>
             <UploadPhotosStep
               onFilesUpdate={(files, qualityResults, bodyShotValidation, isAnalyzing) => {
                 setStepData(prev => {
@@ -638,32 +629,18 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
       )}
 
       {/* Confirmation Modal */}
-      <AlertDialog open={showCloseConfirmation} onOpenChange={setShowCloseConfirmation}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('upload:confirmClose.title')}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t('upload:confirmClose.description')}
-              {needsCloseConfirmation && (
-                <div className={styles.confirmProgress}>
-                  {getProgressMessage()}
-                </div>
-              )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCancelClose}>
-              {t('upload:confirmClose.buttons.cancel')}
-            </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleConfirmClose} 
-              className={cn(buttonVariants({ variant: "destructive" }))}
-            >
-              {t('upload:confirmClose.buttons.confirm')}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={showCloseConfirmation}
+        onOpenChange={setShowCloseConfirmation}
+        title={t('upload:confirmClose.title')}
+        description={(t('upload:confirmClose.description'))}
+        confirmText={t('upload:confirmClose.buttons.confirm')}
+        cancelText={t('upload:confirmClose.buttons.cancel')}
+        onConfirm={handleConfirmClose}
+        onCancel={handleCancelClose}
+        iconVariant="warning"
+        confirmVariant="destructive"
+      />
     </Dialog>
   )
 }

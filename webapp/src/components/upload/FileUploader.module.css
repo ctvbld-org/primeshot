@@ -35,7 +35,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 72px;
+  padding: 0 72px;
   gap: 1rem;
   text-align: center;
   cursor: pointer;
@@ -49,8 +49,6 @@
 .iconContainer {
   height: 80px;
   width: 80px;
-  border-radius: 20px;
-  background: rgba(68,227,201,0.0625);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -58,7 +56,7 @@
 
 .title {
   color: #C0CED8;
-  font-weight: 600;
+  font-weight: 400;
   font-size: 16px;
   line-height: 20px;
 }
@@ -172,4 +170,18 @@
 .uploadingText {
   font-size: 16px;
   color: #C0CED8;
+}
+
+@media (max-width: 640px) {    
+  .dropArea {
+    padding: 0 32px;
+  }
+}
+
+@media (max-width: 510px) {    
+
+  .dropArea {
+      padding: 40px;
+  }
+
 }
