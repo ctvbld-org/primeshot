@@ -1614,6 +1614,11 @@ Detected changes in:
 - webapp/src/components/upload/UploadFooter.tsx
 - webapp/src/lib/image-quality.ts
 - webapp/src/lib/upload-utils.ts
+
+
+**Auto-update 2025-09-18**:
+Detected changes in:
+- webapp/src/components/shared/ConfirmDialog.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:
