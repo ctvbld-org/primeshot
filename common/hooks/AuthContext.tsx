@@ -136,7 +136,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setState(prev => ({ ...prev, isLoading: true, error: null }))
       const currentPath = window.location.pathname + window.location.search
       const isRelative = !currentPath.startsWith('http')
-      const DEFAULT_PATH = process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/'
+      const DEFAULT_PATH = process.env.NEXT_PUBLIC_BASE_PATH || '/'
       const safePath = isRelative ? currentPath : DEFAULT_PATH
       const returnUrl = encodeURIComponent(safePath)
       const { error } = await supabase.auth.signOut()

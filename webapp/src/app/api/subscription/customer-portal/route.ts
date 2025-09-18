@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create portal session
-    const returnUrl = `${process.env.NEXT_PUBLIC_APP_URL}/${process.env.NEXT_PUBLIC_POST_LOGIN_PATH}`
+    const returnUrl = `${process.env.NEXT_PUBLIC_APP_URL}/${process.env.NEXT_PUBLIC_BASE_PATH}`
     const sessionConfig: any = {
       customer: customerId,
       return_url: returnUrl,

@@ -1568,6 +1568,18 @@ Detected changes in:
 - webapp/src/components/upload/FileUploader.module.css
 - webapp/src/lib/image-quality.ts
 - webapp/src/lib/upload-utils.ts
+
+
+**Auto-update 2025-09-18**:
+Detected changes in:
+- webapp/src/components/character/CharacterTrainingDialog.module.css
+- webapp/src/components/character/training/CharacterNameStep.tsx
+- webapp/src/components/home/InferenceImageViewerDialog.module.css
+- webapp/src/components/upload/FileUploader.module.css
+- webapp/src/components/upload/FileUploader.tsx
+- webapp/src/components/upload/UploadFooter.module.css
+- webapp/src/components/upload/UploadFooter.tsx
+- webapp/src/lib/constants/upload.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

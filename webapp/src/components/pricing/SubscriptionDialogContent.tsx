@@ -202,7 +202,7 @@ export function SubscriptionDialogContent({
   const handleDirectPurchase = async (priceId: string) => {
     setLoading(true)
     try {
-      const successPath = process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/'
+      const successPath = process.env.NEXT_PUBLIC_BASE_PATH || '/'
       const res = await fetch(getApiUrl('/api/payment/subscription-checkout'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

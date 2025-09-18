@@ -32,7 +32,7 @@ export function CreditPackPricing({ className }: CreditPackPricingProps) {
 
     checkoutMutation.mutate({
       priceId,
-      successUrl: `${window.location.origin}${process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/'}?credits=success`,
+      successUrl: `${window.location.origin}${process.env.NEXT_PUBLIC_BASE_PATH || '/'}?credits=success`,
       cancelUrl: `${window.location.origin}/pricing`
     })
   }

@@ -41,7 +41,7 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
         },
         body: JSON.stringify({
           priceId,
-          successUrl: `${window.location.origin}${process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/'}?credits=success`,
+          successUrl: `${window.location.origin}${process.env.NEXT_PUBLIC_BASE_PATH || '/'}?credits=success`,
           cancelUrl: `${window.location.origin}/pricing`
         })
       })
