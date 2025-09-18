@@ -35,6 +35,13 @@ export function CharacterNameStep({
 }: CharacterNameStepProps) {
   const { t } = useTranslation('upload')
   const [thumbnailUrl, setThumbnailUrl] = useState<string>('')
+  const remaining = React.useMemo(() => {
+    if (typeof remainingTrainings === 'number') return remainingTrainings
+    if (typeof totalTrainings === 'number' && typeof usedTrainings === 'number') {
+      return Math.max(0, totalTrainings - usedTrainings)
+    }
+    return undefined
+  }, [remainingTrainings, totalTrainings, usedTrainings])
 
   useEffect(() => {
     if (thumbnail) {
@@ -90,7 +97,7 @@ export function CharacterNameStep({
         <p className="text-sm text-[#44E3C9]">
           {needsCredits 
             ? t('character.creditsRequired', { credits })
-            : `Included in plan (${usedTrainings !== undefined ? usedTrainings + 1 : 1} of ${totalTrainings || 1})`
+            : t('labels.includedInPlan', { ns: 'styles', count: remaining ?? 0 })
           }
         </p>
       </div>

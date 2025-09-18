@@ -306,9 +306,9 @@ export function UploadFooter({
                 {Array.from({ length: minImages }).map((_, i) => renderSquare(i, true))}
               </div>
               {/* Optional additional photos */}
-              <div className={styles.squareGroup}>
+              {/* <div className={styles.squareGroup}>
                 {Array.from({ length: maxImages - minImages }).map((_, i) => renderSquare(i + minImages, false))}
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

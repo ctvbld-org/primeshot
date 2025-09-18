@@ -4,6 +4,6 @@ export interface UploadConstants {
 }
 
 export const UPLOAD_CONSTANTS: UploadConstants = {
-  MIN_IMAGES: 10,
-  MAX_IMAGES: 16,
+  MIN_IMAGES: 12,
+  MAX_IMAGES: 12,
 } as const

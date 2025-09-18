@@ -492,7 +492,7 @@
 .carouselButtons {
   position: absolute;
   left: 50%;
-  bottom: 0px;
+  bottom: 8px;
   z-index: 11;
   display: flex;
   gap: 6px;

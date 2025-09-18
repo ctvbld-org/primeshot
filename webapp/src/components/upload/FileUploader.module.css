@@ -1,8 +1,8 @@
 .fileUploaderContainer {
   display: flex;
   justify-content: center;
-  max-width: calc(100% - 64px);
-  width: 860px;
+  align-items: center;
+  flex: 1 1 auto;
   position: relative;
 }
 

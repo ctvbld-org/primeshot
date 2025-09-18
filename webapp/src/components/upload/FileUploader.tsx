@@ -184,13 +184,13 @@ export function FileUploader({
           </p>
         </div>
       )}
-      <Card className={clsx(
+      <div className={clsx(
         styles.card,
         disabled && styles.cardDisabled,
         isAnalyzing && styles.cardAnalyzing,
         isDragging || isAnalyzing ? styles.cardDragging : isReady ? styles.cardReady : undefined
       )}>
-        <CardContent className={styles.cardContent}>
+        <div className={styles.cardContent}>
           <div
             className={clsx(
               styles.dropArea
@@ -246,8 +246,8 @@ export function FileUploader({
               </p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
       
       <input
         ref={fileInputRef}

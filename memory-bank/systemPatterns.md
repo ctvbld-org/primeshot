@@ -1554,6 +1554,20 @@ Detected changes in:
 - webapp/src/lib/api/inference-job-management.ts
 - webapp/src/lib/services/confirmation.module.css
 - webapp/src/lib/services/confirmationService.ts
+
+
+**Auto-update 2025-09-18**:
+Detected changes in:
+- webapp/src/components/character/CharacterTrainingDialog.module.css
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/CharacterNameStep.tsx
+- webapp/src/components/character/training/ThumbnailStyles.module.css
+- webapp/src/components/character/training/TrainingProgressStep.tsx
+- webapp/src/components/character/training/UploadPhotosStep.tsx
+- webapp/src/components/character/training/UploadProgressStep.tsx
+- webapp/src/components/upload/FileUploader.module.css
+- webapp/src/lib/image-quality.ts
+- webapp/src/lib/upload-utils.ts
 ## Component Organization
 
 Components are organized by feature and reusability:
