@@ -1595,6 +1595,25 @@ Detected changes in:
 - webapp/src/components/pricing/SubscriptionDialogContent.tsx
 - webapp/src/lib/api/client.ts
 - webapp/src/lib/upload-utils.ts
+
+
+**Auto-update 2025-09-18**:
+Detected changes in:
+- webapp/src/app/api/cleanup-character/route.ts
+- webapp/src/app/api/cleanup-upload/route.ts
+- webapp/src/components/character/CharacterTrainingDialog.module.css
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/CharacterNameStep.tsx
+- webapp/src/components/home/InferenceImageViewerDialog.tsx
+- webapp/src/components/shared/ConfirmDialog.tsx
+- webapp/src/components/upload/FileUploader.module.css
+- webapp/src/components/upload/FileUploader.tsx
+- webapp/src/components/upload/RequirementsContent.module.css
+- webapp/src/components/upload/RequirementsContent.tsx
+- webapp/src/components/upload/UploadFooter.module.css
+- webapp/src/components/upload/UploadFooter.tsx
+- webapp/src/lib/image-quality.ts
+- webapp/src/lib/upload-utils.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

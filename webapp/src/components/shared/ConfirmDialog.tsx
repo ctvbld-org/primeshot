@@ -6,7 +6,7 @@ import { Button } from '@primeshot/common/web/ui/button'
 import { Icon } from '@primeshot/common/web/Icon'
 import confirmStyles from '@/lib/services/confirmation.module.css'
 
-type IconVariant = 'bin' | 'warning' | 'cross' | 'info' | 'question'
+type IconVariant = 'bin' | 'warning' | 'cross' | 'info' | 'check'
 
 interface ConfirmDialogProps {
   open: boolean
