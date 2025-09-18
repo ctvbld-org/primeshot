@@ -82,7 +82,8 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
             faceDetectionSkipped: false,
           eyesVisible: true,
           eyeDetectionSkipped: false,
-          issues: []
+          issues: [] as string[],
+          i18nIssues: [] as Array<{ key: string; params?: Record<string, string | number> }>
         },
         uploadProgress: { progress: 100, isUploading: false },
         uploadedUrl: file.url
