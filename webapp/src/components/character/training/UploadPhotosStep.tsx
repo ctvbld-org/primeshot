@@ -149,7 +149,7 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
 
           <UploadFooter
             acceptedFiles={acceptedFiles}
-            minImages={minImages}
+            minImages={UPLOAD_CONSTANTS.MIN_IMAGES}
             maxImages={isAdmin ? 999 : maxImages}
             onReviewClick={() => {}}
             isUploading={false}
