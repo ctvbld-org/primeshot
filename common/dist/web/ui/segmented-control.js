@@ -19,9 +19,40 @@ export function SegmentedControl({ options, value, onChange, className, fullWidt
         ? selectedIndex
         : Math.max(0, getFirstEnabled());
     const idx = Math.max(0, selectedIndex >= 0 ? selectedIndex : 0);
-    const width = `${100 / count}%`;
-    const transform = `translateX(${idx * 100}%)`;
+    const fallbackWidth = `${100 / count}%`;
+    const fallbackTransform = `translateX(${idx * 100}%)`;
     const itemRefs = React.useRef([]);
+    const containerRef = React.useRef(null);
+    const [thumbStyle, setThumbStyle] = React.useState(null);
+    // Measure the selected item's width and position so the thumb matches it
+    const measure = React.useCallback(() => {
+        if (!containerRef.current)
+            return;
+        const i = Math.max(0, options.findIndex(o => String(o.value) === String(value)));
+        const el = itemRefs.current[i];
+        if (!el) {
+            setThumbStyle(null);
+            return;
+        }
+        const w = el.offsetWidth;
+        const x = el.offsetLeft - 3; /* account for .segmentThumb { left: 3px } */
+        // Only update when values actually change to avoid jank
+        setThumbStyle(prev => (prev && prev.width === w && prev.x === x) ? prev : { width: w, x });
+    }, [options, value]);
+    React.useLayoutEffect(() => {
+        measure();
+        if (!containerRef.current)
+            return;
+        const ro = new ResizeObserver(() => measure());
+        ro.observe(containerRef.current);
+        itemRefs.current.forEach(el => el && ro.observe(el));
+        const onResize = () => measure();
+        window.addEventListener('resize', onResize);
+        return () => {
+            ro.disconnect();
+            window.removeEventListener('resize', onResize);
+        };
+    }, [measure]);
     const getNextEnabled = (start, direction) => {
         var _a;
         let i = start;
@@ -71,7 +102,9 @@ export function SegmentedControl({ options, value, onChange, className, fullWidt
         if (next !== -1 && !((_a = options[next]) === null || _a === void 0 ? void 0 : _a.disabled))
             onChange(options[next].value);
     }, [options, onChange]);
-    return (_jsxs("div", { role: "radiogroup", "aria-orientation": "horizontal", "aria-label": ariaLabel, className: cn(styles.segmented, fullWidth && styles.segmentedFull, size === 'sm' ? styles['size-sm'] : styles['size-md'], className), children: [options.length > 0 && _jsx("div", { className: styles.segmentThumb, style: { width, transform } }), options.map((opt, i) => {
+    return (_jsxs("div", { role: "radiogroup", "aria-orientation": "horizontal", "aria-label": ariaLabel, ref: containerRef, className: cn(styles.segmented, fullWidth && styles.segmentedFull, size === 'sm' ? styles['size-sm'] : styles['size-md'], className), children: [options.length > 0 && (_jsx("div", { className: styles.segmentThumb, style: thumbStyle
+                    ? { width: thumbStyle.width, transform: `translateX(${thumbStyle.x}px)` }
+                    : { width: fallbackWidth, transform: fallbackTransform } })), options.map((opt, i) => {
                 var _a;
                 const isActive = String(value) === String(opt.value);
                 return (_jsx("button", { type: "button", role: "radio", "aria-checked": isActive, "aria-disabled": opt.disabled || undefined, tabIndex: i === focusIndex ? 0 : -1, ref: el => { itemRefs.current[i] = el; }, className: cn(styles.segment, isActive && styles.segmentActive, opt.disabled && styles.segmentDisabled), disabled: opt.disabled, onClick: () => !opt.disabled && onChange(opt.value), onKeyDown: (e) => handleKeyDown(e, i), children: (_a = opt.content) !== null && _a !== void 0 ? _a : String(opt.value) }, String(opt.value)));

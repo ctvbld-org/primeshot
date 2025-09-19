@@ -161,11 +161,15 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
     const resolvedQuality = (jobRow as any)?.quality ?? (job as any)?.quality ?? job?.settings?.quality ?? '1K'
     const resolvedAspect = (jobRow as any)?.aspect_ratio ?? (job as any)?.aspect_ratio ?? job?.settings?.aspect_ratio ?? '1:1'
 
+    // Determine environment (matches inference-create behavior)
+    const env = Deno.env.get('ENV') ?? 'prod'
+
     const modalRequest = {
       user_id: job.user_id,
       job_id: job.id,
       character_id: job.character_id,
       style_id: job.style_id,
+      env, // Ensure provider targets the correct Supabase project
       wardrobe_id: job.wardrobe_id,
       color_id: job.color_id,
       scene_id: job.scene_id,

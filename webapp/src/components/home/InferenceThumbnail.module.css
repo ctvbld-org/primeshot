@@ -17,6 +17,23 @@
   height: 100%;
 }
 
+.imageContainer:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.8) 100%);
+  pointer-events: none;
+  background-blend-mode: hard-light;
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+
+.imageContainer:hover:after,
+.imageContainer.hero:after {
+  opacity: 1;
+}
+
 .imageLayer {
   position: absolute;
   inset: 0;
@@ -24,7 +41,7 @@
   height: 100%;
   object-fit: cover;
   opacity: 0;
-  transition: opacity 0.28s ease, transform 0.3s ease-out;
+  transition: opacity 0.3s ease, transform 0.3s ease-out;
 }
 
 .imageLayer:hover {
@@ -269,6 +286,47 @@
 .placeholder {
   background: rgba(42, 222, 216, 0.1);
 }
+
+/* Inline hover actions */
+.actionsOverlay {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  display: flex;
+  gap: 8px;
+  z-index: 2;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+}
+.imageContainer:hover .actionsOverlay,
+.imageContainer.hero .actionsOverlay {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #000;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+}
+.actionBtn:disabled { opacity: 0.75; }
+
+.favBtn { color: #f43f5e; }
+
+.favPinned {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  z-index: 2;
+}
+.alwaysVisible { opacity: 1 !important; }
 
 /* Generating state gradient loader */
 .statusGenerating .gradientLoader,

@@ -32,7 +32,7 @@ import { useInferenceQueue } from '@/contexts/inference-queue-context'
 import { useCallback as useCallbackReact, useRef } from 'react'
 // Batched counts replace per-card image fetch
 
-import { OptionsPanel } from '../OptionsPanel/OptionsPanel'
+import { OptionsPanel } from './OptionsPanel/OptionsPanel'
 import { Loader } from '@primeshot/common/web/ui/loader'
 import { GenerateBarSelect } from './GenerateBarSelect'
 import { useCreateCharacter } from './useCreateCharacter'

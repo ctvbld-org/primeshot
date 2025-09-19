@@ -10,7 +10,7 @@ import { Loader } from '@primeshot/common/web/ui/loader'
 import { toast } from '@primeshot/common/web/ui/use-toast'
 import type { FileWithScore } from '@/lib/types'
 
-interface FileUploaderProps {
+export interface FileUploaderProps {
   handleNewFiles: (files: File[]) => File[]
   addFiles: (files: File[]) => Promise<FileState[]>
   acceptedFiles?: FileWithScore[]
@@ -34,7 +34,11 @@ interface FileState {
   uploadProgress: { progress: number; isUploading: boolean }
 }
 
-export function FileUploader({ 
+export type FileUploaderHandle = {
+  openFileDialog: () => void
+}
+
+export const FileUploader = React.forwardRef<FileUploaderHandle, FileUploaderProps>(function FileUploader({ 
   handleNewFiles,
   addFiles,
   acceptedFiles,
@@ -49,7 +53,7 @@ export function FileUploader({
   currentUploadingIndex = null,
   uploadedFiles = [],
   isTransitioningToReview = false
-}: FileUploaderProps) {
+}: FileUploaderProps, ref) {
   const { t } = useTranslation('upload')
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
@@ -169,6 +173,15 @@ export function FileUploader({
     }
   }, [disabled])
 
+  // Expose imperative API to open file picker from parent components
+  React.useImperativeHandle(ref, () => ({
+    openFileDialog: () => {
+      if (!disabled) {
+        fileInputRef.current?.click()
+      }
+    }
+  }), [disabled])
+
   return (
     <div className={styles.fileUploaderContainer}>
       {isUploading && (
@@ -259,4 +272,4 @@ export function FileUploader({
       />
     </div>
   )
-} 
+})

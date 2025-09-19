@@ -63,6 +63,22 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
   const { data: colorData } = useColorHook(colorId || undefined as any);
 
   const subtitle = useMemo(() => {
+    // Prefer prompt_override when available and enabled
+    const rawOverride = (activeJob as any)?.prompt_override ?? (activeJob as any)?.promptOverride ?? null;
+    let overrideObj: any = null;
+    if (rawOverride) {
+      if (typeof rawOverride === 'string') {
+        try { overrideObj = JSON.parse(rawOverride); } catch { overrideObj = null; }
+      } else if (typeof rawOverride === 'object') {
+        overrideObj = rawOverride;
+      }
+    }
+    const overridePrompt = (overrideObj?.enabled === true && typeof overrideObj?.prompt === 'string')
+      ? overrideObj.prompt.trim()
+      : '';
+    if (overridePrompt) return overridePrompt;
+
+    // Fallback to composed subtitle when override is not present
     const style = styleData?.name || '';
     const scene = (sceneData as any)?.label || '';
     const wardrobe = (wardrobeData as any)?.label || '';
@@ -70,7 +86,15 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
     // Only render when all parts are available to avoid partial phrases
     if (!style || !scene || !wardrobe || !color) return '';
     return t('shoot.subtitle', { ns: 'styles', style, scene, wardrobe, color });
-  }, [styleData?.name, (sceneData as any)?.label, (wardrobeData as any)?.label, (colorData as any)?.label, t]);
+  }, [
+    styleData?.name,
+    (sceneData as any)?.label,
+    (wardrobeData as any)?.label,
+    (colorData as any)?.label,
+    (activeJob as any)?.prompt_override,
+    (activeJob as any)?.promptOverride,
+    t
+  ]);
 
   // Filter out deleted/failed thumbnails that have no image URLs (same logic as in viewer dialog)
   const visibleThumbnails = useMemo(() => {
@@ -417,6 +441,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
                   thumbnail={firstThumb}
                   jobStatus={activeJob.status as any}
                   onClick={() => handleThumbnailClick(0)}
+                  variant="hero"
                 />
               );
             })()}
@@ -426,14 +451,15 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
           {(() => {
             // Show all thumbnails, including deleted ones (empty squares)
             const allThumbnails = activeJob.thumbnails;
-            const display = allThumbnails.slice(0, 4);
-            const extra = Math.max(allThumbnails.length - display.length, 0);
-            const validImages = allThumbnails.filter(t => !!(t.webImageUrl || t.imageUrl));
+            // Exclude the first (hero) thumbnail; show remaining as circles
+            const remaining = allThumbnails.slice(1);
+            const display = remaining.slice(0, 4);
+            const extra = Math.max(remaining.length - display.length, 0);
             
             return (
               <div className={styles.previewStack} aria-label="Thumbnails preview">
                 {display.map((t, idx) => (
-                  <div key={`pv-${t.id}`} className={styles.previewCircle} style={{ zIndex: 20 - idx }}>
+                  <div key={`pv-${t.id}`} className={styles.previewCircle}>
                     {/* Use webImageUrl if available, fallback to imageUrl, or show empty square */}
                     {t.webImageUrl || t.imageUrl ? (
                       <img src={(t.webImageUrl || t.imageUrl) as string} alt={`Preview ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -455,6 +481,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
           <Button
             variant="secondary"
             className={styles.viewAllBtn}
+            size="md"
             onClick={() => handleThumbnailClick(0)}
             aria-label="View all images"
           >

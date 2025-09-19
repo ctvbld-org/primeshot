@@ -135,13 +135,36 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
   const { data: colorData } = useColorHook((activeJob.colorId || undefined) as any);
 
   const subtitle = useMemo(() => {
+    // Prefer prompt_override when available and enabled
+    const rawOverride = (activeJob as any)?.prompt_override ?? (activeJob as any)?.promptOverride ?? null;
+    let overrideObj: any = null;
+    if (rawOverride) {
+      if (typeof rawOverride === 'string') {
+        try { overrideObj = JSON.parse(rawOverride); } catch { overrideObj = null; }
+      } else if (typeof rawOverride === 'object') {
+        overrideObj = rawOverride;
+      }
+    }
+    const overridePrompt = (overrideObj?.enabled === true && typeof overrideObj?.prompt === 'string')
+      ? overrideObj.prompt.trim()
+      : '';
+    if (overridePrompt) return overridePrompt;
+
     const style = styleData?.name || '';
     const scene = (sceneData as any)?.label || '';
     const wardrobe = (wardrobeData as any)?.label || '';
     const color = (colorData as any)?.label || '';
     if (!style || !scene || !wardrobe || !color) return '';
     return t('shoot.subtitle', { ns: 'styles', style, scene, wardrobe, color });
-  }, [styleData?.name, (sceneData as any)?.label, (wardrobeData as any)?.label, (colorData as any)?.label, t]);
+  }, [
+    styleData?.name,
+    (sceneData as any)?.label,
+    (wardrobeData as any)?.label,
+    (colorData as any)?.label,
+    (activeJob as any)?.prompt_override,
+    (activeJob as any)?.promptOverride,
+    t
+  ]);
 
   // Resolve character avatar URL if present
   useEffect(() => {

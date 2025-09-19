@@ -126,6 +126,7 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
             characterId: (dbJob as any).character_id || undefined,
             characterName: (dbJob as any).character_id ? initialCharMap[(dbJob as any).character_id]?.name : undefined,
             characterThumbnailUrl: (dbJob as any).character_id ? initialCharMap[(dbJob as any).character_id]?.thumbnail_url as any : undefined,
+            ...(typeof (dbJob as any).prompt_override !== 'undefined' ? { prompt_override: (dbJob as any).prompt_override } : {}),
           });
 
           activeJobIds.current.add(dbJob.id);
@@ -182,6 +183,7 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
             characterId: (dbJob as any).character_id || undefined,
             characterName: (dbJob as any).character_id ? initialCharMap[(dbJob as any).character_id]?.name : undefined,
             characterThumbnailUrl: (dbJob as any).character_id ? initialCharMap[(dbJob as any).character_id]?.thumbnail_url as any : undefined,
+            ...(typeof (dbJob as any).prompt_override !== 'undefined' ? { prompt_override: (dbJob as any).prompt_override } : {}),
           });
         } else {
           // Completed job - create thumbnails with images
@@ -232,6 +234,7 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
             characterId: (dbJob as any).character_id || undefined,
             characterName: (dbJob as any).character_id ? initialCharMap[(dbJob as any).character_id]?.name : undefined,
             characterThumbnailUrl: (dbJob as any).character_id ? initialCharMap[(dbJob as any).character_id]?.thumbnail_url as any : undefined,
+            ...(typeof (dbJob as any).prompt_override !== 'undefined' ? { prompt_override: (dbJob as any).prompt_override } : {}),
           });
         }
       });
@@ -353,11 +356,18 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
             createdAt: new Date(dbJob.created_at),
             nbTakes,
             message: (dbJob as any).error_message || 'Generation failed',
+            // Include metadata for subtitle rendering
+            styleId: (dbJob as any).style_id,
+            sceneId: (dbJob as any).scene_id,
+            wardrobeId: (dbJob as any).wardrobe_id,
+            colorId: (dbJob as any).color_id,
             quality: (dbJob as any).quality || undefined,
             aspectRatio: (dbJob as any).aspect_ratio || undefined,
             characterId: (dbJob as any).character_id || undefined,
             characterName: (dbJob as any).character_id ? pageCharMap[(dbJob as any).character_id]?.name : undefined,
             characterThumbnailUrl: (dbJob as any).character_id ? pageCharMap[(dbJob as any).character_id]?.thumbnail_url as any : undefined,
+            // Carry prompt override through to UI
+            ...(typeof (dbJob as any).prompt_override !== 'undefined' ? { prompt_override: (dbJob as any).prompt_override } : {}),
           });
         } else {
           const nbTakes = dbJob.nb_takes || (dbJob.generated_images?.length ?? 0) || 1;
@@ -401,11 +411,18 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
             thumbnails,
             createdAt: new Date(dbJob.created_at),
             nbTakes,
+            // Include metadata for subtitle rendering
+            styleId: (dbJob as any).style_id,
+            sceneId: (dbJob as any).scene_id,
+            wardrobeId: (dbJob as any).wardrobe_id,
+            colorId: (dbJob as any).color_id,
             quality: (dbJob as any).quality || undefined,
             aspectRatio: (dbJob as any).aspect_ratio || undefined,
             characterId: (dbJob as any).character_id || undefined,
             characterName: (dbJob as any).character_id ? pageCharMap[(dbJob as any).character_id]?.name : undefined,
             characterThumbnailUrl: (dbJob as any).character_id ? pageCharMap[(dbJob as any).character_id]?.thumbnail_url as any : undefined,
+            // Carry prompt override through to UI
+            ...(typeof (dbJob as any).prompt_override !== 'undefined' ? { prompt_override: (dbJob as any).prompt_override } : {}),
           });
         }
       });

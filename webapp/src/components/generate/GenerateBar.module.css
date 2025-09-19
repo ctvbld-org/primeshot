@@ -522,7 +522,7 @@
 }
 
 .settingsPanel { 
-  display: flex; 
+  display: flex;
   gap: 12px; 
   padding: 8px; 
 }
@@ -584,6 +584,13 @@
   .barButton .text,
   .barButton .icon {
     display: none;
+  }
+}
+
+@media (max-width: 880px) {
+  .settingsPanel { 
+    flex-direction: column; 
+    gap: 8px; 
   }
 }
 

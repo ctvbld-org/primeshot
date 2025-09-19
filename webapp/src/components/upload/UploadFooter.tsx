@@ -20,6 +20,7 @@ interface UploadFooterProps {
   currentAnalyzingIndex: number
   currentUploadingIndex?: number | null
   uploadedFiles?: string[]
+  onEmptySquareClick?: () => void
 }
 
 interface ScrollState {
@@ -38,7 +39,8 @@ export function UploadFooter({
   isAnalyzing,
   currentAnalyzingIndex,
   currentUploadingIndex = null,
-  uploadedFiles = []
+  uploadedFiles = [],
+  onEmptySquareClick
 }: UploadFooterProps) {
   // 1. Hooks
   const { t } = useTranslation('upload')
@@ -221,6 +223,11 @@ export function UploadFooter({
               isUploaded && styles.squareUploaded
             )}
             role="button"
+            onClick={() => {
+              if (!file && !isUploading) {
+                onEmptySquareClick?.()
+              }
+            }}
             aria-label={file ? 
               t('accessibility.photoWithQuality', { number: index + 1, quality: qualityLabel }) : 
               t('accessibility.emptyPhotoSlot', { number: index + 1 })
@@ -292,7 +299,6 @@ export function UploadFooter({
             ref={wrapperRef}
             className={cn(
               styles.squaresWrapper,
-              'hide-scrollbar',
               scrollState.atStart && styles.atStart,
               scrollState.atEnd && styles.atEnd,
               scrollState.noScroll && styles.noScroll

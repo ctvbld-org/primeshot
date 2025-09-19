@@ -178,6 +178,7 @@ padding-right: 1.5rem; /* px-6 */
 padding-top: 1rem; /* py-4 */
 padding-bottom: 1rem; /* py-4 */
 min-height: 64px;
+width: 100%;
 }
 
 .headerLeft {

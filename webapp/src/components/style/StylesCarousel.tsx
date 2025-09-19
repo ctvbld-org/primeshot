@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { Icon } from '@primeshot/common/web/Icon'
 import { getStyleImages } from '@/lib/utils/get-styles-images'
 import { useStyleSelection } from '@/contexts/style-selection-context'
-import { GenerateBar } from '@/components/style/GenerateBar/GenerateBar'
+import { GenerateBar } from '@/components/generate/GenerateBar'
 import { getStoredSelectedStyleIndex, storeSelectedStyleIndex } from '@/lib/utils/style-storage'
 import styles from './StylesCarousel.module.css'
 
@@ -226,7 +226,7 @@ export function StylesCarousel() {
         )}
       </div>
 
-      <GenerateBar emblaApi={emblaApi || null} onPanelToggle={(open) => {
+      <GenerateBar emblaApi={emblaApi || null} onPanelToggle={(open: boolean) => {
         const container = document.querySelector(`.${styles.container}`) as HTMLElement | null
         if (!container) return
         container.classList.toggle(styles.panelOpen, !!open)

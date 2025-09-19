@@ -53,6 +53,15 @@ export function GalleryPlaceholder() {
                 </div>
               </div>
             </div>
+            <div className={stylesInference.mobileHeroWrap}>
+              {[0].map((i) => (
+                <div className={stylesInference.mobileHero + ' ' + stylesInference.ar11} key={'thumbnail-placeholder-' + i}>
+                  <div className={`${stylesInference.heroAspect}`}>
+                    <Skeleton className={stylesThumbnail.gradientLoader} style={{ opacity: '0.3' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
             <div className={stylesInference.thumbnailGrid}>
               {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
                 <div className={stylesThumbnail.thumbnail} style={{ ['--stagger' as any]: i }} key={'thumbnail-placeholder-' + i}>

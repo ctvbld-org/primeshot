@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useMemo } from 'react'
 import { useTranslation, Trans } from 'react-i18next'
 import { useToast } from '@primeshot/common/web/ui/use-toast'
-import { FileUploader } from '@/components/upload/FileUploader'
+import { FileUploader, type FileUploaderHandle } from '@/components/upload/FileUploader'
 import { useAuth } from '@/contexts/auth-context'
 
 import { useFileUpload } from '@/lib/hooks/use-file-upload'
@@ -34,6 +34,7 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
   const minImages = isAdmin ? 1 : UPLOAD_CONSTANTS.MIN_IMAGES
   const maxImages = isAdmin ? 999 : UPLOAD_CONSTANTS.MAX_IMAGES
   
+  const fileUploaderRef = React.useRef<FileUploaderHandle>(null)
 
 
   // Convert existing files to FileWithScore format
@@ -132,6 +133,7 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
         
           <div className={styles.uploaderContainer}>        
             <FileUploader 
+              ref={fileUploaderRef}
               handleNewFiles={handleNewFiles}
               addFiles={addFiles}
               acceptedFiles={acceptedFiles}
@@ -158,6 +160,7 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
             currentAnalyzingIndex={currentFileIndex}
             currentUploadingIndex={null}
             uploadedFiles={[]}
+            onEmptySquareClick={() => fileUploaderRef.current?.openFileDialog()}
           />
         </div>
       </div>

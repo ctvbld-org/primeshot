@@ -1,13 +1,14 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@primeshot/common/web/ui/button'
 import { Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@primeshot/common/web/ui/dialog'
-import { Copy, FolderPlus, Upload as UploadIcon, Download as DownloadIcon, Trash as TrashIcon } from 'lucide-react'
+import { Copy, FolderPlus, Upload as UploadIcon, Download as DownloadIcon, Trash as TrashIcon, LayoutList, LayoutGrid, Folder } from 'lucide-react'
 import { toast } from 'sonner'
 import styles from './styles.module.css'
 import { TreeNav } from '@/components/media/TreeNav'
+import { SegmentedControl } from '@primeshot/common/web/ui/segmented-control'
 
 function usePersistedPrefix() {
   const search = useSearchParams()
@@ -27,6 +28,16 @@ function usePersistedPrefix() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Sync when URL changes (back/forward)
+  useEffect(() => {
+    // Avoid unnecessary updates
+    setPrefix((prev) => {
+      if (prev === qPrefix) return prev
+      localStorage.setItem('media:lastPrefix', qPrefix)
+      return qPrefix
+    })
+  }, [qPrefix])
+
   const update = (next: string) => {
     setPrefix(next)
     localStorage.setItem('media:lastPrefix', next)
@@ -35,6 +46,47 @@ function usePersistedPrefix() {
   }
 
   return { prefix, setPrefix: update }
+}
+
+function usePersistedView() {
+  const search = useSearchParams()
+  const router = useRouter()
+  const qView = (search.get('view') || '').toLowerCase()
+  const qPrefix = search.get('prefix') || ''
+  const [view, setView] = useState<'list' | 'grid'>('list')
+
+  useEffect(() => {
+    if (qView === 'list' || qView === 'grid') {
+      setView(qView as 'list' | 'grid')
+      localStorage.setItem('media:view', qView)
+    } else {
+      const saved = (localStorage.getItem('media:view') || 'list') as 'list' | 'grid'
+      setView(saved)
+      const params = new URLSearchParams()
+      if (qPrefix) params.set('prefix', qPrefix)
+      params.set('view', saved)
+      router.replace(`/media?${params.toString()}`)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Sync when URL changes (back/forward)
+  useEffect(() => {
+    if (qView === 'list' || qView === 'grid') {
+      setView((prev) => (prev === qView ? prev : (qView as 'list' | 'grid')))
+    }
+  }, [qView])
+
+  const update = (next: 'list' | 'grid') => {
+    setView(next)
+    localStorage.setItem('media:view', next)
+    const params = new URLSearchParams()
+    if (qPrefix) params.set('prefix', qPrefix)
+    params.set('view', next)
+    router.push(`/media?${params.toString()}`)
+  }
+
+  return { view, setView: update }
 }
 
 async function list(prefix: string) {
@@ -61,6 +113,7 @@ async function getAllFilesInFolder(folderPrefix: string): Promise<string[]> {
 
 export default function MediaPage() {
   const { prefix, setPrefix } = usePersistedPrefix()
+  const { view, setView } = usePersistedView()
   const [loading, setLoading] = useState(false)
   const [folders, setFolders] = useState<string[]>([])
   const [files, setFiles] = useState<any[]>([])
@@ -74,22 +127,78 @@ export default function MediaPage() {
   const [convertToWebp, setConvertToWebp] = useState(true)
   const [isUploading, setIsUploading] = useState(false)
   const [isExpandingFolders, setIsExpandingFolders] = useState(false)
+  const [failedThumbs, setFailedThumbs] = useState<Set<string>>(new Set())
+  const [previewKey, setPreviewKey] = useState<string | null>(null)
+  const [lastToggledIndex, setLastToggledIndex] = useState<number | null>(null)
+  const [failedThumbVariants, setFailedThumbVariants] = useState<Set<string>>(new Set())
+  const [failedPreview, setFailedPreview] = useState<Set<string>>(new Set())
 
+  const requestIdRef = useRef(0)
   const refresh = async () => {
+    const myId = ++requestIdRef.current
     setLoading(true)
     try {
       const data = await list(prefix)
-      setFolders(data.folders)
-      // default sort: newest first
-      setFiles([...data.files].sort((a, b) => (new Date(b.lastModified || 0).getTime() - new Date(a.lastModified || 0).getTime())))
+      // Only apply if this request is the latest
+      if (myId === requestIdRef.current) {
+        setFolders(data.folders)
+        // default sort: newest first
+        setFiles([...data.files].sort((a, b) => (new Date(b.lastModified || 0).getTime() - new Date(a.lastModified || 0).getTime())))
+      }
     } finally {
-      setLoading(false)
+      if (myId === requestIdRef.current) setLoading(false)
     }
   }
 
   useEffect(() => { refresh() }, [prefix])
 
   const cdn = process.env.NEXT_PUBLIC_AWS_DISTRIBUTION || ''
+  const toCdnUrl = (key: string) => `${cdn}/${key.split('/').map(encodeURIComponent).join('/')}`
+  const getImgSrc = (key: string) => failedThumbs.has(key)
+    ? `/api/media/download/file?key=${encodeURIComponent(key)}`
+    : toCdnUrl(key)
+
+  // Prefer a smaller sibling thumbnail when available (e.g., web_ prefix alongside orig_)
+  const getThumbKey = (key: string) => key.replace(/(^|\/)orig_/, '$1web_')
+  const getThumbSrc = (key: string) => {
+    // Always generate a dynamic thumb for speed and deduplication safety
+    if (failedThumbVariants.has(key)) return getImgSrc(key)
+    return `/api/media/thumbnail?key=${encodeURIComponent(key)}&w=480`
+  }
+
+  const getPreviewSrc = (key: string) => {
+    if (failedPreview.has(key)) return getImgSrc(key)
+    return `/api/media/thumbnail?key=${encodeURIComponent(key)}&w=1280`
+  }
+
+  // Flatten visible items into an ordered array (folders first, then files)
+  const orderedItems = useMemo(() => {
+    const folderItems = folders.map((f) => ({ key: f, type: 'folder' as const }))
+    const fileItems = files.map((f) => ({ key: f.key as string, type: 'file' as const }))
+    return [...folderItems, ...fileItems]
+  }, [folders, files])
+
+  const toggleSelect = (key: string, checked: boolean, index: number, shiftKey: boolean) => {
+    setSelected((prev) => {
+      // If shift, select range based on last toggled
+      if (shiftKey && lastToggledIndex !== null) {
+        const start = Math.min(lastToggledIndex, index)
+        const end = Math.max(lastToggledIndex, index)
+        const next = new Set(prev)
+        for (let i = start; i <= end; i++) {
+          const k = orderedItems[i]?.key
+          if (!k) continue
+          if (checked) next.add(k); else next.delete(k)
+        }
+        return next
+      }
+      // Normal single toggle
+      const next = new Set(prev)
+      if (checked) next.add(key); else next.delete(key)
+      return next
+    })
+    setLastToggledIndex(index)
+  }
 
   const onCreateFolder = async () => {
     const name = prompt('New folder name')?.trim()
@@ -231,8 +340,21 @@ export default function MediaPage() {
     if (selected.size === 0) return
     if (!confirm(`Delete ${selected.size} item(s)?`)) return
     const keys = Array.from(selected)
+    // Optimistic UI update: remove from folders/files immediately
+    const prevFolders = folders
+    const prevFiles = files
+    const nextFolders = folders.filter(f => !keys.includes(f))
+    const nextFiles = files.filter(f => !keys.includes(f.key))
+    setFolders(nextFolders)
+    setFiles(nextFiles)
+    setSelected(new Set())
     const res = await fetch('/api/media/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ keys }) })
-    if (res.ok) { setSelected(new Set()); refresh() }
+    if (!res.ok) {
+      // Revert on failure
+      setFolders(prevFolders)
+      setFiles(prevFiles)
+      toast.error('Failed to delete items')
+    }
   }
 
   const onDownload = async () => {
@@ -370,6 +492,19 @@ export default function MediaPage() {
             </label>
           </div>
           <div className={styles.actionsRight}>
+            <div className={styles.viewToggle}>
+              <SegmentedControl
+                size="sm"
+                fullWidth={false}
+                ariaLabel="View mode"
+                value={view}
+                onChange={(v)=> setView(v as 'list' | 'grid')}
+                options={[
+                  { value: 'list', content: <div style={{display:'inline-flex',alignItems:'center',gap:6}}><LayoutList size={16}/> <span>List</span></div> },
+                  { value: 'grid', content: <div style={{display:'inline-flex',alignItems:'center',gap:6}}><LayoutGrid size={16}/> <span>Thumbnails</span></div> },
+                ]}
+              />
+            </div>
             <Button variant="ghost" onClick={onDownload} disabled={selected.size === 0 || isExpandingFolders}>
               <DownloadIcon className="mr-2 h-4 w-4" />
               {isExpandingFolders ? 'Expanding...' : 'Download'}
@@ -381,72 +516,153 @@ export default function MediaPage() {
           </div>
         </div>
 
-        <div className={styles.table}>
-          {loading ? (
-            <div className={styles.loading}>Loading…</div>
-          ) : (
-            <table>
-              <thead>
-                <tr>
-                  <th style={{width: 24}}></th>
-                  <th className={styles.sortable} onClick={()=> setFiles(prev => [...prev].sort((a,b)=> a.name.localeCompare(b.name)))}>Name</th>
-                  <th className={styles.sortable} onClick={()=> setFiles(prev => [...prev].sort((a,b)=> (b.size - a.size)))}>Size</th>
-                  <th className={styles.sortable} onClick={()=> setFiles(prev => [...prev].sort((a,b)=> (new Date(b.lastModified||0).getTime() - new Date(a.lastModified||0).getTime())))}>Last Modified</th>
-                  <th style={{width: 40}}></th>
-                </tr>
-              </thead>
-              <tbody>
-                {folders.map((f) => {
+        {view === 'list' ? (
+          <div className={styles.table}>
+            {loading ? (
+              <div className={styles.loading}>Loading…</div>
+            ) : (
+              <table>
+                <thead>
+                  <tr>
+                    <th style={{width: 24}}></th>
+                    <th className={styles.sortable} onClick={()=> setFiles(prev => [...prev].sort((a,b)=> a.name.localeCompare(b.name)))}>Name</th>
+                    <th className={styles.sortable} onClick={()=> setFiles(prev => [...prev].sort((a,b)=> (b.size - a.size)))}>Size</th>
+                    <th className={styles.sortable} onClick={()=> setFiles(prev => [...prev].sort((a,b)=> (new Date(b.lastModified||0).getTime() - new Date(a.lastModified||0).getTime())))}>Last Modified</th>
+                    <th style={{width: 40}}></th>
+                  </tr>
+                </thead>
+                <tbody>
+                {folders.map((f, fi) => {
                   const key = f
+                  const idx = fi // folders come first in orderedItems
                   const checked = selected.has(key)
-                  return (
+                    return (
                   <tr key={f}>
-                    <td><input type="checkbox" checked={checked} onChange={(e) => {
-                      const next = new Set(selected); if (e.target.checked) next.add(key); else next.delete(key); setSelected(next)
-                    }} /></td>
-                    <td>
-                      <button className={styles.link} onClick={() => setPrefix(f)}>{f.slice(prefix.length)}</button>
-                    </td>
-                    <td>—</td>
-                    <td>—</td>
-                    <td style={{textAlign:'right'}}>
-                      <button className={styles.iconBtn} title="Copy S3 path (append to CloudFront)" onClick={() => copyPath(key)}>
-                        <Copy size={16} />
-                      </button>
-                    </td>
-                  </tr>)
-                })}
-                {files.map((file) => {
-                  const isImg = /\.(png|jpe?g|webp|svg)$/i.test(file.name)
-                  const key = file.key
-                  const checked = selected.has(key)
-                  return (
-                    <tr key={key}>
-                      <td><input type="checkbox" checked={checked} onChange={(e) => {
-                        const next = new Set(selected); if (e.target.checked) next.add(key); else next.delete(key); setSelected(next)
-                      }} /></td>
+                    <td><input type="checkbox" checked={checked} onClick={(e) => toggleSelect(key, (e.target as HTMLInputElement).checked, idx, e.shiftKey)} onChange={()=>{}} /></td>
                       <td>
-                        {isImg ? (
-                          <a className={styles.link} href={`${cdn}/${key}`} target="_blank" rel="noreferrer">{file.name}</a>
-                        ) : (
-                          <span>{file.name}</span>
-                        )}
+                        <button className={styles.link} onClick={() => setPrefix(f)}>{f.slice(prefix.length)}</button>
                       </td>
-                      <td>{file.size?.toLocaleString?.() || 0}</td>
-                      <td>{file.lastModified ? new Date(file.lastModified).toLocaleString() : ''}</td>
+                      <td>—</td>
+                      <td>—</td>
                       <td style={{textAlign:'right'}}>
                         <button className={styles.iconBtn} title="Copy S3 path (append to CloudFront)" onClick={() => copyPath(key)}>
                           <Copy size={16} />
                         </button>
                       </td>
-                    </tr>
+                    </tr>)
+                  })}
+                {files.map((file, fi) => {
+                    const isImg = /\.(png|jpe?g|webp|svg)$/i.test(file.name)
+                    const key = file.key
+                  const idx = folders.length + fi
+                    const checked = selected.has(key)
+                    return (
+                      <tr key={key}>
+                      <td><input type="checkbox" checked={checked} onClick={(e) => toggleSelect(key, (e.target as HTMLInputElement).checked, idx, e.shiftKey)} onChange={()=>{}} /></td>
+                        <td>
+                        {isImg ? (
+                          <a className={styles.link} href={toCdnUrl(key)} target="_blank" rel="noreferrer">{file.name}</a>
+                          ) : (
+                            <span>{file.name}</span>
+                          )}
+                        </td>
+                        <td>{file.size?.toLocaleString?.() || 0}</td>
+                        <td>{file.lastModified ? new Date(file.lastModified).toLocaleString() : ''}</td>
+                        <td style={{textAlign:'right'}}>
+                          <button className={styles.iconBtn} title="Copy S3 path (append to CloudFront)" onClick={() => copyPath(key)}>
+                            <Copy size={16} />
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
+        ) : (
+          <div className={styles.gridArea}>
+            {loading ? (
+              <div className={styles.loading}>Loading…</div>
+            ) : (
+              <div className={styles.grid}>
+                {folders.map((f, fi) => {
+                  const key = f
+                  const checked = selected.has(key)
+                  const label = f.slice(prefix.length).replace(/\/$/, '')
+                  return (
+                    <div key={f} className={styles.tile}>
+                      <div className={styles.tileHeader}>
+                        <input type="checkbox" checked={checked} onClick={(e)=> toggleSelect(key, (e.target as HTMLInputElement).checked, fi, e.shiftKey)} onChange={()=>{}} />
+                        <div className={styles.tileActions}>
+                          <button className={styles.iconBtn} title="Copy S3 path (append to CloudFront)" onClick={() => copyPath(key)}>
+                            <Copy size={16} />
+                          </button>
+                        </div>
+                      </div>
+                      <button className={styles.folderTile} onClick={()=> setPrefix(f)}>
+                        <Folder size={28} />
+                      </button>
+                      <div className={styles.tileFooter} title={label}>{label}</div>
+                    </div>
                   )
                 })}
-              </tbody>
-            </table>
-          )}
-        </div>
+                {files.map((file, fi) => {
+                  const isImg = /\.(png|jpe?g|webp|svg)$/i.test(file.name)
+                  const key = file.key
+                  const checked = selected.has(key)
+                  return (
+                    <div key={key} className={styles.tile}>
+                      <div className={styles.tileHeader}>
+                        <input type="checkbox" checked={checked} onClick={(e)=> toggleSelect(key, (e.target as HTMLInputElement).checked, folders.length + fi, e.shiftKey)} onChange={()=>{}} />
+                        <div className={styles.tileActions}>
+                          <button className={styles.iconBtn} title="Copy S3 path (append to CloudFront)" onClick={() => copyPath(key)}>
+                            <Copy size={16} />
+                          </button>
+                        </div>
+                      </div>
+                      {isImg ? (
+                        <button type="button" className={styles.thumbButton} onClick={()=> setPreviewKey(key)}>
+                          <img
+                            className={styles.thumb}
+                            src={getThumbSrc(key)}
+                            alt={file.name}
+                            loading="lazy"
+                            onError={() => {
+                              // If thumb variant fails, mark and fall back to full via CDN->API
+                              setFailedThumbVariants(prev => new Set(prev).add(key))
+                              setFailedThumbs(prev => new Set(prev).add(key))
+                            }}
+                          />
+                        </button>
+                      ) : (
+                        <div className={styles.nonImage}>{file.name.split('.').pop()?.toUpperCase()}</div>
+                      )}
+                      <div className={styles.tileFooter} title={file.name}>{file.name}</div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </main>
+      {previewKey && (
+        <Dialog open={!!previewKey} onOpenChange={(v)=> { if (!v) setPreviewKey(null) }}>
+          <DialogContent className={styles.previewContent}>
+            <DialogBody>
+              <div className={styles.previewContainer}>
+                <img 
+                  src={getPreviewSrc(previewKey)} 
+                  className={styles.previewImg} 
+                  alt={previewKey.split('/').pop() || 'Image'} 
+                  onError={() => setFailedPreview(prev => new Set(prev).add(previewKey))}
+                />
+              </div>
+            </DialogBody>
+          </DialogContent>
+        </Dialog>
+      )}
       <UploadDialog
         open={showUpload}
         onOpenChange={setShowUpload}
