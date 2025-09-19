@@ -49,6 +49,7 @@
   z-index: 1;
   background: transparent;
   border: none;
+  padding: 0 6px;
 }
 
 .segment:focus-visible {

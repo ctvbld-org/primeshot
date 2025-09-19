@@ -22,6 +22,7 @@
 .iconBtn { background: none; border: none; padding: 4px; cursor: pointer; color: var(--muted-foreground); }
 .iconBtn:hover { color: var(--foreground); }
 
+.actionsRight { display: flex; gap: 8px; align-items: center; }
 .viewToggle { margin-right: 8px; }
 
 /* Grid view */

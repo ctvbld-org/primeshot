@@ -492,6 +492,14 @@ export default function MediaPage() {
             </label>
           </div>
           <div className={styles.actionsRight}>
+            <Button variant="ghost" onClick={onDownload} disabled={selected.size === 0 || isExpandingFolders}>
+              <DownloadIcon className="mr-2 h-4 w-4" />
+              {isExpandingFolders ? 'Expanding...' : 'Download'}
+            </Button>
+            <Button variant="ghost" onClick={onDelete} disabled={selected.size === 0}>
+              <TrashIcon className="mr-2 h-4 w-4" />
+              Delete
+            </Button>
             <div className={styles.viewToggle}>
               <SegmentedControl
                 size="sm"
@@ -505,14 +513,6 @@ export default function MediaPage() {
                 ]}
               />
             </div>
-            <Button variant="ghost" onClick={onDownload} disabled={selected.size === 0 || isExpandingFolders}>
-              <DownloadIcon className="mr-2 h-4 w-4" />
-              {isExpandingFolders ? 'Expanding...' : 'Download'}
-            </Button>
-            <Button variant="ghost" onClick={onDelete} disabled={selected.size === 0}>
-              <TrashIcon className="mr-2 h-4 w-4" />
-              Delete
-            </Button>
           </div>
         </div>
 
