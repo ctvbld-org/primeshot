@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useInfiniteInferenceJobs } from './useInfiniteInferenceJobs';
 import { useAuth } from '@/contexts/auth-context';
-import { InferenceThumbnail } from '@/components/home/InferenceThumbnail';
+import { InferenceThumbnail } from '@/components/inference/InferenceThumbnail';
 import { webSocketManager } from '@/lib/websocket/connection-manager';
 import { getInferenceImage } from '@/lib/utils/get-inference-image';
 import { getInferenceImageUrl } from '@/lib/utils/get-inference-image';

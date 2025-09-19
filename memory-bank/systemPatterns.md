@@ -1630,6 +1630,34 @@ Detected changes in:
 Detected changes in:
 - webapp/src/components/character/training/UploadPhotosStep.tsx
 - webapp/src/lib/hooks/use-file-upload.ts
+
+
+**Auto-update 2025-09-19**:
+Detected changes in:
+- admin/src/app/api/media/thumbnail/route.ts
+- admin/src/app/media/page.tsx
+- admin/src/app/media/styles.module.css
+- admin/src/lib/api/client.ts
+- webapp/src/components/character/CharacterTrainingDialog.module.css
+- webapp/src/components/character/training/UploadPhotosStep.tsx
+- webapp/src/components/generate/AdminInferenceOptionsDialog.tsx
+- webapp/src/components/generate/GenerateBar.module.css
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/generate/GenerateBarSelect.tsx
+- webapp/src/components/generate/OptionsPanel/OptionsPanel.module.css
+- webapp/src/components/generate/OptionsPanel/OptionsPanel.tsx
+- webapp/src/components/generate/useCreateCharacter.tsx
+- webapp/src/components/home/GalleryPlaceholder.tsx
+- webapp/src/components/home/InferenceImageViewerDialog.tsx
+- webapp/src/components/home/InferenceJobGroup.module.css
+- webapp/src/components/home/InferenceJobGroup.tsx
+- webapp/src/components/home/InferenceThumbnail.module.css
+- webapp/src/components/home/InferenceThumbnail.tsx
+- webapp/src/components/style/StylesCarousel.tsx
+- webapp/src/components/upload/FileUploader.tsx
+- webapp/src/components/upload/UploadFooter.module.css
+- webapp/src/components/upload/UploadFooter.tsx
+- webapp/src/lib/constants/upload.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

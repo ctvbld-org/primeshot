@@ -1,7 +1,7 @@
 'use client'
 
 import { StylesCarousel } from '@/components/style/StylesCarousel'
-import { GalleryPlaceholder } from '@/components/home/GalleryPlaceholder'
+import { GalleryPlaceholder } from '@/components/inference/GalleryPlaceholder'
 import { StyleSelectionProvider } from '@/contexts/style-selection-context'
 
 export default function Home() {

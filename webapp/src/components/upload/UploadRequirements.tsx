@@ -7,7 +7,6 @@ import { Icon } from '@primeshot/common/web/Icon'
 import { usePhotoRequirements } from '@/hooks/use-photo-requirements'
 import { cn } from '@/lib/utils'
 import { useTranslation } from 'react-i18next'
-import { UploadRequirementsSkeleton } from '@/components/skeleton/upload/requirements'
 import styles from './UploadRequirements.module.css'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 
@@ -128,7 +127,6 @@ function UploadRequirementsComponent() {
             ref={dialogBodyRef} 
             onScroll={handleScroll}
           >
-            {!allImagesLoaded && <UploadRequirementsSkeleton />}
             <div className={cn(styles.container, allImagesLoaded && styles.visible)}>
               <div className={styles.header + " " + styles.section}>
                 <div className={styles.leftSide}>

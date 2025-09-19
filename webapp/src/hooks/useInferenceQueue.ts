@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { InferenceThumbnail } from '@/components/home/InferenceThumbnail';
+import { InferenceThumbnail } from '@/components/inference/InferenceThumbnail';
 import { useJobProgress } from '@/hooks/useJobProgress';
 import { useAuth } from '@/contexts/auth-context';
 import { webSocketManager } from '@/lib/websocket/connection-manager';

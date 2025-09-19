@@ -289,11 +289,13 @@
 
 /* Inline hover actions */
 .actionsOverlay {
+  color: #fff;
   position: absolute;
   left: 12px;
   bottom: 12px;
   display: flex;
   gap: 8px;
+  justify-content: space-between;
   z-index: 2;
   opacity: 0;
   transform: translateY(6px);
@@ -305,20 +307,12 @@
   transform: translateY(0);
 }
 
-.actionBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.92);
-  color: #000;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+.actionBtnGroup {
+  display: flex;
+  gap: 8px;
 }
-.actionBtn:disabled { opacity: 0.75; }
 
-.favBtn { color: #f43f5e; }
+.actionBtn:disabled { opacity: 0.75; }
 
 .favPinned {
   position: absolute;

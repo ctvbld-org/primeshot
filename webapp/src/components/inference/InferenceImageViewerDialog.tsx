@@ -12,7 +12,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@prime
 import { useToast } from '@primeshot/common/web/ui/use-toast';
 import { useDialogService } from '@/contexts/DialogServiceContext';
 import { InferenceJob } from '@/hooks/useInferenceQueue';
-import { InferenceThumbnail } from '@/components/home/InferenceThumbnail';
+import { InferenceThumbnail } from '@/components/inference/InferenceThumbnail';
 import { getInferenceImageOriginal, getInferenceImageThumbnail, getInferenceImageCard, getInferenceImageUrl } from '@/lib/utils/get-inference-image';
 import styles from './InferenceImageViewerDialog.module.css';
 import { useStyle, useScene, useWardrobe, useColor, useSceneById, useWardrobeById, useColorById } from '@/hooks/useConfig';
