@@ -89,8 +89,11 @@ function usePersistedView() {
   return { view, setView: update }
 }
 
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || ''
+const apiPath = (p: string) => `${BASE_PATH}${p}`
+
 async function list(prefix: string) {
-  const res = await fetch(`/api/media/list?prefix=${encodeURIComponent(prefix)}`)
+  const res = await fetch(apiPath(`/api/media/list?prefix=${encodeURIComponent(prefix)}`))
   if (!res.ok) throw new Error('Failed to list')
   return res.json() as Promise<{ folders: string[]; files: { key: string; name: string; size: number; lastModified: string | null }[] }>
 }
@@ -204,7 +207,7 @@ export default function MediaPage() {
     const name = prompt('New folder name')?.trim()
     if (!name) return
     const key = `${prefix}${name.endsWith('/') ? name : name + '/'}`
-    const res = await fetch('/api/media/folder', { method: 'POST', body: JSON.stringify({ key }) })
+    const res = await fetch(apiPath('/api/media/folder'), { method: 'POST', body: JSON.stringify({ key }) })
     if (res.ok) refresh()
   }
 
@@ -283,7 +286,7 @@ export default function MediaPage() {
         form.append('directUpload', 'true') // Flag to indicate direct upload
         
         console.log('Uploading file:', file.name)
-        const response = await fetch('/api/upload', { method: 'POST', body: form })
+        const response = await fetch(apiPath('/api/upload'), { method: 'POST', body: form })
         console.log('Upload response:', response.status, response.ok)
         
         if (!response.ok) {
@@ -317,7 +320,7 @@ export default function MediaPage() {
         const baseForm = new FormData()
         baseForm.append('file', baseFile, baseFile.name)
         baseForm.append('uploadPath', uploadPath)
-        await fetch('/api/upload', { method: 'POST', body: baseForm })
+        await fetch(apiPath('/api/upload'), { method: 'POST', body: baseForm })
 
         // variants
         for (const w of enabledSizes.filter(w => w < Math.max(...SIZE_OPTIONS))) {
@@ -327,7 +330,7 @@ export default function MediaPage() {
           const form = new FormData()
           form.append('file', vf, vf.name)
           form.append('uploadPath', uploadPath)
-          await fetch('/api/upload', { method: 'POST', body: form })
+          await fetch(apiPath('/api/upload'), { method: 'POST', body: form })
         }
       }
       setShowUpload(false)
@@ -348,7 +351,7 @@ export default function MediaPage() {
     setFolders(nextFolders)
     setFiles(nextFiles)
     setSelected(new Set())
-    const res = await fetch('/api/media/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ keys }) })
+    const res = await fetch(apiPath('/api/media/delete'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ keys }) })
     if (!res.ok) {
       // Revert on failure
       setFolders(prevFolders)
@@ -394,7 +397,7 @@ export default function MediaPage() {
       
       if (allFilesToDownload.length === 1) {
         // Single file download
-        window.location.href = `/api/media/download/file?key=${encodeURIComponent(allFilesToDownload[0])}`
+        window.location.href = apiPath(`/api/media/download/file?key=${encodeURIComponent(allFilesToDownload[0])}`)
         return
       }
       
@@ -402,7 +405,7 @@ export default function MediaPage() {
       toast.info(`Preparing download of ${allFilesToDownload.length} files...`)
       
       // Preflight to get parts
-      const pre = await fetch('/api/media/download/zip', { 
+      const pre = await fetch(apiPath('/api/media/download/zip'), { 
         method: 'POST', 
         headers: { 'Content-Type': 'application/json' }, 
         body: JSON.stringify({ keys: allFilesToDownload }) 
@@ -415,7 +418,7 @@ export default function MediaPage() {
       const { parts } = await pre.json()
       
       for (let i = 0; i < parts.length; i++) {
-        const res = await fetch(`/api/media/download/zip?part=${i}`, { 
+        const res = await fetch(apiPath(`/api/media/download/zip?part=${i}`), { 
           method: 'POST', 
           headers: { 'Content-Type': 'application/json' }, 
           body: JSON.stringify({ keys: allFilesToDownload }) 

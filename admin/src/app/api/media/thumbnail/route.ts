@@ -44,6 +44,7 @@ export async function GET(req: NextRequest) {
     const headers = new Headers()
     headers.set('Content-Type', 'image/webp')
     headers.set('Cache-Control', 'public, max-age=86400, immutable')
+    // Prefix with basePath if deployed under subpath (handled by Next automatically)
     return new Response(out, { headers })
   } catch (e) {
     console.error('thumbnail error', e)
