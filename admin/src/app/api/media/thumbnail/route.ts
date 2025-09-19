@@ -34,7 +34,8 @@ export async function GET(req: NextRequest) {
     const buf = await streamToBuffer(body)
 
     // Resize inside bounds, no upscaling, convert to webp
-    const out = await sharp(buf)
+    // Some originals can exceed libvips' default input pixel limit; disable it safely
+    const out = await sharp(buf, { limitInputPixels: false })
       .rotate() // respect EXIF
       .resize({ width: w, withoutEnlargement: true, fit: 'inside' })
       .webp({ quality: 85 })
