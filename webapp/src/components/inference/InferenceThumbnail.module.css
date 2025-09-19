@@ -292,6 +292,7 @@
   color: #fff;
   position: absolute;
   left: 12px;
+  right: 12px;
   bottom: 12px;
   display: flex;
   gap: 8px;
@@ -309,7 +310,7 @@
 
 .actionBtnGroup {
   display: flex;
-  gap: 8px;
+  gap: 4px;
 }
 
 .actionBtn:disabled { opacity: 0.75; }

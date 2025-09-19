@@ -158,7 +158,7 @@ export default function MediaPage() {
   const cdn = process.env.NEXT_PUBLIC_AWS_DISTRIBUTION || ''
   const toCdnUrl = (key: string) => `${cdn}/${key.split('/').map(encodeURIComponent).join('/')}`
   const getImgSrc = (key: string) => failedThumbs.has(key)
-    ? `/api/media/download/file?key=${encodeURIComponent(key)}`
+    ? apiPath(`/api/media/download/file?key=${encodeURIComponent(key)}`)
     : toCdnUrl(key)
 
   // Prefer a smaller sibling thumbnail when available (e.g., web_ prefix alongside orig_)
@@ -166,12 +166,12 @@ export default function MediaPage() {
   const getThumbSrc = (key: string) => {
     // Always generate a dynamic thumb for speed and deduplication safety
     if (failedThumbVariants.has(key)) return getImgSrc(key)
-    return `/api/media/thumbnail?key=${encodeURIComponent(key)}&w=480`
+    return apiPath(`/api/media/thumbnail?key=${encodeURIComponent(key)}&w=480`)
   }
 
   const getPreviewSrc = (key: string) => {
     if (failedPreview.has(key)) return getImgSrc(key)
-    return `/api/media/thumbnail?key=${encodeURIComponent(key)}&w=1280`
+    return apiPath(`/api/media/thumbnail?key=${encodeURIComponent(key)}&w=1280`)
   }
 
   // Flatten visible items into an ordered array (folders first, then files)

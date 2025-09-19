@@ -9,6 +9,7 @@ import { Button } from '@primeshot/common/web/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@primeshot/common/web/ui/tooltip';
 import { Loader } from '@primeshot/common/web/ui/loader';
 import { useOptionalInferenceQueue } from '@/contexts/inference-queue-context';
+import { confirmationService } from '@/lib/services/confirmationService';
 
 export interface InferenceThumbnail {
   id: string;
@@ -153,6 +154,7 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
 
   const hasAnyImage = Boolean(currentUrl || prevUrl);
   const showDualLayer = Boolean(prevUrl && currentUrl && currentUrl !== prevUrl && !finalLoaded);
+  const objectFit = variant === 'hero' ? 'cover' : 'contain';
 
   // Inline action state
   const queue = useOptionalInferenceQueue();
@@ -202,6 +204,14 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
   const handleDelete = useCallback(async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!thumbnail.imageId) return;
+    const ok = await confirmationService.confirm({
+      title: 'Delete image?',
+      description: 'This will remove the image from your gallery. This cannot be undone.',
+      confirmText: 'Delete',
+      variant: 'destructive',
+      icon: 'bin'
+    });
+    if (!ok) return;
     setIsDeleting(true);
     try {
       const { deleteGeneratedImage } = await import('@/lib/api/inference-images');
@@ -235,7 +245,7 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
                 src={prevUrl}
                 alt={`Generating preview ${thumbnail.index + 1}`}
                 className={`${styles.imageLayer} ${styles.visible}`}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                style={{ width: '100%', height: '100%', objectFit: objectFit as any }}
                 decoding="async"
               />
             )}
@@ -251,6 +261,7 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
                     alt={`Generated image ${thumbnail.index + 1}`}
                     fill
                     className={`${styles.imageLayer} ${(finalLoaded || showDualLayer || shouldZoomOnMount) ? styles.visible : ''} ${shouldZoomOnMount ? styles.zoomOnMount : ''}`}
+                    style={{ objectFit: objectFit as any }}
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     priority={thumbnail.status === 'completed'}
                     unoptimized={true}
@@ -275,7 +286,7 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
                   sizes={sizes}
                   alt={`Generated image ${thumbnail.index + 1}`}
                   className={`${styles.imageLayer} ${(finalLoaded || showDualLayer || shouldZoomOnMount) ? styles.visible : ''} ${shouldZoomOnMount ? styles.zoomOnMount : ''}`}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  style={{ width: '100%', height: '100%', objectFit: objectFit as any }}
                   loading="lazy"
                   decoding="async"
                   onLoad={handleFinalImageLoad}
