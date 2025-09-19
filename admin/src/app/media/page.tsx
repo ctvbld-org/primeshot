@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@primeshot/common/web/ui/button'
+import { getApiUrl } from '@/lib/api/client'
 import { Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@primeshot/common/web/ui/dialog'
 import { Copy, FolderPlus, Upload as UploadIcon, Download as DownloadIcon, Trash as TrashIcon, LayoutList, LayoutGrid, Folder } from 'lucide-react'
 import { toast } from 'sonner'
@@ -89,8 +90,7 @@ function usePersistedView() {
   return { view, setView: update }
 }
 
-const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || ''
-const apiPath = (p: string) => `${BASE_PATH}${p}`
+const apiPath = (p: string) => getApiUrl(p)
 
 async function list(prefix: string) {
   const res = await fetch(apiPath(`/api/media/list?prefix=${encodeURIComponent(prefix)}`))

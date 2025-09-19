@@ -317,26 +317,26 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
               {!thumbnail.favourite && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <button className={`${styles.actionBtn} ${styles.favBtn}`} onClick={handleToggleFavourite} aria-label="Add to favourites" disabled={isTogglingFav}>
+                    <Button variant="ghost" size="sm" iconOnly className={`${styles.actionBtn} ${styles.favBtn}`} onClick={handleToggleFavourite} aria-label="Add to favourites" disabled={isTogglingFav}>
                       {isTogglingFav ? <Loader size="sm" /> : <Icon variant="heartOutline" size={16} />}
-                    </button>
+                    </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">Add to Favourites</TooltipContent>
                 </Tooltip>
               )}
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className={styles.actionBtn} onClick={handleDelete} aria-label="Delete image" disabled={isDeleting || !thumbnail.imageId}>
+                  <Button variant="ghost" size="sm" iconOnly className={styles.actionBtn} onClick={handleDelete} aria-label="Delete image" disabled={isDeleting || !thumbnail.imageId}>
                     {isDeleting ? <Loader size="sm" /> : <Icon variant="bin" size={16} />}
-                  </button>
+                  </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">Delete</TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className={styles.actionBtn} onClick={handleDownload} aria-label="Download image" disabled={isDownloading || (!thumbnail.imageUrl && !thumbnail.webImageUrl)}>
+                  <Button variant="ghost" size="sm" iconOnly className={styles.actionBtn} onClick={handleDownload} aria-label="Download image" disabled={isDownloading || (!thumbnail.imageUrl && !thumbnail.webImageUrl)}>
                     {isDownloading ? <Loader size="sm" /> : <Icon variant="download" size={16} />}
-                  </button>
+                  </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">Download</TooltipContent>
               </Tooltip>

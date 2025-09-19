@@ -5,6 +5,9 @@ const isProd = process.env.VERCEL_TARGET_ENV !== 'local'
 const nextConfig = {
   basePath: isProd ? '/admin' : '',
   assetPrefix: isProd ? '/admin' : '',
+  env: {
+    NEXT_PUBLIC_BASE_PATH: isProd ? '/admin' : ''
+  },
   transpilePackages: isProd ? [] : ['@primeshot/common'],
   webpack: (config, { isServer }) => {
     // Ignore Node.js specific modules in face-api.js

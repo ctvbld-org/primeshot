@@ -44,8 +44,9 @@ export async function GET(req: NextRequest) {
     const headers = new Headers()
     headers.set('Content-Type', 'image/webp')
     headers.set('Cache-Control', 'public, max-age=86400, immutable')
-    // Prefix with basePath if deployed under subpath (handled by Next automatically)
-    return new Response(out, { headers })
+    // Convert Node Buffer -> ArrayBuffer and wrap in Blob to satisfy BodyInit typing
+    const ab = out.buffer.slice(out.byteOffset, out.byteOffset + out.byteLength) as ArrayBuffer
+    return new Response(new Blob([ab], { type: 'image/webp' }), { headers })
   } catch (e) {
     console.error('thumbnail error', e)
     return new Response('Error', { status: 500 })
