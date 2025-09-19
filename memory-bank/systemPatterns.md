@@ -1624,6 +1624,12 @@ Detected changes in:
 **Auto-update 2025-09-18**:
 Detected changes in:
 - webapp/src/lib/hooks/use-file-upload.ts
+
+
+**Auto-update 2025-09-19**:
+Detected changes in:
+- webapp/src/components/character/training/UploadPhotosStep.tsx
+- webapp/src/lib/hooks/use-file-upload.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

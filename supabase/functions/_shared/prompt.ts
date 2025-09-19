@@ -23,7 +23,7 @@ export function buildPronoun(gender?: string | null): 'He' | 'She' | 'They' {
  * Builds a compact subject phrase like:
  *  - "woman, early 20s, blond hair with blue eyes"
  *  - "woman, late 20s, long brown hair"
- * Does not include trailing punctuation, age, or glasses.
+ * Does not include trailing punctuation.
  */
 export function buildSubjectCompact(meta: any): string {
   const gender = (meta?.gender || '').toString().trim()
@@ -42,7 +42,16 @@ export function buildSubjectCompact(meta: any): string {
   //const hairText = hairParts.join(' ')
   //if (hairText) phrase = `${phrase}, ${hairText}`
 
-  if (eyesColor) phrase = `${phrase} with ${eyesColor} eyes`
+  if (eyesColor) {
+    let eyesPhrase = `${eyesColor} eyes`
+    const glassesPresent = (meta?.glasses?.present === true) || (String(meta?.glasses?.present || '').toLowerCase() === 'true')
+    if (glassesPresent) {
+      const styles = Array.isArray(meta?.glasses?.style) ? (meta.glasses.style as string[]) : []
+      const stylesText = joinWithOr(styles)
+      eyesPhrase = stylesText ? `${eyesPhrase} with ${stylesText} glasses` : `${eyesPhrase} with glasses`
+    }
+    phrase = `${phrase}, ${eyesPhrase}`
+  }
 
   return phrase.replace(/\s+/g, ' ').trim()
 }
