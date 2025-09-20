@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { S3Client, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand, AbortMultipartUploadCommand, PutObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { createClient as createSupabaseUserClient, createServiceClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 
 // Configuration
 const PART_SIZE = 6 * 1024 * 1024 // 6 MiB minimum safe size
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
     const contentType = req.headers.get('content-type') || ''
 
     // Auth (cookie-based)
-    const supabase = await createSupabaseUserClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return json({ error: 'Unauthorized' }, 401)
 

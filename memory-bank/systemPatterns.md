@@ -1658,6 +1658,25 @@ Detected changes in:
 - webapp/src/components/upload/UploadFooter.module.css
 - webapp/src/components/upload/UploadFooter.tsx
 - webapp/src/lib/constants/upload.ts
+
+
+**Auto-update 2025-09-20**:
+Detected changes in:
+- admin/src/app/media/page.tsx
+- admin/src/components/media/TreeNav.tsx
+- webapp/src/app/page.tsx
+- webapp/src/components/inference/GalleryPlaceholder.module.css
+- webapp/src/components/inference/GalleryPlaceholder.tsx
+- webapp/src/components/inference/InferenceImageViewerDialog.module.css
+- webapp/src/components/inference/InferenceImageViewerDialog.tsx
+- webapp/src/components/inference/InferenceJobGroup.module.css
+- webapp/src/components/inference/InferenceJobGroup.tsx
+- webapp/src/components/inference/InferenceThumbnail.module.css
+- webapp/src/components/inference/InferenceThumbnail.tsx
+- webapp/src/components/skeleton/upload/page.tsx
+- webapp/src/components/skeleton/upload/requirements.module.css
+- webapp/src/components/skeleton/upload/requirements.tsx
+- webapp/src/components/upload/UploadRequirements.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

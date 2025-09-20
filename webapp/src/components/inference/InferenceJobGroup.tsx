@@ -459,14 +459,11 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
             return (
               <div className={styles.previewStack} aria-label="Thumbnails preview">
                 {display.map((t, idx) => (
-                  <div key={`pv-${t.id}`} className={styles.previewCircle}>
-                    {/* Use webImageUrl if available, fallback to imageUrl, or show empty square */}
-                    {t.webImageUrl || t.imageUrl ? (
+                  (t.webImageUrl || t.imageUrl) && (
+                    <div key={`pv-${t.id}`} className={styles.previewCircle}>
                       <img src={(t.webImageUrl || t.imageUrl) as string} alt={`Preview ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    ) : (
-                      <div />
-                    )}
-                  </div>
+                    </div>
+                  )
                 ))}
                 {extra > 0 && (
                   <div className={`${styles.previewCircle} ${styles.moreCircle}`} style={{ zIndex: 10 }}>

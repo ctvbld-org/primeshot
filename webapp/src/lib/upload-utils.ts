@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
 import { FileWithScore } from './types';
-import { createClient } from '@/lib/supabase/client';
 
 // Default part size; server may override via init response
 export const DEFAULT_PART_SIZE = 6 * 1024 * 1024; // 6 MiB
@@ -68,12 +67,8 @@ function withBasePath(path: string): string {
   return `${base}${p}`;
 }
 
-async function authAndEndpoint() {
-  const supabase = createClient();
-  const { data: { session }, error } = await supabase.auth.getSession();
-  if (error || !session) throw new Error('Authentication required for upload');
-  const apiBase = withBasePath('/api/upload-chunk');
-  return { apiBase };
+function getApiBase() {
+  return withBasePath('/api/upload-chunk');
 }
 
 async function initMultipart(
@@ -81,7 +76,7 @@ async function initMultipart(
   characterId: string,
   opts: { isFirstImage?: boolean; faceBox?: FaceBox; qualityScore?: number; thumbnailBlob?: Blob | null }
 ): Promise<InitResponse> {
-  const { apiBase } = await authAndEndpoint();
+  const apiBase = getApiBase();
   const uploadId = uuidv4();
   const metadata = {
     uploadId,
@@ -113,7 +108,7 @@ async function initMultipart(
 }
 
 async function signPart(uploadId: string, key: string, partNumber: number): Promise<string> {
-  const { apiBase } = await authAndEndpoint();
+  const apiBase = getApiBase();
   const res = await fetch(`${apiBase}?action=sign-part`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -128,7 +123,7 @@ async function signPart(uploadId: string, key: string, partNumber: number): Prom
 }
 
 async function completeMultipart(uploadId: string, key: string, parts: { partNumber: number; etag: string }[]): Promise<string> {
-  const { apiBase } = await authAndEndpoint();
+  const apiBase = getApiBase();
   const res = await fetch(`${apiBase}?action=complete`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -144,7 +139,7 @@ async function completeMultipart(uploadId: string, key: string, parts: { partNum
 
 export async function abortMultipart(uploadId: string, key: string): Promise<void> {
   try {
-    const { apiBase } = await authAndEndpoint();
+    const apiBase = getApiBase();
     await fetch(`${apiBase}?action=abort`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

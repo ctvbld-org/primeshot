@@ -10,6 +10,8 @@ import stylesThumbnail from './InferenceThumbnail.module.css'
 import { InferenceJobGroup } from './InferenceJobGroup'
 import { useInferenceQueue } from '@/contexts/inference-queue-context'
 import { useInfiniteScroll } from '@/hooks/useLazyLoading'
+import { useStyles } from '@/hooks/useConfig'
+import { getStyleImages } from '@/lib/utils/get-styles-images'
 
 export function GalleryPlaceholder() {
   const { isAuthenticated, isLoading: authLoading } = useAuth()
@@ -22,6 +24,19 @@ export function GalleryPlaceholder() {
     error, 
     loadMore 
   } = useInferenceQueue()
+  const { data: styleConfigs = [] } = useStyles()
+  const imageUrls = React.useMemo(() => {
+    if (!styleConfigs || styleConfigs.length === 0) return [null, null, null] as (string | null)[]
+    const firstThree = styleConfigs.slice(0, 3)
+    const urls = firstThree.map((s: any) => {
+      const first = s?.preview_images?.[0]
+      if (!first) return null
+      const list = getStyleImages([first])
+      return list[0] ?? null
+    }) as (string | null)[]
+    while (urls.length < 3) urls.push(null)
+    return urls
+  }, [styleConfigs])
   
   // Memoized callback for infinite scroll
   const handleInfiniteScroll = useCallback(() => {
@@ -64,9 +79,9 @@ export function GalleryPlaceholder() {
             </div>
             <div className={stylesInference.thumbnailGrid}>
               {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
-                <div className={stylesThumbnail.thumbnail} style={{ ['--stagger' as any]: i }} key={'thumbnail-placeholder-' + i}>
-                  <div className={`${stylesThumbnail.imageContainer} ${stylesThumbnail.statusGenerating}`}>
-                    <Skeleton className={stylesThumbnail.gradientLoader} style={{ opacity: '0.1' }} />
+                <div className={stylesThumbnail.thumbnail} style={{ ['--stagger' as any]: i,  pointerEvents: 'none' }} key={'thumbnail-placeholder-' + i}>
+                  <div className={`${stylesThumbnail.imageContainer} ${stylesThumbnail.statusGenerating}`} style={{pointerEvents: 'none'}}>
+                    <Skeleton className={stylesThumbnail.gradientLoader} style={{ opacity: '0.1', pointerEvents: 'none' }} />
                   </div>
                 </div>
               ))}
@@ -99,9 +114,18 @@ export function GalleryPlaceholder() {
             <h3 className={styles.title}>Choose a style</h3>
             <div className={styles.visual} aria-hidden>
               <div className={styles.strip}>
-                <div className={styles.stripSide} />
-                <div className={styles.stripMain} />
-                <div className={styles.stripOverlay} />
+                <div
+                  className={styles.stripSide}
+                  style={imageUrls[1] ? { backgroundImage: `url(${imageUrls[1]})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : undefined}
+                />
+                <div
+                  className={styles.stripMain}
+                  style={imageUrls[0] ? { backgroundImage: `url(${imageUrls[0]})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : undefined}
+                />
+                <div
+                  className={styles.stripOverlay}
+                  style={imageUrls[2] ? { backgroundImage: `url(${imageUrls[2]})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : undefined}
+                />
               </div>
             </div>
             <p className={styles.desc}>Pick the mood, scene, and outfit that fit your look.</p>
@@ -165,12 +189,25 @@ export function GalleryPlaceholder() {
               <div ref={loadMoreRef} className={styles.loadMoreTrigger}>
                 {isLoadingMore ? (
                   <div className={styles.loadingMore}>
-                    <Skeleton className={styles.loadingSkeleton} />
-                    <p>Loading more shoots...</p>
+                    <p>
+                      <span>Loading more shoots</span>
+                      <span className={styles.dots}>
+                        <span className={styles.dot}></span>
+                        <span className={styles.dot}></span>
+                        <span className={styles.dot}></span>
+                      </span>
+                    </p>
                   </div>
                 ) : (
                   <div className={styles.loadingMore}>
-                    <p>Loading more shoots...</p>
+                    <p>
+                      <span>Loading more shoots</span>
+                      <span className={styles.dots}>
+                        <span className={styles.dot}></span>
+                        <span className={styles.dot}></span>
+                        <span className={styles.dot}></span>
+                      </span>
+                    </p>
                   </div>
                 )}
               </div>
@@ -198,9 +235,18 @@ export function GalleryPlaceholder() {
           <h3 className={styles.title}>Choose a style</h3>
           <div className={styles.visual} aria-hidden>
             <div className={styles.strip}>
-              <div className={styles.stripSide} />
-              <div className={styles.stripMain} />
-              <div className={styles.stripOverlay} />
+              <div
+                className={styles.stripSide}
+                style={imageUrls[1] ? { backgroundImage: `url(${imageUrls[1]})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : undefined}
+              />
+              <div
+                className={styles.stripMain}
+                style={imageUrls[0] ? { backgroundImage: `url(${imageUrls[0]})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : undefined}
+              />
+              <div
+                className={styles.stripOverlay}
+                style={imageUrls[2] ? { backgroundImage: `url(${imageUrls[2]})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : undefined}
+              />
             </div>
           </div>
           <p className={styles.desc}>Pick the mood, scene, and outfit that fit your look.</p>

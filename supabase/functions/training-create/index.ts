@@ -14,6 +14,10 @@ interface TrainingRequest {
     batch_size?: number;
     resize_size?: number;
     rank?: number;
+    gradient_accumulation_steps?: number;
+    learning_rate?: number;
+    optimizer?: 'adamw' | 'adamw8bit';
+    resolution?: number[];
   };
 }
 
@@ -399,20 +403,43 @@ serve(async (req) => {
 
     // Sanitize optional admin-only params
     console.log('🔧 training_params (raw):', training_params)
-    const approvedParams: Record<string, number> = {}
+    const approvedParams: Record<string, number | string | number[]> = {}
     if (isAdmin && training_params) {
       const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v))
       if (typeof training_params.steps === 'number') {
         approvedParams.steps = clamp(Math.floor(training_params.steps), 100, 10000)
       }
       if (typeof training_params.batch_size === 'number') {
-        approvedParams.batch_size = clamp(Math.floor(training_params.batch_size), 1, 8)
+        approvedParams.batch_size = clamp(Math.floor(training_params.batch_size), 1, 12)
       }
       if (typeof training_params.resize_size === 'number') {
         approvedParams.resize_size = clamp(Math.floor(training_params.resize_size), 512, 2048)
       }
       if (typeof training_params.rank === 'number') {
         approvedParams.rank = clamp(Math.floor(training_params.rank), 1, 256)
+      }
+      if (typeof training_params.gradient_accumulation_steps === 'number') {
+        approvedParams.gradient_accumulation_steps = clamp(Math.floor(training_params.gradient_accumulation_steps), 1, 32)
+      }
+      if (typeof training_params.learning_rate === 'number') {
+        // No floor for floats; clamp range directly
+        const lr = Math.min(0.01, Math.max(0.00001, training_params.learning_rate))
+        approvedParams.learning_rate = lr
+      }
+      if (typeof training_params.optimizer === 'string') {
+        const valid = ['adamw', 'adamw8bit']
+        if (valid.includes(training_params.optimizer)) {
+          approvedParams.optimizer = training_params.optimizer
+        }
+      }
+      if (Array.isArray(training_params.resolution)) {
+        // Validate each resolution entry as integer within 512..2048 and divisible by 128
+        const safe = training_params.resolution
+          .map((v) => Math.floor(v))
+          .filter((v) => v >= 512 && v <= 2048 && v % 64 === 0)
+        if (safe.length > 0) {
+          approvedParams.resolution = safe
+        }
       }
     }
     console.log('✅ approvedParams:', approvedParams, 'isAdmin:', isAdmin)

@@ -298,12 +298,15 @@
   gap: 8px;
   justify-content: space-between;
   z-index: 2;
+}
+
+.actionBtn {
   opacity: 0;
   transform: translateY(6px);
   transition: opacity 0.2s ease-out, transform 0.2s ease-out;
 }
-.imageContainer:hover .actionsOverlay,
-.imageContainer.hero .actionsOverlay {
+
+.imageContainer:hover .actionBtn {
   opacity: 1;
   transform: translateY(0);
 }
@@ -321,7 +324,11 @@
   bottom: 12px;
   z-index: 2;
 }
-.alwaysVisible { opacity: 1 !important; }
+
+.favBtn {
+  opacity: 1; 
+  transform: translateY(0);
+}
 
 /* Generating state gradient loader */
 .statusGenerating .gradientLoader,
@@ -360,6 +367,14 @@
     right: 6px;
     padding: 3px 6px;
     font-size: 11px;
+  }
+
+  .actionsOverlay {
+    display: none;
+  }
+
+  .actionBtnGroup {
+    gap: 2px;
   }
 }
 

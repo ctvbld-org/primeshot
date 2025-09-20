@@ -10,6 +10,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@prime
 import { Loader } from '@primeshot/common/web/ui/loader';
 import { useOptionalInferenceQueue } from '@/contexts/inference-queue-context';
 import { confirmationService } from '@/lib/services/confirmationService';
+import { useToast } from '@primeshot/common/web/ui/use-toast';
 
 export interface InferenceThumbnail {
   id: string;
@@ -158,9 +159,12 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
 
   // Inline action state
   const queue = useOptionalInferenceQueue();
+  const { toast } = useToast();
   const [isDownloading, setIsDownloading] = useState(false);
   const [isTogglingFav, setIsTogglingFav] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [localFavourite, setLocalFavourite] = useState(Boolean(thumbnail.favourite));
+  useEffect(() => { setLocalFavourite(Boolean(thumbnail.favourite)); }, [thumbnail.favourite]);
 
   const handleToggleFavourite = useCallback(async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -168,15 +172,18 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
     if (isTogglingFav) return;
     setIsTogglingFav(true);
     try {
-      queue?.updateThumbnail(thumbnail.jobId, thumbnail.index, { favourite: !thumbnail.favourite });
+      const next = !localFavourite;
+      setLocalFavourite(next);
+      queue?.updateThumbnail(thumbnail.jobId, thumbnail.index, { favourite: next });
       const { setImageFavourite } = await import('@/lib/api/inference-images');
-      await setImageFavourite(thumbnail.imageId, !thumbnail.favourite);
+      await setImageFavourite(thumbnail.imageId, next);
     } catch {
-      queue?.updateThumbnail(thumbnail.jobId, thumbnail.index, { favourite: thumbnail.favourite });
+      setLocalFavourite(Boolean(thumbnail.favourite));
+      queue?.updateThumbnail(thumbnail.jobId, thumbnail.index, { favourite: Boolean(thumbnail.favourite) });
     } finally {
       setIsTogglingFav(false);
     }
-  }, [thumbnail.imageId, thumbnail.favourite, thumbnail.jobId, thumbnail.index, queue, isTogglingFav]);
+  }, [thumbnail.imageId, thumbnail.favourite, thumbnail.jobId, thumbnail.index, queue, isTogglingFav, localFavourite]);
 
   const handleDownload = useCallback(async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -203,7 +210,10 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
 
   const handleDelete = useCallback(async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!thumbnail.imageId) return;
+    if (!thumbnail.imageId) {
+      toast({ title: 'Loading…', description: 'Image details are still loading. Please try again in a moment.' });
+      return;
+    }
     const ok = await confirmationService.confirm({
       title: 'Delete image?',
       description: 'This will remove the image from your gallery. This cannot be undone.',
@@ -245,7 +255,7 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
                 src={prevUrl}
                 alt={`Generating preview ${thumbnail.index + 1}`}
                 className={`${styles.imageLayer} ${styles.visible}`}
-                style={{ width: '100%', height: '100%', objectFit: objectFit as any }}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 decoding="async"
               />
             )}
@@ -286,7 +296,7 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
                   sizes={sizes}
                   alt={`Generated image ${thumbnail.index + 1}`}
                   className={`${styles.imageLayer} ${(finalLoaded || showDualLayer || shouldZoomOnMount) ? styles.visible : ''} ${shouldZoomOnMount ? styles.zoomOnMount : ''}`}
-                  style={{ width: '100%', height: '100%', objectFit: objectFit as any }}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   loading="lazy"
                   decoding="async"
                   onLoad={handleFinalImageLoad}
@@ -304,59 +314,53 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
           <div className={styles.placeholder}></div>
         )}
 
-        {/* Pinned favourite (when true) */}
-        {thumbnail.status === 'completed' && (thumbnail.webImageUrl || thumbnail.imageUrl) && thumbnail.favourite && (
-          <div className={styles.favPinned}>
+        {/* Hover actions */}
+        {thumbnail.status === 'completed' && (thumbnail.webImageUrl || thumbnail.imageUrl) && finalLoaded && (
+          <div className={styles.actionsOverlay}>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className={`${styles.actionBtn} ${styles.favBtn} ${styles.alwaysVisible}`} onClick={handleToggleFavourite} aria-label="Remove from favourites" disabled={isTogglingFav}>
-                    {isTogglingFav ? <Loader size="sm" /> : <Icon variant="heart" size={16} />}
-                  </button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    iconOnly
+                    className={`${styles.actionBtn} ${localFavourite ? styles.favBtn : ''}`}
+                    onClick={handleToggleFavourite}
+                    aria-label={localFavourite ? 'Remove from favourites' : 'Add to favourites'}
+                    disabled={isTogglingFav}
+                  >
+                    {isTogglingFav
+                      ? <Loader size="sm" />
+                      : <Icon variant={localFavourite ? 'heart' : 'heartOutline'} size={16} />}
+                  </Button>
                 </TooltipTrigger>
-                <TooltipContent side="top">Remove from Favourites</TooltipContent>
+                <TooltipContent side="top">{localFavourite ? 'Remove from Favourites' : 'Add to Favourites'}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
-          </div>
-        )}
-
-        {/* Hover actions */}
-        {thumbnail.status === 'completed' && (thumbnail.webImageUrl || thumbnail.imageUrl) && (
-          <div className={styles.actionsOverlay}>
             <TooltipProvider>
-              {/* Favourite (only show here if not already favourite) */}
-              {!thumbnail.favourite && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="sm" iconOnly className={`${styles.actionBtn} ${styles.favBtn}`} onClick={handleToggleFavourite} aria-label="Add to favourites" disabled={isTogglingFav}>
-                      {isTogglingFav ? <Loader size="sm" /> : <Icon variant="heartOutline" size={16} />}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top">Add to Favourites</TooltipContent>
-                </Tooltip>
-              )}
+              {/* Favourite is handled by the pinned button; no duplicate here */}
               <div className={styles.actionBtnGroup}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="sm" iconOnly className={styles.actionBtn} onClick={handleDelete} aria-label="Delete image" disabled={isDeleting || !thumbnail.imageId}>
+                    <Button variant="ghost" size="sm" iconOnly className={styles.actionBtn} onClick={handleDelete} aria-label="Delete image" disabled={isDeleting}>
                       {isDeleting ? <Loader size="sm" /> : <Icon variant="bin" size={16} />}
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">Delete</TooltipContent>
                 </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="sm" iconOnly className={styles.actionBtn} onClick={handleDownload} aria-label="Download image" disabled={isDownloading || (!thumbnail.imageUrl && !thumbnail.webImageUrl)}>
-                      {isDownloading ? <Loader size="sm" /> : <Icon variant="download" size={16} />}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top">Download</TooltipContent>
-                </Tooltip>
-              </div>
-            </TooltipProvider>
-          </div>
-        )}
-      </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="sm" iconOnly className={styles.actionBtn} onClick={handleDownload} aria-label="Download image" disabled={isDownloading || (!thumbnail.imageUrl && !thumbnail.webImageUrl)}>
+                    {isDownloading ? <Loader size="sm" /> : <Icon variant="download" size={16} />}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">Download</TooltipContent>
+              </Tooltip>
+            </div>
+          </TooltipProvider>
+        </div>
+      )}
+    </div>
     </div>
   );
 };
