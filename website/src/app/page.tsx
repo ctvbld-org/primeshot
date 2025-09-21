@@ -9,12 +9,16 @@ import WebGLImageTransition, { WebGLImageTransitionRef } from "@/components/WebG
 
 export default function Home() {
   const transitionImages = [
-    '/images/transitions/img22.webp',
-    '/images/transitions/img21.webp',
-    '/images/transitions/img24.webp',
-    '/images/transitions/img25.webp',
-    '/images/transitions/img26.webp',
-    '/images/transitions/img23.webp',
+    process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-1-w1920.webp` : '/website-images/landing-page-1-w1920.webp',
+    process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-2-w1920.webp` : '/website-images/landing-page-2-w1920.webp',
+    process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-3-w1920.webp` : '/website-images/landing-page-3-w1920.webp',
+    process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-4-w1920.webp` : '/website-images/landing-page-4-w1920.webp',
+    process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-5-w1920.webp` : '/website-images/landing-page-5-w1920.webp',
+    process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-6-w1920.webp` : '/website-images/landing-page-6-w1920.webp',
+    process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-7-w1920.webp` : '/website-images/landing-page-7-w1920.webp',
+    process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-8-w1920.webp` : '/website-images/landing-page-8-w1920.webp',
+    process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-9-w1920.webp` : '/website-images/landing-page-9-w1920.webp',
+    process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-10-w1920.webp` : '/website-images/landing-page-10-w1920.webp',
   ];
 
   // Add ref for the WebGL component
