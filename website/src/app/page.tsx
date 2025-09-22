@@ -8,7 +8,7 @@ import SocialIcons from "@/components/SocialIcons";
 import WebGLImageTransition, { WebGLImageTransitionRef } from "@/components/WebGLImageTransition";
 
 export default function Home() {
-  const transitionImages = [
+  const allTransitionImages = [
     process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-1-w1920.webp` : '/website-images/landing-page-1-w1920.webp',
     process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-2-w1920.webp` : '/website-images/landing-page-2-w1920.webp',
     process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-3-w1920.webp` : '/website-images/landing-page-3-w1920.webp',
@@ -20,6 +20,9 @@ export default function Home() {
     process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-9-w1920.webp` : '/website-images/landing-page-9-w1920.webp',
     process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-10-w1920.webp` : '/website-images/landing-page-10-w1920.webp',
   ];
+
+  // Shuffle the images randomly on each page load
+  const transitionImages = [...allTransitionImages].sort(() => Math.random() - 0.5);
 
   // Add ref for the WebGL component
   const webGLRef = useRef<WebGLImageTransitionRef>(null);
