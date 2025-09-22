@@ -607,6 +607,7 @@ export type Database = {
           name: string
           preview_images: Json
           prompt: string | null
+          settings: Json
           translations: Json
           updated_at: string | null
         }
@@ -620,6 +621,7 @@ export type Database = {
           name: string
           preview_images?: Json
           prompt?: string | null
+          settings?: Json
           translations?: Json
           updated_at?: string | null
         }
@@ -633,6 +635,7 @@ export type Database = {
           name?: string
           preview_images?: Json
           prompt?: string | null
+          settings?: Json
           translations?: Json
           updated_at?: string | null
         }
@@ -646,6 +649,7 @@ export type Database = {
           created_at: string | null
           credits: number
           description: string | null
+          disabled: boolean
           display_name: string
           features: Json | null
           id: number
@@ -666,6 +670,7 @@ export type Database = {
           created_at?: string | null
           credits: number
           description?: string | null
+          disabled?: boolean
           display_name: string
           features?: Json | null
           id?: number
@@ -686,6 +691,7 @@ export type Database = {
           created_at?: string | null
           credits?: number
           description?: string | null
+          disabled?: boolean
           display_name?: string
           features?: Json | null
           id?: number

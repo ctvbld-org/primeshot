@@ -62,6 +62,7 @@ interface FormData {
   concurrent_jobs: number
   concurrent_trainings: number
   popular: boolean
+  disabled: boolean
   features?: Record<string, any>
   translations?: Record<string, any>
 }
@@ -101,6 +102,7 @@ export function SubscriptionFormDialog({
       concurrent_jobs: 1,
       concurrent_trainings: 2,
       popular: false,
+      disabled: false,
       features: {},
       translations: {},
     },
@@ -127,6 +129,7 @@ export function SubscriptionFormDialog({
       currentValues.concurrent_jobs !== originalValues.concurrent_jobs ||
       currentValues.concurrent_trainings !== originalValues.concurrent_trainings ||
       currentValues.popular !== originalValues.popular ||
+      currentValues.disabled !== originalValues.disabled ||
       JSON.stringify(currentValues.features) !== JSON.stringify(originalValues.features)
     )
   }
@@ -170,6 +173,7 @@ export function SubscriptionFormDialog({
       concurrent_jobs: subscription.concurrent_jobs,
       concurrent_trainings: subscription.concurrent_trainings ?? 0,
       popular: subscription.popular || false,
+      disabled: (subscription as any).disabled || false,
       features: (subscription.features as Record<string, any>) || {},
       translations: (subscription.translations as Record<string, any>) || {},
     } : {
@@ -572,6 +576,29 @@ export function SubscriptionFormDialog({
                       <FormLabel className="text-base">Mark as Popular</FormLabel>
                       <FormDescription>
                         Highlight this plan on the pricing page
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <input
+                        type="checkbox"
+                        checked={field.value}
+                        onChange={field.onChange}
+                        className="h-4 w-4"
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="disabled"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">Disabled</FormLabel>
+                      <FormDescription>
+                        Disable this subscription tier - it won't be available for new subscriptions
                       </FormDescription>
                     </div>
                     <FormControl>

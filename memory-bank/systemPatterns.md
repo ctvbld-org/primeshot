@@ -1723,6 +1723,23 @@ Detected changes in:
 Detected changes in:
 - website/src/app/globals.css
 - website/src/app/page.tsx
+
+
+**Auto-update 2025-09-22**:
+Detected changes in:
+- webapp/src/components/inference/GalleryPlaceholder.tsx
+- webapp/src/components/upload/RequirementsContent.tsx
+- webapp/src/lib/image-quality.ts
+- website/src/app/layout.tsx
+- website/src/app/page.tsx
+- website/src/components/I18nInitializer.tsx
+- website/src/components/SiteHeader.tsx
+
+
+**Auto-update 2025-09-22**:
+Detected changes in:
+- website/src/app/api/waitlist/route.ts
+- website/src/app/layout.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

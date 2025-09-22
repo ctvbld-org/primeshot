@@ -66,6 +66,7 @@
 }
 
 .card {
+  background: #E5FBFA;
   padding: 18px 24px 20px;
   display: flex;
   flex-direction: column;
@@ -227,9 +228,7 @@
   border-bottom-right-radius: 16px;
 }
 
-:global(.basic).card { background: #E5FBFA; }
 :global(.standard).card { background: #8CEDEA; }
-:global(.pro).card { background: #2ADED8; }
 
 /* Unify text color as in second card */
 .card * {

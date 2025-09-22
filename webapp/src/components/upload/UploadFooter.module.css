@@ -317,112 +317,15 @@
   }
 }
 
-@media (max-width: 1024px) and (min-width: 861px) {    
+@media (max-width: 1024px) {    
   .squareGroup {
     flex-wrap: wrap;
   }
 
   .square, 
   .squareOptional {
-    flex: 1 1 16%;
+    flex: 1 1 27%;
     margin: -2px -2px -1px -1px;
-  }
-
-  .square:first-child, 
-  .squareOptional:first-child,
-  .square:first-child:after, 
-  .squareOptional:first-child:after,
-  .square:first-child:before, 
-  .squareOptional:first-child:before {
-    border-radius: 16px 0 0 0;
-  }
-
-  .square:nth-child(6), 
-  .squareOptional:nth-child(6),
-  .square:nth-child(6):after, 
-  .squareOptional:nth-child(6):after,
-  .square:nth-child(6):before, 
-  .squareOptional:nth-child(6):before {
-    border-radius: 0 16px 0 0;
-  }
-
-  .square:last-child, 
-  .squareOptional:last-child,
-  .square:last-child:after, 
-  .squareOptional:last-child:after,
-  .square:last-child:before, 
-  .squareOptional:last-child:before {
-    border-radius: 0 0 16px 0;
-  }
-
-  .square:nth-child(7), 
-  .squareOptional:nth-child(7),
-  .square:nth-child(7):after, 
-  .squareOptional:nth-child(7):after,
-  .square:nth-child(7):before, 
-  .squareOptional:nth-child(7):before {
-    border-radius: 0 0 0 16px;
-  }
-}
-
-@media (max-width: 860px) and (min-width: 641px) {    
-  .squareGroup {
-    flex-wrap: wrap;
-  }
-
-  .square, 
-  .squareOptional {
-    flex: 1 1 24%;
-    margin: -2px -2px -1px -1px;
-  }
-
-  .square:first-child, 
-  .squareOptional:first-child,
-  .square:first-child:after, 
-  .squareOptional:first-child:after,
-  .square:first-child:before, 
-  .squareOptional:first-child:before {
-    border-radius: 16px 0 0 0;
-  }
-
-  .square:nth-child(4), 
-  .squareOptional:nth-child(4),
-  .square:nth-child(4):after, 
-  .squareOptional:nth-child(4):after,
-  .square:nth-child(4):before, 
-  .squareOptional:nth-child(4):before {
-    border-radius: 0 16px 0 0;
-  }
-
-  .square:last-child, 
-  .squareOptional:last-child,
-  .square:last-child:after, 
-  .squareOptional:last-child:after,
-  .square:last-child:before, 
-  .squareOptional:last-child:before {
-    border-radius: 0 0 16px 0;
-  }
-
-  .square:nth-child(9), 
-  .squareOptional:nth-child(9),
-  .square:nth-child(9):after, 
-  .squareOptional:nth-child(9):after,
-  .square:nth-child(9):before, 
-  .squareOptional:nth-child(9):before {
-    border-radius: 0 0 0 16px;
-  }
-}
-
-@media (max-width: 640px) {    
-  .squareGroup {
-    flex-wrap: wrap;
-  }
-
-  .square, 
-  .squareOptional {
-    flex: 1 1 32%;
-    margin: -2px -2px -1px -1px;
-    height: 120px;
   }
 
   .square:first-child, 
@@ -452,17 +355,15 @@
     border-radius: 0 0 16px 0;
   }
 
-  .square:nth-child(10), 
-  .squareOptional:nth-child(10),
-  .square:nth-child(10):after, 
-  .squareOptional:nth-child(10):after,
-  .square:nth-child(10):before, 
-  .squareOptional:nth-child(10):before {
+  .square:nth-child(7), 
+  .squareOptional:nth-child(7),
+  .square:nth-child(7):after, 
+  .squareOptional:nth-child(7):after,
+  .square:nth-child(7):before, 
+  .squareOptional:nth-child(7):before {
     border-radius: 0 0 0 16px;
   }
 }
-
-
 
 @media (max-width: 640px) and (max-height: 800px) {    
   .square, 

@@ -2,6 +2,7 @@ import { Inter } from 'next/font/google'
 import { carb } from '@/fonts'
 import './globals.css'
 
+import { Analytics } from "@vercel/analytics/next"
 import { QueryProvider } from '@/components/providers/query-provider'
 import { I18nInitializer } from '@/components/providers/I18nInitializer'
 import { Toaster } from "@primeshot/common/web/ui/toaster"
@@ -50,6 +51,7 @@ export default function RootLayout({
             </LanguageProvider>
           </AuthProvider>
         </I18nInitializer>
+        <Analytics />
       </body>
     </html>
   )

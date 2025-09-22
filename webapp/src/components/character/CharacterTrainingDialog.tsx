@@ -29,6 +29,7 @@ import { UploadPhotosStep } from './training/UploadPhotosStep'
 import { CharacterNameStep } from './training/CharacterNameStep'
 import { UploadProgressStep } from './training/UploadProgressStep'
 import { TrainingProgressStep } from './training/TrainingProgressStep'
+import OnboardingStep from './training/OnboardingStep'
 import dynamic from 'next/dynamic'
 
 // Code-split admin dialog so it is not bundled for non-admins
@@ -41,6 +42,9 @@ interface CharacterTrainingDialogProps {
 }
 
 type DialogStep = 
+  | 'onboarding-intro'
+  | 'onboarding-guidelines'
+  | 'onboarding-confirmation'
   | 'upload' 
   | 'name' 
   | 'uploading' 
@@ -64,6 +68,15 @@ interface StepData {
     optimizer: 'adamw' | 'adamw8bit'
     resolution: number[]
   }
+  // Onboarding state
+  onboardingStep?: number
+  onboardingGuidelines?: Array<{
+    id: string
+    title: string
+    description: string
+    icon: string
+    images: Array<{ src: string; alt: string }>
+  }>
 }
 
 export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogProps) {
@@ -81,12 +94,55 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
   const creditGuard = useCreditGuard(characterTrainingCost)
   const { startTraining } = useJobsApi()
   
-  // Start directly at upload step since requirements are now integrated
-  const [currentStep, setCurrentStep] = useState<DialogStep>('upload')
+  // Start with onboarding intro step
+  const [currentStep, setCurrentStep] = useState<DialogStep>('onboarding-intro')
   const [stepData, setStepData] = useState<StepData>({
     uploadedFiles: [],
     qualityResults: {},
-    characterName: ''
+    characterName: '',
+    onboardingStep: 0,
+    onboardingGuidelines: [
+      {
+        id: 'natural-light',
+        title: 'Natural Light',
+        description: 'Use well-lit photos by a window or outside! Avoid dark or blurry for sharp results.',
+        icon: 'sun',
+        images: [
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/natural-light-2-w320.webp', alt: 'Good natural light example' },
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/natural-light-2-w320.webp', alt: 'Poor lighting example' }
+        ]
+      },
+      {
+        id: 'angles',
+        title: 'Angles',
+        description: 'Mix it up with angles! Pick shoulder-ups, front and side, add a few waist-ups.',
+        icon: 'angles',
+        images: [
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/angles-1-w320.webp', alt: 'Good angle example' },
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/angles-2-w320.webp', alt: 'Poor angle example' }
+        ]
+      },
+      {
+        id: 'expressions',
+        title: 'Expressions',
+        description: 'Express your vibe with varied smiles, poses. Skip same-face for dynamic shots.',
+        icon: 'smilyFace',
+        images: [
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/expression-1-w320.webp', alt: 'Good expression example' },
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/expression-2-w320.webp', alt: 'Poor expression example' }
+        ]
+      },
+      {
+        id: 'variety',
+        title: 'Variety',
+        description: 'Pick shots with a mix of clothing and backgrounds. Skip heavy filters.',
+        icon: 'variety',
+        images: [
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/variety-1-w320.webp', alt: 'Good variety example' },
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/variety-2-w320.webp', alt: 'Poor variety example' }
+        ]
+      }
+    ]
   })
 
   const [isProcessing, setIsProcessing] = useState(false)
@@ -122,6 +178,10 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
         return stepData.uploadedFiles.length > 0
       case 'name':
         return stepData.uploadedFiles.length > 0 || stepData.characterName.trim().length > 0
+      case 'onboarding-intro':
+      case 'onboarding-guidelines':
+      case 'onboarding-confirmation':
+        return false // Onboarding steps can be skipped without confirmation
       default:
         return false
     }
@@ -206,6 +266,9 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
     } else if (currentStep === 'training' && stepData.trainingJobId) {
       // Allow closing during training only if training has started
       dialogService.closeDialog()
+    } else if (currentStep.startsWith('onboarding')) {
+      // Allow closing during onboarding steps
+      dialogService.closeDialog()
     }
   }, [currentStep, stepData.trainingJobId, isInCriticalStep, needsCloseConfirmation, dialogService])
 
@@ -219,6 +282,23 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
   // Handle step navigation
   const handleNext = useCallback(async () => {
     switch (currentStep) {
+      case 'onboarding-intro':
+        setCurrentStep('onboarding-guidelines')
+        setStepData(prev => ({ ...prev, onboardingStep: 0 }))
+        break
+      case 'onboarding-guidelines':
+        const currentGuidelineIndex = stepData.onboardingStep || 0
+        const nextIndex = currentGuidelineIndex + 1
+
+        if (nextIndex < (stepData.onboardingGuidelines?.length || 0)) {
+          setStepData(prev => ({ ...prev, onboardingStep: nextIndex }))
+        } else {
+          setCurrentStep('onboarding-confirmation')
+        }
+        break
+      case 'onboarding-confirmation':
+        setCurrentStep('upload')
+        break
       case 'upload':
         if (stepData.uploadedFiles.length >= minImages) {
           setCurrentStep('name')
@@ -238,15 +318,36 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
   // Handle back navigation
   const handleBack = useCallback(() => {
     switch (currentStep) {
+      case 'onboarding-guidelines': {
+        const idx = stepData.onboardingStep || 0
+        if (idx > 0) setStepData(prev => ({ ...prev, onboardingStep: idx - 1 }))
+        else setCurrentStep('onboarding-intro')
+        break
+      }
+      case 'onboarding-confirmation': {
+        const lastGuidelineIndex = (stepData.onboardingGuidelines?.length || 1) - 1
+        setCurrentStep('onboarding-guidelines')
+        setStepData(prev => ({ ...prev, onboardingStep: lastGuidelineIndex }))
+        break
+      }
+      case 'upload':
+        setCurrentStep('onboarding-confirmation')
+        break
       case 'name':
         setCurrentStep('upload')
         break
     }
-  }, [currentStep])
+  }, [currentStep, stepData.onboardingGuidelines, stepData.onboardingStep])
 
   // Check if back button should be shown
   const canGoBack = useMemo(() => {
-    return ['name'].includes(currentStep)
+    if (currentStep === 'onboarding-guidelines') {
+      return true
+    }
+    if (currentStep === 'onboarding-confirmation') {
+      return true
+    }
+    return ['upload', 'name'].includes(currentStep)
   }, [currentStep])
 
   // Handle confirmation modal actions
@@ -465,6 +566,12 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
   // Get dialog title based on current step
   const getDialogTitle = () => {
     switch (currentStep) {
+      case 'onboarding-intro':
+        return 'Character Creation Guide'
+      case 'onboarding-guidelines':
+        return 'Photography Tips'
+      case 'onboarding-confirmation':
+        return 'Ready to Upload'
       case 'upload':
         return 'Upload Photos'
       case 'name':
@@ -486,6 +593,10 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
     }
 
     switch (currentStep) {
+      case 'onboarding-intro':
+      case 'onboarding-guidelines':
+      case 'onboarding-confirmation':
+        return false
       case 'upload':
         return (
           stepData.uploadedFiles.length < minImages ||
@@ -525,32 +636,52 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
             )}
           </div>
           <div className={styles.headerRight}>
-            {/* Cancel Button - only show for upload and name steps */}
-            {(currentStep === 'upload' || currentStep === 'name') && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleClose}
-              >
-                {t('buttons.cancel', { ns: 'common' })}
-              </Button>
-            )}
-            
-            {/* Next Button - only show for upload step */}
-            {currentStep === 'upload' && (
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handleNext}
-                disabled={isNextDisabled()}
-              >
-                {t('buttons.next', { ns: 'common' })}
-              </Button>
-            )}
+            {/* Close Button - show for all steps */}
+            <Button
+              variant="ghost"
+              size="sm"
+              iconOnly
+              onClick={handleClose}
+              className={styles.iconButtonSmall}
+            >
+              <Icon variant="cross" className={styles.iconSmall} />
+            </Button>
           </div>
         </div>
 
         <DialogBody className={styles.dialogBody}>
+          {/* Unified Onboarding Step */}
+          {(currentStep === 'onboarding-intro' || currentStep === 'onboarding-guidelines' || currentStep === 'onboarding-confirmation') && (
+            <div className={styles.stepCentered}>
+              <OnboardingStep
+                step={currentStep as any}
+                guidelineIndex={stepData.onboardingStep || 0}
+                guidelines={stepData.onboardingGuidelines || []}
+                onNext={handleNext}
+                onBack={() => {
+                  // inline to respect updated onboarding back rules
+                  if (currentStep === 'onboarding-confirmation') {
+                    const lastGuidelineIndex = (stepData.onboardingGuidelines?.length || 1) - 1
+                    setCurrentStep('onboarding-guidelines')
+                    setStepData(prev => ({ ...prev, onboardingStep: lastGuidelineIndex }))
+                    return
+                  }
+                  if (currentStep === 'onboarding-guidelines') {
+                    const idx = stepData.onboardingStep || 0
+                    if (idx > 0) {
+                      setStepData(prev => ({ ...prev, onboardingStep: idx - 1 }))
+                    } else {
+                      setCurrentStep('onboarding-intro')
+                    }
+                    return
+                  }
+                }}
+                onSkip={() => setCurrentStep('upload')}
+                onFinish={() => setCurrentStep('upload')}
+              />
+            </div>
+          )}
+
           {/* Upload Photos Step - Always rendered, hidden when not active */}
           <div className={ cn(currentStep === 'upload' ? styles.stepVisible : styles.stepHidden, styles.stepUploadPhotos)}>
             <UploadPhotosStep

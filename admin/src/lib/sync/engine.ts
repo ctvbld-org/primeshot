@@ -1,24 +1,31 @@
 import { createMultiEnvClient, type Environment } from '@/lib/supabase/multi-env'
-import type { 
-  SyncableTable, 
-  SyncRequest, 
-  SyncResult, 
-  SyncProgress, 
-  TableChange 
+import type {
+  SyncableTable,
+  SyncRequest,
+  SyncResult,
+  SyncProgress,
+  TableChange,
+  SyncDirection
 } from './types'
 
 export async function executSync(request: SyncRequest): Promise<SyncResult> {
   console.log('executSync called with request:', request)
-  
-  const { source, target, selectedChanges } = request
-  const sourceClient = createMultiEnvClient(source)
-  const targetClient = createMultiEnvClient(target)
+
+  const { source, target, direction, selectedChanges } = request
+
+  // For pull operations, reverse the source and target
+  const actualSource = direction === 'pull' ? target : source
+  const actualTarget = direction === 'pull' ? source : target
+
+  console.log(`Syncing ${direction} from ${actualSource} to ${actualTarget}`)
+
+  const sourceClient = createMultiEnvClient(actualSource)
+  const targetClient = createMultiEnvClient(actualTarget)
   
   const progress: SyncProgress[] = []
   const errors: string[] = []
   let recordsProcessed = 0
   
-  console.log(`Syncing from ${source} to ${target}`)
   console.log('Selected changes:', selectedChanges)
   
   // Initialize progress for all tables
@@ -152,7 +159,8 @@ export async function syncSingleTable(
   source: Environment,
   target: Environment,
   table: SyncableTable,
-  changes: TableChange[]
+  changes: TableChange[],
+  direction: SyncDirection = 'deploy'
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const sourceClient = createMultiEnvClient(source)

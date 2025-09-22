@@ -76,6 +76,7 @@ const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   prompt: z.string().optional(),
   lora_path: z.string().optional(),
+  settings: z.string().optional(),
   preview_images: z.array(z.string()).min(1, 'At least one preview image is required'),
   available_scenes: z.array(z.string()).min(1, 'At least one scene is required'),
   available_wardrobes: z.array(z.string()).min(1, 'At least one wardrobe is required'),
@@ -142,6 +143,7 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
       name: '',
       prompt: '',
       lora_path: '',
+      settings: '{}',
       preview_images: [],
       available_scenes: [],
       available_wardrobes: [],
@@ -152,14 +154,15 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
   // Function to check if form has changes
   const hasChanges = () => {
     if (!originalValuesRef.current) return false
-    
+
     const currentValues = form.getValues()
     const originalValues = originalValuesRef.current
-    
+
     return (
       currentValues.name !== originalValues.name ||
       currentValues.prompt !== originalValues.prompt ||
       currentValues.lora_path !== originalValues.lora_path ||
+      currentValues.settings !== originalValues.settings ||
       JSON.stringify(currentValues.preview_images.sort()) !== JSON.stringify(originalValues.preview_images.sort()) ||
       JSON.stringify(currentValues.available_scenes.sort()) !== JSON.stringify(originalValues.available_scenes.sort()) ||
       JSON.stringify(currentValues.available_wardrobes.sort()) !== JSON.stringify(originalValues.available_wardrobes.sort()) ||
@@ -196,6 +199,7 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
       name: style.name,
       prompt: style.prompt || '',
       lora_path: style.lora_path || '',
+      settings: JSON.stringify(style.settings || {}, null, 2),
       preview_images: style.preview_images as string[] || [],
       available_scenes: style.available_scenes || [],
       available_wardrobes: style.available_wardrobes || [],
@@ -204,6 +208,7 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
       name: '',
       prompt: '',
       lora_path: '',
+      settings: '{}',
       preview_images: [],
       available_scenes: [],
       available_wardrobes: [],
@@ -223,12 +228,27 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
 
   const mutation = useMutation({
     mutationFn: async (data: FormData & { translations?: any }) => {
+      // Parse settings from JSON string to object
+      let parsedSettings = {}
+      if (data.settings) {
+        try {
+          parsedSettings = JSON.parse(data.settings)
+        } catch (error) {
+          throw new Error('Invalid JSON in settings field. Please check your syntax.')
+        }
+      }
+
+      const processedData = {
+        ...data,
+        settings: parsedSettings,
+      }
+
       if (style) {
         // Update (retain S3 images even if removed from this style)
         const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/api/admin/styles`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: style.id, ...data }),
+          body: JSON.stringify({ id: style.id, ...processedData }),
         })
         if (!res.ok) {
           const err = await res.json().catch(() => ({}))
@@ -239,7 +259,7 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
         const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/api/admin/styles`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
+          body: JSON.stringify(processedData),
         })
         if (!res.ok) {
           const err = await res.json().catch(() => ({}))
@@ -341,6 +361,23 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
                     </FormControl>
                     <FormDescription>
                       Optional path to the LoRA model file for this style
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="settings"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Settings</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} placeholder="{}" rows={6} />
+                    </FormControl>
+                    <FormDescription>
+                      JSON settings for per-style ComfyUI node overrides. Example: {`{"FilmGrain": {"grain_intensity": 0.1}}`}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

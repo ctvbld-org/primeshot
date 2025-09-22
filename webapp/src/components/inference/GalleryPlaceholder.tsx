@@ -160,7 +160,7 @@ export function GalleryPlaceholder() {
 
 
   // Authenticated with no inference jobs -> show the same placeholder
-  if (!authLoading) {
+  if (!authLoading && !isAuthenticated) {
     return (
       <div className={styles.placeholderCard} role="region" aria-label="How it works">
         <div className={styles.steps}>

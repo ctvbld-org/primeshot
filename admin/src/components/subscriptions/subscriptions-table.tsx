@@ -160,6 +160,22 @@ export function SubscriptionsTable() {
       },
     },
     {
+      accessorKey: 'disabled',
+      header: 'Status',
+      cell: ({ row }: any) => {
+        const disabled = row.getValue('disabled')
+        return disabled ? (
+          <Badge variant="destructive" className="font-normal">
+            Disabled
+          </Badge>
+        ) : (
+          <Badge variant="default" className="font-normal bg-green-100 text-green-800 border-green-200 hover:bg-green-200">
+            Active
+          </Badge>
+        )
+      },
+    },
+    {
       id: 'actions',
       header: () => <div className="text-right">Actions</div>,
       cell: ({ row }: any) => {
