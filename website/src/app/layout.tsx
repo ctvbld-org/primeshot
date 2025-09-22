@@ -5,6 +5,7 @@ import './globals.css'
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { GoogleAnalytics } from '@next/third-parties/google';
+import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { SiteHeader } from '@/components/SiteHeader'
 import { AuthProvider } from '@primeshot/common'
@@ -123,6 +124,7 @@ export default function RootLayout({
         </I18nInitializer>
         <SpeedInsights/>
         <GoogleAnalytics gaId="G-MHV2EKTQZG" />
+        <Analytics />
       </body>
     </html>
   );

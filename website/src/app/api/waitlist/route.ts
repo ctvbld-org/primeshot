@@ -36,7 +36,7 @@ export async function POST(request: Request) {
 
     // Send welcome email
     const { error: emailError } = await resend.emails.send({
-      from: 'Primeshot <no-reply@primeshot.ai>',
+      from: 'Primeshot <team@msg.primeshot.ai>',
       to: [email],
       subject: "You're on the waitlist! 🚀",
       html: `
