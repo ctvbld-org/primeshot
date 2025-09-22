@@ -136,6 +136,8 @@
     "issues": {
       "image": {
         "lowResolution": "Low resolution image. Minimum size is {{minWidth}}x{{minHeight}}px.",
+        "suboptimalResolution": "Image resolution is {{currentWidth}}x{{currentHeight}}px. For best results, use at least {{idealWidth}}x{{idealHeight}}px.",
+        "suboptimalResolutionLow": "Image resolution is {{currentWidth}}x{{currentHeight}}px (below 800px). Consider using at least 800x800px for better quality.",
         "tooDark": "Image is too dark.",
         "tooBright": "Image is too bright."
       },

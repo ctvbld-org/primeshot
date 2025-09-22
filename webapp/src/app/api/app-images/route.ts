@@ -10,6 +10,7 @@ import { createClient } from '@/lib/supabase/server';
  * - Background thumbnails
  * - Clothing option thumbnails
  * - Generated headshots
+ * - Website images (example selfies, etc.)
  */
 
 // This is a simple security check to prevent abuse
@@ -18,11 +19,12 @@ const isValidPath = (path: string) => {
   return (
     // Valid if the path is in any of these approved directories
     (
-      path.startsWith('app-images/') || 
+      path.startsWith('app-images/') ||
       path.startsWith('app-images/placeholders/') ||
       path.startsWith('app-images/placeholders/options/') ||
+      path.startsWith('website-images/') || // Allow website images
       path.startsWith('user-images/') // Allow user-generated inference images
-    ) && 
+    ) &&
     // AND has a valid file extension
     /\.(jpg|jpeg|png|webp|svg)$/i.test(path)
   );
@@ -80,7 +82,7 @@ export async function GET(request: Request) {
     
     // First generate a signed URL that we can fetch
     const command = new GetObjectCommand({
-      Bucket: process.env.NEXT_PUBLIC_AWS_S3_BUCKET!,
+      Bucket: process.env.AWS_S3_BUCKET!,
       Key: path,
     });
 
@@ -111,7 +113,7 @@ export async function GET(request: Request) {
     const s3ETag = response.headers.get('ETag') || response.headers.get('etag') || undefined;
     const ifNoneMatch = request.headers.get('if-none-match') || undefined;
 
-    // Cache-control: public for app-images (static assets), private for user-images
+    // Cache-control: public for app-images and website-images (static assets), private for user-images
     const isUserImage = path.startsWith('user-images/');
     const cacheControl = isUserImage
       ? 'private, max-age=31536000, immutable, stale-while-revalidate=86400'

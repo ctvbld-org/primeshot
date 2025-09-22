@@ -102,75 +102,7 @@ export function GalleryPlaceholder() {
     )
   }
 
-  // Authenticated with no inference jobs -> show the same placeholder
-  if (isAuthenticated && totalCount === 0 && !authLoading) {
-    return (
-      <div className={styles.placeholderCard} role="region" aria-label="How it works">
-        <div className={styles.steps}>
-          <div className={styles.step}>
-            <div className={styles.badge} aria-hidden>
-              <span>1</span>
-            </div>
-            <h3 className={styles.title}>Choose a style</h3>
-            <div className={styles.visual} aria-hidden>
-              <div className={styles.strip}>
-                <div
-                  className={styles.stripSide}
-                  style={imageUrls[1] ? { backgroundImage: `url(${imageUrls[1]})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : undefined}
-                />
-                <div
-                  className={styles.stripMain}
-                  style={imageUrls[0] ? { backgroundImage: `url(${imageUrls[0]})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : undefined}
-                />
-                <div
-                  className={styles.stripOverlay}
-                  style={imageUrls[2] ? { backgroundImage: `url(${imageUrls[2]})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : undefined}
-                />
-              </div>
-            </div>
-            <p className={styles.desc}>Pick the mood, scene, and outfit that fit your look.</p>
-          </div>
-
-          <div className={styles.step}>
-            <div className={styles.badge} aria-hidden>
-              <span>2</span>
-            </div>
-            <h3 className={styles.title}>Create a Character</h3>
-            <div className={styles.visual} aria-hidden>
-              <div className={styles.characterVisual}>
-                <div className={styles.scatterLeft} />
-                <div className={styles.scatterRight} />
-                <div className={styles.centerBubble}>
-                  <Icon variant="smilyFace" size={48} className={styles.centerIcon} />
-                </div>
-              </div>
-            </div>
-            <p className={styles.desc}>Upload a few photos so our AI learns exactly what makes you, you.</p>
-          </div>
-
-          <div className={styles.step}>
-            <div className={styles.badge} aria-hidden>
-              <span>3</span>
-            </div>
-            <h3 className={styles.title}>Generate your shoot</h3>
-            <div className={styles.visual} aria-hidden>
-              <div className={styles.generateRow}>
-                <div className={styles.portrait} />
-                <div className={styles.accentBlock}>
-                  <div className={styles.bolt} />
-                </div>
-                <div className={styles.emptyBlock} />
-                <div className={styles.emptyBlock} />
-              </div>
-            </div>
-            <p className={styles.desc}>Get your portraits in minutes — authentic, polished, and ready to use.</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (isAuthenticated) {
+  if (isAuthenticated && totalCount !== 0 ) {
     return (
       <div className={styles.generatedSection}>
         {/* Job groups for active/recent jobs */}
@@ -225,68 +157,96 @@ export function GalleryPlaceholder() {
     )
   }
 
-  return (
-    <div className={styles.placeholderCard} role="region" aria-label="How it works">
-      <div className={styles.steps}>
-        <div className={styles.step}>
-          <div className={styles.badge} aria-hidden>
-            <span>1</span>
-          </div>
-          <h3 className={styles.title}>Choose a style</h3>
-          <div className={styles.visual} aria-hidden>
-            <div className={styles.strip}>
-              <div
-                className={styles.stripSide}
-                style={imageUrls[1] ? { backgroundImage: `url(${imageUrls[1]})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : undefined}
-              />
-              <div
-                className={styles.stripMain}
-                style={imageUrls[0] ? { backgroundImage: `url(${imageUrls[0]})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : undefined}
-              />
-              <div
-                className={styles.stripOverlay}
-                style={imageUrls[2] ? { backgroundImage: `url(${imageUrls[2]})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : undefined}
-              />
-            </div>
-          </div>
-          <p className={styles.desc}>Pick the mood, scene, and outfit that fit your look.</p>
-        </div>
 
-        <div className={styles.step}>
-          <div className={styles.badge} aria-hidden>
-            <span>2</span>
-          </div>
-          <h3 className={styles.title}>Create a Character</h3>
-          <div className={styles.visual} aria-hidden>
-            <div className={styles.characterVisual}>
-              <div className={styles.scatterLeft} />
-              <div className={styles.scatterRight} />
-              <div className={styles.centerBubble}>
-                <Icon variant="smilyFace" size={48} className={styles.centerIcon} />
+
+  // Authenticated with no inference jobs -> show the same placeholder
+  if (!authLoading) {
+    return (
+      <div className={styles.placeholderCard} role="region" aria-label="How it works">
+        <div className={styles.steps}>
+          <div className={styles.step}>
+            <div className={styles.badge} aria-hidden>
+              <span>1</span>
+            </div>
+            <h3 className={styles.title}>Choose a style</h3>
+            <div className={styles.visual} aria-hidden>
+              <div className={styles.strip}>
+                <div
+                  className={styles.stripSide + ' ' + styles.stripSideLeft}
+                  style={imageUrls[2] ? { backgroundImage: `url(${imageUrls[2]})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : undefined}
+                />
+                <div
+                  className={styles.stripMain}
+                  style={imageUrls[0] ? { backgroundImage: `url(${imageUrls[0]})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : undefined}
+                />
+                <div
+                  className={styles.stripSide + ' ' + styles.stripSideRight}
+                  style={imageUrls[1] ? { backgroundImage: `url(${imageUrls[1]})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : undefined}
+                />
               </div>
             </div>
+            <p className={styles.desc}>Pick the mood, scene, and outfit that fit your look.</p>
           </div>
-          <p className={styles.desc}>Upload a few photos so our AI learns exactly what makes you, you.</p>
-        </div>
 
-        <div className={styles.step}>
-          <div className={styles.badge} aria-hidden>
-            <span>3</span>
-          </div>
-          <h3 className={styles.title}>Generate your shoot</h3>
-          <div className={styles.visual} aria-hidden>
-            <div className={styles.generateRow}>
-              <div className={styles.portrait} />
-              <div className={styles.accentBlock}>
-                <div className={styles.bolt} />
-              </div>
-              <div className={styles.emptyBlock} />
-              <div className={styles.emptyBlock} />
+          <div className={styles.step}>
+            <div className={styles.badge} aria-hidden>
+              <span>2</span>
             </div>
+            <h3 className={styles.title}>Create a Character</h3>
+            <div className={styles.visual} aria-hidden>
+              <div className={styles.characterVisual}>
+                <div
+                  className={styles.characterImage + ' ' + styles.scatter1}
+                  style={{ backgroundImage: `url(${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/example-selfie-1-w320.webp)`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}
+                />
+                <div
+                  className={styles.characterImage + ' ' + styles.scatter2}
+                  style={{ backgroundImage: `url(${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/example-selfie-2-w320.webp)`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}
+                />
+                <div
+                  className={styles.characterImage + ' ' + styles.scatter3}
+                  style={{ backgroundImage: `url(${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/example-selfie-3-w320.webp)`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}
+                />
+                <div
+                  className={styles.characterImage + ' ' + styles.scatter4}
+                  style={{ backgroundImage: `url(${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/example-selfie-4-w320.webp)`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}
+                />
+                <div
+                  className={styles.characterImage + ' ' + styles.scatter5}
+                  style={{ backgroundImage: `url(${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/example-selfie-5-w320.webp)`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}
+                />
+                <div
+                  className={styles.characterImage + ' ' + styles.scatter6}
+                  style={{ backgroundImage: `url(${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/example-selfie-6-w320.webp)`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}
+                />
+                <div className={styles.centerBubble}>
+                  <Icon variant="primeshotSymbol" size={48} className={styles.centerIcon} />
+                </div>
+              </div>
+            </div>
+            <p className={styles.desc}>Upload a few photos so our AI learns exactly what makes you, you.</p>
           </div>
-          <p className={styles.desc}>Get your portraits in minutes — authentic, polished, and ready to use.</p>
+
+          <div className={styles.step}>
+            <div className={styles.badge} aria-hidden>
+              <span>3</span>
+            </div>
+            <h3 className={styles.title}>Generate your shoot</h3>
+            <div className={styles.visual} aria-hidden>
+              <div className={styles.generateRow}>
+                <div className={styles.portrait} />
+                <div className={styles.portrait} />
+                <div className={styles.accentBlock}>
+                  <Icon variant="generate" size={30} className={styles.bolt} />
+                </div>
+                <div className={styles.emptyBlock} />
+                <div className={styles.emptyBlock} />
+              </div>
+            </div>
+            <p className={styles.desc}>Get your portraits in minutes — authentic, polished, and ready to use.</p>
+          </div>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
 }

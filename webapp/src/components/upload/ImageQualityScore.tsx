@@ -73,7 +73,6 @@ export function ImageQualityScore({
           <div className={styles.headerContainer}>
             <div className={styles.fileInfo}>
               <p className={styles.fileName}>{file.name}</p>
-              <p className={styles.fileSize}>{file.size ? formatFileSize(file.size) : ''}</p>
             </div>
             <span className={styles.qualityScore}>{Math.round(result.score)}%</span>
           </div>

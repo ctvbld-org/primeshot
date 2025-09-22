@@ -81,16 +81,6 @@ export function RejectedImagesContent({
         </h2>
       </div>
       {renderRejectedFiles}
-      
-      <div className="mt-4">
-        <Button
-          variant="ghost"
-          className={styles.continueButton}
-          onClick={onContinue}
-        >
-          {t('quality.rejected.continue')}
-        </Button>
-      </div>
     </div>
   )
 }

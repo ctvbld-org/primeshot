@@ -130,15 +130,36 @@
   color: #ffffff;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25); /* drop-shadow-lg */
   transform: translateX(26px);
+  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-out;
 }
 
-.subtitle { 
+.subtitle {
   font-size: 0.75rem;
-  color: #fff; 
-  font-weight: 500; 
+  color: #fff;
+  font-weight: 500;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25); /* drop-shadow-lg */
   transform: translateX(26px);
   opacity: 0.4;
+  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-out;
+}
+
+/* Slide transition states */
+.slide.prev .textBlock .title,
+.slide.prev .textBlock .subtitle {
+  transform: translateX(68px);
+  opacity: 0;
+}
+
+.slide.next .textBlock .title,
+.slide.next .textBlock .subtitle {
+  transform: translateX(-16px);
+  opacity: 0;
+}
+
+.slide.active .textBlock .title,
+.slide.active .textBlock .subtitle {
+  transform: translateX(26px);
+  opacity: 1;
 }
 
 .textBlock { 
@@ -154,6 +175,8 @@
   font-weight: 500; 
   color: #44E3C9;
   padding: 8px 26px;
+  margin-top: -10px;
+  text-align: left;
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;

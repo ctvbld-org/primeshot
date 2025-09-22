@@ -330,7 +330,7 @@ serve(async (req) => {
     // Get style configuration from the styles table
     const { data: style, error: styleError } = await supabase
       .from('styles')
-      .select('id, prompt, lora_path')
+      .select('id, prompt, lora_path, settings')
       .eq('id', style_id)
       .single();
     console.log('📝 inference-create style row:', style);
@@ -708,7 +708,20 @@ serve(async (req) => {
         wardrobe_id: wardrobeUuid || null,
         color_id: colorUuid || null,
         scene_id: sceneUuid || null,
-        settings_override: (body as any)?.settings_override || null
+        settings_override: (() => {
+          const bodySettings = (body as any)?.settings_override || {};
+          const styleSettings = (style as any)?.settings || {};
+          const mergedSettings = {
+            ...bodySettings,
+            ...styleSettings
+          };
+
+          console.log('🔧 SETTINGS_OVERRIDE DEBUG: Body settings_override:', JSON.stringify(bodySettings));
+          console.log('🔧 SETTINGS_OVERRIDE DEBUG: Style settings from DB:', JSON.stringify(styleSettings));
+          console.log('🔧 SETTINGS_OVERRIDE DEBUG: Final merged settings_override:', JSON.stringify(mergedSettings));
+
+          return mergedSettings;
+        })()
       } as Record<string, unknown>;
 
       // Submit to Modal API

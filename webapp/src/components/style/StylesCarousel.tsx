@@ -155,38 +155,44 @@ export function StylesCarousel() {
       {/* Carousel container */}
       <div className={styles.carouselWrapper} ref={emblaRef}>
         <div className={styles.slidesContainer}>
-          {photographyStyleOptions.map((style, index) => (
-            <div 
-              key={style.id} 
-              className={`${styles.slide} ${selectedIndex === index ? styles.active : ''}`}
-            >
-              <div className={styles.slideInner}>
-                {/* Single preview image */}
-                <div className={styles.imageWrapper}>
-                  <Image
-                    loader={makeCloudfrontLoader('app-images/placeholders/styles')}
-                    src={style.preview_images.length > 0 ? style.preview_images[0] : ''}
-                    alt={`${style.name} preview`}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 80vw, 1280px"
-                    quality={80}
-                    loading={isNearSelected(index, selectedIndex, photographyStyleOptions.length) ? 'eager' : 'lazy'}
-                    decoding="async"
-                    className="object-cover"
-                    priority={index === selectedIndex}
-                  />
-                  
-                  <div className={`${styles.overlay} ${selectedIndex === index ? styles.active : ''}`}>
-                    <div className={styles.textBlock}>
-                      <div className={styles.subtitle}>{t('titles.photoStyle', { ns: 'styles' })}</div>
-                      <h3 className={styles.title}>{getTranslatedField(style, 'name')}</h3>
+          {photographyStyleOptions.map((style, index) => {
+            const isActive = selectedIndex === index
+            const isPrev = index === (selectedIndex - 1 + photographyStyleOptions.length) % photographyStyleOptions.length
+            const isNext = index === (selectedIndex + 1) % photographyStyleOptions.length
+
+            return (
+              <div
+                key={style.id}
+                className={`${styles.slide} ${isActive ? styles.active : ''} ${isPrev ? styles.prev : ''} ${isNext ? styles.next : ''}`}
+              >
+                <div className={styles.slideInner}>
+                  {/* Single preview image */}
+                  <div className={styles.imageWrapper}>
+                    <Image
+                      loader={makeCloudfrontLoader('app-images/placeholders/styles')}
+                      src={style.preview_images.length > 0 ? style.preview_images[0] : ''}
+                      alt={`${style.name} preview`}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 80vw, 1280px"
+                      quality={80}
+                      loading={isNearSelected(index, selectedIndex, photographyStyleOptions.length) ? 'eager' : 'lazy'}
+                      decoding="async"
+                      className="object-cover"
+                      priority={index === selectedIndex}
+                    />
+
+                    <div className={`${styles.overlay} ${isActive ? styles.active : ''}`}>
+                      <div className={styles.textBlock}>
+                        <div className={styles.subtitle}>{t('titles.photoStyle', { ns: 'styles' })}</div>
+                        <h3 className={styles.title}>{getTranslatedField(style, 'name')}</h3>
+                        <button className={styles.actionButton}>Examples</button>
+                      </div>
                     </div>
-                    <button className={styles.actionButton}>Examples</button>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
 

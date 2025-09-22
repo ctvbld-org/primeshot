@@ -64,7 +64,7 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
     // Fetch character and style
     const [{ data: character }, { data: style }] = await Promise.all([
       supabase.from('characters').select('id, status, lora_path, metadata').eq('id', job.character_id).single(),
-      supabase.from('styles').select('id, prompt, lora_path').eq('id', job.style_id).single(),
+      supabase.from('styles').select('id, prompt, lora_path, settings').eq('id', job.style_id).single(),
     ])
 
     if (!character || !style) {
@@ -186,7 +186,20 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
         character_lora: characterLora,
         style_lora: styleLora || '',
       },
-      ...(jobRow?.settings_override ? { settings_override: jobRow.settings_override } : {})
+      ...(jobRow?.settings_override || (style as any)?.settings ? (() => {
+        const jobSettings = jobRow?.settings_override || {};
+        const styleSettings = (style as any)?.settings || {};
+        const mergedSettings = {
+          ...jobSettings,
+          ...styleSettings
+        };
+
+        console.log('🔧 SETTINGS_OVERRIDE DEBUG: Job row settings_override:', JSON.stringify(jobSettings));
+        console.log('🔧 SETTINGS_OVERRIDE DEBUG: Style settings from DB:', JSON.stringify(styleSettings));
+        console.log('🔧 SETTINGS_OVERRIDE DEBUG: Final merged settings_override:', JSON.stringify(mergedSettings));
+
+        return { settings_override: mergedSettings };
+      })() : {})
     }
 
     const headers: Record<string, string> = { 'Content-Type': 'application/json' }

@@ -1677,6 +1677,27 @@ Detected changes in:
 - webapp/src/components/skeleton/upload/requirements.module.css
 - webapp/src/components/skeleton/upload/requirements.tsx
 - webapp/src/components/upload/UploadRequirements.tsx
+
+
+**Auto-update 2025-09-21**:
+Detected changes in:
+- webapp/src/app/api/upload-chunk/route.ts
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/AdminTrainingOptionsDialog.tsx
+- webapp/src/components/inference/GalleryPlaceholder.module.css
+- webapp/src/components/inference/GalleryPlaceholder.tsx
+- webapp/src/components/inference/InferenceImageViewerDialog.module.css
+- webapp/src/components/inference/InferenceJobGroup.module.css
+- webapp/src/components/inference/InferenceJobGroup.tsx
+- webapp/src/components/inference/InferenceThumbnail.module.css
+- webapp/src/components/inference/InferenceThumbnail.tsx
+- webapp/src/lib/constants/upload.ts
+- webapp/src/lib/upload-utils.ts
+
+
+**Auto-update 2025-09-22**:
+Detected changes in:
+- website/src/app/page.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

@@ -54,8 +54,10 @@ interface WithFaceLandmarks<T> {
 }
 
 // Constants for quality checks
-const MIN_WIDTH = 1000;
-const MIN_HEIGHT = 1000;
+const MIN_WIDTH = 600;  // Reduced from 1000 to 600 for hard rejection
+const MIN_HEIGHT = 600; // Reduced from 1000 to 600 for hard rejection
+const IDEAL_WIDTH = 1000;  // Keep 1000 as the ideal resolution for scoring
+const IDEAL_HEIGHT = 1000; // Keep 1000 as the ideal resolution for scoring
 const MIN_BRIGHTNESS = 0.3;
 const MAX_BRIGHTNESS = 0.8;
 const MIN_CONTRAST = 0.15; // Reduced from 0.4 - more realistic threshold
@@ -237,18 +239,30 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
 
   // Check resolution - HARD REQUIREMENT (not part of scoring)
   result.hasGoodResolution = width >= MIN_WIDTH && height >= MIN_HEIGHT;
+
+  // Calculate resolution score for all images (even below minimum)
+  const widthRatio = width / IDEAL_WIDTH;
+  const heightRatio = height / IDEAL_HEIGHT;
+  const minRatio = Math.min(widthRatio, heightRatio);
+
+  result.resolutionScore = calculateResolutionScore(width, height);
+  console.log(`Image resolution: ${width}x${height} (score: ${result.resolutionScore.toFixed(2)})`);
+
+  // Add error for images below minimum resolution
   if (!result.hasGoodResolution) {
-    // Early rejection for resolution - don't bother with other analysis
-    result.resolutionScore = 0; // Keep for compatibility but not used in scoring
     pushIssue('upload:quality.issues.image.lowResolution', `Low resolution image. Minimum size is ${MIN_WIDTH}x${MIN_HEIGHT}px.`, { minWidth: MIN_WIDTH, minHeight: MIN_HEIGHT });
-    result.isAcceptable = false;
-    
-    console.log('Image rejected due to insufficient resolution:', `${width}x${height} < ${MIN_WIDTH}x${MIN_HEIGHT}`);
-    
-    // Return early - no point analyzing other aspects
-    return result;
-  } else {
-    result.resolutionScore = 1; // Perfect score when requirements are met
+  }
+  // Add warnings for suboptimal resolution with different tiers
+  if (minRatio >= 0.8 && minRatio < 1) {
+    // Between 800px and 1000px: moderate penalty
+    pushIssue('upload:quality.issues.image.suboptimalResolution',
+      `Image resolution is ${width}x${height}px. For best results, use at least ${IDEAL_WIDTH}x${IDEAL_HEIGHT}px.`,
+      { currentWidth: width, currentHeight: height, idealWidth: IDEAL_WIDTH, idealHeight: IDEAL_HEIGHT });
+  } else if (minRatio >= 0.6 && minRatio < 0.8) {
+    // Between 600px and 800px: heavy penalty
+    pushIssue('upload:quality.issues.image.suboptimalResolutionLow',
+      `Image resolution is ${width}x${height}px (below 800px). Consider using at least 800x800px for better quality.`,
+      { currentWidth: width, currentHeight: height, idealWidth: 800, idealHeight: 800 });
   }
   
   // Face detection
@@ -1167,14 +1181,15 @@ function calculateBlurScore(blur: number): number {
 
 function calculateOverallScore(result: ImageQualityResult): number {
   // Weight factors for different aspects
-  // Resolution removed - now a hard requirement, not part of scoring
+  // Resolution scoring added back - penalizes images between 600px and 1000px
   const weights = {
-    face: 0.25,      // Increased from 0.25
+    face: 0.2,       // Reduced from 0.25 to make room for resolution
     body: 0.05,
-    brightness: 0.2, // Increased from 0.15  
+    brightness: 0.2, // Increased from 0.15
     contrast: 0.2,   // Increased from 0.15
     blur: 0.2,      // Increased from 0.1
-    eyes: 0.1       // Eye visibility weight
+    eyes: 0.1,      // Eye visibility weight
+    resolution: 0.05 // Small weight for resolution penalty
   };
   
   // More nuanced face score: still prefer single face but don't completely penalize edge cases
@@ -1195,25 +1210,27 @@ function calculateOverallScore(result: ImageQualityResult): number {
     
     // Redistribute remaining face weight to other factors
     const weightToRedistribute = (weights.face - reducedFaceWeight);
-    const redistributionPerFactor = weightToRedistribute / 4; // Split among brightness, contrast, blur, and eyes
-    
+    const redistributionPerFactor = weightToRedistribute / 5; // Split among brightness, contrast, blur, eyes, and resolution
+
     return (
       reducedFaceWeight * faceScore +
       (weights.brightness + redistributionPerFactor) * result.brightnessScore +
       (weights.contrast + redistributionPerFactor) * result.contrastScore +
       (weights.blur + redistributionPerFactor) * result.blurScore +
-      (weights.eyes + redistributionPerFactor) * (result.eyesVisible ? 1 : 0)
+      (weights.eyes + redistributionPerFactor) * (result.eyesVisible ? 1 : 0) +
+      (weights.resolution + redistributionPerFactor) * result.resolutionScore
     );
   }
 
-  // Calculate base score (resolution excluded)
+  // Calculate base score including resolution penalty
   let score = (
     weights.face * faceScore +
     weights.body * result.bodyScore +
     weights.brightness * result.brightnessScore +
     weights.contrast * result.contrastScore +
     weights.blur * result.blurScore +
-    weights.eyes * (result.eyesVisible ? 1 : 0)
+    weights.eyes * (result.eyesVisible ? 1 : 0) +
+    weights.resolution * result.resolutionScore
   );
 
   // Apply softer eye visibility penalties to reduce false rejections
@@ -1275,15 +1292,8 @@ function isAcceptable(result: ImageQualityResult, opts?: { petMode?: boolean }):
   const warnings: string[] = [];
   const petMode = !!opts?.petMode;
 
-  // HARD REQUIREMENT: Check for minimum dimensions first
-  // This is a binary pass/fail - no gradual scoring
-  result.hasGoodResolution = result.width >= MIN_WIDTH && result.height >= MIN_HEIGHT;
-  if (!result.hasGoodResolution) {
-    // Immediate rejection for resolution - no other checks matter
-    result.isAcceptable = false;
-    result.issues.push(`Image resolution too low. Minimum required is ${MIN_WIDTH}x${MIN_HEIGHT}px`);
-    return false;
-  }
+  // Resolution check is now handled in the main function, so all images reach this point
+  // We can now check other quality criteria without worrying about resolution
   
   // Check for single face (skip as critical when pet mode)
   result.hasSingleFace = result.faceCount === 1;
@@ -1630,6 +1640,28 @@ function calculateAreaBrightness(imageData: ImageData): number {
   }
 
   return totalBrightness / pixelCount;
+}
+
+// Helper function to calculate resolution score based on dimensions
+function calculateResolutionScore(width: number, height: number): number {
+  const minRatio = Math.min(width / IDEAL_WIDTH, height / IDEAL_HEIGHT);
+
+  if (minRatio >= 1) {
+    return 1; // Perfect score at or above ideal (1000px+)
+  } else if (minRatio >= 0.8) {
+    // Between 800px and 1000px: moderate penalty
+    // Use cubic curve for steeper penalty as resolution decreases
+    const penaltyRatio = (minRatio - 0.8) / 0.2; // 0 to 1 within this range
+    return 0.7 + (penaltyRatio * 0.3); // Scale from 0.7 to 1.0
+  } else if (minRatio >= 0.6) {
+    // Between 600px and 800px: heavy penalty
+    // Use squared curve for very steep penalty
+    const penaltyRatio = (minRatio - 0.6) / 0.2; // 0 to 1 within this range
+    return 0.2 + (penaltyRatio * 0.5); // Scale from 0.2 to 0.7
+  } else {
+    // Below 600px: maximum penalty
+    return 0.05; // Very low score but not zero to allow other factors
+  }
 }
 
 // Initialize result with all required properties

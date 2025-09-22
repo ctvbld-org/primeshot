@@ -27,22 +27,22 @@ interface AdminTrainingOptionsDialogProps {
 
 export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm }: AdminTrainingOptionsDialogProps) {
   const [steps, setSteps] = useState<number>(defaults?.steps ?? 2700)
-  const [batchSize, setBatchSize] = useState<number>(defaults?.batch_size ?? 7)
-  const [resizeSize, setResizeSize] = useState<number>(defaults?.resize_size ?? 768)
+  const [batchSize, setBatchSize] = useState<number>(defaults?.batch_size ?? 8)
+  const [resizeSize, setResizeSize] = useState<number>(defaults?.resize_size ?? 896)
   const [rank, setRank] = useState<number>(defaults?.rank ?? 32)
-  const [gradientAccumulationSteps, setGradientAccumulationSteps] = useState<number>(defaults?.gradient_accumulation_steps ?? 2)
-  const [learningRate, setLearningRate] = useState<number>(defaults?.learning_rate ?? 0.0006)
+  const [gradientAccumulationSteps, setGradientAccumulationSteps] = useState<number>(defaults?.gradient_accumulation_steps ?? 1)
+  const [learningRate, setLearningRate] = useState<number>(defaults?.learning_rate ?? 0.0002)
   const [optimizer, setOptimizer] = useState<'adamw' | 'adamw8bit'>((defaults as any)?.optimizer ?? 'adamw')
   const [resolution, setResolution] = useState<number[]>(Array.isArray((defaults as any)?.resolution) ? (defaults as any).resolution : [768, 1024, 1536])
 
   const handleConfirm = useCallback(() => {
     const payload: AdminTrainingParams = {
       steps: Number(steps) || 2700,
-      batch_size: Number(batchSize) || 7,
-      resize_size: Number(resizeSize) || 768,
+      batch_size: Number(batchSize) || 8,
+      resize_size: Number(resizeSize) || 896,
       rank: Number(rank) || 32,
-      gradient_accumulation_steps: Number(gradientAccumulationSteps) || 2,
-      learning_rate: Number(learningRate) || 0.0006,
+      gradient_accumulation_steps: Number(gradientAccumulationSteps) || 1,
+      learning_rate: Number(learningRate) || 0.0002,
       optimizer,
       resolution
     }
@@ -80,10 +80,10 @@ export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm
             <Input id="learning_rate" type="number" value={learningRate} step={0.0001}
               onChange={(e) => setLearningRate(parseFloat(e.target.value))} min={0.00001} max={0.01} />
           </div>
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label htmlFor="resolution">Training resolution</Label>
             <Select value={JSON.stringify(resolution)} onValueChange={(v) => {
-              try { setResolution(JSON.parse(v)) } catch { /* ignore */ }
+              try { setResolution(JSON.parse(v)) } catch { }
             }}>
               <SelectTrigger aria-label="Training resolution">
                 <SelectValue />
@@ -95,31 +95,7 @@ export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm
                 <SelectItem value={JSON.stringify([768,1024,1536])}>768 / 1024 / 1536</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="optimizer">Optimizer</Label>
-            <Select value={optimizer} onValueChange={(v) => setOptimizer(v as 'adamw' | 'adamw8bit')}>
-              <SelectTrigger aria-label="Optimizer">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="adamw">AdamW</SelectItem>
-                <SelectItem value="adamw8bit">AdamW 8-bit</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="resize_size">Resize size</Label>
-            <p className="text-[12px] text-muted-foreground">Higher produces better quality but slower training</p>
-            <Input id="resize_size" type="number" value={resizeSize} step={128}
-              onChange={(e) => setResizeSize(parseInt(e.target.value, 10))} min={512} max={2048} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="rank">LoRA rank</Label>
-            <p className="text-[12px] text-muted-foreground">Higher produces better quality</p>
-            <Input id="rank" type="number" value={rank} step={16}
-              onChange={(e) => setRank(parseInt(e.target.value, 10))} min={16} max={256} />
-          </div>
+          </div> */}
         </DialogBody>
         <DialogFooter>
           <Button variant="outline" onClick={onCancel}>Cancel</Button>
