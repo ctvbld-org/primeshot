@@ -246,7 +246,6 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
   const minRatio = Math.min(widthRatio, heightRatio);
 
   result.resolutionScore = calculateResolutionScore(width, height);
-  console.log(`Image resolution: ${width}x${height} (score: ${result.resolutionScore.toFixed(2)})`);
 
   // Add error for images below minimum resolution
   if (!result.hasGoodResolution) {

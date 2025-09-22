@@ -73,7 +73,7 @@ export function RequirementsContent() {
           </div>
         </div>
         <p className={styles.headerDesc}>
-          Upload 12 high-quality photos of yourself to train a reusable Character that captures your true likeness in every shoot.
+          Upload {UPLOAD_CONSTANTS.MIN_IMAGES} high-quality photos of yourself to train a reusable Character that captures your true likeness in every shoot.
         </p>
         <small className={styles.secureNote}>
           <Icon variant="secure" size={16} />

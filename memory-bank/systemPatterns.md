@@ -1698,6 +1698,31 @@ Detected changes in:
 **Auto-update 2025-09-22**:
 Detected changes in:
 - website/src/app/page.tsx
+
+
+**Auto-update 2025-09-22**:
+Detected changes in:
+- webapp/src/app/api/app-images/route.ts
+- webapp/src/components/character/training/AdminTrainingOptionsDialog.tsx
+- webapp/src/components/generate/AdminInferenceOptionsDialog.tsx
+- webapp/src/components/inference/GalleryPlaceholder.module.css
+- webapp/src/components/inference/GalleryPlaceholder.tsx
+- webapp/src/components/style/StylesCarousel.module.css
+- webapp/src/components/style/StylesCarousel.tsx
+- webapp/src/components/upload/ImageQualityScore.module.css
+- webapp/src/components/upload/ImageQualityScore.tsx
+- webapp/src/components/upload/RejectedImagesContent.module.css
+- webapp/src/components/upload/RejectedImagesContent.tsx
+- webapp/src/components/upload/RequirementsContent.module.css
+- webapp/src/components/upload/UploadFooter.module.css
+- webapp/src/lib/constants/upload.ts
+- webapp/src/lib/image-quality.ts
+
+
+**Auto-update 2025-09-22**:
+Detected changes in:
+- website/src/app/globals.css
+- website/src/app/page.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

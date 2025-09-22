@@ -15,10 +15,12 @@ export default function Home() {
     process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-4-w1920.webp` : '/website-images/landing-page-4-w1920.webp',
     process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-5-w1920.webp` : '/website-images/landing-page-5-w1920.webp',
     process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-6-w1920.webp` : '/website-images/landing-page-6-w1920.webp',
-    process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-7-w1920.webp` : '/website-images/landing-page-7-w1920.webp',
+    process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-12-w1920.webp` : '/website-images/landing-page-7-w1920.webp',
     process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-8-w1920.webp` : '/website-images/landing-page-8-w1920.webp',
     process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-9-w1920.webp` : '/website-images/landing-page-9-w1920.webp',
     process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-10-w1920.webp` : '/website-images/landing-page-10-w1920.webp',
+    process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-13-w1920.webp` : '/website-images/landing-page-10-w1920.webp',
+    process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/landing-page-14-w1920.webp` : '/website-images/landing-page-10-w1920.webp',
   ];
 
   // Shuffle the images randomly on each page load

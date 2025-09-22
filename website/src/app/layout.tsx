@@ -9,6 +9,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import { SiteHeader } from '@/components/SiteHeader'
 import { AuthProvider } from '@primeshot/common'
 import { LanguageProvider } from '@primeshot/common'
+import { I18nInitializer } from '@/components/I18nInitializer'
 
 const inter = Inter({
   subsets: ["latin"],
@@ -112,12 +113,14 @@ export default function RootLayout({
       <body
         className={`${inter.variable} font-sans antialiased bg-[#0c1013] min-h-screen`}
       >
-        <AuthProvider>
-          <LanguageProvider>
-            <SiteHeader />
-            {children}
-          </LanguageProvider>
-        </AuthProvider>
+        <I18nInitializer>
+          <AuthProvider>
+            <LanguageProvider>
+              <SiteHeader />
+              {children}
+            </LanguageProvider>
+          </AuthProvider>
+        </I18nInitializer>
         <SpeedInsights/>
         <GoogleAnalytics gaId="G-MHV2EKTQZG" />
       </body>

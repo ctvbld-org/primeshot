@@ -6,25 +6,17 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 
 // English
 import commonEn from '@primeshot/common/locales/en/common.json';
-import paymentEn from '@/locales/en/payment.json';
-import albumsEn from '@/locales/en/albums.json'; 
-import stylesEn from '@/locales/en/styles.json';
 import authEn from '@primeshot/common/locales/en/auth.json';
-import profileEn from '@/locales/en/profile.json';
+import stylesEn from '@/locales/en/styles.json';
 import uploadEn from '@/locales/en/upload.json';
-import reviewEn from '@/locales/en/review.json';
 import settingsEn from '@/locales/en/settings.json';
 
 export const resources = {
     en: {
         common: commonEn,
-        payment: paymentEn,
-        albums: albumsEn,
-        styles: stylesEn,
         auth: authEn,
-        profile: profileEn,
+        styles: stylesEn,
         upload: uploadEn,
-        review: reviewEn,
         settings: settingsEn
     },
     // de: {

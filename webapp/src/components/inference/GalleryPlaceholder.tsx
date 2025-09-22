@@ -173,15 +173,15 @@ export function GalleryPlaceholder() {
               <div className={styles.strip}>
                 <div
                   className={styles.stripSide + ' ' + styles.stripSideLeft}
-                  style={imageUrls[2] ? { backgroundImage: `url(${imageUrls[2]})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : undefined}
+                  style={imageUrls[2] ? { backgroundImage: `url(${imageUrls[2]})`, backgroundSize: 'cover', backgroundPosition: '50% 30%', backgroundRepeat: 'no-repeat' } : undefined}
                 />
                 <div
                   className={styles.stripMain}
-                  style={imageUrls[0] ? { backgroundImage: `url(${imageUrls[0]})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : undefined}
+                  style={imageUrls[0] ? { backgroundImage: `url(${imageUrls[0]})`, backgroundSize: 'cover', backgroundPosition: '50% 30%', backgroundRepeat: 'no-repeat' } : undefined}
                 />
                 <div
                   className={styles.stripSide + ' ' + styles.stripSideRight}
-                  style={imageUrls[1] ? { backgroundImage: `url(${imageUrls[1]})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } : undefined}
+                  style={imageUrls[1] ? { backgroundImage: `url(${imageUrls[1]})`, backgroundSize: 'cover', backgroundPosition: '50% 30%', backgroundRepeat: 'no-repeat' } : undefined}
                 />
               </div>
             </div>
