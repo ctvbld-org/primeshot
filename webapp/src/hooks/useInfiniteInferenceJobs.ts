@@ -16,7 +16,7 @@ interface UseInfiniteInferenceJobsReturn {
   error: string | null;
   loadMore: () => Promise<void>;
   refresh: () => Promise<void>;
-  addJob: (jobId: string, nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string; aspectRatio?: string; quality?: string }) => void;
+  addJob: (jobId: string, nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string; aspectRatio?: string; quality?: string; characterId?: string }) => void;
   updateJobWithRealId: (placeholderId: string, realJobId: string) => void;
   updateJobStatus: (jobId: string, status: string) => void;
   updateJobProgress: (jobId: string, progress: number) => void;
@@ -389,7 +389,9 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
               index: derivedIndex,
               progress: 100,
               imageUrl: getInferenceImageUrl(image.original_path),
-              webImageUrl: getInferenceImageUrl(image.web_path)
+              webImageUrl: getInferenceImageUrl(image.web_path),
+              imageId: image.id,
+              favourite: (image as any)?.favourite === true
             } as InferenceThumbnail;
           });
           for (let i = 0; i < nbTakes; i++) {
@@ -449,7 +451,7 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
   }, [loadInitialJobs]);
 
   // Add new job (for real-time updates)
-  const addJob = useCallback((jobId: string, nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string; aspectRatio?: string; quality?: string }) => {
+  const addJob = useCallback((jobId: string, nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string; aspectRatio?: string; quality?: string; characterId?: string }) => {
     const thumbnails: InferenceThumbnail[] = Array.from({ length: nbTakes }, (_, index) => ({
       id: uuidv4(),
       jobId,
@@ -471,6 +473,7 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
       // carry UI settings for sidebar immediately on active jobs
       aspectRatio: meta?.aspectRatio,
       quality: meta?.quality,
+      characterId: meta?.characterId,
     };
 
     setJobs(prev => [newJob, ...prev]);

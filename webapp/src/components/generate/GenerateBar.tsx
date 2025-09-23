@@ -352,6 +352,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
           colorId: color_id,
           aspectRatio: effectiveAspect,
           quality: effectiveQuality,
+          characterId: character_id,
         })
 
         setIsSubmitting(true)
@@ -1009,18 +1010,25 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
       if (!el) return
       const elRect = el.getBoundingClientRect()
       let nextSticky = isSticky
+      let slidePx = 0
 
       // Unstick when styles container shows 6px at bottom
       if (container) {
         const rect = container.getBoundingClientRect()
-
-        if ((rect.y + rect.height - elRect.height - getHeaderHeight() - 6) >= 6) {
+        const threshold = 6
+        const expr = (rect.y + rect.height - elRect.height - getHeaderHeight() - threshold)
+        if (expr >= threshold) {
           nextSticky = false
         } else {
           nextSticky = true
+          // How far into the sticky region we are, in px (0..headerHeight)
+          const delta = threshold - expr
+          slidePx = Math.min(Math.max(0, delta), getHeaderHeight())
         }
       }
       setIsSticky(nextSticky)
+      // Drive header slide via CSS variable (negative to move up)
+      document.documentElement.style.setProperty('--header-slide', nextSticky ? `-${slidePx}px` : '0px')
     }
     setHeaderVar()
     onScroll()
@@ -1029,6 +1037,8 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
     return () => {
       window.removeEventListener('resize', setHeaderVar)
       window.removeEventListener('scroll', onScroll as any)
+      // Reset header slide on cleanup
+      try { document.documentElement.style.setProperty('--header-slide', '0px') } catch {}
     }
   }, [])
 

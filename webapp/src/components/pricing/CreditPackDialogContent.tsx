@@ -2,22 +2,28 @@ import { useState } from 'react'
 import { Button } from '@primeshot/common/web/ui/button'
 import { useCreditPacks, useCreditCosts } from '@/hooks/usePricingConfig'
 import { useAuth } from '@primeshot/common/hooks/AuthContext'
+import { useDialogService } from '@/contexts/DialogServiceContext'
 import { toast } from 'sonner'
 import { getApiUrl } from '@/lib/api/client'
 import { getPriceIdForCredits, extractQualityCosts, getTrainingCost, formatValidity } from './utils'
+import { useInferenceSettings } from '@/hooks/useInferenceSettings'
 import { Icon } from '@primeshot/common/web/Icon'
 import styles from './SubscriptionDialogContent.module.css'
 
 interface CreditPackDialogContentProps {
   requiredCredits?: number
   fullscreen?: boolean
+  // Allows DialogService to pass a wrapper class for styling the shared dialog
+  dialogContentClassName?: string
 }
 
 export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogContentProps) {
   const [isLoading, setIsLoading] = useState<string | null>(null)
   const { user } = useAuth()
+  const { closeDialog } = useDialogService()
   const { data: creditPacks = [] } = useCreditPacks()
   const { data: creditCosts } = useCreditCosts()
+  const { data: inferenceSettings } = useInferenceSettings()
 
   // shared grid expects packs-like structure
   const packs = creditPacks as any
@@ -64,85 +70,96 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
 
   const qualityCosts = extractQualityCosts(creditCosts || {})
   const trainingCost = getTrainingCost(creditCosts || {})
-
-  const isRecommendedForUser = (pack: { credits: number }) => {
-    if (!requiredCredits) return false
-    return pack.credits >= requiredCredits && pack.credits <= requiredCredits * 2
-  }
+  const toQualityLabel = (code: string) => (inferenceSettings?.quality_labels?.[code] || code)
 
   return ( 
-    <div className="space-y-6 max-w-4xl">
-      <div className="text-center">
-        <h2 className="text-xl font-bold">Insufficient Credits</h2>
-        <p className={styles.subtleText}>
+    <div className={styles.pricingContainer}>
+      <div className={styles.headerWrap}>
+        <span className={styles.headerSub}>
+          <Button variant="ghost" size="sm" iconOnly onClick={closeDialog}>
+            <Icon variant="arrowLeft" size={16} className="text-[#2ADED8]" />
+          </Button>
+          <span className={styles.headerSubText}>
+            {requiredCredits 
+              ? `Credit balance too low.`
+              : 'Fuel your creativity  🚀'
+            }
+          </span>
+        </span>
+        <h2 className={styles.headerTitle}>
           {requiredCredits 
-            ? `You need ${requiredCredits} credits for this action. Purchase a credit pack to continue.`
-            : 'Top up your credits with one-time purchases to continue generating.'
+            ? `Top up your credits to continue generating`
+            : 'More credits, more creations, more fun!'
           }
-        </p>
+        </h2>
       </div>
 
       <div className={styles.grid}>
         {(packs || []).map((pack: any) => {
-          const perCredit = (pack.price / Math.max(pack.credits, 1)).toFixed(3)
-          const level = pack.credits >= 360 ? 'pro' : pack.credits >= 180 ? 'standard' : 'basic'
-          const highlight = isRecommendedForUser(pack)
+          const perCredit = (pack.price / Math.max(pack.credits, 1)).toFixed(2)
+          const level = pack.credits >= 500 ? 'pro' : pack.credits >= 250 ? 'standard' : 'basic'
           return (
-            <div key={`${pack.name}-${pack.credits}`} className={`${styles.card} ${level} ${highlight ? styles.cardSelected : ''}`}>
+            <div key={`${pack.name}-${pack.credits}`} className={`${styles.card} ${level}`}>
               <div className={styles.cardHead}>
-                <div className={styles.iconWrap}>
-                  {level === 'pro' ? (
-                    <Icon variant="insights" size={24} />
-                  ) : level === 'standard' ? (
-                    <Icon variant="scene" size={24} />
-                  ) : (
-                    <Icon variant="smilyFace" size={24} />
-                  )}
-                </div>
+                {pack.image_url ? (
+                  <img
+                    src={pack.image_url}
+                    alt={pack.name}
+                    width={40}
+                    height={40}
+                    style={{ width: 40, height: 40, objectFit: 'contain' }}
+                  />
+                ) : (
+                  <Icon variant="credits" size={40} className="!text-[#2ADED8]" />
+                )}
               </div>
 
               <div className={styles.cardTitle}>{pack.name}</div>
 
               <div className={styles.priceBlock}>
-                <div className={styles.mainPrice}>${pack.price}<span className={styles.per}> one-time</span></div>
-                <div className={styles.priceSub}>${perCredit} per credit</div>
+                <div className={styles.mainPrice}><span className={styles.price}>${pack.price}</span><span className={styles.per}> one-time</span></div>
+                <div className={styles.priceSub}><span className={styles.price}>${perCredit}</span> per credit</div>
               </div>
 
               <div className={styles.divider} />
 
               <div className={styles.includedBlock}>
-                <div className={styles.metaGrid}>
-                  <div className={styles.metaItem}><span className={styles.subtleText}>Credits:</span> {pack.credits.toLocaleString()}</div>
-                  {pack.validity_days != null && (
-                    <div className={styles.metaItem}><span className={styles.subtleText}>Validity:</span> {formatValidity(pack.validity_days)}</div>
-                  )}
-                </div>
 
                 <ul className={styles.features}>
-                  <li className={styles.featureItem}>Perfect for:</li>
                   {qualityCosts.map((q) => (
-                    <li key={q.quality} className={styles.featureItem}>• {Math.floor(pack.credits / Math.max(q.cost, 1))} × {q.quality} images</li>
+                    <li key={q.quality} className={styles.featureItem}>
+                      <Icon variant="camera" size={16} />
+                      Up to {Math.floor(pack.credits / Math.max(q.cost, 1))} {toQualityLabel(String(q.quality))} images
+                      {q.quality !== '1K' && '*'}
+                    </li>
                   ))}
                   {!!trainingCost && (
-                    <li className={styles.featureItem}>• {Math.floor(pack.credits / Math.max(trainingCost, 1))} × LoRA trainings</li>
+                    <li className={styles.featureItem}>
+                      <Icon variant="primeshotSymbol" size={16} />
+                      Up to {Math.floor(pack.credits / Math.max(trainingCost, 1))} Characters
+                    </li>
                   )}
+                  <li className={styles.footNote}>
+                    *Standard and Pro plans only
+                  </li>
                 </ul>
               </div>
 
               <Button
                 className={styles.selectBtn}
+                variant="primary"
+                size="sm"
                 onClick={() => handlePurchase(pack)}
                 disabled={isLoading === pack.name}
               >
-                {isLoading === pack.name ? 'Processing…' : `Buy ${pack.name}`}
+                {isLoading === pack.name ? 'Processing…' : `Buy`}
               </Button>
+              <small className={styles.validity}>
+                Valid for {formatValidity(pack.validity_days)}
+              </small>
             </div>
           )
         })}
-      </div>
-
-      <div className={styles.mutedNote}>
-        Credits expire after the validity period and cannot be refunded. Credits are consumed when generation starts, regardless of output quality.
       </div>
     </div>
   )

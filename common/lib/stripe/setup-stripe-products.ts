@@ -177,6 +177,7 @@ async function createSubscriptionProducts(subscriptionTiers) {
         description: tier.description,
         type: 'service',
         tax_code: 'txcd_10505002', // Correct tax code for subscription services
+        images: tier.image_url ? [tier.image_url] : undefined,
         metadata: {
           plan_name: tier.name,
           credits_included: tier.credits.toString(),
@@ -260,6 +261,7 @@ async function createCreditPackProducts(creditPacks) {
         description: `${pack.credits.toLocaleString()} credits for image generation and Face Model training. Valid for ${pack.validity_days} days.`,
         type: 'service',
         tax_code: 'txcd_10505001', // Correct tax code for credit pack services
+        images: pack.image_url ? [pack.image_url] : undefined,
         metadata: {
           credits: pack.credits.toString(),
           validity_days: pack.validity_days.toString(),

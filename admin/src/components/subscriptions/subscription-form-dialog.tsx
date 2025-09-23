@@ -45,6 +45,7 @@ import {
 } from '@primeshot/common/web/ui/select'
 import { useToast } from '@primeshot/common/web/ui/use-toast'
 import type { Database } from '@/types/supabase'
+import { ImageUpload } from '@/components/ui/image-upload'
 
 type Subscription = Database['public']['Tables']['subscriptions']['Row']
 
@@ -65,6 +66,7 @@ interface FormData {
   disabled: boolean
   features?: Record<string, any>
   translations?: Record<string, any>
+  image_url?: string
 }
 
 interface SubscriptionFormDialogProps {
@@ -105,6 +107,7 @@ export function SubscriptionFormDialog({
       disabled: false,
       features: {},
       translations: {},
+      image_url: '',
     },
   })
 
@@ -176,6 +179,7 @@ export function SubscriptionFormDialog({
       disabled: (subscription as any).disabled || false,
       features: (subscription.features as Record<string, any>) || {},
       translations: (subscription.translations as Record<string, any>) || {},
+      image_url: (subscription as any).image_url || '',
     } : {
       name: '',
       display_name: '',
@@ -192,6 +196,7 @@ export function SubscriptionFormDialog({
       popular: false,
       features: {},
       translations: {},
+      image_url: '',
     }
     
     form.reset(newValues)
@@ -350,6 +355,37 @@ export function SubscriptionFormDialog({
                     <FormLabel>Description</FormLabel>
                     <FormControl>
                       <Textarea {...field} placeholder="Description of this subscription plan" rows={3} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Image upload for Stripe product image */}
+              <FormField
+                control={form.control}
+                name="image_url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Product Image</FormLabel>
+                    <FormDescription>Shown in Stripe Checkout and Customer Portal</FormDescription>
+                    <FormControl>
+                      <div>
+                        <ImageUpload
+                          value={field.value ? [field.value] : []}
+                          onChange={(names) => {
+                            const first = names[0] || ''
+                            const url = first && !first.startsWith('http')
+                              ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION || ''}/website-images/stripes/${first}`
+                              : first
+                            field.onChange(url)
+                          }}
+                          styleName={form.watch('display_name') || form.watch('name')}
+                          maxFiles={1}
+                          maxSizeMB={10}
+                          uploadPath="website-images/stripes"
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

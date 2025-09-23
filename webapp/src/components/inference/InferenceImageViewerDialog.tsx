@@ -16,6 +16,8 @@ import { InferenceThumbnail } from '@/components/inference/InferenceThumbnail';
 import { getInferenceImageOriginal, getInferenceImageThumbnail, getInferenceImageCard, getInferenceImageUrl } from '@/lib/utils/get-inference-image';
 import styles from './InferenceImageViewerDialog.module.css';
 import { useStyle, useScene, useWardrobe, useColor, useSceneById, useWardrobeById, useColorById } from '@/hooks/useConfig';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/auth-context';
 import { useTranslation } from 'react-i18next';
 import { useGenerationConfig } from '@/hooks/useGenerationConfig';
 import { getApiUrl } from '@/lib/api/client';
@@ -71,6 +73,8 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
   });
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   // Use live-updating job from queue context if available
   const activeJob = useMemo(() => {
@@ -108,6 +112,15 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
       queue?.updateThumbnail(activeJob.id, currentImageIndex, { favourite: !isFavourite });
       const { setImageFavourite } = await import('@/lib/api/inference-images');
       await setImageFavourite(currentThumbnail.imageId, !isFavourite, { retries: 2 });
+      // Update favourites count cache for immediate header reaction
+      try {
+        const key = ['favouriteCount', user?.id];
+        queryClient.setQueryData<number>(key, (prev) => {
+          const base = typeof prev === 'number' ? prev : 0;
+          return Math.max(0, base + (!isFavourite ? 1 : -1));
+        });
+      } catch {}
+      queryClient.invalidateQueries({ queryKey: ['favouriteCount'] });
       // retrigger animation when setting to true
       if (!isFavourite) {
         setFavAnimatingKey(k => k + 1);
@@ -329,6 +342,14 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
       if (!result.remaining) {
         queue?.updateJobStatus(activeJob.id, 'deleted' as any);
       }
+      // If the deleted image was a favourite, refresh the favourites count
+      if (currentThumbnail?.favourite) {
+        try {
+          const key = ['favouriteCount', user?.id];
+          queryClient.setQueryData<number>(key, (prev) => Math.max(0, (typeof prev === 'number' ? prev : 0) - 1));
+        } catch {}
+        queryClient.invalidateQueries({ queryKey: ['favouriteCount'] });
+      }
     } catch (e) {
       console.error('Failed to delete image', e);
     } finally {
@@ -471,19 +492,49 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
 
   // Direct DOM ref to swap src after preload for seamless transition
   const mainImgRef = React.useRef<HTMLImageElement | null>(null);
-  const thumbArClass = useMemo(() => {
-    const v = (activeJob.aspectRatio || '').toLowerCase();
-    if (v.includes('1:1') || v.includes('square')) return styles.thumbAR11;
-    if (v.includes('3:2') || /3\s*[:_\/]\s*2/.test(v) || /5\s*[:_\/]\s*4/.test(v) || v.includes('landscape')) return styles.thumbAR32;
-    // default to portrait-like 2:3 / 4:5
+  // Helpers to compute aspect-ratio classes per thumbnail (supports mixed favourites)
+  const pickArVariant = useCallback((value?: string | null, url?: string | null) => {
+    const v = String(value || '').toLowerCase();
+    const byValue = (() => {
+      if (!v) return '';
+      if (v.includes('1:1') || v.includes('square')) return '11';
+      // Parse patterns like 3:2, 5_4, landscape/portrait
+      const m = v.match(/(\d+)\s*[:_\/]\s*(\d+)/);
+      if (m) {
+        const w = parseFloat(m[1]);
+        const h = parseFloat(m[2]);
+        if (w && h) {
+          if (Math.abs(w - h) < 0.01) return '11';
+          return w > h ? '32' : '23';
+        }
+      }
+      if (v.includes('landscape')) return '32';
+      if (v.includes('portrait')) return '23';
+      return '';
+    })();
+    if (byValue) return byValue;
+    const u = String(url || '').toLowerCase();
+    if (!u) return '23';
+    if (u.includes('square') || /(^|[_\-\/])1[_\-]?1(\.|[_\-\/])/.test(u)) return '11';
+    if (u.includes('landscape') || /3[_\-]?2/.test(u) || /5[_\-]?4/.test(u)) return '32';
+    if (u.includes('portrait') || /2[_\-]?3/.test(u) || /4[_\-]?5/.test(u)) return '23';
+    // default to portrait-like
+    return '23';
+  }, []);
+
+  const getThumbArClass = useCallback((thumb: InferenceThumbnail) => {
+    const variant = pickArVariant((activeJob as any)?.aspectRatio, thumb.webImageUrl || thumb.imageUrl || '');
+    if (variant === '11') return styles.thumbAR11;
+    if (variant === '32') return styles.thumbAR32;
     return styles.thumbAR23;
-  }, [activeJob.aspectRatio]);
+  }, [pickArVariant, activeJob]);
+
   const imageArClass = useMemo(() => {
-    const v = (activeJob.aspectRatio || '').toLowerCase();
-    if (v.includes('1:1') || v.includes('square')) return styles.mainAR11;
-    if (v.includes('3:2') || /3\s*[:_\/]\s*2/.test(v) || /5\s*[:_\/]\s*4/.test(v) || v.includes('landscape')) return styles.mainAR32;
+    const variant = pickArVariant((activeJob as any)?.aspectRatio, currentThumbnail?.webImageUrl || currentThumbnail?.imageUrl || '');
+    if (variant === '11') return styles.mainAR11;
+    if (variant === '32') return styles.mainAR32;
     return styles.mainAR23;
-  }, [activeJob.aspectRatio]);
+  }, [pickArVariant, activeJob, currentThumbnail?.webImageUrl, currentThumbnail?.imageUrl]);
   const isGenerating = useMemo(() => {
     const s = (activeJob.status || '').toLowerCase();
     return s === 'running' || s === 'pending' || s === 'initializing' || currentThumbnail?.status === 'running' || currentThumbnail?.status === 'queued';
@@ -794,14 +845,14 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
       </div>
 
       {/* Thumbnail strip */}
-      <div className={`${styles.thumbnailStrip} ${thumbArClass}`} ref={stripRef}>
+      <div className={`${styles.thumbnailStrip}`} ref={stripRef}>
         {visibleThumbnails.map((thumbnail, index) => {
           const hasImage = Boolean(thumbnail.webImageUrl || thumbnail.imageUrl);
           const generating = (thumbnail.status === 'running' || thumbnail.status === 'queued') && !hasImage;
           return (
           <div
             key={thumbnail.id}
-            className={`${styles.thumbnailItem} ${thumbArClass} ${
+            className={`${styles.thumbnailItem} ${getThumbArClass(thumbnail)} ${
               index === currentImageIndex ? styles.thumbnailActive : ''
             } ${thumbnail.status !== 'completed' ? styles.thumbnailDisabled : ''} ${
               generating ? styles.thumbnailGenerating : ''

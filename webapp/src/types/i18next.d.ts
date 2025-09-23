@@ -15,6 +15,7 @@ import type profile from '../locales/en/profile.json';
 import type upload from '../locales/en/upload.json';
 import type review from '../locales/en/review.json';
 import type settings from '../locales/en/settings.json';
+import type pricing from '@primeshot/common/locales/en/pricing.json';
 
 declare module 'i18next' {
   interface CustomTypeOptions {
@@ -29,6 +30,7 @@ declare module 'i18next' {
       upload: typeof upload;
       review: typeof review;
       settings: typeof settings;
+      pricing: typeof pricing;
     }
   }
 } 

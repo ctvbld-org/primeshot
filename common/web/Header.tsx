@@ -7,6 +7,7 @@ import { useAuth } from '../hooks/AuthContext';
 import { SignInModal } from './SignInModal';
 import { AccountDialog } from './AccountDialog';
 import styles from './Header.module.css';
+import { Icon } from './Icon';
 
 interface HeaderProps {
   /** Optional element rendered on the right side (e.g. login button). */
@@ -23,8 +24,8 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
       <div className={styles.container}>
         <div className={styles.leftSection}>
           {/* logo */}
-          <a href="/">
-            <Image src={(process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/assets/logo-primeshot.svg` : '/app-images/assets/logo-primeshot.svg')} alt="Primeshot" width={32} height={32} />
+          <a href="/create">
+            <Image src={(`${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/assets/logo-primeshot.svg`)} alt="Primeshot" width={32} height={32} />
           </a>
         </div>
 
@@ -33,10 +34,10 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
           <nav className={styles.nav}>
             <a href="/explore" className={styles.navLink}>Explore</a>
             <a href="/create" className={styles.navLink}>Create</a>
-            <a href="/use-cases" className={styles.navLink}>Use Cases</a>
-            <a href="/pricing" className={styles.navLink}>Pricing</a>
+           {/* <a href="/use-cases" className={styles.navLink}>Use Cases</a>
+            <a href="/pricing" className={styles.navLink}>Pricing</a> */}
             {isAuthenticated && user?.admin && (
-              <a href="/admin" className={styles.adminNavLink}>Admin</a>
+              <a href="/admin" className={styles.navLink + ' ' + styles.adminNavLink}>Admin</a>
             )}
           </nav>
         </div>

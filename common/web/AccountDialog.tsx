@@ -15,6 +15,8 @@ interface AccountDialogProps {
   triggerSlot?: React.ReactNode
   /** Optional handler to open credit purchase dialog from host app */
   onBuyCredits?: () => void
+  /** Optional handler to open subscription dialog from host app */
+  onSubscribe?: () => void
 }
 
 type TabKey = 'profile' | 'subscription' | 'settings' | 'support'
@@ -42,7 +44,7 @@ function getApiUrl(path: string): string {
   return normalized
 }
 
-export function AccountDialog({ triggerSlot, onBuyCredits }: AccountDialogProps) {
+export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: AccountDialogProps) {
   const { user, signOut } = useAuth()
   const { t } = useTranslation('account')
   const [activeTab, setActiveTab] = useState<TabKey>('profile')
@@ -232,76 +234,80 @@ export function AccountDialog({ triggerSlot, onBuyCredits }: AccountDialogProps)
                     <div className={styles.planActions}>
                       {!isLoading && (
                         <>
-                          <Button 
-                            size="sm" 
-                            variant="secondary" 
-                            onClick={() => openPortal()} 
-                            disabled={isActionLoading}
-                          >
-                            {isActionLoading ? 'Opening…' : 'Manage'}
-                          </Button>
-                          {subscription ? (
-                            isCanceled ? (
-                              <Button 
-                                size="sm" 
-                                variant="ghost" 
-                                onClick={() => openPortal()} 
-                                disabled={isActionLoading}
-                              >
-                                Renew
-                              </Button>
-                            ) : (
-                              <Button 
-                                size="sm" 
-                                variant="ghost" 
-                                onClick={() => openPortal('cancel')} 
-                                disabled={isActionLoading}
-                              >
-                                Cancel
-                              </Button>
-                            )
-                          ) : (
-                            <Button 
-                              size="sm" 
-                              variant="ghost" 
-                              onClick={() => openPortal()} 
-                              disabled={isActionLoading}
+                          {!subscription ? (
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={onSubscribe ?? (() => openPortal())}
                             >
-                              Choose plan
+                              Subscribe
                             </Button>
+                          ) : (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={() => openPortal()}
+                                disabled={isActionLoading}
+                              >
+                                {isActionLoading ? 'Opening…' : 'Manage'}
+                              </Button>
+                              {isCanceled ? (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => openPortal()}
+                                  disabled={isActionLoading}
+                                >
+                                  Renew
+                                </Button>
+                              ) : (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => openPortal('cancel')}
+                                  disabled={isActionLoading}
+                                >
+                                  Cancel
+                                </Button>
+                              )}
+                            </>
                           )}
                         </>
                       )}
                     </div>
                   </div>
 
-                  <div className={styles.creditsBlock}>
-                    <div className={styles.creditsHeader}>
-                      <span>Credit Balance</span>
-                      <button className={styles.buyCredits} onClick={onBuyCredits ?? (() => openPortal())}>
-                        Buy credits
-                      </button>
-                    </div>
-                    <div className={styles.creditsValue}>
-                      {isLoading ? '—' : creditBalance ?? 0}
-                      <span className={styles.creditsTotal}>
-                        /{subscription?.credits_included ?? 0}
-                      </span>
-                    </div>
-                    <div className={styles.progressBar}>
-                      <div
-                        className={styles.progressFill}
-                        style={{
-                          width: `${Math.max(0, Math.min(100, ((creditBalance ?? 0) / (subscription?.credits_included || 1)) * 100))}%`
-                        }}
-                      />
-                    </div>
-                    {subscription?.current_period_end && (
-                      <div className={styles.creditsReset}>
-                        Resets {new Date(subscription.current_period_end).toLocaleDateString()}
+                  {/* Only show credit balance section when user has a subscription */}
+                  {subscription && (
+                    <div className={styles.creditsBlock}>
+                      <div className={styles.creditsHeader}>
+                        <span>Credit Balance</span>
+                        <button className={styles.buyCredits} onClick={onBuyCredits ?? (() => openPortal())}>
+                          Buy credits
+                        </button>
                       </div>
-                    )}
-                  </div>
+                      <div className={styles.creditsValue}>
+                        {isLoading ? '—' : creditBalance ?? 0}
+                        <span className={styles.creditsTotal}>
+                          /{subscription?.credits_included ?? 0}
+                        </span>
+                      </div>
+                      <div className={styles.progressBar}>
+                        <div
+                          className={styles.progressFill}
+                          style={{
+                            width: `${Math.max(0, Math.min(100, ((creditBalance ?? 0) / (subscription?.credits_included || 1)) * 100))}%`
+                          }}
+                        />
+                      </div>
+                      {subscription?.current_period_end && (
+                        <div className={styles.creditsReset}>
+                          Resets {new Date(subscription.current_period_end).toLocaleDateString()}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </section>
               )}
 

@@ -28,6 +28,7 @@ import { Textarea } from '@primeshot/common/web/ui/textarea'
 import { Button } from '@primeshot/common/web/ui/button'
 import { toast } from 'sonner'
 import type { Database } from '@/types/supabase'
+import { ImageUpload } from '@/components/ui/image-upload'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,6 +48,7 @@ const formSchema = z.object({
   price: z.number().min(0, 'Price must be positive'),
   validity_days: z.number().min(1, 'Validity days must be positive'),
   translations: z.record(z.any()).optional(),
+  image_url: z.string().url().optional().or(z.literal('')),
 })
 
 type FormData = z.infer<typeof formSchema>
@@ -78,6 +80,7 @@ export function CreditPackFormDialog({
       price: 0,
       validity_days: 30,
       translations: {},
+      image_url: '',
     },
   })
 
@@ -128,12 +131,14 @@ export function CreditPackFormDialog({
       price: creditPack.price,
       validity_days: creditPack.validity_days,
       translations: (creditPack.translations as Record<string, any>) || {},
+      image_url: (creditPack as any).image_url || '',
     } : {
       name: '',
       credits: 0,
       price: 0,
       validity_days: 30,
       translations: {},
+      image_url: '',
     }
     
     form.reset(newValues)
@@ -308,6 +313,36 @@ export function CreditPackFormDialog({
                     <FormDescription>
                       Number of days the credits remain valid
                     </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Image upload for Stripe product image */}
+              <FormField
+                control={form.control}
+                name="image_url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Product Image</FormLabel>
+                    <FormControl>
+                      <div>
+                        <ImageUpload
+                          value={field.value ? [field.value] : []}
+                          onChange={(names) => {
+                            const first = names[0] || ''
+                            const url = first && !first.startsWith('http')
+                              ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION || ''}/website-images/stripes/${first}`
+                              : first
+                            field.onChange(url)
+                          }}
+                          styleName={form.watch('name')}
+                          maxFiles={1}
+                          maxSizeMB={10}
+                          uploadPath="website-images/stripes"
+                        />
+                      </div>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

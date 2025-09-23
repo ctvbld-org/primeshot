@@ -48,21 +48,23 @@ function DialogContent({
   fullscreen = false,
   noContainer = false,
   panelKeepOpen = false,
+  contentClassName,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   fullscreen?: boolean
   noContainer?: boolean
   panelKeepOpen?: boolean
+  contentClassName?: string
 }) {
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay data-panel-keepopen={panelKeepOpen ? '' : undefined} />
       <DialogPrimitive.Content
         data-slot="dialog-content"
-        className={`${styles.dialog} ${(fullscreen || noContainer) ? styles.fullscreen : ''} ${noContainer ? styles.noContainer : ''} ${className || ''}`}
+        className={`${styles.dialog} ${(fullscreen || noContainer) ? styles.fullscreen : ''} ${noContainer ? styles.noContainer : ''} ${className || ''} ${contentClassName || ''}`}
         {...props}
       >
-        <div className={styles.content} data-panel-keepopen={panelKeepOpen ? '' : undefined}>
+        <div className={`${styles.content} ${contentClassName || ''}`} data-panel-keepopen={panelKeepOpen ? '' : undefined}>
           {children}
         </div>
       </DialogPrimitive.Content>

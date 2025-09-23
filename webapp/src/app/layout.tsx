@@ -8,6 +8,7 @@ import { I18nInitializer } from '@/components/providers/I18nInitializer'
 import { Toaster } from "@primeshot/common/web/ui/toaster"
 import { BannerProvider } from "@primeshot/common/web/ui/use-banner"
 import { Header } from '@primeshot/common'
+import { Footer } from '@primeshot/common'
 import { CreditsHeaderRight } from '@/components/header/CreditsHeaderRight'
 import { AuthProvider } from '@primeshot/common'
 import { LanguageProvider } from '@primeshot/common'
@@ -43,6 +44,7 @@ export default function RootLayout({
                       <QueryParamCleaner />
                       <Header rightSlot={<CreditsHeaderRight />} />
                       {children}
+                      <Footer />
                       <Toaster />
                     </DialogServiceProvider>
                   </InferenceQueueProvider>

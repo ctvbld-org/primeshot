@@ -2,10 +2,10 @@
 
 import { createContext, useState, useContext, useCallback, useEffect, type ReactNode } from 'react'
 import { Dialog, DialogContent } from '@primeshot/common/web/ui/dialog'
-import { DialogTitle, DialogDescription } from '@primeshot/common/web/ui/dialog'
+import { DialogTitle, DialogDescription, DialogHeader } from '@primeshot/common/web/ui/dialog'
 
 interface DialogServiceValue {
-  openDialog: (content: ReactNode) => void
+  openDialog: (content: ReactNode, options?: { title?: string; description?: string }) => void
   closeDialog: () => void
 }
 
@@ -19,9 +19,13 @@ export const dialogServiceSingleton: DialogServiceValue = {
 export function DialogServiceProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false)
   const [content, setContent] = useState<ReactNode>(null)
+  const [title, setTitle] = useState<string | undefined>(undefined)
+  const [description, setDescription] = useState<string | undefined>(undefined)
 
-  const openDialog = useCallback((node: ReactNode) => {
+  const openDialog = useCallback((node: ReactNode, options?: { title?: string; description?: string }) => {
     setContent(node)
+    setTitle(options?.title)
+    setDescription(options?.description)
     setOpen(true)
   }, [])
 
@@ -43,9 +47,10 @@ export function DialogServiceProvider({ children }: { children: ReactNode }) {
         selfManaged: Boolean(el.props?.selfManaged || el.props?.wrapWithDialog === false),
         hideHeader: Boolean(el.props?.hideHeader),
         panelKeepOpen: Boolean(el.props?.panelKeepOpen),
+        dialogContentClassName: (el.props?.dialogContentClassName || (el.type && (el.type as any).dialogContentClassNameDefault)) as string | undefined,
       }
     }
-    return { fullscreen: false, noContainer: false, selfManaged: false, hideHeader: false, panelKeepOpen: false }
+    return { fullscreen: false, noContainer: false, selfManaged: false, hideHeader: false, panelKeepOpen: false, dialogContentClassName: undefined }
   })()
 
   return (
@@ -55,14 +60,15 @@ export function DialogServiceProvider({ children }: { children: ReactNode }) {
         open ? <>{content}</> : null
       ) : (
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent fullscreen={derivedWrapperProps.fullscreen} noContainer={derivedWrapperProps.noContainer} panelKeepOpen={derivedWrapperProps.panelKeepOpen}>
+          <DialogContent fullscreen={derivedWrapperProps.fullscreen} noContainer={derivedWrapperProps.noContainer} panelKeepOpen={derivedWrapperProps.panelKeepOpen} contentClassName={derivedWrapperProps.dialogContentClassName}>
             {/* Always include accessible title/description (visually hidden) */}
             <DialogTitle style={{position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0}}>
-              Dialog
+              {title ?? 'Dialog'}
             </DialogTitle>
             <DialogDescription style={{position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0}}>
-              Content
+              {description ?? 'Content'}
             </DialogDescription>
+            {!derivedWrapperProps.hideHeader && <DialogHeader />}
             {content}
           </DialogContent>
         </Dialog>

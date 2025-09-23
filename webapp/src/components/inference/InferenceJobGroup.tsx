@@ -233,7 +233,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
     try {
       const ok = await confirmationService.confirm({
         title: 'Delete shoot?',
-        description: 'This will remove the failed shoot from your gallery. This cannot be undone.',
+        description: 'This will remove the shoot from your gallery. This cannot be undone.',
         confirmText: 'Delete',
         variant: 'destructive',
         icon: 'bin'
@@ -380,7 +380,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
           </div>
           <div className={styles.jobMeta}>
             <div className={styles.jobMetaButtons}>
-              {(activeJob.status !== 'running' && activeJob.status !== 'generating' && activeJob.status !== 'starting') && (
+              {(activeJob.status === 'completed' || activeJob.status === 'failed') && (
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>

@@ -5,6 +5,7 @@ export { LanguageProvider, useLanguage } from './hooks/LanguageContext';
 export { AuthProvider, useAuth } from './hooks/AuthContext';
 export { Header } from './web/Header';
 export { Icon } from './web/Icon';
+export { Footer } from './web/Footer';
 // Server-only utilities should be imported directly; do not re-export here to avoid bundling in web builds.
 // Stripe
 export { STRIPE_REFERENCE } from './lib/stripe/stripe-reference';

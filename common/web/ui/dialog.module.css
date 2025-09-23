@@ -47,6 +47,7 @@
     transform: none;
     border: none;
     background: none;
+    overflow: auto;
 }
 
 .dialog.fullscreen.noContainer {
@@ -194,7 +195,7 @@
 }
 
 .fullscreen .header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+  border-bottom: none;
 }
 
 .fullscreen .footer {

@@ -25,8 +25,8 @@
 .favButton { position: relative; }
 .favIconWrapper { position: relative; display: inline-flex; align-items: center; justify-content: center; }
 .favIconWrapper svg { transform-origin: 50% 50%; transition: transform 180ms ease, filter 240ms ease; }
-.favIconWrapper svg.heart { filter: drop-shadow(0 0 0 rgba(250,56,59,0)); }
-.favIconActive svg.heart { color: #FA383B; transform: scale(1.13); filter: drop-shadow(0 0 6px rgba(250,56,59,0.45)); }
+.favIconWrapper svg { filter: drop-shadow(0 0 0 rgba(250,56,59,0)); }
+.favIconActive svg { color: #FA383B; transform: scale(1.13); filter: drop-shadow(0 0 6px rgba(250,56,59,0.45)); }
 
 /* Heartbeat while request is in-flight */
 .favBeating svg { animation: fav-beat 820ms ease-in-out infinite; }

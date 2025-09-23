@@ -200,6 +200,12 @@ export function ImageUpload({
   }
 
   const resolveThumb = (name: string) => {
+    if (!name) return ''
+    if (name.startsWith('http')) return name
+    if (uploadPath?.includes('website-images/stripes')) {
+      const base = process.env.NEXT_PUBLIC_AWS_DISTRIBUTION || ''
+      return `${base}/website-images/stripes/${name}`
+    }
     if (uploadPath?.includes('options/wardrobes')) return getWardrobeOptionImage(name)
     if (uploadPath?.includes('options/scenes')) return getSceneOptionImage(name)
     if (uploadPath?.includes('options')) return getOptionsImage(name)

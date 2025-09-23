@@ -19,8 +19,8 @@ function DialogClose({ ...props }) {
 }
 const DialogOverlay = React.forwardRef(({ className, ...props }, ref) => (_jsx(DialogPrimitive.Overlay, { ref: ref, "data-slot": "dialog-overlay", className: `${styles.overlay} ${className || ''}`, ...props })));
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
-function DialogContent({ className, children, fullscreen = false, noContainer = false, panelKeepOpen = false, ...props }) {
-    return (_jsxs(DialogPortal, { "data-slot": "dialog-portal", children: [_jsx(DialogOverlay, { "data-panel-keepopen": panelKeepOpen ? '' : undefined }), _jsx(DialogPrimitive.Content, { "data-slot": "dialog-content", className: `${styles.dialog} ${(fullscreen || noContainer) ? styles.fullscreen : ''} ${noContainer ? styles.noContainer : ''} ${className || ''}`, ...props, children: _jsx("div", { className: styles.content, "data-panel-keepopen": panelKeepOpen ? '' : undefined, children: children }) })] }));
+function DialogContent({ className, children, fullscreen = false, noContainer = false, panelKeepOpen = false, contentClassName, ...props }) {
+    return (_jsxs(DialogPortal, { "data-slot": "dialog-portal", children: [_jsx(DialogOverlay, { "data-panel-keepopen": panelKeepOpen ? '' : undefined }), _jsx(DialogPrimitive.Content, { "data-slot": "dialog-content", className: `${styles.dialog} ${(fullscreen || noContainer) ? styles.fullscreen : ''} ${noContainer ? styles.noContainer : ''} ${className || ''} ${contentClassName || ''}`, ...props, children: _jsx("div", { className: `${styles.content} ${contentClassName || ''}`, "data-panel-keepopen": panelKeepOpen ? '' : undefined, children: children }) })] }));
 }
 function DialogHeader({ className, children, ...props }) {
     const { t } = useTranslation('common');

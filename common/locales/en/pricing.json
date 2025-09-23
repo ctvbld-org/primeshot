@@ -1,0 +1,11 @@
+{
+  "buyCredits": {
+    "title": "Buy credits",
+    "description": "Choose a credit pack"
+  },
+  "upgradePlan": {
+    "title": "Upgrade plan",
+    "description": "Choose a subscription plan"
+  }
+}
+

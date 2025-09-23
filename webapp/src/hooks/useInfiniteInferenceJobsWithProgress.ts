@@ -284,7 +284,14 @@ export function useInfiniteInferenceJobsWithProgress() {
   };
 
   // Apply a single completed image using provided web/original paths from WS
-  const applyFinalImageUrl = (jobId: string, index: number, webPath: string, originalPath?: string) => {
+  const applyFinalImageUrl = (
+    jobId: string,
+    index: number,
+    webPath: string,
+    originalPath?: string,
+    imageId?: string,
+    favourite?: boolean
+  ) => {
     if (!webPath || typeof index !== 'number' || index < 0) return;
     const origPath = originalPath || webPath.replace('/web/', '/orig/').replace(/\.webp$/i, '.png');
     const webUrl = getInferenceImageUrl(webPath, true);
@@ -293,7 +300,9 @@ export function useInfiniteInferenceJobsWithProgress() {
       status: 'completed',
       progress: 100,
       webImageUrl: webUrl,
-      imageUrl: originalUrl
+      imageUrl: originalUrl,
+      ...(imageId ? { imageId } : {}),
+      ...(typeof favourite === 'boolean' ? { favourite } : {})
     });
   };
 
@@ -405,7 +414,7 @@ export function useInfiniteInferenceJobsWithProgress() {
       const web = data.final_image_url || data.webImageUrl;
       const orig = data.imageUrl as string | undefined;
       if (idx !== undefined && (typeof web === 'string' && web.length > 0)) {
-        applyFinalImageUrl(jobId, idx, web, orig);
+        applyFinalImageUrl(jobId, idx, web, orig, (data as any)?.id, (data as any)?.favourite === true);
         return;
       }
     }
@@ -694,7 +703,7 @@ export function useInfiniteInferenceJobsWithProgress() {
             const web = data.final_image_url || data.webImageUrl;
             const orig = data.imageUrl as string | undefined;
             if (idx !== undefined && (typeof web === 'string' && web.length > 0)) {
-              applyFinalImageUrl(job.id, idx, web, orig);
+              applyFinalImageUrl(job.id, idx, web, orig, (data as any)?.id, (data as any)?.favourite === true);
               return;
             }
           }
@@ -817,7 +826,7 @@ export function useInfiniteInferenceJobsWithProgress() {
   }, [user?.id, infiniteJobs, resumeHoldIfAny, fetchAndApplyResults]);
 
   // Create queued thumbnails (optimistic UI)
-  const createQueuedThumbnails = useCallback((nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string; aspectRatio?: string; quality?: string }) => {
+  const createQueuedThumbnails = useCallback((nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string; aspectRatio?: string; quality?: string; characterId?: string }) => {
     // Create a placeholder ID for the thumbnails (no WebSocket connection yet)
     const placeholderId = `placeholder_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     

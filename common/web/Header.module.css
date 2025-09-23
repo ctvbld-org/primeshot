@@ -6,7 +6,9 @@
   z-index: 50;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  background-color: rgba(12, 16, 19, 0.7);
+  background-color: rgba(0, 0, 0, 0.4);
+  transform: translateY(var(--header-slide, 0px));
+  will-change: transform;
 }
 
 .container {
@@ -22,11 +24,27 @@
 .middleSection {
   display: flex;
   align-items: center;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
 }
 
 .leftSection {
   display: flex;
   flex: 0 0 100px;
+}
+
+.leftSection a {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 16px;
+}
+
+.leftSection a svg {
+  width: 120px;
+  height: 40px;
 }
 
 .rightSection {
@@ -37,231 +55,37 @@
   flex: 0 0 auto;
 }
 
-.progressSteps {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin: 0 auto;
-}
-
-.step {
-  display: flex;
-  align-items: center;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  gap: 10px;
-}
-
-.step.active {
-  color: #FF973C;
-}
-
-.step.completed {
-  color: #44E3C9;
-}
-
-.step.completed span {
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.stepIcon {
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.6);
-  transition: all 0.2s ease-in-out;
-  font-size: 12px;
-  font-weight: 400;
-  color: #000;
-}
-
-.step.active .stepIcon {
-  background: #FF973C;
-}
-
-.mobileStepsList {
-  position: absolute;
-  top: 0;
-  left: calc(50% - 4px) !important;
-  transform: translate(-50%, -100%);
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 11px;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
-  z-index: 100;
-}
-
-.mobileStepsList.visible {
-  opacity: 1;
-  visibility: visible;
-}
-
-.mobileStep {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 8px 28px 8px 20px;
-  border-radius: 8px;
-  width: fit-content;
-  background: rgba(16, 44, 41, 0.5);
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 14px;
-  font-weight: 600;
-  position: relative;
-  z-index: 1;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-}
-
-.mobileStep.active {
-  background: #1e241a;
-  color: #FF973C;
-}
-
-.mobileStep.completed {
-  color: #44E3C9;
-}
-
-.mobileStep .stepIcon {
-  background-color: rgb(159 166 166);
-}
-
-.mobileStep.active .stepIcon {
-  background-color: #FF973C;
-}
-
-.mobileStep.completed .stepIcon {
-  color: #44E3C9;
-}
-
-/* Adjust mobile progress button styles */
-.mobileProgressButton {
-  display: none;
-  align-items: center;
-  gap: 4px;
-  color: #FF973C;
-  font-size: 14px;
-  font-weight: 600;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 8px 12px;
-  border-radius: 8px;
-  transition: all 0.2s ease-in-out;
-  position: relative;
-}
-
-.mobileProgressButton:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.mobileProgressButton .stepIcon {
-  background: #FF973C;
-  margin-right: 4px;
-}
-
-.mobileProgressButton > span{
-  white-space: nowrap;
-}
-
-@media (max-width: 761px) {
-  .progressSteps {
-    gap: 14px;
-  }
-  .step {
-    font-size: 12px;
-    font-weight: 400;
-    gap: 6px;
-  }
-  .stepIcon {
-    width: 18px;
-    height: 18px;
-  }
-  .mobileProgressButton {
-    display: flex;
-  }
-  .progressSteps {
-    display: none;
-  }
-}
-
-@media (max-width: 650px) {
-  .mobileProgressButton {
-    display: flex;
-  }
-  .progressSteps {
-    display: none;
-  }
-}
-
-.basketButton {
-  position: relative;
-  background: none;
-  border: none;
-  padding: 8px;
-  cursor: pointer;
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  transition: all 0.2s ease;
-}
-
-.basketButton:hover {
-  background-color: rgba(255, 184, 0, 0.1);
-}
-
-.basketIcon {
-  color: #666;
-  transition: color 0.2s ease;
-}
-
-.basketIconActive {
-  color: #FFB800;
-}
-
-.basketCount {
-  color: #FFF;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: normal;
-}
-
 /* Navigation styles */
 .nav {
   display: flex;
-  gap: 1.5rem;
+  gap: 1.8px;
   font-size: 14px;
-  font-weight: 500;
-  color: #E5FBFA;
+  line-height: 16px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: #FFF;
 }
 
 .navLink {
+  background-color: transparent;
   text-decoration: none;
   opacity: 0.6;
-  transition: all 0.2s ease;
+  padding: 12px 16px;
+  border-radius: 16px;
+  transition: all 0.25s ease;
 }
 
 .navLink:hover {
+  background-color: rgba(255, 255, 255, 0.08);
   opacity: 1;
 }
+
+.navLink:focus-visible { outline: 2px solid #2ADED8; outline-offset: 2px; }
 
 .adminNavLink {
   text-decoration: none;
   opacity: 1;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
 
 .adminNavLink {
@@ -277,4 +101,4 @@
 
 @media (max-width: 920px) {
   .creditsText { display: none; }
-}
+} 

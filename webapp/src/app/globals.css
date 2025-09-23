@@ -82,6 +82,7 @@
   --radius-3xl: 2.25rem;
 
   --site-padding: 76px 40px;
+  --header-slide: 0px;
 
   @media (max-height: 712px) {
     --image-style-card-height: 460px;
@@ -97,7 +98,7 @@
 }
 
 .dark {
-  --background:#0C1013;
+  --background:#000000;
   --foreground: rgba(255, 255, 255, 0.6);
   --card: #1c1d1d;
   --card-foreground: #99EFEC;
@@ -148,6 +149,18 @@
   z-index: 50 !important;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* Hide scrollbar utility */
 .hide-scrollbar {
   -ms-overflow-style: none;  /* IE and Edge */
@@ -175,33 +188,6 @@
 
 .rotate-y-180 {
   transform: rotateY(180deg);
-}
-
-/* Ensure back face is initially hidden */
-.card-back {
-  transform: rotateY(180deg);
-}
-
-/* Hover and focus effects */
-.card-hover {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.card-hover:hover,
-.card-hover:focus-visible {
-  transform: scale(1.02);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-/* Focus outline for accessibility */
-.card-focus:focus-visible {
-  outline: 2px solid #4a90e2;
-  outline-offset: 2px;
-}
-
-/* Loading state animation */
-.card-loading {
-  animation: pulse 1.5s infinite;
 }
 
 @keyframes pulse {

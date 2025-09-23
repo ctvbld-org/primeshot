@@ -33,7 +33,9 @@
 /* Sticky state: stick below fixed header when scrolled to top */
 .barSticky {
   position: fixed;
-  top: calc(var(--header-height, 56px) + 6px);
+  /* Subtract current header slide so the bar continues moving up with it,
+     and stop 6px from the top when header is fully hidden */
+  top: calc(var(--header-height, 56px) + 6px + var(--header-slide, 0px));
   max-width: 1268px;
   width: 100%;
   left: 50%;

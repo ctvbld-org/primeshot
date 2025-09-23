@@ -2,6 +2,7 @@ import React from 'react'
 import { Coins, Package, Wallet } from 'lucide-react'
 import { STRIPE_REFERENCE } from '@primeshot/common/lib/stripe/stripe-reference'
 import { getStripeEnv } from '@primeshot/common/lib/stripe/env'
+import i18n from '@/i18n'
 
 export type CreditCostsMap = Record<string, number>
 
@@ -49,9 +50,15 @@ export const getPackColor = (credits: number) =>
 export const formatCredits = (n: number) => n.toLocaleString()
 
 export function formatValidity(days: number) {
-  if (days >= 365) return `${Math.floor(days / 365)} year${Math.floor(days / 365) > 1 ? 's' : ''}`
-  if (days >= 30) return `${Math.floor(days / 30)} month${Math.floor(days / 30) > 1 ? 's' : ''}`
-  return `${days} day${days > 1 ? 's' : ''}`
+  if (days >= 365) {
+    const years = Math.floor(days / 365)
+    return i18n.t('duration.year', { count: years })
+  }
+  if (days >= 30) {
+    const months = Math.floor(days / 30)
+    return i18n.t('duration.month', { count: months })
+  }
+  return i18n.t('duration.day', { count: days })
 }
 
 

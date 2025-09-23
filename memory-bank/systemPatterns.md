@@ -1740,6 +1740,26 @@ Detected changes in:
 Detected changes in:
 - website/src/app/api/waitlist/route.ts
 - website/src/app/layout.tsx
+
+
+**Auto-update 2025-09-22**:
+Detected changes in:
+- admin/src/app/api/sync/compare/route.ts
+- admin/src/app/api/sync/execute/route.ts
+- admin/src/components/styles/style-form-dialog.tsx
+- admin/src/components/subscriptions/subscription-form-dialog.tsx
+- admin/src/components/subscriptions/subscriptions-table.tsx
+- admin/src/components/sync/sync-dialog.tsx
+- admin/src/lib/sync/engine.ts
+- admin/src/lib/sync/types.ts
+- webapp/src/app/layout.tsx
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/OnboardingStep.tsx
+- webapp/src/components/character/training/onboarding.module.css
+- webapp/src/components/inference/GalleryPlaceholder.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.module.css
+- webapp/src/components/style/StylesCarousel.module.css
+- webapp/src/components/upload/UploadFooter.module.css
 ## Component Organization
 
 Components are organized by feature and reusability:

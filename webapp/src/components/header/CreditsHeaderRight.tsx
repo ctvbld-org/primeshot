@@ -1,6 +1,8 @@
 "use client"
 
 import React from 'react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import styles from './CreditsHeaderRight.module.css'
 import { useAuth } from '@/contexts/auth-context'
 import { SignInModal } from '@primeshot/common/web/SignInModal'
@@ -10,12 +12,19 @@ import { useCreditBalance } from '@/hooks/useCreditBalance'
 import { useCurrentSubscription } from '@/hooks/useCurrentSubscription'
 import { ProgressCircle } from '@primeshot/common/web/ui/progress-circle'
 import { useOpenCreditPackDialog } from '@/hooks/useOpenCreditPackDialog'
+import { useOpenSubscriptionDialog } from '@/hooks/useOpenSubscriptionDialog'
+import { Icon } from '@primeshot/common/web/Icon'
+import { useFavouriteCount } from '@/hooks/useFavouriteCount'
 
 export function CreditsHeaderRight() {
   const { isAuthenticated, user } = useAuth()
   const { data: creditBalance } = useCreditBalance()
   const { data: subscription } = useCurrentSubscription()
+  const { data: favouriteCount } = useFavouriteCount()
   const openCreditPackDialog = useOpenCreditPackDialog()
+  const openSubscriptionDialog = useOpenSubscriptionDialog()
+  const pathname = usePathname()
+  const onFavourites = (pathname || '').startsWith('/favourites')
 
   if (!isAuthenticated) {
     return <SignInModal />
@@ -31,11 +40,16 @@ export function CreditsHeaderRight() {
     <AccountDialog
       triggerSlot={
         <div className={styles.container}>
-            {subscription?.status === 'active' && (
-              <span className={styles.text}>
-                {remaining.toLocaleString()} credits remaining
-              </span>
-            )}
+          {(favouriteCount ?? 0) > 0 && (
+            <Link href="/favourites" className={`${styles.favLink} ${onFavourites ? styles.favLinkActive : ''}`} aria-label="Favourites">
+              <Icon variant={onFavourites ? 'heart' : 'heartOutline'} size={16} />
+            </Link>
+          )}
+          {subscription?.status === 'active' && (
+            <span className={styles.text}>
+              {remaining.toLocaleString()} credits remaining
+            </span>
+          )}
           <div className={styles.avatarWrapper}>
             <div className={styles.avatarInset}>
               <Avatar src={user?.avatar_url ?? undefined} alt={user?.email ?? 'avatar'} className={styles.avatar} />
@@ -45,6 +59,7 @@ export function CreditsHeaderRight() {
         </div>
       }
       onBuyCredits={() => openCreditPackDialog()}
+      onSubscribe={() => openSubscriptionDialog()}
     />
   )
 }

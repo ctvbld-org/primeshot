@@ -11,6 +11,8 @@ import { Loader } from '@primeshot/common/web/ui/loader';
 import { useOptionalInferenceQueue } from '@/contexts/inference-queue-context';
 import { confirmationService } from '@/lib/services/confirmationService';
 import { useToast } from '@primeshot/common/web/ui/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/auth-context';
 
 export interface InferenceThumbnail {
   id: string;
@@ -160,6 +162,8 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
   // Inline action state
   const queue = useOptionalInferenceQueue();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [isDownloading, setIsDownloading] = useState(false);
   const [isTogglingFav, setIsTogglingFav] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -177,6 +181,15 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
       queue?.updateThumbnail(thumbnail.jobId, thumbnail.index, { favourite: next });
       const { setImageFavourite } = await import('@/lib/api/inference-images');
       await setImageFavourite(thumbnail.imageId, next);
+      // Update favourites count cache and invalidate so header updates
+      try {
+        const key = ['favouriteCount', user?.id];
+        queryClient.setQueryData<number>(key, (prev) => {
+          const base = typeof prev === 'number' ? prev : 0;
+          return Math.max(0, base + (next ? 1 : -1));
+        });
+      } catch {}
+      queryClient.invalidateQueries({ queryKey: ['favouriteCount'] });
     } catch {
       setLocalFavourite(Boolean(thumbnail.favourite));
       queue?.updateThumbnail(thumbnail.jobId, thumbnail.index, { favourite: Boolean(thumbnail.favourite) });
@@ -227,6 +240,14 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
       const { deleteGeneratedImage } = await import('@/lib/api/inference-images');
       await deleteGeneratedImage(thumbnail.imageId);
       queue?.updateThumbnail(thumbnail.jobId, thumbnail.index, { status: 'failed', webImageUrl: undefined, imageUrl: undefined });
+      // If this was favourited, decrement the favourites count
+      if (localFavourite || thumbnail.favourite) {
+        try {
+          const key = ['favouriteCount', user?.id];
+          queryClient.setQueryData<number>(key, (prev) => Math.max(0, (typeof prev === 'number' ? prev : 0) - 1));
+        } catch {}
+        queryClient.invalidateQueries({ queryKey: ['favouriteCount'] });
+      }
     } catch {
       // no-op
     } finally {
