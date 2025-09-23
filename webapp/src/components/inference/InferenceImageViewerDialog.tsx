@@ -39,6 +39,7 @@ interface InferenceImageViewerDialogProps {
   initialImageIndex: number;
   fullscreen?: boolean;
   noContainer?: boolean;
+  hideHeader?: boolean;
   shootNumber: number;
 }
 

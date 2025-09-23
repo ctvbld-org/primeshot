@@ -2,7 +2,6 @@
 
 import React from 'react';
 import styles from './confirmation.module.css';
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@primeshot/common/web/ui/alert-dialog';
 import { Icon } from '@primeshot/common/web/Icon';
 import { dialogServiceSingleton } from '@/contexts/DialogServiceContext';
 import { Button } from '@primeshot/common/web/ui/button';
@@ -14,6 +13,7 @@ interface ConfirmationOptions {
   cancelText?: string;
   variant?: 'destructive' | 'secondary' | 'primary' | 'ghost';
   icon?: string;
+  hideHeader?: boolean;
 }
 
 interface ConfirmationPromise {
@@ -47,7 +47,8 @@ class ConfirmationService {
       confirmText,
       cancelText = 'Cancel',
       variant = 'primary',
-      icon
+      icon,
+      hideHeader = true
     } = options;
 
     const handleConfirm = () => {
@@ -66,9 +67,9 @@ class ConfirmationService {
       dialogServiceSingleton.closeDialog();
     };
 
-    // Create the confirmation dialog content
-    const confirmationContent = React.createElement('div', { className: styles.container }, [
-      // Inline title/description (no dialog header wrapper)
+    // Create the confirmation dialog content (top-level element carries hideHeader)
+    const confirmationContent = React.createElement('div', { className: styles.container, hideHeader: hideHeader }, [
+      // Inline title/description (no dialog header wrapper if hideHeader is true to avoid double header)
       React.createElement('div', { key: 'content', className: styles.content }, [
         icon && React.createElement('div', { key: 'icon', className: `${styles.icon} ${styles['icon-' + variant]}` }, React.createElement(Icon, { variant: icon as any, size: 48 })),
         React.createElement('h2', { key: 'title', className: styles.title }, title),
@@ -83,7 +84,10 @@ class ConfirmationService {
 
     // Open the dialog using the existing service. We no longer pass non-DOM props directly to div.
     // Instead, rely on DialogService to always include an accessible title/description.
-    dialogServiceSingleton.openDialog(React.createElement('div', null, confirmationContent));
+    dialogServiceSingleton.openDialog(confirmationContent, {
+      title: title,
+      description: description
+    });
 
     return promise;
   }

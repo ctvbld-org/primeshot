@@ -122,7 +122,7 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
                 // Invalidate subscription and credit queries to update training usage count and balance
                 queryClient.invalidateQueries({ queryKey: ['currentSubscription'] });
                 queryClient.invalidateQueries({ queryKey: ['creditBalance'] });
-            }} 
+            }}
         />
     )
   }, [dialogService, onSelectCharacter, refreshCharacters, queryClient]);

@@ -636,16 +636,37 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
             )}
           </div>
           <div className={styles.headerRight}>
-            {/* Close Button - show for all steps */}
-            <Button
-              variant="ghost"
-              size="sm"
-              iconOnly
-              onClick={handleClose}
-              className={styles.iconButtonSmall}
-            >
-              <Icon variant="cross" className={styles.iconSmall} />
-            </Button>
+            {/* Upload step actions: Cancel + Next */}
+            {currentStep === 'upload' && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleClose}
+                >
+                  {t('common:cancel')}
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={handleNext}
+                  disabled={isNextDisabled()}
+                >
+                  {t('common:next')}
+                </Button>
+              </>
+            )}
+            {canGoBack && currentStep !== 'upload' && (
+              <Button
+                variant="ghost"
+                size="sm"
+                iconOnly
+                onClick={handleClose}
+                className={styles.iconButtonSmall}
+              >
+                <Icon variant="cross" className={styles.iconSmall} />
+              </Button>
+            )}
           </div>
         </div>
 

@@ -7,13 +7,15 @@ import { DialogTitle, DialogDescription, DialogHeader } from '@primeshot/common/
 interface DialogServiceValue {
   openDialog: (content: ReactNode, options?: { title?: string; description?: string }) => void
   closeDialog: () => void
+  hideHeader: boolean
 }
 
 const DialogServiceContext = createContext<DialogServiceValue | undefined>(undefined)
 
 export const dialogServiceSingleton: DialogServiceValue = {
   openDialog: () => console.warn('DialogService not ready'),
-  closeDialog: () => {}
+  closeDialog: () => {},
+  hideHeader: true
 }
 
 export function DialogServiceProvider({ children }: { children: ReactNode }) {
@@ -54,7 +56,7 @@ export function DialogServiceProvider({ children }: { children: ReactNode }) {
   })()
 
   return (
-    <DialogServiceContext.Provider value={{ openDialog, closeDialog }}>
+    <DialogServiceContext.Provider value={{ openDialog, closeDialog, hideHeader: derivedWrapperProps.hideHeader }}>
       {children}
       {derivedWrapperProps.selfManaged ? (
         open ? <>{content}</> : null

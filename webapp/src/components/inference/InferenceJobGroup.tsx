@@ -120,6 +120,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
             initialImageIndex={filteredIndex}
             fullscreen={true}
             noContainer={true}
+            hideHeader={true}
             shootNumber={shootNumber}
           />
         );

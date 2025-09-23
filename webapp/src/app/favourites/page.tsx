@@ -169,7 +169,12 @@ export default function FavouritesPage() {
         shootNumber={0}
         fullscreen={true}
         noContainer={true}
-      />
+        hideHeader={true}
+      />,
+      {
+        title: 'Favourites',
+        description: 'Manage your favourites'
+      }
     )
   }, [job, rows, metaByJob, openDialog])
 
