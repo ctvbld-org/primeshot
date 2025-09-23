@@ -15,8 +15,8 @@
 }
 
 .btn:not(:disabled):active {
-  background: #fff;
-  color: #000;
+  background: #fff !important;
+  color: #000 !important;
 }
 
 .btnLabel {

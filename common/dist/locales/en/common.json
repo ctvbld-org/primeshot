@@ -34,5 +34,18 @@
   "userNav": {
     "signOut": "Sign out",
     "accountSettings": "Account Settings"
+  },
+  "footer": {
+    "terms": "Terms and Conditions",
+    "privacy": "Privacy Policy",
+    "copyright": "© {{year}} Primeshot. All Rights Reserved"
+  },
+  "duration": {
+    "year_one": "{{count}} year",
+    "year_other": "{{count}} years",
+    "month_one": "{{count}} month",
+    "month_other": "{{count}} months",
+    "day_one": "{{count}} day",
+    "day_other": "{{count}} days"
   }
 } 
