@@ -1,4 +1,5 @@
 .dialogRoot {
+  color: rgba(255, 255, 255, 0.8);
   max-width: 680px;
   width: calc(100% - 32px);
   padding: 0;
@@ -124,7 +125,7 @@
 
 .profileAvatar { width: 40px; height: 40px; }
 
-.kvRow {  padding: 14px 0; border-bottom: 1px solid rgba(129,214,206,0.08); }
+.kvRow { display: grid; grid-template-columns: 100px 1fr; gap: 12px; padding: 14px 0; border-bottom: 1px solid rgba(129,214,206,0.08); }
 .kvLabel { color: rgba(180, 236, 229, 0.6); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
 .kvValue { color: #e6fffb; font-size: 14px; }
 
@@ -221,6 +222,10 @@
   .content {  
     padding: 24px;
     flex: 1;
+  }
+
+  .dialogFooter {
+    padding: 16px;
   }
 
    /* Hide sidebar nav and show select on mobile */

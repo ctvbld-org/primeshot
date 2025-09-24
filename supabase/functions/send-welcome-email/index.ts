@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { renderWelcomeEmail } from "../_shared/emails/index.ts";
 
 interface WelcomePayload {
   id: string;
@@ -52,13 +53,14 @@ serve(async (req) => {
     }
 
     const name = getDisplayName(email, full_name ?? undefined);
+    const { subject, html, text } = renderWelcomeEmail({ name, userId: id });
 
     const emailBody = {
       from,
       to: [email],
-      subject: `Welcome to Primeshot, ${name}!`,
-      text: `Hi ${name},\n\nWelcome to Primeshot — your account is ready (id: ${id}).\n\nWe\'re excited to have you on board!`,
-      html: `<!doctype html><html><body style="font-family:Arial,Helvetica,sans-serif;line-height:1.6;color:#111">\n  <h2 style="margin:0 0 12px">Welcome to Primeshot, ${name}!</h2>\n  <p>Your account is ready${id ? ` (id: ${id})` : ''}. We're excited to have you on board.</p>\n  <p style="margin-top:24px">— The Primeshot Team</p>\n</body></html>`
+      subject,
+      text,
+      html
     } as Record<string, unknown>;
 
     const resp = await fetch("https://api.resend.com/emails", {

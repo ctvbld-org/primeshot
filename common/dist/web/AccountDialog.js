@@ -123,8 +123,9 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }) {
                 const up = await fetch(getApiUrl('api/account/avatar'), { method: 'POST', body: fd });
                 if (!up.ok)
                     throw new Error('Failed to upload avatar');
-                const { url } = await up.json();
-                avatarUrl = url;
+                const { key } = await up.json();
+                // Store only the S3 key in DB (e.g., user-images/<id>/avatar.webp)
+                avatarUrl = key;
             }
             const res = await fetch(getApiUrl('api/account/profile'), {
                 method: 'POST',

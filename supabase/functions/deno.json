@@ -4,6 +4,15 @@
   },
   "imports": {
     "@supabase/supabase-js": "npm:@supabase/supabase-js@2",
+    "@react-email/render": "npm:@react-email/render@2",
+    "@react-email/components": "npm:@react-email/components@0.0.22",
+    "@react-email/tailwind": "npm:@react-email/tailwind@1",
+    "react": "npm:react@18",
+    "react-dom": "npm:react-dom@18",
     "std/": "jsr:@std/"
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
   }
-} 
+}
