@@ -30,7 +30,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
     rootMargin: '300px', // Load images 300px before they come into view
     threshold: 0.1
   });
-  const { t } = useTranslation(['styles']);
+  const { t } = useTranslation(['styles', 'inference']);
   const inferenceQueue = useInferenceQueue();
   const { removeJob, createQueuedThumbnails, updateJobWithRealId, updateJobStatus } = inferenceQueue;
   const { toast } = useToast();
@@ -133,14 +133,14 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
     const now = new Date();
     const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
     
-    if (diffInMinutes < 1) return 'Just now';
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInMinutes < 1) return t('inference:time.justNow');
+    if (diffInMinutes < 60) return t('inference:time.minutesAgo', { count: diffInMinutes });
     
     const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return `${diffInHours}h ago`;
+    if (diffInHours < 24) return t('inference:time.hoursAgo', { count: diffInHours });
     
     const diffInDays = Math.floor(diffInHours / 24);
-    return `${diffInDays}d ago`;
+    return t('inference:time.daysAgo', { count: diffInDays });
   };
 
   // Get localized status label for the badge (do not show raw message here)
@@ -233,9 +233,9 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
   const handleDelete = async () => {
     try {
       const ok = await confirmationService.confirm({
-        title: 'Delete shoot?',
-        description: 'This will remove the shoot from your gallery. This cannot be undone.',
-        confirmText: 'Delete',
+        title: t('group.confirmDelete.title', { ns: 'inference' }),
+        description: t('group.confirmDelete.description', { ns: 'inference' }),
+        confirmText: t('group.confirmDelete.confirm', { ns: 'inference' }),
         variant: 'destructive',
         icon: 'bin'
       });
@@ -250,7 +250,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
     } catch (e) {
       console.error('Failed to delete job', e);
       setIsDeleting(false); // Reset animation state on error
-      toast({ title: 'Delete failed', description: 'Please try again.', variant: 'destructive', duration: 4000 });
+      toast({ title: t('group.deleteFailedTitle', { ns: 'inference' }), description: t('common.pleaseTryAgain', { ns: 'inference' }), variant: 'destructive', duration: 4000 });
     }
   };
 
@@ -262,8 +262,8 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
       // We need to ensure all required fields are present
       if (!activeJob.characterId || !activeJob.styleId) {
         toast({ 
-          title: 'Cannot rerun', 
-          description: 'Missing required job information.', 
+          title: t('group.rerun.cannot', { ns: 'inference' }), 
+          description: t('group.rerun.missingInfo', { ns: 'inference' }), 
           variant: 'destructive', 
           duration: 4000 
         });
@@ -349,8 +349,8 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
       }
       
       toast({ 
-        title: 'Rerun failed', 
-        description: 'Please try again.', 
+        title: t('group.rerun.failed', { ns: 'inference' }), 
+        description: t('common.pleaseTryAgain', { ns: 'inference' }), 
         variant: 'destructive', 
         duration: 4000 
       });
@@ -375,7 +375,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
       <div className={styles.jobHeader}>
         <div className={styles.jobTitle}>
           <div className={styles.titleRow}>
-            <h3 className={styles.shootTitle}>SHOOT #{shootNumber.toString().padStart(3, '0')}</h3>
+            <h3 className={styles.shootTitle}>{t('group.header.shootTitle', { ns: 'inference', number: shootNumber.toString().padStart(3, '0') })}</h3>
             <span className={styles.dotsMenuButton}><Icon variant="dotsMenu" size={16} /></span>
             {!!subtitle && <span className={styles.jobSubtitle}>{subtitle}</span>}
           </div>
@@ -385,12 +385,12 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" className={`${styles.dotsMenuButton} ${styles.actionBtn}`} onClick={handleDelete} aria-label="Delete shoot">
+                    <Button variant="ghost" className={`${styles.dotsMenuButton} ${styles.actionBtn}`} onClick={handleDelete} aria-label={t('group.tooltips.deleteShoot', { ns: 'inference' })}>
                       <Icon variant="bin" size={16} />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    Delete shoot
+                    {t('group.tooltips.deleteShoot', { ns: 'inference' })}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -398,12 +398,12 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" className={`${styles.dotsMenuButton} ${styles.actionBtn}`} onClick={handleRerun} aria-label="Rerun shoot">
+                    <Button variant="ghost" className={`${styles.dotsMenuButton} ${styles.actionBtn}`} onClick={handleRerun} aria-label={t('group.tooltips.rerunShoot', { ns: 'inference' })}>
                       <Icon variant="restart" size={16} />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">
-                    Rerun shoot
+                    {t('group.tooltips.rerunShoot', { ns: 'inference' })}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -458,11 +458,11 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
             const extra = Math.max(remaining.length - display.length, 0);
             
             return (
-              <div className={styles.previewStack} aria-label="Thumbnails preview">
+            <div className={styles.previewStack} aria-label={t('group.aria.thumbnailsPreview', { ns: 'inference' })}>
                 {display.map((t, idx) => (
                   (t.webImageUrl || t.imageUrl) && (
                     <div key={`pv-${t.id}`} className={styles.previewCircle}>
-                      <img src={(t.webImageUrl || t.imageUrl) as string} alt={`Preview ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img src={(t.webImageUrl || t.imageUrl) as string} alt={t('group.alt.preview', { ns: 'inference', index: idx + 1 })} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
                   )
                 ))}
@@ -481,9 +481,9 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
             className={styles.viewAllBtn}
             size="md"
             onClick={() => handleThumbnailClick(0)}
-            aria-label="View all images"
+            aria-label={t('group.aria.viewAllImages', { ns: 'inference' })}
           >
-            View all
+            {t('group.buttons.viewAll', { ns: 'inference' })}
           </Button>
         </div>
       </div>

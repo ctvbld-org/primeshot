@@ -1,4 +1,4 @@
-import { render } from "@react-email/render";
+import { render } from "npm:@react-email/render";
 import WelcomeEmail, { type WelcomeEmailProps } from "./welcome.tsx";
 
 export type EmailOverrides = {

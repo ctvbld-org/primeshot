@@ -49,36 +49,7 @@ function getStripePriceId(tierName: string, billingCycle: 'monthly' | 'yearly'):
   return billingCycle === 'yearly' ? tierConfig.yearly || tierConfig.monthly : tierConfig.monthly
 }
 
-// Context-specific messaging
-function getContextMessage(context?: SubscriptionDialogContext) {
-  switch (context) {
-    case 'character-limit':
-      return {
-        title: "You've hit your character limit.",
-        description: "Upgrade to get additional characters"
-      }
-    case 'quality-upgrade':
-      return {
-        title: "Want higher quality?",
-        description: "Upgrade for sharper images and extra perks"
-      }
-    case 'credit-upgrade':
-      return {
-        title: "Running low on credits?",
-        description: "Upgrade to get more credits monthly"
-      }
-    case 'general':
-      return {
-        title: "Upgrade your plan",
-        description: "Unlock more features and flexibility"
-      }
-    default:
-      return {
-        title: "Pick your plan",
-        description: "Choose what fits, switch anytime"
-      }
-  }
-}
+// (All context-specific UI copy is sourced from pricing.json via i18n)
 
 export function SubscriptionDialogContent({
   context,
@@ -244,7 +215,7 @@ export function SubscriptionDialogContent({
   }
 
 
-  const contextMessage = getContextMessage(context)
+  // UI strings pulled from translation keys below
 
   // Pricing helpers + derived values
   const getCyclePrice = (tier: SubscriptionTier, cycle: 'monthly' | 'yearly') =>

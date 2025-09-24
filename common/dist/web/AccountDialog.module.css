@@ -68,10 +68,13 @@
 
 /* Mobile tab select (hidden by default) */
 .mobileSelect {
-  display: none;
-  width: 100%;
-  color: #d6fff9;
-  padding: 8px 20px 8px 0px;
+  font-family: var(--font-carb);
+  font-weight: 300;
+  font-size: 26px;
+  line-height: 40px;
+  letter-spacing: 0.02em;
+  color: #99EFEC;
+  margin-bottom: 16px;  
 }
 
 .navItem {
@@ -214,7 +217,7 @@
   }
 
   .sidebar {
-    padding: 68px 16px 16px;
+    padding: 74px 16px 2px;
     border-right: none;
     border-bottom: 1px solid rgba(12, 16, 19, 0.5);
   }
@@ -226,6 +229,10 @@
 
   .dialogFooter {
     padding: 16px;
+  }
+
+  .title {
+    display: none;
   }
 
    /* Hide sidebar nav and show select on mobile */

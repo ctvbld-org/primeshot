@@ -33,7 +33,7 @@ export function CharacterNameStep({
   totalTrainings,
   usedTrainings
 }: CharacterNameStepProps) {
-  const { t } = useTranslation(['upload', 'styles'])
+  const { t } = useTranslation(['character', 'styles'])
   const [thumbnailUrl, setThumbnailUrl] = useState<string>('')
 
   useEffect(() => {
@@ -52,11 +52,11 @@ export function CharacterNameStep({
           {thumbnailUrl ? (
             <img 
               src={thumbnailUrl} 
-              alt="Face Model Preview" 
+              alt={t('nameStep.altPreview')}
               className={styles.thumbnailImage}
             />
           ) : (
-            <div className={styles.thumbnailPlaceholder}>No preview</div>
+            <div className={styles.thumbnailPlaceholder}>{t('nameStep.noPreview')}</div>
           )}
         </div>
         {/* Cyan glow effect */}
@@ -68,7 +68,7 @@ export function CharacterNameStep({
         <Input
           id="characterName"
           type="text"
-          placeholder={t('character.nameLabel')}
+          placeholder={t('nameLabel')}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className="bg-background/50 border-border text-foreground placeholder:text-muted-foreground"
@@ -81,7 +81,7 @@ export function CharacterNameStep({
           variant="primary"
           className="w-full"
         >
-          Create
+          {t('nameStep.create')}
         </Button>
       </div>
 

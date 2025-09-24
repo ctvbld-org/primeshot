@@ -209,16 +209,3 @@
 .arrowRight {
   margin-left: 0.25rem;
 } 
-
-.signinContent {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-@media (max-width: 414px) {
-  .card {
-    background: none;
-    border: none;
-  }
-}

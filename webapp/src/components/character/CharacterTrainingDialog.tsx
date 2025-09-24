@@ -80,7 +80,7 @@ interface StepData {
 }
 
 export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogProps) {
-  const { t } = useTranslation(['upload', 'profile', 'common'])
+  const { t } = useTranslation(['character', 'common'])
   const { toast } = useToast()
   const dialogService = useDialogService()
   const { user } = useAuth()
@@ -104,42 +104,42 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
     onboardingGuidelines: [
       {
         id: 'natural-light',
-        title: 'Natural Light',
-        description: 'Use well-lit photos by a window or outside! Avoid dark or blurry for sharp results.',
+        title: t('character:onboarding.guidelines.naturalLight.title'),
+        description: t('character:onboarding.guidelines.naturalLight.description'),
         icon: 'sun',
         images: [
-          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/natural-light-2-w320.webp', alt: 'Good natural light example' },
-          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/natural-light-2-w320.webp', alt: 'Poor lighting example' }
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/natural-light-2-w320.webp', alt: t('character:onboarding.guidelines.naturalLight.goodAlt') },
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/natural-light-2-w320.webp', alt: t('character:onboarding.guidelines.naturalLight.badAlt') }
         ]
       },
       {
         id: 'angles',
-        title: 'Angles',
-        description: 'Mix it up with angles! Pick shoulder-ups, front and side, add a few waist-ups.',
+        title: t('character:onboarding.guidelines.angles.title'),
+        description: t('character:onboarding.guidelines.angles.description'),
         icon: 'angles',
         images: [
-          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/angles-1-w320.webp', alt: 'Good angle example' },
-          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/angles-2-w320.webp', alt: 'Poor angle example' }
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/angles-1-w320.webp', alt: t('character:onboarding.guidelines.angles.goodAlt') },
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/angles-2-w320.webp', alt: t('character:onboarding.guidelines.angles.badAlt') }
         ]
       },
       {
         id: 'expressions',
-        title: 'Expressions',
-        description: 'Express your vibe with varied smiles, poses. Skip same-face for dynamic shots.',
+        title: t('character:onboarding.guidelines.expressions.title'),
+        description: t('character:onboarding.guidelines.expressions.description'),
         icon: 'smilyFace',
         images: [
-          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/expression-1-w320.webp', alt: 'Good expression example' },
-          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/expression-2-w320.webp', alt: 'Poor expression example' }
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/expression-1-w320.webp', alt: t('character:onboarding.guidelines.expressions.goodAlt') },
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/expression-2-w320.webp', alt: t('character:onboarding.guidelines.expressions.badAlt') }
         ]
       },
       {
         id: 'variety',
-        title: 'Variety',
-        description: 'Pick shots with a mix of clothing and backgrounds. Skip heavy filters.',
+        title: t('character:onboarding.guidelines.variety.title'),
+        description: t('character:onboarding.guidelines.variety.description'),
         icon: 'variety',
         images: [
-          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/variety-1-w320.webp', alt: 'Good variety example' },
-          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/variety-2-w320.webp', alt: 'Poor variety example' }
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/variety-1-w320.webp', alt: t('character:onboarding.guidelines.variety.goodAlt') },
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/variety-2-w320.webp', alt: t('character:onboarding.guidelines.variety.badAlt') }
         ]
       }
     ]
@@ -192,8 +192,8 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (isInCriticalStep) {
         e.preventDefault()
-        e.returnValue = 'Your character is currently being processed. Are you sure you want to leave? This will cancel the upload.'
-        return 'Your character is currently being processed. Are you sure you want to leave? This will cancel the upload.'
+        e.returnValue = t('character:beforeUnloadWarning')
+        return t('character:beforeUnloadWarning')
       }
     }
 
@@ -240,7 +240,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
   // Handle training error - show toast and close dialog
   const handleTrainingError = useCallback((error: string) => {
     toast({
-      title: t('upload:character.trainingError'),
+      title: t('character:trainingError'),
       description: error,
       variant: 'destructive'
     })
@@ -364,9 +364,9 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
   const getProgressMessage = useCallback(() => {
     switch (currentStep) {
       case 'upload':
-        return t('upload:confirmClose.progressMessages.upload')
+        return t('character:confirmClose.progressMessages.upload')
       case 'name':
-        return t('upload:confirmClose.progressMessages.name')
+        return t('character:confirmClose.progressMessages.name')
       default:
         return ''
     }
@@ -527,12 +527,12 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
       }
       
       // Show error toast and close dialog
-      let errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred during character creation'
-      let errorTitle = t('upload:character.trainingError')
+      let errorMessage = error instanceof Error ? error.message : t('character:trainingFailed')
+      let errorTitle = t('character:trainingError')
       
       // Check if this was a final retry failure
       if (retryState && retryState.attempt >= retryState.maxRetries) {
-        errorTitle = t('upload:errors.trainingRetryFailed', { attempts: retryState.maxRetries })
+        errorTitle = t('character:errors.trainingRetryFailed', { attempts: retryState.maxRetries })
         errorMessage = retryState.error?.message || errorMessage
       }
       
@@ -568,19 +568,19 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
   const getDialogTitle = () => {
     switch (currentStep) {
       case 'onboarding-intro':
-        return 'Character Creation Guide'
+        return t('character:dialogTitles.onboardingIntro')
       case 'onboarding-guidelines':
-        return 'Photography Tips'
+        return t('character:dialogTitles.onboardingGuidelines')
       case 'onboarding-confirmation':
-        return 'Ready to Upload'
+        return t('character:dialogTitles.onboardingConfirmation')
       case 'upload':
-        return 'Upload Photos'
+        return t('character:dialogTitles.upload')
       case 'name':
-        return 'Name Your Character'
+        return t('character:dialogTitles.name')
       case 'uploading':
-        return 'Uploading Photos'
+        return t('character:dialogTitles.uploading')
       case 'training':
-        return 'Training Model'
+        return t('character:dialogTitles.training')
       default:
         return ''
     }
@@ -617,10 +617,10 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
         {/* Hidden DialogTitle for accessibility */}
         <DialogTitle className={styles.srOnly}>{getDialogTitle()}</DialogTitle>
         <DialogDescription className={styles.srOnly}>
-          {currentStep === 'upload' ? 'Upload photos to create your character' : 
-           currentStep === 'name' ? 'Name your character' : 
-           currentStep === 'training' ? 'Character training in progress' : 
-           'Character creation dialog'}
+          {currentStep === 'upload' ? t('character:dialogDescription.upload') : 
+           currentStep === 'name' ? t('character:dialogDescription.name') : 
+           currentStep === 'training' ? t('character:dialogDescription.training') : 
+           t('character:dialogDescription.default')}
         </DialogDescription>
         <div className={styles.header}>
           <div className={styles.headerLeft}>
@@ -789,10 +789,10 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
       <ConfirmDialog
         open={showCloseConfirmation}
         onOpenChange={setShowCloseConfirmation}
-        title={t('upload:confirmClose.title')}
-        description={(t('upload:confirmClose.description'))}
-        confirmText={t('upload:confirmClose.buttons.confirm')}
-        cancelText={t('upload:confirmClose.buttons.cancel')}
+        title={t('character:confirmClose.title')}
+        description={(t('character:confirmClose.description'))}
+        confirmText={t('character:confirmClose.buttons.confirm')}
+        cancelText={t('character:confirmClose.buttons.cancel')}
         onConfirm={handleConfirmClose}
         onCancel={handleCancelClose}
         iconVariant="warning"

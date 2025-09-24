@@ -95,16 +95,18 @@ export function SignInForm() {
         <div ref={optionsRef} className={`${styles.section} ${showEmailForm ? styles.sectionHidden : styles.sectionVisible}`}>
           <div className={styles.socialButtons}>
             {providers.map((p) => (
-              <Button
-                key={p.key}
-                variant="primary"
-                className={styles.socialButton}
-                onClick={p.onClick}
-                disabled={isLoading || !!p.disabled}
-              >
-                <Icon variant={p.key as never} size={16} />
-                <span>{t(p.labelKey as never)}</span>
-              </Button>
+              (!p.disabled && (
+                <Button
+                  key={p.key}
+                  variant="primary"
+                  className={styles.socialButton}
+                  onClick={p.onClick}
+                  disabled={isLoading || !!p.disabled}
+                >
+                  <Icon variant={p.key as never} size={16} />
+                  <span>{t(p.labelKey as never)}</span>
+                </Button>
+              ))
             ))}
           </div>
 

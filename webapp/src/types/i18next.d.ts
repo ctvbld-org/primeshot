@@ -6,16 +6,16 @@ declare module '*.json' {
 import 'i18next';
 
 // Import the JSON files directly to get their types
-import type common from '../locales/en/common.json';
-import type payment from '../locales/en/payment.json';
-import type albums from '../locales/en/albums.json';
-import type styles from '../locales/en/styles.json';
-import type auth from '../locales/en/auth.json';
-import type profile from '../locales/en/profile.json';
-import type upload from '../locales/en/upload.json';
-import type review from '../locales/en/review.json';
-import type settings from '../locales/en/settings.json';
-import type pricing from '@primeshot/common/locales/en/pricing.json';
+import type common from '../locales/en-GB/common.json';
+import type payment from '../locales/en-GB/payment.json';
+import type albums from '../locales/en-GB/albums.json';
+import type styles from '../locales/en-GB/styles.json';
+import type auth from '../locales/en-GB/auth.json';
+import type profile from '../locales/en-GB/profile.json';
+import type upload from '../locales/en-GB/upload.json';
+import type review from '../locales/en-GB/review.json';
+import type settings from '../locales/en-GB/settings.json';
+import type pricing from '@primeshot/common/locales/en-GB/pricing.json';
 
 declare module 'i18next' {
   interface CustomTypeOptions {

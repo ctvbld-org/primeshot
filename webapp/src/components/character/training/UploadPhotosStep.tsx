@@ -24,7 +24,7 @@ interface UploadPhotosStepProps {
 
 
 export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
-  const { t } = useTranslation('upload')
+  const { t } = useTranslation('character')
   const { toast } = useToast()
   const { user: authUser } = useAuth()
   const [petMode, setPetMode] = useState(false)
@@ -113,14 +113,14 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
           <div>
             <div className={styles.petModeToggle}>
               <Checkbox checked={petMode} onCheckedChange={(v) => setPetMode(!!v)} id="pet-mode" />
-              <label htmlFor="pet-mode">Pet mode</label>
+              <label htmlFor="pet-mode">{t('uploadStep.petMode')}</label>
             </div>
             
             {/* Body shot validation errors */}
             {!isAnalyzing && acceptedFiles.length >= minImages && !bodyShotValidation.isValid && (
               <div className={styles.bodyShotError}>
                 <div className={styles.bodyShotErrorTitle}>
-                  Body Shot Requirements Not Met
+                  {t('uploadStep.bodyShotRequirementsNotMet')}
                 </div>
                 <ul className={styles.bodyShotErrorList}>
                   {bodyShotValidation.errors.map((error, index) => (

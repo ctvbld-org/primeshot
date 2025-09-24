@@ -49,7 +49,7 @@ type PanelKey = 'styles' | 'scenes' | 'wardrobe' | 'characters' | 'settings' | n
 interface GenerateBarProps { emblaApi: any | null; onPanelToggle?: (open: boolean) => void }
 
 export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
-  const { t } = useTranslation(['styles', 'common'])
+  const { t } = useTranslation(['styles', 'common', 'generate'])
   const scenesLoader = makeCloudfrontLoader('app-images/placeholders/options/scenes')
   const wardrobesLoader = makeCloudfrontLoader('app-images/placeholders/options/wardrobes')
   const stylesLoader = makeCloudfrontLoader('app-images/placeholders/styles')
@@ -414,7 +414,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
       
       // Show user-friendly error message
       // TODO: Integrate with toast/notification system
-      console.error('Failed to start generation. Please try again.');
+      console.error(t('errors.failedToStartGeneration', { ns: 'generate' }));
       try {
         const msg = (e as any)?.message || ''
         if (typeof msg === 'string' && (msg.includes('Insufficient credits') || msg.includes('402'))) {
@@ -859,8 +859,8 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 <SegmentedControl
                   className={styles.segmentedGender}
                   options={[
-                    { value: 'woman', content: 'Woman' },
-                    { value: 'man', content: 'Man' }
+                    { value: 'woman', content: t('labels.woman', { ns: 'generate' }) },
+                    { value: 'man', content: t('labels.man', { ns: 'generate' }) }
                   ]}
                   value={selectedGender}
                   onChange={(val) => {
@@ -940,18 +940,18 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                   {createCharacterAction.type === 'credit_pack' && t('labels.buyCredits', { ns: 'styles' })}
                   {createCharacterAction.type === 'upgrade_or_credit_pack' && t('labels.upgradeOrBuyCredits', { ns: 'styles' })}
                   {createCharacterAction.type === 'limit_reached' && t('labels.limitReached', { ns: 'styles' })}
-                  {createCharacterAction.type === 'create' && 'Create'}
-                  {createCharacterAction.type === 'subscription' && 'Create'}
-                  {createCharacterAction.type === 'auth' && 'Create'}
+                  {createCharacterAction.type === 'create' && t('buttons.create', { ns: 'generate' })}
+                  {createCharacterAction.type === 'subscription' && t('buttons.create', { ns: 'generate' })}
+                  {createCharacterAction.type === 'auth' && t('buttons.create', { ns: 'generate' })}
                 </div>
                 {createCharacterAction.type === 'auth' && (
                   <div className={styles.itemSubLabel}>
-                    Requires active subscription
+                    {t('labels.requiresActiveSubscription', { ns: 'generate' })}
                   </div>
                 )}
                 {createCharacterAction.type === 'subscription' && (
                   <div className={styles.itemSubLabel}>
-                    Requires active subscription
+                    {t('labels.requiresActiveSubscription', { ns: 'generate' })}
                   </div>
                 )}
                 {createCharacterAction.type === 'create' && remainingIncludedTrainings > 0 && (
@@ -1128,7 +1128,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
             {/* Style */}
             <GenerateBarSelect
                 onClick={() => open('styles')}
-                ariaLabel="Select style"
+                ariaLabel={t('aria.selectStyle', { ns: 'generate' })}
                 variant="labeled"
                 thumbnail={currentStyle?.preview_images?.[0] ? (
                 <Image loader={stylesLoader} src={currentStyle.preview_images[0]} alt={currentStyle?.name || 'style'} width={32} height={32} className={styles.thumbImg} />
@@ -1141,7 +1141,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
             {/* Scene */}
             <GenerateBarSelect
                 onClick={() => open('scenes')}
-                ariaLabel="Select scene"
+                ariaLabel={t('aria.selectScene', { ns: 'generate' })}
                 variant="labeled"
                 className={`${errors.scene ? styles.selectorError : ''} ${!selectedLabels.scene ? styles.selectorEmpty : ''}`}
                 thumbnail={(() => {
@@ -1151,13 +1151,13 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                   if (scene?.image) return <Image loader={scenesLoader} src={scene.image} alt={scene.label} width={32} height={32} className={styles.thumbImg} />
                     return <Icon variant="scene" size={20} />
                   })()}
-                label={selectedLabels.scene || 'Scene'}
+                label={selectedLabels.scene || t('labels.scene', { ns: 'generate' })}
             />
 
             {/* Wardrobe */}
             <GenerateBarSelect
                 onClick={() => open('wardrobe')}
-                ariaLabel="Select wardrobe"
+                ariaLabel={t('aria.selectWardrobe', { ns: 'generate' })}
                 variant="labeled"
                 className={`${errors.wardrobe ? styles.selectorError : ''} ${!selectedLabels.wardrobe ? styles.selectorEmpty : ''}`}
                 thumbnail={(() => {
@@ -1177,7 +1177,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                     <span className={styles.colorSelected} style={{ background: colors.find(c=>c.value===sel.color)?.color || '#fff' }} />
                 )
                 })()}
-                label={selectedLabels.wardrobe || 'Wardrobe'}
+                label={selectedLabels.wardrobe || t('labels.wardrobe', { ns: 'generate' })}
             />
         </div>
 
@@ -1185,18 +1185,18 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
             {/* Character */}
             <GenerateBarSelect
                 onClick={handleButtonClick}
-                ariaLabel="Select character"
+                ariaLabel={t('aria.selectCharacter', { ns: 'generate' })}
                 variant="no-label"
                 className={errors.character ? styles.selectorError : ''}
                 thumbnail={(() => {
                 const url = selectedCharacterId ? characterThumbs[selectedCharacterId] : ''
-                if (url) return <Image src={url} alt="Character" width={44} height={44} className={styles.thumbImg} unoptimized />
+                  if (url) return <Image src={url} alt="Character" width={44} height={44} className={styles.thumbImg} unoptimized />
                 return <span className={styles.characterIcon}><Image src={(process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/assets/logo-primeshot.svg` : '/app-images/assets/logo-primeshot.svg')} alt="Primeshot" width={32} height={32} /></span>
                 })()}
                 overlay={(
                 <>
                     {selectedHasActiveJob && (
-                    <span className={styles.tinyProgress} aria-label="Training progress">
+                    <span className={styles.tinyProgress} aria-label={t('aria.trainingProgress', { ns: 'generate' })}>
                         <CircleProgress className={styles.circleProgress} value={selectedPct} size={44} thickness={2} />
                     </span>
                     )}
@@ -1208,12 +1208,12 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
             <div className={styles.settingsContainer}>
               <GenerateBarSelect
                   onClick={() => open('settings')}
-                  ariaLabel="Open settings"
+                  ariaLabel={t('aria.openSettings', { ns: 'generate' })}
                   variant="icon"
                   thumbnail={<Icon variant="settings" size={16} />}
               />
 
-              <div className={styles.credits}>{requiredCredits} credits</div>
+              <div className={styles.credits}>{requiredCredits} {t('labels.creditsSuffix', { ns: 'generate' })}</div>
               <Button
                   variant="primary"
                   className={styles.generate}
@@ -1221,7 +1221,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                   iconSide='right'
                   onClick={() => guard(onGenerate)()}
               >
-                Generate
+                {t('buttons.generate', { ns: 'generate' })}
               </Button>
             </div>
         </div>
@@ -1326,11 +1326,11 @@ function CharacterCard({ character, thumbUrl, uploadedCount = 0, job, onSelect, 
         )}
 
         {isRunning && (
-          <CircleProgress className={styles.progressBadge} aria-label="Training progress" value={progressPct} size={32} thickness={2} />
+          <CircleProgress className={styles.progressBadge} aria-label={t('aria.trainingProgress', { ns: 'generate' })} value={progressPct} size={32} thickness={2} />
         )}
         {/* Hover menu trigger -> overlay */}
         <div className={styles.cardMenuWrap} onClick={(e) => { e.stopPropagation(); setShowOverlay(true) }}>
-          <span aria-label="Character actions" className={styles.cardMenuBtn}>
+          <span aria-label={t('aria.characterActions', { ns: 'generate' })} className={styles.cardMenuBtn}>
             <Icon variant="dotsMenu" size={20} />
           </span>
         </div>
@@ -1338,10 +1338,10 @@ function CharacterCard({ character, thumbUrl, uploadedCount = 0, job, onSelect, 
       <div className={styles.itemLabel}>{character.name}</div>
       <div className={styles.itemSubLabel}>
         {isFailed ? (
-          'Training failed'
+          t('character.trainingFailedTitle', { ns: 'styles' })
         ) : isRunning ? (
           <>
-            ~<Countdown seconds={secondsLeft} fallback="Calculating" /> {t('character.remaining', { ns: 'styles' })}
+            ~<Countdown seconds={secondsLeft} fallback={t('labels.calculating', { ns: 'generate' })} /> {t('character.remaining', { ns: 'styles' })}
           </>
         ) : isWaiting ? (
           waitingLabel
@@ -1356,7 +1356,7 @@ function CharacterCard({ character, thumbUrl, uploadedCount = 0, job, onSelect, 
             <div
               className={styles.overlayClose}
               role="button"
-              aria-label="Close overlay"
+              aria-label={t('aria.closeOverlay', { ns: 'generate' })}
               onClick={(e) => { e.stopPropagation(); setShowOverlay(false) }}
             >
               <Icon variant="cross" size={16} />

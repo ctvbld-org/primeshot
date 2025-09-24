@@ -44,6 +44,18 @@ When translating content from English to target languages (French, Spanish, Ital
 - Ensure calls-to-action maintain their clarity and persuasive impact
 - Preserve the relationship between related text elements
 
+## Regional Variants Policy
+
+- All languages use region-specific codes. Examples:
+  - English (United Kingdom): en-GB
+  - Spanish (Spain): es-ES
+  - Portuguese (Portugal): pt-PT
+  - Chinese Simplified (China): zh-CN
+  - Japanese (Japan): ja-JP
+- Default reference source is en-GB. Ensure target translations reflect en-GB strings.
+- No i18n fallback is configured. Every supported language must provide all keys for each namespace.
+- Persisted user preference uses the same region codes and must be maintained consistently across files and database values.
+
 ## Language-Specific Guidelines
 
 ### French (fr)
@@ -123,6 +135,8 @@ Before finalizing translations, verify that they:
 - Meet length constraints for UI elements
 - Preserve formatting, styles, and emphasis where needed
 - Function correctly in context (e.g., as buttons, form labels, error messages)
+- Verify that region codes are correctly used in file paths and i18n configuration.
+- Ensure no keys are missing (fallback disabled).
 
 ## Examples of Quality Translations
 

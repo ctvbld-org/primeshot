@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Dialog, DialogContent, DialogBody, DialogFooter, DialogHeader, DialogTitle } from '@primeshot/common/web/ui/dialog'
 import { Button } from '@primeshot/common/web/ui/button'
 import { Input } from '@primeshot/common/web/ui/input'
@@ -51,6 +52,7 @@ export function AdminInferenceOptionsDialog({ open, characterId, styleId, wardro
   const [settingsJson, setSettingsJson] = useState<string>('')
   const [jsonValid, setJsonValid] = useState<boolean>(true)
   const [jsonError, setJsonError] = useState<string>('')
+  const { t } = useTranslation(['generate'])
 
   useEffect(() => {
     if (!open) return
@@ -106,15 +108,15 @@ export function AdminInferenceOptionsDialog({ open, characterId, styleId, wardro
     <Dialog open={open} onOpenChange={(v) => { if (!v) onCancel() }}>
       <DialogContent fullscreen className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Admin Inference Overrides</DialogTitle>
+          <DialogTitle>{t('admin.title')}</DialogTitle>
         </DialogHeader>
         <DialogBody className="space-y-4">
           <div className="flex items-center gap-2">
             <Input className="flex-0" id="enable_settings_override" type="checkbox" checked={settingsEnabled} onChange={(e) => setSettingsEnabled(e.target.checked)} />
-            <Label htmlFor="enable_settings_override">Enable node overrides (JSON by node title)</Label>
+            <Label htmlFor="enable_settings_override">{t('admin.enableNodeOverrides')}</Label>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="settings_json">Overrides JSON</Label>
+            <Label htmlFor="settings_json">{t('admin.overridesJson')}</Label>
             <textarea
               id="settings_json"
               className={`w-full min-h-[220px] rounded-md border p-2 font-mono text-sm ${
@@ -131,10 +133,10 @@ export function AdminInferenceOptionsDialog({ open, characterId, styleId, wardro
           </div>
           <div className="flex items-center gap-2">
             <Input className="flex-0" id="enable_override" type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} />
-            <Label htmlFor="enable_override">Enable prompt override</Label>
+            <Label htmlFor="enable_override">{t('admin.enablePromptOverride')}</Label>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="prompt">Prompt</Label>
+            <Label htmlFor="prompt">{t('admin.prompt')}</Label>
             <textarea
               id="prompt"
               className="w-full min-h-[480px] rounded-md border border-border bg-background/50 p-2"
@@ -144,20 +146,20 @@ export function AdminInferenceOptionsDialog({ open, characterId, styleId, wardro
             />
           </div>
           <div className="space-y-2">
-            <Label>Character metadata (read-only)</Label>
+            <Label>{t('admin.characterMetadata')}</Label>
             <pre className="w-full max-h-64 overflow-auto rounded-md border border-border bg-muted p-3 text-sm">
 {JSON.stringify(metadata, null, 2)}
             </pre>
           </div>
         </DialogBody>
         <DialogFooter>
-          <Button variant="outline" onClick={onCancel}>Cancel</Button>
+          <Button variant="outline" onClick={onCancel}>{t('buttons.cancel')}</Button>
           <Button
             variant="primary"
             onClick={handleConfirm}
             disabled={enabled && !prompt.trim() || (settingsEnabled && !jsonValid)}
           >
-            Confirm
+            {t('buttons.confirm')}
           </Button>
         </DialogFooter>
       </DialogContent>

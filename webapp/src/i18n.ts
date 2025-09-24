@@ -4,22 +4,24 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 
 // Import all translation files  
 
-// English
-import commonEn from '@primeshot/common/locales/en/common.json';
-import authEn from '@primeshot/common/locales/en/auth.json';
-import pricingEn from '@/locales/en/pricing.json';
-import stylesEn from '@/locales/en/styles.json';
-import uploadEn from '@/locales/en/upload.json';
-import settingsEn from '@/locales/en/settings.json';
+// English (UK)
+import commonEn from '@primeshot/common/locales/en-GB/common.json';
+import authEn from '@primeshot/common/locales/en-GB/auth.json';
+import pricingEn from '@/locales/en-GB/pricing.json';
+import stylesEn from '@/locales/en-GB/styles.json';
+import generateEn from '@/locales/en-GB/generate.json';
+import settingsEn from '@/locales/en-GB/settings.json';
+import inferenceEn from '@/locales/en-GB/inference.json';
 
 export const resources = {
-    en: {
+    'en-GB': {
         common: commonEn,
         auth: authEn,
         pricing: pricingEn,
         styles: stylesEn,
-        upload: uploadEn,
-        settings: settingsEn
+        generate: generateEn,
+        settings: settingsEn,
+        inference: inferenceEn
     },
     // de: {
     //     common: commonDe,
@@ -120,14 +122,14 @@ i18n
   // Init i18next
   // For all options read: https://www.i18next.com/overview/configuration-options
   .init({
-    lng: 'en', // Set default language explicitly
-    fallbackLng: 'en',
-    supportedLngs: ['en', /*'es', 'de', 'fr', 'it', 'nl', 'pt', 'ja', 'zh'*/],
+    lng: 'en-GB', // Set default language explicitly
+    fallbackLng: false as unknown as string,
+    supportedLngs: ['en-GB', 'zh', 'es', 'fr', 'pt', 'de', 'ja', 'it', 'nl'],
     interpolation: {
       escapeValue: false,
     },
     defaultNS: 'common',
-    ns: ['common', 'payment', 'albums', 'styles', 'auth', 'profile', 'upload', 'review', 'settings', 'pricing'],
+    ns: ['common', 'auth', 'profile', 'settings', 'pricing', 'generate', 'inference'],
     resources,
     detection: {
       // Order of language detection

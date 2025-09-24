@@ -1821,6 +1821,40 @@ Detected changes in:
 Detected changes in:
 - webapp/src/app/layout.tsx
 - webapp/src/components/providers/CrispInitializer.tsx
+
+
+**Auto-update 2025-09-24**:
+Detected changes in:
+- admin/src/app/api/s3/sign/route.ts
+- admin/src/components/inference/inference-settings-form-dialog.tsx
+- admin/src/components/inference/inference-settings-table.tsx
+- admin/src/components/styles/color-form-dialog.tsx
+- admin/src/components/styles/scene-form-dialog.tsx
+- admin/src/components/styles/styles-table.tsx
+- admin/src/components/subscriptions/credit-cost-form-dialog.tsx
+- admin/src/components/subscriptions/credit-costs-table.tsx
+- admin/src/components/subscriptions/credit-pack-form-dialog.tsx
+- admin/src/components/subscriptions/credit-packs-table.tsx
+- admin/src/components/subscriptions/subscription-form-dialog.tsx
+- admin/src/components/subscriptions/subscriptions-table.tsx
+- admin/src/components/ui/image-upload.tsx
+- admin/src/lib/supabase/multi-env.ts
+- admin/src/lib/sync/detector.ts
+- admin/src/lib/sync/engine.ts
+- webapp/src/app/api/account/avatar/route.ts
+- webapp/src/app/api/account/profile/route.ts
+- webapp/src/app/api/s3/sign/route.ts
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/app/page.tsx
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/dashboard/CreditDashboard.tsx
+- webapp/src/components/generate/GenerateBar.module.css
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/generate/useCreateCharacter.tsx
+- webapp/src/components/inference/GalleryPlaceholder.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/lib/logger.ts
+- website/src/app/layout.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

@@ -15,6 +15,7 @@ import { useOpenCreditPackDialog } from '@/hooks/useOpenCreditPackDialog'
 import { useOpenSubscriptionDialog } from '@/hooks/useOpenSubscriptionDialog'
 import { Icon } from '@primeshot/common/web/Icon'
 import { useFavouriteCount } from '@/hooks/useFavouriteCount'
+import { useTranslation } from 'react-i18next'
 
 export function CreditsHeaderRight() {
   const { isAuthenticated, user } = useAuth()
@@ -25,6 +26,7 @@ export function CreditsHeaderRight() {
   const openSubscriptionDialog = useOpenSubscriptionDialog()
   const pathname = usePathname()
   const onFavourites = (pathname || '').startsWith('/favourites')
+  const { t } = useTranslation('common')
 
   if (!isAuthenticated) {
     return <SignInModal />
@@ -35,6 +37,7 @@ export function CreditsHeaderRight() {
   const percent = included > 0
     ? Math.max(0, Math.min(100, (remaining / included) * 100))
     : 0
+  const remainingDisplay = remaining.toLocaleString()
 
   // Compute user initials for avatar fallback
   const initials = (
@@ -52,20 +55,20 @@ export function CreditsHeaderRight() {
       triggerSlot={
         <div className={styles.container}>
           {(favouriteCount ?? 0) > 0 && (
-            <Link href="/favourites" className={`${styles.favLink} ${onFavourites ? styles.favLinkActive : ''}`} aria-label="Favourites">
+            <Link href="/favourites" className={`${styles.favLink} ${onFavourites ? styles.favLinkActive : ''}`} aria-label={t('aria.favourites')}>
               <Icon variant={onFavourites ? 'heart' : 'heartOutline'} size={16} />
             </Link>
           )}
           {subscription?.status === 'active' && (
             <span className={styles.text}>
-              {remaining.toLocaleString()} credits remaining
+              {t('credits.remaining', { count: remaining, value: remainingDisplay })}
             </span>
           )}
           <div className={styles.avatarWrapper}>
             <div className={styles.avatarInset}>
               <Avatar
                 src={user?.avatar_url ?? undefined}
-                alt={user?.full_name || user?.email || 'avatar'}
+                alt={user?.full_name || user?.email || t('aria.avatar')}
                 fallback={<span style={{ color: '#FFF', fontSize: 12, fontWeight: 600 }}>{initials}</span>}
                 className={styles.avatar}
               />

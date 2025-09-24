@@ -81,7 +81,7 @@
   --sidebar-ring: oklch(0.708 0 0);
   --radius-3xl: 2.25rem;
 
-  --site-padding: 76px 40px;
+  --site-padding: 76px 40px 36px;
   --header-slide: 0px;
 
   @media (max-height: 712px) {
@@ -144,6 +144,11 @@
   }
 }
 
+:focus-visible {
+  outline: 2px solid #2ADED8;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
 
 [data-radix-popper-content-wrapper] {
   z-index: 50 !important;
@@ -216,6 +221,6 @@
 
 @media (max-width: 620px) {
   :root {
-    --site-padding: 76px 8px;
+    --site-padding: 76px 8px 36px;
   }
 }

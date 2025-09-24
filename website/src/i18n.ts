@@ -4,14 +4,14 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 
 // Import all translation files
 
-// English
-import commonEn from '@primeshot/common/locales/en/common.json';
-import authEn from '@primeshot/common/locales/en/auth.json';
-import legalEn from './locales/en/legal.json';
-import aboutEn from './locales/en/about.json';
+// English (UK)
+import commonEn from '@primeshot/common/locales/en-GB/common.json';
+import authEn from '@primeshot/common/locales/en-GB/auth.json';
+import legalEn from './locales/en-GB/legal.json';
+import aboutEn from './locales/en-GB/about.json';
 
 export const resources = {
-    en: {
+    'en-GB': {
         common: commonEn,
         auth: authEn,
         legal: legalEn,
@@ -28,9 +28,9 @@ i18n
   // Init i18next
   // For all options read: https://www.i18next.com/overview/configuration-options
   .init({
-    lng: 'en', // Set default language explicitly
-    fallbackLng: 'en',
-    supportedLngs: ['en'],
+    lng: 'en-GB', // Set default language explicitly
+    fallbackLng: false as unknown as string,
+    supportedLngs: ['en-GB'],
     interpolation: {
       escapeValue: false,
     },

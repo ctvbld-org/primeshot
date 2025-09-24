@@ -13,6 +13,7 @@ import { confirmationService } from '@/lib/services/confirmationService';
 import { useToast } from '@primeshot/common/web/ui/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/auth-context';
+import { useTranslation } from 'react-i18next';
 
 export interface InferenceThumbnail {
   id: string;
@@ -47,6 +48,7 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
   onClick,
   variant = 'grid'
 }) => {
+  const { t } = useTranslation('inference');
   // Track layered transition state between preview and final image
   const [currentUrl, setCurrentUrl] = useState<string | undefined>(thumbnail.webImageUrl || thumbnail.imageUrl);
   const [prevUrl, setPrevUrl] = useState<string | null>(null);
@@ -224,13 +226,13 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
   const handleDelete = useCallback(async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!thumbnail.imageId) {
-      toast({ title: 'Loading…', description: 'Image details are still loading. Please try again in a moment.' });
+      toast({ title: t('thumbnail.loadingTitle', { ns: 'inference' }), description: t('thumbnail.loadingDesc', { ns: 'inference' }) });
       return;
     }
     const ok = await confirmationService.confirm({
-      title: 'Delete image?',
-      description: 'This will remove the image from your gallery. This cannot be undone.',
-      confirmText: 'Delete',
+      title: t('thumbnail.confirmDelete.title', { ns: 'inference' }),
+      description: t('thumbnail.confirmDelete.description', { ns: 'inference' }),
+      confirmText: t('thumbnail.confirmDelete.confirm', { ns: 'inference' }),
       variant: 'destructive',
       icon: 'bin'
     });
@@ -274,7 +276,7 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
             {prevUrl && showDualLayer && (
               <img
                 src={prevUrl}
-                alt={`Generating preview ${thumbnail.index + 1}`}
+                alt={t('thumbnail.alt.generatingPreview', { index: thumbnail.index + 1 })}
                 className={`${styles.imageLayer} ${styles.visible}`}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 decoding="async"
@@ -289,7 +291,7 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
                 return (
                   <Image
                     src={base}
-                    alt={`Generated image ${thumbnail.index + 1}`}
+                    alt={t('thumbnail.alt.generated', { index: thumbnail.index + 1 })}
                     fill
                     className={`${styles.imageLayer} ${(finalLoaded || showDualLayer || shouldZoomOnMount) ? styles.visible : ''} ${shouldZoomOnMount ? styles.zoomOnMount : ''}`}
                     style={{ objectFit: objectFit as any }}
@@ -315,7 +317,7 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
                   src={variant === 'hero' ? src1024 : src480}
                   srcSet={srcSet}
                   sizes={sizes}
-                  alt={`Generated image ${thumbnail.index + 1}`}
+                  alt={t('thumbnail.alt.generated', { index: thumbnail.index + 1 })}
                   className={`${styles.imageLayer} ${(finalLoaded || showDualLayer || shouldZoomOnMount) ? styles.visible : ''} ${shouldZoomOnMount ? styles.zoomOnMount : ''}`}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   loading="lazy"
@@ -347,7 +349,7 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
                     iconOnly
                     className={`${styles.actionBtn} ${localFavourite ? styles.favBtn : ''}`}
                     onClick={handleToggleFavourite}
-                    aria-label={localFavourite ? 'Remove from favourites' : 'Add to favourites'}
+                    aria-label={localFavourite ? t('thumbnail.favourite.remove') : t('thumbnail.favourite.add')}
                     disabled={isTogglingFav}
                   >
                     {isTogglingFav
@@ -355,7 +357,7 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
                       : <Icon variant={localFavourite ? 'heart' : 'heartOutline'} size={16} />}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="top">{localFavourite ? 'Remove from Favourites' : 'Add to Favourites'}</TooltipContent>
+                <TooltipContent side="top">{localFavourite ? t('thumbnail.favourite.remove') : t('thumbnail.favourite.add')}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
             <TooltipProvider>
@@ -363,19 +365,19 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
               <div className={styles.actionBtnGroup}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="sm" iconOnly className={styles.actionBtn} onClick={handleDelete} aria-label="Delete image" disabled={isDeleting}>
+                    <Button variant="ghost" size="sm" iconOnly className={styles.actionBtn} onClick={handleDelete} aria-label={t('thumbnail.actions.delete.aria')} disabled={isDeleting}>
                       {isDeleting ? <Loader size="sm" /> : <Icon variant="bin" size={16} />}
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="top">Delete</TooltipContent>
+                  <TooltipContent side="top">{t('thumbnail.actions.delete.label')}</TooltipContent>
                 </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="sm" iconOnly className={styles.actionBtn} onClick={handleDownload} aria-label="Download image" disabled={isDownloading || (!thumbnail.imageUrl && !thumbnail.webImageUrl)}>
+                  <Button variant="ghost" size="sm" iconOnly className={styles.actionBtn} onClick={handleDownload} aria-label={t('thumbnail.actions.download.aria')} disabled={isDownloading || (!thumbnail.imageUrl && !thumbnail.webImageUrl)}>
                     {isDownloading ? <Loader size="sm" /> : <Icon variant="download" size={16} />}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="top">Download</TooltipContent>
+                <TooltipContent side="top">{t('thumbnail.actions.download.label')}</TooltipContent>
               </Tooltip>
             </div>
           </TooltipProvider>

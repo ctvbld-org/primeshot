@@ -37,7 +37,7 @@ export function TrainingProgressStep({
   onComplete,
   onError 
 }: TrainingProgressStepProps) {
-  const { t } = useTranslation('upload')
+  const { t } = useTranslation('character')
   const { user } = useAuth()
   const { getCharacter } = useCharactersApi()
   const dialogService = useDialogService()

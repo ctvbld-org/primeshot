@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@primeshot/common/web/ui/button'
 import { Icon } from '@primeshot/common/web/Icon'
 import layoutStyles from '../CharacterTrainingDialog.module.css'
@@ -27,6 +28,7 @@ interface OnboardingStepProps {
 }
 
 export function OnboardingStep({ step, guidelineIndex, guidelines, onNext, onBack, onSkip, onFinish }: OnboardingStepProps) {
+  const { t } = useTranslation('character')
   const [imagesLoaded, setImagesLoaded] = React.useState(false)
   const [animatingOut, setAnimatingOut] = React.useState(false)
   const [fadeKey, setFadeKey] = React.useState(0)
@@ -90,7 +92,7 @@ export function OnboardingStep({ step, guidelineIndex, guidelines, onNext, onBac
               opacity: 1
             } as React.CSSProperties}
           >
-            <img src={floatingImageUrls[idx % floatingImageUrls.length]} alt={`Floating example ${img.id}`} className={styles.imgCover} />
+            <img src={floatingImageUrls[idx % floatingImageUrls.length]} alt={t('onboarding.floatingAlt', { id: img.id })} className={styles.imgCover} />
           </div>
         ))}
 
@@ -102,20 +104,21 @@ export function OnboardingStep({ step, guidelineIndex, guidelines, onNext, onBac
                 <div className={styles.logo}>
                   <Icon variant="primeshotSymbol" size={38} className={styles.aquaText} />
                 </div>
-                <h2 className={styles.title}>Meet your Character</h2>
+                <h2 className={styles.title}>{t('onboarding.intro.title')}</h2>
                 <p className={styles.description}>
-                  Upload the best photos of yourself with varied <span className="text-[#FF81F5]">expressions</span>, <span className="text-[#70FFA7]">angles</span>, and <span className="text-[#FFCF55]">poses</span> to shape your unique AI twin!
+                  {/* Keep the highlight spans; translate the content */}
+                  {t('onboarding.intro.description1')}
                 </p>
-                <p className={styles.descriptionTight}>Like a real photoshoot, a little prep delivers authentic, pro-level results.</p>
+                <p className={styles.descriptionTight}>{t('onboarding.intro.description2')}</p>
                 <div className={styles.privacyBox}>
                   <Icon variant="secure" size={16} />
-                  <span className="text-xs font-medium"> Your uploads are private and secure.</span>
+                  <span className="text-xs font-medium"> {t('onboarding.intro.privacy')}</span>
                 </div>
                 <div className={styles.buttonContainer}>
                   <Button variant="outline" onClick={handleIntroNext} className={styles.primaryButton}>
-                    <span className="relative z-10">Get started</span>
+                    <span className="relative z-10">{t('onboarding.intro.buttonGetStarted')}</span>
                   </Button>
-                  <Button variant="ghost" onClick={onSkip} className={styles.ghostButton}>Skip</Button>
+                  <Button variant="ghost" onClick={onSkip} className={styles.ghostButton}>{t('onboarding.intro.buttonSkip')}</Button>
                 </div>
               </div>
             )}
@@ -158,12 +161,12 @@ export function OnboardingStep({ step, guidelineIndex, guidelines, onNext, onBac
                 <div className={styles.confirmIconWrap}>
                   <Icon variant="diamond" size={48} className='text-[#2ADED8]' />
                 </div>
-                <h2 className={styles.title}>Like a real photo shoot, <span  className='text-[#2ADED8]'>a little prep</span> goes a long way.</h2>
+                <h2 className={styles.title} dangerouslySetInnerHTML={{ __html: t('onboarding.confirmation.title').replace(/<highlight>/g, "<span class='text-[#2ADED8]'>").replace(/<\/highlight>/g, "</span>") }} />
                 <div className={styles.description} style={{ marginBottom: '2rem' }}>
-                  <p style={{ marginBottom: '2rem' }}>Primeshot creates high quality portraits from your everyday photos. Clear, well lit, and varied photos make your generated shoots more natural and impressive. Low quality or blurry photos can limit results.</p>
-                  <p>If results are not what you expected, try a new set of photos in a fresh Character.</p>
+                  <p style={{ marginBottom: '2rem' }}>{t('onboarding.confirmation.paragraph1')}</p>
+                  <p>{t('onboarding.confirmation.paragraph2')}</p>
                 </div>
-                <Button variant="primary" onClick={onFinish} className="w-full">I understand. Let's start!</Button>
+                <Button variant="primary" onClick={onFinish} className="w-full">{t('onboarding.confirmation.buttonStart')}</Button>
               </div>
             )}
           </div>
@@ -174,6 +177,7 @@ export function OnboardingStep({ step, guidelineIndex, guidelines, onNext, onBac
 }
 
 function GuidelineProgressButton({ index, totalGuidelines, onComplete }: { index: number; totalGuidelines: number; onComplete: () => void }) {
+  const { t } = useTranslation('character')
   const [isTransitioning, setIsTransitioning] = React.useState(false)
   const [animatedProgress, setAnimatedProgress] = React.useState(0)
   const [rafId, setRafId] = React.useState<number | null>(null)
@@ -228,7 +232,7 @@ function GuidelineProgressButton({ index, totalGuidelines, onComplete }: { index
           background: `linear-gradient(to right, ${color}20 0%, ${color}20 ${animatedProgress}%, transparent ${animatedProgress}%)`
         }}
       >
-        <span className="relative z-10">{isLastGuideline && isTransitioning ? "I understand. Let's start!" : 'Next'}</span>
+        <span className="relative z-10">{isLastGuideline && isTransitioning ? t('onboarding.confirmation.buttonStart') : t('onboarding.buttons.next')}</span>
       </Button>
     </div>
   )

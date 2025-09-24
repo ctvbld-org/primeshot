@@ -412,12 +412,12 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
   const timeAgoText = useMemo(() => {
     const now = new Date();
     const diffInMinutes = Math.floor((now.getTime() - activeJob.createdAt.getTime()) / (1000 * 60));
-    if (diffInMinutes < 1) return 'Just now';
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInMinutes < 1) return t('inference:time.justNow');
+    if (diffInMinutes < 60) return t('inference:time.minutesAgo', { count: diffInMinutes });
     const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return `${diffInHours}h ago`;
+    if (diffInHours < 24) return t('inference:time.hoursAgo', { count: diffInHours });
     const diffInDays = Math.floor(diffInHours / 24);
-    return `${diffInDays}d ago`;
+    return t('inference:time.daysAgo', { count: diffInDays });
   }, [activeJob.createdAt]);
 
   // Prefer web variant for faster display; allow toggling to original
@@ -479,7 +479,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
       if (ok) { loadedUrl = url; break; }
     }
     if (!loadedUrl) {
-      toast({ title: 'Original unavailable', description: 'Could not load original image variant.', variant: 'destructive' });
+      toast({ title: t('inference:viewer.overlay.originalUnavailableTitle'), description: t('inference:viewer.overlay.originalUnavailableDesc'), variant: 'destructive' });
       return false;
     }
     // Only populate the overlay image; do NOT change the base image tag
@@ -616,10 +616,10 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
         <ConfirmDialog
           open={confirmOpen}
           onOpenChange={setConfirmOpen}
-          title="Delete image?"
-          description="This will permanently delete the image and can’t be undone."
-          confirmText="Delete"
-          cancelText="Cancel"
+          title={t('inference:viewer.confirmDelete.title')}
+          description={t('inference:viewer.confirmDelete.description')}
+          confirmText={t('inference:viewer.confirmDelete.confirm')}
+          cancelText={t('inference:viewer.confirmDelete.cancel')}
           onConfirm={() => { setConfirmOpen(false); performDelete(); }}
           onCancel={() => setConfirmOpen(false)}
           iconVariant="bin"
@@ -631,7 +631,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
         variant="ghost"
         className={styles.closeButton}
         onClick={closeDialog}
-        aria-label="Close viewer"
+        aria-label={t('inference:viewer.closeAria')}
       >
         <Icon variant="cross" size={32} />
       </Button>
@@ -651,7 +651,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
                     {src && (
                       <img
                         src={src}
-                        alt={`Generated image ${idx + 1}`}
+                        alt={t('inference:viewer.alt.generated', { index: idx + 1 })}
                         className={`${styles.mainImage} ${imageArClass}`}
                         ref={isActive ? mainImgRef : undefined}
                         onLoad={isActive ? handleImageLoad : undefined}
@@ -666,12 +666,12 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
             </div>
           </div>
           {/* Carousel navigation buttons */}
-          <div className={styles.carouselButtons} aria-label="Carousel navigation">
+          <div className={styles.carouselButtons} aria-label={t('inference:viewer.carousel.aria')}>
             <button
               className={styles.navButton}
               onClick={() => emblaApi?.scrollPrev()}
               disabled={!canScrollPrev || visibleThumbnails.length <= 1}
-              aria-label="Previous image"
+              aria-label={t('inference:viewer.carousel.prevAria')}
             >
               <Icon variant="arrowLeft" size={20} />
             </button>
@@ -679,7 +679,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
               className={styles.navButton}
               onClick={() => emblaApi?.scrollNext()}
               disabled={!canScrollNext || visibleThumbnails.length <= 1}
-              aria-label="Next image"
+              aria-label={t('inference:viewer.carousel.nextAria')}
             >
               <Icon variant="arrowRight" size={20} />
             </button>
@@ -699,10 +699,10 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
                 variant="ghost"
                 className={`${styles.downloadOriginalButton} ${styles.iconButton}`}
                 onClick={loadAndShowOriginal}
-                aria-label="Display original image"
+                aria-label={t('inference:viewer.overlay.displayOriginalAria')}
               >
                 <Icon variant="download" size={18} />
-                Display original
+                {t('inference:viewer.overlay.displayOriginal')}
               </Button>
             </>
           )}
@@ -721,7 +721,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
         <div className={styles.metadata}>
           <div className={styles.metadataHeader}>
             <h3 className={styles.title}>
-              Shoot {shootNumber} <span className={styles.imageIndex}>IMG {currentImageIndex + 1}</span>
+              {t('inference:viewer.title', { shootNumber })} <span className={styles.imageIndex}>{t('inference:viewer.imageIndex', { index: currentImageIndex + 1 })}</span>
             </h3>
             <TooltipProvider>
               <Tooltip>
@@ -729,7 +729,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
                   <Button
                     variant="ghost"
                     className={`${styles.iconButton} ${styles.favButton} ${isFavourite ? styles.favActive : ''} ${isTogglingFav ? styles.favBeating : ''}`}
-                    aria-label="Favorite"
+                    aria-label={t('inference:viewer.favourite.ariaButton')}
                     aria-pressed={isFavourite}
                     onClick={toggleFavourite}
                     disabled={isTogglingFav || !currentThumbnail?.imageId}
@@ -745,7 +745,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
                     )}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="bottom">{isFavourite ? 'Remove from Favourites' : 'Add to Favourites'}</TooltipContent>
+                <TooltipContent side="bottom">{isFavourite ? t('inference:viewer.favourite.remove') : t('inference:viewer.favourite.add')}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
@@ -795,18 +795,18 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
               {[
                 {
                   key: 'delete',
-                  label: 'Delete',
+                  label: t('inference:viewer.actions.delete.label'),
                   icon: 'bin' as const,
                   onClick: handleDelete,
-                  aria: 'Delete image',
+                  aria: t('inference:viewer.actions.delete.aria'),
                   loading: isDeleting,
                 },
                 {
                   key: 'download',
-                  label: 'Download',
+                  label: t('inference:viewer.actions.download.label'),
                   icon: 'download' as const,
                   onClick: handleDownload,
-                  aria: 'Download image',
+                  aria: t('inference:viewer.actions.download.aria'),
                   disabled: !currentThumbnail.imageUrl && !currentThumbnail.webImageUrl,
                   loading: isDownloading,
                 },
@@ -871,7 +871,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
                     src={src480}
                     srcSet={`${src480} 480w, ${src720} 720w`}
                     sizes="(max-width: 640px) 360px, 240px"
-                    alt={`Thumbnail ${index + 1}`}
+                    alt={t('inference:viewer.alt.thumbnail', { index: index + 1 })}
                     className={styles.thumbnailImage}
                     loading="lazy"
                     decoding="async"

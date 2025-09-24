@@ -16,14 +16,15 @@
     "archiver": "^6.0.2",
     "dotenv": "^17.0.1",
     "embla-carousel-react": "^8.6.0",
+    "react-country-flag": "^3.1.0",
     "stripe": "^18.3.0"
   },
   "peerDependencies": {
+    "i18next": ">=25",
+    "i18next-browser-languagedetector": ">=8",
     "react": ">=18",
     "react-dom": ">=18",
-    "react-i18next": ">=15",
-    "i18next": ">=25",
-    "i18next-browser-languagedetector": ">=8"
+    "react-i18next": ">=15"
   },
   "devDependencies": {
     "chokidar-cli": "3.0.0",

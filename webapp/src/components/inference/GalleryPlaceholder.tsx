@@ -12,9 +12,11 @@ import { useInferenceQueue } from '@/contexts/inference-queue-context'
 import { useInfiniteScroll } from '@/hooks/useLazyLoading'
 import { useStyles } from '@/hooks/useConfig'
 import { getStyleImages } from '@/lib/utils/get-styles-images'
+import { useTranslation } from 'react-i18next'
 
 export function GalleryPlaceholder() {
   const { isAuthenticated, isLoading: authLoading } = useAuth()
+  const { t } = useTranslation()
   const { 
     jobs, 
     totalCount, 
@@ -96,8 +98,8 @@ export function GalleryPlaceholder() {
   if (error) {
     return (
       <div className={styles.errorState}>
-        <p>Failed to load inference jobs: {error}</p>
-        <button onClick={() => window.location.reload()}>Retry</button>
+        <p>{t('inference:gallery.error', { error: String(error) })}</p>
+        <button onClick={() => window.location.reload()}>{t('inference:gallery.retry')}</button>
       </div>
     )
   }
@@ -122,7 +124,7 @@ export function GalleryPlaceholder() {
                 {isLoadingMore ? (
                   <div className={styles.loadingMore}>
                     <p>
-                      <span>Loading more shoots</span>
+                      <span>{t('inference:gallery.loadingMore')}</span>
                       <span className={styles.dots}>
                         <span className={styles.dot}></span>
                         <span className={styles.dot}></span>
@@ -133,7 +135,7 @@ export function GalleryPlaceholder() {
                 ) : (
                   <div className={styles.loadingMore}>
                     <p>
-                      <span>Loading more shoots</span>
+                      <span>{t('inference:gallery.loadingMore')}</span>
                       <span className={styles.dots}>
                         <span className={styles.dot}></span>
                         <span className={styles.dot}></span>
@@ -148,7 +150,7 @@ export function GalleryPlaceholder() {
             {/* End of list indicator */}
             {!hasMore && jobs.length > 0 && (
               <div className={styles.endOfList}>
-                <p>You've reached the end of your shoots</p>
+                <p>{t('inference:gallery.endOfList')}</p>
               </div>
             )}
           </div>
@@ -160,13 +162,13 @@ export function GalleryPlaceholder() {
   // Authenticated with no inference jobs -> show the same placeholder
   if (!authLoading && !isLoading) {
     return (
-      <div className={styles.placeholderCard} role="region" aria-label="How it works">
+      <div className={styles.placeholderCard} role="region" aria-label={t('inference:gallery.howItWorksAria')}>
         <div className={styles.steps}>
           <div className={styles.step}>
             <div className={styles.badge} aria-hidden>
               <span>1</span>
             </div>
-            <h3 className={styles.title}>Choose a style</h3>
+            <h3 className={styles.title}>{t('inference:gallery.steps.choose.title')}</h3>
             <div className={styles.visual} aria-hidden>
               <div className={styles.strip}>
                 <div
@@ -183,14 +185,14 @@ export function GalleryPlaceholder() {
                 />
               </div>
             </div>
-            <p className={styles.desc}>Pick the mood, scene, and outfit that fit your look.</p>
+            <p className={styles.desc}>{t('inference:gallery.steps.choose.desc')}</p>
           </div>
 
           <div className={styles.step}>
             <div className={styles.badge} aria-hidden>
               <span>2</span>
             </div>
-            <h3 className={styles.title}>Create a Character</h3>
+            <h3 className={styles.title}>{t('inference:gallery.steps.character.title')}</h3>
             <div className={styles.visual} aria-hidden>
               <div className={styles.characterVisual}>
                 <div
@@ -222,14 +224,14 @@ export function GalleryPlaceholder() {
                 </div>
               </div>
             </div>
-            <p className={styles.desc}>Upload a few photos so our AI learns exactly what makes you, you.</p>
+            <p className={styles.desc}>{t('inference:gallery.steps.character.desc')}</p>
           </div>
 
           <div className={styles.step}>
             <div className={styles.badge} aria-hidden>
               <span>3</span>
             </div>
-            <h3 className={styles.title}>Generate your shoot</h3>
+            <h3 className={styles.title}>{t('inference:gallery.steps.generate.title')}</h3>
             <div className={styles.visual} aria-hidden>
               <div className={styles.generateRow}>
                 <div className={styles.portrait} />
@@ -241,7 +243,7 @@ export function GalleryPlaceholder() {
                 <div className={styles.emptyBlock} />
               </div>
             </div>
-            <p className={styles.desc}>Get your portraits in minutes — authentic, polished, and ready to use.</p>
+            <p className={styles.desc}>{t('inference:gallery.steps.generate.desc')}</p>
           </div>
         </div>
       </div>

@@ -12,30 +12,18 @@ interface EnvironmentConfig {
 function getEnvironmentConfig(env: Environment): EnvironmentConfig {
   switch (env) {
     case 'local':
-      console.log('Local environment config:')
-      console.log('URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
-      console.log('Anon key:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
-      console.log('Service key:', process.env.SUPABASE_SERVICE_ROLE_KEY)
       return {
         url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
         anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         serviceKey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
       }
     case 'staging':
-      console.log('Staging environment config:')
-      console.log('URL:', process.env.STAGING_SUPABASE_URL)
-      console.log('Anon key:', process.env.STAGING_SUPABASE_ANON_KEY)
-      console.log('Service key:', process.env.STAGING_SUPABASE_SERVICE_ROLE_KEY)
       return {
         url: process.env.STAGING_SUPABASE_URL!,
         anonKey: process.env.STAGING_SUPABASE_ANON_KEY!,
         serviceKey: process.env.STAGING_SUPABASE_SERVICE_ROLE_KEY!,
       }
     case 'production':
-      console.log('Production environment config:')
-      console.log('URL:', process.env.PRODUCTION_SUPABASE_URL)
-      console.log('Anon key:', process.env.PRODUCTION_SUPABASE_ANON_KEY)
-      console.log('Service key:', process.env.PRODUCTION_SUPABASE_SERVICE_ROLE_KEY)
       return {
         url: process.env.PRODUCTION_SUPABASE_URL!,
         anonKey: process.env.PRODUCTION_SUPABASE_ANON_KEY!,

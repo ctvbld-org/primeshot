@@ -128,7 +128,7 @@
   justify-content: center;
   gap: 8px;
   width: 100%;
-  padding: 8px 0;
+  padding: 16px 0;
 }
 
 .dividerText {
@@ -209,3 +209,16 @@
 .arrowRight {
   margin-left: 0.25rem;
 } 
+
+.signinContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 414px) {
+  .card {
+    background: none;
+    border: none;
+  }
+}

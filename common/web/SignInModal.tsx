@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
 import { Button } from './ui/button'
 import { SignInForm } from './SignInForm'
 import { useTranslation } from 'react-i18next'
+import styles from './SignInForm.module.css'
 
 export function SignInModal() {
   const { t } = useTranslation()
@@ -14,7 +15,7 @@ export function SignInModal() {
           {t('buttons.signIn', { defaultValue: 'Sign in' })}
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-transparent border-none p-0 max-w-none">
+      <DialogContent className={styles.signinContent}>
         <SignInForm />
       </DialogContent>
     </Dialog>

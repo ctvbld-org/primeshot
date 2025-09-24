@@ -15,7 +15,7 @@ interface UploadProgressStepProps {
 }
 
 export function UploadProgressStep({ progress, totalFiles, uploadedFileCount = 0, retryState, currentUploadingFile, uploadedFiles = [] }: UploadProgressStepProps) {
-  const { t } = useTranslation('upload')
+  const { t } = useTranslation('character')
 
   // Keep showing a thumbnail between the last upload finishing and training starting
   const currentThumbnail = useMemo(() => {

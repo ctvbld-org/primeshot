@@ -29,7 +29,10 @@
     "addStyles": "Add Styles",
     "payment": "Payment",
     "uploadPhotos": "Upload Photos",
-    "generate": "Generate"
+    "generate": "Generate",
+    "explore": "Explore",
+    "create": "Create",
+    "admin": "Admin"
   },
   "userNav": {
     "signOut": "Sign out",
@@ -48,5 +51,30 @@
     "month_other": "{{count}} months",
     "day_one": "{{count}} day",
     "day_other": "{{count}} days"
+  },
+  "aria": {
+    "favourites": "Favourites",
+    "avatar": "User avatar",
+    "brandLogo": "Primeshot"
+  },
+  "credits": {
+    "remaining_one": "{{value}} credit remaining",
+    "remaining_other": "{{value}} credits remaining"
+  },
+  "contexts": {
+    "dialogService": {
+      "defaultTitle": "Dialog",
+      "defaultDescription": "Content",
+      "notReadyWarning": "DialogService not ready"
+    },
+    "errors": {
+      "missingProvider": {
+        "styleSelection": "useStyleSelection must be used within a StyleSelectionProvider",
+        "dialogService": "useDialogService must be used within DialogServiceProvider",
+        "inferenceQueue": "useInferenceQueue must be used within an InferenceQueueProvider",
+        "carousel": "useCarouselContext must be used within a CarouselProvider",
+        "realtime": "useRealtime must be used within a RealtimeProvider"
+      }
+    }
   }
 } 

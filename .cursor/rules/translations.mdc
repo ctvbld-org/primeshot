@@ -5,65 +5,42 @@ alwaysApply: false
 ---
 # Translation and i18n Guidelines
 
-## Project Structure
+## Project Structure (Region Codes)
 ```
 frontend/src/
-├── i18n.ts                    # i18n configuration and setup
+├── i18n.ts                    # i18n configuration and setup (uses region codes, e.g., en-GB)
 ├── types/
 │   └── i18next.d.ts          # TypeScript declarations for i18n
 ├── components/
 │   └── language-switcher.tsx  # Language selection component
 └── locales/                   # Translation files
-    ├── en/                    # English translations
+    ├── en-GB/                 # English (UK) translations
     │   ├── albums.json
     │   ├── auth.json
     │   ├── common.json
     │   └── ...
-    ├── es/                    # Spanish translations
+    ├── es-ES/                 # Spanish (Spain)
     │   ├── albums.json
     │   ├── auth.json
     │   ├── common.json
     │   └── ...
-    ├── fr/                    # French translations
-    │   ├── albums.json
-    │   ├── auth.json
-    │   ├── common.json
-    │   └── ...
-    ├── it/                    # Italian translations
-    │   ├── albums.json
-    │   ├── auth.json
-    │   ├── common.json
-    │   └── ...
-    ├── pt/                    # Portuguese translations
-    │   ├── albums.json
-    │   ├── auth.json
-    │   ├── common.json
-    │   └── ...
-    ├── de/                    # German translations
-    │   ├── albums.json
-    │   ├── auth.json
-    │   ├── common.json
-    │   └── ...
-    ├── nl/                    # Dutch translations
-    │   ├── albums.json
-    │   ├── auth.json
-    │   ├── common.json
-    │   └── ...
-    ├── zh/                    # Chinese translations
-    │   ├── albums.json
-    │   ├── auth.json
-    │   ├── common.json
-    │   └── ...
-    └── ja/                    # Japanese translations
-        ├── albums.json
-        ├── auth.json
-        ├── common.json
-        └── ...
+    ├── fr-FR/
+    ├── it-IT/
+    ├── pt-PT/
+    ├── de-DE/
+    ├── nl-NL/
+    ├── zh-CN/
+    └── ja-JP/
 ```
 
-## Professional Translation Guidelines
+## Runtime Policy
+- Default language is en-GB.
+- Fallback is disabled; all supported languages must include all keys per namespace.
+- User language preference is persisted in DB (`public.user_settings.preferred_language`) and must use the same region code values. Use RPCs `get_user_language` and `set_user_language`.
 
-- Follow the [Professional Translation Quality Guidelines](mdc:.cursor/rules/professional-translation-guidelines.md) for all translation tasks to ensure high-quality and culturally appropriate translations.
+## Professional Translation Guidelines
+- Follow the [Professional Translation Quality Guidelines](mdc:.cursor/rules/professional-translation-guidelines.md).
+- For en-GB, use UK spelling conventions where applicable.
 
 ## Core Translation Principles
 
