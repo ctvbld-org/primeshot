@@ -195,6 +195,7 @@ export function SubscriptionFormDialog({
       concurrent_jobs: 1,
       concurrent_trainings: 2,
       popular: false,
+      disabled: false,
       features: {},
       translations: {},
       image_url: '',
