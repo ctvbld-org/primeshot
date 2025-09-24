@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const path = require('path')
-const isProd = process.env.VERCEL_TARGET_ENV !== 'local'
+const isProd = process.env.NEXT_PUBLIC_VERCEL_TARGET_ENV !== 'local'
 
 const nextConfig = {
   basePath: isProd ? '/create' : '',

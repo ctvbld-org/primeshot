@@ -24,16 +24,16 @@ PRODUCTION_SUPABASE_SERVICE_ROLE_KEY=your-production-service-role-key
 
 # Environment Detection
 # Values: local (default), staging, production
-VERCEL_TARGET_ENV=local
+NEXT_PUBLIC_VERCEL_TARGET_ENV=local
 ```
 
 ## How It Works
 
 ### Environment Detection
-- The system uses `VERCEL_TARGET_ENV` to determine the current environment
-- **Local** (`VERCEL_TARGET_ENV=local`): Can push to staging OR production
-- **Staging** (`VERCEL_TARGET_ENV=staging`): Can push to production only  
-- **Production** (`VERCEL_TARGET_ENV=production`): Can push to staging only
+- The system uses `NEXT_PUBLIC_VERCEL_TARGET_ENV` to determine the current environment
+- **Local** (`NEXT_PUBLIC_VERCEL_TARGET_ENV=local`): Can push to staging OR production
+- **Staging** (`NEXT_PUBLIC_VERCEL_TARGET_ENV=staging`): Can push to production only  
+- **Production** (`NEXT_PUBLIC_VERCEL_TARGET_ENV=production`): Can push to staging only
 
 ### Supported Tables
 The sync feature works with these database tables:
