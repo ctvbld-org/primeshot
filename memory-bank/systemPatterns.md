@@ -1792,6 +1792,29 @@ Detected changes in:
 - webapp/src/components/pricing/utils.tsx
 - webapp/src/contexts/DialogServiceContext.tsx
 - webapp/src/lib/services/confirmationService.ts
+
+
+**Auto-update 2025-09-24**:
+Detected changes in:
+- admin/src/app/auth/callback/route.ts
+- admin/src/app/layout.tsx
+- admin/src/components/providers/I18nInitializer.tsx
+- admin/src/contexts/RealtimeAnalyticsContext.tsx
+- webapp/src/app/auth/callback/route.ts
+- webapp/src/app/layout.tsx
+- webapp/src/components/animations/confetti.tsx
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/header/CreditsHeaderRight.tsx
+- webapp/src/components/pricing/CreditPackDialogContent.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.module.css
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/providers/PurchaseSuccessHandler.tsx
+- webapp/src/components/purchase/PurchaseSuccessDialog.tsx
+- webapp/src/components/style/StylesCarousel.tsx
+- webapp/src/contexts/style-selection-context.tsx
+- website/src/app/about/page.tsx
+- website/src/app/privacy/page.tsx
+- website/src/app/terms/page.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:
