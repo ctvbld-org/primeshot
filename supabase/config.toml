@@ -294,7 +294,7 @@ redirect_uri = "https://npalbinvsvbyddagwvjx.supabase.co/auth/v1/callback"
 enabled = true
 client_id = "env(SUPABASE_AUTH_EXTERNAL_AZURE_CLIENT_ID)"
 # DO NOT commit your OAuth provider secret to git. Use environment variable substitution instead:
-secret = "env(SUPABASE_AUTH_EXTERNAL_AZURE_SECRET)"
+secret = "mEH8Q~SnntubByWlHjTq7Kb7AejZkMTpaGecya9L"
 # Overrides the default auth redirectUrl.
 redirect_uri = "http://localhost:54321/auth/v1/callback"
 # Overrides the default auth provider URL. Used to support self-hosted gitlab, single-tenant Azure,
@@ -304,7 +304,8 @@ url = "https://login.microsoftonline.com/consumers"
 skip_nonce_check = false
 
 [remotes.staging.auth.external.azure]
-client_id = "env(SUPABASE_AUTH_EXTERNAL_AZURE_SECRET)"
+client_id = "cbd667b3-f184-4ad2-8c35-59a137502033"
+secret = "mEH8Q~SnntubByWlHjTq7Kb7AejZkMTpaGecya9L"
 redirect_uri = "https://npalbinvsvbyddagwvjx.supabase.co/auth/v1/callback"
 url = ""
 
@@ -315,9 +316,10 @@ secret = "env(SUPABASE_AUTH_EXTERNAL_LINKEDIN_SECRET)"
 redirect_uri = "http://127.0.0.1:54321/auth/v1/callback"
 
 [remotes.staging.auth.external.linkedin_oidc]
-client_id = "env(SUPABASE_AUTH_EXTERNAL_LINKEDIN_CLIENT_ID)"
-secret = "env(SUPABASE_AUTH_EXTERNAL_LINKEDIN_SECRET)"
+client_id = "78ttjky3eskamv"
+secret = "WPL_AP1.fdPB5UNIIgTS3QsZ.x5m5pg=="
 redirect_uri = "https://npalbinvsvbyddagwvjx.supabase.co/auth/v1/callback"
+
 
 # Use Firebase Auth as a third-party provider alongside Supabase Auth.
 [auth.third_party.firebase]

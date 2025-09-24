@@ -1,4 +1,5 @@
 import { Inter } from 'next/font/google'
+import Script from 'next/script'
 import { carb } from '@/fonts'
 import './globals.css'
 
@@ -32,6 +33,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        <Script id="tawk-pre" strategy="beforeInteractive">{`
+          window.Tawk_API = window.Tawk_API || {};
+          window.Tawk_LoadStart = new Date();
+        `}</Script>
       </head>
       <body className={`${carb.variable} ${inter.className} dark`}>
         <I18nInitializer>
@@ -56,6 +61,15 @@ export default function RootLayout({
           </AuthProvider>
         </I18nInitializer>
         <Analytics />
+
+        {process.env.NEXT_PUBLIC_TAWK_PROPERTY_ID && process.env.NEXT_PUBLIC_TAWK_WIDGET_ID ? (
+          <Script
+            id="tawk-chat"
+            strategy="afterInteractive"
+            src={`https://embed.tawk.to/${process.env.NEXT_PUBLIC_TAWK_PROPERTY_ID}/${process.env.NEXT_PUBLIC_TAWK_WIDGET_ID}`}
+            crossOrigin="anonymous"
+          />
+        ) : null}
       </body>
     </html>
   )

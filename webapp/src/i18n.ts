@@ -7,7 +7,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 // English
 import commonEn from '@primeshot/common/locales/en/common.json';
 import authEn from '@primeshot/common/locales/en/auth.json';
-import pricingEn from '@primeshot/common/locales/en/pricing.json';
+import pricingEn from '@/locales/en/pricing.json';
 import stylesEn from '@/locales/en/styles.json';
 import uploadEn from '@/locales/en/upload.json';
 import settingsEn from '@/locales/en/settings.json';

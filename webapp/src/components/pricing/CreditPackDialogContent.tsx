@@ -9,6 +9,7 @@ import { getPriceIdForCredits, extractQualityCosts, getTrainingCost, formatValid
 import { useInferenceSettings } from '@/hooks/useInferenceSettings'
 import { Icon } from '@primeshot/common/web/Icon'
 import styles from './SubscriptionDialogContent.module.css'
+import { useTranslation } from 'react-i18next'
 
 interface CreditPackDialogContentProps {
   requiredCredits?: number
@@ -24,13 +25,15 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
   const { data: creditPacks = [] } = useCreditPacks()
   const { data: creditCosts } = useCreditCosts()
   const { data: inferenceSettings } = useInferenceSettings()
+  const { t } = useTranslation('pricing')
+  const tp = (k: string, o?: any) => String((t as any)(k, o))
 
   // shared grid expects packs-like structure
   const packs = creditPacks as any
 
   const handlePurchase = async (creditPack: { name: string; credits: number }) => {
     if (!user) {
-      toast.error('Please log in')
+      toast.error(tp('credits.toasts.loginRequired'))
       return
     }
 
@@ -38,7 +41,7 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
 
     try {
       const priceId = getPriceIdForCredits(creditPack.credits)
-      if (!priceId) throw new Error('Invalid credit pack configuration')
+      if (!priceId) throw new Error(tp('credits.toasts.invalidPackConfig'))
 
       const response = await fetch(getApiUrl('/api/payment/credit-pack-checkout'), {
         method: 'POST',
@@ -54,7 +57,7 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.error || 'Failed to create checkout session')
+        throw new Error(error.error || tp('credits.toasts.createCheckoutFailed'))
       }
 
       const { url } = await response.json()
@@ -62,7 +65,7 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
 
     } catch (error) {
       console.error('Credit pack purchase error:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to purchase credit pack')
+      toast.error(error instanceof Error ? error.message : tp('credits.toasts.purchaseFailed'))
     } finally {
       setIsLoading(null)
     }
@@ -81,15 +84,15 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
           </Button>
           <span className={styles.headerSubText}>
             {requiredCredits 
-              ? `Credit balance too low.`
-              : 'Fuel your creativity  🚀'
+              ? tp('credits.dialog.headerSub.lowBalance')
+              : tp('credits.dialog.headerSub.creativity')
             }
           </span>
         </span>
         <h2 className={styles.headerTitle}>
           {requiredCredits 
-            ? `Top up your credits to continue generating`
-            : 'More credits, more creations, more fun!'
+            ? tp('credits.dialog.headerTitle.lowBalance')
+            : tp('credits.dialog.headerTitle.fun')
           }
         </h2>
       </div>
@@ -117,8 +120,8 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
               <div className={styles.cardTitle}>{pack.name}</div>
 
               <div className={styles.priceBlock}>
-                <div className={styles.mainPrice}><span className={styles.price}>${pack.price}</span><span className={styles.per}> one-time</span></div>
-                <div className={styles.priceSub}><span className={styles.price}>${perCredit}</span> per credit</div>
+                <div className={styles.mainPrice}><span className={styles.price}>${pack.price}</span><span className={styles.per}> {tp('credits.card.oneTime')}</span></div>
+                <div className={styles.priceSub}><span className={styles.price}>${perCredit}</span> {tp('credits.card.perCreditWord')}</div>
               </div>
 
               <div className={styles.divider} />
@@ -129,18 +132,18 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
                   {qualityCosts.map((q) => (
                     <li key={q.quality} className={styles.featureItem}>
                       <Icon variant="camera" size={16} />
-                      Up to {Math.floor(pack.credits / Math.max(q.cost, 1))} {toQualityLabel(String(q.quality))} images
+                      {tp('credits.card.images', { count: Math.floor(pack.credits / Math.max(q.cost, 1)), quality: toQualityLabel(String(q.quality)) })}
                       {q.quality !== '1K' && '*'}
                     </li>
                   ))}
                   {!!trainingCost && (
                     <li className={styles.featureItem}>
                       <Icon variant="primeshotSymbol" size={16} />
-                      Up to {Math.floor(pack.credits / Math.max(trainingCost, 1))} Characters
+                      {tp('credits.card.characters', { count: Math.floor(pack.credits / Math.max(trainingCost, 1)) })}
                     </li>
                   )}
                   <li className={styles.footNote}>
-                    *Standard and Pro plans only
+                    {tp('credits.card.footnote')}
                   </li>
                 </ul>
               </div>
@@ -152,10 +155,10 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
                 onClick={() => handlePurchase(pack)}
                 disabled={isLoading === pack.name}
               >
-                {isLoading === pack.name ? 'Processing…' : `Buy`}
+                {isLoading === pack.name ? tp('credits.card.button.processing') : tp('credits.card.button.buy')}
               </Button>
               <small className={styles.validity}>
-                Valid for {formatValidity(pack.validity_days)}
+                {tp('credits.card.validity', { duration: formatValidity(pack.validity_days) })}
               </small>
             </div>
           )
