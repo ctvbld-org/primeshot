@@ -39,6 +39,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@primeshot/common/web/ui/alert-dialog'
+import { getApiUrl } from '@/lib/api'
 
 type CreditPack = Database['public']['Tables']['credit_packs']['Row']
 
@@ -156,7 +157,7 @@ export function CreditPackFormDialog({
     mutationFn: async (data: FormData & { translations?: any }) => {
       if (creditPack) {
         // Update
-        const response = await fetch(`/api/credit-packs/${creditPack.id}`, {
+        const response = await fetch(getApiUrl(`/api/credit-packs/${creditPack.id}`), {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -170,7 +171,7 @@ export function CreditPackFormDialog({
         }
       } else {
         // Create
-        const response = await fetch('/api/credit-packs', {
+        const response = await fetch(getApiUrl('/api/credit-packs'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

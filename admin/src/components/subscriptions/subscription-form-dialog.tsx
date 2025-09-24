@@ -46,6 +46,7 @@ import {
 import { useToast } from '@primeshot/common/web/ui/use-toast'
 import type { Database } from '@/types/supabase'
 import { ImageUpload } from '@/components/ui/image-upload'
+import { getApiUrl } from '@/lib/api'
 
 type Subscription = Database['public']['Tables']['subscriptions']['Row']
 
@@ -225,7 +226,7 @@ export function SubscriptionFormDialog({
 
       if (subscription) {
         // Update
-        const response = await fetch(`/api/subscriptions/${subscription.id}`, {
+        const response = await fetch(getApiUrl(`/api/subscriptions/${subscription.id}`), {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -239,7 +240,7 @@ export function SubscriptionFormDialog({
         }
       } else {
         // Create
-        const response = await fetch('/api/subscriptions', {
+        const response = await fetch(getApiUrl('/api/subscriptions'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

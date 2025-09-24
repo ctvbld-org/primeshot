@@ -6,7 +6,7 @@ import { StyleSelectionProvider } from '@/contexts/style-selection-context'
 
 export default function Home() {
   return (
-    <main className="p-(--site-padding) overflow-hidden min-h-screen">
+    <main className="p-(--site-padding) overflow-hidden min-h-[calc(100vh-104px)]">
 
       <StyleSelectionProvider>
         <section className="relative">

@@ -41,6 +41,7 @@ import { getSceneOptionImage } from '@/lib/get-options-image'
 import { toast } from 'sonner'
 import type { Database } from '@/types/supabase'
 import { getTranslatableColumns, shouldTranslateRow, translateRow } from '@/lib/translation'
+import { getApiUrl } from '@/lib/api'
 
 type Scene = Database['public']['Tables']['style_scenes']['Row']
 
@@ -139,7 +140,7 @@ export function SceneFormDialog({
 
   const createMutation = useMutation({
     mutationFn: async (data: FormData & { translations?: any }) => {
-      const res = await fetch('/api/admin/style-scenes', {
+      const res = await fetch(getApiUrl('/api/admin/style-scenes'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -167,7 +168,7 @@ export function SceneFormDialog({
   const updateMutation = useMutation({
     mutationFn: async (data: FormData & { translations?: any }) => {
       if (!scene) throw new Error('No scene to update')
-      const res = await fetch('/api/admin/style-scenes', {
+      const res = await fetch(getApiUrl('/api/admin/style-scenes'), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: scene.id, ...data }),

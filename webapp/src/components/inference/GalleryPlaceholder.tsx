@@ -78,7 +78,7 @@ export function GalleryPlaceholder() {
               ))}
             </div>
             <div className={stylesInference.thumbnailGrid}>
-              {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+              {[0, 1, 2, 3, 4].map((i) => (
                 <div className={stylesThumbnail.thumbnail} style={{ ['--stagger' as any]: i,  pointerEvents: 'none' }} key={'thumbnail-placeholder-' + i}>
                   <div className={`${stylesThumbnail.imageContainer} ${stylesThumbnail.statusGenerating}`} style={{pointerEvents: 'none'}}>
                     <Skeleton className={stylesThumbnail.gradientLoader} style={{ opacity: '0.1', pointerEvents: 'none' }} />
@@ -158,7 +158,7 @@ export function GalleryPlaceholder() {
   }
 
   // Authenticated with no inference jobs -> show the same placeholder
-  if (!authLoading) {
+  if (!authLoading && !isLoading) {
     return (
       <div className={styles.placeholderCard} role="region" aria-label="How it works">
         <div className={styles.steps}>

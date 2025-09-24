@@ -10,6 +10,7 @@ import { toast } from 'sonner'
 import { uploadImageToS3 } from '@/lib/upload'
 import getStyleImages from '@/lib/get-styles-images'
 import getOptionsImage, { getSceneOptionImage, getWardrobeOptionImage } from '@/lib/get-options-image'
+import { getApiUrl } from '@/lib/api'
 
 interface ImageUploadProps {
   value: string[]
@@ -167,7 +168,7 @@ export function ImageUpload({
     try {
       setIsListing(true)
       const params = new URLSearchParams({ prefix: uploadPath, max: '100' })
-      const res = await fetch(`/api/images/list?${params.toString()}`)
+      const res = await fetch(getApiUrl(`/api/images/list?${params.toString()}`))
       if (!res.ok) throw new Error('Failed to list images')
       const json = await res.json()
       const list = (json?.files || []) as any[]

@@ -36,6 +36,7 @@ import { Input } from '@primeshot/common/web/ui/input'
 import { Button } from '@primeshot/common/web/ui/button'
 import { toast } from 'sonner'
 import type { Database } from '@/types/supabase'
+import { getApiUrl } from '@/lib/api'
 
 type Color = Database['public']['Tables']['style_colors']['Row']
 
@@ -138,7 +139,7 @@ export function ColorFormDialog({
     mutationFn: async (data: FormData) => {
       if (color) {
         // Update
-        const res = await fetch('/api/admin/style-colors', {
+        const res = await fetch(getApiUrl('/api/admin/style-colors'), {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: color.id, ...data }),
@@ -149,7 +150,7 @@ export function ColorFormDialog({
         }
       } else {
         // Create
-        const res = await fetch('/api/admin/style-colors', {
+        const res = await fetch(getApiUrl('/api/admin/style-colors'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
@@ -232,14 +233,26 @@ export function ColorFormDialog({
                     <FormLabel>Color</FormLabel>
                     <FormControl>
                       <div className="flex items-center gap-3">
-                        <Input 
-                          {...field} 
+                        <Input
                           type="color"
-                          className="w-16 h-10 p-1 border rounded cursor-pointer"
-                        />
-                        <Input 
+                          name={field.name}
                           value={field.value}
-                          onChange={field.onChange}
+                          onChange={(e) => field.onChange(e.target.value)}
+                          onBlur={field.onBlur}
+                          ref={field.ref}
+                          className="!w-[48px] !h-[48px] !p-0 bg-transparent cursor-pointer"
+                        />
+                        <Input
+                          name={field.name}
+                          value={field.value}
+                          onChange={(e) => {
+                            let v = e.target.value.trim()
+                            if (v && v[0] !== '#') v = `#${v}`
+                            if (v.length === 7) v = v.toUpperCase()
+                            field.onChange(v)
+                          }}
+                          onBlur={field.onBlur}
+                          ref={field.ref}
                           placeholder="#000000"
                           className="flex-1"
                         />

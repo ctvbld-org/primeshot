@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { DataTable } from '@/components/ui/data-table'
 import { CreditCostFormDialog } from './credit-cost-form-dialog'
 import { createClient } from '@/lib/supabase/client'
+import { getApiUrl } from '@/lib/api'
 import { Button } from '@primeshot/common/web/ui/button'
 import { Pencil, Trash } from 'lucide-react'
 import { toast } from 'sonner'
@@ -27,7 +28,7 @@ export function CreditCostsTable() {
   const { data: creditCosts = [], isLoading } = useQuery({
     queryKey: ['credit-costs'],
     queryFn: async () => {
-      const response = await fetch('/api/credit-costs')
+      const response = await fetch(getApiUrl('/api/credit-costs'))
       if (!response.ok) {
         throw new Error('Failed to fetch credit costs')
       }
@@ -38,7 +39,7 @@ export function CreditCostsTable() {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await fetch(`/api/credit-costs/${id}`, {
+      const response = await fetch(getApiUrl(`/api/credit-costs/${id}`), {
         method: 'DELETE',
       })
       

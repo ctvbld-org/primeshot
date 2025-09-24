@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { DataTable } from '@/components/ui/data-table'
 import { SubscriptionFormDialog } from './subscription-form-dialog'
 import { createClient } from '@/lib/supabase/client'
+import { getApiUrl } from '@/lib/api'
 import { Button } from '@primeshot/common/web/ui/button'
 import { Badge } from '@primeshot/common/web/ui/badge'
 import {
@@ -37,7 +38,7 @@ export function SubscriptionsTable() {
   const { data: subscriptions = [], isLoading } = useQuery({
     queryKey: ['subscriptions'],
     queryFn: async () => {
-      const response = await fetch('/api/subscriptions')
+      const response = await fetch(getApiUrl('/api/subscriptions'))
       
       if (!response.ok) {
         throw new Error('Failed to fetch subscriptions')
@@ -50,7 +51,7 @@ export function SubscriptionsTable() {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await fetch(`/api/subscriptions/${id}`, {
+      const response = await fetch(getApiUrl(`/api/subscriptions/${id}`), {
         method: 'DELETE',
       })
       

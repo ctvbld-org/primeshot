@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { getApiUrl } from '@/lib/api'
 import { StyleFormDialog } from './style-form-dialog'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@primeshot/common/web/ui/button'
@@ -83,7 +84,7 @@ export function StylesTable() {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`/api/styles/${id}`, {
+      const response = await fetch(getApiUrl(`/api/styles/${id}`), {
         method: 'DELETE',
       })
       
