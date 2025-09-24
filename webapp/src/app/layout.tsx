@@ -18,11 +18,14 @@ import { IntentHandler } from '@/components/providers/intent-handler'
 import { InferenceQueueProvider } from '@/contexts/inference-queue-context'
 import QueryParamCleaner from '@/components/shared/QueryParamCleaner'
 import { PurchaseSuccessHandler } from '@/components/providers/PurchaseSuccessHandler'
+import { CrispInitializer } from '@/components/providers/CrispInitializer'
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
 });
+
+ 
 
 export default function RootLayout({
   children
@@ -33,10 +36,6 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-        <Script id="tawk-pre" strategy="beforeInteractive">{`
-          window.Tawk_API = window.Tawk_API || {};
-          window.Tawk_LoadStart = new Date();
-        `}</Script>
       </head>
       <body className={`${carb.variable} ${inter.className} dark`}>
         <I18nInitializer>
@@ -61,15 +60,7 @@ export default function RootLayout({
           </AuthProvider>
         </I18nInitializer>
         <Analytics />
-
-        {process.env.NEXT_PUBLIC_TAWK_PROPERTY_ID && process.env.NEXT_PUBLIC_TAWK_WIDGET_ID ? (
-          <Script
-            id="tawk-chat"
-            strategy="afterInteractive"
-            src={`https://embed.tawk.to/${process.env.NEXT_PUBLIC_TAWK_PROPERTY_ID}/${process.env.NEXT_PUBLIC_TAWK_WIDGET_ID}`}
-            crossOrigin="anonymous"
-          />
-        ) : null}
+        <CrispInitializer />
       </body>
     </html>
   )
