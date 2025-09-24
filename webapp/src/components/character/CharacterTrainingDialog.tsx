@@ -437,11 +437,12 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
       // Get current character count using the centralized method
       const currentCharacterCount = await getActiveCharacterCount(user!.id)
 
-      // Get character limit from subscription tiers data
-      const maxCharacters = subscriptionTiers?.find(tier => tier.name === subscription.plan_name)?.max_characters || 1
+      // Prefer API-provided limit; fallback to tiers if missing
+      const maxCharacters = (subscription as any)?.max_characters ?? (subscriptionTiers?.find(tier => tier.name === subscription.plan_name)?.max_characters || 1)
       
       if (currentCharacterCount >= maxCharacters) {
-        throw new Error(`Character limit reached. Your ${subscription.plan_name} plan allows ${maxCharacters} character(s).`)
+        const planLabel = (subscription as any)?.plan_display_name || subscription.plan_name
+        throw new Error(`Character limit reached. Your ${planLabel} plan allows ${maxCharacters} character(s).`)
       }
 
       // Profile data will now be automatically generated during training

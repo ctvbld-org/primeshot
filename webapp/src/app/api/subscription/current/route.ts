@@ -32,7 +32,7 @@ export async function GET() {
     // Get plan details from DB-backed pricing (remove live Stripe dependency)
     const { data: tier, error: tierError } = await supabase
       .from('subscriptions')
-      .select('credits,max_quality,character_training_included,name,display_name,image_url')
+      .select('credits,max_quality,character_training_included,name,display_name,image_url,max_characters,concurrent_jobs')
       .eq('name', subscription.plan_name)
       .single()
 
@@ -82,8 +82,10 @@ export async function GET() {
 
     // Build subscription info response (DB-backed)
     const subscriptionInfo = {
-      plan_name: tier?.display_name || subscription.plan_name,
-      plan_key: subscription.plan_name,
+      // Canonical plan key for lookups and comparisons
+      plan_name: subscription.plan_name,
+      // Human-friendly display name for UI
+      plan_display_name: tier?.display_name || subscription.plan_name,
       plan_image_url: tier?.image_url || null,
       status: subscription.status,
       current_period_end: subscription.current_period_end,
@@ -92,6 +94,9 @@ export async function GET() {
       max_quality: tier?.max_quality,
       character_training_included: tier?.character_training_included ?? 0,
       character_training_used: characterTrainingUsed,
+      // Limits surfaced directly to clients for reliability
+      max_characters: tier?.max_characters ?? 1,
+      concurrent_jobs: tier?.concurrent_jobs ?? 1,
       cancel_at_period_end: subscription.cancel_at_period_end || false,
       // Additional useful fields
       current_period_start: subscription.current_period_start,

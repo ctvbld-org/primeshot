@@ -101,6 +101,7 @@ export function SubscriptionDialogContent({
   // Only consider it a current plan if the subscription is active or pending cancellation
   const hasActivePlan = currentSubscription && 
     (currentSubscription.status === 'active' || (currentSubscription as any).cancel_at_period_end === true)
+  // Use canonical key for comparisons; use display name for UI
   const effectiveCurrentPlan = currentPlan || (hasActivePlan ? currentSubscription?.plan_name : null)
 
   // Filter tiers based on upgrade requirements
@@ -345,7 +346,7 @@ export function SubscriptionDialogContent({
       {/* Context-specific header */}
       <div className={styles.headerWrap + ' ' + styles.headerWrapRow}>
         <div className={styles.headerSubWrap}>
-          {isSpecialOffer && (
+          {!isSpecialOffer && (
             <span className={styles.headerSub}>
               <Button variant="ghost" size="sm" iconOnly onClick={closeDialog}>
                 <Icon variant="arrowLeft" size={16} className="text-[#2ADED8]" />

@@ -48,7 +48,12 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
   }, [needsCreditsForTraining, creditBalance, characterTrainingCost])
 
   const maxCharacters = React.useMemo(() => {
-    if (!subscription || !subscriptionTiers) return 1
+    if (!subscription) return 1
+    // Prefer API-provided limit; fallback to tier lookup for safety
+    if (typeof (subscription as any).max_characters === 'number') {
+      return (subscription as any).max_characters as number
+    }
+    if (!subscriptionTiers) return 1
     return getCharacterLimit(subscription.plan_name, subscriptionTiers)
   }, [subscription, subscriptionTiers])
 
@@ -62,11 +67,10 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
 
   // Check if user is on the highest tier (Pro/Tier 3)
   const isOnHighestTier = useMemo(() => {
-    if (!subscription?.plan_name || !subscriptionTiers) return false;
-    const tier = subscriptionTiers.find(t => t.name === subscription.plan_name);
-    // Pro tier has max_characters: 8, which is the highest
-    return tier?.max_characters === 8;
-  }, [subscription?.plan_name, subscriptionTiers]);
+    // Determine highest based on max_characters across tiers
+    const maxAcrossTiers = subscriptionTiers?.reduce((m, t) => Math.max(m, t.max_characters || 0), 0) || 0
+    return maxCharacters >= maxAcrossTiers && maxAcrossTiers > 0
+  }, [subscriptionTiers, maxCharacters]);
 
   // Determine what should happen when Create Character button is clicked
   const createCharacterAction = useMemo(() => {
@@ -169,9 +173,9 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
         ;(async () => {
           try {
             const uid = user?.id
-            if (uid && subscription?.plan_name && subscriptionTiers) {
+            if (uid && subscription?.plan_name) {
               const latestCount = await getActiveCharacterCount(uid)
-              const limit = getCharacterLimit(subscription.plan_name, subscriptionTiers)
+              const limit = maxCharacters
               if (latestCount >= limit) {
                 openSubscriptionDialog({
                   context: 'character-limit',
