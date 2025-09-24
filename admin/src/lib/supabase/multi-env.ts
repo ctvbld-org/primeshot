@@ -9,33 +9,37 @@ interface EnvironmentConfig {
   serviceKey: string
 }
 
-function firstNonEmpty(varNames: string[], context: string): string {
-  for (const name of varNames) {
-    const v = (process.env[name] || '').trim()
-    if (v) return v
-  }
-  throw new Error(`${varNames[0]} is required for ${context}`)
-}
-
 function getEnvironmentConfig(env: Environment): EnvironmentConfig {
   switch (env) {
     case 'local':
+      console.log('Local environment config:')
+      console.log('URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
+      console.log('Anon key:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+      console.log('Service key:', process.env.SUPABASE_SERVICE_ROLE_KEY)
       return {
-        url: firstNonEmpty(['NEXT_PUBLIC_SUPABASE_URL'], 'local'),
-        anonKey: firstNonEmpty(['NEXT_PUBLIC_SUPABASE_ANON_KEY'], 'local'),
-        serviceKey: firstNonEmpty(['SUPABASE_SERVICE_ROLE_KEY'], 'local'),
+        url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        serviceKey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
       }
     case 'staging':
+      console.log('Staging environment config:')
+      console.log('URL:', process.env.STAGING_SUPABASE_URL)
+      console.log('Anon key:', process.env.STAGING_SUPABASE_ANON_KEY)
+      console.log('Service key:', process.env.STAGING_SUPABASE_SERVICE_ROLE_KEY)
       return {
-        url: firstNonEmpty(['STAGING_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_URL'], 'staging'),
-        anonKey: firstNonEmpty(['STAGING_SUPABASE_ANON_KEY', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'], 'staging'),
-        serviceKey: firstNonEmpty(['STAGING_SUPABASE_SERVICE_ROLE_KEY', 'SUPABASE_SERVICE_ROLE_KEY'], 'staging'),
+        url: process.env.STAGING_SUPABASE_URL!,
+        anonKey: process.env.STAGING_SUPABASE_ANON_KEY!,
+        serviceKey: process.env.STAGING_SUPABASE_SERVICE_ROLE_KEY!,
       }
     case 'production':
+      console.log('Production environment config:')
+      console.log('URL:', process.env.PRODUCTION_SUPABASE_URL)
+      console.log('Anon key:', process.env.PRODUCTION_SUPABASE_ANON_KEY)
+      console.log('Service key:', process.env.PRODUCTION_SUPABASE_SERVICE_ROLE_KEY)
       return {
-        url: firstNonEmpty(['PRODUCTION_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_URL'], 'production'),
-        anonKey: firstNonEmpty(['PRODUCTION_SUPABASE_ANON_KEY', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'], 'production'),
-        serviceKey: firstNonEmpty(['PRODUCTION_SUPABASE_SERVICE_ROLE_KEY', 'SUPABASE_SERVICE_ROLE_KEY'], 'production'),
+        url: process.env.PRODUCTION_SUPABASE_URL!,
+        anonKey: process.env.PRODUCTION_SUPABASE_ANON_KEY!,
+        serviceKey: process.env.PRODUCTION_SUPABASE_SERVICE_ROLE_KEY!,
       }
     default:
       throw new Error(`Unknown environment: ${env}`)
