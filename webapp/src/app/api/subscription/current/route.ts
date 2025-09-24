@@ -32,7 +32,7 @@ export async function GET() {
     // Get plan details from DB-backed pricing (remove live Stripe dependency)
     const { data: tier, error: tierError } = await supabase
       .from('subscriptions')
-      .select('credits,max_quality,character_training_included,name')
+      .select('credits,max_quality,character_training_included,name,display_name,image_url')
       .eq('name', subscription.plan_name)
       .single()
 
@@ -82,7 +82,9 @@ export async function GET() {
 
     // Build subscription info response (DB-backed)
     const subscriptionInfo = {
-      plan_name: subscription.plan_name,
+      plan_name: tier?.display_name || subscription.plan_name,
+      plan_key: subscription.plan_name,
+      plan_image_url: tier?.image_url || null,
       status: subscription.status,
       current_period_end: subscription.current_period_end,
       credits_included: tier?.credits ?? 0,

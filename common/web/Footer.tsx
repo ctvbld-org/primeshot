@@ -39,10 +39,10 @@ export const Footer: React.FC<FooterProps> = ({
         </div>
 
           <div className={styles.right}>
-            <Link className={styles.link} href={aboutHref}>{t('footer.about')}</Link>
-            <Link className={styles.link} href={termsHref}>{t('footer.terms')}</Link>
-          <Link className={styles.link} href={privacyHref}>{t('footer.privacy')}</Link>
-          <div className={styles.socialIcons}>
+            <a className={styles.link} href={aboutHref}>{t('footer.about')}</a>
+            <a className={styles.link} href={termsHref}>{t('footer.terms')}</a>
+            <a className={styles.link} href={privacyHref}>{t('footer.privacy')}</a>
+            <div className={styles.socialIcons}>
                 <a className={styles.iconLink} href={xHref} target="_blank" rel="noopener noreferrer" aria-label="X">
                     <Image
                         src={`${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/email/base-icon-x.png`}

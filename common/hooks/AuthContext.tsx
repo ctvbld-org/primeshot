@@ -172,6 +172,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const clearError = () => setState(prev => ({ ...prev, error: null }))
 
+  const refreshUser = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const current = session?.user as User | null
+      if (!current) return
+      const { data: dbUser } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', current.id)
+        .single()
+      const mergedUser = { ...current, ...dbUser }
+      setState(prev => ({ ...prev, user: mergedUser }))
+    } catch (e) {
+      console.error('Failed to refresh user', e)
+    }
+  }
+
   const value: AuthContextType = {
     ...state,
     signIn,
@@ -179,7 +196,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signInWithLinkedIn,
     signInWithAzure,
     signOut,
-    clearError
+    clearError,
+    refreshUser
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

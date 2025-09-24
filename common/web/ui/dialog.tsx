@@ -72,7 +72,7 @@ function DialogContent({
   )
 }
 
-function DialogHeader({ className, children, ...props }: React.ComponentProps<"div">) {
+function DialogHeader({ className, children, hideClose, ...props }: React.ComponentProps<"div"> & { hideClose?: boolean }) {
   const { t } = useTranslation('common')
 
   return (
@@ -82,10 +82,12 @@ function DialogHeader({ className, children, ...props }: React.ComponentProps<"d
       {...props}
       >
         {children}
-      <DialogPrimitive.Close className={styles.closeButton}>
-        <Icon variant="cross" size={24} className={styles.closeIcon} />
-        <span className="sr-only">{t('buttons.close')}</span>
-      </DialogPrimitive.Close>
+      {!hideClose && (
+        <DialogPrimitive.Close className={styles.closeButton}>
+          <Icon variant="cross" size={24} className={styles.closeIcon} />
+          <span className="sr-only">{t('buttons.close')}</span>
+        </DialogPrimitive.Close>
+      )}
     </div>
   )
 }

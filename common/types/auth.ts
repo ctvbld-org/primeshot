@@ -27,4 +27,5 @@ export interface AuthContextType extends AuthState {
   signInWithAzure: () => Promise<void>
   signOut: () => Promise<void>
   clearError: () => void
+  refreshUser: () => Promise<void>
 } 

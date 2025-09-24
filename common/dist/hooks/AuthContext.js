@@ -166,6 +166,24 @@ export const AuthProvider = ({ children }) => {
         }
     };
     const clearError = () => setState(prev => ({ ...prev, error: null }));
+    const refreshUser = async () => {
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const current = session === null || session === void 0 ? void 0 : session.user;
+            if (!current)
+                return;
+            const { data: dbUser } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', current.id)
+                .single();
+            const mergedUser = { ...current, ...dbUser };
+            setState(prev => ({ ...prev, user: mergedUser }));
+        }
+        catch (e) {
+            console.error('Failed to refresh user', e);
+        }
+    };
     const value = {
         ...state,
         signIn,
@@ -173,7 +191,8 @@ export const AuthProvider = ({ children }) => {
         signInWithLinkedIn,
         signInWithAzure,
         signOut,
-        clearError
+        clearError,
+        refreshUser
     };
     return _jsx(AuthContext.Provider, { value: value, children: children });
 };

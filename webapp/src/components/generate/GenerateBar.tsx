@@ -739,6 +739,49 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
     setTimeout(updateNavButtons, 360)
   }, [updateNavButtons])
 
+  // Colors compact mode: switch to carousel with fixed 50px swatches when
+  // the flexible width would drop below 50px
+  const colorsContainerRef = React.useRef<HTMLDivElement>(null)
+  const [isColorsCompact, setIsColorsCompact] = useState(false)
+  const setColorsViewportRefs = React.useCallback((el: HTMLDivElement | null) => {
+    // Share the same viewport element with the generic carousel logic
+    viewportRef.current = el as any
+    colorsContainerRef.current = el as any
+  }, [])
+
+  // Precompute available colors for current style (count used for threshold calc)
+  const colorsForCurrentStyle = useMemo(() => {
+    const available = (currentStyle?.available_colors || []) as string[]
+    return colors.filter(c => available.includes(c.value))
+  }, [colors, currentStyle?.available_colors])
+
+  const updateColorsCompact = React.useCallback(() => {
+    const el = colorsContainerRef.current
+    if (!el) return
+    const count = colorsForCurrentStyle.length
+    if (!count) { setIsColorsCompact(false); return }
+    const GAP = 1 // matches CSS gap
+    const containerWidth = el.clientWidth
+    const candidate = (containerWidth - Math.max(0, count - 1) * GAP) / count
+    setIsColorsCompact(candidate < 50)
+  }, [colorsForCurrentStyle.length])
+
+  React.useEffect(() => {
+    // Observe only when wardrobe panel is open and colors are showing
+    if (openPanel !== 'wardrobe') return
+    const el = colorsContainerRef.current
+    if (!el) return
+    updateColorsCompact()
+    let ro: ResizeObserver | undefined
+    if ('ResizeObserver' in window) {
+      ro = new ResizeObserver(() => updateColorsCompact())
+      ro.observe(el)
+    }
+    const onResize = () => updateColorsCompact()
+    window.addEventListener('resize', onResize)
+    return () => { ro?.disconnect(); window.removeEventListener('resize', onResize) }
+  }, [openPanel, updateColorsCompact])
+
   const renderPanel = () => {
     if (!openPanel) return null
     // Shared carousel/search state
@@ -797,16 +840,16 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
         const showingColors = !!selectedWardrobeValue
 
         return (
-          <OptionsPanel
+            <OptionsPanel
             title={t('titles.wardrobeLabel', { ns: 'styles' })}
             onClose={close}
             onSearchChange={showingColors ? undefined : setPanelQuery}
             showSearch={!showingColors}
             searchValue={panelQuery}
-            canPrev={!showingColors && navState.canPrev}
-            canNext={!showingColors && navState.canNext}
-            onPrev={!showingColors ? handlePrev : undefined}
-            onNext={!showingColors ? handleNext : undefined}
+            canPrev={(showingColors ? (isColorsCompact && navState.canPrev) : navState.canPrev)}
+            canNext={(showingColors ? (isColorsCompact && navState.canNext) : navState.canNext)}
+            onPrev={(showingColors ? (isColorsCompact ? handlePrev : undefined) : handlePrev)}
+            onNext={(showingColors ? (isColorsCompact ? handleNext : undefined) : handleNext)}
             leftHeader={(
               showingColors ? (
                 <button className={styles.backBtn} onClick={() => setSelectedWardrobeValue(null)} aria-label="Back">
@@ -856,15 +899,31 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 </div>
               </div>
             ) : (
-              <div className={styles.colorsRow}>
-                {filteredColors.map(col => (
-                  <button key={col.value} className={styles.colorSwatch} style={{ backgroundColor: col.color || '#fff' }} onClick={() => {
-                    storeStyleSelections(currentStyle.id, { wardrobe: selectedWardrobeValue!, color: col.value });
-                    setSelectionVersion(v=>v+1);
-                    close()
-                  }} title={col.label} value={col.value} />
-                ))}
-              </div>
+              <>
+                {!isColorsCompact ? (
+                  <div ref={colorsContainerRef} className={styles.colorsRow}>
+                    {filteredColors.map(col => (
+                      <button key={col.value} className={styles.colorSwatch} style={{ backgroundColor: col.color || '#fff' }} onClick={() => {
+                        storeStyleSelections(currentStyle.id, { wardrobe: selectedWardrobeValue!, color: col.value });
+                        setSelectionVersion(v=>v+1);
+                        close()
+                      }} title={col.label} value={col.value} />
+                    ))}
+                  </div>
+                ) : (
+                  <div ref={setColorsViewportRefs} className={styles.carouselViewport} onScroll={updateNavButtons}>
+                    <div className={styles.colorItemsRow} style={{ width: 'max-content' }}>
+                      {filteredColors.map(col => (
+                        <button key={col.value} className={`${styles.colorSwatch} ${styles.colorSwatchFixed}`} style={{ backgroundColor: col.color || '#fff' }} onClick={() => {
+                          storeStyleSelections(currentStyle.id, { wardrobe: selectedWardrobeValue!, color: col.value });
+                          setSelectionVersion(v=>v+1);
+                          close()
+                        }} title={col.label} value={col.value} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </OptionsPanel>
         )

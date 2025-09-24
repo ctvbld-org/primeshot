@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogBody } from './ui/dialog'
 import { useAuth } from '../hooks/AuthContext'
 import { useTranslation } from 'react-i18next'
@@ -19,7 +19,7 @@ interface AccountDialogProps {
   onSubscribe?: () => void
 }
 
-type TabKey = 'profile' | 'subscription' | 'settings' | 'support'
+type TabKey = 'profile' | 'subscription' | 'settings2' | 'help'
 
 type SubscriptionInfo = {
   plan_name: string
@@ -30,6 +30,7 @@ type SubscriptionInfo = {
   credits_used_this_period: number
   cancel_at_period_end?: boolean
   stripe_subscription_id?: string
+  plan_image_url?: string | null
 }
 
 function getApiUrl(path: string): string {
@@ -95,6 +96,83 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
     return [parts[0] || '', parts.slice(1).join(' ')]
   }, [user.full_name])
 
+  const providerVariant = useMemo(() => {
+    const raw = (user as any)?.identities?.[0]?.provider || (user as any)?.app_metadata?.provider
+    const p = String(raw || '').toLowerCase()
+    if (p.includes('google')) return 'google' as const
+    if (p.includes('linkedin')) return 'linkedin' as const
+    if (p.includes('apple')) return 'apple' as const
+    if (p.includes('azure') || p.includes('microsoft')) return 'microsoft' as const
+    return undefined
+  }, [user])
+
+  // Edit state
+  const [editFirstName, setEditFirstName] = useState<string>('')
+  const [editLastName, setEditLastName] = useState<string>('')
+  const [isDirty, setIsDirty] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+
+  useEffect(() => {
+    if (!open) return
+    setEditFirstName(firstName)
+    setEditLastName(lastName)
+    setAvatarFile(null)
+    if (avatarPreview) URL.revokeObjectURL(avatarPreview)
+    setAvatarPreview(null)
+    setIsDirty(false)
+  }, [open, firstName, lastName])
+
+  const handleCancel = () => {
+    setEditFirstName(firstName)
+    setEditLastName(lastName)
+    setAvatarFile(null)
+    if (avatarPreview) URL.revokeObjectURL(avatarPreview)
+    setAvatarPreview(null)
+    setIsDirty(false)
+  }
+
+  const handleSave = async () => {
+    try {
+      setIsSaving(true)
+      let avatarUrl: string | undefined
+      if (avatarFile) {
+        const fd = new FormData()
+        fd.append('file', avatarFile)
+        const up = await fetch(getApiUrl('api/account/avatar'), { method: 'POST', body: fd })
+        if (!up.ok) throw new Error('Failed to upload avatar')
+        const { url } = await up.json()
+        avatarUrl = url
+      }
+
+      const res = await fetch(getApiUrl('api/account/profile'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ firstName: editFirstName, lastName: editLastName, avatarUrl })
+      })
+      if (!res.ok) throw new Error('Failed to update profile')
+
+      // Optimistically update local UI
+      setIsDirty(false)
+      setAvatarFile(null)
+      if (avatarPreview) URL.revokeObjectURL(avatarPreview)
+      setAvatarPreview(null)
+
+      // Ask global auth context to refresh merged user data
+      try {
+        // optional chaining in case older context version lacks method
+        ;(useAuth() as any)?.refreshUser?.()
+      } catch {}
+    } catch (e) {
+      console.error(e)
+      alert('Failed to save changes')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   const openPortal = async (flow?: 'cancel') => {
     setIsActionLoading(true)
     try {
@@ -126,11 +204,11 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
     ? new Date(subscription.current_period_end).toLocaleDateString()
     : undefined
 
-  const sidebarItems: { key: TabKey; label: string; icon: React.ReactNode }[] = [
-    { key: 'profile', label: 'Profile', icon: <Icon variant="smilyFace" size={18} /> },
-    { key: 'subscription', label: 'Subscription', icon: <Icon variant="basket" size={18} /> },
-    { key: 'settings', label: 'Settings', icon: <Icon variant="idea" size={18} /> },
-    { key: 'support', label: 'Support', icon: <Icon variant="insights" size={18} /> },
+  const sidebarItems: { key: TabKey; label: string }[] = [
+    { key: 'profile', label: 'Profile' },
+    { key: 'subscription', label: 'Subscription' },
+    { key: 'settings2', label: 'Settings' },
+    { key: 'help', label: 'Support' },
   ]
 
   const Trigger = triggerSlot ? (
@@ -150,8 +228,33 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{Trigger}</DialogTrigger>
       <DialogContent className={styles.dialogRoot}>
-        <DialogHeader className={styles.headerBar}>
-          <DialogTitle>Account</DialogTitle>
+        <DialogHeader className={styles.headerBar} hideClose={isDirty}>
+          <div className={styles.headerCol}>
+            {isDirty && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleCancel}
+                className={styles.headerButton}
+              >
+                Cancel
+              </Button>
+            )}
+          </div>
+          <DialogTitle className={styles.headerCol + ' ' + styles.headerTitle}>Account</DialogTitle>
+          <div className={styles.headerCol}>
+            {isDirty && (
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleSave}
+                disabled={isSaving}
+                className={styles.headerButton}
+              >
+                {isSaving ? 'Saving…' : 'Save'}
+              </Button>
+            )}
+          </div>
         </DialogHeader>
         <DialogBody className={styles.bodyRoot}>
           <div className={styles.container}>
@@ -163,13 +266,24 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
                     className={`${styles.navItem} ${activeTab === item.key ? styles.active : ''}`}
                     onClick={() => setActiveTab(item.key)}
                   >
-                    <span className={styles.navIcon}>{item.icon}</span>
+                    <span className={styles.navIcon}><Icon variant={item.key} size={18} /></span>
                     <span>{item.label}</span>
                   </button>
                 ))}
               </nav>
+              <select
+                className={styles.mobileSelect}
+                value={activeTab}
+                onChange={(e) => setActiveTab(e.target.value as TabKey)}
+                aria-label="Select section"
+              >
+                {sidebarItems.map(item => (
+                  <option key={item.key} value={item.key}>{item.label}</option>
+                ))}
+              </select>
               <div className={styles.sidebarFooter}>
                 <Button variant="ghost" className={styles.signOut} onClick={() => signOut()}>
+                  <Icon variant="logout" size={18} />
                   Sign out
                 </Button>
               </div>
@@ -180,27 +294,57 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
                 <section className={styles.section}>
                   <div className={styles.sectionHeader}>
                     <h2 className={styles.title}>Profile</h2>
-                    <Avatar
-                      className={styles.profileAvatar}
-                      src={user.avatar_url ?? undefined}
-                      alt={user.email ?? 'avatar'}
-                      fallback={(user.email || '?').slice(0, 1).toUpperCase()}
+                    <div style={{ position: 'relative' }}>
+                      <Avatar
+                        className={styles.profileAvatar}
+                        src={(avatarPreview ?? user.avatar_url) ?? undefined}
+                        alt={user.email ?? 'avatar'}
+                        fallback={(user.email || '?').slice(0, 1).toUpperCase()}
+                        onClick={() => fileInputRef.current?.click()}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (!file) return
+                        setAvatarFile(file)
+                        const url = URL.createObjectURL(file)
+                        setAvatarPreview(url)
+                        setIsDirty(true)
+                      }}
                     />
                   </div>
 
                   <div className={styles.kvRow}>
                     <span className={styles.kvLabel}>First name</span>
-                    <span className={styles.kvValue}>{firstName || '—'}</span>
+                    <input
+                      className={styles.kvValue}
+                      value={editFirstName}
+                      onChange={(e) => { setEditFirstName(e.target.value); setIsDirty(true) }}
+                    />
                   </div>
                   <div className={styles.kvRow}>
                     <span className={styles.kvLabel}>Last name</span>
-                    <span className={styles.kvValue}>{lastName || '—'}</span>
+                    <input
+                      className={styles.kvValue}
+                      value={editLastName}
+                      onChange={(e) => { setEditLastName(e.target.value); setIsDirty(true) }}
+                    />
                   </div>
                   <div className={styles.kvRow}>
                     <span className={styles.kvLabel}>Email</span>
                     <span className={styles.kvValue}>
                       {user.email}
-                      <span className={styles.providerBadge}>G</span>
+                      {providerVariant && (
+                        <span className={styles.providerBadge} aria-label={providerVariant} title={providerVariant}>
+                          <Icon variant={providerVariant} size={11} />
+                        </span>
+                      )}
                     </span>
                   </div>
                 </section>
@@ -212,10 +356,14 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
 
                   <div className={styles.planRow}>
                     <div className={styles.planLeft}>
-                      <span className={styles.planDot} />
+                      <span className={styles.planDot}>
+                        {subscription?.plan_image_url && (
+                          <img src={subscription.plan_image_url} alt="plan" style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 4 }} />
+                        )}
+                      </span>
                       <div className={styles.planTexts}>
                         <div className={styles.planName}>
-                          {isLoading ? 'Loading...' : subscription?.plan_name || 'No plan'}
+                          {isLoading ? 'Loading...' : subscription ? `${subscription.plan_name} Plan` : 'No plan'}
                         </div>
                         {!isLoading && subscription && (
                           isCanceled ? (
@@ -246,7 +394,7 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
                             <>
                               <Button
                                 size="sm"
-                                variant="secondary"
+                                variant="ghost"
                                 onClick={() => openPortal()}
                                 disabled={isActionLoading}
                               >
@@ -283,9 +431,9 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
                     <div className={styles.creditsBlock}>
                       <div className={styles.creditsHeader}>
                         <span>Credit Balance</span>
-                        <button className={styles.buyCredits} onClick={onBuyCredits ?? (() => openPortal())}>
+                        <Button variant="ghost" size="sm" className={styles.buyCredits} onClick={onBuyCredits ?? (() => openPortal())}>
                           Buy credits
-                        </button>
+                        </Button>
                       </div>
                       <div className={styles.creditsValue}>
                         {isLoading ? '—' : creditBalance ?? 0}
@@ -311,7 +459,7 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
                 </section>
               )}
 
-              {activeTab === 'settings' && (
+              {activeTab === 'settings2' && (
                 <section className={styles.section}>
                   <h2 className={styles.title}>Settings</h2>
                   <div className={styles.kvRow}>
@@ -328,37 +476,50 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
                         This will erase all your data, settings, and history. This action cannot be undone.
                       </div>
                     </div>
-                    <Button variant="destructive" disabled>
+                    <Button variant="destructive" size="sm" disabled>
                       Delete Account (coming soon)
                     </Button>
                   </div>
                 </section>
               )}
 
-              {activeTab === 'support' && (
+              {activeTab === 'help' && (
                 <section className={styles.section}>
                   <h2 className={styles.title}>We're here to help</h2>
+                  <p className={styles.description}>Got questions or need assistance? We’re ready to support you every step of the way. We typically respond within 24 hours.</p>
                   <div className={styles.supportList}>
                     <div className={styles.supportItem}>
                       <div className={styles.supportLabel}>FAQ's</div>
-                      <a className={styles.supportLink} href="https://help.primeshot.ai" target="_blank" rel="noreferrer">
-                        Check out our Help Center
-                      </a>
+                      <p className={styles.supportDescription}>
+                        Check out our <a className={styles.supportLink} href="https://help.primeshot.ai" target="_blank" rel="noreferrer">Help Center</a> for quick answers to common questions.
+                      </p>
                     </div>
                     <div className={styles.supportItem}>
-                      <div className={styles.supportLabel}>DM us</div>
+                      <div className={styles.supportLabel}>
+                        <Icon variant="x" size={18} />
+                        DM US
+                      </div>
                       <a className={styles.supportLink} href="https://x.com/primeshotai" target="_blank" rel="noreferrer">
                         @primeshotai
                       </a>
                     </div>
                     <div className={styles.supportItem}>
-                      <div className={styles.supportLabel}>Email us</div>
+                      <div className={styles.supportLabel}>
+                        <Icon variant="email" size={18} />
+                        Email us
+                      </div>
                       <a className={styles.supportLink} href="mailto:support@primeshot.ai">support@primeshot.ai</a>
                     </div>
                   </div>
                 </section>
               )}
             </main>
+            <div className={styles.dialogFooter}>
+              <Button variant="ghost" className={styles.signOut} onClick={() => signOut()}>
+                <Icon variant="logout" size={18} />
+                Sign out
+              </Button>
+            </div>
           </div>
         </DialogBody>
       </DialogContent>

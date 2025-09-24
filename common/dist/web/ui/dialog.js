@@ -22,9 +22,9 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 function DialogContent({ className, children, fullscreen = false, noContainer = false, panelKeepOpen = false, contentClassName, ...props }) {
     return (_jsxs(DialogPortal, { "data-slot": "dialog-portal", children: [_jsx(DialogOverlay, { "data-panel-keepopen": panelKeepOpen ? '' : undefined }), _jsx(DialogPrimitive.Content, { "data-slot": "dialog-content", className: `${styles.dialog} ${(fullscreen || noContainer) ? styles.fullscreen : ''} ${noContainer ? styles.noContainer : ''} ${className || ''} ${contentClassName || ''}`, ...props, children: _jsx("div", { className: `${styles.content} ${contentClassName || ''}`, "data-panel-keepopen": panelKeepOpen ? '' : undefined, children: children }) })] }));
 }
-function DialogHeader({ className, children, ...props }) {
+function DialogHeader({ className, children, hideClose, ...props }) {
     const { t } = useTranslation('common');
-    return (_jsxs("div", { "data-slot": "dialog-header", className: `${styles.header} ${className || ''}`, ...props, children: [children, _jsxs(DialogPrimitive.Close, { className: styles.closeButton, children: [_jsx(Icon, { variant: "cross", size: 24, className: styles.closeIcon }), _jsx("span", { className: "sr-only", children: t('buttons.close') })] })] }));
+    return (_jsxs("div", { "data-slot": "dialog-header", className: `${styles.header} ${className || ''}`, ...props, children: [children, !hideClose && (_jsxs(DialogPrimitive.Close, { className: styles.closeButton, children: [_jsx(Icon, { variant: "cross", size: 24, className: styles.closeIcon }), _jsx("span", { className: "sr-only", children: t('buttons.close') })] }))] }));
 }
 function DialogBody({ className, children, ...props }) {
     return (_jsx("div", { className: `${styles.body} ${className || ''}`, ...props, children: children }));

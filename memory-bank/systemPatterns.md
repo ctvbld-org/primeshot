@@ -1815,6 +1815,12 @@ Detected changes in:
 - website/src/app/about/page.tsx
 - website/src/app/privacy/page.tsx
 - website/src/app/terms/page.tsx
+
+
+**Auto-update 2025-09-24**:
+Detected changes in:
+- webapp/src/app/layout.tsx
+- webapp/src/components/providers/CrispInitializer.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

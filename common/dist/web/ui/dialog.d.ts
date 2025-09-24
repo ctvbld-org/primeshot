@@ -11,7 +11,9 @@ declare function DialogContent({ className, children, fullscreen, noContainer, p
     panelKeepOpen?: boolean;
     contentClassName?: string;
 }): import("react/jsx-runtime").JSX.Element;
-declare function DialogHeader({ className, children, ...props }: React.ComponentProps<"div">): import("react/jsx-runtime").JSX.Element;
+declare function DialogHeader({ className, children, hideClose, ...props }: React.ComponentProps<"div"> & {
+    hideClose?: boolean;
+}): import("react/jsx-runtime").JSX.Element;
 declare function DialogBody({ className, children, ...props }: React.ComponentProps<"div">): import("react/jsx-runtime").JSX.Element;
 declare function DialogFooter({ className, ...props }: React.ComponentProps<"div">): import("react/jsx-runtime").JSX.Element;
 declare function DialogTitle({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Title>): import("react/jsx-runtime").JSX.Element;
