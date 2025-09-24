@@ -9,33 +9,33 @@ interface EnvironmentConfig {
   serviceKey: string
 }
 
-function requireEnv(varName: string, context: string): string {
-  const value = (process.env[varName] || '').trim()
-  if (!value) {
-    throw new Error(`${varName} is required for ${context}`)
+function firstNonEmpty(varNames: string[], context: string): string {
+  for (const name of varNames) {
+    const v = (process.env[name] || '').trim()
+    if (v) return v
   }
-  return value
+  throw new Error(`${varNames[0]} is required for ${context}`)
 }
 
 function getEnvironmentConfig(env: Environment): EnvironmentConfig {
   switch (env) {
     case 'local':
       return {
-        url: requireEnv('NEXT_PUBLIC_SUPABASE_URL', 'local'),
-        anonKey: requireEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'local'),
-        serviceKey: requireEnv('SUPABASE_SERVICE_ROLE_KEY', 'local'),
+        url: firstNonEmpty(['NEXT_PUBLIC_SUPABASE_URL'], 'local'),
+        anonKey: firstNonEmpty(['NEXT_PUBLIC_SUPABASE_ANON_KEY'], 'local'),
+        serviceKey: firstNonEmpty(['SUPABASE_SERVICE_ROLE_KEY'], 'local'),
       }
     case 'staging':
       return {
-        url: requireEnv('STAGING_SUPABASE_URL', 'staging'),
-        anonKey: requireEnv('STAGING_SUPABASE_ANON_KEY', 'staging'),
-        serviceKey: requireEnv('STAGING_SUPABASE_SERVICE_ROLE_KEY', 'staging'),
+        url: firstNonEmpty(['STAGING_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_URL'], 'staging'),
+        anonKey: firstNonEmpty(['STAGING_SUPABASE_ANON_KEY', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'], 'staging'),
+        serviceKey: firstNonEmpty(['STAGING_SUPABASE_SERVICE_ROLE_KEY', 'SUPABASE_SERVICE_ROLE_KEY'], 'staging'),
       }
     case 'production':
       return {
-        url: requireEnv('PRODUCTION_SUPABASE_URL', 'production'),
-        anonKey: requireEnv('PRODUCTION_SUPABASE_ANON_KEY', 'production'),
-        serviceKey: requireEnv('PRODUCTION_SUPABASE_SERVICE_ROLE_KEY', 'production'),
+        url: firstNonEmpty(['PRODUCTION_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_URL'], 'production'),
+        anonKey: firstNonEmpty(['PRODUCTION_SUPABASE_ANON_KEY', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'], 'production'),
+        serviceKey: firstNonEmpty(['PRODUCTION_SUPABASE_SERVICE_ROLE_KEY', 'SUPABASE_SERVICE_ROLE_KEY'], 'production'),
       }
     default:
       throw new Error(`Unknown environment: ${env}`)
