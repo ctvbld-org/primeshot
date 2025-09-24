@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react'
 import { Style } from '@/types/styles'
 import { storeSelectedStyleIndex, storeStyleSelections, type StyleSelections } from '@/lib/utils/style-storage'
-import { useStyles } from '@/hooks/useConfig'
+import { useStyles, useWardrobes } from '@/hooks/useConfig'
 
 interface StyleSelectionContextType {
   selectedStyleId: string | null
@@ -31,6 +31,7 @@ export function StyleSelectionProvider({ children }: { children: React.ReactNode
 
   // Fetch style configs to validate URL params
   const { data: styleConfigs = [] } = useStyles()
+  const { data: allWardrobes = [] } = useWardrobes()
 
   // Ensure we only initialise from URL once
   const urlInitRef = useRef(false)
@@ -49,7 +50,11 @@ export function StyleSelectionProvider({ children }: { children: React.ReactNode
       return
     }
 
-    const styleIndex = styleConfigs.findIndex((s) => s.id === styleParam)
+    const normalize = (str: string | null) => (str || '').toLowerCase().replace(/[^a-z0-9]/g, '')
+    const styleIndex = styleConfigs.findIndex((s) => {
+      // Match by exact id or by slugified name to support links like ?style=studiopro
+      return s.id === styleParam || normalize(s.name) === normalize(styleParam)
+    })
     if (styleIndex === -1) {
       // Unknown style id
       urlInitRef.current = true
@@ -62,43 +67,70 @@ export function StyleSelectionProvider({ children }: { children: React.ReactNode
 
     const selectedStyle = styleConfigs[styleIndex]
 
+    // Build case-insensitive lookup helpers for style-available arrays
+    const findCanonical = (arr: string[] | undefined, value: string | null) => {
+      if (!value || !Array.isArray(arr)) return null
+      const lower = value.toLowerCase()
+      return arr.find(v => String(v).toLowerCase() === lower) || null
+    }
+
     // Optional option params
     const sceneParam = params.get('scene')
     const wardrobeParam = params.get('wardrobe')
     const colorParam = params.get('color')
 
-    const newSelections: Partial<StyleSelections> = {}
-
-    if (
-      sceneParam &&
-      Array.isArray(selectedStyle.available_scenes) &&
-      selectedStyle.available_scenes.includes(sceneParam)
-    ) {
-      newSelections.scene = sceneParam
-    }
-
+    // If we need wardrobe catalog to validate but it's not loaded yet, wait
     if (
       wardrobeParam &&
       Array.isArray(selectedStyle.available_wardrobes) &&
-      selectedStyle.available_wardrobes.includes(wardrobeParam)
+      !selectedStyle.available_wardrobes.includes(wardrobeParam) &&
+      (!allWardrobes || allWardrobes.length === 0)
     ) {
-      newSelections.wardrobe = wardrobeParam
+      return // will rerun when allWardrobes changes
     }
 
-    if (
-      colorParam &&
-      Array.isArray(selectedStyle.available_colors) &&
-      selectedStyle.available_colors.includes(colorParam)
-    ) {
-      newSelections.color = colorParam
+    const newSelections: Partial<StyleSelections> = {}
+
+    if (sceneParam) {
+      const canonical = findCanonical(selectedStyle.available_scenes, sceneParam)
+      if (canonical) newSelections.scene = canonical
+    }
+
+    if (wardrobeParam) {
+      // Normalize to catalog value even if URL passed an id or different casing
+      const list = Array.isArray(allWardrobes) ? (allWardrobes as any[]) : []
+      const lower = wardrobeParam.toLowerCase()
+      const byValue = list.find(w => String(w?.value || '').toLowerCase() === lower) || null
+      const byId = list.find(w => w?.id === wardrobeParam) || null
+      const wardrobeValueToStore = byValue?.value || byId?.value || findCanonical(selectedStyle.available_wardrobes, wardrobeParam) || wardrobeParam
+
+      // Map style's available_wardrobes to values (supports either ids or values in DB), compare case-insensitively
+      const availableValues = Array.isArray(selectedStyle.available_wardrobes)
+        ? selectedStyle.available_wardrobes.map((k: string) => {
+            const m = list.find(w => w?.id === k || String(w?.value || '').toLowerCase() === String(k).toLowerCase())
+            return m?.value || k
+          })
+        : []
+
+      const inStyle = availableValues.map(v => String(v).toLowerCase()).includes(String(wardrobeValueToStore).toLowerCase())
+      const inCatalog = !!(byValue || byId)
+      if (inStyle || inCatalog) {
+        newSelections.wardrobe = wardrobeValueToStore
+      }
+    }
+
+    if (colorParam) {
+      const canonical = findCanonical(selectedStyle.available_colors, colorParam)
+      if (canonical) newSelections.color = canonical
     }
 
     if (Object.keys(newSelections).length > 0) {
       storeStyleSelections(selectedStyle.id, newSelections)
+      try { window.dispatchEvent(new CustomEvent('style-selections-updated', { detail: { styleId: selectedStyle.id } })) } catch {}
     }
 
     urlInitRef.current = true
-  }, [styleConfigs])
+  }, [styleConfigs, allWardrobes])
 
   // Update selectedStyleId when index changes
   useEffect(() => {

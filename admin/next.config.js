@@ -25,6 +25,7 @@ const nextConfig = {
     if (!isProd) {
       // Prefer source over dist for local development to enable HMR
       config.resolve.alias['@primeshot/common/web'] = path.resolve(__dirname, '../common/web')
+      config.resolve.alias['@primeshot/common/locales'] = path.resolve(__dirname, '../common/locales')
       config.resolve.alias['@primeshot/common/hooks'] = path.resolve(__dirname, '../common/hooks')
       config.resolve.alias['@primeshot/common/lib'] = path.resolve(__dirname, '../common/lib')
       config.resolve.alias['@primeshot/common'] = path.resolve(__dirname, '../common/index.ts')

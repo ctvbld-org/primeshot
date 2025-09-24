@@ -321,9 +321,9 @@ export function SubscriptionDialogContent({
       )}
     <div className={styles.pricingContainer}>
       {/* Context-specific header */}
-      <div className={styles.headerWrap}>
+      <div className={styles.headerWrap + ' ' + styles.headerWrapRow}>
         <div className={styles.headerSubWrap}>
-          {!isSpecialOffer && (
+          {isSpecialOffer && (
             <span className={styles.headerSub}>
               <Button variant="ghost" size="sm" iconOnly onClick={closeDialog}>
                 <Icon variant="arrowLeft" size={16} className="text-[#2ADED8]" />

@@ -13,6 +13,7 @@ import { Nav } from '@/components/layout/nav'
 import { ProductionWarningBanner } from '@/components/layout/ProductionWarningBanner'
 import { RealtimeAnalyticsProvider } from '@/contexts/RealtimeAnalyticsContext'
 import { SyncButton } from '@/components/sync/sync-button'
+import { I18nInitializer } from '@/components/providers/I18nInitializer'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -29,11 +30,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${carb.variable} ${inter.className} dark`}>
-        <AuthProvider>
-          <LanguageProvider>
-            <QueryProvider>
-              <RealtimeAnalyticsProvider>
-                <BannerProvider>
+        <I18nInitializer>
+          <AuthProvider>
+            <LanguageProvider>
+              <QueryProvider>
+                <RealtimeAnalyticsProvider>
+                  <BannerProvider>
                   <ProductionWarningBanner />
                   <Header />
                   <AdminGuard>
@@ -52,6 +54,7 @@ export default function RootLayout({
             </QueryProvider>
           </LanguageProvider>
         </AuthProvider>
+        </I18nInitializer>
       </body>
     </html>
   )

@@ -131,6 +131,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }
 
+  const signInWithAzure = async () => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }))
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'azure',
+        options: {
+          redirectTo: getCallbackUrl(),
+          scopes: 'openid email profile offline_access',
+          queryParams: { prompt: 'consent' }
+        }
+      })
+      if (error) throw error
+    } catch (error) {
+      setState(prev => ({ ...prev, error: formatAuthError(error as Error) }))
+    } finally {
+      setState(prev => ({ ...prev, isLoading: false }))
+    }
+  }
+
   const signOut = async () => {
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }))
@@ -158,6 +177,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signIn,
     signInWithGoogle,
     signInWithLinkedIn,
+    signInWithAzure,
     signOut,
     clearError
   }

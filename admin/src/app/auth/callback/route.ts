@@ -68,5 +68,5 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.redirect(`${origin}/create`)
+  return NextResponse.redirect(`${origin}/`)
 } 

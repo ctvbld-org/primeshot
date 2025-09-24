@@ -7,11 +7,15 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 // English
 import commonEn from '@primeshot/common/locales/en/common.json';
 import authEn from '@primeshot/common/locales/en/auth.json';
+import legalEn from './locales/en/legal.json';
+import aboutEn from './locales/en/about.json';
 
 export const resources = {
     en: {
         common: commonEn,
-        auth: authEn
+        auth: authEn,
+        legal: legalEn,
+        about: aboutEn
     },
 } as const;
 
@@ -31,7 +35,7 @@ i18n
       escapeValue: false,
     },
     defaultNS: 'common',
-    ns: ['common', 'auth'],
+    ns: ['common', 'auth', 'legal', 'about'],
     resources,
     detection: {
       // Order of language detection

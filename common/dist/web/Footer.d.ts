@@ -1,5 +1,6 @@
 import React from 'react';
 export interface FooterProps {
+    aboutHref?: string;
     termsHref?: string;
     privacyHref?: string;
     xHref?: string;

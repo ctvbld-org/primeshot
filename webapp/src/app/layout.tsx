@@ -16,6 +16,7 @@ import { DialogServiceProvider } from '@/contexts/DialogServiceContext'
 import { IntentHandler } from '@/components/providers/intent-handler'
 import { InferenceQueueProvider } from '@/contexts/inference-queue-context'
 import QueryParamCleaner from '@/components/shared/QueryParamCleaner'
+import { PurchaseSuccessHandler } from '@/components/providers/PurchaseSuccessHandler'
 
 const inter = Inter({
   subsets: ["latin"],
@@ -41,6 +42,7 @@ export default function RootLayout({
                   <InferenceQueueProvider>
                     <DialogServiceProvider>
                       <IntentHandler />
+                      <PurchaseSuccessHandler />
                       <QueryParamCleaner />
                       <Header rightSlot={<CreditsHeaderRight />} />
                       {children}

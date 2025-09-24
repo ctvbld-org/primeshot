@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useAuth } from '../hooks/AuthContext'
 import { useTranslation } from 'react-i18next'
 import styles from './SignInForm.module.css'
@@ -12,8 +12,33 @@ import { Icon } from './Icon'
 
 export function SignInForm() {
   const { t } = useTranslation('auth')
-  const { signIn, signInWithGoogle, signInWithLinkedIn, isLoading, error } = useAuth()
+  const { signIn, signInWithGoogle, signInWithLinkedIn, signInWithAzure, isLoading, error } = useAuth()
   const [email, setEmail] = useState('')
+  const [showEmailForm, setShowEmailForm] = useState(false)
+  const heightRef = useRef<HTMLDivElement>(null)
+  const optionsRef = useRef<HTMLDivElement>(null)
+  const emailRef = useRef<HTMLDivElement>(null)
+
+  // Measure and animate height between sections for a seamless transition
+  const updateHeight = () => {
+    const target = showEmailForm ? emailRef.current : optionsRef.current
+    if (heightRef.current && target) {
+      heightRef.current.style.height = `${target.offsetHeight}px`
+    }
+  }
+
+  useLayoutEffect(() => {
+    updateHeight()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    updateHeight()
+    const onResize = () => updateHeight()
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showEmailForm])
 
   const handleEmail = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,12 +50,22 @@ export function SignInForm() {
       <div className={styles.logoContainer}>
         <Image src={(process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/assets/logo-primeshot.svg` : '/app-images/assets/logo-primeshot.svg')} alt="Primeshot" width={64} height={64} />
       </div>
-      <div className={styles.headingContainer}>
-        <h1 className={styles.heading}>{t('signin.title')}</h1>
+      <div className={`${styles.headingContainer} ${showEmailForm ? styles.headingContainerLeft : ''}`}>
+        {showEmailForm ? (
+          <Button variant="ghost" size="sm" type="button" onClick={() => setShowEmailForm(false)}>
+            <Icon variant="arrowLeft" className="text-[#2ADED8]" size={16} />
+            <span>{t('signin.email.return', 'Return to sign in options')}</span>
+          </Button>
+        ) : (
+          <h1 className={styles.heading}>{t('signin.title')}</h1>
+        )}
       </div>
 
       <div className={styles.cardContent}>
-        <div className={styles.socialButtons}>
+        <div ref={heightRef} className={styles.heightContainer}>
+        {/* Options section */}
+        <div ref={optionsRef} className={`${styles.section} ${showEmailForm ? styles.sectionHidden : styles.sectionVisible}`}>
+          <div className={styles.socialButtons}>
           <Button
             variant="primary"
             className={styles.socialButton}
@@ -44,6 +79,20 @@ export function SignInForm() {
               <path d="M8.6427 3.70665C9.98395 3.70665 10.8887 4.27442 11.4046 4.7489L13.4205 2.82C12.1824 1.69222 10.5712 1 8.6427 1C5.84902 1 3.43631 2.5711 2.26172 4.85775L4.57124 6.61555C5.15066 4.92777 6.75382 3.70665 8.6427 3.70665Z" fill="#EB4335"/>
             </svg>
             <span>{t('signin.google.button')}</span>
+          </Button>
+          <Button
+            variant="primary"
+            className={styles.socialButton}
+            onClick={() => signInWithAzure()}
+            disabled={isLoading}
+          >
+            <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="9" y="8.5" width="5" height="5" fill="#FEBA08"/>
+              <rect x="3" y="8.5" width="5" height="5" fill="#05A6F0"/>
+              <rect x="9" y="2.5" width="5" height="5" fill="#80BC06"/>
+              <rect x="3" y="2.5" width="5" height="5" fill="#F25325"/>
+            </svg>
+            <span>{t('signin.microsoft.button')}</span>
           </Button>
           <Button
             variant="primary"
@@ -66,33 +115,50 @@ export function SignInForm() {
             <svg width="24" height="24" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452H17.24v-5.569c0-1.328-.025-3.037-1.852-3.037-1.853 0-2.135 1.445-2.135 2.935v5.671H9.046V9h3.072v1.561h.043c.428-.81 1.473-1.66 3.034-1.66 3.245 0 3.843 2.136 3.843 4.917v6.633zM5.337 7.433a1.792 1.792 0 110-3.585 1.792 1.792 0 010 3.585zM6.863 20.452H3.806V9h3.057v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.728v20.543C0 23.225.792 24 1.771 24h20.451C23.205 24 24 23.225 24 22.271V1.728C24 .774 23.205 0 22.225 0z"/></svg>
             <span>{t('signin.linkedin.button')}</span>
           </Button>
-        </div>
+          </div>
 
-        <div className={styles.divider}>
-          <span className={styles.dividerLine}></span>
-          <span className={styles.dividerText}>{t('signin.divider.text')}</span>
-          <span className={styles.dividerLine}></span>
-        </div>
+          <div className={styles.divider}>
+            <span className={styles.dividerLine}></span>
+            <span className={styles.dividerText}>{t('signin.divider.text')}</span>
+            <span className={styles.dividerLine}></span>
+          </div>
 
-        <form onSubmit={handleEmail} className={styles.form}>
-          <Input
-            type="email"
-            placeholder={t('signin.emailInput.placeholder')}
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
-          />
-          {error && <p className={styles.errorMessage}>{error.message}</p>}
           <Button
             variant="primary"
-            className={styles.submitButton}
-            type="submit"
+            className={styles.emailButton}
+            onClick={() => setShowEmailForm(true)}
             disabled={isLoading}
           >
-            {t('signin.emailInput.sendButton')}
-            <Icon variant="arrowRight" className={styles.arrowRight} />
+            <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="16" height="16" transform="translate(0.5)" fill="white" style={{ mixBlendMode: 'multiply' }}/>
+              <path d="M14.5 3H2.5C2.23478 3 1.98043 3.10536 1.79289 3.29289C1.60536 3.48043 1.5 3.73478 1.5 4V12C1.5 12.2652 1.60536 12.5196 1.79289 12.7071C1.98043 12.8946 2.23478 13 2.5 13H14.5C14.7652 13 15.0196 12.8946 15.2071 12.7071C15.3946 12.5196 15.5 12.2652 15.5 12V4C15.5 3.73478 15.3946 3.48043 15.2071 3.29289C15.0196 3.10536 14.7652 3 14.5 3ZM13.4 4L8.5 7.39L3.6 4H13.4ZM2.5 12V4.455L8.215 8.41C8.2987 8.46806 8.39813 8.49918 8.5 8.49918C8.60187 8.49918 8.7013 8.46806 8.785 8.41L14.5 4.455V12H2.5Z" fill="#161616"/>
+            </svg>
+            <span>{t('signin.email.button')}</span>
           </Button>
-        </form>
+        </div>
+
+        {/* Email form section */}
+        <div ref={emailRef} className={`${styles.section} ${showEmailForm ? styles.sectionVisible : styles.sectionHidden}`}>
+          <form onSubmit={handleEmail} className={styles.form}>
+            <Input
+              type="email"
+              placeholder={t('signin.emailInput.placeholder')}
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+            />
+            {error && <p className={styles.errorMessage}>{error.message}</p>}
+            <Button
+              variant="primary"
+              className={styles.submitButton}
+              type="submit"
+              disabled={isLoading}
+            >
+              {t('signin.emailInput.sendButton')}
+            </Button>
+          </form>
+        </div>
+        </div>
       </div>
 
       <p className={styles.terms}>

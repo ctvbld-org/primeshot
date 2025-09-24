@@ -162,6 +162,17 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
     return { scene: sceneLabel, wardrobe: wardrobeLabel, color: colorLabel }
   }, [currentStyle?.id, scenes, wardrobes, colors, selectedStyleIndex, selectionVersion])
 
+  // Refresh labels/UI when selections change externally (e.g., via URL init)
+  useEffect(() => {
+    const bump = () => setSelectionVersion(v => v + 1)
+    try { window.addEventListener('style-selections-updated', bump as any) } catch {}
+    try { window.addEventListener('storage', bump) } catch {}
+    return () => {
+      try { window.removeEventListener('style-selections-updated', bump as any) } catch {}
+      try { window.removeEventListener('storage', bump) } catch {}
+    }
+  }, [])
+
   const checkSticky = useCallback(() => {
     const el = barRef.current
     const container = document.querySelector('[data-styles-container]') as HTMLElement | null

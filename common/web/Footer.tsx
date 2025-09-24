@@ -8,6 +8,7 @@ import styles from './Footer.module.css'
 import { Icon } from './Icon'
 
 export interface FooterProps {
+  aboutHref?: string
   termsHref?: string
   privacyHref?: string
   xHref?: string
@@ -16,6 +17,7 @@ export interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({
+  aboutHref = '/about',
   termsHref = '/terms',
   privacyHref = '/privacy',
   xHref = 'https://x.com/primeshotai',
@@ -36,8 +38,9 @@ export const Footer: React.FC<FooterProps> = ({
             </div>
         </div>
 
-        <div className={styles.right}>
-          <Link className={styles.link} href={termsHref}>{t('footer.terms')}</Link>
+          <div className={styles.right}>
+            <Link className={styles.link} href={aboutHref}>{t('footer.about')}</Link>
+            <Link className={styles.link} href={termsHref}>{t('footer.terms')}</Link>
           <Link className={styles.link} href={privacyHref}>{t('footer.privacy')}</Link>
           <div className={styles.socialIcons}>
                 <a className={styles.iconLink} href={xHref} target="_blank" rel="noopener noreferrer" aria-label="X">

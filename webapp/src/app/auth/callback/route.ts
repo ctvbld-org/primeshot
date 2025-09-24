@@ -7,6 +7,7 @@ export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
   const origin = requestUrl.origin
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH
 
   if (code) {
     const cookieStore = await cookies()
@@ -46,7 +47,7 @@ export async function GET(request: Request) {
         }
 
         // Create a new response with the redirect
-        const targetPath = (process.env.NEXT_PUBLIC_BASE_PATH || '/')
+        const targetPath = (basePath || '/')
         const app_url = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
         const response = NextResponse.redirect(new URL(targetPath, app_url))
@@ -61,12 +62,12 @@ export async function GET(request: Request) {
       }
       
       // If no user, redirect to home
-      return NextResponse.redirect(new URL('/', requestUrl.origin))
+      return NextResponse.redirect(new URL(basePath || '/', requestUrl.origin))
     } catch (error) {
       console.error('Auth callback error:', error)
-      return NextResponse.redirect(`${origin}/auth/auth-code-error`)
+      return NextResponse.redirect(`${origin}${basePath || '/'}auth/auth-code-error`)
     }
   }
 
-  return NextResponse.redirect(`${origin}/create`)
+  return NextResponse.redirect(`${origin}${basePath || '/'}`)
 } 

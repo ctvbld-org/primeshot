@@ -24,7 +24,7 @@ export function StylesCarousel() {
   const [initialIndexSet, setInitialIndexSet] = useState(false)
   
   // Import and use the style selection context
-  const { setSelectedStyleIndex, setStylesData } = useStyleSelection()
+  const { selectedStyleIndex, setSelectedStyleIndex, setStylesData } = useStyleSelection()
 
   // Validate style configs and transform to expected format (no gender filtering)
   const photographyStyleOptions = useMemo(() => {
@@ -116,6 +116,16 @@ export function StylesCarousel() {
       setStylesData(photographyStyleOptions)
     }
   }, [photographyStyleOptions, setStylesData])
+
+  // Reflect context-driven selection changes (e.g., URL params) in the carousel UI
+  useEffect(() => {
+    if (!emblaApi) return
+    if (typeof selectedStyleIndex !== 'number') return
+    if (selectedIndex === selectedStyleIndex) return
+    // Update local state and scroll carousel to match context
+    setSelectedIndex(selectedStyleIndex)
+    emblaApi.scrollTo(selectedStyleIndex, true)
+  }, [selectedStyleIndex, emblaApi, selectedIndex])
 
   const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev()

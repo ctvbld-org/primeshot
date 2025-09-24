@@ -27,6 +27,12 @@
   gap: 20px;
 }
 
+.headerWrapRow {
+  flex-direction: row;
+  align-items: end;
+  justify-content: space-between;
+}
+
 .toggle button {
   padding: 0 12px;
 }

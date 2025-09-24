@@ -1760,6 +1760,38 @@ Detected changes in:
 - webapp/src/components/pricing/SubscriptionDialogContent.module.css
 - webapp/src/components/style/StylesCarousel.module.css
 - webapp/src/components/upload/UploadFooter.module.css
+
+
+**Auto-update 2025-09-23**:
+Detected changes in:
+- admin/src/app/api/upload/route.ts
+- admin/src/components/subscriptions/credit-pack-form-dialog.tsx
+- admin/src/components/subscriptions/subscription-form-dialog.tsx
+- admin/src/components/ui/image-upload.tsx
+- webapp/src/app/favourites/page.tsx
+- webapp/src/app/favourites/styles.module.css
+- webapp/src/app/globals.css
+- webapp/src/app/layout.tsx
+- webapp/src/app/page.tsx
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/generate/GenerateBar.module.css
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/generate/useCreateCharacter.tsx
+- webapp/src/components/header/CreditsHeaderRight.module.css
+- webapp/src/components/header/CreditsHeaderRight.tsx
+- webapp/src/components/inference/GalleryPlaceholder.tsx
+- webapp/src/components/inference/InferenceImageViewerDialog.module.css
+- webapp/src/components/inference/InferenceImageViewerDialog.tsx
+- webapp/src/components/inference/InferenceJobGroup.tsx
+- webapp/src/components/inference/InferenceThumbnail.tsx
+- webapp/src/components/pricing/CreditPackDialogContent.tsx
+- webapp/src/components/pricing/CreditPackPricing.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.module.css
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/pricing/UpgradeConfirmationDialog.tsx
+- webapp/src/components/pricing/utils.tsx
+- webapp/src/contexts/DialogServiceContext.tsx
+- webapp/src/lib/services/confirmationService.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

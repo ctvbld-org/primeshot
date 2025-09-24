@@ -119,7 +119,7 @@ i18n
       escapeValue: false,
     },
     defaultNS: 'common',
-    ns: ['common', 'payment', 'albums', 'styles', 'auth', 'profile', 'upload', 'review', 'settings'],
+    ns: ['common', 'auth'],
     resources,
     detection: {
       // Order of language detection
