@@ -9,25 +9,33 @@ interface EnvironmentConfig {
   serviceKey: string
 }
 
+function requireEnv(varName: string, context: string): string {
+  const value = (process.env[varName] || '').trim()
+  if (!value) {
+    throw new Error(`${varName} is required for ${context}`)
+  }
+  return value
+}
+
 function getEnvironmentConfig(env: Environment): EnvironmentConfig {
   switch (env) {
     case 'local':
       return {
-        url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        serviceKey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        url: requireEnv('NEXT_PUBLIC_SUPABASE_URL', 'local'),
+        anonKey: requireEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'local'),
+        serviceKey: requireEnv('SUPABASE_SERVICE_ROLE_KEY', 'local'),
       }
     case 'staging':
       return {
-        url: process.env.STAGING_SUPABASE_URL!,
-        anonKey: process.env.STAGING_SUPABASE_ANON_KEY!,
-        serviceKey: process.env.STAGING_SUPABASE_SERVICE_ROLE_KEY!,
+        url: requireEnv('STAGING_SUPABASE_URL', 'staging'),
+        anonKey: requireEnv('STAGING_SUPABASE_ANON_KEY', 'staging'),
+        serviceKey: requireEnv('STAGING_SUPABASE_SERVICE_ROLE_KEY', 'staging'),
       }
     case 'production':
       return {
-        url: process.env.PRODUCTION_SUPABASE_URL!,
-        anonKey: process.env.PRODUCTION_SUPABASE_ANON_KEY!,
-        serviceKey: process.env.PRODUCTION_SUPABASE_SERVICE_ROLE_KEY!,
+        url: requireEnv('PRODUCTION_SUPABASE_URL', 'production'),
+        anonKey: requireEnv('PRODUCTION_SUPABASE_ANON_KEY', 'production'),
+        serviceKey: requireEnv('PRODUCTION_SUPABASE_SERVICE_ROLE_KEY', 'production'),
       }
     default:
       throw new Error(`Unknown environment: ${env}`)
