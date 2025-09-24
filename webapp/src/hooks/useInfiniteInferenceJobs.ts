@@ -46,6 +46,8 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
       return;
     }
 
+    // Ensure loading state is true while fetching initial data for an authenticated user
+    setIsLoading(true);
     try {
       setError(null);
       const { 
@@ -438,6 +440,7 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
       setError(err instanceof Error ? err.message : 'Failed to load more jobs');
     } finally {
       setIsLoadingMore(false);
+      setIsLoading(false);
     }
   }, [user?.id, isLoadingMore, hasMore, offset, jobs, totalCount]);
 

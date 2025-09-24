@@ -66,7 +66,9 @@ export async function executSync(request: SyncRequest): Promise<SyncResult> {
       }
       
       // Use correct primary key for each table type
-      const pk: 'id' | 'key' = table === 'inference_settings' ? 'key' : 'id'
+      const pk: 'id' | 'key' | 'value' = ['style_scenes', 'style_wardrobes', 'style_colors'].includes(table)
+        ? 'value'
+        : (table === 'inference_settings' ? 'key' : 'id')
       const sourceMap = new Map((sourceData.data as any[] || []).map((r: any) => [r[pk], r]))
       const targetMap = new Map((targetData.data as any[] || []).map((r: any) => [r[pk], r]))
       
@@ -77,33 +79,33 @@ export async function executSync(request: SyncRequest): Promise<SyncResult> {
           const targetRecord = targetMap.get(changeId)
           
           if (sourceRecord && !targetRecord) {
-            // CREATE operation
+            // CREATE operation via upsert to respect natural unique keys
             console.log(`Creating record ${changeId} in ${table}`)
             const { created_at, updated_at, ...recordData } = sourceRecord
-            // Inference settings uses key PK; ensure id is not sent if not present
-            
-            const { error: insertError } = await targetClient
+            const onConflict = ['style_scenes', 'style_wardrobes', 'style_colors'].includes(table) ? 'value' : (table === 'inference_settings' ? 'key' : 'id')
+
+            const { error: upsertError } = await targetClient
               .from(table as SyncableTable)
-              .insert(recordData as any)
-            
-            if (insertError) {
-              throw new Error(`Failed to create record ${changeId}: ${insertError.message}`)
+              .upsert(recordData as any, { onConflict })
+
+            if (upsertError) {
+              throw new Error(`Failed to create record ${changeId}: ${upsertError.message}`)
             }
-            
+
           } else if (sourceRecord && targetRecord) {
-            // UPDATE operation
+            // UPDATE operation via upsert to simplify and avoid key mismatches
             console.log(`Updating record ${changeId} in ${table}`)
             const { created_at, updated_at, ...recordData } = sourceRecord
-            
-            const { error: updateError } = await targetClient
+            const onConflict = ['style_scenes', 'style_wardrobes', 'style_colors'].includes(table) ? 'value' : (table === 'inference_settings' ? 'key' : 'id')
+
+            const { error: upsertError } = await targetClient
               .from(table as SyncableTable)
-              .update(recordData as any)
-              .eq(['inference_settings'].includes(table) ? 'key' : 'id', changeId as any)
-            
-            if (updateError) {
-              throw new Error(`Failed to update record ${changeId}: ${updateError.message}`)
+              .upsert(recordData as any, { onConflict })
+
+            if (upsertError) {
+              throw new Error(`Failed to update record ${changeId}: ${upsertError.message}`)
             }
-            
+
           } else if (!sourceRecord && targetRecord) {
             // DELETE operation
             console.log(`Deleting record ${changeId} from ${table}`)
@@ -111,7 +113,9 @@ export async function executSync(request: SyncRequest): Promise<SyncResult> {
             const { error: deleteError } = await targetClient
               .from(table as SyncableTable)
               .delete()
-              .eq(['inference_settings'].includes(table) ? 'key' : 'id', changeId as any)
+              .eq(['style_scenes', 'style_wardrobes', 'style_colors'].includes(table)
+                ? 'value'
+                : (table === 'inference_settings' ? 'key' : 'id'), changeId as any)
             
             if (deleteError) {
               throw new Error(`Failed to delete record ${changeId}: ${deleteError.message}`)

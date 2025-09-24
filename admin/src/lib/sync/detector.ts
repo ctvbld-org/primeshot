@@ -114,7 +114,11 @@ function compareRecords(
   table: SyncableTable
 ): TableChange[] {
   const changes: TableChange[] = []
-  const pk: 'id' | 'key' = table === 'inference_settings' ? 'key' : 'id'
+  // Use natural unique keys for style tables so cross-environment ids don't cause false "creates"
+  const pk: 'id' | 'key' | 'value' =
+    table === 'inference_settings' ? 'key'
+    : ['style_scenes', 'style_wardrobes', 'style_colors'].includes(table) ? 'value'
+    : 'id'
   const targetMap = new Map(targetRecords.map(record => [record[pk] as any, record]))
   const sourceMap = new Map(sourceRecords.map(record => [record[pk] as any, record]))
   
