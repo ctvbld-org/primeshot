@@ -107,19 +107,34 @@ async function syncStyleTableRecord(
     }
     
     console.log(`Updating ${table} record with ID: ${targetRecord.id}, value: ${recordData.value}`)
+    console.log(`Target record current data:`, JSON.stringify(targetRecord, null, 2))
+    console.log(`Source record data to apply:`, JSON.stringify(recordData, null, 2))
+    
+    // Preserve the target ID in the update data to ensure no ID change
+    const updateData = { ...recordData, id: targetRecord.id }
     
     const { error } = await targetClient
       .from(table)
-      .update(recordData)
+      .update(updateData)
       .eq('id', targetRecord.id)
     
     if (error) {
+      console.error(`Update failed for ${table} record ID ${targetRecord.id}:`, error)
+      
+      // Check for foreign key constraint violations
+      if (error.message.includes('foreign key constraint')) {
+        throw new Error(`Cannot update ${table} record: it would violate foreign key constraints. This suggests there are dependent records that reference this ${table} record.`)
+      }
+      
       // Check for unique constraint violations
       if (error.message.includes('duplicate key') || error.message.includes('unique constraint')) {
         throw new Error(`${table} record with value '${recordData.value}' already exists`)
       }
+      
       throw new Error(`Failed to update ${table} record: ${error.message}`)
     }
+    
+    console.log(`Successfully updated ${table} record ID: ${targetRecord.id}`)
   }
 }
 
@@ -253,6 +268,11 @@ export async function executSync(request: SyncRequest): Promise<SyncResult> {
           
           const isStyleTable = ['style_scenes', 'style_wardrobes', 'style_colors'].includes(table)
           
+          console.log(`Processing ${table} record with changeId: ${changeId}`)
+          console.log(`Source record found: ${!!sourceRecord}, Target record found: ${!!targetRecord}`)
+          if (sourceRecord) console.log(`Source record ID: ${sourceRecord.id}`)
+          if (targetRecord) console.log(`Target record ID: ${targetRecord.id}`)
+          
           if (sourceRecord && !targetRecord) {
             // CREATE operation
             console.log(`Creating record ${changeId} in ${table}`)
@@ -275,6 +295,7 @@ export async function executSync(request: SyncRequest): Promise<SyncResult> {
           } else if (sourceRecord && targetRecord) {
             // UPDATE operation
             console.log(`Updating record ${changeId} in ${table}`)
+            console.log(`Will preserve target ID: ${targetRecord.id} while updating with source data`)
             
             if (isStyleTable) {
               await syncStyleTableRecord(sourceRecord, targetRecord, table as SyncableTable, targetClient, 'update')
@@ -294,6 +315,7 @@ export async function executSync(request: SyncRequest): Promise<SyncResult> {
           } else if (!sourceRecord && targetRecord) {
             // DELETE operation
             console.log(`Deleting record ${changeId} from ${table}`)
+            console.log(`Target record to delete has ID: ${targetRecord.id}`)
             
             if (isStyleTable) {
               await syncStyleTableRecord(null, targetRecord, table as SyncableTable, targetClient, 'delete')
