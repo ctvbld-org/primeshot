@@ -42,17 +42,23 @@ function getApiUrl(path: string): string {
     if (typeof window !== 'undefined') {
       const currentPath = window.location.pathname
       
-      // Handle /create basePath
-      if (currentPath.startsWith('/create')) {
-        return `/create${normalized}`
-      }
-      
-      // Handle language prefixes: API routes should never have language prefixes
-      // Check if current path has a language prefix pattern (e.g., /en/, /fr/, /de/)
+      // Check for language prefixes first
       const langPrefixMatch = currentPath.match(/^\/(\w{2})\//)
       if (langPrefixMatch) {
-        // For language prefixes, we still want to use the normalized path without the prefix
-        return normalized
+        // Language prefix detected - construct absolute URL to bypass language routing
+        const origin = window.location.origin
+        
+        // Check if we need /create basePath
+        if (currentPath.includes('/create')) {
+          return `${origin}/create${normalized}`
+        }
+        
+        return `${origin}${normalized}`
+      }
+      
+      // Handle /create basePath (no language prefix)
+      if (currentPath.startsWith('/create')) {
+        return `/create${normalized}`
       }
     }
   } catch {}

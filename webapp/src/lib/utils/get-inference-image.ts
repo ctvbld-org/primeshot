@@ -148,16 +148,18 @@ export function getInferenceImageUrl(imagePath: string, useWebVariant: boolean =
   const getApiUrl = (typeof window !== 'undefined') ? (() => {
     const currentPath = window.location.pathname;
     
-    // Check for /create basePath first
-    if (currentPath.startsWith('/create')) {
-      return (path: string) => `/create${path}`;
-    }
-    
-    // Check for language prefixes (e.g., /en/, /fr/, /de/)
+    // Check for language prefixes first
     const langPrefixMatch = currentPath.match(/^\/(\w{2})\//);
     if (langPrefixMatch) {
-      // For language prefixes, don't include them in API URLs
-      return (path: string) => path;
+      // Language prefix detected - construct absolute URL to bypass language routing
+      const origin = window.location.origin;
+      const basePath = process.env.NEXT_PUBLIC_BASE_PATH === '/' ? '' : process.env.NEXT_PUBLIC_BASE_PATH;
+      return (path: string) => `${origin}${basePath || ''}${path}`;
+    }
+    
+    // Check for /create basePath (no language prefix)
+    if (currentPath.startsWith('/create')) {
+      return (path: string) => `/create${path}`;
     }
     
     return (path: string) => path;

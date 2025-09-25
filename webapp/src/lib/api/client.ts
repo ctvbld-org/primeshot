@@ -11,8 +11,7 @@ export function getApiUrl(path: string): string {
   let basePath = process.env.NEXT_PUBLIC_BASE_PATH === '/' ? '' : process.env.NEXT_PUBLIC_BASE_PATH
   
   // Handle language prefixes: API routes should never have language prefixes
-  // If we're on a page with a language prefix (like /en/), we need to detect it
-  // and ensure API calls don't include it
+  // For staging/production with language routing, construct absolute URLs to bypass routing issues
   if (typeof window !== 'undefined') {
     const currentPath = window.location.pathname
     
@@ -20,14 +19,24 @@ export function getApiUrl(path: string): string {
     const langPrefixMatch = currentPath.match(/^\/(\w{2})\//)
     
     if (langPrefixMatch) {
-      // If we have a base path that already includes the language prefix, remove it
-      const langPrefix = `/${langPrefixMatch[1]}`
-      if (basePath && basePath.startsWith(langPrefix)) {
-        basePath = basePath.slice(langPrefix.length) || ''
-      }
+      // Language prefix detected - construct absolute URL to bypass language routing
+      const origin = window.location.origin
+      const targetPath = `${basePath || ''}/${cleanPath}`
+      const absoluteUrl = `${origin}${targetPath}`
+      
+      console.log('[getApiUrl] Language prefix detected, using absolute URL:', {
+        currentPath,
+        langPrefix: langPrefixMatch[1],
+        basePath,
+        targetPath,
+        absoluteUrl
+      })
+      
+      return absoluteUrl
     }
   }
   
+  // No language prefix detected, use relative URL
   return `${basePath || ''}/${cleanPath}`
 }
 
