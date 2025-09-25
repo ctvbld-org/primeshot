@@ -154,7 +154,7 @@ export function getInferenceImageUrl(imagePath: string, useWebVariant: boolean =
     }
     
     // Check for language prefixes (e.g., /en/, /fr/, /de/)
-    const langPrefixMatch = currentPath.match(/^\/(\w{2})\/)/);
+    const langPrefixMatch = currentPath.match(/^\/(\w{2})\//);
     if (langPrefixMatch) {
       // For language prefixes, don't include them in API URLs
       return (path: string) => path;
