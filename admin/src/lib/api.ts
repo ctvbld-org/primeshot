@@ -30,7 +30,7 @@ export function getBasePath(): string {
 }
 
 export function getApiUrl(path: string): string {
-  let base = getBasePath()
+  const base = getBasePath()
   
   // Handle language prefixes: API routes should never have language prefixes
   if (typeof window !== 'undefined') {

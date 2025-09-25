@@ -8,7 +8,7 @@ export function getApiUrl(path: string): string {
   const cleanPath = path.startsWith('/') ? path.slice(1) : path
   
   // Get base path from environment
-  let basePath = process.env.NEXT_PUBLIC_BASE_PATH === '/' ? '' : process.env.NEXT_PUBLIC_BASE_PATH
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH === '/' ? '' : process.env.NEXT_PUBLIC_BASE_PATH
   
   // Handle language prefixes: API routes should never have language prefixes
   // For staging/production with language routing, construct absolute URLs to bypass routing issues
