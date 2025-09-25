@@ -24,14 +24,6 @@ export function getApiUrl(path: string): string {
       const targetPath = `${basePath || ''}/${cleanPath}`
       const absoluteUrl = `${origin}${targetPath}`
       
-      console.log('[getApiUrl] Language prefix detected, using absolute URL:', {
-        currentPath,
-        langPrefix: langPrefixMatch[1],
-        basePath,
-        targetPath,
-        absoluteUrl
-      })
-      
       return absoluteUrl
     }
   }
