@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useMemo, forwardRef } from 'react'
+import React, { useState, useMemo, forwardRef, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog'
@@ -11,15 +11,15 @@ import styles from './LanguageSwitcher.module.css'
 import { Icon } from './Icon'
 
 const baseLanguageMeta: Record<string, { label: string; countryCode: string; country: string }> = {
-  'en-GB': { label: 'English', countryCode: 'GB', country: 'United Kingdom' },
-  zh: { label: '中文', countryCode: 'CN', country: '中国' },
-  es: { label: 'Español', countryCode: 'ES', country: 'España' },
-  fr: { label: 'Français', countryCode: 'FR', country: 'France' },
-  pt: { label: 'Português', countryCode: 'PT', country: 'Portugal' },
-  de: { label: 'Deutsch', countryCode: 'DE', country: 'Deutschland' },
-  ja: { label: '日本語', countryCode: 'JP', country: '日本' },
-  it: { label: 'Italiano', countryCode: 'IT', country: 'Italia' },
-  nl: { label: 'Dutch', countryCode: 'NL', country: 'Nederland' }
+  'en': { label: 'English', countryCode: 'GB', country: 'United Kingdom' },
+  'cn': { label: '中文', countryCode: 'CN', country: '中国' },
+  'es': { label: 'Español', countryCode: 'ES', country: 'España' },
+  'fr': { label: 'Français', countryCode: 'FR', country: 'France' },
+  'pt': { label: 'Português', countryCode: 'PT', country: 'Portugal' },
+  'de': { label: 'Deutsch', countryCode: 'DE', country: 'Deutschland' },
+  'jp': { label: '日本語', countryCode: 'JP', country: '日本' },
+  'it': { label: 'Italiano', countryCode: 'IT', country: 'Italia' },
+  'nl': { label: 'Dutch', countryCode: 'NL', country: 'Nederland' }
 }
 
 interface Props {
@@ -36,6 +36,8 @@ interface Props {
   countryByLang?: Partial<Record<string, string>>
   /** Optional icon rendered at the end of the trigger content */
   endIcon?: React.ReactNode
+  /** Optional className for the component */
+  className?: string
 }
 
 export function LanguageSwitcher({
@@ -45,11 +47,15 @@ export function LanguageSwitcher({
   flagSize = 16,
   showListFlags = true,
   countryByLang,
-  endIcon
+  endIcon,
+  className
 }: Props) {
   const { t, i18n } = useTranslation()
   const { currentLanguage, isLoading, setLanguage } = useLanguage()
   const [open, setOpen] = useState(false)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const popoverRef = useRef<HTMLDivElement>(null)
+  const [triggerWidth, setTriggerWidth] = useState<number>(0)
 
   const languageMeta = useMemo(() => {
     if (!countryByLang) return baseLanguageMeta
@@ -64,6 +70,18 @@ export function LanguageSwitcher({
     const supported = (i18n.options.supportedLngs || []).filter((lng: string) => lng !== 'cimode')
     return supported.map(lng => ({ label: languageMeta[lng]?.label || lng, value: lng }))
   }, [i18n.options.supportedLngs, languageMeta])
+
+  // Update trigger width when component mounts or language changes
+  useEffect(() => {
+    if (triggerRef.current) {
+      setTriggerWidth(triggerRef.current.offsetWidth)
+    }
+  }, [currentLanguage, open])
+
+  // Calculate the offset needed to align selected language with trigger
+  const selectedLanguageIndex = languages.findIndex(lang => lang.value === currentLanguage)
+  // Each item is 48px height + 4px gap, plus 4px top padding of popover
+  const selectedLanguageOffset = selectedLanguageIndex >= 0 ? (selectedLanguageIndex * 52) + 4 : 0
 
   const renderFlag = (lng?: string, size = flagSize, className?: string) => {
     if (!lng) return null
@@ -135,9 +153,17 @@ export function LanguageSwitcher({
           {...props}
           variant="ghost"
           size="sm"
-          ref={ref}
+          ref={(node) => {
+            if (typeof ref === 'function') {
+              ref(node)
+            } else if (ref) {
+              ref.current = node
+            }
+            triggerRef.current = node
+          }}
           role="combobox"
           aria-expanded={open}
+          className={className}
         >
           {content}
           {endIcon}
@@ -167,7 +193,18 @@ export function LanguageSwitcher({
       <PopoverTrigger asChild>
         <TriggerButton />
       </PopoverTrigger>
-      <PopoverContent className={styles.popoverContent}>
+      <PopoverContent 
+        className={styles.popoverContent}
+        ref={popoverRef}
+        style={{
+          width: triggerWidth > 0 ? `${triggerWidth}px` : 'auto',
+          transform: `translateY(-${selectedLanguageOffset}px)`,
+          transformOrigin: 'top left'
+        }}
+        align="start"
+        sideOffset={0}
+        avoidCollisions={false}
+      >
         <LanguageList />
       </PopoverContent>
     </Popover>

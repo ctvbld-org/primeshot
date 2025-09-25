@@ -54,8 +54,8 @@ export async function POST(request: NextRequest) {
       pt: 'Portuguese',
       de: 'German',
       nl: 'Dutch',
-      zh: 'Chinese',
-      ja: 'Japanese',
+      cn: 'Chinese',
+      jp: 'Japanese',
     }
 
     // For each row, build the translation fields
@@ -63,12 +63,77 @@ export async function POST(request: NextRequest) {
     for (const row of rows) {
       const fields = columns.map((col) => ({ key: col, value: row[col] }))
       const originalContent = fields.map((field) => `${field.key}: ${field.value}`).join('\n')
-      const prompt = `You are a professional translator for a photography app.\n\n${guidelines}\n\nOriginal content in English:\n${originalContent}\n\nPlease provide accurate, natural-sounding translations for the following languages: ${targetLanguages.map((code: string) => languageNames[code]).join(', ')}.\n\nReturn the translations in JSON format like this:\n{\n  \"es\": {\n    \"field_key\": \"translated_value\"\n  },\n  \"fr\": {\n    \"field_key\": \"translated_value\"\n  }\n}\nOnly include the languages requested. Make sure all field keys from the original content are translated.`
+      const prompt = `You are a professional translator specializing in photography, fashion, and lifestyle content for Primeshot, a premium AI photography platform.
+
+BRAND VOICE: Professional yet friendly, simple yet premium, playful yet trustworthy. Think of a talented photographer friend who is confident in their craft, approachable in tone, respectful of privacy, and lightly playful.
+
+DOMAIN CONTEXT: You are translating content for a photography app that creates professional portraits and headshots. This includes:
+- Photography style names (e.g., "Corporate", "Creative", "Lifestyle")
+- Color names in fashion/photography context (e.g., "Dusty Pink" → "Rose poudré" not "Vieux Rose")
+- Wardrobe and styling terminology
+- Scene and setting descriptions
+- Subscription and pricing content
+
+TRANSLATION REQUIREMENTS:
+1. ACCURACY: Preserve meaning while adapting to cultural context
+2. NATURALNESS: Sound like a native speaker wrote it originally
+3. BRAND CONSISTENCY: Maintain Primeshot's friendly-professional tone
+4. DOMAIN EXPERTISE: Use proper photography/fashion terminology
+5. CULTURAL ADAPTATION: Follow language-specific guidelines below
+
+LANGUAGE-SPECIFIC GUIDELINES:
+${guidelines}
+
+SPECIAL ATTENTION FOR COLORS & STYLES:
+- Color names should reflect fashion/beauty industry standards, not literal translations
+- Use terms that fashion professionals and consumers would recognize
+- Photography styles should sound professional yet accessible
+- Avoid awkward literal translations - prioritize natural, industry-standard terms
+
+COLOR TRANSLATION EXAMPLES (use these as reference for similar colors):
+- "Dusty Pink" → French: "Rose poudré", Spanish: "Rosa suave", German: "Puderrosa", Italian: "Rosa cipria"
+- "Dusty Rose" → French: "Rose poudré", Spanish: "Rosa suave", German: "Puderrosa", Italian: "Rosa antico"
+- "Sage Green" → French: "Vert sauge", Spanish: "Verde salvia", German: "Salbeigrün", Italian: "Verde salvia"
+- "Navy Blue" → French: "Bleu marine", Spanish: "Azul marino", German: "Marineblau", Italian: "Blu navy"
+- "Cream" → French: "Crème", Spanish: "Crema", German: "Creme", Italian: "Crema"
+- "Charcoal" → French: "Anthracite", Spanish: "Antracita", German: "Anthrazit", Italian: "Antracite"
+
+AVOID these literal/awkward translations:
+- "Vieux rose" (sounds dated in French)
+- "Rosa empolvado" (too literal in Spanish)
+- "Altrosa" (dated German term)
+- Technical color codes or overly descriptive terms
+
+Original content in English:
+${originalContent}
+
+Translate for: ${targetLanguages.map((code: string) => languageNames[code]).join(', ')}
+
+QUALITY CHECKLIST before responding:
+✓ Does it sound natural to native speakers?
+✓ Does it maintain Primeshot's brand voice?
+✓ Are color names using fashion industry standards (not literal translations)?
+✓ Would a fashion professional recognize these color terms?
+✓ Do the translations avoid dated or awkward terms?
+✓ Is the tone consistent with the guidelines?
+✓ Are all technical terms properly localized?
+
+Return translations in JSON format:
+{
+  "es": {
+    "field_key": "translated_value"
+  },
+  "fr": {
+    "field_key": "translated_value"
+  }
+}
+
+Only include requested languages. Ensure all field keys are translated with culturally appropriate, natural-sounding values.`
 
       const response = await anthropic.messages.create({
-        model: 'claude-3-opus-20240229',
+        model: 'claude-3-5-sonnet-20241022',
         max_tokens: 4000,
-        temperature: 0.3,
+        temperature: 0.5,
         messages: [
           {
             role: 'user',

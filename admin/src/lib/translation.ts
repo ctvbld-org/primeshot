@@ -51,4 +51,20 @@ export async function translateRow(
     throw new Error('Invalid translation response')
   }
   return res.data.translations[0]
+}
+
+export async function translateRows(
+  table: string,
+  rows: Record<string, any>[],
+  targetLanguages: string[] = getTargetLanguages()
+): Promise<Record<string, any>[]> {
+  const res = await axios.post(getApiPath('/api/translate'), {
+    table,
+    rows,
+    targetLanguages,
+  })
+  if (!res.data || !res.data.translations || !Array.isArray(res.data.translations)) {
+    throw new Error('Invalid translation response')
+  }
+  return res.data.translations
 } 

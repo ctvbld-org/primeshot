@@ -2,7 +2,7 @@ import React from 'react'
 import { Coins, Package, Wallet } from 'lucide-react'
 import { STRIPE_REFERENCE } from '@primeshot/common/lib/stripe/stripe-reference'
 import { getStripeEnv } from '@primeshot/common/lib/stripe/env'
-import i18n from '@/i18n'
+import { i18n } from '@primeshot/common'
 
 export type CreditCostsMap = Record<string, number>
 

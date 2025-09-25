@@ -1,0 +1,123 @@
+{
+  "nameLabel": "Charaktername",
+  "creditsRequired": "Das Training wird {{credits}} Guthaben verwenden",
+  "training": "Charakter wird trainiert",
+  "trainingInitializing": "Dein Charakter packt seine Sachen",
+  "trainingInitializingInfo": "Dein Charakter wird zur Trainingsstation gebracht.",
+  "trainingQueued": "Dein Charakter steht in der Warteschlange",
+  "trainingQueuedInfo": "Wartet darauf, dass ein anderer Charakter Platz freigibt.",
+  "trainingWarmingUp": "Dein Charakter wärmt sich auf",
+  "trainingWarmingUpInfo": "Wartet auf grünes Licht zum Trainingsbeginn.",
+  "trainingPending": "Dein Charakter wartet auf eine Maschine",
+  "trainingPendingInfo": "Maschinen sind zu Stoßzeiten ausgelastet, startet sobald eine verfügbar wird. Position {{position}} in der Warteschlange.",
+  "trainingRunning": "Training endet in etwa ",
+  "trainingRunningNoCountdown": "Dein Charakter trainiert und wird in wenigen Minuten fertig sein.",
+  "trainingRunningInfo": "Du kannst zur App zurückkehren, um weitere Shootings zu planen.",
+  "returnToApp": "Zur App zurückkehren",
+  "trainingError": "Fehler:",
+  "trainingFailed": "Es gab ein Problem beim Training deines Charakters",
+  "trainingFailedDescription": "Entweder war es zu schwierig oder dein Charakter war zu schön für das Modell. Bitte versuche es erneut oder kontaktiere den Support, falls das Problem weiterhin besteht.",
+
+  "confirmClose": {
+    "title": "Charaktererstellung schließen?",
+    "description": "Bist du sicher, dass du schließen möchtest? Dein gesamter Fortschritt geht verloren und du musst von vorne beginnen.",
+    "progressMessages": {
+      "upload": "Deine hochgeladenen Fotos gehen verloren.",
+      "profile": "Deine Profilinformationen gehen verloren.",
+      "name": "Der Name deines Charakters geht verloren."
+    },
+    "buttons": {
+      "cancel": "Abbrechen",
+      "confirm": "Trotzdem schließen"
+    }
+  },
+
+  "errors": {
+    "trainingRetryFailed": "Training nach {{attempts}} Versuchen fehlgeschlagen. Bitte versuche es später erneut.",
+    "retryError": "Fehler: {{message}}"
+  },
+
+  "upload": {
+    "uploadingFiles": "Lade deine besten Looks {{current}} von {{total}}",
+    "uploadingInfo": "Bitte halte diese Seite geöffnet, bis der Upload abgeschlossen ist."
+  },
+
+  "dialogTitles": {
+    "onboardingIntro": "Charaktererstellungs-Leitfaden",
+    "onboardingGuidelines": "Fotografie-Tipps",
+    "onboardingConfirmation": "Bereit zum Hochladen",
+    "upload": "Fotos hochladen",
+    "name": "Benenne deinen Charakter",
+    "uploading": "Fotos werden hochgeladen",
+    "training": "Modell wird trainiert"
+  },
+  "dialogDescription": {
+    "upload": "Lade Fotos hoch, um deinen Charakter zu erstellen",
+    "name": "Benenne deinen Charakter",
+    "training": "Charaktertraining läuft",
+    "default": "Charaktererstellungs-Dialog"
+  },
+  "beforeUnloadWarning": "Dein Charakter wird gerade verarbeitet. Bist du sicher, dass du die Seite verlassen möchtest? Dies bricht den Upload ab.",
+
+  "onboarding": {
+    "intro": {
+      "title": "Lerne deinen Charakter kennen",
+      "description1": "Lade deine besten Fotos mit verschiedenen <highlight>Ausdrücken</highlight>, <highlight>Winkeln</highlight> und <highlight>Posen</highlight> hoch, um deinen einzigartigen KI-Zwilling zu formen!",
+      "description2": "Wie bei einem echten Fotoshooting liefert etwas Vorbereitung authentische, professionelle Ergebnisse.",
+      "privacy": "Deine Uploads sind privat und sicher.",
+      "buttonGetStarted": "Loslegen",
+      "buttonSkip": "Überspringen"
+    },
+    "confirmation": {
+      "title": "Wie bei einem echten Fotoshooting macht <highlight>etwas Vorbereitung</highlight> den Unterschied.",
+      "paragraph1": "Primeshot erstellt hochwertige Porträts aus deinen alltäglichen Fotos. Klare, gut beleuchtete und abwechslungsreiche Fotos machen deine generierten Shootings natürlicher und beeindruckender. Fotos niedriger Qualität oder unscharfe Bilder können die Ergebnisse einschränken.",
+      "paragraph2": "Falls die Ergebnisse nicht deinen Erwartungen entsprechen, probiere einen neuen Fotosatz mit einem neuen Charakter.",
+      "buttonStart": "Verstanden. Lass uns anfangen!"
+    },
+    "guidelines": {
+      "naturalLight": {
+        "title": "Natürliches Licht",
+        "description": "Verwende gut beleuchtete Fotos am Fenster oder draußen! Vermeide Dunkelheit oder Unschärfe für scharfe Ergebnisse.",
+        "goodAlt": "Beispiel für gutes natürliches Licht",
+        "badAlt": "Beispiel für schlechte Beleuchtung"
+      },
+      "angles": {
+        "title": "Winkel",
+        "description": "Variiere die Winkel! Wähle Schulter-Aufnahmen, von vorne und seitlich, füge einige Hüft-Aufnahmen hinzu.",
+        "goodAlt": "Beispiel für guten Winkel",
+        "badAlt": "Beispiel für schlechten Winkel"
+      },
+      "expressions": {
+        "title": "Ausdrücke",
+        "description": "Drücke deine Persönlichkeit mit verschiedenen Lächeln und Posen aus. Vermeide den gleichen Gesichtsausdruck für dynamische Aufnahmen.",
+        "goodAlt": "Beispiel für guten Ausdruck",
+        "badAlt": "Beispiel für schlechten Ausdruck"
+      },
+      "variety": {
+        "title": "Vielfalt",
+        "description": "Wähle Aufnahmen mit einer Mischung aus Kleidung und Hintergründen. Vermeide starke Filter.",
+        "goodAlt": "Beispiel für gute Vielfalt",
+        "badAlt": "Beispiel für schlechte Vielfalt"
+      }
+    },
+    "buttons": {
+      "next": "Weiter"
+    },
+    "floatingAlt": "Schwebendes Beispiel {{id}}"
+  },
+
+  "uploadStep": {
+    "petMode": "Haustiermodus",
+    "bodyShotRequirementsNotMet": "Ganzkörperaufnahme-Anforderungen nicht erfüllt"
+  },
+
+  "nameStep": {
+    "noPreview": "Keine Vorschau",
+    "create": "Erstellen",
+    "altPreview": "Gesichtsmodell-Vorschau"
+  },
+
+  "countdown": {
+    "fallback": "Berechnet..."
+  }
+}

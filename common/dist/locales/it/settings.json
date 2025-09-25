@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Impostazioni",
+    "description": "Gestisci le impostazioni e le preferenze del tuo account."
+  },
+  "form": {
+    "profile": {
+      "title": "Profilo",
+      "description": "Aggiorna le informazioni del tuo profilo.",
+      "fullName": {
+        "label": "Nome completo",
+        "placeholder": "Inserisci il tuo nome completo"
+      },
+      "submit": {
+        "saving": "Salvataggio...",
+        "default": "Salva modifiche"
+      },
+      "toast": {
+        "success": {
+          "title": "Profilo aggiornato",
+          "description": "Il tuo profilo è stato aggiornato con successo."
+        },
+        "error": {
+          "title": "Errore",
+          "description": "Aggiornamento del profilo fallito. Per favore, riprova.",
+          "notAuthenticated": "Non autenticato"
+        }
+      }
+    }
+  }
+}

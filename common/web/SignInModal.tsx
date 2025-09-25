@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import styles from './SignInForm.module.css'
 
 export function SignInModal() {
-  const { t } = useTranslation()
+  const { t } = useTranslation('common')
   return (
     <Dialog>
       <DialogTrigger asChild>

@@ -262,6 +262,14 @@ export function SubscriptionsTable() {
           open={isTranslationOpen}
           onOpenChange={setIsTranslationOpen}
           currentTranslations={(selectedSubscription.translations as Record<string, any>) || {}}
+          table="subscriptions"
+          rowData={selectedSubscription}
+          onTranslationsUpdated={(newTranslations) => {
+            // Update the selected subscription with new translations
+            setSelectedSubscription(prev => prev ? { ...prev, translations: newTranslations } : null)
+            // Optionally trigger a refetch of the data
+            refetch()
+          }}
         />
       )}
     </>

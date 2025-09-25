@@ -1,0 +1,78 @@
+{
+  "welcome": "欢迎",
+  "error": {
+    "title": "错误",
+    "description": "发生了错误"
+  },
+  "language": "语言",
+  "loading": "加载中...",
+  "buttons": {
+    "customize": "自定义",
+    "confirmChanges": "确认更改",
+    "addToShoot": "添加到拍摄",
+    "edit": "编辑",
+    "delete": "删除",
+    "save": "保存",
+    "cancel": "取消",
+    "back": "返回",
+    "close": "关闭",
+    "next": "下一步",
+    "previous": "上一步",
+    "keep": "保留",
+    "discard": "丢弃",
+    "confirm": "确认",
+    "remove": "移除",
+    "add": "添加",
+    "explore": "探索"
+  },
+  "navigation": {
+    "addStyles": "添加风格",
+    "payment": "支付",
+    "uploadPhotos": "上传照片",
+    "generate": "生成",
+    "explore": "探索",
+    "create": "创建",
+    "admin": "管理"
+  },
+  "userNav": {
+    "signOut": "退出登录",
+    "accountSettings": "账户设置"
+  },
+  "footer": {
+    "about": "关于",
+    "terms": "条款",
+    "privacy": "隐私",
+    "copyright": "© {{year}} Primeshot。保留所有权利"
+  },
+  "duration": {
+    "year_other": "{{count}}年",
+    "month_other": "{{count}}个月",
+    "day_other": "{{count}}天"
+  },
+  "aria": {
+    "favourites": "收藏夹",
+    "avatar": "用户头像",
+    "brandLogo": "Primeshot"
+  },
+  "credits": {
+    "remaining_other": "剩余{{value}}点数"
+  },
+  "contexts": {
+    "dialogService": {
+      "defaultTitle": "对话框",
+      "defaultDescription": "内容",
+      "notReadyWarning": "对话服务尚未就绪"
+    },
+    "errors": {
+      "missingProvider": {
+        "styleSelection": "useStyleSelection 必须在 StyleSelectionProvider 中使用",
+        "dialogService": "useDialogService 必须在 DialogServiceProvider 中使用",
+        "inferenceQueue": "useInferenceQueue 必须在 InferenceQueueProvider 中使用",
+        "carousel": "useCarouselContext 必须在 CarouselProvider 中使用",
+        "realtime": "useRealtime 必须在 RealtimeProvider 中使用"
+      }
+    }
+  }
+}
+
+

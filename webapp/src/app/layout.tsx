@@ -1,18 +1,16 @@
 import { Inter } from 'next/font/google'
-import Script from 'next/script'
 import { carb } from '@/fonts'
 import './globals.css'
+import { cookies, headers } from 'next/headers'
 
 import { Analytics } from "@vercel/analytics/next"
 import { QueryProvider } from '@/components/providers/query-provider'
-import { I18nInitializer } from '@/components/providers/I18nInitializer'
 import { Toaster } from "@primeshot/common/web/ui/toaster"
 import { BannerProvider } from "@primeshot/common/web/ui/use-banner"
 import { Header } from '@primeshot/common'
 import { Footer } from '@primeshot/common'
 import { CreditsHeaderRight } from '@/components/header/CreditsHeaderRight'
-import { AuthProvider } from '@primeshot/common'
-import { LanguageProvider } from '@primeshot/common'
+import { AuthProvider, LanguageProvider, I18nServerProvider, getLanguageFromCookies } from '@primeshot/common'
 import { DialogServiceProvider } from '@/contexts/DialogServiceContext'
 import { IntentHandler } from '@/components/providers/intent-handler'
 import { InferenceQueueProvider } from '@/contexts/inference-queue-context'
@@ -25,20 +23,24 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
- 
-
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: {
   children: React.ReactNode
 }) {
+  // Get language from server-side cookies and Accept-Language header
+  const cookieStore = await cookies()
+  const headersList = await headers()
+  const cookieString = cookieStore.toString()
+  const acceptLanguage = headersList.get('accept-language') || undefined
+  const serverLanguage = getLanguageFromCookies(cookieString, acceptLanguage)
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={serverLanguage} suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
       </head>
       <body className={`${carb.variable} ${inter.className} dark`}>
-        <I18nInitializer>
+        <I18nServerProvider language={serverLanguage}>
           <AuthProvider>
             <LanguageProvider>
               <QueryProvider>
@@ -58,7 +60,7 @@ export default function RootLayout({
               </QueryProvider>
             </LanguageProvider>
           </AuthProvider>
-        </I18nInitializer>
+        </I18nServerProvider>
         <Analytics />
         <CrispInitializer />
       </body>

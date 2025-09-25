@@ -8,6 +8,7 @@ import { Icon } from '@primeshot/common/web/Icon'
 import { useTranslation } from 'react-i18next'
 import { useStyleSelection } from '@/contexts/style-selection-context'
 import { useScenes, useWardrobes, useColors } from '@/hooks/useConfig'
+import { useTranslatedScenes, useTranslatedWardrobes, useTranslatedColors } from '@/hooks/useTranslatedStyles'
 
 import { getStyleImages } from '@/lib/utils/get-styles-images'
 // For options we will use a custom CloudFront loader that selects the nearest variant
@@ -60,9 +61,14 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const authReady = isAuthenticated !== undefined // Auth state has been resolved
   
   // Only load option data once auth is ready
-  const { data: scenes = [] } = useScenes()
-  const { data: wardrobes = [] } = useWardrobes()
-  const { data: colors = [] } = useColors()
+  const { data: rawScenes = [] } = useScenes()
+  const { data: rawWardrobes = [] } = useWardrobes()
+  const { data: rawColors = [] } = useColors()
+  
+  // Apply translations to the loaded data
+  const scenes = useTranslatedScenes(rawScenes) || []
+  const wardrobes = useTranslatedWardrobes(rawWardrobes) || []
+  const colors = useTranslatedColors(rawColors) || []
 
   const [openPanel, setOpenPanel] = useState<PanelKey>(null)
   // Wardrobe panel local UI state

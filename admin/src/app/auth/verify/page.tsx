@@ -7,7 +7,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
 import styles from './verify.module.css';
-import { useTranslation } from 'react-i18next';
 import { Suspense } from "react";
 
 const EmailIcon = () => (
@@ -22,7 +21,6 @@ function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
   const supabase = createClient();
-  const { t } = useTranslation('auth');
   
   const handleResend = async () => {
     if (!email) {
@@ -56,18 +54,18 @@ function VerifyEmailContent() {
       <div className={styles.iconContainer}>
         <EmailIcon />
       </div>
-        <h2 className={styles.title}>{t('verify.title')}</h2>
+        <h2 className={styles.title}>Check your inbox</h2>
         <p className={styles.description}>
-          {t('verify.description')}
+          We've sent you an activation link. Don't forget to check your spam folder too.
         </p>
         {email &&
-          <p className={styles.resendText}>{t('verify.resend.text')} <Button 
+          <p className={styles.resendText}>Haven't received it? <Button 
             className={styles.resendButton} 
             variant="link" 
             onClick={handleResend} 
             disabled={isResending || !email}
             loading={isResending}
-          >{isResending ? t('verify.resend.buttonLoading') : t('verify.resend.button')}</Button></p>
+          >{isResending ? 'Sending...' : 'Resend'}</Button></p>
         }
     </div>
   );

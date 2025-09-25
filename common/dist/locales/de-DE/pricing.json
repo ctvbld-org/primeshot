@@ -1,0 +1,12 @@
+{
+  "buyCredits": {
+    "title": "Guthaben kaufen",
+    "description": "Wählen Sie ein Guthabenpaket"
+  },
+  "upgradePlan": {
+    "title": "Plan upgraden",
+    "description": "Wählen Sie ein Abonnement"
+  }
+}
+
+

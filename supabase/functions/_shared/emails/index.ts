@@ -1,23 +1,21 @@
-import { render } from "npm:@react-email/render";
-import WelcomeEmail, { type WelcomeEmailProps } from "./welcome.tsx";
+// @ts-ignore - Deno TS extension import
+export { renderWelcomeEmail } from './welcome/template.ts';
 
-export type EmailOverrides = {
-  subject?: string;
-  text?: string;
-  html?: string;
-  name?: string;
-};
+// @ts-ignore - Deno TS extension import
+import { renderWelcomeEmail } from './welcome/template.ts';
 
-export function renderWelcomeEmail(
-  params: { name?: string; userId?: string },
-  overrides: EmailOverrides = {}
+type TemplateKey = 'welcome';
+
+const registry = {
+  welcome: renderWelcomeEmail,
+} as const;
+
+export function renderEmail<T extends TemplateKey>(
+  template: T,
+  params: any,
+  overrides?: any
 ) {
-  const finalName = overrides.name ?? params.name;
-  const subject = overrides.subject ?? `Welcome to Primeshot, ${finalName ?? "there"}!`;
-  const component = WelcomeEmail({ name: finalName, userId: params.userId } as WelcomeEmailProps);
-  const html = overrides.html ?? render(component);
-  const text = overrides.text ?? render(component, { plainText: true });
-  return { subject, html, text };
+  return registry[template](params, overrides);
 }
 
 

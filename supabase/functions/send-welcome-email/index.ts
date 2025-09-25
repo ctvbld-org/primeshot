@@ -5,6 +5,7 @@ interface WelcomePayload {
   id: string;
   email: string;
   full_name?: string | null;
+  locale?: string;
 }
 
 function getDisplayName(email: string, fullName?: string | null): string {
@@ -35,7 +36,7 @@ serve(async (req) => {
       );
     }
 
-    const { id, email, full_name }: WelcomePayload = await req.json();
+    const { id, email, full_name, locale }: WelcomePayload = await req.json();
     if (!email) {
       return new Response(
         JSON.stringify({ error: "Missing email" }),
@@ -44,7 +45,8 @@ serve(async (req) => {
     }
 
     const resendKey = Deno.env.get("RESEND_API_KEY");
-    const from = Deno.env.get("RESEND_FROM") || "Primeshot <hello@yourdomain.com>";
+    const from = Deno.env.get("RESEND_FROM") || "Primeshot <info@mail.primeshot.ai>";
+    const replyTo = Deno.env.get("RESEND_REPLY_TO") || from;
     if (!resendKey) {
       return new Response(
         JSON.stringify({ error: "RESEND_API_KEY not configured" }),
@@ -53,14 +55,15 @@ serve(async (req) => {
     }
 
     const name = getDisplayName(email, full_name ?? undefined);
-    const { subject, html, text } = renderWelcomeEmail({ name, userId: id });
+    const { subject, html, text } = renderWelcomeEmail({ name, userId: id, locale: locale || 'en-GB' });
 
     const emailBody = {
       from,
       to: [email],
       subject,
       text,
-      html
+      html,
+      reply_to: replyTo
     } as Record<string, unknown>;
 
     const resp = await fetch("https://api.resend.com/emails", {

@@ -1,0 +1,65 @@
+{
+  "dialog": {
+    "title": "Account",
+    "selectSection": "Seleziona sezione"
+  },
+  "navigation": {
+    "profile": "Profilo",
+    "subscription": "Abbonamento",
+    "settings": "Impostazioni",
+    "support": "Supporto"
+  },
+  "buttons": {
+    "cancel": "Annulla",
+    "save": "Salva",
+    "saving": "Salvataggio…",
+    "signOut": "Disconnetti",
+    "subscribe": "Abbonati",
+    "opening": "Apertura…",
+    "manage": "Gestisci",
+    "renew": "Rinnova",
+    "buyCredits": "Acquista crediti",
+    "deleteAccount": "Elimina account (prossimamente)"
+  },
+  "profile": {
+    "title": "Profilo",
+    "firstName": "Nome",
+    "lastName": "Cognome",
+    "email": "Email"
+  },
+  "subscription": {
+    "title": "Abbonamento",
+    "loading": "Caricamento...",
+    "noPlan": "Nessun piano",
+    "planSuffix": "",
+    "cancelled": "Annullato",
+    "expires": "Scade il {{date}}",
+    "renews": "Si rinnova il {{date}}",
+    "creditBalance": "Saldo crediti",
+    "resets": "Si azzera il {{date}}"
+  },
+  "settings": {
+    "title": "Impostazioni",
+    "language": "Lingua",
+    "deleteAccount": {
+      "title": "Eliminare l'account?",
+      "description": "Questo cancellerà tutti i tuoi dati, impostazioni e cronologia. Questa azione non può essere annullata."
+    }
+  },
+  "support": {
+    "title": "Siamo qui per aiutarti",
+    "description": "Hai domande o hai bisogno di assistenza? Siamo pronti a supportarti in ogni fase. Rispondiamo generalmente entro 24 ore.",
+    "faq": "Domande frequenti",
+    "faqDescription": "Consulta il nostro {{helpCenter}} per risposte rapide alle domande più comuni.",
+    "helpCenter": "Centro assistenza",
+    "dmUs": "SCRIVICI",
+    "emailUs": "Inviaci una email"
+  },
+  "errors": {
+    "failedToSave": "Impossibile salvare le modifiche"
+  },
+  "accessibility": {
+    "avatar": "avatar",
+    "plan": "piano"
+  }
+}

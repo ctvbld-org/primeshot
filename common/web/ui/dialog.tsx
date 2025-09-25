@@ -73,7 +73,7 @@ function DialogContent({
 }
 
 function DialogHeader({ className, children, hideClose, ...props }: React.ComponentProps<"div"> & { hideClose?: boolean }) {
-  const { t } = useTranslation('common')
+  const { t } = useTranslation('common') as any
 
   return (
     <div

@@ -75,6 +75,7 @@
   letter-spacing: 0.02em;
   color: #99EFEC;
   margin-bottom: 16px;  
+  display: none;
 }
 
 .navItem {
@@ -125,6 +126,9 @@
   justify-content: space-between;
   margin-bottom: 32px;
 }
+
+.languageSwitcher { width: 100%; justify-content: start; }
+.languageSwitcher > span { justify-content: space-between; width: 100%; flex: 1 1 100%; }
 
 .profileAvatar { width: 40px; height: 40px; }
 
@@ -199,7 +203,7 @@
 }
 
 .avatarButton { border: 1px solid rgba(129,214,206,0.3); border-radius: 999px; padding: 2px; background: rgba(14,34,34,0.6); }
-.avatar { width: 32px; height: 32px; }
+.avatar { width: 30px !important; height: 30px !important; }
 
  @media (max-width: 640px) {
   .dialogRoot {

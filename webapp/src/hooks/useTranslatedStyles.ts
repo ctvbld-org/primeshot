@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useMemo } from 'react';
 import type { Scene, Wardrobe, Color } from '@/types/styles';
 
 function getTranslatedField<T extends { translations?: { [lang: string]: { [key: string]: string } } }>(
@@ -34,12 +35,14 @@ export function useTranslatedScenes(scenes: Scene[] | null | undefined) {
   const { i18n } = useTranslation();
   const currentLang = i18n.language;
 
-  if (!scenes) return null;
+  return useMemo(() => {
+    if (!scenes) return null;
 
-  return scenes.map(scene => ({
-    ...scene,
-    label: getTranslatedField(scene, 'label', currentLang)
-  }));
+    return scenes.map(scene => ({
+      ...scene,
+      label: getTranslatedField(scene, 'label', currentLang)
+    }));
+  }, [scenes, currentLang]);
 }
 
 export function useTranslatedWardrobe(wardrobe: Wardrobe | null | undefined) {
@@ -60,12 +63,14 @@ export function useTranslatedWardrobes(wardrobes: Wardrobe[] | null | undefined)
   const { i18n } = useTranslation();
   const currentLang = i18n.language;
 
-  if (!wardrobes) return null;
+  return useMemo(() => {
+    if (!wardrobes) return null;
 
-  return wardrobes.map(wardrobe => ({
-    ...wardrobe,
-    label: getTranslatedField(wardrobe, 'label', currentLang)
-  }));
+    return wardrobes.map(wardrobe => ({
+      ...wardrobe,
+      label: getTranslatedField(wardrobe, 'label', currentLang)
+    }));
+  }, [wardrobes, currentLang]);
 }
 
 export function useTranslatedColor(color: Color | null | undefined) {
@@ -86,10 +91,12 @@ export function useTranslatedColors(colors: Color[] | null | undefined) {
   const { i18n } = useTranslation();
   const currentLang = i18n.language;
 
-  if (!colors) return null;
+  return useMemo(() => {
+    if (!colors) return null;
 
-  return colors.map(color => ({
-    ...color,
-    label: getTranslatedField(color, 'label', currentLang)
-  }));
+    return colors.map(color => ({
+      ...color,
+      label: getTranslatedField(color, 'label', currentLang)
+    }));
+  }, [colors, currentLang]);
 } 

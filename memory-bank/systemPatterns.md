@@ -1855,6 +1855,28 @@ Detected changes in:
 - webapp/src/components/pricing/SubscriptionDialogContent.tsx
 - webapp/src/lib/logger.ts
 - website/src/app/layout.tsx
+
+
+**Auto-update 2025-09-25**:
+Detected changes in:
+- admin/src/lib/supabase/multi-env.ts
+- webapp/src/app/globals.css
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/CharacterNameStep.tsx
+- webapp/src/components/character/training/OnboardingStep.tsx
+- webapp/src/components/character/training/TrainingProgressStep.tsx
+- webapp/src/components/character/training/UploadPhotosStep.tsx
+- webapp/src/components/character/training/UploadProgressStep.tsx
+- webapp/src/components/generate/AdminInferenceOptionsDialog.tsx
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/generate/OptionsPanel/OptionsPanel.tsx
+- webapp/src/components/header/CreditsHeaderRight.tsx
+- webapp/src/components/inference/GalleryPlaceholder.tsx
+- webapp/src/components/inference/InferenceImageViewerDialog.tsx
+- webapp/src/components/inference/InferenceJobGroup.tsx
+- webapp/src/components/inference/InferenceThumbnail.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.module.css
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

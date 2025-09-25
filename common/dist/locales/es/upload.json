@@ -1,0 +1,23 @@
+{
+  "title": "Subir fotos",
+  "description": "Sube tus fotos para empezar",
+  "requirements": {
+    "title": "Requisitos de las fotos",
+    "description": "Por favor, asegúrate de que tus fotos cumplan estos requisitos"
+  },
+  "buttons": {
+    "upload": "Subir",
+    "continue": "Continuar",
+    "retry": "Reintentar"
+  },
+  "errors": {
+    "invalidFile": "Tipo de archivo inválido",
+    "fileTooLarge": "Archivo demasiado grande",
+    "uploadFailed": "Error en la subida"
+  },
+  "progress": {
+    "uploading": "Subiendo...",
+    "processing": "Procesando...",
+    "complete": "Completo"
+  }
+}

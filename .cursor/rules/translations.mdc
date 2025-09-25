@@ -5,42 +5,75 @@ alwaysApply: false
 ---
 # Translation and i18n Guidelines
 
-## Project Structure (Region Codes)
+## Project Structure (Centralized in Common Package)
 ```
-frontend/src/
-├── i18n.ts                    # i18n configuration and setup (uses region codes, e.g., en-GB)
+common/
+├── i18n.ts                   # Global i18n configuration and setup
+├── I18nProvider.tsx          # Global i18n provider component
 ├── types/
-│   └── i18next.d.ts          # TypeScript declarations for i18n
-├── components/
-│   └── language-switcher.tsx  # Language selection component
-└── locales/                   # Translation files
-    ├── en-GB/                 # English (UK) translations
+│   └── i18next.d.ts          # TypeScript declarations for i18n (optional)
+├── web/
+│   └── LanguageSwitcher.tsx  # Language selection component
+└── locales/                  # Translation files (centralized)
+    ├── en/                   # English translations
     │   ├── albums.json
     │   ├── auth.json
     │   ├── common.json
     │   └── ...
-    ├── es-ES/                 # Spanish (Spain)
+    ├── es/                   # Spanish translations
     │   ├── albums.json
     │   ├── auth.json
     │   ├── common.json
     │   └── ...
-    ├── fr-FR/
-    ├── it-IT/
-    ├── pt-PT/
-    ├── de-DE/
-    ├── nl-NL/
-    ├── zh-CN/
-    └── ja-JP/
+    ├── fr/
+    ├── it/
+    ├── pt/
+    ├── de/
+    ├── nl/
+    ├── cn/
+    └── jp/
 ```
 
 ## Runtime Policy
-- Default language is en-GB.
+- Default language is en.
 - Fallback is disabled; all supported languages must include all keys per namespace.
-- User language preference is persisted in DB (`public.user_settings.preferred_language`) and must use the same region code values. Use RPCs `get_user_language` and `set_user_language`.
+- User language preference is persisted in DB (`public.user_settings.preferred_language`) and must use the same country code values. Use RPCs `get_user_language` and `set_user_language`.
+- All i18n logic is centralized in the `@primeshot/common` package.
+
+## Primeshot Brand Voice for All Languages
+
+All translations must embody Primeshot's tone: **professional yet friendly, simple yet premium, playful yet trustworthy**. Think of a talented photographer friend who is confident in their craft, approachable in tone, respectful of privacy, and lightly playful.
+
+### Universal Brand Principles:
+- **Clear**: Short, simple, direct language that users grasp instantly
+- **Premium**: Polished but never stiff or overly formal
+- **Friendly**: Approachable and warm, building genuine connection
+- **Reassuring**: Builds trust at every step of the user journey
+- **Playful**: Subtle wit and charm, never cheesy or gimmicky
+
+### Content Guidelines for All Languages:
+- **Speak human, not technical**: Avoid AI/ML jargon; use everyday words ('headshot,' 'shoot,' 'outfit')
+- **Outcome over feature**: Emphasize results (confidence, professional image), not just process
+- **Respect user's photos**: Treat uploads as personal and valuable, never trivial
+- **Concise always**: Users should grasp value in one glance
+
+### Brand Voice Examples:
+```typescript
+// ✅ DO: Clear, premium, friendly
+"uploadPhotos": "Upload your best shots"
+"professionalResults": "Studio-quality portraits in minutes"
+"trustMessage": "Your photos, handled with care"
+
+// ❌ DON'T: Technical, stiff, overpromising
+"uploadPhotos": "Initialize image dataset upload"
+"professionalResults": "Revolutionary AI-powered portrait generation system"
+"trustMessage": "Advanced security protocols ensure data protection"
+```
 
 ## Professional Translation Guidelines
 - Follow the [Professional Translation Quality Guidelines](mdc:.cursor/rules/professional-translation-guidelines.md).
-- For en-GB, use UK spelling conventions where applicable.
+- For en, use standard English spelling conventions.
+- Adapt brand voice to cultural norms while maintaining core personality.
 
 ## Core Translation Principles
 
@@ -240,6 +273,25 @@ Each language has its own pluralization rules that must be followed for natural-
     "photo_other": "{{count}} photos"
   }
   ```
+  
+  **French Regional Considerations:**
+  - Use French (France) expressions, not Canadian French
+  - Avoid "téléverser" → use "importer/télécharger"
+  - Avoid "retours" for feedback → use "commentaires/avis"
+  - Balance formal "vous" with conversational tone
+
+- **Spanish (es)** - Uses the same rules as English
+  ```typescript
+  {
+    "photo_one": "{{count}} foto",
+    "photo_other": "{{count}} fotos"
+  }
+  ```
+  
+  **Spanish Tone Considerations:**
+  - Maintain consistent "tú" informality throughout
+  - Use "pequeño grupo" not "grupo reducido"
+  - Prefer "crear" over "formar" for building concepts
 
 - **Italian (it)** - Uses the same rules as English
   ```typescript
@@ -248,8 +300,60 @@ Each language has its own pluralization rules that must be followed for natural-
     "photo_other": "{{count}} foto"  // Note: Some nouns don't change in plural
   }
   ```
+  
+  **Italian Language Preferences:**
+  - Avoid anglicisms: use "commenti" not "feedback"
+  - Use "quello che svilupperemo" for natural flow
 
 - **Portuguese (pt)** - Uses the same rules as English
+  ```typescript
+  {
+    "photo_one": "{{count}} foto",
+    "photo_other": "{{count}} fotos"
+  }
+  ```
+  
+  **European Portuguese Tone:**
+  - Avoid overly formal constructions
+  - Use "Agora faz parte" not "Passa agora a integrar"
+  - Prefer "queremos saber" over "queremos ouvi-lo"
+
+- **Dutch (nl)** - Uses the same rules as English
+  ```typescript
+  {
+    "photo_one": "{{count}} foto",
+    "photo_other": "{{count}} foto's"  // Note: Apostrophe in plural
+  }
+  ```
+  
+  **Dutch Language Preferences:**
+  - Use "planning" instead of "roadmap" for natural Dutch
+
+- **Chinese (zh)** - No plural forms, uses measure words (量词)
+  ```typescript
+  {
+    "photo_other": "{{count}}张照片"  // 张 is the measure word for flat objects
+  }
+  ```
+  
+  **Chinese Tone Considerations:**
+  - Use "小群体用户" not "少量核心用户" for less corporate tone
+  - Prefer "打造" over "塑造" for building concepts
+  - Use "告诉我们您的想法" for direct engagement
+
+- **Japanese (ja)** - No plural forms, uses counters (助数詞)
+  ```typescript
+  {
+    "photo_other": "{{count}}枚の写真"  // 枚 is the counter for flat objects
+  }
+  ```
+  
+  **Japanese Politeness Balance:**
+  - Use "初期ユーザーの皆さん" for appropriate formality
+  - Prefer "作る" over "形作る" for simpler language
+  - Use "皆さんの声" instead of overly formal expressions
+
+#### Language-Specific Pluralization Rules
   ```typescript
   {
     "photo_one": "{{count}} foto",

@@ -292,6 +292,14 @@ export function StylesTable() {
           open={isTranslationOpen}
           onOpenChange={setIsTranslationOpen}
           currentTranslations={(selectedStyle.translations as Record<string, any>) || {}}
+          table="styles"
+          rowData={selectedStyle}
+          onTranslationsUpdated={(newTranslations) => {
+            // Update the selected style with new translations
+            setSelectedStyle(prev => prev ? { ...prev, translations: newTranslations } : null)
+            // Optionally trigger a refetch of the data
+            refetch()
+          }}
         />
       )}
     </>

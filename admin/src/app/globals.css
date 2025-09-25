@@ -148,7 +148,7 @@
 
 
 [data-radix-popper-content-wrapper] {
-  z-index: 50 !important;
+  z-index: 999999999 !important;
 }
 
 /* Hide scrollbar utility */

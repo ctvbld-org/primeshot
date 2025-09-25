@@ -209,6 +209,14 @@ export function CreditPacksTable() {
           open={isTranslationOpen}
           onOpenChange={setIsTranslationOpen}
           currentTranslations={(selectedPack.translations as Record<string, any>) || {}}
+          table="credit_packs"
+          rowData={selectedPack}
+          onTranslationsUpdated={(newTranslations) => {
+            // Update the selected pack with new translations
+            setSelectedPack(prev => prev ? { ...prev, translations: newTranslations } : null)
+            // Optionally trigger a refetch of the data
+            refetch()
+          }}
         />
       )}
     </>

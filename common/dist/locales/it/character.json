@@ -1,0 +1,123 @@
+{
+  "nameLabel": "Nome del personaggio",
+  "creditsRequired": "L'allenamento utilizzerà {{credits}} crediti",
+  "training": "Allenamento del personaggio",
+  "trainingInitializing": "Il tuo personaggio sta facendo le valigie",
+  "trainingInitializingInfo": "Il tuo personaggio viene trasferito alla stazione di allenamento.",
+  "trainingQueued": "Il tuo personaggio è in coda",
+  "trainingQueuedInfo": "In attesa che un altro personaggio liberi dello spazio.",
+  "trainingWarmingUp": "Il tuo personaggio si sta riscaldando",
+  "trainingWarmingUpInfo": "In attesa del via libera per iniziare l'allenamento.",
+  "trainingPending": "Il tuo personaggio sta aspettando una macchina",
+  "trainingPendingInfo": "Le macchine sono occupate nelle ore di punta, inizierà non appena una si libera. Posizione {{position}} in coda.",
+  "trainingRunning": "L'allenamento finisce tra circa ",
+  "trainingRunningNoCountdown": "Il tuo personaggio si sta allenando e sarà pronto tra qualche minuto.",
+  "trainingRunningInfo": "Puoi tornare all'app per continuare a programmare servizi fotografici.",
+  "returnToApp": "Torna all'app",
+  "trainingError": "Errore:",
+  "trainingFailed": "C'è stato un problema nell'allenare il tuo personaggio",
+  "trainingFailedDescription": "O era troppo difficile o il tuo personaggio era troppo bello per il modello. Per favore riprova o contatta il supporto se il problema persiste.",
+
+  "confirmClose": {
+    "title": "Chiudere la creazione del personaggio?",
+    "description": "Sei sicuro di voler chiudere? Tutti i tuoi progressi andranno persi e dovrai ricominciare.",
+    "progressMessages": {
+      "upload": "Le tue foto caricate andranno perse.",
+      "profile": "Le informazioni del tuo profilo andranno perse.",
+      "name": "Il nome del tuo personaggio andrà perso."
+    },
+    "buttons": {
+      "cancel": "Annulla",
+      "confirm": "Chiudi comunque"
+    }
+  },
+
+  "errors": {
+    "trainingRetryFailed": "L'allenamento è fallito dopo {{attempts}} tentativi. Per favore riprova più tardi.",
+    "retryError": "Errore: {{message}}"
+  },
+
+  "upload": {
+    "uploadingFiles": "Caricamento dei tuoi migliori look {{current}} di {{total}}",
+    "uploadingInfo": "Per favore tieni questa pagina aperta fino al completamento del caricamento."
+  },
+
+  "dialogTitles": {
+    "onboardingIntro": "Guida alla creazione del personaggio",
+    "onboardingGuidelines": "Consigli fotografici",
+    "onboardingConfirmation": "Pronto per il caricamento",
+    "upload": "Carica foto",
+    "name": "Dai un nome al tuo personaggio",
+    "uploading": "Caricamento foto",
+    "training": "Allenamento del modello"
+  },
+  "dialogDescription": {
+    "upload": "Carica foto per creare il tuo personaggio",
+    "name": "Dai un nome al tuo personaggio",
+    "training": "Allenamento del personaggio in corso",
+    "default": "Dialogo di creazione del personaggio"
+  },
+  "beforeUnloadWarning": "Il tuo personaggio è attualmente in elaborazione. Sei sicuro di voler uscire? Questo cancellerà il caricamento.",
+
+  "onboarding": {
+    "intro": {
+      "title": "Incontra il tuo personaggio",
+      "description1": "Carica le tue migliori foto con <highlight>espressioni</highlight>, <highlight>angolazioni</highlight> e <highlight>pose</highlight> variate per dare forma al tuo gemello IA unico!",
+      "description2": "Come in un vero servizio fotografico, un po' di preparazione offre risultati autentici e professionali.",
+      "privacy": "I tuoi caricamenti sono privati e sicuri.",
+      "buttonGetStarted": "Inizia",
+      "buttonSkip": "Salta"
+    },
+    "confirmation": {
+      "title": "Come in un vero servizio fotografico, <highlight>un po' di preparazione</highlight> fa la differenza.",
+      "paragraph1": "Primeshot crea ritratti di alta qualità dalle tue foto quotidiane. Foto chiare, ben illuminate e variate rendono i tuoi servizi generati più naturali e impressionanti. Foto di bassa qualità o sfocate possono limitare i risultati.",
+      "paragraph2": "Se i risultati non sono quello che ti aspettavi, prova un nuovo set di foto in un nuovo personaggio.",
+      "buttonStart": "Capisco. Iniziamo!"
+    },
+    "guidelines": {
+      "naturalLight": {
+        "title": "Luce naturale",
+        "description": "Usa foto ben illuminate vicino a una finestra o all'aperto! Evita il buio o la sfocatura per risultati nitidi.",
+        "goodAlt": "Esempio di buona luce naturale",
+        "badAlt": "Esempio di cattiva illuminazione"
+      },
+      "angles": {
+        "title": "Angolazioni",
+        "description": "Varia le angolazioni! Scegli inquadrature dalle spalle in su, frontali e laterali, aggiungi qualche mezza figura.",
+        "goodAlt": "Esempio di buona angolazione",
+        "badAlt": "Esempio di cattiva angolazione"
+      },
+      "expressions": {
+        "title": "Espressioni",
+        "description": "Esprimi la tua personalità con sorrisi e pose variate. Evita la stessa espressione per scatti dinamici.",
+        "goodAlt": "Esempio di buona espressione",
+        "badAlt": "Esempio di cattiva espressione"
+      },
+      "variety": {
+        "title": "Varietà",
+        "description": "Scegli scatti con un mix di abbigliamento e sfondi. Evita filtri pesanti.",
+        "goodAlt": "Esempio di buona varietà",
+        "badAlt": "Esempio di cattiva varietà"
+      }
+    },
+    "buttons": {
+      "next": "Avanti"
+    },
+    "floatingAlt": "Esempio fluttuante {{id}}"
+  },
+
+  "uploadStep": {
+    "petMode": "Modalità animale",
+    "bodyShotRequirementsNotMet": "Requisiti per inquadratura corpo non soddisfatti"
+  },
+
+  "nameStep": {
+    "noPreview": "Nessuna anteprima",
+    "create": "Crea",
+    "altPreview": "Anteprima del modello del viso"
+  },
+
+  "countdown": {
+    "fallback": "Calcolo in corso..."
+  }
+}

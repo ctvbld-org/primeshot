@@ -1,0 +1,173 @@
+{
+  "common": {
+    "effectiveDate": "Data de entrada em vigor: {{date}}",
+    "endMarker": "/fim",
+    "contact": "Contacto:",
+    "email": "team@primeshot.ai"
+  },
+  "terms": {
+    "title": "Termos e condições",
+    "intro": "Ao usar o nosso serviço, aceita estes termos e condições. Por favor, leia-os cuidadosamente.",
+    "sections": {
+      "definitions": {
+        "title": "1. Definições",
+        "items": {
+          "service": "Primeshot / Serviço: A plataforma alimentada por IA que gera retratos a partir de selfies carregados pelo utilizador.",
+          "user": "Utilizador / Você: Qualquer pessoa que aceda ou use o Primeshot.",
+          "userContent": "Conteúdo do utilizador: Quaisquer imagens, selfies ou outro conteúdo que carregue no Primeshot.",
+          "aiGenerated": "Conteúdo gerado por IA / Retratos: Imagens produzidas pelos modelos de IA do Primeshot baseadas no seu conteúdo de utilizador.",
+          "credits": "Créditos: Unidades usadas para pagar o treino de modelos de IA ou geração de imagens."
+        }
+      },
+      "eligibility": {
+        "title": "2. Elegibilidade",
+        "content": "Deve ter pelo menos 16 anos para usar o Primeshot. Ao usar o serviço, confirma que cumpre este requisito de idade."
+      },
+      "userAccounts": {
+        "title": "3. Contas de utilizador",
+        "items": [
+          "Deve criar uma conta para usar o Primeshot.",
+          "É responsável por manter seguras as suas credenciais de início de sessão e por toda a atividade na sua conta.",
+          "Notifique-nos imediatamente de qualquer acesso não autorizado."
+        ]
+      },
+      "payments": {
+        "title": "4. Pagamentos e subscrições",
+        "content": "Todos os pagamentos são processados online através de fornecedores de pagamento seguros. As taxas de subscrição são cobradas antecipadamente; os créditos expiram de acordo com os termos do plano e não são transferidos. Pagamentos falhados podem resultar em suspensão até serem resolvidos.",
+        "refundsTitle": "4.1 Reembolsos",
+        "refunds": "Sem reembolsos para créditos não utilizados ou alterações a meio do ciclo, exceto para falhas técnicas na geração de imagens.",
+        "priceChangesTitle": "4.2 Alterações de preços",
+        "priceChanges": "O Primeshot pode alterar taxas ou preços de créditos a qualquer momento; as subscrições existentes não são afetadas até à renovação."
+      },
+      "ownership": {
+        "title": "5. Conteúdo do utilizador e propriedade",
+        "content": "Mantém todos os direitos de propriedade sobre as suas imagens carregadas e retratos gerados por IA. Concede ao Primeshot uma licença limitada, não exclusiva e livre de royalties para usar o seu conteúdo de utilizador apenas para fornecer o serviço. É o único responsável pelo conteúdo que carrega e por quaisquer consequências daí decorrentes."
+      },
+      "prohibitedContent": {
+        "title": "6. Conteúdo proibido",
+        "intro": "Não pode carregar conteúdo que:",
+        "items": [
+          "Seja ilegal, abusivo, assediador, difamatório ou ameaçador",
+          "Contenha nudez, material sexualmente explícito ou pornográfico",
+          "Promova discurso de ódio, violência ou discriminação",
+          "Infrinja propriedade intelectual ou direitos de terceiros",
+          "Contenha malware ou código prejudicial"
+        ],
+        "note": "O Primeshot pode remover qualquer conteúdo que viole estas regras sem aviso prévio."
+      },
+      "aiGenerated": {
+        "title": "7. Conteúdo gerado por IA",
+        "content": "Os retratos de IA são gerados com base no seu conteúdo de utilizador. Embora visemos resultados de alta qualidade, o Primeshot não garante a precisão da semelhança ou fidelidade do estilo. Aceita que os resultados da IA podem variar, incluir imperfeições ou refletir preconceitos inerentes nos modelos de IA. O Primeshot não é responsável por qualquer uso pessoal, profissional ou comercial dos resultados do conteúdo gerado por IA."
+      },
+      "privacy": {
+        "title": "8. Privacidade e tratamento de dados",
+        "content": "As imagens carregadas e modelos gerados por IA são privados e não são partilhados ou vendidos. Os dados são armazenados de forma segura e eliminados após 60 dias da terminação da conta, a menos que a lei exija mantê-los por mais tempo. Ao usar o serviço, consente à nossa política de privacidade sobre recolha e processamento de dados."
+      },
+      "ip": {
+        "title": "9. Propriedade intelectual",
+        "content": "O Primeshot mantém a propriedade de todos os modelos de IA, software e tecnologia usados para fornecer o serviço. Não pode fazer engenharia reversa, copiar ou reproduzir qualquer tecnologia do Primeshot."
+      },
+      "liability": {
+        "title": "10. Limitação de responsabilidade",
+        "content": "Na máxima extensão permitida por lei, o Primeshot e os seus afiliados não são responsáveis por quaisquer danos indiretos, incidentais ou consequenciais do uso do serviço, erros, imprecisões ou imperfeições no conteúdo gerado por IA, ou perda de dados, lucros ou oportunidades de negócio."
+      },
+      "indemnity": {
+        "title": "11. Indemnização",
+        "content": "Aceita indemnizar, defender e isentar o Primeshot e os seus funcionários, diretores, empregados e agentes de quaisquer reclamações, responsabilidades, danos ou despesas decorrentes do seu uso do serviço, do seu conteúdo de utilizador ou violação destes termos."
+      },
+      "termination": {
+        "title": "12. Terminação",
+        "content": "O Primeshot pode suspender ou terminar contas por violações destes termos. Os utilizadores podem terminar a sua conta a qualquer momento; os dados são eliminados após 60 dias. A terminação não o liberta de quaisquer obrigações de pagamento incorridas anteriormente."
+      },
+      "law": {
+        "title": "13. Lei aplicável e resolução de disputas",
+        "content": "Estes termos são regidos pela lei do Reino Unido. Quaisquer disputas serão resolvidas sob jurisdição do Reino Unido. As partes concordam em tentar resolução informal antes de prosseguir com ação legal."
+      },
+      "changes": {
+        "title": "14. Alterações aos termos",
+        "content": "O Primeshot pode atualizar estes termos a qualquer momento. O uso continuado do serviço constitui aceitação dos termos atualizados."
+      },
+      "misc": {
+        "title": "15. Diversos",
+        "items": {
+          "severability": "Separabilidade: Se qualquer parte destes termos for considerada inválida, o restante permanece em vigor.",
+          "entireAgreement": "Acordo completo: Estes termos, juntamente com a política de privacidade, constituem o acordo completo entre si e o Primeshot.",
+          "contact": "Contacto:"
+        }
+      }
+    }
+  },
+  "privacy": {
+    "title": "Política de privacidade",
+    "intro": "No Primeshot, a sua privacidade é importante para nós. Esta política de privacidade explica como recolhemos, usamos, armazenamos e protegemos os seus dados pessoais quando usa o nosso serviço. Ao usar o Primeshot, consente às práticas descritas aqui.",
+    "sections": {
+      "collect": {
+        "title": "1. Informações que recolhemos",
+        "items": {
+          "account": "Informações da conta: Nome, endereço de email e detalhes de início de sessão social se se registar via Google ou serviços similares.",
+          "userContent": "Conteúdo do utilizador: Selfies e retratos gerados por IA.",
+          "device": "Dados do dispositivo e uso: Tipo de navegador, tipo de dispositivo, endereço IP e estatísticas de uso da aplicação."
+        },
+        "note": "Nota: Não recolhemos nem armazenamos informações de pagamento. Os pagamentos são tratados de forma segura pelo Stripe."
+      },
+      "use": {
+        "title": "2. Como usamos as suas informações",
+        "intro": "Usamos as informações que fornece apenas para:",
+        "items": [
+          "Fornecer e melhorar o nosso serviço de retratos de IA.",
+          "Gerir a sua conta e preferências.",
+          "Monitorizar o desempenho técnico e resolver problemas.",
+          "Facilitar a funcionalidade de início de sessão social."
+        ],
+        "note": "Não usamos os seus dados para fins de marketing nem os partilhamos com terceiros para publicidade."
+      },
+      "thirdParty": {
+        "title": "3. Serviços de terceiros",
+        "items": {
+          "aws": "AWS: Para armazenamento e processamento seguros dos seus selfies carregados e retratos gerados por IA.",
+          "stripe": "Stripe: Para pagamentos de subscrição seguros e compras de créditos."
+        },
+        "note": "Asseguramo-nos de que os fornecedores terceiros cumprem os requisitos de privacidade e segurança."
+      },
+      "cookies": {
+        "title": "4. Cookies e rastreamento",
+        "content": "Usamos cookies apenas para a funcionalidade de início de sessão social. Não são usados cookies de rastreamento ou publicidade."
+      },
+      "retention": {
+        "title": "5. Retenção de dados",
+        "content": "Os selfies carregados e retratos gerados por IA são armazenados enquanto a sua conta estiver ativa. Após a eliminação da conta, os dados são retidos por 60 dias para fins de recuperação e 30 dias adicionais em backups. Após este período, todos os dados são permanentemente eliminados."
+      },
+      "security": {
+        "title": "6. Segurança de dados",
+        "intro": "Implementamos medidas técnicas e organizacionais apropriadas para proteger os seus dados contra acesso não autorizado, perda ou uso indevido, incluindo:",
+        "items": [
+          "Armazenamento encriptado de ficheiros no AWS.",
+          "Transmissão segura de dados usando HTTPS.",
+          "Acesso limitado a pessoal autorizado."
+        ]
+      },
+      "rights": {
+        "title": "7. Os seus direitos",
+        "intro": "Sob as leis de proteção de dados do Reino Unido e da UE, tem o direito de:",
+        "items": [
+          "Aceder aos dados pessoais que temos sobre si.",
+          "Solicitar correção ou eliminação dos seus dados pessoais.",
+          "Opor-se ou restringir certo processamento dos seus dados."
+        ],
+        "contact": "Para exercer qualquer um destes direitos, contacte-nos em {{email}}."
+      },
+      "children": {
+        "title": "8. Crianças",
+        "content": "O Primeshot não se destina a pessoas com menos de 16 anos. Não recolhemos conscientemente dados de crianças."
+      },
+      "changes": {
+        "title": "9. Alterações a esta política de privacidade",
+        "content": "Podemos atualizar esta política de privacidade de tempos a tempos. O uso continuado do serviço constitui aceitação de quaisquer atualizações."
+      },
+      "contact": {
+        "title": "10. Contacte-nos",
+        "content": "Para questões ou preocupações sobre a sua privacidade ou esta política, contacte-nos em: {{email}}."
+      }
+    }
+  }
+}

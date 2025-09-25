@@ -168,7 +168,7 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
       } catch {}
     } catch (e) {
       console.error(e)
-      alert('Failed to save changes')
+      alert(t('errors.failedToSave'))
     } finally {
       setIsSaving(false)
     }
@@ -206,10 +206,10 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
     : undefined
 
   const sidebarItems: { key: TabKey; label: string }[] = [
-    { key: 'profile', label: 'Profile' },
-    { key: 'subscription', label: 'Subscription' },
-    { key: 'settings2', label: 'Settings' },
-    { key: 'help', label: 'Support' },
+    { key: 'profile', label: t('navigation.profile') },
+    { key: 'subscription', label: t('navigation.subscription') },
+    { key: 'settings2', label: t('navigation.settings') },
+    { key: 'help', label: t('navigation.support') },
   ]
 
   const Trigger = triggerSlot ? (
@@ -219,7 +219,7 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
       <Avatar
         className={styles.avatar}
         src={user.avatar_url ?? undefined}
-        alt={user.email ?? 'avatar'}
+        alt={user.email ?? t('accessibility.avatar')}
         fallback={(user.email || '?').slice(0, 1).toUpperCase()}
       />
     </button>
@@ -238,11 +238,11 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
                 onClick={handleCancel}
                 className={styles.headerButton}
               >
-                Cancel
+                {t('buttons.cancel')}
               </Button>
             )}
           </div>
-          <DialogTitle className={styles.headerCol + ' ' + styles.headerTitle}>Account</DialogTitle>
+          <DialogTitle className={styles.headerCol + ' ' + styles.headerTitle}>{t('dialog.title')}</DialogTitle>
           <div className={styles.headerCol}>
             {isDirty && (
               <Button
@@ -252,7 +252,7 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
                 disabled={isSaving}
                 className={styles.headerButton}
               >
-                {isSaving ? 'Saving…' : 'Save'}
+                {isSaving ? t('buttons.saving') : t('buttons.save')}
               </Button>
             )}
           </div>
@@ -276,7 +276,7 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
                 className={styles.mobileSelect}
                 value={activeTab}
                 onChange={(e) => setActiveTab(e.target.value as TabKey)}
-                aria-label="Select section"
+                aria-label={t('dialog.selectSection')}
               >
                 {sidebarItems.map(item => (
                   <option key={item.key} value={item.key}>{item.label}</option>
@@ -285,7 +285,7 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
               <div className={styles.sidebarFooter}>
                 <Button variant="ghost" className={styles.signOut} onClick={() => signOut()}>
                   <Icon variant="logout" size={18} />
-                  Sign out
+                  {t('buttons.signOut')}
                 </Button>
               </div>
             </aside>
@@ -294,12 +294,12 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
               {activeTab === 'profile' && (
                 <section className={styles.section}>
                   <div className={styles.sectionHeader}>
-                    <h2 className={styles.title}>Profile</h2>
+                    <h2 className={styles.title}>{t('profile.title')}</h2>
                     <div style={{ position: 'relative' }}>
                       <Avatar
                         className={styles.profileAvatar}
                         src={(avatarPreview ?? user.avatar_url) ?? undefined}
-                        alt={user.email ?? 'avatar'}
+                        alt={user.email ?? t('accessibility.avatar')}
                         fallback={(user.email || '?').slice(0, 1).toUpperCase()}
                         onClick={() => fileInputRef.current?.click()}
                         style={{ cursor: 'pointer' }}
@@ -322,7 +322,7 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
                   </div>
 
                   <div className={styles.kvRow}>
-                    <span className={styles.kvLabel}>First name</span>
+                    <span className={styles.kvLabel}>{t('profile.firstName')}</span>
                     <input
                       className={styles.kvValue}
                       value={editFirstName}
@@ -330,7 +330,7 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
                     />
                   </div>
                   <div className={styles.kvRow}>
-                    <span className={styles.kvLabel}>Last name</span>
+                    <span className={styles.kvLabel}>{t('profile.lastName')}</span>
                     <input
                       className={styles.kvValue}
                       value={editLastName}
@@ -338,7 +338,7 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
                     />
                   </div>
                   <div className={styles.kvRow}>
-                    <span className={styles.kvLabel}>Email</span>
+                    <span className={styles.kvLabel}>{t('profile.email')}</span>
                     <span className={styles.kvValue}>
                       {user.email}
                       {providerVariant && (
@@ -353,28 +353,28 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
 
               {activeTab === 'subscription' && (
                 <section className={styles.section}>
-                  <h2 className={styles.title}>Subscription</h2>
+                  <h2 className={styles.title}>{t('subscription.title')}</h2>
 
                   <div className={styles.planRow}>
                     <div className={styles.planLeft}>
                       <span className={styles.planDot}>
                         {subscription?.plan_image_url && (
-                          <img src={subscription.plan_image_url} alt="plan" style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 4 }} />
+                          <img src={subscription.plan_image_url} alt={t('accessibility.plan')} style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 4 }} />
                         )}
                       </span>
                       <div className={styles.planTexts}>
                         <div className={styles.planName}>
-                          {isLoading ? 'Loading...' : subscription ? `${subscription.plan_name} Plan` : 'No plan'}
+                          {isLoading ? t('subscription.loading') : subscription ? `${subscription.plan_name}${t('subscription.planSuffix')}` : t('subscription.noPlan')}
                         </div>
                         {!isLoading && subscription && (
                           isCanceled ? (
                             <div className={styles.planSub}>
-                              <span style={{ color: '#ff5e57', marginRight: 8 }}>Cancelled</span>
-                              {!isFullyCanceled && periodEndText && <span>Expires {periodEndText}</span>}
+                              <span style={{ color: '#ff5e57', marginRight: 8 }}>{t('subscription.cancelled')}</span>
+                              {!isFullyCanceled && periodEndText && <span>{t('subscription.expires', { date: periodEndText })}</span>}
                             </div>
                           ) : (
                             <div className={styles.planSub}>
-                              Renews {periodEndText}
+                              {t('subscription.renews', { date: periodEndText })}
                             </div>
                           )
                         )}
@@ -389,7 +389,7 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
                               variant="secondary"
                               onClick={onSubscribe ?? (() => openPortal())}
                             >
-                              Subscribe
+                              {t('buttons.subscribe')}
                             </Button>
                           ) : (
                             <>
@@ -399,7 +399,7 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
                                 onClick={() => openPortal()}
                                 disabled={isActionLoading}
                               >
-                                {isActionLoading ? 'Opening…' : 'Manage'}
+                                {isActionLoading ? t('buttons.opening') : t('buttons.manage')}
                               </Button>
                               {isCanceled ? (
                                 <Button
@@ -408,7 +408,7 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
                                   onClick={() => openPortal()}
                                   disabled={isActionLoading}
                                 >
-                                  Renew
+                                  {t('buttons.renew')}
                                 </Button>
                               ) : (
                                 <Button
@@ -417,7 +417,7 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
                                   onClick={() => openPortal('cancel')}
                                   disabled={isActionLoading}
                                 >
-                                  Cancel
+                                  {t('buttons.cancel')}
                                 </Button>
                               )}
                             </>
@@ -431,9 +431,9 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
                   {subscription && (
                     <div className={styles.creditsBlock}>
                       <div className={styles.creditsHeader}>
-                        <span>Credit Balance</span>
+                        <span>{t('subscription.creditBalance')}</span>
                         <Button variant="ghost" size="sm" className={styles.buyCredits} onClick={onBuyCredits ?? (() => openPortal())}>
-                          Buy credits
+                          {t('buttons.buyCredits')}
                         </Button>
                       </div>
                       <div className={styles.creditsValue}>
@@ -452,7 +452,7 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
                       </div>
                       {subscription?.current_period_end && (
                         <div className={styles.creditsReset}>
-                          Resets {new Date(subscription.current_period_end).toLocaleDateString()}
+                          {t('subscription.resets', { date: new Date(subscription.current_period_end).toLocaleDateString() })}
                         </div>
                       )}
                     </div>
@@ -462,23 +462,23 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
 
               {activeTab === 'settings2' && (
                 <section className={styles.section}>
-                  <h2 className={styles.title}>Settings</h2>
+                  <h2 className={styles.title}>{t('settings.title')}</h2>
                   <div className={styles.kvRow}>
-                    <span className={styles.kvLabel}>Language</span>
+                    <span className={styles.kvLabel}>{t('settings.language')}</span>
                     <div className={styles.kvValue}>
-                      <LanguageSwitcher variant="popover" />
+                      <LanguageSwitcher variant="popover" className={styles.languageSwitcher} endIcon={<Icon variant="chevronDown" size={18} />} />
                     </div>
                   </div>
 
                   <div className={styles.deleteBlock}>
                     <div className={styles.deleteTexts}>
-                      <div className={styles.deleteTitle}>Delete account?</div>
+                      <div className={styles.deleteTitle}>{t('settings.deleteAccount.title')}</div>
                       <div className={styles.deleteSub}>
-                        This will erase all your data, settings, and history. This action cannot be undone.
+                        {t('settings.deleteAccount.description')}
                       </div>
                     </div>
                     <Button variant="destructive" size="sm" disabled>
-                      Delete Account (coming soon)
+                      {t('buttons.deleteAccount')}
                     </Button>
                   </div>
                 </section>
@@ -486,19 +486,21 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
 
               {activeTab === 'help' && (
                 <section className={styles.section}>
-                  <h2 className={styles.title}>We're here to help</h2>
-                  <p className={styles.description}>Got questions or need assistance? We’re ready to support you every step of the way. We typically respond within 24 hours.</p>
+                  <h2 className={styles.title}>{t('support.title')}</h2>
+                  <p className={styles.description}>{t('support.description')}</p>
                   <div className={styles.supportList}>
                     <div className={styles.supportItem}>
-                      <div className={styles.supportLabel}>FAQ's</div>
+                      <div className={styles.supportLabel}>{t('support.faq')}</div>
                       <p className={styles.supportDescription}>
-                        Check out our <a className={styles.supportLink} href="https://help.primeshot.ai" target="_blank" rel="noreferrer">Help Center</a> for quick answers to common questions.
+                        {t('support.faqDescription', { 
+                          helpCenter: <a className={styles.supportLink} href="https://help.primeshot.ai" target="_blank" rel="noreferrer">{t('support.helpCenter')}</a>
+                        })}
                       </p>
                     </div>
                     <div className={styles.supportItem}>
                       <div className={styles.supportLabel}>
                         <Icon variant="x" size={18} />
-                        DM US
+                        {t('support.dmUs')}
                       </div>
                       <a className={styles.supportLink} href="https://x.com/primeshotai" target="_blank" rel="noreferrer">
                         @primeshotai
@@ -507,7 +509,7 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
                     <div className={styles.supportItem}>
                       <div className={styles.supportLabel}>
                         <Icon variant="email" size={18} />
-                        Email us
+                        {t('support.emailUs')}
                       </div>
                       <a className={styles.supportLink} href="mailto:support@primeshot.ai">support@primeshot.ai</a>
                     </div>
@@ -518,7 +520,7 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
             <div className={styles.dialogFooter}>
               <Button variant="ghost" className={styles.signOut} onClick={() => signOut()}>
                 <Icon variant="logout" size={18} />
-                Sign out
+                {t('buttons.signOut')}
               </Button>
             </div>
           </div>

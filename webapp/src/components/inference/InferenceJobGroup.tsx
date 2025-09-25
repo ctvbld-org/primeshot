@@ -459,10 +459,10 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
             
             return (
             <div className={styles.previewStack} aria-label={t('group.aria.thumbnailsPreview', { ns: 'inference' })}>
-                {display.map((t, idx) => (
-                  (t.webImageUrl || t.imageUrl) && (
-                    <div key={`pv-${t.id}`} className={styles.previewCircle}>
-                      <img src={(t.webImageUrl || t.imageUrl) as string} alt={t('group.alt.preview', { ns: 'inference', index: idx + 1 })} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                {display.map((thumbnail, idx) => (
+                  (thumbnail.webImageUrl || thumbnail.imageUrl) && (
+                    <div key={`pv-${thumbnail.id}`} className={styles.previewCircle}>
+                      <img src={(thumbnail.webImageUrl || thumbnail.imageUrl) as string} alt={t('group.alt.preview', { ns: 'inference', index: idx + 1 })} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
                   )
                 ))}

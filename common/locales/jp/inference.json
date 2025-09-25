@@ -1,0 +1,148 @@
+{
+  "common": {
+    "pleaseTryAgain": "再度お試しください",
+    "cancel": "キャンセル"
+  },
+  "time": {
+    "justNow": "たった今",
+    "minutesAgo": "{{count}}分前",
+    "hoursAgo": "{{count}}時間前",
+    "daysAgo": "{{count}}日前"
+  },
+  "gallery": {
+    "error": "推論ジョブの読み込みに失敗しました：{{error}}",
+    "retry": "再試行",
+    "loadingMore": "さらに撮影を読み込み中",
+    "endOfList": "撮影リストの最後に到達しました",
+    "howItWorksAria": "仕組み",
+    "steps": {
+      "choose": {
+        "title": "スタイルを選択",
+        "desc": "あなたのルックに合う雰囲気、シーン、服装を選択してください。"
+      },
+      "character": {
+        "title": "キャラクターを作成",
+        "desc": "写真をいくつかアップロードして、AIにあなたらしさを正確に学習させましょう。"
+      },
+      "generate": {
+        "title": "撮影を生成",
+        "desc": "数分でポートレートを取得 — 本格的で洗練され、すぐに使用可能。"
+      }
+    }
+  },
+  "viewer": {
+    "confirmDelete": {
+      "title": "画像を削除しますか？",
+      "description": "これにより画像が永続的に削除され、元に戻すことはできません。",
+      "confirm": "削除",
+      "cancel": "キャンセル"
+    },
+    "closeAria": "ビューアーを閉じる",
+    "carousel": {
+      "aria": "カルーセルナビゲーション",
+      "prevAria": "前の画像",
+      "nextAria": "次の画像"
+    },
+    "overlay": {
+      "displayOriginal": "オリジナルを表示",
+      "displayOriginalAria": "オリジナル画像を表示",
+      "originalUnavailableTitle": "オリジナルが利用できません",
+      "originalUnavailableDesc": "オリジナル画像バリアントを読み込めませんでした。"
+    },
+    "title": "撮影{{shootNumber}}",
+    "imageIndex": "画像{{index}}",
+    "favourite": {
+      "ariaButton": "お気に入り",
+      "add": "お気に入りに追加",
+      "remove": "お気に入りから削除",
+      "updateErrorTitle": "お気に入りの更新に失敗しました"
+    },
+    "metadata": {
+      "labels": {
+        "aspectRatio": "アスペクト比",
+        "quality": "品質",
+        "model": "モデル",
+        "character": "キャラクター"
+      },
+      "aspectLabels": {
+        "square": "正方形",
+        "landscape": "横向き",
+        "portrait": "縦向き"
+      }
+    },
+    "actions": {
+      "delete": {
+        "label": "削除",
+        "aria": "画像を削除"
+      },
+      "download": {
+        "label": "ダウンロード",
+        "aria": "画像をダウンロード"
+      }
+    },
+    "alt": {
+      "generated": "生成された画像{{index}}",
+      "thumbnail": "サムネイル{{index}}"
+    }
+  },
+  "group": {
+    "status": {
+      "failed": "生成に失敗しました"
+    },
+    "confirmDelete": {
+      "title": "撮影を削除しますか？",
+      "description": "これによりギャラリーから撮影が削除されます。この操作は元に戻せません。",
+      "confirm": "削除"
+    },
+    "deleteFailedTitle": "削除に失敗しました",
+    "rerun": {
+      "cannot": "再実行できません",
+      "missingInfo": "必要なジョブ情報が不足しています。",
+      "failed": "再実行に失敗しました"
+    },
+    "header": {
+      "shootTitle": "撮影#{{number}}"
+    },
+    "tooltips": {
+      "deleteShoot": "撮影を削除",
+      "rerunShoot": "撮影を再実行"
+    },
+    "aria": {
+      "thumbnailsPreview": "サムネイルプレビュー",
+      "viewAllImages": "すべての画像を表示"
+    },
+    "alt": {
+      "preview": "プレビュー{{index}}"
+    },
+    "buttons": {
+      "viewAll": "すべて表示"
+    }
+  },
+  "thumbnail": {
+    "alt": {
+      "generatingPreview": "プレビューを生成中{{index}}",
+      "generated": "生成された画像{{index}}"
+    },
+    "favourite": {
+      "add": "お気に入りに追加",
+      "remove": "お気に入りから削除"
+    },
+    "loadingTitle": "読み込み中…",
+    "loadingDesc": "画像の詳細がまだ読み込み中です。しばらくしてから再度お試しください。",
+    "actions": {
+      "delete": {
+        "label": "削除",
+        "aria": "画像を削除"
+      },
+      "download": {
+        "label": "ダウンロード",
+        "aria": "画像をダウンロード"
+      }
+    },
+    "confirmDelete": {
+      "title": "画像を削除しますか？",
+      "description": "これによりギャラリーから画像が削除されます。この操作は元に戻せません。",
+      "confirm": "削除"
+    }
+  }
+}

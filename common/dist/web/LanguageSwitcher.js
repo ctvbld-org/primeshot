@@ -10,15 +10,15 @@ import ReactCountryFlag from 'react-country-flag';
 import styles from './LanguageSwitcher.module.css';
 import { Icon } from './Icon';
 const baseLanguageMeta = {
-    'en-GB': { label: 'English', countryCode: 'GB', country: 'United Kingdom' },
-    zh: { label: '中文', countryCode: 'CN', country: '中国' },
-    es: { label: 'Español', countryCode: 'ES', country: 'España' },
-    fr: { label: 'Français', countryCode: 'FR', country: 'France' },
-    pt: { label: 'Português', countryCode: 'PT', country: 'Portugal' },
-    de: { label: 'Deutsch', countryCode: 'DE', country: 'Deutschland' },
-    ja: { label: '日本語', countryCode: 'JP', country: '日本' },
-    it: { label: 'Italiano', countryCode: 'IT', country: 'Italia' },
-    nl: { label: 'Dutch', countryCode: 'NL', country: 'Nederland' }
+    'en': { label: 'English', countryCode: 'GB', country: 'United Kingdom' },
+    'cn': { label: '中文', countryCode: 'CN', country: '中国' },
+    'es': { label: 'Español', countryCode: 'ES', country: 'España' },
+    'fr': { label: 'Français', countryCode: 'FR', country: 'France' },
+    'pt': { label: 'Português', countryCode: 'PT', country: 'Portugal' },
+    'de': { label: 'Deutsch', countryCode: 'DE', country: 'Deutschland' },
+    'jp': { label: '日本語', countryCode: 'JP', country: '日本' },
+    'it': { label: 'Italiano', countryCode: 'IT', country: 'Italia' },
+    'nl': { label: 'Dutch', countryCode: 'NL', country: 'Nederland' }
 };
 export function LanguageSwitcher({ variant = 'popover', display = 'label', flagStyle = 'svg', flagSize = 16, showListFlags = true, countryByLang, endIcon }) {
     const { t, i18n } = useTranslation();

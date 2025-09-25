@@ -1,0 +1,148 @@
+{
+  "common": {
+    "pleaseTryAgain": "Veuillez réessayer",
+    "cancel": "Annuler"
+  },
+  "time": {
+    "justNow": "À l'instant",
+    "minutesAgo": "Il y a {{count}}min",
+    "hoursAgo": "Il y a {{count}}h",
+    "daysAgo": "Il y a {{count}}j"
+  },
+  "gallery": {
+    "error": "Échec du chargement des tâches d'inférence : {{error}}",
+    "retry": "Réessayer",
+    "loadingMore": "Chargement de plus de shootings",
+    "endOfList": "Vous avez atteint la fin de vos shootings",
+    "howItWorksAria": "Comment ça marche",
+    "steps": {
+      "choose": {
+        "title": "Choisissez un style",
+        "desc": "Sélectionnez l'ambiance, la scène et la tenue qui correspondent à votre look."
+      },
+      "character": {
+        "title": "Créez un personnage",
+        "desc": "Téléchargez quelques photos pour que notre IA apprenne exactement ce qui fait de vous, vous."
+      },
+      "generate": {
+        "title": "Générez votre shooting",
+        "desc": "Obtenez vos portraits en quelques minutes — authentiques, soignés et prêts à utiliser."
+      }
+    }
+  },
+  "viewer": {
+    "confirmDelete": {
+      "title": "Supprimer l'image ?",
+      "description": "Cela supprimera définitivement l'image et ne peut pas être annulé.",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    },
+    "closeAria": "Fermer la visionneuse",
+    "carousel": {
+      "aria": "Navigation du carrousel",
+      "prevAria": "Image précédente",
+      "nextAria": "Image suivante"
+    },
+    "overlay": {
+      "displayOriginal": "Afficher l'original",
+      "displayOriginalAria": "Afficher l'image originale",
+      "originalUnavailableTitle": "Original indisponible",
+      "originalUnavailableDesc": "Impossible de charger la variante d'image originale."
+    },
+    "title": "Shooting {{shootNumber}}",
+    "imageIndex": "IMG {{index}}",
+    "favourite": {
+      "ariaButton": "Favori",
+      "add": "Ajouter aux favoris",
+      "remove": "Retirer des favoris",
+      "updateErrorTitle": "Échec de la mise à jour du favori"
+    },
+    "metadata": {
+      "labels": {
+        "aspectRatio": "Ratio d'aspect",
+        "quality": "Qualité",
+        "model": "Modèle",
+        "character": "Personnage"
+      },
+      "aspectLabels": {
+        "square": "Carré",
+        "landscape": "Paysage",
+        "portrait": "Portrait"
+      }
+    },
+    "actions": {
+      "delete": {
+        "label": "Supprimer",
+        "aria": "Supprimer l'image"
+      },
+      "download": {
+        "label": "Télécharger",
+        "aria": "Télécharger l'image"
+      }
+    },
+    "alt": {
+      "generated": "Image générée {{index}}",
+      "thumbnail": "Miniature {{index}}"
+    }
+  },
+  "group": {
+    "status": {
+      "failed": "Génération échouée"
+    },
+    "confirmDelete": {
+      "title": "Supprimer le shooting ?",
+      "description": "Cela retirera le shooting de votre galerie. Cette action ne peut pas être annulée.",
+      "confirm": "Supprimer"
+    },
+    "deleteFailedTitle": "Suppression échouée",
+    "rerun": {
+      "cannot": "Impossible de relancer",
+      "missingInfo": "Informations de tâche requises manquantes.",
+      "failed": "Relancement échoué"
+    },
+    "header": {
+      "shootTitle": "SHOOTING #{{number}}"
+    },
+    "tooltips": {
+      "deleteShoot": "Supprimer le shooting",
+      "rerunShoot": "Relancer le shooting"
+    },
+    "aria": {
+      "thumbnailsPreview": "Aperçu des miniatures",
+      "viewAllImages": "Voir toutes les images"
+    },
+    "alt": {
+      "preview": "Aperçu {{index}}"
+    },
+    "buttons": {
+      "viewAll": "Voir tout"
+    }
+  },
+  "thumbnail": {
+    "alt": {
+      "generatingPreview": "Génération de l'aperçu {{index}}",
+      "generated": "Image générée {{index}}"
+    },
+    "favourite": {
+      "add": "Ajouter aux favoris",
+      "remove": "Retirer des favoris"
+    },
+    "loadingTitle": "Chargement…",
+    "loadingDesc": "Les détails de l'image sont encore en cours de chargement. Veuillez réessayer dans un moment.",
+    "actions": {
+      "delete": {
+        "label": "Supprimer",
+        "aria": "Supprimer l'image"
+      },
+      "download": {
+        "label": "Télécharger",
+        "aria": "Télécharger l'image"
+      }
+    },
+    "confirmDelete": {
+      "title": "Supprimer l'image ?",
+      "description": "Cela retirera l'image de votre galerie. Cette action ne peut pas être annulée.",
+      "confirm": "Supprimer"
+    }
+  }
+}

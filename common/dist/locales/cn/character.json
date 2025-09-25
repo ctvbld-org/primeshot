@@ -1,0 +1,123 @@
+{
+  "nameLabel": "角色名称",
+  "creditsRequired": "训练将使用{{credits}}个积分",
+  "training": "角色训练中",
+  "trainingInitializing": "您的角色正在收拾行李",
+  "trainingInitializingInfo": "您的角色正在被送往训练站。",
+  "trainingQueued": "您的角色正在排队",
+  "trainingQueuedInfo": "等待其他角色腾出空间。",
+  "trainingWarmingUp": "您的角色正在热身",
+  "trainingWarmingUpInfo": "等待绿灯开始训练。",
+  "trainingPending": "您的角色正在等待机器",
+  "trainingPendingInfo": "高峰时段机器繁忙，一旦有空闲机器就会开始。队列中第{{position}}位。",
+  "trainingRunning": "训练大约在",
+  "trainingRunningNoCountdown": "您的角色正在训练，几分钟后就会完成。",
+  "trainingRunningInfo": "您可以返回应用程序安排更多拍摄。",
+  "returnToApp": "返回应用",
+  "trainingError": "错误：",
+  "trainingFailed": "训练您的角色时出现问题",
+  "trainingFailedDescription": "要么太困难，要么您的角色对模型来说太美了。请重试或联系支持，如果问题持续存在。",
+
+  "confirmClose": {
+    "title": "关闭角色创建？",
+    "description": "您确定要关闭吗？您的所有进度都将丢失，您需要重新开始。",
+    "progressMessages": {
+      "upload": "您上传的照片将丢失。",
+      "profile": "您的个人资料信息将丢失。",
+      "name": "您的角色名称将丢失。"
+    },
+    "buttons": {
+      "cancel": "取消",
+      "confirm": "仍然关闭"
+    }
+  },
+
+  "errors": {
+    "trainingRetryFailed": "训练在{{attempts}}次尝试后失败。请稍后重试。",
+    "retryError": "错误：{{message}}"
+  },
+
+  "upload": {
+    "uploadingFiles": "正在上传您的最佳造型 {{current}} / {{total}}",
+    "uploadingInfo": "请保持此页面打开，直到上传完成。"
+  },
+
+  "dialogTitles": {
+    "onboardingIntro": "角色创建指南",
+    "onboardingGuidelines": "摄影技巧",
+    "onboardingConfirmation": "准备上传",
+    "upload": "上传照片",
+    "name": "为您的角色命名",
+    "uploading": "正在上传照片",
+    "training": "正在训练模型"
+  },
+  "dialogDescription": {
+    "upload": "上传照片创建您的角色",
+    "name": "为您的角色命名",
+    "training": "角色训练进行中",
+    "default": "角色创建对话框"
+  },
+  "beforeUnloadWarning": "您的角色正在处理中。您确定要离开吗？这将取消上传。",
+
+  "onboarding": {
+    "intro": {
+      "title": "认识您的角色",
+      "description1": "上传您最好的照片，包含不同的<highlight>表情</highlight>、<highlight>角度</highlight>和<highlight>姿势</highlight>，来塑造您独特的AI分身！",
+      "description2": "就像真正的摄影一样，一些准备工作能带来真实、专业的效果。",
+      "privacy": "您的上传是私密和安全的。",
+      "buttonGetStarted": "开始",
+      "buttonSkip": "跳过"
+    },
+    "confirmation": {
+      "title": "就像真正的摄影一样，<highlight>一些准备工作</highlight>会带来不同。",
+      "paragraph1": "Primeshot从您的日常照片创建高质量肖像。清晰、光线良好且多样化的照片使您生成的拍摄更自然、更令人印象深刻。低质量或模糊的照片可能会限制效果。",
+      "paragraph2": "如果效果不如预期，请尝试在新角色中使用新的照片集。",
+      "buttonStart": "我明白了。让我们开始吧！"
+    },
+    "guidelines": {
+      "naturalLight": {
+        "title": "自然光",
+        "description": "使用在窗边或户外光线良好的照片！避免黑暗或模糊以获得清晰效果。",
+        "goodAlt": "良好自然光示例",
+        "badAlt": "不良光线示例"
+      },
+      "angles": {
+        "title": "角度",
+        "description": "变换角度！选择肩部特写、正面和侧面，添加一些腰部特写。",
+        "goodAlt": "良好角度示例",
+        "badAlt": "不良角度示例"
+      },
+      "expressions": {
+        "title": "表情",
+        "description": "用不同的笑容和姿势表达您的个性。避免相同的面部表情以获得动态拍摄。",
+        "goodAlt": "良好表情示例",
+        "badAlt": "不良表情示例"
+      },
+      "variety": {
+        "title": "多样性",
+        "description": "选择服装和背景混合的拍摄。避免重度滤镜。",
+        "goodAlt": "良好多样性示例",
+        "badAlt": "不良多样性示例"
+      }
+    },
+    "buttons": {
+      "next": "下一步"
+    },
+    "floatingAlt": "浮动示例{{id}}"
+  },
+
+  "uploadStep": {
+    "petMode": "宠物模式",
+    "bodyShotRequirementsNotMet": "全身拍摄要求未满足"
+  },
+
+  "nameStep": {
+    "noPreview": "无预览",
+    "create": "创建",
+    "altPreview": "面部模型预览"
+  },
+
+  "countdown": {
+    "fallback": "计算中..."
+  }
+}

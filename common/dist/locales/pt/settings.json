@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Definições",
+    "description": "Gerir as definições e preferências da sua conta."
+  },
+  "form": {
+    "profile": {
+      "title": "Perfil",
+      "description": "Atualize as informações do seu perfil.",
+      "fullName": {
+        "label": "Nome completo",
+        "placeholder": "Introduza o seu nome completo"
+      },
+      "submit": {
+        "saving": "A guardar...",
+        "default": "Guardar alterações"
+      },
+      "toast": {
+        "success": {
+          "title": "Perfil atualizado",
+          "description": "O seu perfil foi atualizado com sucesso."
+        },
+        "error": {
+          "title": "Erro",
+          "description": "Falha ao atualizar o perfil. Por favor, tente novamente.",
+          "notAuthenticated": "Não autenticado"
+        }
+      }
+    }
+  }
+}

@@ -33,6 +33,9 @@ const nextConfig: NextConfig = {
       rules.push(
         { source: '/create', destination: `${webapp}/create` },
         { source: '/create/:path*', destination: `${webapp}/create/:path*` },
+        // Locale-prefixed forwards for SSR i18n routing
+        { source: '/:locale(en-GB|zh-CN|es-ES|fr-FR|pt-PT|de-DE|ja-JP|it-IT|nl-NL)/create', destination: `${webapp}/:locale/create` },
+        { source: '/:locale(en-GB|zh-CN|es-ES|fr-FR|pt-PT|de-DE|ja-JP|it-IT|nl-NL)/create/:path*', destination: `${webapp}/:locale/create/:path*` },
       );
     }
 

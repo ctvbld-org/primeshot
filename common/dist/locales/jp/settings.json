@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "設定",
+    "description": "アカウント設定と設定を管理します。"
+  },
+  "form": {
+    "profile": {
+      "title": "プロフィール",
+      "description": "プロフィール情報を更新します。",
+      "fullName": {
+        "label": "氏名",
+        "placeholder": "氏名を入力してください"
+      },
+      "submit": {
+        "saving": "保存中...",
+        "default": "変更を保存"
+      },
+      "toast": {
+        "success": {
+          "title": "プロフィールが更新されました",
+          "description": "プロフィールが正常に更新されました。"
+        },
+        "error": {
+          "title": "エラー",
+          "description": "プロフィールの更新に失敗しました。再度お試しください。",
+          "notAuthenticated": "認証されていません"
+        }
+      }
+    }
+  }
+}

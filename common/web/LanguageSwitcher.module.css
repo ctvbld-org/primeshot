@@ -11,6 +11,8 @@
   cursor: pointer;
   padding: 8px 20px;
   font-size: 0.875rem;
+  height: 48px; /* Fixed height for consistent positioning */
+  box-sizing: border-box;
 }
 
 .listButton.active {
@@ -92,8 +94,9 @@
 }
 
 .popoverContent {
-  width: 100px;
   padding: 4px;
+  min-width: 200px;
+  /* Width will be set dynamically via inline styles */
 }
 
 

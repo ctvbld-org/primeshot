@@ -1,0 +1,123 @@
+{
+  "nameLabel": "Karakternaam",
+  "creditsRequired": "Training gebruikt {{credits}} credits",
+  "training": "Karakter trainen",
+  "trainingInitializing": "Je karakter pakt zijn spullen",
+  "trainingInitializingInfo": "Je karakter wordt naar het trainingsstation gebracht.",
+  "trainingQueued": "Je karakter staat in de rij",
+  "trainingQueuedInfo": "Wacht tot een ander karakter ruimte vrijmaakt.",
+  "trainingWarmingUp": "Je karakter warmt op",
+  "trainingWarmingUpInfo": "Wacht op groen licht om te beginnen met trainen.",
+  "trainingPending": "Je karakter wacht op een machine",
+  "trainingPendingInfo": "Machines zijn bezet tijdens piekuren, start zodra er een beschikbaar is. Positie {{position}} in de rij.",
+  "trainingRunning": "Training eindigt over ongeveer ",
+  "trainingRunningNoCountdown": "Je karakter traint en is over een paar minuten klaar.",
+  "trainingRunningInfo": "Je kunt terug naar de app om meer shoots in te plannen.",
+  "returnToApp": "Terug naar app",
+  "trainingError": "Fout:",
+  "trainingFailed": "Er was een probleem bij het trainen van je karakter",
+  "trainingFailedDescription": "Het was ofwel te moeilijk of je karakter was te mooi voor het model. Probeer opnieuw of neem contact op met support als het probleem aanhoudt.",
+
+  "confirmClose": {
+    "title": "Karakter maken sluiten?",
+    "description": "Weet je zeker dat je wilt sluiten? Al je voortgang gaat verloren en je moet opnieuw beginnen.",
+    "progressMessages": {
+      "upload": "Je geüploade foto's gaan verloren.",
+      "profile": "Je profielinformatie gaat verloren.",
+      "name": "Je karakternaam gaat verloren."
+    },
+    "buttons": {
+      "cancel": "Annuleren",
+      "confirm": "Toch sluiten"
+    }
+  },
+
+  "errors": {
+    "trainingRetryFailed": "Training mislukt na {{attempts}} pogingen. Probeer later opnieuw.",
+    "retryError": "Fout: {{message}}"
+  },
+
+  "upload": {
+    "uploadingFiles": "Je beste looks laden {{current}} van {{total}}",
+    "uploadingInfo": "Houd deze pagina open tot de upload voltooid is."
+  },
+
+  "dialogTitles": {
+    "onboardingIntro": "Karakter maken gids",
+    "onboardingGuidelines": "Fotografie tips",
+    "onboardingConfirmation": "Klaar om te uploaden",
+    "upload": "Foto's uploaden",
+    "name": "Geef je karakter een naam",
+    "uploading": "Foto's uploaden",
+    "training": "Model trainen"
+  },
+  "dialogDescription": {
+    "upload": "Upload foto's om je karakter te maken",
+    "name": "Geef je karakter een naam",
+    "training": "Karakter training bezig",
+    "default": "Karakter maken dialoog"
+  },
+  "beforeUnloadWarning": "Je karakter wordt momenteel verwerkt. Weet je zeker dat je weg wilt? Dit annuleert de upload.",
+
+  "onboarding": {
+    "intro": {
+      "title": "Ontmoet je karakter",
+      "description1": "Upload je beste foto's met gevarieerde <highlight>uitdrukkingen</highlight>, <highlight>hoeken</highlight> en <highlight>poses</highlight> om je unieke AI-tweeling vorm te geven!",
+      "description2": "Net als bij een echte fotoshoot leveren wat voorbereidingen authentieke, professionele resultaten.",
+      "privacy": "Je uploads zijn privé en veilig.",
+      "buttonGetStarted": "Beginnen",
+      "buttonSkip": "Overslaan"
+    },
+    "confirmation": {
+      "title": "Net als bij een echte fotoshoot maken <highlight>wat voorbereidingen</highlight> het verschil.",
+      "paragraph1": "Primeshot maakt hoogwaardige portretten van je dagelijkse foto's. Heldere, goed verlichte en gevarieerde foto's maken je gegenereerde shoots natuurlijker en indrukwekkender. Foto's van lage kwaliteit of wazig kunnen resultaten beperken.",
+      "paragraph2": "Als de resultaten niet zijn wat je verwachtte, probeer een nieuwe set foto's in een nieuw karakter.",
+      "buttonStart": "Ik begrijp het. Laten we beginnen!"
+    },
+    "guidelines": {
+      "naturalLight": {
+        "title": "Natuurlijk licht",
+        "description": "Gebruik goed verlichte foto's bij een raam of buiten! Vermijd donkerte of waas voor scherpe resultaten.",
+        "goodAlt": "Voorbeeld van goed natuurlijk licht",
+        "badAlt": "Voorbeeld van slechte verlichting"
+      },
+      "angles": {
+        "title": "Hoeken",
+        "description": "Varieer de hoeken! Kies schouder-shots, van voren en opzij, voeg wat heup-shots toe.",
+        "goodAlt": "Voorbeeld van goede hoek",
+        "badAlt": "Voorbeeld van slechte hoek"
+      },
+      "expressions": {
+        "title": "Uitdrukkingen",
+        "description": "Druk je persoonlijkheid uit met gevarieerde glimlachen en poses. Vermijd hetzelfde gezicht voor dynamische shots.",
+        "goodAlt": "Voorbeeld van goede uitdrukking",
+        "badAlt": "Voorbeeld van slechte uitdrukking"
+      },
+      "variety": {
+        "title": "Variatie",
+        "description": "Kies shots met een mix van kleding en achtergronden. Vermijd zware filters.",
+        "goodAlt": "Voorbeeld van goede variatie",
+        "badAlt": "Voorbeeld van slechte variatie"
+      }
+    },
+    "buttons": {
+      "next": "Volgende"
+    },
+    "floatingAlt": "Zwevend voorbeeld {{id}}"
+  },
+
+  "uploadStep": {
+    "petMode": "Huisdier modus",
+    "bodyShotRequirementsNotMet": "Lichaam shot vereisten niet voldaan"
+  },
+
+  "nameStep": {
+    "noPreview": "Geen voorvertoning",
+    "create": "Maken",
+    "altPreview": "Gezichtsmodel voorvertoning"
+  },
+
+  "countdown": {
+    "fallback": "Berekenen..."
+  }
+}

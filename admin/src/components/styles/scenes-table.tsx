@@ -15,6 +15,7 @@ import {
 import { Pencil, Trash, Languages } from 'lucide-react'
 import { toast } from 'sonner'
 import { TranslationDialog } from '@/components/ui/translation-dialog'
+import { translateRows } from '@/lib/translation'
 import type { Database } from '@/types/supabase'
 import { getSceneOptionImage } from '@/lib/get-options-image'
 
@@ -24,11 +25,13 @@ export function ScenesTable() {
   const [selectedScene, setSelectedScene] = useState<Scene | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isTranslationOpen, setIsTranslationOpen] = useState(false)
+  const [isBulkTranslating, setIsBulkTranslating] = useState(false)
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false)
   const queryClient = useQueryClient()
   const supabase = createClient()
 
   // Fetch scenes
-  const { data: scenes = [], isLoading } = useQuery({
+  const { data: scenes = [], isLoading, refetch } = useQuery({
     queryKey: ['style-scenes'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -40,6 +43,74 @@ export function ScenesTable() {
       return data
     },
   })
+
+  const handleBulkTranslate = async (selectedScenes: Scene[], onSuccess?: () => void) => {
+    setIsBulkTranslating(true)
+    try {
+      // Translate all selected scenes
+      const translations = await translateRows('scene', selectedScenes)
+      
+      // Update each scene with its new translations
+      const updatePromises = selectedScenes.map(async (scene, index) => {
+        const { error } = await supabase
+          .from('style_scenes')
+          .update({ translations: translations[index] })
+          .eq('id', scene.id)
+        
+        if (error) throw error
+      })
+      
+      await Promise.all(updatePromises)
+      
+      // Refetch data to show updated translations
+      await refetch()
+      
+      toast.success(`Successfully translated ${selectedScenes.length} scenes`)
+      
+      // Call success callback to clear selection
+      if (onSuccess) onSuccess()
+    } catch (error: any) {
+      toast.error(`Bulk translation failed: ${error.message}`)
+    } finally {
+      setIsBulkTranslating(false)
+    }
+  }
+
+  const handleBulkDelete = async (selectedScenes: Scene[], onSuccess?: () => void) => {
+    // Show confirmation dialog
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${selectedScenes.length} scene${selectedScenes.length > 1 ? 's' : ''}? This action cannot be undone.`
+    )
+    
+    if (!confirmed) return
+
+    setIsBulkDeleting(true)
+    try {
+      // Delete all selected scenes
+      const deletePromises = selectedScenes.map(async (scene) => {
+        const { error } = await supabase
+          .from('style_scenes')
+          .delete()
+          .eq('id', scene.id)
+        
+        if (error) throw error
+      })
+      
+      await Promise.all(deletePromises)
+      
+      // Refetch data to show updated list
+      await refetch()
+      
+      toast.success(`Successfully deleted ${selectedScenes.length} scene${selectedScenes.length > 1 ? 's' : ''}`)
+      
+      // Call success callback to clear selection
+      if (onSuccess) onSuccess()
+    } catch (error: any) {
+      toast.error(`Bulk deletion failed: ${error.message}`)
+    } finally {
+      setIsBulkDeleting(false)
+    }
+  }
 
   // Delete mutation
   const deleteMutation = useMutation({
@@ -205,6 +276,14 @@ export function ScenesTable() {
           setIsFormOpen(true)
         }}
         addButtonLabel="Add Scene"
+        enableBulkTranslation={true}
+        onBulkTranslate={handleBulkTranslate}
+        bulkTranslateLabel="Bulk Translate"
+        isBulkTranslating={isBulkTranslating}
+        enableBulkDelete={true}
+        onBulkDelete={handleBulkDelete}
+        bulkDeleteLabel="Bulk Delete"
+        isBulkDeleting={isBulkDeleting}
       />
 
       <SceneFormDialog
@@ -222,6 +301,14 @@ export function ScenesTable() {
           open={isTranslationOpen}
           onOpenChange={setIsTranslationOpen}
           currentTranslations={(selectedScene.translations as Record<string, any>) || {}}
+          table="scene"
+          rowData={selectedScene}
+          onTranslationsUpdated={(newTranslations) => {
+            // Update the selected scene with new translations
+            setSelectedScene(prev => prev ? { ...prev, translations: newTranslations } : null)
+            // Optionally trigger a refetch of the data
+            refetch()
+          }}
         />
       )}
     </>
