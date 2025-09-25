@@ -37,3 +37,15 @@ export function formatTranslationsBatch(
 ) {
   return rows.map((row, i) => formatTranslations(row, columns, translationsArr[i]));
 }
+
+/**
+ * Processes a value to be URL-friendly by converting to lowercase and replacing spaces with hyphens.
+ * @param value The value to process
+ * @returns The processed value (lowercase, spaces replaced with hyphens)
+ */
+export function processValue(value: string): string {
+  return value
+    .trim() // Remove leading/trailing whitespace
+    .toLowerCase() // Convert to lowercase
+    .replace(/\s+/g, '-'); // Replace one or more spaces with a single hyphen
+}

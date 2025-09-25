@@ -178,6 +178,7 @@ export type Database = {
           created_at: string | null
           credits: number
           id: number
+          image_url: string | null
           name: string
           price: number
           translations: Json | null
@@ -188,6 +189,7 @@ export type Database = {
           created_at?: string | null
           credits: number
           id?: number
+          image_url?: string | null
           name: string
           price: number
           translations?: Json | null
@@ -198,6 +200,7 @@ export type Database = {
           created_at?: string | null
           credits?: number
           id?: number
+          image_url?: string | null
           name?: string
           price?: number
           translations?: Json | null
@@ -519,6 +522,7 @@ export type Database = {
       }
       style_scenes: {
         Row: {
+          atmosphere: string | null
           created_at: string
           id: string
           image: string
@@ -529,6 +533,7 @@ export type Database = {
           value: string
         }
         Insert: {
+          atmosphere?: string | null
           created_at?: string
           id?: string
           image: string
@@ -539,6 +544,7 @@ export type Database = {
           value: string
         }
         Update: {
+          atmosphere?: string | null
           created_at?: string
           id?: string
           image?: string
@@ -642,9 +648,11 @@ export type Database = {
           created_at: string | null
           credits: number
           description: string | null
+          disabled: boolean
           display_name: string
           features: Json | null
           id: number
+          image_url: string | null
           max_characters: number
           max_quality: string
           monthly_price: number
@@ -663,9 +671,11 @@ export type Database = {
           created_at?: string | null
           credits: number
           description?: string | null
+          disabled?: boolean
           display_name: string
           features?: Json | null
           id?: number
+          image_url?: string | null
           max_characters: number
           max_quality: string
           monthly_price: number
@@ -684,9 +694,11 @@ export type Database = {
           created_at?: string | null
           credits?: number
           description?: string | null
+          disabled?: boolean
           display_name?: string
           features?: Json | null
           id?: number
+          image_url?: string | null
           max_characters?: number
           max_quality?: string
           monthly_price?: number
@@ -1147,6 +1159,10 @@ export type Database = {
         Args: { user_uuid: string }
         Returns: number
       }
+      get_user_language: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       increment_image_count: {
         Args: { character_id: string }
         Returns: undefined
@@ -1177,6 +1193,10 @@ export type Database = {
           refund_created: boolean
           success: boolean
         }[]
+      }
+      set_user_language: {
+        Args: { new_language: string }
+        Returns: undefined
       }
       should_cleanup_stuck_inference_jobs: {
         Args: Record<PropertyKey, never>

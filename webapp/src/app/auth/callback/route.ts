@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies'
 import { createServerServiceClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 

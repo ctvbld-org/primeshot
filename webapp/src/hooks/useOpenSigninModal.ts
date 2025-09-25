@@ -12,5 +12,5 @@ export function useOpenSigninModal() {
     openDialog(createElement(SignInForm, {
       hideHeader: true
     } as any), { title: t('signin.title'), description: t('signin.description') })
-  }, [openDialog])
+  }, [openDialog, t])
 } 

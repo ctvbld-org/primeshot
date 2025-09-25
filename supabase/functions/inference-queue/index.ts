@@ -125,9 +125,11 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
       colorValue = (c?.value || c?.name || c?.label || '').toString()
     }
     let scenePrompt = ''
+    let atmosphereText = ''
     if (job.scene_id) {
       const { data: s } = await supabase.from('style_scenes').select('*').eq('id', job.scene_id).maybeSingle()
       scenePrompt = (s?.prompt || s?.name || s?.title || '').toString()
+      atmosphereText = (s?.atmosphere || '').toString()
     }
     const stylePrompt = (style as any)?.prompt || ''
     const negativePrompt = ''
@@ -136,7 +138,7 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
       wardrobePrompt = wardrobePrompt.replace(/\[color\]/g, colorValue)
     }
 
-    const builtPrompt = fillStylePrompt(stylePrompt, { meta: character?.metadata || {}, wardrobe: wardrobePrompt, scene: scenePrompt })
+    const builtPrompt = fillStylePrompt(stylePrompt, { meta: character?.metadata || {}, wardrobe: wardrobePrompt, scene: scenePrompt, atmosphere: atmosphereText })
     const finalPrompt = job?.prompt_override?.enabled && job?.prompt_override?.prompt
       ? String(job.prompt_override.prompt)
       : builtPrompt

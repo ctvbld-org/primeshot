@@ -207,6 +207,19 @@ export function ScenesTable() {
       },
     },
     {
+      accessorKey: 'atmosphere',
+      header: 'Atmosphere',
+      cell: ({ row }: any) => {
+        const atmosphere = (row.getValue('atmosphere') as string) || ''
+        const preview = atmosphere.length > 60 ? atmosphere.slice(0, 60) + '…' : atmosphere
+        return (
+          <span className="text-sm text-muted-foreground" title={atmosphere}>
+            {preview || '-'}
+          </span>
+        )
+      },
+    },
+    {
       id: 'actions',
       header: () => <div className="text-right">Actions</div>,
       cell: ({ row }: any) => {

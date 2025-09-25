@@ -503,12 +503,14 @@ serve(async (req) => {
     }
     
     let scenePrompt = '';
+    let atmosphereText = '';
     let sceneUuid: string | null = resolvedSceneUuid;
     if (body.scene_id) {
       const { data: sceneRow } = await supabase.from('style_scenes').select('*').eq('value', body.scene_id).maybeSingle();
       if (sceneRow) {
         sceneUuid = sceneRow.id;
         scenePrompt = (sceneRow.prompt).toString();
+        atmosphereText = (sceneRow.atmosphere || '').toString();
       }
     }
 
@@ -517,7 +519,7 @@ serve(async (req) => {
     const negativePrompt = (style as any)?.negative_prompt || '';
 
     // 5) Final prompt assembly from complete style template
-    let finalPrompt = fillStylePrompt(stylePrompt, { meta: character?.metadata || {}, wardrobe: wardrobePrompt, scene: scenePrompt });
+    let finalPrompt = fillStylePrompt(stylePrompt, { meta: character?.metadata || {}, wardrobe: wardrobePrompt, scene: scenePrompt, atmosphere: atmosphereText });
 
     // Admin-only prompt override: verify caller is admin using JWT
     if (body?.prompt_override?.enabled) {

@@ -7,11 +7,12 @@ import { useAuth } from '@primeshot/common';
 import { AccountDialog } from '@primeshot/common/web/AccountDialog';
 import styles from './AdminHeader.module.css';
 import { Button } from '@primeshot/common/web/ui/button';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 export const AdminHeader: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   
   return (
     <header className={styles.header}>
@@ -40,7 +41,7 @@ export const AdminHeader: React.FC = () => {
             ].map(({ label, path }) => (
               <Button
                 key={path}
-                variant={window.location.pathname === path ? 'primary' : 'ghost'}
+                variant={pathname === path ? 'primary' : 'ghost'}
                 size="sm"
                 onClick={() => router.push(path)}
                 className={styles.navLink}

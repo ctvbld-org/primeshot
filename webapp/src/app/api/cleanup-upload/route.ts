@@ -82,7 +82,7 @@ export async function POST(request: Request) {
 }
 
 // GET endpoint to cleanup old failed uploads (can be called periodically)
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const supabase = await createClient();
     const { data: { user }, error: userError } = await supabase.auth.getUser();

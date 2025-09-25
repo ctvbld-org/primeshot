@@ -29,7 +29,7 @@ export function CreditPacksTable() {
   const supabase = createClient()
 
   // Fetch credit packs
-  const { data: creditPacks = [], isLoading } = useQuery({
+  const { data: creditPacks = [], isLoading, refetch } = useQuery({
     queryKey: ['credit-packs'],
     queryFn: async () => {
       const response = await fetch(getApiUrl('/api/credit-packs'))

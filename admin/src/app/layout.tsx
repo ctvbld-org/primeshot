@@ -1,5 +1,3 @@
-import { Inter } from 'next/font/google'
-import { carb } from '@/fonts'
 import './globals.css'
 
 import { QueryProvider } from '@/components/providers/query-provider'
@@ -9,8 +7,6 @@ import { AuthProvider } from '@primeshot/common'
 import { AdminGuard } from '@/components/providers/AdminGuard'
 import { RealtimeAnalyticsProvider } from '@/contexts/RealtimeAnalyticsContext'
 import { SyncButton } from '@/components/sync/sync-button'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
   title: 'Primeshot Admin',
@@ -24,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${carb.variable} ${inter.className} dark`}>
+      <body className="dark">
         <AuthProvider>
           <QueryProvider>
             <RealtimeAnalyticsProvider>

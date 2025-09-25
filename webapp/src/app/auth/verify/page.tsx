@@ -1,11 +1,10 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@primeshot/common/web/ui/card";
 import { Button } from "@primeshot/common/web/ui/button";
 import { createClient } from "@/lib/supabase/client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { toast } from "sonner";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import styles from './verify.module.css';
 import { useTranslation } from 'react-i18next';
 import { Suspense } from "react";
@@ -17,34 +16,144 @@ const EmailIcon = () => (
   </svg>
 );
 
+// OTP Input Component
+function OtpInput({ value, onChange, onComplete }: { 
+  value: string; 
+  onChange: (value: string) => void; 
+  onComplete: () => void;
+}) {
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  
+  const handleInputChange = (index: number, inputValue: string) => {
+    // Only allow digits
+    const digit = inputValue.replace(/\D/g, '').slice(-1);
+    
+    const newValue = value.split('');
+    newValue[index] = digit;
+    const updatedValue = newValue.join('');
+    
+    onChange(updatedValue);
+    
+    // Auto-focus next input
+    if (digit && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+    
+    // Auto-submit when complete
+    if (updatedValue.length === 6) {
+      onComplete();
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === 'Backspace' && !value[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    onChange(pastedData);
+    
+    if (pastedData.length === 6) {
+      onComplete();
+    }
+  };
+
+  return (
+    <div className={styles.otpContainer}>
+      {Array.from({ length: 6 }, (_, index) => (
+        <input
+          key={index}
+          ref={(el) => { inputRefs.current[index] = el; }}
+          type="text"
+          inputMode="numeric"
+          maxLength={1}
+          value={value[index] || ''}
+          onChange={(e) => handleInputChange(index, e.target.value)}
+          onKeyDown={(e) => handleKeyDown(index, e)}
+          onPaste={handlePaste}
+          className={styles.otpInput}
+          autoComplete="one-time-code"
+        />
+      ))}
+    </div>
+  );
+}
+
 function VerifyEmailContent() {
+  const [otpCode, setOtpCode] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const searchParams = useSearchParams();
+  const router = useRouter();
   const email = searchParams.get("email");
   const supabase = createClient();
   const { t } = useTranslation('auth');
   
+  const handleVerifyOtp = async () => {
+    if (!email || otpCode.length !== 6) {
+      toast.error(t('verify.otp.error.invalidCode'));
+      return;
+    }
+
+    try {
+      setIsVerifying(true);
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token: otpCode,
+        type: 'email'
+      });
+      
+      if (error) {
+        if (error.message.includes('expired')) {
+          toast.error(t('verify.otp.error.expired'));
+        } else if (error.message.includes('invalid')) {
+          toast.error(t('verify.otp.error.invalid'));
+        } else {
+          toast.error(t('verify.otp.error.generic'));
+        }
+        setOtpCode(''); // Clear the code on error
+        return;
+      }
+      
+      toast.success(t('verify.otp.success'));
+      // Redirect to app
+      const basePath = typeof window !== 'undefined' && window.location.pathname.startsWith('/create') ? '/create' : '';
+      router.push(basePath || '/');
+    } catch (error) {
+      toast.error(t('verify.otp.error.generic'));
+      console.error("OTP verification error:", error);
+      setOtpCode('');
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
   const handleResend = async () => {
     if (!email) {
-      toast.error("Email address not found. Please try signing up again.");
+      toast.error(t('verify.resend.error.noEmail'));
       return;
     }
 
     try {
       setIsResending(true);
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
+      // Use the same method as initial signup for consistency
+      const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`
+          // Don't include emailRedirectTo for resend to avoid confusion
+          shouldCreateUser: true
         }
       });
       
       if (error) throw error;
       
-      toast.success("Verification email resent successfully!");
+      toast.success(t('verify.resend.success'));
+      setOtpCode(''); // Clear current code
     } catch (error) {
-      toast.error("Failed to resend verification email. Please try again.");
+      toast.error(t('verify.resend.error.failed'));
       console.error("Resend error:", error);
     } finally {
       setIsResending(false);
@@ -56,19 +165,44 @@ function VerifyEmailContent() {
       <div className={styles.iconContainer}>
         <EmailIcon />
       </div>
-        <h2 className={styles.title}>{t('verify.title')}</h2>
-        <p className={styles.description}>
-          {t('verify.description')}
-        </p>
-        {email &&
-          <p className={styles.resendText}>{t('verify.resend.text')} <Button 
+      <h2 className={styles.title}>{t('verify.otp.title')}</h2>
+      <p className={styles.description}>
+        {t('verify.otp.description')} {email && <strong>{email}</strong>}
+      </p>
+      
+      <div className={styles.otpSection}>
+        <OtpInput 
+          value={otpCode}
+          onChange={setOtpCode}
+          onComplete={handleVerifyOtp}
+        />
+        
+        {otpCode.length === 6 && (
+          <Button
+            className={styles.verifyButton}
+            onClick={handleVerifyOtp}
+            disabled={isVerifying}
+            loading={isVerifying}
+          >
+            {isVerifying ? t('verify.otp.verifying') : t('verify.otp.verify')}
+          </Button>
+        )}
+      </div>
+
+      {email && (
+        <p className={styles.resendText}>
+          {t('verify.resend.text')} 
+          <Button 
             className={styles.resendButton} 
             variant="link" 
             onClick={handleResend} 
             disabled={isResending || !email}
             loading={isResending}
-          >{isResending ? t('verify.resend.buttonLoading') : t('verify.resend.button')}</Button></p>
-        }
+          >
+            {isResending ? t('verify.resend.buttonLoading') : t('verify.resend.button')}
+          </Button>
+        </p>
+      )}
     </div>
   );
 }

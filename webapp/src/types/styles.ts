@@ -11,6 +11,7 @@ export interface Scene {
   value: string;
   label: string;
   image?: string;
+  atmosphere?: string;
   created_at: string;
   updated_at: string;
   translations: {

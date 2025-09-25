@@ -54,7 +54,6 @@ export function LanguageSwitcher({
   const { currentLanguage, isLoading, setLanguage } = useLanguage()
   const [open, setOpen] = useState(false)
   const triggerRef = useRef<HTMLButtonElement>(null)
-  const popoverRef = useRef<HTMLDivElement>(null)
   const [triggerWidth, setTriggerWidth] = useState<number>(0)
 
   const languageMeta = useMemo(() => {
@@ -77,11 +76,6 @@ export function LanguageSwitcher({
       setTriggerWidth(triggerRef.current.offsetWidth)
     }
   }, [currentLanguage, open])
-
-  // Calculate the offset needed to align selected language with trigger
-  const selectedLanguageIndex = languages.findIndex(lang => lang.value === currentLanguage)
-  // Each item is 48px height + 4px gap, plus 4px top padding of popover
-  const selectedLanguageOffset = selectedLanguageIndex >= 0 ? (selectedLanguageIndex * 52) + 4 : 0
 
   const renderFlag = (lng?: string, size = flagSize, className?: string) => {
     if (!lng) return null
@@ -195,15 +189,10 @@ export function LanguageSwitcher({
       </PopoverTrigger>
       <PopoverContent 
         className={styles.popoverContent}
-        ref={popoverRef}
         style={{
-          width: triggerWidth > 0 ? `${triggerWidth}px` : 'auto',
-          transform: `translateY(-${selectedLanguageOffset}px)`,
-          transformOrigin: 'top left'
+          width: triggerWidth > 0 ? `${triggerWidth}px` : 'auto'
         }}
         align="start"
-        sideOffset={0}
-        avoidCollisions={false}
       >
         <LanguageList />
       </PopoverContent>

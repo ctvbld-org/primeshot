@@ -35,7 +35,7 @@ export function SubscriptionsTable() {
   const supabase = createClient()
 
   // Fetch subscriptions
-  const { data: subscriptions = [], isLoading } = useQuery({
+  const { data: subscriptions = [], isLoading, refetch } = useQuery({
     queryKey: ['subscriptions'],
     queryFn: async () => {
       const response = await fetch(getApiUrl('/api/subscriptions'))

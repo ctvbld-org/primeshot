@@ -77,15 +77,16 @@ export function buildFinalPrompt(parts: { style?: string; subject?: string; glas
 
 
 /**
- * Fill a complete style prompt template supporting placeholders: [subject], [scene], [wardrobe].
+ * Fill a complete style prompt template supporting placeholders: [subject], [scene], [wardrobe], [atmosphere].
  * - subject: compact phrase like "woman, blond hair with blue eyes"
  * - scene: uses provided scene prompt
  * - wardrobe: uses provided wardrobe prompt (with color already applied by caller)
+ * - atmosphere: uses provided atmosphere description from scene
  * Applies light cleanup to avoid artifacts when optional values are missing (e.g., "with ,").
  */
 export function fillStylePrompt(
   template: string,
-  args: { meta: any; wardrobe?: string; scene?: string }
+  args: { meta: any; wardrobe?: string; scene?: string; atmosphere?: string }
 ): string {
   try {
     const meta = args?.meta || {}
@@ -93,6 +94,7 @@ export function fillStylePrompt(
 
     const sceneText = String(args?.scene ?? '')
     const wardrobeText = String(args?.wardrobe ?? '')
+    const atmosphereText = String(args?.atmosphere ?? '')
 
     let result = String(template || '')
 
@@ -100,6 +102,7 @@ export function fillStylePrompt(
       subject: subjectText,
       scene: sceneText,
       wardrobe: wardrobeText,
+      atmosphere: atmosphereText,
     }
 
     for (const key of Object.keys(replacements)) {

@@ -1,28 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createPresignedGetUrl, deleteFromS3 } from '@/lib/s3'
-import { Image as ImageType } from '@/lib/types'
-
-type ImageRecord = ImageType
-
-// Helper to convert mime types
-const getMimeType = (path: string): string => {
-  const extension = path.split('.').pop()?.toLowerCase();
-  
-  switch (extension) {
-    case 'jpg':
-    case 'jpeg':
-      return 'image/jpeg';
-    case 'png':
-      return 'image/png';
-    case 'webp':
-      return 'image/webp';
-    case 'svg':
-      return 'image/svg+xml';
-    default:
-      return 'application/octet-stream';
-  }
-};
 
 /**
  * API Route: /api/user-images

@@ -30,11 +30,11 @@ function VerifyEmailContent() {
 
     try {
       setIsResending(true);
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
+      const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          shouldCreateUser: true
         }
       });
       

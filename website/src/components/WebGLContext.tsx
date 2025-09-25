@@ -4,7 +4,7 @@ import React, { createContext, useContext, useRef, ReactNode } from 'react';
 import { WebGLImageTransitionRef } from './WebGLImageTransition';
 
 interface WebGLContextType {
-  webGLRef: React.RefObject<WebGLImageTransitionRef>;
+  webGLRef: React.RefObject<WebGLImageTransitionRef | null>;
   triggerTransition: () => void;
 }
 

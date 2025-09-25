@@ -27,7 +27,7 @@ export function StylesTable() {
   const { toast } = useToast()
 
   // Fetch styles
-  const { data: styles = [], isLoading } = useQuery({
+  const { data: styles = [], isLoading, refetch } = useQuery({
     queryKey: ['styles'],
     queryFn: async () => {
       const { data, error } = await supabase

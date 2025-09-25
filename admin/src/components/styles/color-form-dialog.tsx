@@ -38,6 +38,7 @@ import { toast } from 'sonner'
 import type { Database } from '@/types/supabase'
 import { getApiUrl } from '@/lib/api'
 import { getTranslatableColumns, shouldTranslateRow, translateRow } from '@/lib/translation'
+import { processValue } from '@/lib/utils'
 
 type Color = Database['public']['Tables']['style_colors']['Row']
 
@@ -190,13 +191,19 @@ export function ColorFormDialog({
   const onSubmit = async (data: FormData) => {
     setIsSaving(true)
     try {
+      // Process the value field to be URL-friendly
+      const processedData = {
+        ...data,
+        value: processValue(data.value)
+      }
+      
       const columns = getTranslatableColumns('color')
-      const needsTranslation = shouldTranslateRow(originalValuesRef.current ?? undefined, data, columns)
+      const needsTranslation = shouldTranslateRow(originalValuesRef.current ?? undefined, processedData, columns)
       let translations = ((color as any)?.translations as Record<string, any>) || {}
       
       if (needsTranslation) {
         try {
-          translations = await translateRow('color', data)
+          translations = await translateRow('color', processedData)
         } catch (err: any) {
           toast.error('Translation failed: ' + (err?.message || 'Unknown error'))
           setIsSaving(false)
@@ -205,9 +212,9 @@ export function ColorFormDialog({
       }
 
       if (color) {
-        updateMutation.mutate({ ...data, translations })
+        updateMutation.mutate({ ...processedData, translations })
       } else {
-        createMutation.mutate({ ...data, translations })
+        createMutation.mutate({ ...processedData, translations })
       }
     } finally {
       setIsSaving(false)

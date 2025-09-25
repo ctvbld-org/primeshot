@@ -99,4 +99,22 @@
   /* Width will be set dynamically via inline styles */
 }
 
+.popoverContent .listButton {
+  border-radius: 6px;
+  padding: 8px 16px;
+}
 
+.popoverContent .listButtonLabel {
+  font-size: 14px;
+    font-weight: 300;
+    line-height: 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    letter-spacing: 0;
+    min-width: 220px;
+}
+
+.popoverContent .country {
+  font-size: 13px;
+}

@@ -8,7 +8,6 @@ import { AuthProvider, LanguageProvider, I18nProvider } from '@primeshot/common'
 import { GoogleAnalytics } from '@next/third-parties/google'
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import { SiteHeader } from '@/components/SiteHeader'
 
 const SUPPORTED_LOCALES = ['en','cn','es','fr','pt','de','jp','it','nl'] as const;
 
@@ -30,7 +29,7 @@ async function getLocaleFromUrl(): Promise<string> {
   const segments = pathname.split('/').filter(Boolean);
   const firstSegment = segments[0];
   
-  if (SUPPORTED_LOCALES.includes(firstSegment as any)) {
+  if (SUPPORTED_LOCALES.includes(firstSegment as typeof SUPPORTED_LOCALES[number])) {
     return firstSegment;
   }
   
@@ -43,7 +42,7 @@ async function getCurrentPathname(): Promise<string> {
   const segments = pathname.split('/').filter(Boolean);
   
   // Remove locale from pathname if present
-  if (SUPPORTED_LOCALES.includes(segments[0] as any)) {
+  if (SUPPORTED_LOCALES.includes(segments[0] as typeof SUPPORTED_LOCALES[number])) {
     segments.shift();
   }
   
@@ -59,13 +58,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   try {
     const resolvedParams = await params;
     locale = resolvedParams.locale;
-  } catch (error) {
+  } catch {
     // Fallback to URL-based detection if params fail
     locale = await getLocaleFromUrl();
   }
   
   // Ensure locale is valid, fallback to en if not
-  const finalLocale = SUPPORTED_LOCALES.includes(locale as any) ? locale : 'en';
+  const finalLocale = SUPPORTED_LOCALES.includes(locale as typeof SUPPORTED_LOCALES[number]) ? locale : 'en';
   
   // Map locale to OpenGraph locale format
   const ogLocale = finalLocale.replace('-', '_'); // fr-FR -> fr_FR
@@ -159,13 +158,13 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   try {
     const resolvedParams = await params;
     locale = resolvedParams.locale;
-  } catch (error) {
+  } catch {
     // Fallback to URL-based detection if params fail
     locale = await getLocaleFromUrl();
   }
   
   // Ensure locale is valid, fallback to en if not
-  const finalLocale = SUPPORTED_LOCALES.includes(locale as any) ? locale : 'en';
+  const finalLocale = SUPPORTED_LOCALES.includes(locale as typeof SUPPORTED_LOCALES[number]) ? locale : 'en';
   
   
   // Create a robust seedScript that ensures locale consistency

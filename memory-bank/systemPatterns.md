@@ -1877,6 +1877,48 @@ Detected changes in:
 - webapp/src/components/inference/InferenceThumbnail.tsx
 - webapp/src/components/pricing/SubscriptionDialogContent.module.css
 - webapp/src/components/pricing/SubscriptionDialogContent.tsx
+
+
+**Auto-update 2025-09-25**:
+Detected changes in:
+- admin/src/app/api/translate/route.ts
+- admin/src/app/auth/auth-code-error/page.tsx
+- admin/src/app/auth/verify/page.tsx
+- admin/src/app/globals.css
+- admin/src/app/layout.tsx
+- admin/src/components/layout/AdminHeader.module.css
+- admin/src/components/layout/AdminHeader.tsx
+- admin/src/components/providers/I18nInitializer.tsx
+- admin/src/components/styles/color-form-dialog.tsx
+- admin/src/components/styles/colors-table.tsx
+- admin/src/components/styles/scenes-table.tsx
+- admin/src/components/styles/styles-table.tsx
+- admin/src/components/styles/wardrobes-table.tsx
+- admin/src/components/subscriptions/credit-packs-table.tsx
+- admin/src/components/subscriptions/subscriptions-table.tsx
+- admin/src/components/ui/data-table.tsx
+- admin/src/components/ui/translation-dialog.tsx
+- admin/src/lib/translation.ts
+- webapp/src/app/globals.css
+- webapp/src/app/layout.tsx
+- webapp/src/app/page.tsx
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/inference/InferenceJobGroup.tsx
+- webapp/src/components/pricing/utils.tsx
+- webapp/src/components/providers/I18nInitializer.tsx
+- webapp/src/lib/language-utils.ts
+- website/src/app/[locale]/about/page.tsx
+- website/src/app/[locale]/layout.tsx
+- website/src/app/[locale]/page.tsx
+- website/src/app/[locale]/privacy/page.tsx
+- website/src/app/[locale]/terms/page.tsx
+- website/src/app/about/page.tsx
+- website/src/app/layout.tsx
+- website/src/components/HomePageWrapper.tsx
+- website/src/components/I18nInitializer.tsx
+- website/src/components/WaitlistForm.tsx
+- website/src/components/WebGLBackground.tsx
+- website/src/components/WebGLContext.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

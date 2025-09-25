@@ -77,12 +77,16 @@ serve(async (req) => {
 
     // Scene by value
     let scenePrompt = '';
+    let atmosphereText = '';
     if (scene_id) {
       const { data: s } = await supabase.from('style_scenes').select('*').eq('value', scene_id).maybeSingle();
-      if (s) scenePrompt = (s.prompt || s.name || s.title || '').toString();
+      if (s) {
+        scenePrompt = (s.prompt || s.name || s.title || '').toString();
+        atmosphereText = (s.atmosphere || '').toString();
+      }
     }
 
-    const finalPrompt = fillStylePrompt(stylePrompt, { meta: character?.metadata || {}, wardrobe: wardrobePrompt, scene: scenePrompt });
+    const finalPrompt = fillStylePrompt(stylePrompt, { meta: character?.metadata || {}, wardrobe: wardrobePrompt, scene: scenePrompt, atmosphere: atmosphereText });
 
     return new Response(
       JSON.stringify({ 

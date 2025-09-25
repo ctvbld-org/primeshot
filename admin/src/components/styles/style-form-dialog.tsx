@@ -77,7 +77,7 @@ const formSchema = z.object({
   prompt: z.string().optional(),
   lora_path: z.string().optional(),
   settings: z.string().optional(),
-  preview_images: z.array(z.string()).min(1, 'At least one preview image is required'),
+  preview_images: z.array(z.string()), // Validation moved to onSubmit after deferred uploads
   available_scenes: z.array(z.string()).min(1, 'At least one scene is required'),
   available_wardrobes: z.array(z.string()).min(1, 'At least one wardrobe is required'),
   available_colors: z.array(z.string()).min(1, 'At least one color is required'),
@@ -288,19 +288,30 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
     setIsLoading(true)
     try {
       for (const up of uploaders.current) { await up() }
+      
+      // Get fresh form data after uploads complete (includes uploaded image URLs)
+      const freshData = form.getValues()
+      
+      // Custom validation for preview images after deferred uploads complete
+      if (!freshData.preview_images || freshData.preview_images.length === 0) {
+        toast({ title: 'Validation Error', description: 'At least one preview image is required', variant: 'destructive' })
+        setIsLoading(false)
+        return
+      }
+      
       const columns = getTranslatableColumns('styles')
-      const needsTranslation = shouldTranslateRow(style ?? undefined, data, columns)
+      const needsTranslation = shouldTranslateRow(style ?? undefined, freshData, columns)
       let translations = style?.translations || null
       if (needsTranslation) {
         try {
-          translations = await translateRow('styles', data)
+          translations = await translateRow('styles', freshData)
         } catch (err: any) {
           toast({ title: 'Translation failed', description: err.message, variant: 'destructive' })
           setIsLoading(false)
           return
         }
       }
-      mutation.mutate({ ...data, translations })
+      mutation.mutate({ ...freshData, translations })
     } finally {
       setIsLoading(false)
     }

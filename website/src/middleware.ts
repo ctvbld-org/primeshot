@@ -57,7 +57,7 @@ export function middleware(request: NextRequest) {
 
   const segments = pathname.split('/').filter(Boolean)
   const first = segments[0]
-  const isLocalePrefixed = SUPPORTED.includes(first as any)
+  const isLocalePrefixed = SUPPORTED.includes(first as typeof SUPPORTED[number])
 
   if (isLocalePrefixed) {
     // Ensure cookie is set for downstream usage

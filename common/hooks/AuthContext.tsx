@@ -75,7 +75,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setState(prev => ({ ...prev, isLoading: true, error: null }))
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: getCallbackUrl() }
+        options: { 
+          emailRedirectTo: getCallbackUrl(),
+          shouldCreateUser: true 
+        }
       })
       if (error) throw error
       // Handle basePath for staging environment
