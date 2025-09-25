@@ -131,6 +131,19 @@ export declare const resources: {
             verify: {
                 title: string;
                 description: string;
+                otp: {
+                    title: string;
+                    description: string;
+                    verify: string;
+                    verifying: string;
+                    success: string;
+                    error: {
+                        invalidCode: string;
+                        invalid: string;
+                        expired: string;
+                        generic: string;
+                    };
+                };
                 resend: {
                     text: string;
                     button: string;
@@ -1071,6 +1084,19 @@ export declare const resources: {
             verify: {
                 title: string;
                 description: string;
+                otp: {
+                    title: string;
+                    description: string;
+                    verify: string;
+                    verifying: string;
+                    success: string;
+                    error: {
+                        invalidCode: string;
+                        invalid: string;
+                        expired: string;
+                        generic: string;
+                    };
+                };
                 resend: {
                     text: string;
                     button: string;

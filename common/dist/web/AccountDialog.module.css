@@ -127,6 +127,9 @@
   margin-bottom: 32px;
 }
 
+.languageSwitcher { width: 100%; justify-content: start; }
+.languageSwitcher > span { justify-content: space-between; width: 100%; flex: 1 1 100%; }
+
 .profileAvatar { width: 40px; height: 40px; }
 
 .kvRow { display: grid; grid-template-columns: 100px 1fr; gap: 12px; padding: 14px 0; border-bottom: 1px solid rgba(129,214,206,0.08); }

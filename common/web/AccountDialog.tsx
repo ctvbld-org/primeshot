@@ -36,10 +36,24 @@ type SubscriptionInfo = {
 function getApiUrl(path: string): string {
   if (/^https?:\/\//.test(path)) return path
   const normalized = path.startsWith('/') ? path : `/${path}`
+  
   // Next.js basePath handling for client-side calls
   try {
-    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/create')) {
-      return `/create${normalized}`
+    if (typeof window !== 'undefined') {
+      const currentPath = window.location.pathname
+      
+      // Handle /create basePath
+      if (currentPath.startsWith('/create')) {
+        return `/create${normalized}`
+      }
+      
+      // Handle language prefixes: API routes should never have language prefixes
+      // Check if current path has a language prefix pattern (e.g., /en/, /fr/, /de/)
+      const langPrefixMatch = currentPath.match(/^\/(\w{2})\//)
+      if (langPrefixMatch) {
+        // For language prefixes, we still want to use the normalized path without the prefix
+        return normalized
+      }
     }
   } catch {}
   return normalized

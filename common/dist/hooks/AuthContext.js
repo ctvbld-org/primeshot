@@ -63,7 +63,10 @@ export const AuthProvider = ({ children }) => {
             setState(prev => ({ ...prev, isLoading: true, error: null }));
             const { error } = await supabase.auth.signInWithOtp({
                 email,
-                options: { emailRedirectTo: getCallbackUrl() }
+                options: {
+                    emailRedirectTo: getCallbackUrl(),
+                    shouldCreateUser: true
+                }
             });
             if (error)
                 throw error;

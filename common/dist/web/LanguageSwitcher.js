@@ -1,6 +1,6 @@
 "use client";
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
-import { useState, useMemo, forwardRef } from 'react';
+import { useState, useMemo, forwardRef, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from './ui/dialog';
@@ -20,10 +20,12 @@ const baseLanguageMeta = {
     'it': { label: 'Italiano', countryCode: 'IT', country: 'Italia' },
     'nl': { label: 'Dutch', countryCode: 'NL', country: 'Nederland' }
 };
-export function LanguageSwitcher({ variant = 'popover', display = 'label', flagStyle = 'svg', flagSize = 16, showListFlags = true, countryByLang, endIcon }) {
+export function LanguageSwitcher({ variant = 'popover', display = 'label', flagStyle = 'svg', flagSize = 16, showListFlags = true, countryByLang, endIcon, className }) {
     const { t, i18n } = useTranslation();
     const { currentLanguage, isLoading, setLanguage } = useLanguage();
     const [open, setOpen] = useState(false);
+    const triggerRef = useRef(null);
+    const [triggerWidth, setTriggerWidth] = useState(0);
     const languageMeta = useMemo(() => {
         if (!countryByLang)
             return baseLanguageMeta;
@@ -37,6 +39,12 @@ export function LanguageSwitcher({ variant = 'popover', display = 'label', flagS
         const supported = (i18n.options.supportedLngs || []).filter((lng) => lng !== 'cimode');
         return supported.map(lng => { var _a; return ({ label: ((_a = languageMeta[lng]) === null || _a === void 0 ? void 0 : _a.label) || lng, value: lng }); });
     }, [i18n.options.supportedLngs, languageMeta]);
+    // Update trigger width when component mounts or language changes
+    useEffect(() => {
+        if (triggerRef.current) {
+            setTriggerWidth(triggerRef.current.offsetWidth);
+        }
+    }, [currentLanguage, open]);
     const renderFlag = (lng, size = flagSize, className) => {
         var _a;
         if (!lng)
@@ -74,11 +82,21 @@ export function LanguageSwitcher({ variant = 'popover', display = 'label', flagS
                 content = currentLabel;
             }
         }
-        return (_jsxs(Button, { ...props, variant: "ghost", size: "sm", ref: ref, role: "combobox", "aria-expanded": open, children: [content, endIcon] }));
+        return (_jsxs(Button, { ...props, variant: "ghost", size: "sm", ref: (node) => {
+                if (typeof ref === 'function') {
+                    ref(node);
+                }
+                else if (ref) {
+                    ref.current = node;
+                }
+                triggerRef.current = node;
+            }, role: "combobox", "aria-expanded": open, className: className, children: [content, endIcon] }));
     });
     TriggerButton.displayName = 'TriggerButton';
     if (variant === 'modal') {
         return (_jsxs(Dialog, { open: open, onOpenChange: setOpen, children: [_jsx(DialogTrigger, { asChild: true, children: _jsx(TriggerButton, {}) }), _jsxs(DialogContent, { className: styles.dialogContent, noContainer: true, fullscreen: true, children: [_jsx(DialogHeader, {}), _jsx(LanguageList, {})] })] }));
     }
-    return (_jsxs(Popover, { open: open, onOpenChange: setOpen, children: [_jsx(PopoverTrigger, { asChild: true, children: _jsx(TriggerButton, {}) }), _jsx(PopoverContent, { className: styles.popoverContent, children: _jsx(LanguageList, {}) })] }));
+    return (_jsxs(Popover, { open: open, onOpenChange: setOpen, children: [_jsx(PopoverTrigger, { asChild: true, children: _jsx(TriggerButton, {}) }), _jsx(PopoverContent, { className: styles.popoverContent, style: {
+                    width: triggerWidth > 0 ? `${triggerWidth}px` : 'auto'
+                }, align: "start", children: _jsx(LanguageList, {}) })] }));
 }

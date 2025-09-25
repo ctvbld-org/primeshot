@@ -142,10 +142,27 @@ export default getInferenceImage;
  */
 export function getInferenceImageUrl(imagePath: string, useWebVariant: boolean = true): string {
   const cleanPath = imagePath.replace(/^s3:\/\/[^\/]+\//, '');
+  
   // Use dynamic import to avoid circular dependencies
-  const getApiUrl = (typeof window !== 'undefined' && window.location.pathname.startsWith('/create')) 
-    ? (path: string) => `/create${path}`
-    : (path: string) => path;
+  // Handle both basePath (/create) and language prefixes
+  const getApiUrl = (typeof window !== 'undefined') ? (() => {
+    const currentPath = window.location.pathname;
+    
+    // Check for /create basePath first
+    if (currentPath.startsWith('/create')) {
+      return (path: string) => `/create${path}`;
+    }
+    
+    // Check for language prefixes (e.g., /en/, /fr/, /de/)
+    const langPrefixMatch = currentPath.match(/^\/(\w{2})\/)/);
+    if (langPrefixMatch) {
+      // For language prefixes, don't include them in API URLs
+      return (path: string) => path;
+    }
+    
+    return (path: string) => path;
+  })() : (path: string) => path;
+  
   return getApiUrl(`/api/app-images?path=${encodeURIComponent(cleanPath)}`);
 }
 

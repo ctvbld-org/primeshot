@@ -30,7 +30,26 @@ export function getBasePath(): string {
 }
 
 export function getApiUrl(path: string): string {
-  const base = getBasePath()
+  let base = getBasePath()
+  
+  // Handle language prefixes: API routes should never have language prefixes
+  // If we're on a page with a language prefix (like /en/), we need to detect it
+  // and ensure API calls don't include it
+  if (typeof window !== 'undefined') {
+    const currentPath = window.location.pathname
+    
+    // Check if current path has a language prefix pattern (e.g., /en/, /fr/, /de/)
+    const langPrefixMatch = currentPath.match(/^\/(\w{2})\//)
+    
+    if (langPrefixMatch) {
+      // If we have a base path that already includes the language prefix, remove it
+      const langPrefix = `/${langPrefixMatch[1]}`
+      if (base && base.startsWith(langPrefix)) {
+        base = base.slice(langPrefix.length) || ''
+      }
+    }
+  }
+  
   // Ensure single slash between base and path
   if (!path.startsWith('/')) path = '/' + path
   return `${base}${path}`

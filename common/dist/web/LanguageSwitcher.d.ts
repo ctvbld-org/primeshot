@@ -13,6 +13,8 @@ interface Props {
     countryByLang?: Partial<Record<string, string>>;
     /** Optional icon rendered at the end of the trigger content */
     endIcon?: React.ReactNode;
+    /** Optional className for the component */
+    className?: string;
 }
-export declare function LanguageSwitcher({ variant, display, flagStyle, flagSize, showListFlags, countryByLang, endIcon }: Props): import("react/jsx-runtime").JSX.Element;
+export declare function LanguageSwitcher({ variant, display, flagStyle, flagSize, showListFlags, countryByLang, endIcon, className }: Props): import("react/jsx-runtime").JSX.Element;
 export {};
