@@ -48,12 +48,18 @@ function getApiUrl(path: string): string {
         // Language prefix detected - construct absolute URL to bypass language routing
         const origin = window.location.origin
         
-        // Check if we need /create basePath
-        if (currentPath.includes('/create')) {
-          return `${origin}/create${normalized}`
-        }
+        // Use environment variable for base path, same as other implementations
+        const basePath = process.env.NEXT_PUBLIC_BASE_PATH === '/' ? '' : process.env.NEXT_PUBLIC_BASE_PATH
         
-        return `${origin}${normalized}`
+        console.log('[AccountDialog getApiUrl] DEBUG:', {
+          currentPath,
+          origin,
+          basePath,
+          normalized,
+          env: process.env.NEXT_PUBLIC_BASE_PATH
+        })
+        
+        return `${origin}${basePath || ''}${normalized}`
       }
       
       // Handle /create basePath (no language prefix)

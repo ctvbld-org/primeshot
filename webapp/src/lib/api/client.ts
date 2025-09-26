@@ -24,6 +24,16 @@ export function getApiUrl(path: string): string {
       const targetPath = `${basePath || ''}/${cleanPath}`
       const absoluteUrl = `${origin}${targetPath}`
       
+      console.log('[getApiUrl] DEBUG:', {
+        currentPath,
+        origin,
+        basePath,
+        cleanPath,
+        targetPath,
+        absoluteUrl,
+        windowLocation: window.location.href
+      })
+      
       return absoluteUrl
     }
   }
