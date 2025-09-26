@@ -62,11 +62,8 @@ interface StepData {
     steps: number
     batch_size: number
     resize_size: number
-    rank: number
-    gradient_accumulation_steps: number
     learning_rate: number
-    optimizer: 'adamw' | 'adamw8bit'
-    resolution: number[]
+    resolution: string
   }
   // Onboarding state
   onboardingStep?: number
@@ -424,7 +421,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
   }, [stepData.qualityResults])
 
   // Handle character creation, payment, and upload
-  const handleCreateCharacter = useCallback(async (overrideParams?: { batch_size: number; resize_size: number; rank: number; steps: number; gradient_accumulation_steps: number; learning_rate: number; optimizer: 'adamw' | 'adamw8bit'; resolution: number[] }) => {
+  const handleCreateCharacter = useCallback(async (overrideParams?: { batch_size: number; resize_size: number; steps: number; learning_rate: number; resolution: string }) => {
     setIsProcessing(true)
     let createdCharacterId: string | undefined
     

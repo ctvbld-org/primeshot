@@ -27,12 +27,9 @@ export interface TrainingStartRequest {
   training_params?: {
     batch_size?: number;
     resize_size?: number;
-    rank?: number;
-    steps?: number;
-    gradient_accumulation_steps?: number;
+      steps?: number;
     learning_rate?: number;
-    optimizer?: 'adamw' | 'adamw8bit';
-    resolution?: number[];
+    resolution?: string;
   };
 }
 
