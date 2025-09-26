@@ -34,7 +34,6 @@ type SubscriptionInfo = {
 }
 
 function getApiUrl(path: string): string {
-  console.log('[AccountDialog getApiUrl] Called with path:', path)
   if (/^https?:\/\//.test(path)) return path
   const normalized = path.startsWith('/') ? path : `/${path}`
   
@@ -43,34 +42,39 @@ function getApiUrl(path: string): string {
     if (typeof window !== 'undefined') {
       const currentPath = window.location.pathname
       
-      // Check for language prefixes first
-      const langPrefixMatch = currentPath.match(/^\/(\w{2})\//)
+      // Check for language prefixes (2-3 letter codes: en, fr, de, zh-CN, etc.)
+      const langPrefixMatch = currentPath.match(/^\/(\w{2}(-\w{2})?)\//)
       if (langPrefixMatch) {
         // Language prefix detected - construct absolute URL to bypass language routing
         const origin = window.location.origin
         
-        // Use environment variable for base path, same as other implementations
-        const basePath = process.env.NEXT_PUBLIC_BASE_PATH === '/' ? '' : process.env.NEXT_PUBLIC_BASE_PATH
+        // Get base path from environment or infer from current path
+        let basePath = process.env.NEXT_PUBLIC_BASE_PATH === '/' ? '' : process.env.NEXT_PUBLIC_BASE_PATH
         
-        console.log('[AccountDialog getApiUrl] DEBUG:', {
-          currentPath,
-          origin,
-          basePath,
-          normalized,
-          env: process.env.NEXT_PUBLIC_BASE_PATH,
-          langPrefixMatch: langPrefixMatch[1],
-          finalUrl: `${origin}${basePath || ''}${normalized}`
-        })
+        // Fallback: infer base path from current URL structure
+        if (!basePath) {
+          const pathWithoutLang = currentPath.replace(/^\/\w{2}(-\w{2})?\//, '/')
+          if (pathWithoutLang.startsWith('/create')) {
+            basePath = '/create'
+          } else if (pathWithoutLang.startsWith('/admin')) {
+            basePath = '/admin'
+          }
+        }
         
         return `${origin}${basePath || ''}${normalized}`
       }
       
-      // Handle /create basePath (no language prefix)
+      // Handle base paths without language prefix
       if (currentPath.startsWith('/create')) {
         return `/create${normalized}`
       }
+      if (currentPath.startsWith('/admin')) {
+        return `/admin${normalized}`
+      }
     }
-  } catch {}
+  } catch {
+    // Fallback to relative URL if anything goes wrong
+  }
   return normalized
 }
 
