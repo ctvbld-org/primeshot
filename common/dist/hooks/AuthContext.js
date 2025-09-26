@@ -70,9 +70,19 @@ export const AuthProvider = ({ children }) => {
             });
             if (error)
                 throw error;
-            // Handle basePath for staging environment
-            const basePath = typeof window !== 'undefined' && window.location.pathname.startsWith('/create') ? '/create' : '';
-            window.location.href = `${basePath}/auth/verify?email=${encodeURIComponent(email)}`;
+            // Handle language prefix and basePath for proper redirect
+            let redirectPath = '/auth/verify';
+            if (typeof window !== 'undefined') {
+                const currentPath = window.location.pathname;
+                // Extract language prefix (e.g., /fr/, /en/, etc.)
+                const langMatch = currentPath.match(/^\/([a-z]{2})\//);
+                const langPrefix = langMatch ? `/${langMatch[1]}` : '';
+                // Extract basePath (e.g., /create)
+                const basePath = currentPath.startsWith('/create') || currentPath.includes('/create') ? '/create' : '';
+                redirectPath = `${langPrefix}${basePath}/auth/verify`;
+            }
+            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+            window.location.href = `${baseUrl}${redirectPath}?email=${encodeURIComponent(email)}`;
         }
         catch (error) {
             setState(prev => ({ ...prev, error: formatAuthError(error) }));

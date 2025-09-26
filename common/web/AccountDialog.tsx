@@ -34,6 +34,7 @@ type SubscriptionInfo = {
 }
 
 function getApiUrl(path: string): string {
+  console.log('[AccountDialog getApiUrl] Called with path:', path)
   if (/^https?:\/\//.test(path)) return path
   const normalized = path.startsWith('/') ? path : `/${path}`
   
@@ -56,7 +57,9 @@ function getApiUrl(path: string): string {
           origin,
           basePath,
           normalized,
-          env: process.env.NEXT_PUBLIC_BASE_PATH
+          env: process.env.NEXT_PUBLIC_BASE_PATH,
+          langPrefixMatch: langPrefixMatch[1],
+          finalUrl: `${origin}${basePath || ''}${normalized}`
         })
         
         return `${origin}${basePath || ''}${normalized}`
