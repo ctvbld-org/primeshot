@@ -53,9 +53,10 @@
 
 .headerContainer {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: start;
   min-width: 0;
+  gap: 4px;
 }
 
 .fileInfo {
@@ -85,13 +86,10 @@
 
 .qualityScore {
     display: flex;
-    padding: 4px 9px;
     justify-content: center;
     align-items: center;
     gap: 8px;
-    border-radius: 32px;
-    background: #FF4242;
-    color: #FFF;
+    color: #FF7575;
     font-size: 14px;
     font-weight: 500;
     line-height: 18px; /* 128.571% */

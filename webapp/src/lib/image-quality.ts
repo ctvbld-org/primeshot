@@ -249,17 +249,17 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
 
   // Add error for images below minimum resolution
   if (!result.hasGoodResolution) {
-    pushIssue('upload:quality.issues.image.lowResolution', `Low resolution image. Minimum size is ${MIN_WIDTH}x${MIN_HEIGHT}px.`, { minWidth: MIN_WIDTH, minHeight: MIN_HEIGHT });
+    pushIssue('quality.issues.image.lowResolution', `Low resolution image. Minimum size is ${MIN_WIDTH}x${MIN_HEIGHT}px.`, { minWidth: MIN_WIDTH, minHeight: MIN_HEIGHT });
   }
   // Add warnings for suboptimal resolution with different tiers
   if (minRatio >= 0.8 && minRatio < 1) {
     // Between 800px and 1000px: moderate penalty
-    pushIssue('upload:quality.issues.image.suboptimalResolution',
+    pushIssue('quality.issues.image.suboptimalResolution',
       `Image resolution is ${width}x${height}px. For best results, use at least ${IDEAL_WIDTH}x${IDEAL_HEIGHT}px.`,
       { currentWidth: width, currentHeight: height, idealWidth: IDEAL_WIDTH, idealHeight: IDEAL_HEIGHT });
   } else if (minRatio >= 0.6 && minRatio < 0.8) {
     // Between 600px and 800px: heavy penalty
-    pushIssue('upload:quality.issues.image.suboptimalResolutionLow',
+    pushIssue('quality.issues.image.suboptimalResolutionLow',
       `Image resolution is ${width}x${height}px (below 800px). Consider using at least 800x800px for better quality.`,
       { currentWidth: width, currentHeight: height, idealWidth: 800, idealHeight: 800 });
   }
@@ -474,7 +474,7 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
         result.hasFace = false;
         result.faceCount = 0;
         result.faceScore = 0.1; // Very low score for no face
-        pushIssue('upload:quality.issues.face.none', 'No face detected.');
+        pushIssue('quality.issues.face.none', 'No face detected.');
         // gender detection removed
       } else if (faceDetections.length > 1) {
         // Filter out very small detections that might be false positives
@@ -489,18 +489,18 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
         result.faceCount = significantFaces.length;
         
         if (significantFaces.length > 1) {
-          pushIssue('upload:quality.issues.face.multiple', 'Multiple faces detected.');
+          pushIssue('quality.issues.face.multiple', 'Multiple faces detected.');
           result.faceScore = 0.5;
         } else if (significantFaces.length === 1) {
           // Only one significant face after filtering
           result.faceScore = evaluateFacePosition(significantFaces[0], width, height);
           if (result.faceScore < 0.7) {
-            pushIssue('upload:quality.issues.face.positionNotOptimal', 'Face position is not optimal.');
+            pushIssue('quality.issues.face.positionNotOptimal', 'Face position is not optimal.');
           }
         } else {
           // No significant faces after filtering
           result.faceScore = 0.1;
-          pushIssue('upload:quality.issues.face.none', 'No clear face detected.');
+          pushIssue('quality.issues.face.none', 'No clear face detected.');
         }
         // gender detection removed
       } else {
@@ -512,7 +512,7 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
         result.faceScore = evaluateFacePosition(faceDetections[0], width, height);
         
         if (result.faceScore < 0.7) {
-          pushIssue('upload:quality.issues.face.positionNotOptimal', 'Face position is not optimal.');
+          pushIssue('quality.issues.face.positionNotOptimal', 'Face position is not optimal.');
         }
         
         // Check for eye visibility and analyze eye color
@@ -542,7 +542,7 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
       result.hasFace = false; 
       result.faceCount = 0;
       result.faceScore = 0.5; // Give a medium score as fallback
-      pushIssue('upload:quality.issues.face.detectSkipped', 'Face/body/gender detection was skipped.');
+      pushIssue('quality.issues.face.detectSkipped', 'Face/body/gender detection was skipped.');
     }
   } else if (!petMode) {
     // Models not available
@@ -553,7 +553,7 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
     result.hasFace = false;
     result.faceCount = 0;
     result.faceScore = 0.5; // Medium fallback score when face detection is skipped
-    pushIssue('upload:quality.issues.face.detectSkipped', 'Face/body/gender detection was skipped.');
+    pushIssue('quality.issues.face.detectSkipped', 'Face/body/gender detection was skipped.');
   } else {
     // Pet mode: skip human face/eye detection entirely
     result.hasBody = false;
@@ -572,9 +572,9 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
   result.brightnessScore = calculateBrightnessScore(stats.brightness);
   if (result.brightnessScore < 0.7) {
     if (stats.brightness < MIN_BRIGHTNESS) {
-      pushIssue('upload:quality.issues.image.tooDark', 'Image is too dark.');
+      pushIssue('quality.issues.image.tooDark', 'Image is too dark.');
     } else if (stats.brightness > MAX_BRIGHTNESS) {
-      pushIssue('upload:quality.issues.image.tooBright', 'Image is too bright.');
+      pushIssue('quality.issues.image.tooBright', 'Image is too bright.');
     }
   }
   
@@ -584,14 +584,14 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
     // Check if the issue is specifically subject-background separation
     if (stats.subjectBackgroundSeparation !== undefined && stats.subjectBackgroundSeparation < MIN_SUBJECT_BACKGROUND_SEPARATION) {
       if (stats.subjectBackgroundSeparation < 0.03) {
-        pushIssue('upload:quality.issues.contrast.separation.nearlyIdentical', 'Subject and background are nearly identical in tone - use a strongly contrasting background.');
+        pushIssue('quality.issues.contrast.separation.nearlyIdentical', 'Subject and background are nearly identical in tone - use a strongly contrasting background.');
       } else if (stats.subjectBackgroundSeparation < 0.05) {
-        pushIssue('upload:quality.issues.contrast.separation.tooSimilar', 'Subject and background are too similar in tone - consider using a contrasting background.');
+        pushIssue('quality.issues.contrast.separation.tooSimilar', 'Subject and background are too similar in tone - consider using a contrasting background.');
       } else {
-        pushIssue('upload:quality.issues.contrast.separation.couldBeMoreDistinct', 'Subject and background could be more distinct - try a different background color.');
+        pushIssue('quality.issues.contrast.separation.couldBeMoreDistinct', 'Subject and background could be more distinct - try a different background color.');
       }
     } else {
-      pushIssue('upload:quality.issues.contrast.poorOrFlat', 'Image has poor contrast or appears too flat.');
+      pushIssue('quality.issues.contrast.poorOrFlat', 'Image has poor contrast or appears too flat.');
     }
   }
   
@@ -605,7 +605,7 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
   // This prevents portrait-mode bokeh (sharp subject, blurry background) from failing outright.
   
   if (!passesBlurTest) {
-    pushIssue('upload:quality.issues.sharpness.tooBlurry', 'Image appears to be blurry or lacks sufficient detail.');
+    pushIssue('quality.issues.sharpness.tooBlurry', 'Image appears to be blurry or lacks sufficient detail.');
   }
   
 
@@ -1255,7 +1255,7 @@ export function checkBodyShotRequirements(results: Record<string, ImageQualityRe
   if (isServer) return { isValid: true, bodyCount: 0, totalImages: 0, bodyPercentage: 0, errors: [], i18nErrors: [] };
   
   const totalImages = Object.keys(results).length;
-  if (totalImages === 0) return { isValid: false, bodyCount: 0, totalImages: 0, bodyPercentage: 0, errors: ['No images uploaded'], i18nErrors: [{ key: 'upload:quality.issues.upload.none' }] };
+  if (totalImages === 0) return { isValid: false, bodyCount: 0, totalImages: 0, bodyPercentage: 0, errors: ['No images uploaded'], i18nErrors: [{ key: 'quality.issues.upload.none' }] };
   
   const bodyCount = Object.values(results).filter(r => r.hasBody).length;
   const bodyPercentage = bodyCount / totalImages;
@@ -1266,13 +1266,13 @@ export function checkBodyShotRequirements(results: Record<string, ImageQualityRe
   // Check minimum body count
   if (bodyCount < MIN_BODY_COUNT) {
     errors.push(`Need at least ${MIN_BODY_COUNT} body shots (currently have ${bodyCount})`);
-    i18nErrors.push({ key: 'upload:quality.issues.body.minRequired', params: { min: MIN_BODY_COUNT, current: bodyCount } });
+    i18nErrors.push({ key: 'quality.issues.body.minRequired', params: { min: MIN_BODY_COUNT, current: bodyCount } });
   }
   
   // Check maximum percentage
   if (bodyPercentage > MAX_BODY_PERCENTAGE) {
     errors.push(`Too many body shots (${Math.round(bodyPercentage * 100)}%). Maximum ${Math.round(MAX_BODY_PERCENTAGE * 100)}% allowed`);
-    i18nErrors.push({ key: 'upload:quality.issues.body.tooMany', params: { currentPercent: Math.round(bodyPercentage * 100), maxPercent: Math.round(MAX_BODY_PERCENTAGE * 100) } });
+    i18nErrors.push({ key: 'quality.issues.body.tooMany', params: { currentPercent: Math.round(bodyPercentage * 100), maxPercent: Math.round(MAX_BODY_PERCENTAGE * 100) } });
   }
   
   return {
@@ -1332,16 +1332,16 @@ function isAcceptable(result: ImageQualityResult, opts?: { petMode?: boolean }):
   // i18n equivalents
   for (const cf of criticalFailures) {
     if (cf === 'No face detected in the image') {
-      result.i18nIssues.push({ key: 'upload:quality.issues.face.none' });
+      result.i18nIssues.push({ key: 'quality.issues.face.none' });
     } else if (cf === 'Multiple faces detected in the image') {
-      result.i18nIssues.push({ key: 'upload:quality.issues.face.multiple' });
+      result.i18nIssues.push({ key: 'quality.issues.face.multiple' });
     } else if (cf === 'Image quality score is too low') {
-      result.i18nIssues.push({ key: 'upload:quality.issues.score.tooLow' });
+      result.i18nIssues.push({ key: 'quality.issues.score.tooLow' });
     }
   }
   for (const w of warnings) {
     if (w.startsWith('Eyes may not be clearly visible')) {
-      result.i18nIssues.push({ key: 'upload:quality.issues.eyes.maybeNotVisible' });
+      result.i18nIssues.push({ key: 'quality.issues.eyes.maybeNotVisible' });
     }
   }
   
@@ -1351,7 +1351,7 @@ function isAcceptable(result: ImageQualityResult, opts?: { petMode?: boolean }):
   // Defensive fallback: ensure at least one human-friendly reason exists when rejected
   if (!result.isAcceptable && result.issues.length === 0) {
     result.issues.push('This photo didn\'t meet the quality requirements. Try a front-facing, well-lit photo.');
-    result.i18nIssues.push({ key: 'upload:quality.issues.reject.genericHint' });
+    result.i18nIssues.push({ key: 'quality.issues.reject.genericHint' });
   }
   
   return result.isAcceptable;

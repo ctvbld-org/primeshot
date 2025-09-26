@@ -119,5 +119,93 @@
 
   "countdown": {
     "fallback": "Calcolo in corso..."
+  },
+
+  "requirements": {
+    "header": {
+      "title": "Crea un Personaggio",
+      "description": "Carica {{minImages}} foto di alta qualità di te stesso per addestrare un Personaggio riutilizzabile che catturi la tua vera somiglianza in ogni sessione.",
+      "secureNote": "I tuoi caricamenti sono privati e sicuri."
+    },
+    "sections": {
+      "uploadTips": "Consigli per il caricamento",
+      "dosDonts": "Cosa fare e cosa non fare"
+    },
+    "tips": {
+      "naturalLight": "Usa la luce naturale posizionandoti vicino a una finestra o uscendo all'aperto!",
+      "photos": "Includi foto ravvicinate e a mezzo busto.",
+      "expression": "Mantieni un'espressione neutra o naturalmente amichevole.",
+      "avoid": "Evita filtri, cappelli, trucco pesante o immagini generate dall'IA.",
+      "clothing": "Indossa abiti semplici con colori solidi o motivi delicati.",
+      "quantity": "Carica {{minImages}} foto o più con angolazioni e illuminazione varie."
+    },
+    "dodonts": {
+      "eyes": "Guarda la fotocamera con i tuoi occhi chiaramente visibili.",
+      "lighting": "Usa un'illuminazione naturale e luminosa. Evita foto scure o sfocate.",
+      "frame": "Assicurati di essere solo nell'inquadratura, senza disordine o altre persone.",
+      "face": "Inquadra il tuo viso in modo che non sia troppo piccolo o tagliato."
+    },
+    "altText": {
+      "goodExample": "Buon esempio",
+      "badExample": "Cattivo esempio"
+    }
+  },
+
+  "quality": {
+    "issues": {
+      "image": {
+        "lowResolution": "Immagine a bassa risoluzione. Dimensione minima: {{minWidth}}x{{minHeight}}px.",
+        "suboptimalResolution": "La risoluzione dell'immagine è {{currentWidth}}x{{currentHeight}}px. Per risultati migliori, usa almeno {{idealWidth}}x{{idealHeight}}px.",
+        "suboptimalResolutionLow": "La risoluzione dell'immagine è {{currentWidth}}x{{currentHeight}}px (sotto gli 800px). Considera di usare almeno 800x800px per una qualità migliore.",
+        "tooDark": "L'immagine è troppo scura.",
+        "tooBright": "L'immagine è troppo luminosa."
+      },
+      "face": {
+        "none": "Nessun volto rilevato.",
+        "multiple": "Rilevati più volti.",
+        "positionNotOptimal": "La posizione del volto non è ottimale.",
+        "detectSkipped": "Il rilevamento del volto è stato saltato."
+      },
+      "contrast": {
+        "separation": {
+          "nearlyIdentical": "Il soggetto e lo sfondo hanno toni quasi identici - usa uno sfondo fortemente contrastante.",
+          "tooSimilar": "Il soggetto e lo sfondo hanno toni troppo simili - considera l'uso di uno sfondo contrastante.",
+          "couldBeMoreDistinct": "Il soggetto e lo sfondo potrebbero essere più distinti - prova un colore di sfondo diverso."
+        },
+        "poorOrFlat": "L'immagine ha un contrasto scarso o appare troppo piatta."
+      },
+      "sharpness": {
+        "tooBlurry": "L'immagine appare sfocata o manca di dettagli sufficienti."
+      },
+      "upload": {
+        "none": "Nessuna immagine caricata"
+      },
+      "body": {
+        "minRequired": "Servono almeno {{min}} foto a figura intera (attualmente ne hai {{current}})",
+        "tooMany": "Troppe foto a figura intera ({{currentPercent}}%). Massimo {{maxPercent}}% consentito"
+      },
+      "score": {
+        "tooLow": "Il punteggio di qualità dell'immagine è troppo basso"
+      },
+      "eyes": {
+        "maybeNotVisible": "Gli occhi potrebbero non essere chiaramente visibili (controlla occhiali da sole, capelli o scarsa illuminazione)"
+      },
+      "reject": {
+        "genericHint": "Questa foto non ha soddisfatto i requisiti di qualità. Prova una foto ben illuminata frontale."
+      }
+    }
+  },
+
+  "uploader": {
+    "dragDropMessage": "Trascina e rilascia {{count}} selfie qui, o",
+    "browse": "sfoglia",
+    "supportedFormats": "Supporta file JPG e PNG",
+    "dropMessage": "Rilascia le tue foto qui",
+    "maxImagesReached": "Numero massimo di foto raggiunto"
+  },
+
+  "status": {
+    "analyzing": "Analizzando {{count}} foto...",
+    "checkingQuality": "Controllo qualità delle foto..."
   }
 }

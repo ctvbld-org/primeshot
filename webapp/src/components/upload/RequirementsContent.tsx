@@ -58,7 +58,7 @@ const dodonts = [
 ] as const;
 
 export function RequirementsContent() {
-  const { t } = useTranslation('upload')
+  const { t } = useTranslation('character')
 
   return (
     <div className={styles.root}>
@@ -69,20 +69,20 @@ export function RequirementsContent() {
             <path d="M5.54688 19.9688C5.54688 21.6629 5.87996 23.341 6.52832 24.9062C7.17662 26.4712 8.12738 27.893 9.3252 29.0908C10.5232 30.2887 11.9455 31.2394 13.5107 31.8877C15.076 32.536 16.754 32.8701 18.4482 32.8701V38.416C16.0257 38.416 13.6268 37.9387 11.3887 37.0117C9.15044 36.0847 7.11639 34.7257 5.40332 33.0127C3.69035 31.2997 2.33137 29.2664 1.4043 27.0283C0.477192 24.7902 0 22.3913 0 19.9688H5.54688ZM29.4775 17.7812C29.4775 22.0021 26.0549 25.4238 21.834 25.4238H18.4697V22.6133H23.9736V7.03906H29.4775V17.7812ZM14.9297 0C16.8728 5.52435e-05 18.4482 1.57548 18.4482 3.51855C18.4481 5.46152 16.8728 7.03705 14.9297 7.03711C12.9866 7.03711 11.4113 5.46156 11.4111 3.51855C11.4111 1.57544 12.9865 8.49359e-08 14.9297 0Z" fill="#2ADED8"/>
           </svg>
           <div>
-            <h3 className={styles.headerTitle}>Create a Character</h3>
+            <h3 className={styles.headerTitle}>{t('requirements.header.title')}</h3>
           </div>
         </div>
         <p className={styles.headerDesc}>
-          Upload {UPLOAD_CONSTANTS.MIN_IMAGES} high-quality photos of yourself to train a reusable Character that captures your true likeness in every shoot.
+          {t('requirements.header.description', { minImages: UPLOAD_CONSTANTS.MIN_IMAGES })}
         </p>
         <small className={styles.secureNote}>
           <Icon variant="secure" size={16} />
-          Uploads are private and secure.
+          {t('requirements.header.secureNote')}
         </small>
       </div>
 
         <div className={`${styles.section} ${styles.sectionBorder}`}>
-          <h4 className={styles.sectionTitle}>Upload tips</h4>
+          <h4 className={styles.sectionTitle}>{t('requirements.sections.uploadTips')}</h4>
           <div className={styles.tipsList}>
             {requirements.map((requirement, index) => (
               <div key={index} className={styles.requirementRow}>
@@ -99,7 +99,7 @@ export function RequirementsContent() {
 
         {/* Do's and don'ts */}
         <div className={styles.section}>
-          <h4 className={styles.sectionTitle}>Do's and don'ts</h4>
+          <h4 className={styles.sectionTitle}>{t('requirements.sections.dosDonts')}</h4>
           <div className={styles.dodontsList}>
             {dodonts.map((dodont, index) => (
               <div key={index} className={styles.dodontItem}>
@@ -112,7 +112,7 @@ export function RequirementsContent() {
                   <div className={styles.ddImageWrap}>
                     <img 
                       src={dodont.doImgURL} 
-                      alt="Do" 
+                      alt={t('requirements.altText.goodExample')} 
                       className={styles.ddImage}
                     />
                     <div className={`${styles.ddBadge} ${styles.ddBadgeOk}`}>
@@ -124,7 +124,7 @@ export function RequirementsContent() {
                   <div className={styles.ddImageWrap}>
                     <img 
                       src={dodont.dontImgURL} 
-                      alt="Don't" 
+                      alt={t('requirements.altText.badExample')} 
                       className={styles.ddImage}
                     />
                     <div className={`${styles.ddBadge} ${styles.ddBadgeNo}`}>

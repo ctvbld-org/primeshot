@@ -119,5 +119,93 @@
 
   "countdown": {
     "fallback": "A calcular..."
+  },
+
+  "requirements": {
+    "header": {
+      "title": "Criar um Personagem",
+      "description": "Carregue {{minImages}} fotos de alta qualidade suas para treinar um Personagem reutilizável que capture a sua verdadeira semelhança em cada sessão.",
+      "secureNote": "Os seus carregamentos são privados e seguros."
+    },
+    "sections": {
+      "uploadTips": "Dicas de carregamento",
+      "dosDonts": "O que fazer e não fazer"
+    },
+    "tips": {
+      "naturalLight": "Use luz natural posicionando-se perto de uma janela ou saindo ao ar livre!",
+      "photos": "Inclua fotos de primeiro plano e de meio corpo.",
+      "expression": "Mantenha uma expressão neutra ou naturalmente amigável.",
+      "avoid": "Evite filtros, chapéus, maquilhagem pesada ou imagens geradas por IA.",
+      "clothing": "Use roupas simples com cores sólidas ou padrões suaves.",
+      "quantity": "Carregue {{minImages}} fotos ou mais com ângulos e iluminação variados."
+    },
+    "dodonts": {
+      "eyes": "Olhe para a câmara com os seus olhos claramente visíveis.",
+      "lighting": "Use iluminação natural e brilhante. Evite fotos escuras ou desfocadas.",
+      "frame": "Certifique-se de estar sozinho no enquadramento, sem desordem ou outras pessoas.",
+      "face": "Enquadre o seu rosto para que não seja demasiado pequeno ou cortado."
+    },
+    "altText": {
+      "goodExample": "Bom exemplo",
+      "badExample": "Mau exemplo"
+    }
+  },
+
+  "quality": {
+    "issues": {
+      "image": {
+        "lowResolution": "Imagem de baixa resolução. Tamanho mínimo: {{minWidth}}x{{minHeight}}px.",
+        "suboptimalResolution": "A resolução da imagem é {{currentWidth}}x{{currentHeight}}px. Para melhores resultados, use pelo menos {{idealWidth}}x{{idealHeight}}px.",
+        "suboptimalResolutionLow": "A resolução da imagem é {{currentWidth}}x{{currentHeight}}px (abaixo de 800px). Considere usar pelo menos 800x800px para melhor qualidade.",
+        "tooDark": "A imagem está demasiado escura.",
+        "tooBright": "A imagem está demasiado brilhante."
+      },
+      "face": {
+        "none": "Nenhum rosto detectado.",
+        "multiple": "Múltiplos rostos detectados.",
+        "positionNotOptimal": "A posição do rosto não é ideal.",
+        "detectSkipped": "A detecção de rosto foi ignorada."
+      },
+      "contrast": {
+        "separation": {
+          "nearlyIdentical": "O sujeito e o fundo têm tons quase idênticos - use um fundo fortemente contrastante.",
+          "tooSimilar": "O sujeito e o fundo têm tons demasiado similares - considere usar um fundo contrastante.",
+          "couldBeMoreDistinct": "O sujeito e o fundo poderiam ser mais distintos - experimente uma cor de fundo diferente."
+        },
+        "poorOrFlat": "A imagem tem contraste fraco ou parece demasiado plana."
+      },
+      "sharpness": {
+        "tooBlurry": "A imagem parece desfocada ou carece de detalhes suficientes."
+      },
+      "upload": {
+        "none": "Nenhuma imagem carregada"
+      },
+      "body": {
+        "minRequired": "São necessárias pelo menos {{min}} fotos de corpo inteiro (actualmente tem {{current}})",
+        "tooMany": "Demasiadas fotos de corpo inteiro ({{currentPercent}}%). Máximo {{maxPercent}}% permitido"
+      },
+      "score": {
+        "tooLow": "A pontuação de qualidade da imagem é demasiado baixa"
+      },
+      "eyes": {
+        "maybeNotVisible": "Os olhos podem não estar claramente visíveis (verifique óculos de sol, cabelo ou má iluminação)"
+      },
+      "reject": {
+        "genericHint": "Esta foto não cumpriu os requisitos de qualidade. Experimente uma foto bem iluminada de frente."
+      }
+    }
+  },
+
+  "uploader": {
+    "dragDropMessage": "Arraste e largue {{count}} selfies aqui, ou",
+    "browse": "procurar",
+    "supportedFormats": "Suporta ficheiros JPG e PNG",
+    "dropMessage": "Largue as suas fotos aqui",
+    "maxImagesReached": "Número máximo de fotos atingido"
+  },
+
+  "status": {
+    "analyzing": "A analisar {{count}} fotos...",
+    "checkingQuality": "A verificar qualidade das fotos..."
   }
 }

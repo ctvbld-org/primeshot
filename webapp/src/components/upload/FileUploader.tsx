@@ -54,7 +54,7 @@ export const FileUploader = React.forwardRef<FileUploaderHandle, FileUploaderPro
   uploadedFiles = [],
   isTransitioningToReview = false
 }: FileUploaderProps, ref) {
-  const { t } = useTranslation('upload')
+  const { t } = useTranslation('character')
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const objectUrlsRef = useRef<string[]>([])

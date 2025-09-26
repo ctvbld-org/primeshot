@@ -27,7 +27,7 @@ export function ImageUpload({
   value,
   onChange,
   styleName,
-  maxFiles = 1,
+  maxFiles,
   maxSizeMB = 10,
   uploadPath = 'app-images/placeholders/styles', // <-- Default to styles
   deferUpload = false,
@@ -53,7 +53,7 @@ export function ImageUpload({
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
-      if (value.length + acceptedFiles.length > maxFiles) {
+      if (maxFiles && value.length + acceptedFiles.length > maxFiles) {
         toast.error(`You can only upload up to ${maxFiles} images`)
         return
       }
@@ -111,8 +111,8 @@ export function ImageUpload({
     accept: {
       'image/*': ['.jpeg', '.jpg', '.png', '.webp'],
     },
-    maxFiles: maxFiles - value.length,
-    disabled: isUploading || value.length >= maxFiles,
+    maxFiles: maxFiles ? maxFiles - value.length : undefined,
+    disabled: isUploading || (maxFiles ? value.length >= maxFiles : false),
   })
 
   const removeImage = (index: number) => {
@@ -215,7 +215,7 @@ export function ImageUpload({
 
   const onAddSelected = () => {
     if (selection.size === 0) return
-    const remaining = Math.max(0, maxFiles - value.length)
+    const remaining = maxFiles ? Math.max(0, maxFiles - value.length) : selection.size
     const chosen = Array.from(selection).slice(0, remaining)
     const dedup = Array.from(new Set([...value, ...chosen]))
     onChange(dedup)
@@ -231,7 +231,7 @@ export function ImageUpload({
             ? 'border-primary bg-primary/10'
             : 'border-gray-300 hover:border-gray-400'
         } ${
-          isUploading || value.length >= maxFiles
+          isUploading || (maxFiles && value.length >= maxFiles)
             ? 'opacity-50 cursor-not-allowed'
             : ''
         }`}
@@ -244,7 +244,7 @@ export function ImageUpload({
             : `Drag & drop images here, or click to select`}
         </p>
         <p className="text-xs text-gray-500 mt-1">
-          {maxFiles - value.length} of {maxFiles} slots available
+          {maxFiles ? `${maxFiles - value.length} of ${maxFiles} slots available` : `${value.length} images uploaded (unlimited)`}
         </p>
       </div>
 
@@ -359,7 +359,7 @@ export function ImageUpload({
                     const url = resolveThumb(name)
                     const already = value.includes(name)
                     const selected = selection.has(name)
-                    const capacityFull = value.length + selection.size >= maxFiles
+                    const capacityFull = maxFiles ? value.length + selection.size >= maxFiles : false
                     const disabled = already || (!selected && capacityFull)
                     return (
                       <button

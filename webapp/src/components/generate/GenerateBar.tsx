@@ -85,6 +85,11 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
 
   // Validation error state for required selectors
   const [errors, setErrors] = useState<{ character?: boolean; scene?: boolean; wardrobe?: boolean; color?: boolean }>({})
+  
+  // Helper function to clear specific error fields
+  const clearError = useCallback((field: keyof typeof errors) => {
+    setErrors(prev => ({ ...prev, [field]: false }))
+  }, [])
 
   // Settings state stored in localStorage-compatible keys
   const STORAGE_KEYS = {
@@ -631,6 +636,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const onSelectCharacter = (modelId: string) => {
     try { localStorage.setItem('character-selection', JSON.stringify({ modelId })) } catch {}
     setSelectedCharacterId(modelId)
+    clearError('character')
     close()
   }
 
@@ -821,7 +827,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 const sel = currentStyle ? getStoredStyleSelections(currentStyle.id).scene : null
                 const isSelected = sel === opt.value
                 return (
-                <button key={opt.value} className={`${styles.itemCard} ${isSelected ? styles.itemSelected : ''}`} onClick={() => { storeStyleSelections(currentStyle.id, { scene: opt.value }); setSelectionVersion(v=>v+1); close() }}>
+                <button key={opt.value} className={`${styles.itemCard} ${isSelected ? styles.itemSelected : ''}`} onClick={() => { storeStyleSelections(currentStyle.id, { scene: opt.value }); setSelectionVersion(v=>v+1); clearError('scene'); close() }}>
                   {opt.image && (
                     <Image loader={scenesLoader} src={opt.image} alt={opt.label} width={80} height={80} className={styles.itemThumb} />
                   )}
@@ -895,6 +901,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                     setSelectedWardrobeValue(opt.value)
                     const g = (opt as any).gender as ('man'|'woman'|'unisex'|undefined)
                     if (g === 'man' || g === 'woman') { if (g !== selectedGender) setSelectedGender(g); save(STORAGE_KEYS.WARDROBE_GENDER, g) }
+                    clearError('wardrobe')
                   }}>
                     {opt.image && (
                       <Image loader={wardrobesLoader} src={opt.image} alt={opt.label} width={80} height={80} className={styles.itemThumb} />
@@ -912,6 +919,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                       <button key={col.value} className={styles.colorSwatch} style={{ backgroundColor: col.color || '#fff' }} onClick={() => {
                         storeStyleSelections(currentStyle.id, { wardrobe: selectedWardrobeValue!, color: col.value });
                         setSelectionVersion(v=>v+1);
+                        clearError('color');
                         close()
                       }} title={col.label} value={col.value} />
                     ))}
@@ -923,6 +931,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                         <button key={col.value} className={`${styles.colorSwatch} ${styles.colorSwatchFixed}`} style={{ backgroundColor: col.color || '#fff' }} onClick={() => {
                           storeStyleSelections(currentStyle.id, { wardrobe: selectedWardrobeValue!, color: col.value });
                           setSelectionVersion(v=>v+1);
+                          clearError('color');
                           close()
                         }} title={col.label} value={col.value} />
                       ))}

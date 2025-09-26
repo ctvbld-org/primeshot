@@ -119,5 +119,93 @@
 
   "countdown": {
     "fallback": "計算中..."
+  },
+
+  "requirements": {
+    "header": {
+      "title": "キャラクターを作成",
+      "description": "{{minImages}}枚の高品質な写真をアップロードして、すべての撮影であなたの真の似顔絵を捉える再利用可能なキャラクターを訓練してください。",
+      "secureNote": "アップロードは非公開で安全です。"
+    },
+    "sections": {
+      "uploadTips": "アップロードのコツ",
+      "dosDonts": "すべきこととすべきでないこと"
+    },
+    "tips": {
+      "naturalLight": "窓の近くに立つか屋外に出て自然光を使用してください！",
+      "photos": "クローズアップと上半身の写真を含めてください。",
+      "expression": "中性的または自然に親しみやすい表情を保ってください。",
+      "avoid": "フィルター、帽子、濃いメイク、AI生成画像は避けてください。",
+      "clothing": "無地の色や柔らかなパターンのシンプルな服装を着用してください。",
+      "quantity": "様々な角度と照明で{{minImages}}枚以上の写真をアップロードしてください。"
+    },
+    "dodonts": {
+      "eyes": "目がはっきりと見えるようにカメラを見てください。",
+      "lighting": "明るい自然光を使用してください。暗いまたはぼやけた写真は避けてください。",
+      "frame": "フレーム内に一人だけで、散らかりや他の人がいないことを確認してください。",
+      "face": "顔が小さすぎたり切れたりしないようにフレーミングしてください。"
+    },
+    "altText": {
+      "goodExample": "良い例",
+      "badExample": "悪い例"
+    }
+  },
+
+  "quality": {
+    "issues": {
+      "image": {
+        "lowResolution": "低解像度の画像。最小サイズ：{{minWidth}}x{{minHeight}}ピクセル。",
+        "suboptimalResolution": "画像の解像度は{{currentWidth}}x{{currentHeight}}ピクセルです。最良の結果を得るには、少なくとも{{idealWidth}}x{{idealHeight}}ピクセルを使用してください。",
+        "suboptimalResolutionLow": "画像の解像度は{{currentWidth}}x{{currentHeight}}ピクセル（800ピクセル未満）です。より良い品質のために少なくとも800x800ピクセルの使用を検討してください。",
+        "tooDark": "画像が暗すぎます。",
+        "tooBright": "画像が明るすぎます。"
+      },
+      "face": {
+        "none": "顔が検出されませんでした。",
+        "multiple": "複数の顔が検出されました。",
+        "positionNotOptimal": "顔の位置が最適ではありません。",
+        "detectSkipped": "顔検出がスキップされました。"
+      },
+      "contrast": {
+        "separation": {
+          "nearlyIdentical": "被写体と背景のトーンがほぼ同じです - 強くコントラストのある背景を使用してください。",
+          "tooSimilar": "被写体と背景のトーンが似すぎています - コントラストのある背景の使用を検討してください。",
+          "couldBeMoreDistinct": "被写体と背景をもっと区別できます - 異なる背景色を試してください。"
+        },
+        "poorOrFlat": "画像のコントラストが悪いか、平坦すぎます。"
+      },
+      "sharpness": {
+        "tooBlurry": "画像がぼやけているか、十分な詳細が不足しています。"
+      },
+      "upload": {
+        "none": "画像がアップロードされていません"
+      },
+      "body": {
+        "minRequired": "少なくとも{{min}}枚の全身写真が必要です（現在{{current}}枚）",
+        "tooMany": "全身写真が多すぎます（{{currentPercent}}%）。最大{{maxPercent}}%まで許可"
+      },
+      "score": {
+        "tooLow": "画像品質スコアが低すぎます"
+      },
+      "eyes": {
+        "maybeNotVisible": "目がはっきりと見えない可能性があります（サングラス、髪、または照明不良をチェック）"
+      },
+      "reject": {
+        "genericHint": "この写真は品質要件を満たしていませんでした。よく照らされた正面写真を試してください。"
+      }
+    }
+  },
+
+  "uploader": {
+    "dragDropMessage": "{{count}}枚のセルフィーをここにドラッグ＆ドロップするか、",
+    "browse": "参照",
+    "supportedFormats": "JPGとPNGファイルをサポート",
+    "dropMessage": "写真をここにドロップしてください",
+    "maxImagesReached": "最大写真数に達しました"
+  },
+
+  "status": {
+    "analyzing": "{{count}}枚の写真を分析中...",
+    "checkingQuality": "写真品質をチェック中..."
   }
 }

@@ -4,6 +4,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@primeshot/common/web/ui/button'
 import { Icon } from '@primeshot/common/web/Icon'
+import { useHtmlTranslation } from '@/hooks/useHtmlTranslation'
 import layoutStyles from '../CharacterTrainingDialog.module.css'
 import styles from './onboarding.module.css'
 
@@ -29,6 +30,8 @@ interface OnboardingStepProps {
 
 export function OnboardingStep({ step, guidelineIndex, guidelines, onNext, onBack, onSkip, onFinish }: OnboardingStepProps) {
   const { t } = useTranslation('character')
+  const introDescription = useHtmlTranslation('onboarding.intro.description1', 'character')
+  const confirmationTitle = useHtmlTranslation('onboarding.confirmation.title', 'character')
   const [imagesLoaded, setImagesLoaded] = React.useState(false)
   const [animatingOut, setAnimatingOut] = React.useState(false)
   const [fadeKey, setFadeKey] = React.useState(0)
@@ -106,8 +109,7 @@ export function OnboardingStep({ step, guidelineIndex, guidelines, onNext, onBac
                 </div>
                 <h2 className={styles.title}>{t('onboarding.intro.title')}</h2>
                 <p className={styles.description}>
-                  {/* Keep the highlight spans; translate the content */}
-                  {t('onboarding.intro.description1')}
+                  {introDescription}
                 </p>
                 <p className={styles.descriptionTight}>{t('onboarding.intro.description2')}</p>
                 <div className={styles.privacyBox}>
@@ -161,7 +163,7 @@ export function OnboardingStep({ step, guidelineIndex, guidelines, onNext, onBac
                 <div className={styles.confirmIconWrap}>
                   <Icon variant="diamond" size={48} className='text-[#2ADED8]' />
                 </div>
-                <h2 className={styles.title} dangerouslySetInnerHTML={{ __html: t('onboarding.confirmation.title').replace(/<highlight>/g, "<span class='text-[#2ADED8]'>").replace(/<\/highlight>/g, "</span>") }} />
+                <h2 className={styles.title}>{confirmationTitle}</h2>
                 <div className={styles.description} style={{ marginBottom: '2rem' }}>
                   <p style={{ marginBottom: '2rem' }}>{t('onboarding.confirmation.paragraph1')}</p>
                   <p>{t('onboarding.confirmation.paragraph2')}</p>

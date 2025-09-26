@@ -409,7 +409,6 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
                         uploadPath="app-images/placeholders/styles"
                         deferUpload
                         onRegisterUploader={registerUploader}
-                        maxFiles={5}
                       />
                     </FormControl>
                     <FormMessage />

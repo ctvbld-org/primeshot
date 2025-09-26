@@ -19,10 +19,10 @@
     "selectStyle": "Sélectionner le style",
     "selectScene": "Sélectionner la scène",
     "selectWardrobe": "Sélectionner la garde-robe",
-    "selectCharacter": "Sélectionner le personnage",
+    "selectCharacter": "Sélectionner le perso",
     "openSettings": "Ouvrir les paramètres",
     "trainingProgress": "Progression de l'entraînement",
-    "characterActions": "Actions du personnage",
+    "characterActions": "Actions du perso",
     "closeOverlay": "Fermer la superposition",
     "carouselNavigation": "Navigation du carrousel",
     "previous": "Précédent",
@@ -38,7 +38,7 @@
     "overridesJson": "JSON des remplacements",
     "enablePromptOverride": "Activer le remplacement d'invite",
     "prompt": "Invite",
-    "characterMetadata": "Métadonnées du personnage (lecture seule)"
+    "characterMetadata": "Métadonnées du perso (lecture seule)"
   },
   "errors": {
     "failedToStartGeneration": "Échec du démarrage de la génération. Veuillez réessayer."

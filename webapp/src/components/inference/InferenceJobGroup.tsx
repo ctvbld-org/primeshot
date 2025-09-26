@@ -1,12 +1,13 @@
 'use client';
 
-import { FC, useMemo, useState } from 'react';
+import { FC, useMemo, useState, useEffect } from 'react';
 import { InferenceThumbnailComponent } from './InferenceThumbnail';
 import { InferenceImageViewerDialog } from './InferenceImageViewerDialog';
 import { InferenceJob } from '@/hooks/useInferenceQueue';
 import { useDialogService } from '@/contexts/DialogServiceContext';
 import { useLazyImage } from '@/hooks/useLazyLoading';
 import { useStyle, useScene, useWardrobe, useColor, useSceneById, useWardrobeById, useColorById } from '@/hooks/useConfig';
+import { useTranslatedScene, useTranslatedWardrobe, useTranslatedColor } from '@/hooks/useTranslatedStyles';
 import { useAuth } from '@/contexts/auth-context';
 import { useTranslation } from 'react-i18next';
 import styles from './InferenceJobGroup.module.css';
@@ -47,7 +48,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
   const isUuid = (v?: string) => !!v && /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i.test(v);
 
   // Load labels for subtitle (style always by id)
-  const { data: styleData } = useStyle(activeJob.styleId as any);
+  const { data: styleData, isLoading: styleLoading } = useStyle(activeJob.styleId as any);
 
   // Scene: resolve by id if UUID, otherwise by value
   const sceneId = activeJob.sceneId || '';
@@ -58,9 +59,14 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
   const useWardrobeHook = isUuid(wardrobeId) ? useWardrobeById : useWardrobe;
   const useColorHook = isUuid(colorId) ? useColorById : useColor;
 
-  const { data: sceneData } = useSceneHook(sceneId || undefined as any);
-  const { data: wardrobeData } = useWardrobeHook(wardrobeId || undefined as any);
-  const { data: colorData } = useColorHook(colorId || undefined as any);
+  const { data: sceneData, isLoading: sceneLoading } = useSceneHook(sceneId || undefined as any);
+  const { data: wardrobeData, isLoading: wardrobeLoading } = useWardrobeHook(wardrobeId || undefined as any);
+  const { data: colorData, isLoading: colorLoading } = useColorHook(colorId || undefined as any);
+
+  // Get translated versions of the data
+  const translatedScene = useTranslatedScene(sceneData);
+  const translatedWardrobe = useTranslatedWardrobe(wardrobeData);
+  const translatedColor = useTranslatedColor(colorData);
 
   const subtitle = useMemo(() => {
     // Prefer prompt_override when available and enabled
@@ -78,14 +84,53 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
       : '';
     if (overridePrompt) return overridePrompt;
 
+    // Show loading indicator if any data is still loading
+    const isLoading = styleLoading || sceneLoading || wardrobeLoading || colorLoading;
+    if (isLoading) {
+      return t('common:loading', { defaultValue: 'Loading...' });
+    }
+
     // Fallback to composed subtitle when override is not present
     const style = styleData?.name || '';
-    const scene = (sceneData as any)?.label || '';
-    const wardrobe = (wardrobeData as any)?.label || '';
-    const color = (colorData as any)?.label || '';
-    // Only render when all parts are available to avoid partial phrases
-    if (!style || !scene || !wardrobe || !color) return '';
-    return t('shoot.subtitle', { ns: 'styles', style, scene, wardrobe, color });
+    const scene = (translatedScene?.label || '').toLowerCase();
+    const wardrobe = (translatedWardrobe?.label || '').toLowerCase();
+    const color = (translatedColor?.label || '').toLowerCase();
+    
+    // Debug logging to identify missing data
+    if (!style || !scene || !wardrobe || !color) {
+      console.log('InferenceJobGroup - Missing subtitle data:', {
+        activeJobIds: {
+          styleId: activeJob.styleId,
+          sceneId: activeJob.sceneId,
+          wardrobeId: activeJob.wardrobeId,
+          colorId: activeJob.colorId
+        },
+        loadedData: {
+          style: style || 'MISSING',
+          scene: scene || 'MISSING',
+          wardrobe: wardrobe || 'MISSING',
+          color: color || 'MISSING'
+        },
+        rawData: {
+          styleData,
+          sceneData,
+          wardrobeData,
+          colorData
+        }
+      });
+    }
+    
+    // Return partial subtitle if some data is available, or empty if none
+    if (!style && !scene && !wardrobe && !color) return '';
+    
+    // If we have all data, use the full translation
+    if (style && scene && wardrobe && color) {
+      return t('shoot.subtitle', { ns: 'styles', style, scene, wardrobe, color });
+    }
+    
+    // Fallback: show available parts
+    const parts = [style, scene, wardrobe, color].filter(Boolean);
+    return parts.join(' • ');
   }, [
     styleData?.name,
     (sceneData as any)?.label,
@@ -93,6 +138,14 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
     (colorData as any)?.label,
     (activeJob as any)?.prompt_override,
     (activeJob as any)?.promptOverride,
+    activeJob.styleId,
+    activeJob.sceneId,
+    activeJob.wardrobeId,
+    activeJob.colorId,
+    styleLoading,
+    sceneLoading,
+    wardrobeLoading,
+    colorLoading,
     t
   ]);
 
@@ -151,9 +204,11 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
     return t(`status.badge.${normalized}` as any, { ns: 'styles', defaultValue: fallback });
   };
 
+  // State to trigger re-renders for progress animation
+  const [, forceUpdate] = useState({});
+
   // Get progress if available
   const getProgress = () => {
-
     const now = Date.now();
 
     // Reset the animation when status changes by including it in the key
@@ -167,12 +222,23 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
 
     const elapsed = now - animationStartTime;
     const jobHash = activeJob.id.split('').reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
-    const totalDuration = 60000 + (jobHash % 20000); // 60–80s range per job
+    const totalDuration = 60000 + (jobHash % 20000); // 60–80s range per job (1-1.33 minutes)
 
-    // Linear ramp, capped at 95% while in non-completed statuses
+    // Linear ramp from 0 to 95% over the duration
     const linear = Math.min(elapsed / totalDuration, 0.95);
     return Math.floor(linear * 100);
   };
+
+  // Update progress animation every second for active jobs
+  useEffect(() => {
+    if (activeJob.status === 'starting') {
+      const interval = setInterval(() => {
+        forceUpdate({}); // Trigger re-render to update progress
+      }, 1000); // Update every second
+
+      return () => clearInterval(interval);
+    }
+  }, [activeJob.status, activeJob.id]);
 
   const renderStatusBadge = () => {
     const statusKey = activeJob.status.charAt(0).toUpperCase() + activeJob.status.slice(1);
@@ -185,7 +251,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
             <Icon variant="info" size={16} />
           )}
           {getStatusDisplay()}
-          {activeJob.status === 'starting' && (
+          {(activeJob.status === 'starting') && (
             <span className={styles.progress}>({getProgress()}%)</span>
           )}
         </span>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState, useCallback } from 'react'
+import { useEffect, useMemo, useState, useCallback, createElement } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
 import { useStyles } from '@/hooks/useConfig'
 import { StyleConfigsSchema, type Style } from '@/types/styles'
@@ -8,10 +8,11 @@ import Image from 'next/image'
 import { makeCloudfrontLoader } from '@/lib/utils/cloudfrontLoader'
 import { useTranslation } from 'react-i18next'
 import { Icon } from '@primeshot/common/web/Icon'
-import { getStyleImages } from '@/lib/utils/get-styles-images'
 import { useStyleSelection } from '@/contexts/style-selection-context'
 import { GenerateBar } from '@/components/generate/GenerateBar'
 import { getStoredSelectedStyleIndex, storeSelectedStyleIndex } from '@/lib/utils/style-storage'
+import { useDialogService } from '@/contexts/DialogServiceContext'
+import { StylePreviewDialog } from './StylePreviewDialog'
 import styles from './StylesCarousel.module.css'
 
 export function StylesCarousel() {
@@ -25,6 +26,9 @@ export function StylesCarousel() {
   
   // Import and use the style selection context
   const { selectedStyleIndex, setSelectedStyleIndex, setStylesData } = useStyleSelection()
+  
+  // Dialog service for opening preview dialog
+  const { openDialog } = useDialogService()
 
   // Validate style configs and transform to expected format (no gender filtering)
   const photographyStyleOptions = useMemo(() => {
@@ -142,6 +146,19 @@ export function StylesCarousel() {
     return style[field] || ''
   }
 
+  // Function to open the preview dialog
+  const openPreviewDialog = useCallback((style: any) => {
+    const styleName = getTranslatedField(style, 'name') || style.name
+    openDialog(
+      createElement(StylePreviewDialog, {
+        styleName,
+        previewImages: style.preview_images || [],
+        fullscreen: true,
+        noContainer: true
+      })
+    )
+  }, [openDialog, getTranslatedField])
+
   // subtitle translation is constant per request
 
   if (isLoading || photographyStyleOptions.length === 0) {
@@ -194,8 +211,18 @@ export function StylesCarousel() {
                     <div className={`${styles.overlay} ${isActive ? styles.active : ''}`}>
                       <div className={styles.textBlock}>
                         <div className={styles.subtitle}>{t('titles.photoStyle', { ns: 'styles' })}</div>
-                        <h3 className={styles.title}>{getTranslatedField(style, 'name')}</h3>
-                        <button className={styles.actionButton}>Examples</button>
+                        <h3 className={styles.title}>{style.name}</h3>
+                        <button 
+                          className={styles.actionButton}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            openPreviewDialog(style)
+                          }}
+                          aria-label={t('buttons.viewExamples', { ns: 'styles' }) || 'View Examples'}
+                        >
+                          Examples
+                        </button>
                       </div>
                     </div>
                   </div>

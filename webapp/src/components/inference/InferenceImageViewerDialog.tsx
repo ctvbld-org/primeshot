@@ -16,6 +16,7 @@ import { InferenceThumbnail } from '@/components/inference/InferenceThumbnail';
 import { getInferenceImageOriginal, getInferenceImageThumbnail, getInferenceImageCard, getInferenceImageUrl } from '@/lib/utils/get-inference-image';
 import styles from './InferenceImageViewerDialog.module.css';
 import { useStyle, useScene, useWardrobe, useColor, useSceneById, useWardrobeById, useColorById } from '@/hooks/useConfig';
+import { useTranslatedScene, useTranslatedWardrobe, useTranslatedColor } from '@/hooks/useTranslatedStyles';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/auth-context';
 import { useTranslation } from 'react-i18next';
@@ -143,10 +144,15 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
   const useWardrobeHook = isUuid(activeJob.wardrobeId) ? useWardrobeById : useWardrobe;
   const useColorHook = isUuid(activeJob.colorId) ? useColorById : useColor;
 
-  const { data: styleData } = useStyle(activeJob.styleId as any);
-  const { data: sceneData } = useSceneHook((activeJob.sceneId || undefined) as any);
-  const { data: wardrobeData } = useWardrobeHook((activeJob.wardrobeId || undefined) as any);
-  const { data: colorData } = useColorHook((activeJob.colorId || undefined) as any);
+  const { data: styleData, isLoading: styleLoading } = useStyle(activeJob.styleId as any);
+  const { data: sceneData, isLoading: sceneLoading } = useSceneHook((activeJob.sceneId || undefined) as any);
+  const { data: wardrobeData, isLoading: wardrobeLoading } = useWardrobeHook((activeJob.wardrobeId || undefined) as any);
+  const { data: colorData, isLoading: colorLoading } = useColorHook((activeJob.colorId || undefined) as any);
+
+  // Get translated versions of the data
+  const translatedScene = useTranslatedScene(sceneData);
+  const translatedWardrobe = useTranslatedWardrobe(wardrobeData);
+  const translatedColor = useTranslatedColor(colorData);
 
   const subtitle = useMemo(() => {
     // Prefer prompt_override when available and enabled
@@ -164,12 +170,52 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
       : '';
     if (overridePrompt) return overridePrompt;
 
+    // Show loading indicator if any data is still loading
+    const isLoading = styleLoading || sceneLoading || wardrobeLoading || colorLoading;
+    if (isLoading) {
+      return t('common:loading', { defaultValue: 'Loading...' });
+    }
+
     const style = styleData?.name || '';
-    const scene = (sceneData as any)?.label || '';
-    const wardrobe = (wardrobeData as any)?.label || '';
-    const color = (colorData as any)?.label || '';
-    if (!style || !scene || !wardrobe || !color) return '';
-    return t('shoot.subtitle', { ns: 'styles', style, scene, wardrobe, color });
+    const scene = (translatedScene?.label || '').toLowerCase();
+    const wardrobe = (translatedWardrobe?.label || '').toLowerCase();
+    const color = (translatedColor?.label || '').toLowerCase();
+    
+    // Debug logging to identify missing data
+    if (!style || !scene || !wardrobe || !color) {
+      console.log('InferenceImageViewerDialog - Missing subtitle data:', {
+        activeJobIds: {
+          styleId: activeJob.styleId,
+          sceneId: activeJob.sceneId,
+          wardrobeId: activeJob.wardrobeId,
+          colorId: activeJob.colorId
+        },
+        loadedData: {
+          style: style || 'MISSING',
+          scene: scene || 'MISSING',
+          wardrobe: wardrobe || 'MISSING',
+          color: color || 'MISSING'
+        },
+        rawData: {
+          styleData,
+          sceneData,
+          wardrobeData,
+          colorData
+        }
+      });
+    }
+    
+    // Return partial subtitle if some data is available, or empty if none
+    if (!style && !scene && !wardrobe && !color) return '';
+    
+    // If we have all data, use the full translation
+    if (style && scene && wardrobe && color) {
+      return t('shoot.subtitle', { ns: 'styles', style, scene, wardrobe, color });
+    }
+    
+    // Fallback: show available parts
+    const parts = [style, scene, wardrobe, color].filter(Boolean);
+    return parts.join(' • ');
   }, [
     styleData?.name,
     (sceneData as any)?.label,
@@ -177,6 +223,14 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
     (colorData as any)?.label,
     (activeJob as any)?.prompt_override,
     (activeJob as any)?.promptOverride,
+    activeJob.styleId,
+    activeJob.sceneId,
+    activeJob.wardrobeId,
+    activeJob.colorId,
+    styleLoading,
+    sceneLoading,
+    wardrobeLoading,
+    colorLoading,
     t
   ]);
 
@@ -759,9 +813,9 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
           <div className={styles.metadataSection}>
             <div className={styles.metadataGrid}>
               {[
-                { label: 'Aspect Ratio', value: aspectRatioText },
-                { label: 'Quality', value: qualityText },
-                { label: 'Model', value: 'Primeshot v1' },
+                { label: t('inference:viewer.metadata.labels.aspectRatio'), value: aspectRatioText },
+                { label: t('inference:viewer.metadata.labels.quality'), value: qualityText },
+                { label: t('inference:viewer.metadata.labels.model'), value: 'Primeshot v1' },
               ].map((item) => (
                 <div className={styles.metadataItem} key={item.label}>
                   <p className={styles.metadataLabel}>{item.label}</p>
@@ -779,7 +833,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
                   <img src={characterImageUrl} alt={activeJob.characterName || 'Character'} className={styles.characterAvatar} />
                 )}
                 <div className={styles.characterName}>
-                  <p className={styles.metadataLabel}>Character</p>
+                  <p className={styles.metadataLabel}>{t('inference:viewer.metadata.labels.character')}</p>
                   <p className={styles.metadataValue}>{activeJob.characterName || ''}</p>
                 </div>
               </div>

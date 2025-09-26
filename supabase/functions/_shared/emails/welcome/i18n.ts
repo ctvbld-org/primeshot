@@ -27,7 +27,7 @@ export const welcomeCopy = {
     intro: (name?: string) => `Vous faites maintenant partie d'un petit groupe qui construit l'avenir des portraits professionnels. Voici comment commencer:`,
     step1_title: 'Personnalisez votre séance',
     step1_desc: 'Choisissez un style, définissez votre décor, sélectionnez votre look',
-    step2_title: 'Créez votre Personnage',
+    step2_title: 'Créez votre Perso',
     step2_desc: 'Importez vos meilleures photos avec différentes expressions et angles pour créer votre jumeau numérique',
     step3_title: 'Générez',
     step3_desc: `Obtenez des portraits de qualité studio en quelques minutes — authentiques, soignés, prêts à l'emploi.`,

@@ -1,23 +1,23 @@
 {
-  "title": "Foto's uploaden",
-  "description": "Upload je foto's om te beginnen",
-  "requirements": {
-    "title": "Foto-eisen",
-    "description": "Zorg ervoor dat je foto's aan deze eisen voldoen"
-  },
-  "buttons": {
-    "upload": "Uploaden",
-    "continue": "Doorgaan",
-    "retry": "Opnieuw proberen"
-  },
-  "errors": {
-    "invalidFile": "Ongeldig bestandstype",
-    "fileTooLarge": "Bestand te groot",
-    "uploadFailed": "Upload mislukt"
-  },
-  "progress": {
-    "uploading": "Uploaden...",
-    "processing": "Verwerken...",
-    "complete": "Voltooid"
-  }
+    "title": "Foto's uploaden",
+    "description": "Upload je foto's om te beginnen",
+    "requirements": {
+        "title": "Foto-eisen",
+        "description": "Zorg ervoor dat je foto's aan deze eisen voldoen"
+    },
+    "buttons": {
+        "upload": "Uploaden",
+        "continue": "Doorgaan",
+        "retry": "Opnieuw proberen"
+    },
+    "errors": {
+        "invalidFile": "Ongeldig bestandstype",
+        "fileTooLarge": "Bestand te groot",
+        "uploadFailed": "Upload mislukt"
+    },
+    "progress": {
+        "uploading": "Uploaden...",
+        "processing": "Verwerken...",
+        "complete": "Voltooid"
+    }
 }

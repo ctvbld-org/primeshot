@@ -1,24 +1,23 @@
 {
-  "title": "Upload Photos",
-  "description": "Upload your photos to get started",
-  "requirements": {
-    "title": "Photo Requirements",
-    "description": "Please ensure your photos meet these requirements"
-  },
-  "buttons": {
-    "upload": "Upload",
-    "continue": "Continue",
-    "retry": "Retry"
-  },
-  "errors": {
-    "invalidFile": "Invalid file type",
-    "fileTooLarge": "File too large",
-    "uploadFailed": "Upload failed"
-  },
-  "progress": {
-    "uploading": "Uploading...",
-    "processing": "Processing...",
-    "complete": "Complete"
-  }
+    "title": "Upload Photos",
+    "description": "Upload your photos to get started",
+    "requirements": {
+        "title": "Photo Requirements",
+        "description": "Please ensure your photos meet these requirements"
+    },
+    "buttons": {
+        "upload": "Upload",
+        "continue": "Continue",
+        "retry": "Retry"
+    },
+    "errors": {
+        "invalidFile": "Invalid file type",
+        "fileTooLarge": "File too large",
+        "uploadFailed": "Upload failed"
+    },
+    "progress": {
+        "uploading": "Uploading...",
+        "processing": "Processing...",
+        "complete": "Complete"
+    }
 }
-

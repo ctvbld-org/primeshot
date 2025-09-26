@@ -25,7 +25,6 @@ interface UploadPhotosStepProps {
 
 export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
   const { t } = useTranslation('character')
-  const { toast } = useToast()
   const { user: authUser } = useAuth()
   const [petMode, setPetMode] = useState(false)
   

@@ -314,6 +314,12 @@ export declare const resources: {
                 characterLabel: string;
                 settingsLabel: string;
             };
+            buttons: {
+                viewExamples: string;
+            };
+            messages: {
+                noPreviewImages: string;
+            };
             shoot: {
                 subtitle: string;
             };
@@ -674,6 +680,90 @@ export declare const resources: {
             };
             countdown: {
                 fallback: string;
+            };
+            requirements: {
+                header: {
+                    title: string;
+                    description: string;
+                    secureNote: string;
+                };
+                sections: {
+                    uploadTips: string;
+                    dosDonts: string;
+                };
+                tips: {
+                    naturalLight: string;
+                    photos: string;
+                    expression: string;
+                    avoid: string;
+                    clothing: string;
+                    quantity: string;
+                };
+                dodonts: {
+                    eyes: string;
+                    lighting: string;
+                    frame: string;
+                    face: string;
+                };
+                altText: {
+                    goodExample: string;
+                    badExample: string;
+                };
+            };
+            quality: {
+                issues: {
+                    image: {
+                        lowResolution: string;
+                        suboptimalResolution: string;
+                        suboptimalResolutionLow: string;
+                        tooDark: string;
+                        tooBright: string;
+                    };
+                    face: {
+                        none: string;
+                        multiple: string;
+                        positionNotOptimal: string;
+                        detectSkipped: string;
+                    };
+                    contrast: {
+                        separation: {
+                            nearlyIdentical: string;
+                            tooSimilar: string;
+                            couldBeMoreDistinct: string;
+                        };
+                        poorOrFlat: string;
+                    };
+                    sharpness: {
+                        tooBlurry: string;
+                    };
+                    upload: {
+                        none: string;
+                    };
+                    body: {
+                        minRequired: string;
+                        tooMany: string;
+                    };
+                    score: {
+                        tooLow: string;
+                    };
+                    eyes: {
+                        maybeNotVisible: string;
+                    };
+                    reject: {
+                        genericHint: string;
+                    };
+                };
+            };
+            uploader: {
+                dragDropMessage: string;
+                browse: string;
+                supportedFormats: string;
+                dropMessage: string;
+                maxImagesReached: string;
+            };
+            status: {
+                analyzing: string;
+                checkingQuality: string;
             };
         };
         about: {
@@ -1628,6 +1718,90 @@ export declare const resources: {
             countdown: {
                 fallback: string;
             };
+            requirements: {
+                header: {
+                    title: string;
+                    description: string;
+                    secureNote: string;
+                };
+                sections: {
+                    uploadTips: string;
+                    dosDonts: string;
+                };
+                tips: {
+                    naturalLight: string;
+                    photos: string;
+                    expression: string;
+                    avoid: string;
+                    clothing: string;
+                    quantity: string;
+                };
+                dodonts: {
+                    eyes: string;
+                    lighting: string;
+                    frame: string;
+                    face: string;
+                };
+                altText: {
+                    goodExample: string;
+                    badExample: string;
+                };
+            };
+            quality: {
+                issues: {
+                    image: {
+                        lowResolution: string;
+                        suboptimalResolution: string;
+                        suboptimalResolutionLow: string;
+                        tooDark: string;
+                        tooBright: string;
+                    };
+                    face: {
+                        none: string;
+                        multiple: string;
+                        positionNotOptimal: string;
+                        detectSkipped: string;
+                    };
+                    contrast: {
+                        separation: {
+                            nearlyIdentical: string;
+                            tooSimilar: string;
+                            couldBeMoreDistinct: string;
+                        };
+                        poorOrFlat: string;
+                    };
+                    sharpness: {
+                        tooBlurry: string;
+                    };
+                    upload: {
+                        none: string;
+                    };
+                    body: {
+                        minRequired: string;
+                        tooMany: string;
+                    };
+                    score: {
+                        tooLow: string;
+                    };
+                    eyes: {
+                        maybeNotVisible: string;
+                    };
+                    reject: {
+                        genericHint: string;
+                    };
+                };
+            };
+            uploader: {
+                dragDropMessage: string;
+                browse: string;
+                supportedFormats: string;
+                dropMessage: string;
+                maxImagesReached: string;
+            };
+            status: {
+                analyzing: string;
+                checkingQuality: string;
+            };
         };
         about: {
             mission: {
@@ -2567,6 +2741,90 @@ export declare const resources: {
             };
             countdown: {
                 fallback: string;
+            };
+            requirements: {
+                header: {
+                    title: string;
+                    description: string;
+                    secureNote: string;
+                };
+                sections: {
+                    uploadTips: string;
+                    dosDonts: string;
+                };
+                tips: {
+                    naturalLight: string;
+                    photos: string;
+                    expression: string;
+                    avoid: string;
+                    clothing: string;
+                    quantity: string;
+                };
+                dodonts: {
+                    eyes: string;
+                    lighting: string;
+                    frame: string;
+                    face: string;
+                };
+                altText: {
+                    goodExample: string;
+                    badExample: string;
+                };
+            };
+            quality: {
+                issues: {
+                    image: {
+                        lowResolution: string;
+                        suboptimalResolution: string;
+                        suboptimalResolutionLow: string;
+                        tooDark: string;
+                        tooBright: string;
+                    };
+                    face: {
+                        none: string;
+                        multiple: string;
+                        positionNotOptimal: string;
+                        detectSkipped: string;
+                    };
+                    contrast: {
+                        separation: {
+                            nearlyIdentical: string;
+                            tooSimilar: string;
+                            couldBeMoreDistinct: string;
+                        };
+                        poorOrFlat: string;
+                    };
+                    sharpness: {
+                        tooBlurry: string;
+                    };
+                    upload: {
+                        none: string;
+                    };
+                    body: {
+                        minRequired: string;
+                        tooMany: string;
+                    };
+                    score: {
+                        tooLow: string;
+                    };
+                    eyes: {
+                        maybeNotVisible: string;
+                    };
+                    reject: {
+                        genericHint: string;
+                    };
+                };
+            };
+            uploader: {
+                dragDropMessage: string;
+                browse: string;
+                supportedFormats: string;
+                dropMessage: string;
+                maxImagesReached: string;
+            };
+            status: {
+                analyzing: string;
+                checkingQuality: string;
             };
         };
         about: {
@@ -3508,6 +3766,90 @@ export declare const resources: {
             countdown: {
                 fallback: string;
             };
+            requirements: {
+                header: {
+                    title: string;
+                    description: string;
+                    secureNote: string;
+                };
+                sections: {
+                    uploadTips: string;
+                    dosDonts: string;
+                };
+                tips: {
+                    naturalLight: string;
+                    photos: string;
+                    expression: string;
+                    avoid: string;
+                    clothing: string;
+                    quantity: string;
+                };
+                dodonts: {
+                    eyes: string;
+                    lighting: string;
+                    frame: string;
+                    face: string;
+                };
+                altText: {
+                    goodExample: string;
+                    badExample: string;
+                };
+            };
+            quality: {
+                issues: {
+                    image: {
+                        lowResolution: string;
+                        suboptimalResolution: string;
+                        suboptimalResolutionLow: string;
+                        tooDark: string;
+                        tooBright: string;
+                    };
+                    face: {
+                        none: string;
+                        multiple: string;
+                        positionNotOptimal: string;
+                        detectSkipped: string;
+                    };
+                    contrast: {
+                        separation: {
+                            nearlyIdentical: string;
+                            tooSimilar: string;
+                            couldBeMoreDistinct: string;
+                        };
+                        poorOrFlat: string;
+                    };
+                    sharpness: {
+                        tooBlurry: string;
+                    };
+                    upload: {
+                        none: string;
+                    };
+                    body: {
+                        minRequired: string;
+                        tooMany: string;
+                    };
+                    score: {
+                        tooLow: string;
+                    };
+                    eyes: {
+                        maybeNotVisible: string;
+                    };
+                    reject: {
+                        genericHint: string;
+                    };
+                };
+            };
+            uploader: {
+                dragDropMessage: string;
+                browse: string;
+                supportedFormats: string;
+                dropMessage: string;
+                maxImagesReached: string;
+            };
+            status: {
+                analyzing: string;
+                checkingQuality: string;
+            };
         };
         about: {
             mission: {
@@ -4447,6 +4789,90 @@ export declare const resources: {
             };
             countdown: {
                 fallback: string;
+            };
+            requirements: {
+                header: {
+                    title: string;
+                    description: string;
+                    secureNote: string;
+                };
+                sections: {
+                    uploadTips: string;
+                    dosDonts: string;
+                };
+                tips: {
+                    naturalLight: string;
+                    photos: string;
+                    expression: string;
+                    avoid: string;
+                    clothing: string;
+                    quantity: string;
+                };
+                dodonts: {
+                    eyes: string;
+                    lighting: string;
+                    frame: string;
+                    face: string;
+                };
+                altText: {
+                    goodExample: string;
+                    badExample: string;
+                };
+            };
+            quality: {
+                issues: {
+                    image: {
+                        lowResolution: string;
+                        suboptimalResolution: string;
+                        suboptimalResolutionLow: string;
+                        tooDark: string;
+                        tooBright: string;
+                    };
+                    face: {
+                        none: string;
+                        multiple: string;
+                        positionNotOptimal: string;
+                        detectSkipped: string;
+                    };
+                    contrast: {
+                        separation: {
+                            nearlyIdentical: string;
+                            tooSimilar: string;
+                            couldBeMoreDistinct: string;
+                        };
+                        poorOrFlat: string;
+                    };
+                    sharpness: {
+                        tooBlurry: string;
+                    };
+                    upload: {
+                        none: string;
+                    };
+                    body: {
+                        minRequired: string;
+                        tooMany: string;
+                    };
+                    score: {
+                        tooLow: string;
+                    };
+                    eyes: {
+                        maybeNotVisible: string;
+                    };
+                    reject: {
+                        genericHint: string;
+                    };
+                };
+            };
+            uploader: {
+                dragDropMessage: string;
+                browse: string;
+                supportedFormats: string;
+                dropMessage: string;
+                maxImagesReached: string;
+            };
+            status: {
+                analyzing: string;
+                checkingQuality: string;
             };
         };
         about: {
@@ -5388,6 +5814,90 @@ export declare const resources: {
             countdown: {
                 fallback: string;
             };
+            requirements: {
+                header: {
+                    title: string;
+                    description: string;
+                    secureNote: string;
+                };
+                sections: {
+                    uploadTips: string;
+                    dosDonts: string;
+                };
+                tips: {
+                    naturalLight: string;
+                    photos: string;
+                    expression: string;
+                    avoid: string;
+                    clothing: string;
+                    quantity: string;
+                };
+                dodonts: {
+                    eyes: string;
+                    lighting: string;
+                    frame: string;
+                    face: string;
+                };
+                altText: {
+                    goodExample: string;
+                    badExample: string;
+                };
+            };
+            quality: {
+                issues: {
+                    image: {
+                        lowResolution: string;
+                        suboptimalResolution: string;
+                        suboptimalResolutionLow: string;
+                        tooDark: string;
+                        tooBright: string;
+                    };
+                    face: {
+                        none: string;
+                        multiple: string;
+                        positionNotOptimal: string;
+                        detectSkipped: string;
+                    };
+                    contrast: {
+                        separation: {
+                            nearlyIdentical: string;
+                            tooSimilar: string;
+                            couldBeMoreDistinct: string;
+                        };
+                        poorOrFlat: string;
+                    };
+                    sharpness: {
+                        tooBlurry: string;
+                    };
+                    upload: {
+                        none: string;
+                    };
+                    body: {
+                        minRequired: string;
+                        tooMany: string;
+                    };
+                    score: {
+                        tooLow: string;
+                    };
+                    eyes: {
+                        maybeNotVisible: string;
+                    };
+                    reject: {
+                        genericHint: string;
+                    };
+                };
+            };
+            uploader: {
+                dragDropMessage: string;
+                browse: string;
+                supportedFormats: string;
+                dropMessage: string;
+                maxImagesReached: string;
+            };
+            status: {
+                analyzing: string;
+                checkingQuality: string;
+            };
         };
         about: {
             mission: {
@@ -6327,6 +6837,90 @@ export declare const resources: {
             };
             countdown: {
                 fallback: string;
+            };
+            requirements: {
+                header: {
+                    title: string;
+                    description: string;
+                    secureNote: string;
+                };
+                sections: {
+                    uploadTips: string;
+                    dosDonts: string;
+                };
+                tips: {
+                    naturalLight: string;
+                    photos: string;
+                    expression: string;
+                    avoid: string;
+                    clothing: string;
+                    quantity: string;
+                };
+                dodonts: {
+                    eyes: string;
+                    lighting: string;
+                    frame: string;
+                    face: string;
+                };
+                altText: {
+                    goodExample: string;
+                    badExample: string;
+                };
+            };
+            quality: {
+                issues: {
+                    image: {
+                        lowResolution: string;
+                        suboptimalResolution: string;
+                        suboptimalResolutionLow: string;
+                        tooDark: string;
+                        tooBright: string;
+                    };
+                    face: {
+                        none: string;
+                        multiple: string;
+                        positionNotOptimal: string;
+                        detectSkipped: string;
+                    };
+                    contrast: {
+                        separation: {
+                            nearlyIdentical: string;
+                            tooSimilar: string;
+                            couldBeMoreDistinct: string;
+                        };
+                        poorOrFlat: string;
+                    };
+                    sharpness: {
+                        tooBlurry: string;
+                    };
+                    upload: {
+                        none: string;
+                    };
+                    body: {
+                        minRequired: string;
+                        tooMany: string;
+                    };
+                    score: {
+                        tooLow: string;
+                    };
+                    eyes: {
+                        maybeNotVisible: string;
+                    };
+                    reject: {
+                        genericHint: string;
+                    };
+                };
+            };
+            uploader: {
+                dragDropMessage: string;
+                browse: string;
+                supportedFormats: string;
+                dropMessage: string;
+                maxImagesReached: string;
+            };
+            status: {
+                analyzing: string;
+                checkingQuality: string;
             };
         };
         about: {
@@ -7268,6 +7862,90 @@ export declare const resources: {
             countdown: {
                 fallback: string;
             };
+            requirements: {
+                header: {
+                    title: string;
+                    description: string;
+                    secureNote: string;
+                };
+                sections: {
+                    uploadTips: string;
+                    dosDonts: string;
+                };
+                tips: {
+                    naturalLight: string;
+                    photos: string;
+                    expression: string;
+                    avoid: string;
+                    clothing: string;
+                    quantity: string;
+                };
+                dodonts: {
+                    eyes: string;
+                    lighting: string;
+                    frame: string;
+                    face: string;
+                };
+                altText: {
+                    goodExample: string;
+                    badExample: string;
+                };
+            };
+            quality: {
+                issues: {
+                    image: {
+                        lowResolution: string;
+                        suboptimalResolution: string;
+                        suboptimalResolutionLow: string;
+                        tooDark: string;
+                        tooBright: string;
+                    };
+                    face: {
+                        none: string;
+                        multiple: string;
+                        positionNotOptimal: string;
+                        detectSkipped: string;
+                    };
+                    contrast: {
+                        separation: {
+                            nearlyIdentical: string;
+                            tooSimilar: string;
+                            couldBeMoreDistinct: string;
+                        };
+                        poorOrFlat: string;
+                    };
+                    sharpness: {
+                        tooBlurry: string;
+                    };
+                    upload: {
+                        none: string;
+                    };
+                    body: {
+                        minRequired: string;
+                        tooMany: string;
+                    };
+                    score: {
+                        tooLow: string;
+                    };
+                    eyes: {
+                        maybeNotVisible: string;
+                    };
+                    reject: {
+                        genericHint: string;
+                    };
+                };
+            };
+            uploader: {
+                dragDropMessage: string;
+                browse: string;
+                supportedFormats: string;
+                dropMessage: string;
+                maxImagesReached: string;
+            };
+            status: {
+                analyzing: string;
+                checkingQuality: string;
+            };
         };
         about: {
             mission: {
@@ -8207,6 +8885,90 @@ export declare const resources: {
             };
             countdown: {
                 fallback: string;
+            };
+            requirements: {
+                header: {
+                    title: string;
+                    description: string;
+                    secureNote: string;
+                };
+                sections: {
+                    uploadTips: string;
+                    dosDonts: string;
+                };
+                tips: {
+                    naturalLight: string;
+                    photos: string;
+                    expression: string;
+                    avoid: string;
+                    clothing: string;
+                    quantity: string;
+                };
+                dodonts: {
+                    eyes: string;
+                    lighting: string;
+                    frame: string;
+                    face: string;
+                };
+                altText: {
+                    goodExample: string;
+                    badExample: string;
+                };
+            };
+            quality: {
+                issues: {
+                    image: {
+                        lowResolution: string;
+                        suboptimalResolution: string;
+                        suboptimalResolutionLow: string;
+                        tooDark: string;
+                        tooBright: string;
+                    };
+                    face: {
+                        none: string;
+                        multiple: string;
+                        positionNotOptimal: string;
+                        detectSkipped: string;
+                    };
+                    contrast: {
+                        separation: {
+                            nearlyIdentical: string;
+                            tooSimilar: string;
+                            couldBeMoreDistinct: string;
+                        };
+                        poorOrFlat: string;
+                    };
+                    sharpness: {
+                        tooBlurry: string;
+                    };
+                    upload: {
+                        none: string;
+                    };
+                    body: {
+                        minRequired: string;
+                        tooMany: string;
+                    };
+                    score: {
+                        tooLow: string;
+                    };
+                    eyes: {
+                        maybeNotVisible: string;
+                    };
+                    reject: {
+                        genericHint: string;
+                    };
+                };
+            };
+            uploader: {
+                dragDropMessage: string;
+                browse: string;
+                supportedFormats: string;
+                dropMessage: string;
+                maxImagesReached: string;
+            };
+            status: {
+                analyzing: string;
+                checkingQuality: string;
             };
         };
         about: {

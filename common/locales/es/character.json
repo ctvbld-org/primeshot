@@ -119,5 +119,93 @@
 
   "countdown": {
     "fallback": "Calculando..."
+  },
+
+  "requirements": {
+    "header": {
+      "title": "Crear un Personaje",
+      "description": "Sube {{minImages}} fotos de alta calidad tuyas para entrenar un Personaje reutilizable que capture tu verdadero parecido en cada sesión.",
+      "secureNote": "Tus subidas son privadas y seguras."
+    },
+    "sections": {
+      "uploadTips": "Consejos de subida",
+      "dosDonts": "Qué hacer y qué no hacer"
+    },
+    "tips": {
+      "naturalLight": "¡Usa luz natural colocándote cerca de una ventana o saliendo al exterior!",
+      "photos": "Incluye fotos de primer plano y de medio cuerpo.",
+      "expression": "Mantén una expresión neutra o naturalmente amigable.",
+      "avoid": "Evita filtros, sombreros, maquillaje pesado o imágenes generadas por IA.",
+      "clothing": "Usa ropa lisa con colores sólidos o patrones suaves.",
+      "quantity": "Sube {{minImages}} fotos o más con ángulos e iluminación variados."
+    },
+    "dodonts": {
+      "eyes": "Mira a la cámara con tus ojos claramente visibles.",
+      "lighting": "Usa iluminación natural y brillante. Evita fotos oscuras o borrosas.",
+      "frame": "Asegúrate de estar solo en el encuadre, sin desorden ni otras personas.",
+      "face": "Encuadra tu cara para que no sea demasiado pequeña ni esté cortada."
+    },
+    "altText": {
+      "goodExample": "Buen ejemplo",
+      "badExample": "Mal ejemplo"
+    }
+  },
+
+  "quality": {
+    "issues": {
+      "image": {
+        "lowResolution": "Imagen de baja resolución. Tamaño mínimo: {{minWidth}}x{{minHeight}}px.",
+        "suboptimalResolution": "La resolución de la imagen es {{currentWidth}}x{{currentHeight}}px. Para mejores resultados, usa al menos {{idealWidth}}x{{idealHeight}}px.",
+        "suboptimalResolutionLow": "La resolución de la imagen es {{currentWidth}}x{{currentHeight}}px (por debajo de 800px). Considera usar al menos 800x800px para mejor calidad.",
+        "tooDark": "La imagen está demasiado oscura.",
+        "tooBright": "La imagen está demasiado brillante."
+      },
+      "face": {
+        "none": "No se detectó ningún rostro.",
+        "multiple": "Se detectaron múltiples rostros.",
+        "positionNotOptimal": "La posición del rostro no es óptima.",
+        "detectSkipped": "Se omitió la detección de rostros."
+      },
+      "contrast": {
+        "separation": {
+          "nearlyIdentical": "El sujeto y el fondo tienen tonos casi idénticos - usa un fondo fuertemente contrastante.",
+          "tooSimilar": "El sujeto y el fondo tienen tonos demasiado similares - considera usar un fondo contrastante.",
+          "couldBeMoreDistinct": "El sujeto y el fondo podrían ser más distintos - prueba un color de fondo diferente."
+        },
+        "poorOrFlat": "La imagen tiene poco contraste o parece demasiado plana."
+      },
+      "sharpness": {
+        "tooBlurry": "La imagen parece borrosa o carece de suficientes detalles."
+      },
+      "upload": {
+        "none": "No se subieron imágenes"
+      },
+      "body": {
+        "minRequired": "Se necesitan al menos {{min}} fotos de cuerpo entero (actualmente tienes {{current}})",
+        "tooMany": "Demasiadas fotos de cuerpo entero ({{currentPercent}}%). Máximo {{maxPercent}}% permitido"
+      },
+      "score": {
+        "tooLow": "La puntuación de calidad de la imagen es demasiado baja"
+      },
+      "eyes": {
+        "maybeNotVisible": "Los ojos pueden no estar claramente visibles (verifica gafas de sol, cabello o mala iluminación)"
+      },
+      "reject": {
+        "genericHint": "Esta foto no cumplió con los requisitos de calidad. Prueba una foto bien iluminada de frente."
+      }
+    }
+  },
+
+  "uploader": {
+    "dragDropMessage": "Arrastra y suelta {{count}} selfies aquí, o",
+    "browse": "examinar",
+    "supportedFormats": "Admite archivos JPG y PNG",
+    "dropMessage": "Suelta tus fotos aquí",
+    "maxImagesReached": "Máximo de fotos alcanzado"
+  },
+
+  "status": {
+    "analyzing": "Analizando {{count}} fotos...",
+    "checkingQuality": "Verificando calidad de las fotos..."
   }
 }

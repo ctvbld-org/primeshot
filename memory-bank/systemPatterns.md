@@ -1919,6 +1919,39 @@ Detected changes in:
 - website/src/components/WaitlistForm.tsx
 - website/src/components/WebGLBackground.tsx
 - website/src/components/WebGLContext.tsx
+
+
+**Auto-update 2025-09-26**:
+Detected changes in:
+- admin/src/app/auth/verify/page.tsx
+- admin/src/app/layout.tsx
+- admin/src/components/layout/AdminHeader.tsx
+- admin/src/components/styles/color-form-dialog.tsx
+- admin/src/components/styles/scene-form-dialog.tsx
+- admin/src/components/styles/scenes-table.tsx
+- admin/src/components/styles/style-form-dialog.tsx
+- admin/src/components/styles/styles-table.tsx
+- admin/src/components/styles/wardrobe-form-dialog.tsx
+- admin/src/components/subscriptions/credit-packs-table.tsx
+- admin/src/components/subscriptions/subscriptions-table.tsx
+- admin/src/lib/api.ts
+- admin/src/lib/api/client.ts
+- admin/src/lib/sync/engine.ts
+- admin/src/lib/utils.ts
+- webapp/src/app/api/cleanup-upload/route.ts
+- webapp/src/app/api/subscription/sync/route.ts
+- webapp/src/app/api/user-images/route.ts
+- webapp/src/app/auth/callback/route.ts
+- webapp/src/app/auth/verify/page.tsx
+- webapp/src/app/auth/verify/verify.module.css
+- webapp/src/app/page.tsx
+- webapp/src/lib/api/client.ts
+- webapp/src/lib/supabase/middleware.ts
+- webapp/src/lib/utils/get-inference-image.ts
+- website/src/app/[locale]/layout.tsx
+- website/src/app/layout.tsx
+- website/src/components/WebGLContext.tsx
+- website/src/components/WebGLImageTransition.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

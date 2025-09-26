@@ -21,7 +21,7 @@
         "desc": "Sélectionnez l'ambiance, la scène et la tenue qui correspondent à votre look."
       },
       "character": {
-        "title": "Créez un personnage",
+        "title": "Créez un perso",
         "desc": "Téléchargez quelques photos pour que notre IA apprenne exactement ce qui fait de vous, vous."
       },
       "generate": {

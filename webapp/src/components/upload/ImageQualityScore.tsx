@@ -54,27 +54,24 @@ export function ImageQualityScore({
   return (
     <div className={styles.container}>
       <div className={styles.imageContainer}>
-        <div className={styles.imageWrapper}>
-          <div className={styles.image}>
-            {fileUrl ? (
-              <Image
-                src={fileUrl}
-                alt={file.name}
-                fill
-                className="object-cover"
-              />
-            ) : (
-              <FileIcon className={styles.fileIcon} />
-            )}
-          </div>
-        </div>
-
         <div className={styles.contentContainer}>
           <div className={styles.headerContainer}>
+            <div className={styles.image}>
+              {fileUrl ? (
+                <Image
+                  src={fileUrl}
+                  alt={file.name}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <FileIcon className={styles.fileIcon} />
+              )}
+            </div>
             <div className={styles.fileInfo}>
               <p className={styles.fileName}>{file.name}</p>
+              <span className={styles.qualityScore}>{Math.round(result.score)}%</span>
             </div>
-            <span className={styles.qualityScore}>{Math.round(result.score)}%</span>
           </div>
 
           {result.issues.length > 0 && (

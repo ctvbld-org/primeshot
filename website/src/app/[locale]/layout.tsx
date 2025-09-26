@@ -167,20 +167,10 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   const finalLocale = SUPPORTED_LOCALES.includes(locale as typeof SUPPORTED_LOCALES[number]) ? locale : 'en';
   
   
-  // Create a robust seedScript that ensures locale consistency
-  const seedScript = `(function() {
-    try {
-      var locale = ${JSON.stringify(finalLocale)};
-      // Set the locale in localStorage before any i18n initialization
-      localStorage.setItem('i18nextLng', locale);
-      // Also set it as a global variable for immediate access
-      window.__INITIAL_LOCALE__ = locale;
-      // Set document language to match
-      document.documentElement.lang = locale;
-    } catch (e) {
-      // Silently handle errors
-    }
-  })();`
+  // Create initial locale data as JSON instead of executable script
+  const initialData = {
+    locale: finalLocale
+  }
   return (
     <html lang={finalLocale} className={`${carb.variable} bg-[#0c1013]`}>
       <head>
@@ -194,7 +184,8 @@ export default async function LocaleLayout({ children, params }: { children: Rea
         <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <script dangerouslySetInnerHTML={{ __html: seedScript }} />
+        <script type="application/json" id="initial-data" dangerouslySetInnerHTML={{ __html: JSON.stringify(initialData) }} />
+        <meta name="locale" content={finalLocale} />
       </head>
       <body className={`${inter.variable} font-sans antialiased bg-[#0c1013] min-h-screen`}>
         <I18nProvider>

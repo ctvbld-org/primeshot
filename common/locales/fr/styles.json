@@ -17,7 +17,7 @@
     "remaining": "restantes",
     "photos": "photos",
     "trainingFailedTitle": "Échec de l'entraînement",
-    "trainingFailedDesc": "Ce personnage ne peut pas être utilisé pour la génération. Veuillez le supprimer et réessayer."
+    "trainingFailedDesc": "Ce perso ne peut pas être utilisé pour la génération. Veuillez le supprimer et réessayer."
   },
   "qualities": {
     "basic": "Basique",
@@ -53,7 +53,7 @@
       "pending": "En attente de disponibilité du serveur - devrait procéder bientôt",
       "queued": "Limite atteinte, en attente qu'une génération se termine",
       "queueReasons": {
-        "character_not_ready": "Le personnage s'entraîne — démarrera automatiquement",
+        "character_not_ready": "Le perso s'entraîne — démarrera automatiquement",
         "concurrent_limit": "Limite atteinte ({{current}}/{{limit}}). Démarrera automatiquement",
         "provider_temporary_issue": "Problème temporaire de soumission au fournisseur. Nous réessayerons automatiquement."
       }
