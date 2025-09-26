@@ -1977,6 +1977,16 @@ Detected changes in:
 - webapp/src/components/upload/UploadRequirements.tsx
 - webapp/src/lib/image-quality.ts
 - website/src/app/[locale]/layout.tsx
+
+
+**Auto-update 2025-09-26**:
+Detected changes in:
+- webapp/src/app/api/subscription/customer-portal/route.ts
+- webapp/src/app/api/webhooks/stripe/route.ts
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/AdminTrainingOptionsDialog.tsx
+- webapp/src/components/pricing/CreditPackDialogContent.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:
