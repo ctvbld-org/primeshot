@@ -2,17 +2,9 @@
 const path = require('path')
 const isProd = process.env.NEXT_PUBLIC_VERCEL_TARGET_ENV !== 'local'
 
-// Only use basePath when accessed through website rewrite, not when accessed directly
-// Check if this is a direct webapp deployment (has webapp in URL) vs proxied through website
-const isDirectWebappAccess = process.env.VERCEL_URL && process.env.VERCEL_URL.includes('webapp')
-const shouldUseBasePath = isProd && !isDirectWebappAccess
-
 const nextConfig = {
-  basePath: shouldUseBasePath ? '/create' : '',
-  assetPrefix: shouldUseBasePath ? '/create' : '',
-  env: {
-    NEXT_PUBLIC_BASE_PATH: shouldUseBasePath ? '/create' : ''
-  },
+  basePath: isProd ? '/create' : '',
+  assetPrefix: isProd ? '/create' : '',
   transpilePackages: ['@primeshot/common'],
   experimental: { externalDir: true },
   webpack: (config, { isServer }) => {
