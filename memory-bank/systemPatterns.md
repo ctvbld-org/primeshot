@@ -1952,6 +1952,31 @@ Detected changes in:
 - website/src/app/layout.tsx
 - website/src/components/WebGLContext.tsx
 - website/src/components/WebGLImageTransition.tsx
+
+
+**Auto-update 2025-09-26**:
+Detected changes in:
+- admin/src/components/styles/style-form-dialog.tsx
+- admin/src/components/ui/image-upload.tsx
+- webapp/src/components/character/training/AdminTrainingOptionsDialog.tsx
+- webapp/src/components/character/training/OnboardingStep.tsx
+- webapp/src/components/character/training/TrainingProgressStep.tsx
+- webapp/src/components/character/training/UploadPhotosStep.tsx
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/inference/InferenceImageViewerDialog.tsx
+- webapp/src/components/inference/InferenceJobGroup.tsx
+- webapp/src/components/style/StylePreviewDialog.module.css
+- webapp/src/components/style/StylePreviewDialog.tsx
+- webapp/src/components/style/StylesCarousel.module.css
+- webapp/src/components/style/StylesCarousel.tsx
+- webapp/src/components/upload/FileUploader.tsx
+- webapp/src/components/upload/ImageQualityScore.module.css
+- webapp/src/components/upload/ImageQualityScore.tsx
+- webapp/src/components/upload/RequirementsContent.tsx
+- webapp/src/components/upload/UploadRequirements.module.css
+- webapp/src/components/upload/UploadRequirements.tsx
+- webapp/src/lib/image-quality.ts
+- website/src/app/[locale]/layout.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

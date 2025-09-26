@@ -41,8 +41,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create portal session
-    const returnUrl = `${process.env.NEXT_PUBLIC_APP_URL}/${process.env.NEXT_PUBLIC_BASE_PATH}`
+    // Create portal session - construct return URL properly
+    // Use the request origin to maintain the same access pattern (direct vs rewrite)
+    const requestUrl = new URL(request.url)
+    // Extract the base path from the request URL (everything before /api/)
+    const pathBeforeApi = requestUrl.pathname.split('/api/')[0] || ''
+    const returnUrl = `${requestUrl.protocol}//${requestUrl.host}${pathBeforeApi}`
     const sessionConfig: any = {
       customer: customerId,
       return_url: returnUrl,

@@ -44,6 +44,9 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/_next') ||
     pathname === '/favicon.ico' ||
     pathname.startsWith('/public') ||
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/create/api') ||
+    pathname.startsWith('/admin/api') ||
     pathname.endsWith('.svg') ||
     pathname.endsWith('.png') ||
     pathname.endsWith('.jpg') ||
@@ -69,7 +72,7 @@ export function middleware(request: NextRequest) {
   // Determine locale from cookie or Accept-Language
   const cookieLocale = request.cookies.get('i18n_lang')?.value || null
   const headerLocale = parseAcceptLanguage(request.headers.get('accept-language'))
-  const locale = (mapToSupported(cookieLocale) || headerLocale || 'en-GB') as string
+  const locale = (mapToSupported(cookieLocale) || headerLocale || 'en') as string
 
   const url = request.nextUrl.clone()
   url.pathname = `/${locale}${pathname}`

@@ -174,13 +174,12 @@ export function SubscriptionDialogContent({
   const handleDirectPurchase = async (priceId: string) => {
     setLoading(true)
     try {
-      const successPath = process.env.NEXT_PUBLIC_BASE_PATH || '/'
       const res = await fetch(getApiUrl('/api/payment/subscription-checkout'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           priceId,
-          successUrl: `${window.location.origin}${successPath}?subscription=success`,
+          successUrl: `${window.location.origin}${window.location.pathname}?subscription=success`,
           cancelUrl: `${window.location.origin}/pricing`
         })
       })
