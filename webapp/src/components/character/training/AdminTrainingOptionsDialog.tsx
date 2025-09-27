@@ -84,7 +84,7 @@ export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm
             <Label htmlFor="steps">Steps</Label>
             <p className="text-[12px] text-muted-foreground">Between 2600 and 2700 seems to drive the best results but need to compare properly</p>
             <Input id="steps" type="number" value={steps} step={64}
-              onChange={(e) => setSteps(parseInt(e.target.value, 10))} min={3072} max={4096} />
+              onChange={(e) => setSteps(parseInt(e.target.value, 10))} min={2176} max={4096} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="batch_size">Batch size</Label>
