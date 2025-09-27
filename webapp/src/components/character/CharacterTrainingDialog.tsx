@@ -64,6 +64,8 @@ interface StepData {
     resize_size: number
     learning_rate: number
     resolution: string
+    rank: number
+    optimizer: 'adamw' | 'adamw8bit'
   }
   // Onboarding state
   onboardingStep?: number
