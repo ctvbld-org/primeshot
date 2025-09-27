@@ -29,7 +29,10 @@ export interface TrainingStartRequest {
     resize_size?: number;
       steps?: number;
     learning_rate?: number;
-    resolution?: string;
+    optimizer?: 'adamw' | 'adamw8bit';
+    rank?: number;
+    gradient_accumulation_steps?: number;
+    resolution?: number[];
   };
 }
 

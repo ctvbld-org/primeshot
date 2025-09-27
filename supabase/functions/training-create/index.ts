@@ -432,13 +432,37 @@ serve(async (req) => {
           approvedParams.optimizer = training_params.optimizer
         }
       }
-      if (Array.isArray(training_params.resolution)) {
-        // Validate each resolution entry as integer within 512..2048 and divisible by 128
-        const safe = training_params.resolution
-          .map((v) => Math.floor(v))
-          .filter((v) => v >= 512 && v <= 2048 && v % 64 === 0)
-        if (safe.length > 0) {
-          approvedParams.resolution = safe
+      // Coerce resolution into number[] if provided as string/number
+      if (training_params.resolution !== undefined) {
+        let resArr: number[] | null = null
+        const raw: unknown = training_params.resolution as unknown
+        try {
+          if (Array.isArray(raw)) {
+            resArr = raw as number[]
+          } else if (typeof raw === 'string') {
+            const s = raw.trim()
+            if (s.startsWith('[')) {
+              const parsed = JSON.parse(s)
+              if (Array.isArray(parsed)) resArr = parsed.map((v: any) => Number(v))
+            } else if (s.length > 0) {
+              resArr = s.split(',').map((v) => Number(v.trim()))
+            }
+          } else if (typeof raw === 'number') {
+            resArr = [raw]
+          }
+        } catch (_e) {
+          resArr = null
+        }
+
+        if (resArr) {
+          // Validate each resolution entry as integer within 512..2048 and divisible by 64
+          const safe = resArr
+            .filter((v) => Number.isFinite(v))
+            .map((v) => Math.floor(v))
+            .filter((v) => v >= 512 && v <= 2048 && v % 64 === 0)
+          if (safe.length > 0) {
+            approvedParams.resolution = safe
+          }
         }
       }
     }

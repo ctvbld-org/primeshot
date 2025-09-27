@@ -12,7 +12,7 @@ export interface AdminTrainingParams {
   resize_size: number
   steps: number
   learning_rate: number
-  resolution: string
+  resolution: number[]
   rank: number
   optimizer: 'adamw' | 'adamw8bit'
 }
@@ -29,17 +29,41 @@ export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm
   const [batchSize, setBatchSize] = useState<number>(defaults?.batch_size ?? 8)
   const [resizeSize, setResizeSize] = useState<number>(defaults?.resize_size ?? 896)
   const [learningRate, setLearningRate] = useState<number>(defaults?.learning_rate ?? 0.00024)
-  const [resolution, setResolution] = useState<string>(defaults?.resolution ?? '[960]')
+  const [resolution, setResolution] = useState<string>(
+    defaults?.resolution ? JSON.stringify(defaults.resolution) : '[960]'
+  )
   const [rank, setRank] = useState<number>(defaults?.rank ?? 32)
   const [optimizer, setOptimizer] = useState<string>(defaults?.optimizer ?? 'adamw')
 
+  const parseResolutionInput = (input: string): number[] => {
+    try {
+      const trimmed = input.trim()
+      let arr: number[] = []
+      if (trimmed.startsWith('[')) {
+        const parsed = JSON.parse(trimmed)
+        if (Array.isArray(parsed)) arr = parsed.map((v: any) => Number(v))
+      } else if (trimmed.length > 0) {
+        arr = trimmed.split(',').map((v) => Number(v.trim()))
+      }
+      // sanitize values to integers within expected bounds and multiples of 64
+      const safe = arr
+        .filter((v) => Number.isFinite(v))
+        .map((v) => Math.floor(v))
+        .filter((v) => v >= 512 && v <= 2048 && v % 64 === 0)
+      return safe.length > 0 ? safe : [960]
+    } catch (_e) {
+      return [960]
+    }
+  }
+
   const handleConfirm = useCallback(() => {
+    const parsedResolution = parseResolutionInput(resolution)
     const payload: AdminTrainingParams = {
       steps: Number(steps),
       batch_size: Number(batchSize),
       resize_size: Number(resizeSize),
       learning_rate: Number(learningRate),
-      resolution: String(resolution),
+      resolution: parsedResolution,
       rank: Number(rank),
       optimizer: String(optimizer) as 'adamw' | 'adamw8bit'
     }
