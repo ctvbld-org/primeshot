@@ -948,14 +948,14 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
           <OptionsPanel title={t('titles.characterLabel', { ns: 'styles' })} onClose={close} onSearchChange={setPanelQuery} searchValue={panelQuery} canPrev={navState.canPrev} canNext={navState.canNext} onPrev={handlePrev} onNext={handleNext}>
             <div ref={viewportRef} className={styles.carouselViewport} onScroll={updateNavButtons}>
               <div className={styles.itemsRow} style={{ width: 'max-content' }}>
-              <button className={`${styles.itemCard} ${styles.createCard}`} onClick={handleCreateCharacterClick} disabled={createCharacterAction.type === 'limit_reached'}>
+              <button className={`${styles.itemCard} ${styles.createCard}`} onClick={handleCreateCharacterClick} disabled={createCharacterAction.type === 'limit_reached' && !authUser?.admin}>
                 <Icon className={styles.createIcon} variant="plus" size={32} />
                 <div className={styles.itemLabel}>
                   {createCharacterAction.type === 'upgrade_subscription' && t('labels.upgradePlanAddMore', { ns: 'styles' })}
                   {createCharacterAction.type === 'credit_pack' && t('labels.buyCredits', { ns: 'styles' })}
                   {createCharacterAction.type === 'upgrade_or_credit_pack' && t('labels.upgradeOrBuyCredits', { ns: 'styles' })}
-                  {createCharacterAction.type === 'limit_reached' && t('labels.limitReached', { ns: 'styles' })}
-                  {createCharacterAction.type === 'create' && t('buttons.create', { ns: 'generate' })}
+                  {createCharacterAction.type === 'limit_reached' && !authUser?.admin && t('labels.limitReached', { ns: 'styles' })}
+                  {(createCharacterAction.type === 'create' || (createCharacterAction.type === 'limit_reached' && authUser?.admin)) && t('buttons.create', { ns: 'generate' })}
                   {createCharacterAction.type === 'subscription' && t('buttons.create', { ns: 'generate' })}
                   {createCharacterAction.type === 'auth' && t('buttons.create', { ns: 'generate' })}
                 </div>

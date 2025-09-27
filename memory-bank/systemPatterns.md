@@ -1987,6 +1987,13 @@ Detected changes in:
 - webapp/src/components/character/training/AdminTrainingOptionsDialog.tsx
 - webapp/src/components/pricing/CreditPackDialogContent.tsx
 - webapp/src/components/pricing/SubscriptionDialogContent.tsx
+
+
+**Auto-update 2025-09-27**:
+Detected changes in:
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/AdminTrainingOptionsDialog.tsx
+- webapp/src/lib/constants/upload.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

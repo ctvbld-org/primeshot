@@ -30,6 +30,7 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
   const creditGuard = useCreditGuard(characterTrainingCost)
   const { getActiveCharacterCount } = useCharactersApi()
   const { user, isAuthenticated } = useAuth()
+  const isAdmin = !!user?.admin
 
   const remainingCharacterTrainings = React.useMemo(() => {
     if (!subscription) return 0
@@ -62,8 +63,9 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
   }, [characters]);
 
   const hasReachedCharacterLimit = React.useMemo(() => {
+    if (isAdmin) return false
     return activeCharacterCount >= maxCharacters;
-  }, [activeCharacterCount, maxCharacters]);
+  }, [activeCharacterCount, maxCharacters, isAdmin]);
 
   // Check if user is on the highest tier (Pro/Tier 3)
   const isOnHighestTier = useMemo(() => {
@@ -83,8 +85,17 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
     if (!hasActiveSubscription) {
       return { type: 'subscription', message: 'Create' }
     }
+
+    // Admins bypass character limit. Credits rules still apply below.
+    if (isAdmin) {
+      if (needsCreditsForTraining && !hasSufficientCredits) {
+        // Allow admins to buy credits if needed
+        return { type: isOnHighestTier ? 'credit_pack' : 'upgrade_or_credit_pack', message: 'Create', credits: characterTrainingCost }
+      }
+      return { type: 'create', message: 'Create' }
+    }
     // Check character limits first
-    if (hasReachedCharacterLimit) {
+    if (hasReachedCharacterLimit && !isAdmin) {
       if (isOnHighestTier) {
         return { type: 'limit_reached', message: 'Limit Reached' };
       } else {
@@ -112,7 +123,8 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
     isOnHighestTier, 
     needsCreditsForTraining, 
     hasSufficientCredits, 
-    characterTrainingCost
+    characterTrainingCost,
+    isAdmin
   ]);
 
    // Function to open face model upload dialog
@@ -169,6 +181,10 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
         break;
       
       case 'create':
+        if (isAdmin) {
+          openCharacterTrainingDialog()
+          break;
+        }
         // Final server-side limit check to avoid stale client list issues
         ;(async () => {
           try {
@@ -191,7 +207,7 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
         })()
         break;
     }
-  }, [createCharacterAction, creditGuard, openCharacterTrainingDialog, openSubscriptionDialog, openCreditPackDialog, subscription?.plan_name, subscriptionTiers, getActiveCharacterCount, user?.id]);
+  }, [createCharacterAction, creditGuard, openCharacterTrainingDialog, openSubscriptionDialog, openCreditPackDialog, subscription?.plan_name, subscriptionTiers, getActiveCharacterCount, user?.id, isAdmin]);
 
   return {
     createCharacterAction,
