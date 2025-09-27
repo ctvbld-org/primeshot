@@ -88,11 +88,15 @@ async function startTrainingJob(supabase: any, job: TrainingJob): Promise<boolea
       }
     }
 
+    // Determine environment for provider (align with inference-queue behavior)
+    const env = Deno.env.get('ENV') ?? 'prod'
+
     const trainingData = {
       user_id: job.user_id,
       character_id: job.character_id,
       character_name: character.name,
       training_job_id: job.id,
+      env,
       // Only spread if overrides is a plain object
       ...(overrides && typeof overrides === 'object' ? overrides : {})
     };

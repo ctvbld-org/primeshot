@@ -433,15 +433,17 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
         throw new Error('Active subscription required for character training')
       }
 
-      // Get current character count using the centralized method
-      const currentCharacterCount = await getActiveCharacterCount(user!.id)
+      if (!isAdmin) {
+        // Get current character count using the centralized method
+        const currentCharacterCount = await getActiveCharacterCount(user!.id)
 
-      // Prefer API-provided limit; fallback to tiers if missing
-      const maxCharacters = (subscription as any)?.max_characters ?? (subscriptionTiers?.find(tier => tier.name === subscription.plan_name)?.max_characters || 1)
-      
-      if (currentCharacterCount >= maxCharacters) {
-        const planLabel = (subscription as any)?.plan_display_name || subscription.plan_name
-        throw new Error(`Character limit reached. Your ${planLabel} plan allows ${maxCharacters} character(s).`)
+        // Prefer API-provided limit; fallback to tiers if missing
+        const maxCharacters = (subscription as any)?.max_characters ?? (subscriptionTiers?.find(tier => tier.name === subscription.plan_name)?.max_characters || 1)
+        
+        if (currentCharacterCount >= maxCharacters) {
+          const planLabel = (subscription as any)?.plan_display_name || subscription.plan_name
+          throw new Error(`Character limit reached. Your ${planLabel} plan allows ${maxCharacters} character(s).`)
+        }
       }
 
       // Profile data will now be automatically generated during training
@@ -547,7 +549,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
     } finally {
       setIsProcessing(false)
     }
-  }, [stepData, createCharacter, uploadImages, startTraining, updateCharacterStatus, onComplete, subscription, subscriptionTiers, user, toast, t, dialogService])
+  }, [stepData, createCharacter, uploadImages, startTraining, updateCharacterStatus, onComplete, subscription, subscriptionTiers, user, toast, t, dialogService, isAdmin])
 
 
 
