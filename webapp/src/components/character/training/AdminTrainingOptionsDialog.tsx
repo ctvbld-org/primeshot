@@ -13,6 +13,8 @@ export interface AdminTrainingParams {
   steps: number
   learning_rate: number
   resolution: string
+  rank: number
+  optimizer: 'adamw' | 'adamw8bit'
 }
 
 interface AdminTrainingOptionsDialogProps {
@@ -28,6 +30,8 @@ export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm
   const [resizeSize, setResizeSize] = useState<number>(defaults?.resize_size ?? 896)
   const [learningRate, setLearningRate] = useState<number>(defaults?.learning_rate ?? 0.00024)
   const [resolution, setResolution] = useState<string>(defaults?.resolution ?? '[960]')
+  const [rank, setRank] = useState<number>(defaults?.rank ?? 32)
+  const [optimizer, setOptimizer] = useState<string>(defaults?.optimizer ?? 'adamw')
 
   const handleConfirm = useCallback(() => {
     const payload: AdminTrainingParams = {
@@ -35,7 +39,9 @@ export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm
       batch_size: Number(batchSize),
       resize_size: Number(resizeSize),
       learning_rate: Number(learningRate),
-      resolution: String(resolution)
+      resolution: String(resolution),
+      rank: Number(rank),
+      optimizer: String(optimizer) as 'adamw' | 'adamw8bit'
     }
     onConfirm(payload)
   }, [batchSize, resizeSize, onConfirm, steps, learningRate, resolution])
@@ -74,6 +80,23 @@ export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm
             <Label htmlFor="resolution">Resolution</Label>
             <Input id="resolution" type="text" value={resolution}
               onChange={(e) => setResolution(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="rank">Rank</Label>
+            <Input id="rank" type="number" value={rank} step={16}
+              onChange={(e) => setRank(parseInt(e.target.value, 10))} min={16} max={256} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="optimizer">Optimizer</Label>
+            <Select value={optimizer} onValueChange={(v) => setOptimizer(v)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select optimizer" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="adamw">AdamW</SelectItem>
+                <SelectItem value="adamw8bit">AdamW8Bit</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </DialogBody>
         <DialogFooter>
