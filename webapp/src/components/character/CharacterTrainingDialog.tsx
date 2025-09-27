@@ -61,6 +61,7 @@ interface StepData {
   adminTrainingParams?: {
     steps: number
     batch_size: number
+    gradient_accumulation_steps: number
     resize_size: number
     learning_rate: number
     resolution: number[]

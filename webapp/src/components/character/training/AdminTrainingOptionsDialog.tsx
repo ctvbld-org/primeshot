@@ -9,6 +9,7 @@ import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@
 
 export interface AdminTrainingParams {
   batch_size: number
+  gradient_accumulation_steps: number
   resize_size: number
   steps: number
   learning_rate: number
@@ -27,6 +28,7 @@ interface AdminTrainingOptionsDialogProps {
 export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm }: AdminTrainingOptionsDialogProps) {
   const [steps, setSteps] = useState<number>(defaults?.steps ?? 3200)
   const [batchSize, setBatchSize] = useState<number>(defaults?.batch_size ?? 8)
+  const [gradientAccumulationSteps, setGradientAccumulationSteps] = useState<number>(defaults?.gradient_accumulation_steps ?? 1)
   const [resizeSize, setResizeSize] = useState<number>(defaults?.resize_size ?? 896)
   const [learningRate, setLearningRate] = useState<number>(defaults?.learning_rate ?? 0.00024)
   const [resolution, setResolution] = useState<string>(
@@ -61,6 +63,7 @@ export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm
     const payload: AdminTrainingParams = {
       steps: Number(steps),
       batch_size: Number(batchSize),
+      gradient_accumulation_steps: Number(gradientAccumulationSteps),
       resize_size: Number(resizeSize),
       learning_rate: Number(learningRate),
       resolution: parsedResolution,
@@ -88,6 +91,11 @@ export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm
             <p className="text-[12px] text-muted-foreground">Lower produces better quality but slower training</p>
             <Input id="batch_size" type="number" value={batchSize} step={1}
               onChange={(e) => setBatchSize(parseInt(e.target.value, 10))} min={4} max={10} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="gradient_accumulation_steps">Gradient accumulation steps</Label>
+            <Input id="gradient_accumulation_steps" type="number" value={gradientAccumulationSteps} step={1}
+              onChange={(e) => setGradientAccumulationSteps(parseInt(e.target.value, 10))} min={1} max={2} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="learning_rate">Learning rate</Label>
