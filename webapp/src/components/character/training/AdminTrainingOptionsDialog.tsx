@@ -25,7 +25,7 @@ interface AdminTrainingOptionsDialogProps {
 }
 
 export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm }: AdminTrainingOptionsDialogProps) {
-  const [steps, setSteps] = useState<number>(defaults?.steps ?? 2688)
+  const [steps, setSteps] = useState<number>(defaults?.steps ?? 3200)
   const [batchSize, setBatchSize] = useState<number>(defaults?.batch_size ?? 8)
   const [resizeSize, setResizeSize] = useState<number>(defaults?.resize_size ?? 896)
   const [learningRate, setLearningRate] = useState<number>(defaults?.learning_rate ?? 0.00024)
@@ -81,7 +81,7 @@ export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm
             <Label htmlFor="steps">Steps</Label>
             <p className="text-[12px] text-muted-foreground">Between 2600 and 2700 seems to drive the best results but need to compare properly</p>
             <Input id="steps" type="number" value={steps} step={64}
-              onChange={(e) => setSteps(parseInt(e.target.value, 10))} min={2200} max={4000} />
+              onChange={(e) => setSteps(parseInt(e.target.value, 10))} min={3072} max={4096} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="batch_size">Batch size</Label>
