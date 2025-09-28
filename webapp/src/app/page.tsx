@@ -1,6 +1,22 @@
-import { redirect } from 'next/navigation'
+'use client'
 
-export default function RootPage() {
-  // This should never be reached with Next.js i18n, but just in case
-  redirect('/en')
+import { StylesCarousel } from '@/components/style/StylesCarousel'
+import { GalleryPlaceholder } from '@/components/inference/GalleryPlaceholder'
+import { StyleSelectionProvider } from '@/contexts/style-selection-context'
+
+export default function Home() {
+  return (
+    <main className="p-(--site-padding) overflow-hidden min-h-[calc(100vh-104px)]">
+
+      <StyleSelectionProvider>
+        <section className="relative">
+          <StylesCarousel />
+        </section>
+      </StyleSelectionProvider>
+
+      <section className="max-w-[1280px] mx-auto">
+        <GalleryPlaceholder />
+      </section>
+    </main>
+  )
 }

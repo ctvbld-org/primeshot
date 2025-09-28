@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRouter, usePathname } from 'next/navigation'
 import { createClient } from '../lib/supabase/client'
 import i18n from '../i18n-client'
 // Note: Uses the same i18n instance as I18nProvider
@@ -17,30 +16,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const { i18n } = useTranslation() as any
-  const router = useRouter()
-  const pathname = usePathname()
-
-  const getLocaleFromPathname = (path: string | null): string | null => {
-    if (!path) return null
-    // For staging/prod: path will be like "/create" but locale comes from cookie set by website
-    // For local dev: path will be like "/en" or "/fr" 
-    if (typeof window !== 'undefined') {
-      // Check cookie first (set by website middleware on staging/prod)
-      const cookieLocale = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('i18n_lang='))
-        ?.split('=')[1]
-      if (cookieLocale && ['en','fr','es','it','pt','de','nl','cn','jp'].includes(cookieLocale)) {
-        return cookieLocale
-      }
-    }
-    // Fallback: extract from URL (local dev)
-    const match = path.match(/^\/(\w{2})(?:\/|$)/)
-    return match ? match[1] : null
-  }
-
-  const initialLocale = getLocaleFromPathname(pathname) || i18n.language || null
-  const [currentLanguage, setCurrentLanguage] = useState<string | null>(initialLocale)
+  const [currentLanguage, setCurrentLanguage] = useState<string | null>(i18n.language || null)
   const [isLoading, setIsLoading] = useState(true)
   const [isHydrated, setIsHydrated] = useState(false)
 
@@ -56,21 +32,40 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         
         // Don't change language during initial hydration to prevent mismatches
         if (!isHydrated) {
-          setCurrentLanguage(getLocaleFromPathname(pathname) || i18n.language)
+          setCurrentLanguage(i18n.language)
           return
         }
 
-        const pathLocale = getLocaleFromPathname(pathname)
-        if (pathLocale && pathLocale !== i18n.language) {
-          await i18n.changeLanguage(pathLocale)
+        // Check for language from cookie (set by website)
+        let cookieLocale: string | null = null
+        if (typeof window !== 'undefined') {
+          cookieLocale = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('i18n_lang='))
+            ?.split('=')[1] || null
         }
-        setCurrentLanguage(pathLocale || i18n.language)
+
+        // Try load from DB first (if authenticated)
+        let dbLang: string | null = null
+        try {
+          const supabase = createClient()
+          const { data } = await supabase.rpc('get_user_language')
+          dbLang = (data as string | null) ?? null
+        } catch {}
+
+        const lang = dbLang || cookieLocale || localStorage.getItem('i18nextLng') || 'en'
+        
+        // Only change language if it's different from current
+        if (lang !== i18n.language) {
+          await i18n.changeLanguage(lang)
+        }
+        setCurrentLanguage(lang)
       } finally {
         setIsLoading(false)
       }
     }
     init()
-  }, [i18n, isHydrated, pathname])
+  }, [i18n, isHydrated])
 
   const setLanguage = async (lang: string) => {
     setIsLoading(true)
