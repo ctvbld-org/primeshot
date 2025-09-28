@@ -83,26 +83,18 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         await supabase.rpc('set_user_language', { new_language: lang })
       } catch {}
 
-      // Build new path: ensure exactly one locale segment, then append '/create' when on SPA
-      const currentPath = pathname || '/'
-      const stripped = currentPath
-        // remove any leading basePath '/create' variants
-        .replace(/^(?:\/create)+/, '')
-        // collapse duplicated locale segments like '/en/en' or '/fr/create/fr'
-        .replace(/^\/(\w{2})(?:\/(?:create))?(?:\/\1)?(?:\/(?:create))?/, '/$1')
-      const base = stripped.match(/^\/(\w{2})(?:\/|$)/) ? stripped : `/${lang}`
-      const needsCreate = !/\/(create)(?:\/|$)/.test(base)
-      const finalPath = needsCreate ? `${base.replace(/^\/(\w{2}).*$/, '/$1')}/create` : base
-      const previousPath = currentPath
-      router.replace(finalPath)
-      // Fallback: force navigation if client router didn't update URL
+      // Compute new absolute URL compatible with website rewrites
       if (typeof window !== 'undefined') {
-        requestAnimationFrame(() => {
-          if (window.location.pathname === previousPath) {
-            window.location.assign(finalPath)
-          }
-        })
+        const path = window.location.pathname || '/'
+        // Match "/:locale/create(/rest)?" (staging/prod) or "/:locale(/rest)?" (local)
+        const m = path.match(/^\/(\w{2})(?:\/create)?(\/.*)?$/)
+        const rest = (m && m[2]) ? m[2] : ''
+        const target = `/${lang}/create${rest || ''}`
+        window.location.assign(target)
+        return
       }
+      // SSR fallback (should not be hit in client component)
+      router.replace(`/${lang}/create`)
     } finally {
       setIsLoading(false)
     }
