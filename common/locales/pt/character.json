@@ -62,14 +62,14 @@
   "onboarding": {
     "intro": {
       "title": "Conheça o seu personagem",
-      "description1": "Carregue as suas melhores fotos com <highlight>expressões</highlight>, <highlight>ângulos</highlight> e <highlight>poses</highlight> variadas para moldar o seu gémeo de IA único!",
+      "description1": "Carregue as suas melhores fotos com <span style='color: #FF81F5;'>expressões</span>, <span style='color: #70FFA7;'>ângulos</span> e <span style='color: #FFCF55;'>poses</span> variadas para moldar o seu gémeo de IA único!",
       "description2": "Como num verdadeiro ensaio fotográfico, um pouco de preparação oferece resultados autênticos e profissionais.",
       "privacy": "Os seus carregamentos são privados e seguros.",
       "buttonGetStarted": "Começar",
       "buttonSkip": "Saltar"
     },
     "confirmation": {
-      "title": "Como num verdadeiro ensaio fotográfico, <highlight>um pouco de preparação</highlight> faz toda a diferença.",
+      "title": "Como num verdadeiro ensaio fotográfico, <span style='color: #2ADED8;'>um pouco de preparação</span> faz toda a diferença.",
       "paragraph1": "O Primeshot cria retratos de alta qualidade a partir das suas fotos do dia a dia. Fotos claras, bem iluminadas e variadas tornam os seus ensaios gerados mais naturais e impressionantes. Fotos de baixa qualidade ou desfocadas podem limitar os resultados.",
       "paragraph2": "Se os resultados não forem o que esperava, experimente um novo conjunto de fotos num personagem novo.",
       "buttonStart": "Compreendo. Vamos começar!"

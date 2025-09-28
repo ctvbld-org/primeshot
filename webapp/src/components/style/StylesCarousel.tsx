@@ -102,7 +102,8 @@ export function StylesCarousel() {
       }
 
       emblaApi.on('select', onSelect)
-      emblaApi.reInit()
+      // Sync initial state without resetting the current snap index
+      onSelect()
 
       // Initial state
       setCanScrollPrev(emblaApi.canScrollPrev())

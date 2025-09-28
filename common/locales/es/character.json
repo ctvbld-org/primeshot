@@ -62,14 +62,14 @@
   "onboarding": {
     "intro": {
       "title": "Conoce a tu personaje",
-      "description1": "¡Sube las mejores fotos de ti con <highlight>expresiones</highlight>, <highlight>ángulos</highlight> y <highlight>poses</highlight> variadas para dar forma a tu gemelo IA único!",
+      "description1": "¡Sube las mejores fotos de ti con <span style='color: #FF81F5;'>expresiones</span>, <span style='color: #70FFA7;'>ángulos</span> y <span style='color: #FFCF55;'>poses</span> variadas para dar forma a tu gemelo IA único!",
       "description2": "Como en un shooting real, un poco de preparación ofrece resultados auténticos y profesionales.",
       "privacy": "Tus subidas son privadas y seguras.",
       "buttonGetStarted": "Empezar",
       "buttonSkip": "Saltar"
     },
     "confirmation": {
-      "title": "Como en un shooting real, <highlight>un poco de preparación</highlight> marca la diferencia.",
+      "title": "Como en un shooting real, <span style='color: #2ADED8;'>un poco de preparación</span> marca la diferencia.",
       "paragraph1": "Primeshot crea retratos de alta calidad a partir de tus fotos cotidianas. Fotos claras, bien iluminadas y variadas hacen que tus shootings generados sean más naturales e impresionantes. Fotos de baja calidad o borrosas pueden limitar los resultados.",
       "paragraph2": "Si los resultados no son lo que esperabas, prueba un nuevo conjunto de fotos en un personaje nuevo.",
       "buttonStart": "¡Entiendo. Empecemos!"

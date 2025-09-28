@@ -29,7 +29,7 @@ export function buildSubjectCompact(meta: any): string {
   const gender = (meta?.gender || '').toString().trim()
   const age = (meta?.age || '').toString().trim()
   const base = gender || 'subject'
-
+  const bodyType = (meta?.body_type || '').toString().trim()
   //const hairColor = (meta?.hair?.color || '').toString().trim()
   const eyesColor = (meta?.eyes?.color || '').toString().trim()
 
@@ -52,6 +52,9 @@ export function buildSubjectCompact(meta: any): string {
     }
     phrase = `${phrase}, ${eyesPhrase}`
   }
+
+  if (bodyType) phrase = `${phrase}, ${bodyType}`
+
 
   return phrase.replace(/\s+/g, ' ').trim()
 }

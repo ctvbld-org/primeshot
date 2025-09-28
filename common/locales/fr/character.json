@@ -62,14 +62,14 @@
   "onboarding": {
     "intro": {
       "title": "Rencontrez votre perso",
-      "description1": "Téléchargez vos meilleures photos avec des <highlight>expressions</highlight>, <highlight>angles</highlight> et <highlight>poses</highlight> variés pour façonner votre jumeau IA unique !",
+      "description1": "Téléchargez vos meilleures photos avec des <span style='color: #FF81F5;'>expressions</span>, <span style='color: #70FFA7;'>angles</span> et <span style='color: #FFCF55;'>poses</span> variés pour façonner votre jumeau IA unique !",
       "description2": "Comme pour un vrai shooting photo, un peu de préparation offre des résultats authentiques et professionnels.",
       "privacy": "Vos téléchargements sont privés et sécurisés.",
       "buttonGetStarted": "Commencer",
       "buttonSkip": "Passer"
     },
     "confirmation": {
-      "title": "Comme pour un vrai shooting photo, <highlight>un peu de préparation</highlight> fait toute la différence.",
+      "title": "Comme pour un vrai shooting photo, <span style='color: #2ADED8;'>un peu de préparation</span> fait toute la différence.",
       "paragraph1": "Primeshot crée des portraits de haute qualité à partir de vos photos du quotidien. Des photos claires, bien éclairées et variées rendent vos shootings générés plus naturels et impressionnants. Des photos de mauvaise qualité ou floues peuvent limiter les résultats.",
       "paragraph2": "Si les résultats ne correspondent pas à vos attentes, essayez un nouvel ensemble de photos dans un nouveau perso.",
       "buttonStart": "Je comprends. Commençons !"

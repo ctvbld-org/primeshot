@@ -62,14 +62,14 @@
   "onboarding": {
     "intro": {
       "title": "Lerne deinen Charakter kennen",
-      "description1": "Lade deine besten Fotos mit verschiedenen <highlight>Ausdrücken</highlight>, <highlight>Winkeln</highlight> und <highlight>Posen</highlight> hoch, um deinen einzigartigen KI-Zwilling zu formen!",
+      "description1": "Lade deine besten Fotos mit verschiedenen <span style='color: #FF81F5;'>Ausdrücken</span>, <span style='color: #70FFA7;'>Winkeln</span> und <span style='color: #FFCF55;'>Posen</span> hoch, um deinen einzigartigen KI-Zwilling zu formen!",
       "description2": "Wie bei einem echten Fotoshooting liefert etwas Vorbereitung authentische, professionelle Ergebnisse.",
       "privacy": "Deine Uploads sind privat und sicher.",
       "buttonGetStarted": "Loslegen",
       "buttonSkip": "Überspringen"
     },
     "confirmation": {
-      "title": "Wie bei einem echten Fotoshooting macht <highlight>etwas Vorbereitung</highlight> den Unterschied.",
+      "title": "Wie bei einem echten Fotoshooting macht <span style='color: #2ADED8;'>etwas Vorbereitung</span> den Unterschied.",
       "paragraph1": "Primeshot erstellt hochwertige Porträts aus deinen alltäglichen Fotos. Klare, gut beleuchtete und abwechslungsreiche Fotos machen deine generierten Shootings natürlicher und beeindruckender. Fotos niedriger Qualität oder unscharfe Bilder können die Ergebnisse einschränken.",
       "paragraph2": "Falls die Ergebnisse nicht deinen Erwartungen entsprechen, probiere einen neuen Fotosatz mit einem neuen Charakter.",
       "buttonStart": "Verstanden. Lass uns anfangen!"

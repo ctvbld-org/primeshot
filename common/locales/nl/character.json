@@ -62,14 +62,14 @@
   "onboarding": {
     "intro": {
       "title": "Ontmoet je karakter",
-      "description1": "Upload je beste foto's met gevarieerde <highlight>uitdrukkingen</highlight>, <highlight>hoeken</highlight> en <highlight>poses</highlight> om je unieke AI-tweeling vorm te geven!",
+      "description1": "Upload je beste foto's met gevarieerde <span style='color: #FF81F5;'>uitdrukkingen</span>, <span style='color: #70FFA7;'>hoeken</span> en <span style='color: #FFCF55;'>poses</span> om je unieke AI-tweeling vorm te geven!",
       "description2": "Net als bij een echte fotoshoot leveren wat voorbereidingen authentieke, professionele resultaten.",
       "privacy": "Je uploads zijn privé en veilig.",
       "buttonGetStarted": "Beginnen",
       "buttonSkip": "Overslaan"
     },
     "confirmation": {
-      "title": "Net als bij een echte fotoshoot maken <highlight>wat voorbereidingen</highlight> het verschil.",
+      "title": "Net als bij een echte fotoshoot maken <span style='color: #2ADED8;'>wat voorbereidingen</span> het verschil.",
       "paragraph1": "Primeshot maakt hoogwaardige portretten van je dagelijkse foto's. Heldere, goed verlichte en gevarieerde foto's maken je gegenereerde shoots natuurlijker en indrukwekkender. Foto's van lage kwaliteit of wazig kunnen resultaten beperken.",
       "paragraph2": "Als de resultaten niet zijn wat je verwachtte, probeer een nieuwe set foto's in een nieuw karakter.",
       "buttonStart": "Ik begrijp het. Laten we beginnen!"

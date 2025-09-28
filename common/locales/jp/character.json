@@ -62,14 +62,14 @@
   "onboarding": {
     "intro": {
       "title": "キャラクターと出会う",
-      "description1": "さまざまな<highlight>表情</highlight>、<highlight>角度</highlight>、<highlight>ポーズ</highlight>の最高の写真をアップロードして、あなただけのAI分身を作りましょう！",
+      "description1": "さまざまな<span style='color: #FF81F5;'>表情</span>、<span style='color: #70FFA7;'>角度</span>、<span style='color: #FFCF55;'>ポーズ</span>の最高の写真をアップロードして、あなただけのAI分身を作りましょう！",
       "description2": "本物の写真撮影と同様に、少しの準備が本格的でプロフェッショナルな結果をもたらします。",
       "privacy": "アップロードはプライベートで安全です。",
       "buttonGetStarted": "開始",
       "buttonSkip": "スキップ"
     },
     "confirmation": {
-      "title": "本物の写真撮影と同様に、<highlight>少しの準備</highlight>が違いを生みます。",
+      "title": "本物の写真撮影と同様に、<span style='color: #2ADED8;'>少しの準備</span>が違いを生みます。",
       "paragraph1": "Primeshotは日常の写真から高品質なポートレートを作成します。明るく、よく照らされ、バラエティに富んだ写真により、生成される撮影がより自然で印象的になります。低品質やぼやけた写真は結果を制限する可能性があります。",
       "paragraph2": "結果が期待通りでない場合は、新しいキャラクターで新しい写真セットをお試しください。",
       "buttonStart": "理解しました。始めましょう！"

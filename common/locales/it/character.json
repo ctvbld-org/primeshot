@@ -62,14 +62,14 @@
   "onboarding": {
     "intro": {
       "title": "Incontra il tuo personaggio",
-      "description1": "Carica le tue migliori foto con <highlight>espressioni</highlight>, <highlight>angolazioni</highlight> e <highlight>pose</highlight> variate per dare forma al tuo gemello IA unico!",
+      "description1": "Carica le tue migliori foto con <span style='color: #FF81F5;'>espressioni</span>, <span style='color: #70FFA7;'>angolazioni</span> e <span style='color: #FFCF55;'>pose</span> variate per dare forma al tuo gemello IA unico!",
       "description2": "Come in un vero servizio fotografico, un po' di preparazione offre risultati autentici e professionali.",
       "privacy": "I tuoi caricamenti sono privati e sicuri.",
       "buttonGetStarted": "Inizia",
       "buttonSkip": "Salta"
     },
     "confirmation": {
-      "title": "Come in un vero servizio fotografico, <highlight>un po' di preparazione</highlight> fa la differenza.",
+      "title": "Come in un vero servizio fotografico, <span style='color: #2ADED8;'>un po' di preparazione</span> fa la differenza.",
       "paragraph1": "Primeshot crea ritratti di alta qualità dalle tue foto quotidiane. Foto chiare, ben illuminate e variate rendono i tuoi servizi generati più naturali e impressionanti. Foto di bassa qualità o sfocate possono limitare i risultati.",
       "paragraph2": "Se i risultati non sono quello che ti aspettavi, prova un nuovo set di foto in un nuovo personaggio.",
       "buttonStart": "Capisco. Iniziamo!"

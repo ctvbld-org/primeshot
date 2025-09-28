@@ -1994,6 +1994,14 @@ Detected changes in:
 - webapp/src/components/character/CharacterTrainingDialog.tsx
 - webapp/src/components/character/training/AdminTrainingOptionsDialog.tsx
 - webapp/src/lib/constants/upload.ts
+
+
+**Auto-update 2025-09-28**:
+Detected changes in:
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/AdminTrainingOptionsDialog.tsx
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/generate/useCreateCharacter.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

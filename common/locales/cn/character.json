@@ -62,14 +62,14 @@
   "onboarding": {
     "intro": {
       "title": "认识您的角色",
-      "description1": "上传您最好的照片，包含不同的<highlight>表情</highlight>、<highlight>角度</highlight>和<highlight>姿势</highlight>，来塑造您独特的AI分身！",
+      "description1": "上传您最好的照片，包含不同的<span style='color: #FF81F5;'>表情</span>、<span style='color: #70FFA7;'>角度</span>和<span style='color: #FFCF55;'>姿势</span>，来塑造您独特的AI分身！",
       "description2": "就像真正的摄影一样，一些准备工作能带来真实、专业的效果。",
       "privacy": "您的上传是私密和安全的。",
       "buttonGetStarted": "开始",
       "buttonSkip": "跳过"
     },
     "confirmation": {
-      "title": "就像真正的摄影一样，<highlight>一些准备工作</highlight>会带来不同。",
+      "title": "就像真正的摄影一样，<span style='color: #2ADED8;'>一些准备工作</span>会带来不同。",
       "paragraph1": "Primeshot从您的日常照片创建高质量肖像。清晰、光线良好且多样化的照片使您生成的拍摄更自然、更令人印象深刻。低质量或模糊的照片可能会限制效果。",
       "paragraph2": "如果效果不如预期，请尝试在新角色中使用新的照片集。",
       "buttonStart": "我明白了。让我们开始吧！"
