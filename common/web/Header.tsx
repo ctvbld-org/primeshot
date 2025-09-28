@@ -29,7 +29,7 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
       <div className={styles.container}>
         <div className={styles.leftSection}>
           {/* logo */}
-          <a href={`/${locale}/create`}>
+          <a href="/create">
             <Image src={(`${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/assets/logo-primeshot.svg`)} alt={t('aria.brandLogo')} width={32} height={32} />
           </a>
         </div>
@@ -37,8 +37,8 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
         <div className={styles.middleSection}>
           {/* nav */}
           <nav className={styles.nav}>
-            <a href={`/${locale}/explore`} className={styles.navLink}>{t('navigation.explore')}</a>
-            <a href={`/${locale}/create`} className={styles.navLink}>{t('navigation.create')}</a>
+            <a href="/explore" className={styles.navLink}>{t('navigation.explore')}</a>
+            <a href="/create" className={styles.navLink}>{t('navigation.create')}</a>
            {/* <Link href="/use-cases" className={styles.navLink}>Use Cases</Link>
             <Link href="/pricing" className={styles.navLink}>Pricing</Link> */}
             {isAuthenticated && user?.admin && (

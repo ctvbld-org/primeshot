@@ -22,9 +22,20 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const getLocaleFromPathname = (path: string | null): string | null => {
     if (!path) return null
-    // Remove basePath if present
-    const withoutBase = path.replace(/^\/create(\/|$)/, '/$1')
-    const match = withoutBase.match(/^\/(\w{2})(?:\/|$)/)
+    // For staging/prod: path will be like "/create" but locale comes from cookie set by website
+    // For local dev: path will be like "/en" or "/fr" 
+    if (typeof window !== 'undefined') {
+      // Check cookie first (set by website middleware on staging/prod)
+      const cookieLocale = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('i18n_lang='))
+        ?.split('=')[1]
+      if (cookieLocale && ['en','fr','es','it','pt','de','nl','cn','jp'].includes(cookieLocale)) {
+        return cookieLocale
+      }
+    }
+    // Fallback: extract from URL (local dev)
+    const match = path.match(/^\/(\w{2})(?:\/|$)/)
     return match ? match[1] : null
   }
 
@@ -83,18 +94,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         await supabase.rpc('set_user_language', { new_language: lang })
       } catch {}
 
-      // Compute new absolute URL compatible with website rewrites
+      // Simple approach: just reload the page, let the website handle routing via cookie
       if (typeof window !== 'undefined') {
-        const path = window.location.pathname || '/'
-        // Match "/:locale/create(/rest)?" (staging/prod) or "/:locale(/rest)?" (local)
-        const m = path.match(/^\/(\w{2})(?:\/create)?(\/.*)?$/)
-        const rest = (m && m[2]) ? m[2] : ''
-        const target = `/${lang}/create${rest || ''}`
-        window.location.assign(target)
-        return
+        window.location.reload()
       }
-      // SSR fallback (should not be hit in client component)
-      router.replace(`/${lang}/create`)
     } finally {
       setIsLoading(false)
     }
