@@ -4,7 +4,6 @@ import Image from 'next/image';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/AuthContext';
-import { useLanguage } from '../hooks/LanguageContext';
 import { SignInModal } from './SignInModal';
 import { AccountDialog } from './AccountDialog';
 import styles from './Header.module.css';
@@ -19,8 +18,6 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
   const { isAuthenticated, user } = useAuth();
   const { t } = useTranslation('common');
-  const { currentLanguage } = useLanguage();
-  const locale = currentLanguage || 'en';
 
   // Right content can be provided by consumer app via rightSlot
 
