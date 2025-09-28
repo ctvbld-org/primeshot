@@ -89,6 +89,14 @@
     "status": {
       "failed": "Generatie mislukt"
     },
+    "error": {
+      "generic": "Er ging iets mis, je credits zijn terugbetaald",
+      "timeout": "Het maken duurde langer dan verwacht, je credits zijn terugbetaald",
+      "serverBusy": "Onze servers waren tijdelijk bezet, je credits zijn terugbetaald",
+      "memory": "Servercapaciteit overschreden, je credits zijn terugbetaald",
+      "connection": "Tijdelijk verbindingsprobleem, je credits zijn terugbetaald",
+      "imageGeneration": "Het maken kon niet worden voltooid, je credits zijn terugbetaald"
+    },
     "confirmDelete": {
       "title": "Shoot verwijderen?",
       "description": "Dit verwijdert de shoot uit je galerij. Dit kan niet ongedaan worden gemaakt.",

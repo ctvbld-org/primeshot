@@ -510,6 +510,14 @@ export declare const resources: {
                 status: {
                     failed: string;
                 };
+                error: {
+                    generic: string;
+                    timeout: string;
+                    serverBusy: string;
+                    memory: string;
+                    connection: string;
+                    imageGeneration: string;
+                };
                 confirmDelete: {
                     title: string;
                     description: string;
@@ -1547,6 +1555,14 @@ export declare const resources: {
                 status: {
                     failed: string;
                 };
+                error: {
+                    generic: string;
+                    timeout: string;
+                    serverBusy: string;
+                    memory: string;
+                    connection: string;
+                    imageGeneration: string;
+                };
                 confirmDelete: {
                     title: string;
                     description: string;
@@ -2570,6 +2586,14 @@ export declare const resources: {
             group: {
                 status: {
                     failed: string;
+                };
+                error: {
+                    generic: string;
+                    timeout: string;
+                    serverBusy: string;
+                    memory: string;
+                    connection: string;
+                    imageGeneration: string;
                 };
                 confirmDelete: {
                     title: string;
@@ -3595,6 +3619,14 @@ export declare const resources: {
                 status: {
                     failed: string;
                 };
+                error: {
+                    generic: string;
+                    timeout: string;
+                    serverBusy: string;
+                    memory: string;
+                    connection: string;
+                    imageGeneration: string;
+                };
                 confirmDelete: {
                     title: string;
                     description: string;
@@ -4618,6 +4650,14 @@ export declare const resources: {
             group: {
                 status: {
                     failed: string;
+                };
+                error: {
+                    generic: string;
+                    timeout: string;
+                    serverBusy: string;
+                    memory: string;
+                    connection: string;
+                    imageGeneration: string;
                 };
                 confirmDelete: {
                     title: string;
@@ -5643,6 +5683,14 @@ export declare const resources: {
                 status: {
                     failed: string;
                 };
+                error: {
+                    generic: string;
+                    timeout: string;
+                    serverBusy: string;
+                    memory: string;
+                    connection: string;
+                    imageGeneration: string;
+                };
                 confirmDelete: {
                     title: string;
                     description: string;
@@ -6666,6 +6714,14 @@ export declare const resources: {
             group: {
                 status: {
                     failed: string;
+                };
+                error: {
+                    generic: string;
+                    timeout: string;
+                    serverBusy: string;
+                    memory: string;
+                    connection: string;
+                    imageGeneration: string;
                 };
                 confirmDelete: {
                     title: string;
@@ -7691,6 +7747,14 @@ export declare const resources: {
                 status: {
                     failed: string;
                 };
+                error: {
+                    generic: string;
+                    timeout: string;
+                    serverBusy: string;
+                    memory: string;
+                    connection: string;
+                    imageGeneration: string;
+                };
                 confirmDelete: {
                     title: string;
                     description: string;
@@ -8714,6 +8778,14 @@ export declare const resources: {
             group: {
                 status: {
                     failed: string;
+                };
+                error: {
+                    generic: string;
+                    timeout: string;
+                    serverBusy: string;
+                    memory: string;
+                    connection: string;
+                    imageGeneration: string;
                 };
                 confirmDelete: {
                     title: string;

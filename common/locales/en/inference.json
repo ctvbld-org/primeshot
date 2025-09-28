@@ -89,6 +89,14 @@
     "status": {
       "failed": "Generation failed"
     },
+    "error": {
+      "generic": "Error generating images, credits refunded",
+      "timeout": "Generation took too long, credits refunded",
+      "serverBusy": "Server was busy, credits refunded",
+      "memory": "Server overloaded, credits refunded",
+      "connection": "Connection issue, credits refunded",
+      "imageGeneration": "Image generation failed, credits refunded"
+    },
     "confirmDelete": {
       "title": "Delete shoot?",
       "description": "This will remove the shoot from your gallery. This cannot be undone.",

@@ -2,11 +2,23 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useRouter, usePathname } from 'next/navigation';
 import { createClient } from '../lib/supabase/client';
 const LanguageContext = createContext(undefined);
 export function LanguageProvider({ children }) {
     const { i18n } = useTranslation();
-    const [currentLanguage, setCurrentLanguage] = useState(i18n.language || null);
+    const router = useRouter();
+    const pathname = usePathname();
+    const getLocaleFromPathname = (path) => {
+        if (!path)
+            return null;
+        // Remove basePath if present
+        const withoutBase = path.replace(/^\/create(\/|$)/, '/$1');
+        const match = withoutBase.match(/^\/(\w{2})(?:\/|$)/);
+        return match ? match[1] : null;
+    };
+    const initialLocale = getLocaleFromPathname(pathname) || i18n.language || null;
+    const [currentLanguage, setCurrentLanguage] = useState(initialLocale);
     const [isLoading, setIsLoading] = useState(true);
     const [isHydrated, setIsHydrated] = useState(false);
     // Track hydration to prevent SSR mismatches
@@ -15,53 +27,57 @@ export function LanguageProvider({ children }) {
     }, []);
     useEffect(() => {
         async function init() {
-            var _a;
             try {
                 setIsLoading(true);
                 // Don't change language during initial hydration to prevent mismatches
                 if (!isHydrated) {
-                    setCurrentLanguage(i18n.language);
+                    setCurrentLanguage(getLocaleFromPathname(pathname) || i18n.language);
                     return;
                 }
-                const saved = typeof window !== 'undefined' ? localStorage.getItem('i18nextLng') : null;
-                // Try load from DB first (if authenticated)
-                let dbLang = null;
-                try {
-                    const supabase = createClient();
-                    const { data } = await supabase.rpc('get_user_language');
-                    dbLang = (_a = data) !== null && _a !== void 0 ? _a : null;
+                const pathLocale = getLocaleFromPathname(pathname);
+                if (pathLocale && pathLocale !== i18n.language) {
+                    await i18n.changeLanguage(pathLocale);
                 }
-                catch { }
-                const lang = dbLang || saved || i18n.options.fallbackLng;
-                // Only change language if it's different from current
-                if (lang !== i18n.language) {
-                    await i18n.changeLanguage(lang);
-                }
-                setCurrentLanguage(lang);
+                setCurrentLanguage(pathLocale || i18n.language);
             }
             finally {
                 setIsLoading(false);
             }
         }
         init();
-    }, [i18n, isHydrated]);
+    }, [i18n, isHydrated, pathname]);
     const setLanguage = async (lang) => {
-        await i18n.changeLanguage(lang);
-        setCurrentLanguage(lang);
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('i18nextLng', lang);
+        setIsLoading(true);
+        try {
+            // Change the language in i18n
+            await i18n.changeLanguage(lang);
+            setCurrentLanguage(lang);
+            // Update localStorage
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('i18nextLng', lang);
+                try {
+                    const maxAge = 60 * 60 * 24 * 365; // 1 year
+                    document.cookie = `i18n_lang=${encodeURIComponent(lang)}; path=/; max-age=${maxAge}; samesite=lax`;
+                }
+                catch { }
+            }
+            // Persist to DB if authenticated
             try {
-                const maxAge = 60 * 60 * 24 * 365; // 1 year
-                document.cookie = `i18n_lang=${encodeURIComponent(lang)}; path=/; max-age=${maxAge}; samesite=lax`;
+                const supabase = createClient();
+                await supabase.rpc('set_user_language', { new_language: lang });
             }
             catch { }
+            // Navigate to the same page with the new locale by replacing the first segment
+            const currentPath = pathname || '/';
+            // Remove basePath if present so replacement is consistent
+            const withoutBase = currentPath.replace(/^\/create(\/|$)/, '/$1');
+            const newPath = withoutBase.replace(/^\/(\w{2})(?=\/|$)/, `/${lang}`);
+            const finalPath = currentPath.startsWith('/create') ? `/create${newPath}` : newPath;
+            router.push(finalPath);
         }
-        // Persist to DB if authenticated
-        try {
-            const supabase = createClient();
-            await supabase.rpc('set_user_language', { new_language: lang });
+        finally {
+            setIsLoading(false);
         }
-        catch { }
     };
     return (_jsx(LanguageContext.Provider, { value: { currentLanguage, isLoading, setLanguage }, children: children }));
 }

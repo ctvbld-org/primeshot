@@ -89,6 +89,14 @@
     "status": {
       "failed": "Generierung fehlgeschlagen"
     },
+    "error": {
+      "generic": "Etwas ist schiefgelaufen, deine Credits wurden erstattet",
+      "timeout": "Die Erstellung hat länger gedauert als erwartet, deine Credits wurden erstattet",
+      "serverBusy": "Unsere Server waren vorübergehend ausgelastet, deine Credits wurden erstattet",
+      "memory": "Serverkapazität überschritten, deine Credits wurden erstattet",
+      "connection": "Vorübergehendes Verbindungsproblem, deine Credits wurden erstattet",
+      "imageGeneration": "Die Erstellung konnte nicht abgeschlossen werden, deine Credits wurden erstattet"
+    },
     "confirmDelete": {
       "title": "Shooting löschen?",
       "description": "Dies entfernt das Shooting aus deiner Galerie. Diese Aktion kann nicht rückgängig gemacht werden.",

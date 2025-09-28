@@ -1,23 +1,23 @@
 {
-    "title": "Télécharger des photos",
-    "description": "Téléchargez vos photos pour commencer",
-    "requirements": {
-        "title": "Exigences des photos",
-        "description": "Veuillez vous assurer que vos photos répondent à ces exigences"
-    },
-    "buttons": {
-        "upload": "Télécharger",
-        "continue": "Continuer",
-        "retry": "Réessayer"
-    },
-    "errors": {
-        "invalidFile": "Type de fichier invalide",
-        "fileTooLarge": "Fichier trop volumineux",
-        "uploadFailed": "Échec du téléchargement"
-    },
-    "progress": {
-        "uploading": "Téléchargement en cours...",
-        "processing": "Traitement en cours...",
-        "complete": "Terminé"
-    }
+  "title": "Télécharger des photos",
+  "description": "Téléchargez vos photos pour commencer",
+  "requirements": {
+    "title": "Exigences des photos",
+    "description": "Veuillez vous assurer que vos photos répondent à ces exigences"
+  },
+  "buttons": {
+    "upload": "Télécharger",
+    "continue": "Continuer",
+    "retry": "Réessayer"
+  },
+  "errors": {
+    "invalidFile": "Type de fichier invalide",
+    "fileTooLarge": "Fichier trop volumineux",
+    "uploadFailed": "Échec du téléchargement"
+  },
+  "progress": {
+    "uploading": "Téléchargement en cours...",
+    "processing": "Traitement en cours...",
+    "complete": "Terminé"
+  }
 }

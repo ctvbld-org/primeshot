@@ -89,6 +89,14 @@
     "status": {
       "failed": "Generazione fallita"
     },
+    "error": {
+      "generic": "Qualcosa è andato storto, i tuoi crediti sono stati rimborsati",
+      "timeout": "La creazione ha richiesto più tempo del previsto, i tuoi crediti sono stati rimborsati",
+      "serverBusy": "I nostri server erano temporaneamente occupati, i tuoi crediti sono stati rimborsati",
+      "memory": "Capacità del server superata, i tuoi crediti sono stati rimborsati",
+      "connection": "Problema di connessione temporaneo, i tuoi crediti sono stati rimborsati",
+      "imageGeneration": "La creazione non è andata a buon fine, i tuoi crediti sono stati rimborsati"
+    },
     "confirmDelete": {
       "title": "Eliminare il servizio?",
       "description": "Questo rimuoverà il servizio dalla tua galleria. Questa azione non può essere annullata.",

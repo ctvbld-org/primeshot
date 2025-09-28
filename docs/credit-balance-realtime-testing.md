@@ -5,11 +5,11 @@ This guide explains how to test the improved real-time credit balance updates th
 
 ## What Was Fixed
 
-### 1. Enhanced Real-time Subscription (`useCreditBalance.ts`)
-- **Improved Error Handling**: Added comprehensive logging and error recovery
-- **Automatic Reconnection**: Handles connection failures with automatic retry
-- **Multiple Event Sources**: Listens to `user_credits`, `credit_usage`, and `credit_pack_purchases` tables
-- **Faster Updates**: Reduced stale time from 30s to 10s for quicker refreshes
+### 1. Simplified Real-time Subscription (`useCreditBalanceSimple.ts`)
+- **Robust Configuration**: Simplified channel setup to avoid binding mismatches
+- **Single Event Source**: Focuses on `user_credits` table for reliability
+- **Faster Updates**: Reduced stale time to 5s for quicker refreshes
+- **Fallback Polling**: 30-second polling as backup if real-time fails
 - **Force Refetch**: Immediately refetches data when changes are detected
 
 ### 2. Database Real-time Configuration (`20250928000000_enable_realtime_user_credits.sql`)
@@ -93,11 +93,10 @@ The implementation includes comprehensive logging. Look for these patterns:
 
 ### Successful Operation
 ```
-📡 Setting up real-time subscription for user [user-id]
-✅ Real-time subscription established successfully
-✅ Successfully subscribed to real-time updates
-💳 user_credits change detected: INSERT {...}
-💳 Credit balance change detected - invalidating cache
+📡 Setting up simple real-time subscription for user [user-id]
+📡 Subscription status: SUBSCRIBED
+✅ Real-time updates active
+💳 Credit balance changed - refreshing
 ```
 
 ### Error Recovery

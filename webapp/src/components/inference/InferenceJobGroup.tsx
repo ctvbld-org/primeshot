@@ -204,6 +204,37 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
     return t(`status.badge.${normalized}` as any, { ns: 'styles', defaultValue: fallback });
   };
 
+  // Simplify error messages for user-friendly display
+  const getSimplifiedErrorMessage = (rawMessage?: string) => {
+    if (!rawMessage) return t('group.error.generic', { ns: 'inference', defaultValue: 'Error generating images, credits refunded' });
+    
+    const message = rawMessage.toLowerCase();
+    
+    // Check for specific error patterns and return user-friendly messages
+    if (message.includes('timeout') || message.includes('timed out')) {
+      return t('group.error.timeout', { ns: 'inference', defaultValue: 'Generation took too long, credits refunded' });
+    }
+    
+    if (message.includes('queue stuck') || message.includes('all methods exhausted')) {
+      return t('group.error.serverBusy', { ns: 'inference', defaultValue: 'Server was busy, credits refunded' });
+    }
+    
+    if (message.includes('memory') || message.includes('cuda') || message.includes('out of memory')) {
+      return t('group.error.memory', { ns: 'inference', defaultValue: 'Server overloaded, credits refunded' });
+    }
+    
+    if (message.includes('connection') || message.includes('network')) {
+      return t('group.error.connection', { ns: 'inference', defaultValue: 'Connection issue, credits refunded' });
+    }
+    
+    if (message.includes('image') && message.includes('generation failed')) {
+      return t('group.error.imageGeneration', { ns: 'inference', defaultValue: 'Image generation failed, credits refunded' });
+    }
+    
+    // Default fallback for any other error
+    return t('group.error.generic', { ns: 'inference', defaultValue: 'Error generating images, credits refunded' });
+  };
+
   // State to trigger re-renders for progress animation
   const [, forceUpdate] = useState({});
 
@@ -271,7 +302,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
           <Tooltip>
             <TooltipTrigger asChild>{content}</TooltipTrigger>
             <TooltipContent side="top">
-              {activeJob.message || 'Generation failed'}
+              {getSimplifiedErrorMessage(activeJob.message)}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

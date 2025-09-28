@@ -89,6 +89,14 @@
     "status": {
       "failed": "生成失败"
     },
+    "error": {
+      "generic": "出现了一些问题，您的积分已退还",
+      "timeout": "创作时间超出预期，您的积分已退还",
+      "serverBusy": "我们的服务器暂时繁忙，您的积分已退还",
+      "memory": "服务器容量超限，您的积分已退还",
+      "connection": "连接暂时中断，您的积分已退还",
+      "imageGeneration": "创作未能完成，您的积分已退还"
+    },
     "confirmDelete": {
       "title": "删除拍摄？",
       "description": "这将从您的画廊中移除拍摄。此操作无法撤销。",

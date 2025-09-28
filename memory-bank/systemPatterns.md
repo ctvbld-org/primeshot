@@ -2002,6 +2002,13 @@ Detected changes in:
 - webapp/src/components/character/training/AdminTrainingOptionsDialog.tsx
 - webapp/src/components/generate/GenerateBar.tsx
 - webapp/src/components/generate/useCreateCharacter.tsx
+
+
+**Auto-update 2025-09-28**:
+Detected changes in:
+- webapp/src/components/debug/CreditBalanceDebug.tsx
+- webapp/src/components/style/StylesCarousel.tsx
+- webapp/src/lib/utils/creditOptimisticUpdates.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

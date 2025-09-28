@@ -89,6 +89,14 @@
     "status": {
       "failed": "Generación fallida"
     },
+    "error": {
+      "generic": "Algo no salió bien, tus créditos han sido reembolsados",
+      "timeout": "La creación tomó más tiempo del esperado, tus créditos han sido reembolsados",
+      "serverBusy": "Nuestros servidores estaban ocupados, tus créditos han sido reembolsados",
+      "memory": "Capacidad del servidor superada, tus créditos han sido reembolsados",
+      "connection": "Problema de conexión temporal, tus créditos han sido reembolsados",
+      "imageGeneration": "La creación no se completó, tus créditos han sido reembolsados"
+    },
     "confirmDelete": {
       "title": "¿Eliminar shooting?",
       "description": "Esto quitará el shooting de tu galería. Esta acción no se puede deshacer.",

@@ -89,6 +89,14 @@
     "status": {
       "failed": "Geração falhada"
     },
+    "error": {
+      "generic": "Algo correu mal, os seus créditos foram reembolsados",
+      "timeout": "A criação demorou mais do que o esperado, os seus créditos foram reembolsados",
+      "serverBusy": "Os nossos servidores estavam temporariamente ocupados, os seus créditos foram reembolsados",
+      "memory": "Capacidade do servidor excedida, os seus créditos foram reembolsados",
+      "connection": "Problema de ligação temporário, os seus créditos foram reembolsados",
+      "imageGeneration": "A criação não foi concluída, os seus créditos foram reembolsados"
+    },
     "confirmDelete": {
       "title": "Eliminar ensaio?",
       "description": "Isto removerá o ensaio da sua galeria. Esta ação não pode ser desfeita.",

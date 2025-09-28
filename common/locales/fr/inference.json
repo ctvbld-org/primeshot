@@ -89,6 +89,14 @@
     "status": {
       "failed": "Génération échouée"
     },
+    "error": {
+      "generic": "Une erreur s'est produite, vos crédits ont été remboursés",
+      "timeout": "La création a pris plus de temps que prévu, vos crédits ont été remboursés",
+      "serverBusy": "Nos serveurs étaient temporairement indisponibles, vos crédits ont été remboursés",
+      "memory": "Capacité serveur dépassée, vos crédits ont été remboursés",
+      "connection": "Problème de connexion temporaire, vos crédits ont été remboursés",
+      "imageGeneration": "La création n'a pas abouti, vos crédits ont été remboursés"
+    },
     "confirmDelete": {
       "title": "Supprimer le shooting ?",
       "description": "Cela retirera le shooting de votre galerie. Cette action ne peut pas être annulée.",

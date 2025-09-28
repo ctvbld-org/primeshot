@@ -1,23 +1,23 @@
 {
-    "title": "Carica foto",
-    "description": "Carica le tue foto per iniziare",
-    "requirements": {
-        "title": "Requisiti delle foto",
-        "description": "Assicurati che le tue foto soddisfino questi requisiti"
-    },
-    "buttons": {
-        "upload": "Carica",
-        "continue": "Continua",
-        "retry": "Riprova"
-    },
-    "errors": {
-        "invalidFile": "Tipo di file non valido",
-        "fileTooLarge": "File troppo grande",
-        "uploadFailed": "Caricamento fallito"
-    },
-    "progress": {
-        "uploading": "Caricamento...",
-        "processing": "Elaborazione...",
-        "complete": "Completato"
-    }
+  "title": "Carica foto",
+  "description": "Carica le tue foto per iniziare",
+  "requirements": {
+    "title": "Requisiti delle foto",
+    "description": "Assicurati che le tue foto soddisfino questi requisiti"
+  },
+  "buttons": {
+    "upload": "Carica",
+    "continue": "Continua",
+    "retry": "Riprova"
+  },
+  "errors": {
+    "invalidFile": "Tipo di file non valido",
+    "fileTooLarge": "File troppo grande",
+    "uploadFailed": "Caricamento fallito"
+  },
+  "progress": {
+    "uploading": "Caricamento...",
+    "processing": "Elaborazione...",
+    "complete": "Completato"
+  }
 }

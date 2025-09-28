@@ -43,12 +43,7 @@ export function useCreditBalance() {
     
     console.log(`📡 Setting up real-time subscription for user ${user.id}`)
     
-    const channel = supabase.channel(channelName, {
-      config: {
-        broadcast: { self: true },
-        presence: { key: user.id }
-      }
-    })
+    const channel = supabase.channel(channelName)
 
     // Listen to user_credits table changes (primary source)
     channel.on(
@@ -60,7 +55,7 @@ export function useCreditBalance() {
         filter: `user_id=eq.${user.id}` 
       },
       (payload) => {
-        console.log('💳 user_credits change detected:', payload.eventType, payload.new)
+        console.log('💳 user_credits change detected:', payload.eventType)
         invalidateBalance()
       }
     )
@@ -75,7 +70,7 @@ export function useCreditBalance() {
         filter: `user_id=eq.${user.id}` 
       },
       (payload) => {
-        console.log('💳 credit_usage change detected:', payload.eventType, payload.new)
+        console.log('💳 credit_usage change detected:', payload.eventType)
         invalidateBalance()
       }
     )
@@ -90,47 +85,35 @@ export function useCreditBalance() {
         filter: `user_id=eq.${user.id}` 
       },
       (payload) => {
-        console.log('💳 credit_pack_purchases change detected:', payload.eventType, payload.new)
+        console.log('💳 credit_pack_purchases change detected:', payload.eventType)
         invalidateBalance()
       }
     )
-
-    // Handle subscription status changes
-    channel.on('system', {}, (payload) => {
-      console.log('📡 Real-time system event:', payload)
-      if (payload.extension === 'postgres_changes') {
-        if (payload.status === 'ok') {
-          console.log('✅ Real-time subscription established successfully')
-        } else if (payload.status === 'error') {
-          console.error('❌ Real-time subscription error:', payload.message)
-          // Attempt to reconnect after a delay
-          if (reconnectTimeoutRef.current) {
-            clearTimeout(reconnectTimeoutRef.current)
-          }
-          reconnectTimeoutRef.current = setTimeout(() => {
-            console.log('🔄 Attempting to reconnect real-time subscription...')
-            setupRealtimeSubscription()
-          }, 5000)
-        }
-      }
-    })
 
     // Subscribe and handle connection status
     channel.subscribe((status, err) => {
       console.log(`📡 Real-time subscription status: ${status}`)
       if (err) {
         console.error('❌ Real-time subscription error:', err)
+        // Attempt to reconnect after a delay
+        if (reconnectTimeoutRef.current) {
+          clearTimeout(reconnectTimeoutRef.current)
+        }
+        reconnectTimeoutRef.current = setTimeout(() => {
+          console.log('🔄 Attempting to reconnect after error...')
+          setupRealtimeSubscription()
+        }, 5000)
       }
       if (status === 'SUBSCRIBED') {
         console.log('✅ Successfully subscribed to real-time updates')
-      } else if (status === 'CHANNEL_ERROR') {
-        console.error('❌ Real-time channel error')
+      } else if (status === 'CHANNEL_ERROR' || status === 'CLOSED') {
+        console.error(`❌ Real-time channel ${status.toLowerCase()}`)
         // Attempt to reconnect
         if (reconnectTimeoutRef.current) {
           clearTimeout(reconnectTimeoutRef.current)
         }
         reconnectTimeoutRef.current = setTimeout(() => {
-          console.log('🔄 Attempting to reconnect after channel error...')
+          console.log('🔄 Attempting to reconnect after channel issue...')
           setupRealtimeSubscription()
         }, 3000)
       }
