@@ -12,31 +12,24 @@ export function useCreditBalanceOptimistic() {
 
   // Optimistically update credit balance when spending credits
   const optimisticallySpendCredits = useCallback((amount: number) => {
-    console.log(`💳 Optimistically spending ${amount} credits`)
-    
     queryClient.setQueryData(['creditBalance'], (oldBalance: number | undefined) => {
       const currentBalance = oldBalance ?? 0
       const newBalance = Math.max(0, currentBalance - amount)
-      console.log(`💳 Optimistic balance update: ${currentBalance} → ${newBalance}`)
       return newBalance
     })
   }, [queryClient])
 
   // Optimistically update credit balance when earning credits
   const optimisticallyEarnCredits = useCallback((amount: number) => {
-    console.log(`💳 Optimistically earning ${amount} credits`)
-    
     queryClient.setQueryData(['creditBalance'], (oldBalance: number | undefined) => {
       const currentBalance = oldBalance ?? 0
       const newBalance = currentBalance + amount
-      console.log(`💳 Optimistic balance update: ${currentBalance} → ${newBalance}`)
       return newBalance
     })
   }, [queryClient])
 
   // Revert optimistic update (in case of error)
   const revertOptimisticUpdate = useCallback(() => {
-    console.log('💳 Reverting optimistic credit update')
     queryClient.invalidateQueries({ queryKey: ['creditBalance'] })
   }, [queryClient])
 

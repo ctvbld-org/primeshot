@@ -83,12 +83,16 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         await supabase.rpc('set_user_language', { new_language: lang })
       } catch {}
 
-      // Navigate to the same page with the new locale by replacing the first segment
+      // Build new path: ensure exactly one locale segment, then append '/create' when on SPA
       const currentPath = pathname || '/'
-      // Remove basePath if present so replacement is consistent
-      const withoutBase = currentPath.replace(/^\/create(\/|$)/, '/$1')
-      const newPath = withoutBase.replace(/^\/(\w{2})(?=\/|$)/, `/${lang}`)
-      const finalPath = currentPath.startsWith('/create') ? `/create${newPath}` : newPath
+      const stripped = currentPath
+        // remove any leading basePath '/create' variants
+        .replace(/^(?:\/create)+/, '')
+        // collapse duplicated locale segments like '/en/en' or '/fr/create/fr'
+        .replace(/^\/(\w{2})(?:\/(?:create))?(?:\/\1)?(?:\/(?:create))?/, '/$1')
+      const base = stripped.match(/^\/(\w{2})(?:\/|$)/) ? stripped : `/${lang}`
+      const needsCreate = !/\/(create)(?:\/|$)/.test(base)
+      const finalPath = needsCreate ? `${base.replace(/^\/(\w{2}).*$/, '/$1')}/create` : base
       const previousPath = currentPath
       router.replace(finalPath)
       // Fallback: force navigation if client router didn't update URL

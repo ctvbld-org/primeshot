@@ -23,10 +23,11 @@ export async function middleware(request: NextRequest) {
   const first = segments[0]
   const isLocalePrefixed = SUPPORTED.includes(first as typeof SUPPORTED[number])
 
+  // Do not force-add locale here because on staging/prod the website layer
+  // rewrites '/:locale/create' -> '/create' and passes locale via cookie.
+  // For local dev, root '/' is redirected to '/en' by src/app/page.tsx.
   if (!isLocalePrefixed) {
-    const url = request.nextUrl.clone()
-    url.pathname = `/en${pathname}`
-    return NextResponse.redirect(url)
+    return updateSession(request)
   }
 
   // Set cookie for downstream usage

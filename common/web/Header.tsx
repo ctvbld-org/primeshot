@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link';
 import Image from 'next/image';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -30,20 +29,20 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
       <div className={styles.container}>
         <div className={styles.leftSection}>
           {/* logo */}
-          <Link href={`/${locale}`}>
+          <a href={`/${locale}/create`}>
             <Image src={(`${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/assets/logo-primeshot.svg`)} alt={t('aria.brandLogo')} width={32} height={32} />
-          </Link>
+          </a>
         </div>
 
         <div className={styles.middleSection}>
           {/* nav */}
           <nav className={styles.nav}>
-            <Link href={`/${locale}/explore`} className={styles.navLink}>{t('navigation.explore')}</Link>
-            <Link href={`/${locale}`} className={styles.navLink}>{t('navigation.create')}</Link>
+            <a href={`/${locale}/explore`} className={styles.navLink}>{t('navigation.explore')}</a>
+            <a href={`/${locale}/create`} className={styles.navLink}>{t('navigation.create')}</a>
            {/* <Link href="/use-cases" className={styles.navLink}>Use Cases</Link>
             <Link href="/pricing" className={styles.navLink}>Pricing</Link> */}
             {isAuthenticated && user?.admin && (
-              <Link href="/admin" className={styles.navLink + ' ' + styles.adminNavLink}>{t('navigation.admin')}</Link>
+              <a href="/admin" className={styles.navLink + ' ' + styles.adminNavLink}>{t('navigation.admin')}</a>
             )}
           </nav>
         </div>

@@ -21,15 +21,12 @@ export function optimisticallyUpdateCredits({
   operation, 
   context = 'unknown' 
 }: CreditUpdateOptions) {
-  console.log(`💳 Optimistically ${operation}ing ${amount} credits (${context})`)
-  
   queryClient.setQueryData(['creditBalance'], (oldBalance: number | undefined) => {
     const currentBalance = oldBalance ?? 0
     const newBalance = operation === 'spend' 
       ? Math.max(0, currentBalance - amount)
       : currentBalance + amount
     
-    console.log(`💳 Optimistic balance update (${context}): ${currentBalance} → ${newBalance}`)
     return newBalance
   })
 }
@@ -38,7 +35,6 @@ export function optimisticallyUpdateCredits({
  * Revert optimistic credit update in case of error
  */
 export function revertOptimisticCreditUpdate(queryClient: QueryClient, context?: string) {
-  console.log(`💳 Reverting optimistic credit update${context ? ` (${context})` : ''}`)
   queryClient.invalidateQueries({ queryKey: ['creditBalance'] })
   queryClient.refetchQueries({ queryKey: ['creditBalance'] })
 }
@@ -66,12 +62,9 @@ export function withOptimisticCreditUpdate<T extends (...args: any[]) => Promise
       const result = await fn(...args)
       
       // If successful, the real-time subscription will handle the actual update
-      console.log(`✅ ${context} completed successfully, real-time will sync actual balance`)
-      
       return result
     } catch (error) {
       // If failed, revert the optimistic update
-      console.error(`❌ ${context} failed, reverting optimistic update:`, error)
       revertOptimisticCreditUpdate(queryClient, context)
       throw error
     }

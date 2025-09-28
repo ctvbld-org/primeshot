@@ -28,7 +28,6 @@ export function useCreditBalance() {
 
   // Invalidate and refetch credit balance
   const invalidateBalance = useCallback(() => {
-    console.log('💳 Credit balance change detected - invalidating cache')
     queryClient.invalidateQueries({ queryKey: ['creditBalance'] })
     // Force immediate refetch
     queryClient.refetchQueries({ queryKey: ['creditBalance'] })
@@ -41,8 +40,6 @@ export function useCreditBalance() {
     const supabase = createClient()
     const channelName = `user-credits-${user.id}`
     
-    console.log(`📡 Setting up real-time subscription for user ${user.id}`)
-    
     const channel = supabase.channel(channelName)
 
     // Listen to user_credits table changes (primary source)
@@ -54,8 +51,7 @@ export function useCreditBalance() {
         table: 'user_credits', 
         filter: `user_id=eq.${user.id}` 
       },
-      (payload) => {
-        console.log('💳 user_credits change detected:', payload.eventType)
+      () => {
         invalidateBalance()
       }
     )
@@ -69,8 +65,7 @@ export function useCreditBalance() {
         table: 'credit_usage', 
         filter: `user_id=eq.${user.id}` 
       },
-      (payload) => {
-        console.log('💳 credit_usage change detected:', payload.eventType)
+      () => {
         invalidateBalance()
       }
     )
@@ -84,36 +79,27 @@ export function useCreditBalance() {
         table: 'credit_pack_purchases', 
         filter: `user_id=eq.${user.id}` 
       },
-      (payload) => {
-        console.log('💳 credit_pack_purchases change detected:', payload.eventType)
+      () => {
         invalidateBalance()
       }
     )
 
     // Subscribe and handle connection status
     channel.subscribe((status, err) => {
-      console.log(`📡 Real-time subscription status: ${status}`)
       if (err) {
-        console.error('❌ Real-time subscription error:', err)
         // Attempt to reconnect after a delay
         if (reconnectTimeoutRef.current) {
           clearTimeout(reconnectTimeoutRef.current)
         }
         reconnectTimeoutRef.current = setTimeout(() => {
-          console.log('🔄 Attempting to reconnect after error...')
           setupRealtimeSubscription()
         }, 5000)
-      }
-      if (status === 'SUBSCRIBED') {
-        console.log('✅ Successfully subscribed to real-time updates')
       } else if (status === 'CHANNEL_ERROR' || status === 'CLOSED') {
-        console.error(`❌ Real-time channel ${status.toLowerCase()}`)
         // Attempt to reconnect
         if (reconnectTimeoutRef.current) {
           clearTimeout(reconnectTimeoutRef.current)
         }
         reconnectTimeoutRef.current = setTimeout(() => {
-          console.log('🔄 Attempting to reconnect after channel issue...')
           setupRealtimeSubscription()
         }, 3000)
       }
@@ -122,7 +108,6 @@ export function useCreditBalance() {
     channelRef.current = channel
 
     return () => {
-      console.log('📡 Cleaning up real-time subscription')
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current)
         reconnectTimeoutRef.current = null

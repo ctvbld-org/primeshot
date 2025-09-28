@@ -775,15 +775,18 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
     const GAP = 1 // matches CSS gap
     const containerWidth = el.clientWidth
     const candidate = (containerWidth - Math.max(0, count - 1) * GAP) / count
-    setIsColorsCompact(candidate < 50)
+    setIsColorsCompact(candidate <= 50)
   }, [colorsForCurrentStyle.length])
 
   React.useEffect(() => {
-    // Observe only when wardrobe panel is open and colors are showing
+    // Observe only when wardrobe panel is open and a wardrobe is selected (colors shown)
     if (openPanel !== 'wardrobe') return
+    if (!selectedWardrobeValue) return
     const el = colorsContainerRef.current
     if (!el) return
     updateColorsCompact()
+    // Defer once to ensure layout is complete
+    const raf = requestAnimationFrame(() => updateColorsCompact())
     let ro: ResizeObserver | undefined
     if ('ResizeObserver' in window) {
       ro = new ResizeObserver(() => updateColorsCompact())
@@ -791,8 +794,8 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
     }
     const onResize = () => updateColorsCompact()
     window.addEventListener('resize', onResize)
-    return () => { ro?.disconnect(); window.removeEventListener('resize', onResize) }
-  }, [openPanel, updateColorsCompact])
+    return () => { cancelAnimationFrame(raf); ro?.disconnect(); window.removeEventListener('resize', onResize) }
+  }, [openPanel, selectedWardrobeValue, updateColorsCompact, isColorsCompact])
 
   const renderPanel = () => {
     if (!openPanel) return null

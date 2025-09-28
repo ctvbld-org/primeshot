@@ -495,7 +495,7 @@
 .colorSwatch { 
   flex: 1 0 0; 
   height: 156px; 
-  min-width: 46px;
+  min-width: 50px;
   cursor: pointer;
   position: relative; 
   transition: width .2s ease, flex .2s ease;

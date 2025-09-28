@@ -35,7 +35,6 @@ export function useCreditBalanceSimple() {
     if (!isAuthenticated || !user?.id) return
 
     const supabase = createClient()
-    console.log(`📡 Setting up simple real-time subscription for user ${user.id}`)
     
     // Create a unique channel name
     const channelName = `credit-updates-${user.id}-${Date.now()}`
@@ -51,24 +50,17 @@ export function useCreditBalanceSimple() {
         filter: `user_id=eq.${user.id}`
       },
       () => {
-        console.log('💳 Credit balance changed - refreshing')
         queryClient.invalidateQueries({ queryKey: ['creditBalance'] })
         queryClient.refetchQueries({ queryKey: ['creditBalance'] })
       }
     )
 
     // Simple subscription without complex error handling
-    channel.subscribe((status) => {
-      console.log(`📡 Subscription status: ${status}`)
-      if (status === 'SUBSCRIBED') {
-        console.log('✅ Real-time updates active')
-      }
-    })
+    channel.subscribe()
 
     channelRef.current = channel
 
     return () => {
-      console.log('📡 Cleaning up subscription')
       if (channelRef.current) {
         channelRef.current.unsubscribe()
         channelRef.current = null
