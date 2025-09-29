@@ -2009,6 +2009,23 @@ Detected changes in:
 - webapp/src/components/debug/CreditBalanceDebug.tsx
 - webapp/src/components/style/StylesCarousel.tsx
 - webapp/src/lib/utils/creditOptimisticUpdates.ts
+
+
+**Auto-update 2025-09-29**:
+Detected changes in:
+- webapp/src/app/[locale]/admin/page.tsx
+- webapp/src/app/[locale]/explore/page.tsx
+- webapp/src/app/[locale]/favourites/page.tsx
+- webapp/src/app/[locale]/layout.tsx
+- webapp/src/app/[locale]/page.tsx
+- webapp/src/components/debug/CreditBalanceDebug.tsx
+- webapp/src/components/generate/GenerateBar.module.css
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/header/CreditsHeaderRight.tsx
+- webapp/src/components/inference/InferenceJobGroup.tsx
+- webapp/src/lib/api/client.ts
+- webapp/src/lib/supabase/middleware.ts
+- webapp/src/lib/utils/creditOptimisticUpdates.ts
 ## Component Organization
 
 Components are organized by feature and reusability:
