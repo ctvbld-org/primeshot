@@ -2,23 +2,11 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useRouter, usePathname } from 'next/navigation';
 import { createClient } from '../lib/supabase/client';
 const LanguageContext = createContext(undefined);
 export function LanguageProvider({ children }) {
     const { i18n } = useTranslation();
-    const router = useRouter();
-    const pathname = usePathname();
-    const getLocaleFromPathname = (path) => {
-        if (!path)
-            return null;
-        // Remove basePath if present
-        const withoutBase = path.replace(/^\/create(\/|$)/, '/$1');
-        const match = withoutBase.match(/^\/(\w{2})(?:\/|$)/);
-        return match ? match[1] : null;
-    };
-    const initialLocale = getLocaleFromPathname(pathname) || i18n.language || null;
-    const [currentLanguage, setCurrentLanguage] = useState(initialLocale);
+    const [currentLanguage, setCurrentLanguage] = useState(i18n.language || null);
     const [isLoading, setIsLoading] = useState(true);
     const [isHydrated, setIsHydrated] = useState(false);
     // Track hydration to prevent SSR mismatches
@@ -27,25 +15,42 @@ export function LanguageProvider({ children }) {
     }, []);
     useEffect(() => {
         async function init() {
+            var _a, _b;
             try {
                 setIsLoading(true);
                 // Don't change language during initial hydration to prevent mismatches
                 if (!isHydrated) {
-                    setCurrentLanguage(getLocaleFromPathname(pathname) || i18n.language);
+                    setCurrentLanguage(i18n.language);
                     return;
                 }
-                const pathLocale = getLocaleFromPathname(pathname);
-                if (pathLocale && pathLocale !== i18n.language) {
-                    await i18n.changeLanguage(pathLocale);
+                // Check for language from cookie (set by website)
+                let cookieLocale = null;
+                if (typeof window !== 'undefined') {
+                    cookieLocale = ((_a = document.cookie
+                        .split('; ')
+                        .find(row => row.startsWith('i18n_lang='))) === null || _a === void 0 ? void 0 : _a.split('=')[1]) || null;
                 }
-                setCurrentLanguage(pathLocale || i18n.language);
+                // Try load from DB first (if authenticated)
+                let dbLang = null;
+                try {
+                    const supabase = createClient();
+                    const { data } = await supabase.rpc('get_user_language');
+                    dbLang = (_b = data) !== null && _b !== void 0 ? _b : null;
+                }
+                catch { }
+                const lang = dbLang || cookieLocale || localStorage.getItem('i18nextLng') || 'en';
+                // Only change language if it's different from current
+                if (lang !== i18n.language) {
+                    await i18n.changeLanguage(lang);
+                }
+                setCurrentLanguage(lang);
             }
             finally {
                 setIsLoading(false);
             }
         }
         init();
-    }, [i18n, isHydrated, pathname]);
+    }, [i18n, isHydrated]);
     const setLanguage = async (lang) => {
         setIsLoading(true);
         try {
@@ -67,13 +72,10 @@ export function LanguageProvider({ children }) {
                 await supabase.rpc('set_user_language', { new_language: lang });
             }
             catch { }
-            // Navigate to the same page with the new locale by replacing the first segment
-            const currentPath = pathname || '/';
-            // Remove basePath if present so replacement is consistent
-            const withoutBase = currentPath.replace(/^\/create(\/|$)/, '/$1');
-            const newPath = withoutBase.replace(/^\/(\w{2})(?=\/|$)/, `/${lang}`);
-            const finalPath = currentPath.startsWith('/create') ? `/create${newPath}` : newPath;
-            router.push(finalPath);
+            // Simple approach: just reload the page, let the website handle routing via cookie
+            if (typeof window !== 'undefined') {
+                window.location.reload();
+            }
         }
         finally {
             setIsLoading(false);

@@ -13,42 +13,9 @@ function getApiUrl(path) {
     if (/^https?:\/\//.test(path))
         return path;
     const normalized = path.startsWith('/') ? path : `/${path}`;
-    // Next.js basePath handling for client-side calls
-    try {
-        if (typeof window !== 'undefined') {
-            const currentPath = window.location.pathname;
-            // Check for language prefixes (2-3 letter codes: en, fr, de, zh-CN, etc.)
-            const langPrefixMatch = currentPath.match(/^\/(\w{2}(-\w{2})?)\//);
-            if (langPrefixMatch) {
-                // Language prefix detected - construct absolute URL to bypass language routing
-                const origin = window.location.origin;
-                // Get base path from environment or infer from current path
-                let basePath = process.env.NEXT_PUBLIC_BASE_PATH === '/' ? '' : process.env.NEXT_PUBLIC_BASE_PATH;
-                // Fallback: infer base path from current URL structure
-                if (!basePath) {
-                    const pathWithoutLang = currentPath.replace(/^\/\w{2}(-\w{2})?\//, '/');
-                    if (pathWithoutLang.startsWith('/create')) {
-                        basePath = '/create';
-                    }
-                    else if (pathWithoutLang.startsWith('/admin')) {
-                        basePath = '/admin';
-                    }
-                }
-                return `${origin}${basePath || ''}${normalized}`;
-            }
-            // Handle base paths without language prefix
-            if (currentPath.startsWith('/create')) {
-                return `/create${normalized}`;
-            }
-            if (currentPath.startsWith('/admin')) {
-                return `/admin${normalized}`;
-            }
-        }
-    }
-    catch {
-        // Fallback to relative URL if anything goes wrong
-    }
-    return normalized;
+    // Simple basePath handling - no locale routing in webapp
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH === '/' ? '' : process.env.NEXT_PUBLIC_BASE_PATH;
+    return `${basePath || ''}${normalized}`;
 }
 export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }) {
     var _a, _b, _c, _d, _e;
