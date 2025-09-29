@@ -72,9 +72,13 @@ export function LanguageProvider({ children }) {
                 await supabase.rpc('set_user_language', { new_language: lang });
             }
             catch { }
-            // Simple approach: just reload the page, let the website handle routing via cookie
+            // Navigate to base URL, let website handle locale routing via cookie
             if (typeof window !== 'undefined') {
-                window.location.reload();
+                // On staging/prod, navigate to root so website can handle locale routing
+                // On local, navigate to /create since webapp handles it directly
+                const isLocal = process.env.NEXT_PUBLIC_VERCEL_TARGET_ENV === 'local';
+                const targetUrl = isLocal ? '/create' : '/';
+                window.location.assign(targetUrl);
             }
         }
         finally {
