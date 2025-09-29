@@ -72,13 +72,12 @@ export function LanguageProvider({ children }) {
                 await supabase.rpc('set_user_language', { new_language: lang });
             }
             catch { }
-            // Navigate to base URL, let website handle locale routing via cookie
+            // Navigate to current page without locale prefix, let website handle locale routing via cookie
             if (typeof window !== 'undefined') {
-                // On staging/prod, navigate to root so website can handle locale routing
-                // On local, navigate to /create since webapp handles it directly
-                const isLocal = process.env.NEXT_PUBLIC_VERCEL_TARGET_ENV === 'local';
-                const targetUrl = isLocal ? '/create' : '/';
-                window.location.assign(targetUrl);
+                const currentPath = window.location.pathname;
+                // Strip any existing locale prefix (e.g., /fr/create -> /create)
+                const cleanPath = currentPath.replace(/^\/[a-z]{2}(\/|$)/, '/');
+                window.location.assign(cleanPath || '/');
             }
         }
         finally {
