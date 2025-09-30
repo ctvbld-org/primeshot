@@ -2026,6 +2026,24 @@ Detected changes in:
 - webapp/src/lib/api/client.ts
 - webapp/src/lib/supabase/middleware.ts
 - webapp/src/lib/utils/creditOptimisticUpdates.ts
+
+
+**Auto-update 2025-09-30**:
+Detected changes in:
+- admin/src/components/styles/style-form-dialog.tsx
+- admin/src/lib/sync/engine.ts
+- webapp/src/app/[locale]/admin/page.tsx
+- webapp/src/app/[locale]/explore/page.tsx
+- webapp/src/app/[locale]/favourites/page.tsx
+- webapp/src/app/[locale]/layout.tsx
+- webapp/src/app/[locale]/page.tsx
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/AdminTrainingOptionsDialog.tsx
+- webapp/src/components/character/training/UploadPhotosStep.tsx
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/style/StylesCarousel.tsx
+- webapp/src/lib/constants/upload.ts
+- webapp/src/lib/image-quality.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

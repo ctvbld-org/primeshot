@@ -11,6 +11,7 @@ import { Icon } from './Icon';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import Link from 'next/link';
 import { Skeleton } from './ui/skeleton';
+import { usePathname } from 'next/navigation';
 
 interface HeaderProps {
   /** Optional element rendered on the right side (e.g. login button). */
@@ -20,13 +21,20 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
   const { isAuthenticated, user, isLoading } = useAuth();
   const { t } = useTranslation('common');
+  const pathname = usePathname();
+
+  const isActive = (href: string) => {
+    if (!pathname) return false;
+    if (href === '/') return pathname === '/';
+    return pathname === href || pathname.startsWith(href + '/');
+  };
 
   return (
     <header className={styles.header}>
       <div className={styles.container}>
         <div className={styles.leftSection}>
           {/* logo */}
-          <Link href="/create">
+          <Link href="/">
             <Image src={(`${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/assets/logo-primeshot.svg`)} alt={t('aria.brandLogo')} width={32} height={32} />
           </Link>
         </div>
@@ -42,12 +50,42 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
               </>
             ) : (
               <>
-                <Link href="/explore" className={styles.navLink}>{t('navigation.explore')}</Link>
-                <Link href="/create" className={styles.navLink}>{t('navigation.create')}</Link>
-                {/* <Link href="/use-cases" className={styles.navLink}>Use Cases</Link> */}
-                {/* <Link href="/pricing" className={styles.navLink}>Pricing</Link> */}
+                <a
+                  href="/explore"
+                  aria-current={isActive('/explore') ? 'page' : undefined}
+                  className={
+                    styles.navLink + ' ' +
+                    styles.exploreNavLink + ' ' +
+                    (isActive('/explore') ? styles.navLinkActive : '')
+                  }
+                >
+                  {t('navigation.explore')}
+                </a>
+                <Link
+                  href={"/"}
+                  aria-current={isActive("/create") ? 'page' : undefined}
+                  className={
+                    styles.navLink + ' ' +
+                    styles.createNavLink + ' ' +
+                    (isActive("/create") ? styles.navLinkActive : '')
+                  }
+                >
+                  {t('navigation.create')}
+                </Link>
+                {/* <a href="/use-cases" className={styles.navLink + ' ' + styles.useCasesNavLink}>Use Cases</a> */}
+                {/* <a href="/pricing" className={styles.navLink + ' ' + styles.pricingNavLink}>Pricing</a> */}
                 {isAuthenticated && user?.admin && (
-                  <Link href="/admin" className={styles.navLink + ' ' + styles.adminNavLink}>{t('navigation.admin')}</Link>
+                  <a
+                    href="/admin"
+                    aria-current={isActive('/admin') ? 'page' : undefined}
+                    className={
+                      styles.navLink + ' ' +
+                      styles.adminNavLink + ' ' +
+                      (isActive('/admin') ? styles.navLinkActive : '')
+                    }
+                  >
+                    {t('navigation.admin')}
+                  </a>
                 )}
               </>
             )}

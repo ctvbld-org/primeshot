@@ -32,7 +32,7 @@ export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm
   const [resizeSize, setResizeSize] = useState<number>(defaults?.resize_size ?? 768)
   const [learningRate, setLearningRate] = useState<number>(defaults?.learning_rate ?? 0.0003)
   const [resolution, setResolution] = useState<string>(
-    defaults?.resolution ? JSON.stringify(defaults.resolution) : '[768,1024,1536]'
+    defaults?.resolution ? JSON.stringify(defaults.resolution) : '[960]'
   )
   const [rank, setRank] = useState<number>(defaults?.rank ?? 32)
   const [optimizer, setOptimizer] = useState<string>(defaults?.optimizer ?? 'adamw')
@@ -52,9 +52,9 @@ export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm
         .filter((v) => Number.isFinite(v))
         .map((v) => Math.floor(v))
         .filter((v) => v >= 512 && v <= 2048 && v % 64 === 0)
-      return safe.length > 0 ? safe : [768,1024,1536]
+      return safe.length > 0 ? safe : [960]
     } catch (_e) {
-      return [768,1024,1536]
+      return [960]
     }
   }
 
