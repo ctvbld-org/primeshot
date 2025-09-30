@@ -26,6 +26,9 @@ export interface Wardrobe {
   value: string;
   label: string;
   image?: string;
+  // NEW
+  category?: string;
+  gender?: 'man' | 'woman' | 'unisex';
   created_at: string;
   updated_at: string;
   translations: {
@@ -59,7 +62,10 @@ export const StyleSchema = z.object({
   available_colors: z.array(z.string()),
   created_at: z.string().optional(),
   updated_at: z.string().optional(),
-  translations: z.record(TranslationSchema)
+  translations: z.record(TranslationSchema),
+  // NEW (optional for back-compat)
+  wardrobe_category_order: z.array(z.string()).optional(),
+  wardrobe_order: z.record(z.array(z.string())).optional()
 });
 
 export const StylesSchema = z.array(StyleSchema);

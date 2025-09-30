@@ -65,7 +65,7 @@ const MAX_BLUR = 0.15; // Reduced from 0.5 - more realistic threshold
 
 // Constants for body detection
 const MIN_BODY_COUNT = 2; // Minimum 2 images with body shots
-const MAX_BODY_PERCENTAGE = 0.80; // 80% maximum for body shots
+const MAX_BODY_PERCENTAGE = 0.45; // 50% maximum for body shots
 
 // Add after other constants
 const MIN_EYE_CONFIDENCE = 0.3;

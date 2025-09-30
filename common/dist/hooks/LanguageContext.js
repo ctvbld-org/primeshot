@@ -23,7 +23,15 @@ export function LanguageProvider({ children }) {
                     setCurrentLanguage(i18n.language);
                     return;
                 }
-                // Check for language from cookie (set by website)
+                // Try to read locale from URL prefix (explicit user intent)
+                let urlLocale = null;
+                if (typeof window !== 'undefined') {
+                    const match = window.location.pathname.match(/^\/([a-z]{2})(?:-[A-Z]{2})?(?:\/|$)/);
+                    if (match) {
+                        urlLocale = match[1];
+                    }
+                }
+                // Check for language from cookie (set by website/middleware)
                 let cookieLocale = null;
                 if (typeof window !== 'undefined') {
                     cookieLocale = ((_a = document.cookie
@@ -38,10 +46,17 @@ export function LanguageProvider({ children }) {
                     dbLang = (_b = data) !== null && _b !== void 0 ? _b : null;
                 }
                 catch { }
-                const lang = dbLang || cookieLocale || localStorage.getItem('i18nextLng') || 'en';
+                // Precedence: URL > DB > cookie > localStorage > default
+                const lang = urlLocale || dbLang || cookieLocale || localStorage.getItem('i18nextLng') || 'en';
                 // Only change language if it's different from current
                 if (lang !== i18n.language) {
                     await i18n.changeLanguage(lang);
+                    // Keep cookie in sync with URL/selected language
+                    try {
+                        const maxAge = 60 * 60 * 24 * 365; // 1 year
+                        document.cookie = `i18n_lang=${encodeURIComponent(lang)}; path=/; max-age=${maxAge}; samesite=lax`;
+                    }
+                    catch { }
                 }
                 setCurrentLanguage(lang);
             }

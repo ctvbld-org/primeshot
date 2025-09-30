@@ -62,43 +62,17 @@ async function syncStyleTableRecord(
   
   if (operation === 'create') {
     console.log(`Creating ${table} record with value: ${recordData.value}`)
-    
-    // Check if a record with this value already exists
-    const { data: existingRecords, error: checkError } = await targetClient
+
+    // Use upsert on natural key 'value' and DO NOT send 'id' to avoid changing target IDs
+    const upsertData = { ...recordData } as any
+    delete upsertData.id
+
+    const { error } = await targetClient
       .from(table)
-      .select('id, value')
-      .eq('value', recordData.value)
-    
-    if (checkError) {
-      throw new Error(`Failed to check existing ${table} records: ${checkError.message}`)
-    }
-    
-    if (existingRecords && existingRecords.length > 0) {
-      // Record exists, treat as update to preserve ID
-      const existingId = existingRecords[0].id
-      console.log(`Record with value '${recordData.value}' already exists, updating existing record with ID: ${existingId}`)
-      
-      const { error } = await targetClient
-        .from(table)
-        .update(recordData)
-        .eq('id', existingId)
-      
-      if (error) {
-        throw new Error(`Failed to update existing ${table} record: ${error.message}`)
-      }
-    } else {
-      // Truly new record, can insert normally
-      const { error } = await targetClient
-        .from(table)
-        .insert(recordData)
-      
-      if (error) {
-        // Check for unique constraint violations
-        if (error.message.includes('duplicate key') || error.message.includes('unique constraint')) {
-          throw new Error(`${table} record with value '${recordData.value}' already exists`)
-        }
-        throw new Error(`Failed to insert new ${table} record: ${error.message}`)
-      }
+      .upsert(upsertData, { onConflict: 'value' })
+
+    if (error) {
+      throw new Error(`Failed to upsert ${table} record: ${error.message}`)
     }
   } else if (operation === 'update') {
     // Update existing record by ID to preserve foreign key relationships

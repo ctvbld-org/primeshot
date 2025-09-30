@@ -845,12 +845,69 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
       case 'wardrobe': {
         const availableWardrobes = (currentStyle?.available_wardrobes || [])
         const availableColors = (currentStyle?.available_colors || [])
-        const filteredWardrobes = wardrobes.filter(w => availableWardrobes.includes(w.value)).filter(w => !panelQuery || w.label.toLowerCase().includes(panelQuery.toLowerCase()))
+        // Base filtered list by availability, search, and gender
+        const baseWardrobes = wardrobes
+          .filter(w => availableWardrobes.includes(w.value))
+          .filter(w => !panelQuery || w.label.toLowerCase().includes(panelQuery.toLowerCase()))
           .filter(w => {
-            const gender = (w as any).gender as ('man'|'woman'|'unisex'|undefined)
+            const raw = (w as any).gender as (string | undefined)
+            const gender = raw ? String(raw).toLowerCase() as ('man'|'woman'|'unisex') : undefined
             if (!gender || gender === 'unisex') return true
             return gender === selectedGender
           })
+
+        // Group by normalized category (trimmed, case-insensitive key)
+        const normalizeCat = (c: any) => String(c || 'Other').trim()
+        const byCategory = new Map<string, typeof baseWardrobes>()
+        for (const w of baseWardrobes) {
+          const key = normalizeCat((w as any).category)
+          const list = byCategory.get(key) || []
+          list.push(w)
+          byCategory.set(key, list)
+        }
+
+        // Determine category order for this style (normalize to match)
+        const rawOrder = Array.isArray((currentStyle as any)?.wardrobe_category_order)
+          ? ((currentStyle as any).wardrobe_category_order as string[])
+          : []
+        const normalizedOrder = [...new Set(rawOrder.map(normalizeCat))]
+        const existingCats = Array.from(byCategory.keys())
+        const remainingCats = existingCats
+          .filter(c => !normalizedOrder.includes(c))
+          .sort((a,b)=>a.localeCompare(b))
+        const orderedCategories = [...normalizedOrder.filter(c => byCategory.has(c)), ...remainingCats]
+
+        // Per-category item desired order, with case-insensitive category key matching
+        const perCategoryOrder = ((currentStyle as any)?.wardrobe_order || {}) as Record<string, string[]>
+        const getDesiredOrderForCat = (catKey: string): string[] => {
+          // Find key in object whose normalized form matches
+          for (const k of Object.keys(perCategoryOrder)) {
+            if (normalizeCat(k) === catKey) return Array.isArray(perCategoryOrder[k]) ? perCategoryOrder[k] : []
+          }
+          return []
+        }
+
+        const orderedWardrobes: typeof baseWardrobes = []
+        for (const cat of orderedCategories) {
+          const items = byCategory.get(cat) || []
+          const desiredOrder = getDesiredOrderForCat(cat)
+          const indexOf = (v: string) => {
+            const idx = desiredOrder.indexOf(v)
+            return idx === -1 ? Number.POSITIVE_INFINITY : idx
+          }
+          const listed = items
+            .slice()
+            .sort((a, b) => {
+              const ia = indexOf(a.value)
+              const ib = indexOf(b.value)
+              if (ia !== ib) return ia - ib
+              // Fallback alphabetical by label when both not listed or same index
+              return a.label.localeCompare(b.label)
+            })
+          orderedWardrobes.push(...listed)
+        }
+
+        const filteredWardrobes = orderedWardrobes
         const filteredColors = colors.filter(c => availableColors.includes(c.value))
         const showingColors = !!selectedWardrobeValue
 

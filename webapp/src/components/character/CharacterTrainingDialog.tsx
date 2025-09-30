@@ -604,7 +604,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
         return (
           stepData.uploadedFiles.length < minImages ||
           stepData.isAnalyzing ||
-          (!isAdmin && !stepData.bodyShotValidation?.isValid)
+          (!stepData.bodyShotValidation?.isValid)
         )
       case 'name':
         return !stepData.characterName.trim() || isProcessing

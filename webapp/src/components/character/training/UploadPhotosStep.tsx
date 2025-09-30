@@ -80,7 +80,7 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
 
   // Body shot validation
   const bodyShotValidation = useMemo(() => {
-    if (petMode || isAdmin) {
+    if (petMode) {
       return { isValid: true, errors: [] as string[] };
     }
     // Use only current quality results since component state is preserved
@@ -92,7 +92,7 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
       isValid: validation.isValid,
       errors: validation.errors
     };
-  }, [acceptedFiles, qualityResults, petMode, isAdmin])
+  }, [acceptedFiles, qualityResults, petMode])
 
   // Update parent component when files change
   React.useEffect(() => {

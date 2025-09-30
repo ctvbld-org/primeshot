@@ -47,7 +47,10 @@ export function StylesCarousel() {
         available_scenes: config.available_scenes,
         available_wardrobes: config.available_wardrobes,
         available_colors: config.available_colors,
-        translations: config.translations
+        translations: config.translations,
+        // Preserve per-style wardrobe ordering fields for GenerateBar
+        wardrobe_category_order: (config as any).wardrobe_category_order,
+        wardrobe_order: (config as any).wardrobe_order,
       }))
     } catch (error) {
       console.error('Invalid style configuration:', error)

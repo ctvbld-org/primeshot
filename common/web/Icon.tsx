@@ -15,6 +15,8 @@ interface IconProps extends React.SVGProps<SVGSVGElement> {
     | 'plus'
     | 'arrowLeft'
     | 'arrowRight'
+    | 'arrowUp'
+    | 'arrowDown'
     | 'wardrobeColor'
     | 'cross'
     | 'check'
@@ -76,6 +78,8 @@ export function Icon({ size = 28, className, variant, ...props }: IconProps) {
     plus: "0 0 32 32",
     arrowLeft: "0 0 21 20",
     arrowRight: "0 0 21 20",
+    arrowUp: "0 0 16 16",
+    arrowDown: "0 0 16 16",
     cross: "0 0 16 16",
     check: "0 0 16 16",
     bin: "0 0 22 22",
@@ -260,6 +264,12 @@ export function Icon({ size = 28, className, variant, ...props }: IconProps) {
     ),
     arrowRight: (
       <path d="M11.75 16.25L10.8688 15.3687L15.6063 10.625H3V9.375H15.6063L10.8688 4.63125L11.75 3.75L18 10L11.75 16.25Z" fill="currentColor" />
+    ),
+    arrowUp: (
+      <path d="M8 3L13 8L12.3 8.7L8 4.4L3.7 8.7L3 8L8 3Z" fill="currentColor" />
+    ),
+    arrowDown: (
+      <path d="M8 11L3 6L3.7 5.3L8 9.6L12.3 5.3L13 6L8 11Z" fill="currentColor" />
     ),
     cross: (
       <path d="M11.9062 3.4873C12.2114 3.18219 12.7065 3.18232 13.0117 3.4873C13.3169 3.79249 13.3169 4.28759 13.0117 4.59277L10.002 7.60254C9.78253 7.82211 9.78266 8.17781 10.002 8.39746L13.0117 11.4072C13.3169 11.7124 13.3169 12.2075 13.0117 12.5127C12.7065 12.8179 12.2114 12.8179 11.9062 12.5127L8.89648 9.50293C8.67683 9.28363 8.32113 9.2835 8.10156 9.50293L5.0918 12.5127C4.78661 12.8179 4.29151 12.8179 3.98633 12.5127C3.68134 12.2075 3.68121 11.7123 3.98633 11.4072L6.99609 8.39746C7.21563 8.17778 7.21572 7.82216 6.99609 7.60254L3.98633 4.59277C3.6813 4.28758 3.6812 3.79244 3.98633 3.4873C4.29146 3.18217 4.7866 3.18228 5.0918 3.4873L8.10156 6.49707C8.32119 6.7167 8.6768 6.71661 8.89648 6.49707L11.9062 3.4873Z" fill="currentColor" stroke="currentColor" strokeWidth="0.375"/>

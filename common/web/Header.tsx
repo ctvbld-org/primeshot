@@ -9,6 +9,8 @@ import { AccountDialog } from './AccountDialog';
 import styles from './Header.module.css';
 import { Icon } from './Icon';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import Link from 'next/link';
+import { Skeleton } from './ui/skeleton';
 
 interface HeaderProps {
   /** Optional element rendered on the right side (e.g. login button). */
@@ -16,37 +18,54 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
   const { t } = useTranslation('common');
-
-  // Right content can be provided by consumer app via rightSlot
 
   return (
     <header className={styles.header}>
       <div className={styles.container}>
         <div className={styles.leftSection}>
           {/* logo */}
-          <a href="/create">
+          <Link href="/create">
             <Image src={(`${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/assets/logo-primeshot.svg`)} alt={t('aria.brandLogo')} width={32} height={32} />
-          </a>
+          </Link>
         </div>
 
-        <div className={styles.middleSection}>
-          {/* nav */}
+        <div className={styles.middleSection}>       
           <nav className={styles.nav}>
-            <a href="/explore" className={styles.navLink}>{t('navigation.explore')}</a>
-            <a href="/create" className={styles.navLink}>{t('navigation.create')}</a>
-           {/* <Link href="/use-cases" className={styles.navLink}>Use Cases</Link>
-            <Link href="/pricing" className={styles.navLink}>Pricing</Link> */}
-            {isAuthenticated && user?.admin && (
-              <a href="/admin" className={styles.navLink + ' ' + styles.adminNavLink}>{t('navigation.admin')}</a>
+            {isLoading ? (
+              <>
+                <Skeleton className={styles.navLinkSkeleton + ' ' + styles.skeleton} />
+                <Skeleton className={styles.navLinkSkeleton + ' ' + styles.skeleton} />
+                <Skeleton className={styles.navLinkSkeleton + ' ' + styles.skeleton} />
+                <Skeleton className={styles.navLinkSkeleton + ' ' + styles.skeleton} />
+              </>
+            ) : (
+              <>
+                <Link href="/explore" className={styles.navLink}>{t('navigation.explore')}</Link>
+                <Link href="/create" className={styles.navLink}>{t('navigation.create')}</Link>
+                {/* <Link href="/use-cases" className={styles.navLink}>Use Cases</Link> */}
+                {/* <Link href="/pricing" className={styles.navLink}>Pricing</Link> */}
+                {isAuthenticated && user?.admin && (
+                  <Link href="/admin" className={styles.navLink + ' ' + styles.adminNavLink}>{t('navigation.admin')}</Link>
+                )}
+              </>
             )}
           </nav>
         </div>
 
         <div className={styles.rightSection}>
-          {!isAuthenticated && <LanguageSwitcher variant="modal" display="flag" />}
-          {rightSlot ?? (isAuthenticated ? <AccountDialog /> : <SignInModal />)}
+            {isLoading ? (
+              <>
+                <Skeleton className={styles.rightSkeleton + ' ' + styles.skeleton} />
+                <Skeleton className={styles.rightSkeleton + ' ' + styles.skeleton} />
+              </>
+            ) : (
+              <>
+                {!isAuthenticated && <LanguageSwitcher variant="modal" display="flag" />}
+                {rightSlot ?? (isAuthenticated ? <AccountDialog /> : <SignInModal />)}
+              </>
+            )}
         </div>
       </div>
     </header>
