@@ -45,7 +45,7 @@ export function middleware(request: NextRequest) {
     pathname === '/favicon.ico' ||
     pathname.startsWith('/public') ||
     pathname.startsWith('/api') ||
-    pathname.startsWith('/create/api') ||
+    pathname.startsWith('/create') ||
     pathname.startsWith('/admin/api') ||
     pathname.endsWith('.svg') ||
     pathname.endsWith('.png') ||
