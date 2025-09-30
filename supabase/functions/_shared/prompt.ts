@@ -30,17 +30,12 @@ export function buildSubjectCompact(meta: any): string {
   const age = (meta?.age || '').toString().trim()
   const base = gender || 'subject'
   const bodyType = (meta?.body_type || '').toString().trim()
-  //const hairColor = (meta?.hair?.color || '').toString().trim()
+  const hairLength = (meta?.hair?.length || '').toString().trim()
   const eyesColor = (meta?.eyes?.color || '').toString().trim()
 
   let phrase = base
 
   if (age) phrase = `${phrase}, ${age}`
-
-  //const hairParts: string[] = []
-  //if (hairColor) hairParts.push(`${hairColor} hair`)
-  //const hairText = hairParts.join(' ')
-  //if (hairText) phrase = `${phrase}, ${hairText}`
 
   if (eyesColor) {
     let eyesPhrase = `${eyesColor} eyes`
@@ -55,6 +50,7 @@ export function buildSubjectCompact(meta: any): string {
 
   if (bodyType) phrase = `${phrase}, ${bodyType}`
 
+  if (hairLength) phrase = `${phrase}, ${hairLength} hair`
 
   return phrase.replace(/\s+/g, ' ').trim()
 }

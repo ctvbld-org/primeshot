@@ -2044,6 +2044,15 @@ Detected changes in:
 - webapp/src/components/style/StylesCarousel.tsx
 - webapp/src/lib/constants/upload.ts
 - webapp/src/lib/image-quality.ts
+
+
+**Auto-update 2025-09-30**:
+Detected changes in:
+- webapp/src/components/character/training/AdminTrainingOptionsDialog.tsx
+- webapp/src/components/style/StylesCarousel.tsx
+- webapp/src/contexts/style-selection-context.tsx
+- webapp/src/lib/constants/upload.ts
+- website/src/app/[locale]/layout.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:
