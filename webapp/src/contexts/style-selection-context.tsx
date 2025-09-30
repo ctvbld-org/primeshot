@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react'
 import { Style } from '@/types/styles'
-import { storeSelectedStyleIndex, storeStyleSelections, type StyleSelections } from '@/lib/utils/style-storage'
+import { getStoredSelectedStyleIndex, storeSelectedStyleIndex, storeStyleSelections, type StyleSelections } from '@/lib/utils/style-storage'
 import { useStyles, useWardrobes } from '@/hooks/useConfig'
 
 interface StyleSelectionContextType {
@@ -26,7 +26,8 @@ export function useStyleSelection() {
 
 export function StyleSelectionProvider({ children }: { children: React.ReactNode }) {
   const [selectedStyleId, setSelectedStyleId] = useState<string | null>(null)
-  const [selectedStyleIndex, setSelectedStyleIndex] = useState(0)
+  // Initialize from localStorage to ensure consumers start at the saved index
+  const [selectedStyleIndex, setSelectedStyleIndex] = useState<number>(() => getStoredSelectedStyleIndex() ?? 0)
   const [stylesData, setStylesData] = useState<any[]>([])
 
   // Fetch style configs to validate URL params

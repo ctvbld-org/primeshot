@@ -20,6 +20,7 @@
   justify-content: space-between;
   padding-left: 1rem;
   padding-right: 1rem;
+  gap: 12px;
 }
 
 .middleSection {
@@ -101,7 +102,7 @@
 }
 
 .navLink:hover {
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: rgba(255, 255, 255, 0.12);
   opacity: 1;
 }
 
@@ -132,3 +133,25 @@
 @media (max-width: 920px) {
   .creditsText { display: none; }
 } 
+
+@media (max-width: 768px) {
+  .middleSection {    
+    position: relative;
+    transform: none;
+    left: auto;
+    top: auto;
+    flex: 1 1 auto;
+  }
+  .leftSection {
+    flex: 0 0 auto;
+  }
+
+  .navLink {
+    display: none;
+  }
+
+  .exploreNavLink,
+  .createNavLink {
+    display: block;
+  }
+}

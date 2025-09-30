@@ -19,7 +19,9 @@ export function StylesCarousel() {
   const { t, i18n } = useTranslation(['styles', 'common'])
   const currentLang = i18n.language
   const { data: styleConfigs = [], isLoading } = useStyles()
-  const [selectedIndex, setSelectedIndex] = useState(0)
+  // Initialize from localStorage early to avoid initial flicker at index 0
+  const [initialStartIndex] = useState(() => getStoredSelectedStyleIndex() ?? 0)
+  const [selectedIndex, setSelectedIndex] = useState(initialStartIndex)
   const [canScrollPrev, setCanScrollPrev] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(false)
   const [initialIndexSet, setInitialIndexSet] = useState(false)
@@ -68,7 +70,7 @@ export function StylesCarousel() {
   }, [photographyStyleOptions.length])
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
-    startIndex: 0, // Will be updated when styles load
+    startIndex: initialStartIndex, // Start at saved index to avoid sliding from 0
     align: 'center',
     containScroll: false,
     duration: 30,
@@ -85,9 +87,13 @@ export function StylesCarousel() {
   useEffect(() => {
     if (photographyStyleOptions.length > 0 && emblaApi && !initialIndexSet) {
       const initialIndex = getInitialIndex()
-      setSelectedIndex(initialIndex)
-      setSelectedStyleIndex(initialIndex)
-      emblaApi.scrollTo(initialIndex, true) // true = instant scroll
+      const clamped = Math.min(Math.max(initialIndex, 0), photographyStyleOptions.length - 1)
+      setSelectedIndex(clamped)
+      setSelectedStyleIndex(clamped)
+      // For looped carousels, reInit with startIndex handles edge cases (e.g., last slide)
+      try {
+        emblaApi.reInit({ startIndex: clamped })
+      } catch {}
       setInitialIndexSet(true)
     }
   }, [photographyStyleOptions.length, emblaApi, getInitialIndex, setSelectedStyleIndex, initialIndexSet])
@@ -105,8 +111,7 @@ export function StylesCarousel() {
       }
 
       emblaApi.on('select', onSelect)
-      // Sync initial state without resetting the current snap index
-      onSelect()
+      // Do not call onSelect immediately to avoid overwriting the stored index during initialization
 
       // Initial state
       setCanScrollPrev(emblaApi.canScrollPrev())
