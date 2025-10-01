@@ -71,7 +71,17 @@ export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm
       optimizer: String(optimizer) as 'adamw' | 'adamw8bit'
     }
     onConfirm(payload)
-  }, [batchSize, resizeSize, onConfirm, steps, learningRate, resolution])
+  }, [
+    steps,
+    batchSize,
+    gradientAccumulationSteps,
+    resizeSize,
+    learningRate,
+    resolution,
+    rank,
+    optimizer,
+    onConfirm
+  ])
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onCancel() }}>

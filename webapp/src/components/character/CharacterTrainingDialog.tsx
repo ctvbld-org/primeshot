@@ -424,7 +424,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
   }, [stepData.qualityResults])
 
   // Handle character creation, payment, and upload
-  const handleCreateCharacter = useCallback(async (overrideParams?: { batch_size: number; resize_size: number; steps: number; learning_rate: number; resolution: number[] }) => {
+  const handleCreateCharacter = useCallback(async (overrideParams?: { batch_size: number; resize_size: number; steps: number; learning_rate: number; resolution: number[]; rank?: number; optimizer?: 'adamw' | 'adamw8bit'; gradient_accumulation_steps?: number }) => {
     setIsProcessing(true)
     let createdCharacterId: string | undefined
     
