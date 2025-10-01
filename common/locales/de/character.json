@@ -198,10 +198,12 @@
 
   "uploader": {
     "dragDropMessage": "Ziehen Sie {{count}} Selfies hierher, oder",
+    "dragDropMoreMessage_one": "Ziehen Sie noch 1 hierher, oder",
+    "dragDropMoreMessage_other": "Ziehen Sie noch {{count}} hierher, oder",
     "browse": "durchsuchen",
     "supportedFormats": "Unterstützt JPG- und PNG-Dateien",
     "dropMessage": "Lassen Sie Ihre Fotos hier fallen",
-    "maxImagesReached": "Maximale Anzahl von Fotos erreicht"
+    "maxImagesReached": "Alle Fotos hinzugefügt – alles bereit!"
   },
 
   "status": {

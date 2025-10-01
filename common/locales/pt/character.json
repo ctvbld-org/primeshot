@@ -198,10 +198,12 @@
 
   "uploader": {
     "dragDropMessage": "Arraste e largue {{count}} selfies aqui, ou",
+    "dragDropMoreMessage_one": "Arraste e largue mais 1 aqui, ou",
+    "dragDropMoreMessage_other": "Arraste e largue mais {{count}} aqui, ou",
     "browse": "procurar",
     "supportedFormats": "Suporta ficheiros JPG e PNG",
     "dropMessage": "Largue as suas fotos aqui",
-    "maxImagesReached": "Número máximo de fotos atingido"
+    "maxImagesReached": "Todas as fotos adicionadas, está tudo pronto!"
   },
 
   "status": {

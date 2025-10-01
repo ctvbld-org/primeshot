@@ -198,10 +198,12 @@
 
   "uploader": {
     "dragDropMessage": "Glissez et déposez {{count}} selfies ici, ou",
+    "dragDropMoreMessage_one": "Glissez et déposez 1 de plus ici, ou",
+    "dragDropMoreMessage_other": "Glissez et déposez {{count}} de plus ici, ou",
     "browse": "parcourir",
     "supportedFormats": "Supporte les fichiers JPG et PNG",
     "dropMessage": "Déposez vos photos ici",
-    "maxImagesReached": "Nombre maximum de photos atteint"
+    "maxImagesReached": "Toutes les photos ajoutées, tout est prêt !"
   },
 
   "status": {

@@ -198,10 +198,12 @@
 
   "uploader": {
     "dragDropMessage": "Trascina e rilascia {{count}} selfie qui, o",
+    "dragDropMoreMessage_one": "Trascina e rilascia ancora 1 qui, o",
+    "dragDropMoreMessage_other": "Trascina e rilascia ancora {{count}} qui, o",
     "browse": "sfoglia",
     "supportedFormats": "Supporta file JPG e PNG",
     "dropMessage": "Rilascia le tue foto qui",
-    "maxImagesReached": "Numero massimo di foto raggiunto"
+    "maxImagesReached": "Tutte le foto aggiunte, è tutto pronto!"
   },
 
   "status": {

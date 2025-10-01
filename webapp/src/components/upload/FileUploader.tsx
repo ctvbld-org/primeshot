@@ -20,6 +20,8 @@ export interface FileUploaderProps {
   analyzingCount: number
   uploadedCount: number
   disabled?: boolean
+  minImages?: number
+  maxImages?: number
   onCreateObjectURL?: (file: File) => string
   onRevokeObjectURL?: (url: string) => void
   currentUploadingIndex?: number | null
@@ -48,6 +50,8 @@ export const FileUploader = React.forwardRef<FileUploaderHandle, FileUploaderPro
   isUploading,
   uploadedCount,
   disabled = false,
+  minImages = UPLOAD_CONSTANTS.MIN_IMAGES,
+  maxImages = UPLOAD_CONSTANTS.MAX_IMAGES,
   onCreateObjectURL,
   onRevokeObjectURL,
   currentUploadingIndex = null,
@@ -242,11 +246,18 @@ export const FileUploader = React.forwardRef<FileUploaderHandle, FileUploaderPro
                   t('uploader.dropMessage')
                 ) : isAnalyzing ? (
                   t('status.analyzing', { count: analyzingCount })
-                ) : acceptedFiles && acceptedFiles.length >= UPLOAD_CONSTANTS.MAX_IMAGES ? (
+                ) : acceptedFiles && acceptedFiles.length >= maxImages ? (
                   t('uploader.maxImagesReached')
                 ) : (
                   <>
-                    {t('uploader.dragDropMessage', { count: UPLOAD_CONSTANTS.MIN_IMAGES })}{' '}
+                    {(() => {
+                      const currentCount = acceptedFiles?.length ?? 0
+                      const remainingToMin = Math.max(minImages - currentCount, 0)
+                      if (remainingToMin > 0) {
+                        return t('uploader.dragDropMoreMessage', { count: remainingToMin })
+                      }
+                      return t('uploader.dragDropMessage', { count: minImages })
+                    })()}{' '}
                     <span className={styles.browse}>{t('uploader.browse')}</span>
                   </>
                 )}

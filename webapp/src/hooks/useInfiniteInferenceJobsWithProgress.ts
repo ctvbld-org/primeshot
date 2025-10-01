@@ -625,7 +625,6 @@ export function useInfiniteInferenceJobsWithProgress() {
         return;
       }
 
-      console.log(`🔌 Auto-connecting to job ${job.id} for thumbnail updates`);
       // Normalize any preloaded DB status 'running' -> UI 'generating' before WS messages arrive
       if (job.status === 'running') {
         infiniteJobs.updateJobStatus(job.id, 'generating');
@@ -640,19 +639,6 @@ export function useInfiniteInferenceJobsWithProgress() {
             return;
           }
           const status = data.status;
-          const progress = data.progress || 0;
-          
-          console.log(`📊 Auto-connection progress update for job ${job.id}: ${status} - ${progress}%`);
-          
-          // Debug: Check if preview_images exists in the auto-connection data
-          if (data.preview_images) {
-            console.log(`🎨 Auto-connection received preview_images for job ${job.id}:`, {
-              preview_images_type: typeof data.preview_images,
-              preview_images_length: data.preview_images?.length,
-              image_index: data.image_index,
-              first_preview_sample: data.preview_images[0]?.substring(0, 50) + '...'
-            });
-          }
           
           // Global progress and previews with guards
           updateGlobalProgressIfNeeded(job.id, data);
@@ -741,7 +727,6 @@ export function useInfiniteInferenceJobsWithProgress() {
       const job = infiniteJobs.jobs.find(j => j.id === jobId);
       const isTerminal = job && (job.status === 'completed' || job.status === 'failed');
       if (isTerminal) {
-        console.log(`🔌 Cleaning up WebSocket subscription for job ${jobId} (terminal status: ${job!.status})`);
         webSocketManager.unsubscribe(subscriptionId);
         activeConnections.current.delete(jobId);
       }

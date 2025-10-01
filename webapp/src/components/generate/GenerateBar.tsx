@@ -200,17 +200,16 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const open = (panel: PanelKey) => { 
     setOpenPanel(panel); 
     onPanelToggle?.(true)
-    // When opening wardrobe, auto-switch gender to match stored wardrobe selection
+    // When opening wardrobe, prefer selected character gender; otherwise keep current (localStorage/default)
     if (panel === 'wardrobe') {
       try {
-        const sel = currentStyle ? getStoredStyleSelections(currentStyle.id) : null
-        const wardVal = sel?.wardrobe || null
-        if (wardVal) {
-          const w = wardrobes.find(w => w.value === wardVal) as any
-          const g = (w?.gender as ('man'|'woman'|'unisex'|undefined))
-          if (g === 'man' || g === 'woman') {
-            if (g !== selectedGender) setSelectedGender(g)
-            save(STORAGE_KEYS.WARDROBE_GENDER, g)
+        if (selectedCharacterId && Array.isArray(characters) && characters.length) {
+          const char = characters.find((c: any) => c.id === selectedCharacterId)
+          const raw = String(char?.gender || '').toLowerCase()
+          const mapped = raw.startsWith('m') ? 'man' : (raw.startsWith('f') ? 'woman' : null)
+          if (mapped && mapped !== selectedGender) {
+            setSelectedGender(mapped)
+            save(STORAGE_KEYS.WARDROBE_GENDER, mapped)
           }
         }
       } catch {}

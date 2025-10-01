@@ -136,6 +136,8 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
               handleNewFiles={handleNewFiles}
               addFiles={addFiles}
               acceptedFiles={acceptedFiles}
+              minImages={minImages}
+              maxImages={maxImages}
               isReady={acceptedFiles.length >= minImages}
               isAnalyzing={isAnalyzing}
               analyzingCount={analyzingCount}
