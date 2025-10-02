@@ -307,7 +307,7 @@ skip_nonce_check = false
 client_id = "cbd667b3-f184-4ad2-8c35-59a137502033"
 secret = "mEH8Q~SnntubByWlHjTq7Kb7AejZkMTpaGecya9L"
 redirect_uri = "https://npalbinvsvbyddagwvjx.supabase.co/auth/v1/callback"
-url = ""
+url = "https://login.microsoftonline.com/consumers"
 
 [auth.external.linkedin_oidc]
 enabled = true

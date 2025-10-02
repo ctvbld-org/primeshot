@@ -7,6 +7,9 @@ const nextConfig = {
   assetPrefix: isProd ? '/create' : '',
   transpilePackages: ['@primeshot/common'],
   experimental: { externalDir: true },
+  // Explicitly disable i18n to prevent automatic locale detection
+  i18n: undefined,
+  trailingSlash: false,
   webpack: (config, { isServer }) => {
     // Ignore Node.js specific modules in face-api.js
     config.resolve.fallback = {
