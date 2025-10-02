@@ -55,7 +55,7 @@ serve(async (req) => {
     }
 
     const name = getDisplayName(email, full_name ?? undefined);
-    const { subject, html, text } = renderWelcomeEmail({ name, userId: id, locale: locale || 'en-GB' });
+    const { subject, html, text } = renderWelcomeEmail({ name, userId: id, locale: locale || 'en' });
 
     const emailBody = {
       from,

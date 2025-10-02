@@ -264,11 +264,44 @@ async function ensureSubscriptionRecord(
     
     // Get user ID from customer metadata
     const customer = await stripe.customers.retrieve(customerId);
-    const userId = (customer as Stripe.Customer).metadata?.user_id;
+    let userId = (customer as Stripe.Customer).metadata?.user_id;
 
     if (!userId) {
-      console.error(`No user_id found in customer metadata for customer: ${customerId}`);
-      return null;
+      // Fallback: try to find user by email
+      const customerEmail = (customer as Stripe.Customer).email;
+      if (customerEmail) {
+        devLog(`No user_id in customer metadata for ${customerId}, trying email lookup: ${customerEmail}`);
+        
+        const { data: user, error: userError } = await supabase
+          .from('users')
+          .select('id')
+          .eq('email', customerEmail)
+          .single();
+
+        if (userError || !user) {
+          console.error(`No user found with email ${customerEmail} for customer: ${customerId}`);
+          return null;
+        }
+
+        userId = user.id;
+        
+        // Update the customer metadata in Stripe for future webhooks
+        try {
+          await stripe.customers.update(customerId, {
+            metadata: { 
+              ...((customer as Stripe.Customer).metadata || {}),
+              user_id: userId 
+            }
+          });
+          devLog(`Updated customer ${customerId} metadata with user_id: ${userId}`);
+        } catch (metadataError) {
+          console.warn(`Failed to update customer metadata for ${customerId}:`, metadataError);
+          // Don't fail the webhook for this - we can still continue
+        }
+      } else {
+        console.error(`No user_id in customer metadata and no email for customer: ${customerId}`);
+        return null;
+      }
     }
 
     // Get subscription details from Stripe

@@ -1,5 +1,5 @@
 export const welcomeCopy = {
-  'en-GB': {
+  'en': {
     subject: (name: string) => `Welcome to Primeshot, ${name}!`,
     preheader: 'Studio-quality portraits from your selfies — Welcome to Primeshot!',
     heading_html: 'Welcome to the<br/>Primeshot Beta',
@@ -20,7 +20,7 @@ export const welcomeCopy = {
     thankyou_title: 'Thank You',
     
   },
-  'fr-FR': {
+  'fr': {
     subject: (name: string) => `Bienvenue sur Primeshot, ${name} !`,
     preheader: `Des portraits de qualité studio à partir de vos selfies — bienvenue sur Primeshot !`,
     heading_html: 'Bienvenue dans la<br/>bêta de Primeshot',
@@ -42,7 +42,7 @@ export const welcomeCopy = {
     
   }
   ,
-  'es-ES': {
+  'es': {
     subject: (name: string) => `¡Bienvenido a Primeshot, ${name}!`,
     preheader: 'Retratos de calidad de estudio desde tus selfies — ¡bienvenido a Primeshot!',
     heading_html: 'Bienvenido a la<br/>beta de Primeshot',
@@ -64,7 +64,7 @@ export const welcomeCopy = {
     
   }
   ,
-  'it-IT': {
+  'it': {
     subject: (name: string) => `Benvenuto su Primeshot, ${name}!`,
     preheader: 'Ritratti di qualità studio dai tuoi selfie — benvenuto su Primeshot!',
     heading_html: 'Benvenuto nella<br/>beta di Primeshot',
@@ -86,7 +86,7 @@ export const welcomeCopy = {
     
   }
   ,
-  'pt-PT': {
+  'pt': {
     subject: (name: string) => `Bem‑vindo ao Primeshot, ${name}!`,
     preheader: 'Retratos de qualidade de estúdio a partir das suas selfies — bem‑vindo ao Primeshot!',
     heading_html: 'Bem‑vindo à<br/>beta do Primeshot',
@@ -108,7 +108,7 @@ export const welcomeCopy = {
     
   }
   ,
-  'de-DE': {
+  'de': {
     subject: (name: string) => `Willkommen bei Primeshot, ${name}!`,
     preheader: 'Studio‑Qualität aus deinen Selfies – willkommen bei Primeshot!',
     heading_html: 'Willkommen in der<br/>Primeshot‑Beta',
@@ -130,7 +130,7 @@ export const welcomeCopy = {
     
   }
   ,
-  'nl-NL': {
+  'nl': {
     subject: (name: string) => `Welkom bij Primeshot, ${name}!`,
     preheader: 'Studiokwaliteit uit je selfies — welkom bij Primeshot!',
     heading_html: 'Welkom bij de<br/>Primeshot‑beta',
@@ -152,7 +152,7 @@ export const welcomeCopy = {
     
   }
   ,
-  'zh-CN': {
+  'cn': {
     subject: (name: string) => `欢迎加入 Primeshot，${name}！`,
     preheader: '从自拍到工作室品质肖像——欢迎使用 Primeshot！',
     heading_html: '欢迎加入<br/>Primeshot 测试',
@@ -174,7 +174,7 @@ export const welcomeCopy = {
     
   }
   ,
-  'ja-JP': {
+  'jp': {
     subject: (name: string) => `Primeshot へようこそ、${name}さん！`,
     preheader: 'セルフィーからスタジオ品質のポートレートへ — Primeshot へようこそ！',
     heading_html: 'Primeshot ベータ版へ<br/>ようこそ',
