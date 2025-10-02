@@ -2053,6 +2053,18 @@ Detected changes in:
 - webapp/src/contexts/style-selection-context.tsx
 - webapp/src/lib/constants/upload.ts
 - website/src/app/[locale]/layout.tsx
+
+
+**Auto-update 2025-10-02**:
+Detected changes in:
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/AdminTrainingOptionsDialog.tsx
+- webapp/src/components/character/training/UploadPhotosStep.tsx
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/upload/FileUploader.tsx
+- webapp/src/lib/constants/upload.ts
+- webapp/src/lib/image-quality.ts
+- webapp/src/lib/websocket/connection-manager.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

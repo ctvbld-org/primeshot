@@ -13,7 +13,12 @@
   "errors": {
     "invalidFile": "Ongeldig bestandstype",
     "fileTooLarge": "Bestand te groot",
-    "uploadFailed": "Upload mislukt"
+    "uploadFailed": "Upload mislukt",
+    "invalidFileType": "Niet-ondersteund type ({{types}})",
+    "fileSizeExceeded": "Bestand te groot (max. {{size}})",
+    "duplicateFile": "Dubbel bestand",
+    "uploadFailedCount_one": "1 bestand kon niet worden toegevoegd",
+    "uploadFailedCount_other": "{{count}} bestanden konden niet worden toegevoegd"
   },
   "progress": {
     "uploading": "Uploaden...",

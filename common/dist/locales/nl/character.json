@@ -198,10 +198,12 @@
 
   "uploader": {
     "dragDropMessage": "Sleep {{count}} selfies hierheen, of",
+    "dragDropMoreMessage_one": "Sleep er nog 1 hierheen, of",
+    "dragDropMoreMessage_other": "Sleep er nog {{count}} hierheen, of",
     "browse": "bladeren",
     "supportedFormats": "Ondersteunt JPG en PNG bestanden",
     "dropMessage": "Laat je foto's hier vallen",
-    "maxImagesReached": "Maximum aantal foto's bereikt"
+    "maxImagesReached": "Alle foto's toegevoegd, je bent klaar!"
   },
 
   "status": {

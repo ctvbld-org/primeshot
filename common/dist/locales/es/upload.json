@@ -13,7 +13,12 @@
   "errors": {
     "invalidFile": "Tipo de archivo inválido",
     "fileTooLarge": "Archivo demasiado grande",
-    "uploadFailed": "Error en la subida"
+    "uploadFailed": "Error en la subida",
+    "invalidFileType": "Tipo no admitido ({{types}})",
+    "fileSizeExceeded": "Archivo demasiado grande (máx. {{size}})",
+    "duplicateFile": "Archivo duplicado",
+    "uploadFailedCount_one": "No se pudo añadir 1 archivo",
+    "uploadFailedCount_other": "No se pudieron añadir {{count}} archivos"
   },
   "progress": {
     "uploading": "Subiendo...",

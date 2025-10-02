@@ -13,7 +13,11 @@
   "errors": {
     "invalidFile": "无效的文件类型",
     "fileTooLarge": "文件过大",
-    "uploadFailed": "上传失败"
+    "uploadFailed": "上传失败",
+    "invalidFileType": "不支持的文件类型（{{types}}）",
+    "fileSizeExceeded": "文件过大（最大 {{size}}）",
+    "duplicateFile": "重复的文件",
+    "uploadFailedCount_other": "有 {{count}} 个文件无法添加"
   },
   "progress": {
     "uploading": "上传中...",

@@ -114,20 +114,6 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
               <Checkbox checked={petMode} onCheckedChange={(v) => setPetMode(!!v)} id="pet-mode" />
               <label htmlFor="pet-mode">{t('uploadStep.petMode')}</label>
             </div>
-            
-            {/* Body shot validation errors */}
-            {!isAnalyzing && acceptedFiles.length >= minImages && !bodyShotValidation.isValid && (
-              <div className={styles.bodyShotError}>
-                <div className={styles.bodyShotErrorTitle}>
-                  {t('uploadStep.bodyShotRequirementsNotMet')}
-                </div>
-                <ul className={styles.bodyShotErrorList}>
-                  {bodyShotValidation.errors.map((error, index) => (
-                    <li key={index}>• {error}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
           </div>
         
           <div className={styles.uploaderContainer}>        

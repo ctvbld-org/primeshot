@@ -764,6 +764,8 @@ export declare const resources: {
             };
             uploader: {
                 dragDropMessage: string;
+                dragDropMoreMessage_one: string;
+                dragDropMoreMessage_other: string;
                 browse: string;
                 supportedFormats: string;
                 dropMessage: string;
@@ -949,6 +951,11 @@ export declare const resources: {
                 invalidFile: string;
                 fileTooLarge: string;
                 uploadFailed: string;
+                invalidFileType: string;
+                fileSizeExceeded: string;
+                duplicateFile: string;
+                uploadFailedCount_one: string;
+                uploadFailedCount_other: string;
             };
             progress: {
                 uploading: string;
@@ -1809,6 +1816,8 @@ export declare const resources: {
             };
             uploader: {
                 dragDropMessage: string;
+                dragDropMoreMessage_one: string;
+                dragDropMoreMessage_other: string;
                 browse: string;
                 supportedFormats: string;
                 dropMessage: string;
@@ -1994,6 +2003,11 @@ export declare const resources: {
                 invalidFile: string;
                 fileTooLarge: string;
                 uploadFailed: string;
+                invalidFileType: string;
+                fileSizeExceeded: string;
+                duplicateFile: string;
+                uploadFailedCount_one: string;
+                uploadFailedCount_other: string;
             };
             progress: {
                 uploading: string;
@@ -2841,6 +2855,8 @@ export declare const resources: {
             };
             uploader: {
                 dragDropMessage: string;
+                dragDropMoreMessage_one: string;
+                dragDropMoreMessage_other: string;
                 browse: string;
                 supportedFormats: string;
                 dropMessage: string;
@@ -3026,6 +3042,11 @@ export declare const resources: {
                 invalidFile: string;
                 fileTooLarge: string;
                 uploadFailed: string;
+                invalidFileType: string;
+                fileSizeExceeded: string;
+                duplicateFile: string;
+                uploadFailedCount_one: string;
+                uploadFailedCount_other: string;
             };
             progress: {
                 uploading: string;
@@ -3873,6 +3894,8 @@ export declare const resources: {
             };
             uploader: {
                 dragDropMessage: string;
+                dragDropMoreMessage_one: string;
+                dragDropMoreMessage_other: string;
                 browse: string;
                 supportedFormats: string;
                 dropMessage: string;
@@ -4058,6 +4081,11 @@ export declare const resources: {
                 invalidFile: string;
                 fileTooLarge: string;
                 uploadFailed: string;
+                invalidFileType: string;
+                fileSizeExceeded: string;
+                duplicateFile: string;
+                uploadFailedCount_one: string;
+                uploadFailedCount_other: string;
             };
             progress: {
                 uploading: string;
@@ -4905,6 +4933,8 @@ export declare const resources: {
             };
             uploader: {
                 dragDropMessage: string;
+                dragDropMoreMessage_one: string;
+                dragDropMoreMessage_other: string;
                 browse: string;
                 supportedFormats: string;
                 dropMessage: string;
@@ -5090,6 +5120,11 @@ export declare const resources: {
                 invalidFile: string;
                 fileTooLarge: string;
                 uploadFailed: string;
+                invalidFileType: string;
+                fileSizeExceeded: string;
+                duplicateFile: string;
+                uploadFailedCount_one: string;
+                uploadFailedCount_other: string;
             };
             progress: {
                 uploading: string;
@@ -5937,6 +5972,8 @@ export declare const resources: {
             };
             uploader: {
                 dragDropMessage: string;
+                dragDropMoreMessage_one: string;
+                dragDropMoreMessage_other: string;
                 browse: string;
                 supportedFormats: string;
                 dropMessage: string;
@@ -6122,6 +6159,11 @@ export declare const resources: {
                 invalidFile: string;
                 fileTooLarge: string;
                 uploadFailed: string;
+                invalidFileType: string;
+                fileSizeExceeded: string;
+                duplicateFile: string;
+                uploadFailedCount_one: string;
+                uploadFailedCount_other: string;
             };
             progress: {
                 uploading: string;
@@ -6969,6 +7011,8 @@ export declare const resources: {
             };
             uploader: {
                 dragDropMessage: string;
+                dragDropMoreMessage_one: string;
+                dragDropMoreMessage_other: string;
                 browse: string;
                 supportedFormats: string;
                 dropMessage: string;
@@ -7154,6 +7198,11 @@ export declare const resources: {
                 invalidFile: string;
                 fileTooLarge: string;
                 uploadFailed: string;
+                invalidFileType: string;
+                fileSizeExceeded: string;
+                duplicateFile: string;
+                uploadFailedCount_one: string;
+                uploadFailedCount_other: string;
             };
             progress: {
                 uploading: string;
@@ -8001,6 +8050,8 @@ export declare const resources: {
             };
             uploader: {
                 dragDropMessage: string;
+                dragDropMoreMessage_one: string;
+                dragDropMoreMessage_other: string;
                 browse: string;
                 supportedFormats: string;
                 dropMessage: string;
@@ -8186,6 +8237,10 @@ export declare const resources: {
                 invalidFile: string;
                 fileTooLarge: string;
                 uploadFailed: string;
+                invalidFileType: string;
+                fileSizeExceeded: string;
+                duplicateFile: string;
+                uploadFailedCount_other: string;
             };
             progress: {
                 uploading: string;
@@ -9033,6 +9088,8 @@ export declare const resources: {
             };
             uploader: {
                 dragDropMessage: string;
+                dragDropMoreMessage_one: string;
+                dragDropMoreMessage_other: string;
                 browse: string;
                 supportedFormats: string;
                 dropMessage: string;
@@ -9218,6 +9275,10 @@ export declare const resources: {
                 invalidFile: string;
                 fileTooLarge: string;
                 uploadFailed: string;
+                invalidFileType: string;
+                fileSizeExceeded: string;
+                duplicateFile: string;
+                uploadFailedCount_other: string;
             };
             progress: {
                 uploading: string;

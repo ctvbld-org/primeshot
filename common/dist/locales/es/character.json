@@ -198,10 +198,12 @@
 
   "uploader": {
     "dragDropMessage": "Arrastra y suelta {{count}} selfies aquí, o",
+    "dragDropMoreMessage_one": "Arrastra y suelta 1 más aquí, o",
+    "dragDropMoreMessage_other": "Arrastra y suelta {{count}} más aquí, o",
     "browse": "examinar",
     "supportedFormats": "Admite archivos JPG y PNG",
     "dropMessage": "Suelta tus fotos aquí",
-    "maxImagesReached": "Máximo de fotos alcanzado"
+    "maxImagesReached": "¡Todas las fotos añadidas, todo listo!"
   },
 
   "status": {

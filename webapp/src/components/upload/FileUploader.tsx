@@ -246,17 +246,21 @@ export const FileUploader = React.forwardRef<FileUploaderHandle, FileUploaderPro
                   t('uploader.dropMessage')
                 ) : isAnalyzing ? (
                   t('status.analyzing', { count: analyzingCount })
-                ) : acceptedFiles && acceptedFiles.length >= maxImages ? (
+                ) : (disabled || ((acceptedFiles?.length ?? 0) >= UPLOAD_CONSTANTS.MAX_IMAGES)) ? (
                   t('uploader.maxImagesReached')
                 ) : (
                   <>
                     {(() => {
+                      const baseMin = UPLOAD_CONSTANTS.MIN_IMAGES
                       const currentCount = acceptedFiles?.length ?? 0
-                      const remainingToMin = Math.max(minImages - currentCount, 0)
-                      if (remainingToMin > 0) {
-                        return t('uploader.dragDropMoreMessage', { count: remainingToMin })
+                      if (currentCount === 0) {
+                        return t('uploader.dragDropMessage', { count: baseMin })
                       }
-                      return t('uploader.dragDropMessage', { count: minImages })
+                      const remainingToBase = Math.max(baseMin - currentCount, 0)
+                      if (remainingToBase > 0) {
+                        return t('uploader.dragDropMoreMessage', { count: remainingToBase })
+                      }
+                      return t('uploader.dragDropMessage', { count: baseMin })
                     })()}{' '}
                     <span className={styles.browse}>{t('uploader.browse')}</span>
                   </>

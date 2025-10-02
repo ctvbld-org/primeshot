@@ -13,7 +13,11 @@
   "errors": {
     "invalidFile": "無効なファイル形式",
     "fileTooLarge": "ファイルが大きすぎます",
-    "uploadFailed": "アップロードに失敗しました"
+    "uploadFailed": "アップロードに失敗しました",
+    "invalidFileType": "未対応のファイル形式（{{types}}）",
+    "fileSizeExceeded": "ファイルが大きすぎます（最大 {{size}}）",
+    "duplicateFile": "重複したファイル",
+    "uploadFailedCount_other": "{{count}} 件のファイルを追加できませんでした"
   },
   "progress": {
     "uploading": "アップロード中...",

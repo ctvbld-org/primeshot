@@ -198,10 +198,12 @@
 
   "uploader": {
     "dragDropMessage": "{{count}}枚のセルフィーをここにドラッグ＆ドロップするか、",
+    "dragDropMoreMessage_one": "あと1枚をここにドラッグ＆ドロップ、または",
+    "dragDropMoreMessage_other": "あと{{count}}枚をここにドラッグ＆ドロップ、または",
     "browse": "参照",
     "supportedFormats": "JPGとPNGファイルをサポート",
     "dropMessage": "写真をここにドロップしてください",
-    "maxImagesReached": "最大写真数に達しました"
+    "maxImagesReached": "すべての写真を追加しました。準備完了です！"
   },
 
   "status": {
