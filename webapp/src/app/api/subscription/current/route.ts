@@ -1,7 +1,8 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createSecuredHandler, SECURITY_PRESETS } from '@/lib/security-middleware'
 
-export async function GET() {
+async function handleGET() {
   try {
     const supabase = await createClient()
     
@@ -115,3 +116,13 @@ export async function GET() {
     )
   }
 } 
+
+// Secured handler with authentication and rate limiting
+const securedGET = createSecuredHandler(
+  handleGET,
+  SECURITY_PRESETS.USER_DATA
+);
+
+export async function GET(request: NextRequest) {
+  return await securedGET(request);
+}

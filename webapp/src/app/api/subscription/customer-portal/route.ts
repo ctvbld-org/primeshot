@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import Stripe from 'stripe'
+import { createSecuredHandler, SECURITY_PRESETS } from '@/lib/security-middleware'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-08-27.basil' as any
 })
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
     const supabase = await createClient()
     
@@ -161,4 +162,14 @@ async function resolveSubscriptionId(
     .maybeSingle()
 
   return latestSub?.stripe_subscription_id
+}
+
+// Secured handler with authentication and rate limiting
+const securedPOST = createSecuredHandler(
+  handlePOST,
+  SECURITY_PRESETS.USER_DATA
+);
+
+export async function POST(request: NextRequest) {
+  return await securedPOST(request);
 }

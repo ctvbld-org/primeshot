@@ -1,8 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
+import { createSecuredHandler, SECURITY_PRESETS } from '@/lib/security-middleware';
 
 // UUID v4 validation regex
 const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -19,7 +20,7 @@ async function cleanupTempFiles(uploadId: string) {
   }
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: NextRequest) {
   try {
     const supabase = await createClient();
     const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -81,8 +82,7 @@ export async function POST(request: Request) {
   }
 }
 
-// GET endpoint to cleanup old failed uploads (can be called periodically)
-export async function GET() {
+async function handleGET() {
   try {
     const supabase = await createClient();
     const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -101,3 +101,22 @@ export async function GET() {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 } 
+
+// Secured handlers with authentication and rate limiting
+const securedPOST = createSecuredHandler(
+  handlePOST,
+  SECURITY_PRESETS.USER_DATA
+);
+
+const securedGET = createSecuredHandler(
+  handleGET,
+  SECURITY_PRESETS.USER_DATA
+);
+
+export async function POST(request: NextRequest) {
+  return await securedPOST(request);
+}
+
+export async function GET(request: NextRequest) {
+  return await securedGET(request);
+}

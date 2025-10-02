@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
+import { createSecuredHandler, SECURITY_PRESETS } from '@/lib/security-middleware'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-08-27.basil' as any
 })
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
     const { priceId, successUrl, cancelUrl } = await request.json()
 
@@ -138,3 +139,13 @@ export async function POST(request: NextRequest) {
     )
   }
 } 
+
+// Secured handler with authentication and rate limiting
+const securedPOST = createSecuredHandler(
+  handlePOST,
+  SECURITY_PRESETS.USER_DATA
+);
+
+export async function POST(request: NextRequest) {
+  return await securedPOST(request);
+}

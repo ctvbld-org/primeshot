@@ -14,6 +14,7 @@ import { AuthProvider, LanguageProvider, I18nServerProvider, getLanguageFromCook
 import { DialogServiceProvider } from '@/contexts/DialogServiceContext'
 import { IntentHandler } from '@/components/providers/intent-handler'
 import { InferenceQueueProvider } from '@/contexts/inference-queue-context'
+import { StyleDataProvider } from '@/contexts/style-data-context'
 import QueryParamCleaner from '@/components/shared/QueryParamCleaner'
 import { PurchaseSuccessHandler } from '@/components/providers/PurchaseSuccessHandler'
 import { CrispInitializer } from '@/components/providers/CrispInitializer'
@@ -44,19 +45,21 @@ export default async function RootLayout({
           <AuthProvider>
             <LanguageProvider>
               <QueryProvider>
-                <BannerProvider>
-                  <InferenceQueueProvider>
-                    <DialogServiceProvider>
-                      <IntentHandler />
-                      <PurchaseSuccessHandler />
-                      <QueryParamCleaner />
-                      <Header rightSlot={<CreditsHeaderRight />} />
-                      {children}
-                      <Footer />
-                      <Toaster />
-                    </DialogServiceProvider>
-                  </InferenceQueueProvider>
-                </BannerProvider>
+                <StyleDataProvider>
+                  <BannerProvider>
+                    <InferenceQueueProvider>
+                      <DialogServiceProvider>
+                        <IntentHandler />
+                        <PurchaseSuccessHandler />
+                        <QueryParamCleaner />
+                        <Header rightSlot={<CreditsHeaderRight />} />
+                        {children}
+                        <Footer />
+                        <Toaster />
+                      </DialogServiceProvider>
+                    </InferenceQueueProvider>
+                  </BannerProvider>
+                </StyleDataProvider>
               </QueryProvider>
             </LanguageProvider>
           </AuthProvider>

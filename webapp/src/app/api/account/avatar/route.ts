@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import sharp from 'sharp'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { createClient } from '@/lib/supabase/server'
+import { createSecuredHandler, SECURITY_PRESETS } from '@/lib/security-middleware'
 
 const s3 = new S3Client({
   region: process.env.AWS_REGION || 'us-east-1',
@@ -11,7 +12,7 @@ const s3 = new S3Client({
   },
 })
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -48,6 +49,16 @@ export async function POST(req: NextRequest) {
     console.error('Avatar upload error:', error)
     return NextResponse.json({ error: 'Failed to upload avatar' }, { status: 500 })
   }
+}
+
+// Secured handler with authentication and rate limiting
+const securedPOST = createSecuredHandler(
+  handlePOST,
+  SECURITY_PRESETS.USER_DATA
+);
+
+export async function POST(request: NextRequest) {
+  return await securedPOST(request);
 }
 
 export function OPTIONS() { return NextResponse.json({}, { status: 200 }) }

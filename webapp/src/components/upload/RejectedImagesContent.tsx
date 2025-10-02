@@ -1,12 +1,11 @@
 import React, { useMemo, useCallback } from 'react'
 import { Button } from '@primeshot/common/web/ui/button'
 import { ImageQualityScore } from './ImageQualityScore'
-import { ImageQualityResult, checkBodyShotRequirements } from '@/lib/image-quality'
+import { ImageQualityResult } from '@/lib/image-quality'
 import { useTranslation } from 'react-i18next'
 import styles from './RejectedImagesContent.module.css'
 import type { FileWithScore } from '@/lib/types'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
-import { Icon } from '@primeshot/common/web/Icon'
 
 interface RejectedImagesContentProps {
   files: FileWithScore[]
@@ -44,20 +43,8 @@ export function RejectedImagesContent({
     [qualityResults]
   )
 
-  const bodyShotValidation = useMemo(() => {
-    const acceptedResults = Object.fromEntries(acceptedEntries)
-    return checkBodyShotRequirements(acceptedResults)
-  }, [acceptedEntries])
-
-  const shouldShowBodyShotError = useMemo(() =>
-    acceptedEntries.length >= UPLOAD_CONSTANTS.MIN_IMAGES && !bodyShotValidation.isValid,
-    [acceptedEntries.length, bodyShotValidation.isValid]
-  )
-
-  const bodyShotErrorMessages = useMemo(() =>
-    bodyShotValidation.i18nErrors?.map(err => tCharacter(err.key as any, err.params)) ?? [],
-    [bodyShotValidation.i18nErrors, tCharacter]
-  )
+  // Sidebar no longer shows body shot errors; keep accepted count to decide if we render at all
+  const shouldShowBodyShotError = false
   
   // 3. Callbacks
   const handleRemoveFile = useCallback((index: number) => {
@@ -82,7 +69,7 @@ export function RejectedImagesContent({
   ), [rejectedFiles, qualityResults, handleRemoveFile, files])
 
   // Don't render if nothing to show
-  if (rejectedFiles.length === 0 && !shouldShowBodyShotError) {
+  if (rejectedFiles.length === 0) {
     return null
   }
 
@@ -97,27 +84,13 @@ export function RejectedImagesContent({
           <path d="M20 24.25C18.2745 24.2529 16.5792 24.7022 15.0788 25.5543C13.5784 26.4064 12.324 27.6322 11.4375 29.1125L13.575 30.3625C14.2421 29.2547 15.1842 28.3383 16.31 27.7021C17.4358 27.0659 18.7069 26.7315 20 26.7315C21.2931 26.7315 22.5642 27.0659 23.69 27.7021C24.8158 28.3383 25.7579 29.2547 26.425 30.3625L28.5625 29.1125C27.6761 27.6322 26.4216 26.4064 24.9212 25.5543C23.4208 24.7022 21.7255 24.2529 20 24.25Z" fill="#FF4242"/>
         </svg>
         <h2 className={styles.headerTitle}>
-          {shouldShowBodyShotError ? (
-            tCharacter('uploadStep.bodyShotRequirementsNotMet')
-          ) : (
-            t('quality.rejected.title', {
-              rejected: counts.rejected,
-              total: counts.total,
-              count: counts.total
-            })
-          )}
+          {t('quality.rejected.title', {
+            rejected: counts.rejected,
+            total: counts.total,
+            count: counts.total
+          })}
         </h2>
       </div>
-
-      {shouldShowBodyShotError && (
-        <div className={styles.bodyShotError}>
-          <ul className={styles.bodyShotErrorList}>
-            {bodyShotErrorMessages.map((msg, idx) => (
-              <li key={idx}><Icon variant="cross" size={16} /> {msg}</li>
-            ))}
-          </ul>
-        </div>
-      )}
       {renderRejectedFiles}
     </div>
   )

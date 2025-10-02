@@ -164,7 +164,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
 
   // Admin users have different limits
   const isAdmin = user?.admin
-  const minImages = isAdmin ? 1 : UPLOAD_CONSTANTS.MIN_IMAGES
+  const minImages = UPLOAD_CONSTANTS.MIN_IMAGES
 
   // Check if we're in a critical step where closing should be prevented
   const isInCriticalStep = useMemo(() => {
@@ -279,6 +279,28 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
     }
   }, [handleClose])
 
+  // Handle files update from upload step
+  const handleFilesUpdate = useCallback((files: File[], qualityResults: Record<string, ImageQualityResult>, bodyShotValidation: { isValid: boolean; errors: string[] }, isAnalyzing: boolean) => {
+    setStepData(prev => {
+      // Only update if files, qualityResults, bodyShotValidation, or isAnalyzing have actually changed
+      const filesChanged = prev.uploadedFiles.length !== files.length ||
+        prev.uploadedFiles.some((f, i) => f.name !== files[i]?.name) ||
+        files.some((f, i) => f.name !== prev.uploadedFiles[i]?.name);
+      const qualityChanged = JSON.stringify(prev.qualityResults) !== JSON.stringify(qualityResults);
+      const bodyShotChanged = JSON.stringify(prev.bodyShotValidation) !== JSON.stringify(bodyShotValidation);
+      const analyzingChanged = prev.isAnalyzing !== isAnalyzing;
+
+      if (!filesChanged && !qualityChanged && !bodyShotChanged && !analyzingChanged) return prev;
+      return {
+        ...prev,
+        uploadedFiles: files,
+        qualityResults,
+        bodyShotValidation,
+        isAnalyzing
+      };
+    });
+  }, [])
+
   // Handle step navigation
   const handleNext = useCallback(async () => {
     switch (currentStep) {
@@ -300,8 +322,11 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
         setCurrentStep('upload')
         break
       case 'upload':
-        if (stepData.uploadedFiles.length >= minImages) {
-          setCurrentStep('name')
+        {
+          const acceptedCount = Object.values(stepData.qualityResults || {}).filter(r => r?.isAcceptable).length
+          if (acceptedCount >= minImages && stepData.bodyShotValidation?.isValid && !stepData.isAnalyzing) {
+            setCurrentStep('name')
+          }
         }
         break
       case 'name':
@@ -477,7 +502,6 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
         // Include admin params only if defined
         training_params: overrideParams ?? stepData.adminTrainingParams
       }, (attempt, maxRetries, error) => {
-        console.log(`Training API retry ${attempt}/${maxRetries}:`, error.message)
         setRetryState({ attempt, maxRetries, error })
       })
       
@@ -505,7 +529,6 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
       
       // Cleanup: If we created a character but something failed afterwards, clean it up
       if (createdCharacterId) {
-        console.log(`Cleaning up failed character: ${createdCharacterId}`)
         try {
           // Call cleanup API endpoint
           const response = await fetch(getApiUrl('api/cleanup-character'), {
@@ -520,8 +543,6 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
 
           if (!response.ok) {
             console.error('Failed to cleanup character:', await response.text())
-          } else {
-            console.log('Successfully cleaned up character')
           }
         } catch (cleanupError) {
           console.error('Error during character cleanup:', cleanupError)
@@ -709,25 +730,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
           {/* Upload Photos Step - Always rendered, hidden when not active */}
           <div className={ cn(currentStep === 'upload' ? styles.stepVisible : styles.stepHidden, styles.stepUploadPhotos)}>
             <UploadPhotosStep
-              onFilesUpdate={(files, qualityResults, bodyShotValidation, isAnalyzing) => {
-                setStepData(prev => {
-                  // Only update if files, qualityResults, bodyShotValidation, or isAnalyzing have actually changed
-                  const filesChanged = prev.uploadedFiles.length !== files.length ||
-                    prev.uploadedFiles.some((f, i) => f.name !== files[i].name);
-                  const qualityChanged = JSON.stringify(prev.qualityResults) !== JSON.stringify(qualityResults);
-                  const bodyShotChanged = JSON.stringify(prev.bodyShotValidation) !== JSON.stringify(bodyShotValidation);
-                  const analyzingChanged = prev.isAnalyzing !== isAnalyzing;
-                  
-                  if (!filesChanged && !qualityChanged && !bodyShotChanged && !analyzingChanged) return prev;
-                  return { 
-                    ...prev, 
-                    uploadedFiles: files, 
-                    qualityResults, 
-                    bodyShotValidation, 
-                    isAnalyzing 
-                  };
-                });
-              }}
+              onFilesUpdate={handleFilesUpdate}
             />
           </div>
 

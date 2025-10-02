@@ -13,6 +13,7 @@ import {
   getWardrobeById,
   getColorById,
 } from '@/lib/api/config';
+import { useStyleData } from '@/contexts/style-data-context';
 
 const CACHE_KEYS = {
   styles: 'styles',
@@ -37,9 +38,19 @@ export function useStyles() {
 }
 
 export function useStyle(id: StyleId | undefined) {
+  const { findStyleById, styles, stylesLoading } = useStyleData();
+  
   return useQuery({
     queryKey: id ? CACHE_KEYS.styleById(id) : ['style', 'none'],
-    queryFn: () => getStyleConfigById(id as StyleId),
+    queryFn: () => {
+      // First try to find in bulk data if available
+      if (!stylesLoading && styles.length > 0) {
+        const found = findStyleById(id as string);
+        if (found) return Promise.resolve(found);
+      }
+      // Fallback to API call
+      return getStyleConfigById(id as StyleId);
+    },
     staleTime: ONE_WEEK_IN_MS,
     enabled: !!id,
   });
@@ -77,9 +88,19 @@ export function useColors() {
 }
 
 export function useScene(value: string) {
+  const { findSceneByValue, scenes, scenesLoading } = useStyleData();
+  
   return useQuery({
     queryKey: CACHE_KEYS.sceneByValue(value),
-    queryFn: () => getSceneByValue(value),
+    queryFn: () => {
+      // First try to find in bulk data if available
+      if (!scenesLoading && scenes.length > 0) {
+        const found = findSceneByValue(value);
+        if (found) return Promise.resolve(found);
+      }
+      // Fallback to API call
+      return getSceneByValue(value);
+    },
     staleTime: ONE_WEEK_IN_MS,
     enabled: !!value,
   });
@@ -87,45 +108,95 @@ export function useScene(value: string) {
 
 // Fetch by id (new)
 export function useSceneById(id?: string) {
+  const { findSceneById, scenes, scenesLoading } = useStyleData();
+  
   return useQuery({
     queryKey: ['sceneById', id],
-    queryFn: () => getSceneById(id as string),
+    queryFn: () => {
+      // First try to find in bulk data if available
+      if (!scenesLoading && scenes.length > 0 && id) {
+        const found = findSceneById(id);
+        if (found) return Promise.resolve(found);
+      }
+      // Fallback to API call
+      return getSceneById(id as string);
+    },
     staleTime: ONE_WEEK_IN_MS,
     enabled: !!id,
   });
 }
 
 export function useWardrobe(value: string) {
+  const { findWardrobeByValue, wardrobes, wardrobesLoading } = useStyleData();
+  
   return useQuery({
     queryKey: CACHE_KEYS.wardrobeByValue(value),
-    queryFn: () => getWardrobeByValue(value),
+    queryFn: () => {
+      // First try to find in bulk data if available
+      if (!wardrobesLoading && wardrobes.length > 0) {
+        const found = findWardrobeByValue(value);
+        if (found) return Promise.resolve(found);
+      }
+      // Fallback to API call
+      return getWardrobeByValue(value);
+    },
     staleTime: ONE_WEEK_IN_MS,
     enabled: !!value,
   });
 }
 
 export function useWardrobeById(id?: string) {
+  const { findWardrobeById, wardrobes, wardrobesLoading } = useStyleData();
+  
   return useQuery({
     queryKey: ['wardrobeById', id],
-    queryFn: () => getWardrobeById(id as string),
+    queryFn: () => {
+      // First try to find in bulk data if available
+      if (!wardrobesLoading && wardrobes.length > 0 && id) {
+        const found = findWardrobeById(id);
+        if (found) return Promise.resolve(found);
+      }
+      // Fallback to API call
+      return getWardrobeById(id as string);
+    },
     staleTime: ONE_WEEK_IN_MS,
     enabled: !!id,
   });
 }
 
 export function useColor(value: string) {
+  const { findColorByValue, colors, colorsLoading } = useStyleData();
+  
   return useQuery({
     queryKey: CACHE_KEYS.colorByValue(value),
-    queryFn: () => getColorByValue(value),
+    queryFn: () => {
+      // First try to find in bulk data if available
+      if (!colorsLoading && colors.length > 0) {
+        const found = findColorByValue(value);
+        if (found) return Promise.resolve(found);
+      }
+      // Fallback to API call
+      return getColorByValue(value);
+    },
     staleTime: ONE_WEEK_IN_MS,
     enabled: !!value,
   });
 }
 
 export function useColorById(id?: string) {
+  const { findColorById, colors, colorsLoading } = useStyleData();
+  
   return useQuery({
     queryKey: ['colorById', id],
-    queryFn: () => getColorById(id as string),
+    queryFn: () => {
+      // First try to find in bulk data if available
+      if (!colorsLoading && colors.length > 0 && id) {
+        const found = findColorById(id);
+        if (found) return Promise.resolve(found);
+      }
+      // Fallback to API call
+      return getColorById(id as string);
+    },
     staleTime: ONE_WEEK_IN_MS,
     enabled: !!id,
   });

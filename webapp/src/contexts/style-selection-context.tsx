@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react'
 import { Style } from '@/types/styles'
 import { getStoredSelectedStyleIndex, storeSelectedStyleIndex, storeStyleSelections, type StyleSelections } from '@/lib/utils/style-storage'
-import { useStyles, useWardrobes } from '@/hooks/useConfig'
+import { useStylesFromContext, useWardrobesFromContext } from './style-data-context'
 
 interface StyleSelectionContextType {
   selectedStyleId: string | null
@@ -30,9 +30,9 @@ export function StyleSelectionProvider({ children }: { children: React.ReactNode
   const [selectedStyleIndex, setSelectedStyleIndex] = useState<number>(() => getStoredSelectedStyleIndex() ?? 0)
   const [stylesData, setStylesData] = useState<any[]>([])
 
-  // Fetch style configs to validate URL params
-  const { data: styleConfigs = [] } = useStyles()
-  const { data: allWardrobes = [] } = useWardrobes()
+  // Fetch style configs to validate URL params - now using centralized context
+  const { data: styleConfigs = [] } = useStylesFromContext()
+  const { data: allWardrobes = [] } = useWardrobesFromContext()
 
   // Ensure we only initialise from URL once
   const urlInitRef = useRef(false)

@@ -159,6 +159,9 @@
   height: 156px;
   border-radius: 0; 
   overflow: hidden; 
+  opacity: 0;
+  transform: translateY(8px) scale(0.95);
+  transition: opacity 300ms ease, transform 300ms ease;
 }
 .itemCard:first-child,
 .itemCard:first-child::before {
@@ -180,6 +183,12 @@
 }
 .itemCard:not(.itemActive):hover::after { 
   opacity: 1;
+}
+
+.itemCardLoaded {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: opacity 400ms ease, transform 400ms ease;
 }
 
 .itemSelected::before { 
@@ -316,8 +325,12 @@
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
-.fadeSwitch { transition: opacity 220ms cubic-bezier(.2,.7,.2,1); }
-.fadeSwitchHidden { opacity: 0.05; }
+.fadeSwitch { 
+  transition: opacity 280ms cubic-bezier(.2,.7,.2,1); 
+}
+.fadeSwitchHidden { 
+  opacity: 0.05; 
+}
 .carouselViewport > .itemsRow { scroll-snap-type: x mandatory; }
 .carouselViewport > .colorItemsRow { scroll-snap-type: x mandatory; }
 .carouselViewport::-webkit-scrollbar { display: none; }

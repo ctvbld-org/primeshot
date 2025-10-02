@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { S3Client, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand, AbortMultipartUploadCommand, PutObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { createSecuredHandler, SECURITY_PRESETS } from '@/lib/security-middleware'
+import { logSecurityEvent } from '@/lib/security-monitoring'
 
 // Configuration
 const PART_SIZE = 6 * 1024 * 1024 // 6 MiB minimum safe size
@@ -33,56 +35,96 @@ function json(body: any, status = 200, headers: Record<string,string> = {}) {
   })
 }
 
-function corsHeaders() {
-  return {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+// Secured handlers with comprehensive security middleware
+const securedOPTIONS = createSecuredHandler(
+  async (req: NextRequest) => {
+    return new NextResponse('ok', { status: 200 })
+  },
+  {
+    ...SECURITY_PRESETS.IMAGE_UPLOAD,
+    requireAuth: false, // OPTIONS requests don't need auth
+    botProtection: false // Skip bot protection for preflight
   }
+);
+
+const securedPOST = createSecuredHandler(
+  async (req: NextRequest) => {
+    return await handleUploadRequest(req);
+  },
+  SECURITY_PRESETS.IMAGE_UPLOAD
+);
+
+// Upload metrics tracking
+interface UploadMetrics {
+  operation: 'init' | 'sign-part' | 'complete' | 'abort'
+  userId: string
+  characterId?: string
+  fileSize?: number
+  totalChunks?: number
+  partNumber?: number
+  duration: number
+  success: boolean
+  error?: string
+  timestamp: string
 }
 
-function sanitizePathSegment(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9._-]/g, '')
-    .replace(/\.+/g, '.')
+const uploadMetrics: UploadMetrics[] = []
+
+function recordMetric(metric: UploadMetrics) {
+  uploadMetrics.push(metric)
+  // Keep only last 1000 metrics in memory
+  if (uploadMetrics.length > 1000) {
+    uploadMetrics.shift()
+  }
+
+  // Log to console for debugging
+  console.log(`[UPLOAD METRIC] ${metric.operation}: ${metric.duration}ms, success: ${metric.success}`, {
+    userId: metric.userId,
+    characterId: metric.characterId,
+    fileSize: metric.fileSize,
+    error: metric.error
+  })
 }
 
-export function OPTIONS() {
-  return new NextResponse('ok', { status: 200, headers: corsHeaders() })
-}
+// Extract the upload logic into a separate function
+async function handleUploadRequest(req: NextRequest): Promise<NextResponse> {
+  const startTime = Date.now()
+  let success = false
+  let operation = 'unknown'
+  let errorMessage = ''
 
-export async function POST(req: NextRequest) {
   try {
     const url = new URL(req.url)
     const actionFromQuery = url.searchParams.get('action')
     const contentType = req.headers.get('content-type') || ''
 
-    // Auth (cookie-based)
+    // Auth (cookie-based) - now handled by security middleware
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return json({ error: 'Unauthorized' }, 401)
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
 
     if ((actionFromQuery === 'init') || contentType.includes('multipart/form-data')) {
+      operation = 'init'
       const form = await req.formData()
       const action = (form.get('action') as string | null) || 'init'
-      if (action !== 'init') return json({ error: 'Invalid action' }, 400)
+      if (action !== 'init') return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
 
       const metadataStr = form.get('metadata') as string | null
-      if (!metadataStr) return json({ error: 'Missing metadata' }, 400)
+      if (!metadataStr) return NextResponse.json({ error: 'Missing metadata' }, { status: 400 })
       let metadata: any
-      try { metadata = JSON.parse(metadataStr) } catch { return json({ error: 'Invalid metadata JSON' }, 400) }
+      try { metadata = JSON.parse(metadataStr) } catch { return NextResponse.json({ error: 'Invalid metadata JSON' }, { status: 400 }) }
       const { uploadId, fileName, fileType, fileSize, totalChunks, characterId } = metadata || {}
-      if (!uploadId || !fileName || !fileType || !characterId) return json({ error: 'Missing fields' }, 400)
+      if (!uploadId || !fileName || !fileType || !characterId) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
 
       const base = sanitizePathSegment(String(fileName).replace(/\.[^/.]+$/, ''))
       const ext = String(fileName).split('.').pop() || 'jpg'
       const key = `user-images/${user.id}/training/${characterId}/source/${uploadId}-${base}.${ext}`
 
       // Optional: simple size/chunk sanity
-      if (Number(fileSize) > 100 * 1024 * 1024) return json({ error: 'File too large' }, 400)
-      if (Number(totalChunks) > 1000) return json({ error: 'Too many chunks' }, 400)
+      if (Number(fileSize) > 100 * 1024 * 1024) return NextResponse.json({ error: 'File too large' }, { status: 400 })
+      if (Number(totalChunks) > 1000) return NextResponse.json({ error: 'Too many chunks' }, { status: 400 })
 
       // Create MPU
       const createRes = await s3.send(new CreateMultipartUploadCommand({
@@ -90,7 +132,7 @@ export async function POST(req: NextRequest) {
         Key: key,
         ContentType: fileType || 'application/octet-stream'
       }))
-      if (!createRes.UploadId) return json({ error: 'Failed to create multipart upload' }, 500)
+      if (!createRes.UploadId) return NextResponse.json({ error: 'Failed to create multipart upload' }, { status: 500 })
 
       // Optional thumbnail
       const thumb = form.get('thumbnail') as File | null
@@ -110,25 +152,48 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      return json({ uploadId: createRes.UploadId, key, partSize: PART_SIZE, contentType: fileType || 'application/octet-stream', thumbnailUrl })
+      success = true
+      recordMetric({
+        operation: 'init',
+        userId: user.id,
+        characterId,
+        fileSize: Number(fileSize),
+        totalChunks: Number(totalChunks),
+        duration: Date.now() - startTime,
+        success: true,
+        timestamp: new Date().toISOString()
+      })
+
+      return NextResponse.json({ uploadId: createRes.UploadId, key, partSize: PART_SIZE, contentType: fileType || 'application/octet-stream', thumbnailUrl })
     }
 
     // JSON actions
     const body = await req.json().catch(() => ({}))
     const action = body?.action || actionFromQuery
-    if (action !== 'sign-part' && action !== 'complete' && action !== 'abort') return json({ error: 'Invalid action' }, 400)
+    if (action !== 'sign-part' && action !== 'complete' && action !== 'abort') return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
 
     if (action === 'sign-part') {
+      operation = 'sign-part'
       const { uploadId, key, partNumber } = body || {}
-      if (!uploadId || !key || !partNumber) return json({ error: 'Missing uploadId|key|partNumber' }, 400)
+      if (!uploadId || !key || !partNumber) return NextResponse.json({ error: 'Missing uploadId|key|partNumber' }, { status: 400 })
       const command = new UploadPartCommand({ Bucket: AWS_S3_BUCKET, Key: key, PartNumber: Number(partNumber), UploadId: String(uploadId) })
       const signedUrl = await getSignedUrl(s3, command, { expiresIn: PRESIGN_EXPIRES_S })
-      return json({ url: signedUrl, expiresIn: PRESIGN_EXPIRES_S })
+      success = true
+      recordMetric({
+        operation: 'sign-part',
+        userId: user.id,
+        partNumber: Number(partNumber),
+        duration: Date.now() - startTime,
+        success: true,
+        timestamp: new Date().toISOString()
+      })
+      return NextResponse.json({ url: signedUrl, expiresIn: PRESIGN_EXPIRES_S })
     }
 
     if (action === 'complete') {
+      operation = 'complete'
       const { uploadId, key, parts } = body || {}
-      if (!uploadId || !key || !Array.isArray(parts) || parts.length === 0) return json({ error: 'Missing uploadId|key|parts' }, 400)
+      if (!uploadId || !key || !Array.isArray(parts) || parts.length === 0) return NextResponse.json({ error: 'Missing uploadId|key|parts' }, { status: 400 })
       const command = new CompleteMultipartUploadCommand({
         Bucket: AWS_S3_BUCKET,
         Key: key,
@@ -157,20 +222,79 @@ export async function POST(req: NextRequest) {
       } catch {
         // best-effort; do not fail completion
       }
-      return json({ success: true, url: finalUrl, thumbnailUrl: null })
+      success = true
+      recordMetric({
+        operation: 'complete',
+        userId: user.id,
+        duration: Date.now() - startTime,
+        success: true,
+        timestamp: new Date().toISOString()
+      })
+      return NextResponse.json({ success: true, url: finalUrl, thumbnailUrl: null })
     }
 
     if (action === 'abort') {
+      operation = 'abort'
       const { uploadId, key } = body || {}
-      if (!uploadId || !key) return json({ error: 'Missing uploadId|key' }, 400)
+      if (!uploadId || !key) return NextResponse.json({ error: 'Missing uploadId|key' }, { status: 400 })
       await s3.send(new AbortMultipartUploadCommand({ Bucket: AWS_S3_BUCKET, Key: key, UploadId: String(uploadId) }))
-      return json({ success: true })
+      success = true
+      recordMetric({
+        operation: 'abort',
+        userId: user.id,
+        duration: Date.now() - startTime,
+        success: true,
+        timestamp: new Date().toISOString()
+      })
+      return NextResponse.json({ success: true })
     }
 
-    return json({ error: 'Unsupported method or action' }, 405)
+    return NextResponse.json({ error: 'Unsupported method or action' }, { status: 405 })
   } catch (error: any) {
-    return json({ error: error?.message || 'Unknown error' }, 500)
+    errorMessage = error?.message || 'Unknown error'
+
+    // Record failed operation
+    recordMetric({
+      operation,
+      userId: user?.id || 'unknown',
+      duration: Date.now() - startTime,
+      success: false,
+      error: errorMessage,
+      timestamp: new Date().toISOString()
+    })
+
+    // Log security event for suspicious failures
+    if (user) {
+      logSecurityEvent(
+        'suspicious_request',
+        'medium',
+        `Upload operation failed: ${operation} - ${errorMessage}`,
+        {
+          request: req,
+          userId: user.id,
+          metadata: { operation, duration: Date.now() - startTime }
+        }
+      )
+    }
+
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
+}
+
+function sanitizePathSegment(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9._-]/g, '')
+    .replace(/\.+/g, '.')
+}
+
+export async function OPTIONS() {
+  return await securedOPTIONS(new NextRequest('http://localhost'));
+}
+
+export async function POST(req: NextRequest) {
+  return await securedPOST(req);
 }
 
 

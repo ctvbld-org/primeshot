@@ -30,7 +30,7 @@ export const Footer: React.FC<FooterProps> = ({
     <footer className={styles.footer}>
       <div className={styles.inner}>
         <div className={styles.left}>
-            <Link href="/" aria-label="Primeshot home">
+            <Link href="/" aria-label="Primeshot home" className={styles.logoLink}>
                 <Icon variant="primeshotLogo" size={118} className={styles.logo} />
             </Link>
             <div className={styles.copyright}>
@@ -39,9 +39,11 @@ export const Footer: React.FC<FooterProps> = ({
         </div>
 
           <div className={styles.right}>
-            <a className={styles.link} href={aboutHref}>{t('footer.about')}</a>
-            <a className={styles.link} href={termsHref}>{t('footer.terms')}</a>
-            <a className={styles.link} href={privacyHref}>{t('footer.privacy')}</a>
+            <ul className={styles.links}>
+                <li className={styles.link}><a href={aboutHref}>{t('footer.about')}</a></li>
+                <li className={styles.link}><a href={termsHref}>{t('footer.terms')}</a></li>
+                <li className={styles.link}><a href={privacyHref}>{t('footer.privacy')}</a></li>
+            </ul>
             <div className={styles.socialIcons}>
                 <a className={styles.iconLink} href={xHref} target="_blank" rel="noopener noreferrer" aria-label="X">
                     <Image

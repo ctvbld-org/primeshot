@@ -30,7 +30,7 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
   
   // Admin users have different limits
   const isAdmin = authUser?.admin
-  const minImages = isAdmin ? 1 : UPLOAD_CONSTANTS.MIN_IMAGES
+  const minImages = UPLOAD_CONSTANTS.MIN_IMAGES
   const maxImages = isAdmin ? 999 : UPLOAD_CONSTANTS.MAX_IMAGES
   
   const fileUploaderRef = React.useRef<FileUploaderHandle>(null)
@@ -78,6 +78,20 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
     [selectedFiles, qualityResults]
   )
 
+  const removeFileByFileRef = useCallback((file: FileWithScore | File) => {
+    // Prefer strict reference match to avoid duplicate-name edge cases
+    let fsIndex = selectedFiles.findIndex(f => f === (file as File))
+    if (fsIndex === -1) {
+      // Fallback to name + lastModified
+      fsIndex = selectedFiles.findIndex(f => f.name === file.name && (f as File).lastModified === (file as File).lastModified)
+    }
+    if (fsIndex === -1) {
+      // Final fallback: first by name only
+      fsIndex = selectedFiles.findIndex(f => f.name === file.name)
+    }
+    if (fsIndex !== -1) removeFile(fsIndex)
+  }, [selectedFiles, removeFile])
+
   // Body shot validation
   const bodyShotValidation = useMemo(() => {
     if (petMode) {
@@ -94,11 +108,10 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
     };
   }, [acceptedFiles, qualityResults, petMode])
 
-  // Update parent component when files change
+  // Update parent component when files change (trigger on selectedFiles too)
   React.useEffect(() => {
-    // Use current quality results since component state is preserved
     onFilesUpdate(acceptedFiles, qualityResults, bodyShotValidation, isAnalyzing)
-  }, [acceptedFiles, qualityResults, bodyShotValidation, isAnalyzing, onFilesUpdate])
+  }, [selectedFiles.length, acceptedFiles.length, qualityResults, bodyShotValidation, isAnalyzing, onFilesUpdate])
 
   const handleDialogClose = useCallback(() => {
     clearRejectedFiles()
@@ -133,6 +146,18 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
               currentUploadingIndex={null}
               uploadedFiles={[]}
               isTransitioningToReview={false}
+              bodyShotValidation={{
+                isValid: bodyShotValidation.isValid,
+                errors: bodyShotValidation.errors,
+                // Build i18nErrors again so FileUploader can localize
+                i18nErrors: (!bodyShotValidation.isValid ? ((): any[] => {
+                  const acceptedQualityResults = Object.fromEntries(
+                    acceptedFiles.map(file => [file.name, qualityResults[file.name]])
+                  )
+                  const validation = checkBodyShotRequirements(acceptedQualityResults)
+                  return validation.i18nErrors as any
+                })() : [])
+              }}
             />
           </div>
 
@@ -142,7 +167,7 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
             maxImages={isAdmin ? 999 : maxImages}
             onReviewClick={() => {}}
             isUploading={false}
-            onRemoveFile={removeFile}
+            onRemoveFile={(index) => removeFileByFileRef(acceptedFiles[index])}
             isAnalyzing={isAnalyzing}
             currentAnalyzingIndex={currentFileIndex}
             currentUploadingIndex={null}
@@ -159,7 +184,7 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
           files={rejectedFiles}
           totalFiles={selectedFiles.length}
           qualityResults={qualityResults}
-          onRemoveFile={removeFile}
+          onRemoveFile={(index) => removeFileByFileRef(rejectedFiles[index])}
           onContinue={handleDialogClose}
         />
         

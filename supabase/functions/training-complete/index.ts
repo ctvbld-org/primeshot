@@ -3,6 +3,89 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { getCharacterTrainingCost } from "../_shared/pricing.ts";
 
+// AI Job Monitoring
+async function reportTrainingFailure(
+  jobId: string,
+  userId: string,
+  characterId: string,
+  errorMessage: string,
+  retryCount?: number,
+  creditsSpent?: number
+): Promise<void> {
+  // Use AI_MONITORING_SLACK_WEBHOOK if available, otherwise fall back to SECURITY_SLACK_WEBHOOK
+  const webhookUrl = Deno.env.get('AI_MONITORING_SLACK_WEBHOOK') || Deno.env.get('SECURITY_SLACK_WEBHOOK');
+  if (!webhookUrl) return;
+
+  const payload = {
+    channel: '#ai-gen-monitoring',
+    username: 'AI Job Monitor',  
+    icon_emoji: ':robot_face:',
+    attachments: [{
+      color: 'danger',
+      title: '🚨🚨 Training Job Failed',
+      text: `Training job failed: ${errorMessage}`,
+      fields: [
+        {
+          title: 'Job Type',
+          value: '🎓 Training',
+          short: true
+        },
+        {
+          title: 'Job ID', 
+          value: jobId.substring(0, 8) + '...',
+          short: true
+        },
+        {
+          title: 'User ID',
+          value: userId.substring(0, 8) + '...',
+          short: true
+        },
+        {
+          title: 'Character ID',
+          value: characterId.substring(0, 8) + '...',
+          short: true
+        },
+        {
+          title: 'Error Message',
+          value: errorMessage.substring(0, 200) + (errorMessage.length > 200 ? '...' : ''),
+          short: false
+        },
+        ...(retryCount ? [{
+          title: 'Retry Count',
+          value: retryCount.toString(),
+          short: true
+        }] : []),
+        ...(creditsSpent ? [{
+          title: 'Credits Spent',
+          value: creditsSpent.toString(),
+          short: true
+        }] : []),
+        {
+          title: 'Timestamp',
+          value: new Date().toLocaleString(),
+          short: true
+        }
+      ],
+      footer: 'PrimeShot AI Job Monitor',
+      ts: Math.floor(Date.now() / 1000)
+    }]
+  };
+
+  try {
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      console.error(`Training failure Slack alert failed: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error('Error sending training failure Slack alert:', error);
+  }
+}
+
 interface TrainingCompleteRequest {
   job_id: string;
   success: boolean;
@@ -164,6 +247,16 @@ serve(async (req) => {
 
     // If training failed, fail and refund any queued/pending/running inference jobs for this character
     if (!success) {
+      // Report training failure to monitoring system
+      await reportTrainingFailure(
+        job_id,
+        trainingJob.user_id,
+        trainingJob.character_id,
+        error_message || 'Training failed',
+        trainingJob.retry_count,
+        trainingJob.credits_spent
+      );
+
       try {
         const { data: impacted } = await supabase
           .from('inference_jobs')

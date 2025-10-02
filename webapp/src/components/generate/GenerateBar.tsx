@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { Icon } from '@primeshot/common/web/Icon'
 import { useTranslation } from 'react-i18next'
 import { useStyleSelection } from '@/contexts/style-selection-context'
-import { useScenes, useWardrobes, useColors } from '@/hooks/useConfig'
+import { useScenesFromContext, useWardrobesFromContext, useColorsFromContext } from '@/contexts/style-data-context'
 import { useTranslatedScenes, useTranslatedWardrobes, useTranslatedColors } from '@/hooks/useTranslatedStyles'
 
 import { getStyleImages } from '@/lib/utils/get-styles-images'
@@ -60,10 +60,10 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const { isAuthenticated, user: authUser } = useAuth()
   const authReady = isAuthenticated !== undefined // Auth state has been resolved
   
-  // Only load option data once auth is ready
-  const { data: rawScenes = [] } = useScenes()
-  const { data: rawWardrobes = [] } = useWardrobes()
-  const { data: rawColors = [] } = useColors()
+  // Only load option data once auth is ready - now using centralized context
+  const { data: rawScenes = [] } = useScenesFromContext()
+  const { data: rawWardrobes = [] } = useWardrobesFromContext()
+  const { data: rawColors = [] } = useColorsFromContext()
   
   // Apply translations to the loaded data
   const scenes = useTranslatedScenes(rawScenes) || []
@@ -104,6 +104,15 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   }
   const save = (k: string, v: any) => { try { localStorage.setItem(k, JSON.stringify(v)) } catch {}
   }
+
+  // Normalize various gender strings to 'man' | 'woman'
+  const mapGenderToWardrobe = React.useCallback((raw: string | null | undefined): ('man' | 'woman' | null) => {
+    const g = String(raw || '').trim().toLowerCase()
+    if (!g) { return null }
+    if (g === 'm' || g.startsWith('man') || g.startsWith('male')) { return 'man' }
+    if (g === 'f' || g === 'w' || g.startsWith('woman') || g.startsWith('female')) { return 'woman' }
+    return null
+  }, [])
 
   type QualityCode = string
   const sanitizeQuality = (q: any, allowed: string[]): QualityCode =>
@@ -203,19 +212,67 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
     // When opening wardrobe, prefer selected character gender; otherwise keep current (localStorage/default)
     if (panel === 'wardrobe') {
       try {
-        if (selectedCharacterId && Array.isArray(characters) && characters.length) {
-          const char = characters.find((c: any) => c.id === selectedCharacterId)
-          const raw = String(char?.gender || '').toLowerCase()
-          const mapped = raw.startsWith('m') ? 'man' : (raw.startsWith('f') ? 'woman' : null)
-          if (mapped && mapped !== selectedGender) {
-            setSelectedGender(mapped)
-            save(STORAGE_KEYS.WARDROBE_GENDER, mapped)
+        if (selectedCharacterId) {
+          if (Array.isArray(characters) && characters.length) {
+            const char = characters.find((c: any) => c.id === selectedCharacterId)
+            const rawCache = (char as any)?.gender ?? (char as any)?.metadata?.gender
+            let mapped = mapGenderToWardrobe(rawCache as any)
+            if (!mapped && authUser?.id) {
+              ;(async () => {
+                try {
+                  const c = await getCharacter(selectedCharacterId, authUser.id)
+                  const rawFetched = (c as any)?.gender ?? (c as any)?.metadata?.gender
+                  const fetched = mapGenderToWardrobe(rawFetched as any)
+                  if (fetched && fetched !== selectedGender) {
+                    setSelectedGender(fetched)
+                    save(STORAGE_KEYS.WARDROBE_GENDER, fetched)
+                  }
+                } catch (e) {
+                }
+              })()
+            }
+            if (mapped && mapped !== selectedGender) {
+              setSelectedGender(mapped)
+              save(STORAGE_KEYS.WARDROBE_GENDER, mapped)
+            }
+          } else if (authUser?.id) {
+            ;(async () => {
+              try {
+                const c = await getCharacter(selectedCharacterId, authUser.id)
+                const mapped = mapGenderToWardrobe((c as any)?.gender)
+                if (mapped && mapped !== selectedGender) {
+                  setSelectedGender(mapped)
+                  save(STORAGE_KEYS.WARDROBE_GENDER, mapped)
+                }
+              } catch {}
+            })()
           }
         }
       } catch {}
     }
     // Check sticky state after panel opens
     setTimeout(checkSticky, 300)
+    
+    // Scroll to selected item after panel renders
+    if (panel === 'styles' || panel === 'scenes' || panel === 'wardrobe') {
+      setTimeout(() => scrollToSelectedItem(panel), 300)
+    }
+    
+    // Apply animation to character cards
+    if (panel === 'characters') {
+      setTimeout(() => {
+        const viewport = viewportRef.current
+        if (viewport) {
+          const itemsContainer = viewport.firstElementChild as HTMLElement
+          if (itemsContainer) {
+            const allButtons = Array.from(itemsContainer.children) as HTMLElement[]
+            allButtons.forEach((button) => {
+              button.classList.add(styles.itemCardLoaded)
+            })
+          }
+        }
+      }, 300)
+    }
   }
   const close = () => { 
     setOpenPanel(null); 
@@ -286,7 +343,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   // Panel contents
   // Characters panel hooks and logic (top-level to respect rules of hooks)
   // Use authUser from above
-  const { getUserCharacters } = useCharactersApi()
+  const { getUserCharacters, getCharacter } = useCharactersApi()
   const [characters, setCharacters] = React.useState<any[]>([])
   const [characterThumbs, setCharacterThumbs] = React.useState<Record<string, string>>({})
   const { runWithGates } = useActionGate(requiredCredits, 'inference')
@@ -632,9 +689,18 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
     }
   }, [authUser?.id])
 
-  const onSelectCharacter = (modelId: string) => {
+  const onSelectCharacter = (modelId: string, gender?: string, metaGender?: string) => {
     try { localStorage.setItem('character-selection', JSON.stringify({ modelId })) } catch {}
     setSelectedCharacterId(modelId)
+    // Apply gender immediately based on selected character metadata
+    try {
+      const raw = gender ?? metaGender ?? (characters.find((c: any) => c.id === modelId)?.gender ?? (characters.find((c: any) => c.id === modelId)?.metadata?.gender))
+      const mapped = mapGenderToWardrobe(raw)
+      if (mapped && mapped !== selectedGender) {
+        setSelectedGender(mapped)
+        save(STORAGE_KEYS.WARDROBE_GENDER, mapped)
+      }
+    } catch {}
     clearError('character')
     close()
   }
@@ -703,6 +769,111 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const viewportRef = React.useRef<HTMLDivElement>(null)
   const [panelQuery, setPanelQuery] = useState('')
   const [navState, setNavState] = useState({ canPrev: false, canNext: false })
+  
+  // Utility function to scroll to selected item in carousel
+  const scrollToSelectedItem = useCallback((panel: PanelKey) => {
+    
+    if (!viewportRef.current) {
+      console.log('viewportRef.current is null')
+      return
+    }
+    
+    const viewport = viewportRef.current
+    const itemsContainer = viewport.firstElementChild as HTMLElement
+    if (!itemsContainer) return
+
+    // Hide all items initially by removing the loaded class
+    const allButtons = Array.from(itemsContainer.children) as HTMLElement[]
+    allButtons.forEach(button => {
+      button.classList.add(styles.itemCardLoaded)
+    })
+
+    let selectedIndex = -1
+    let itemWidth = 0
+
+    if (panel === 'styles') {
+      // Find the selected style directly in the DOM using the data-value attribute
+      const selectedStyle = stylesWithPreview[selectedStyleIndex]
+      if (selectedStyle) {
+        const selectedButton = itemsContainer.querySelector(`[data-value="${selectedStyle.id}"]`) as HTMLElement
+        if (selectedButton) {
+          // Count how many buttons come before this one
+          selectedIndex = allButtons.indexOf(selectedButton)
+        }
+      }
+      
+      const firstItem = itemsContainer.firstElementChild as HTMLElement
+      if (firstItem) {
+        itemWidth = firstItem.offsetWidth
+        const computedStyle = window.getComputedStyle(firstItem)
+        const marginRight = parseInt(computedStyle.marginRight) || 0
+        itemWidth += marginRight
+      }
+    } else if (panel === 'scenes' && currentStyle) {
+      const selections = getStoredStyleSelections(currentStyle.id)
+      if (selections.scene) {
+        // Find the selected item directly in the DOM using the data-value attribute
+        const selectedButton = itemsContainer.querySelector(`[data-value="${selections.scene}"]`) as HTMLElement
+        if (selectedButton) {
+          // Count how many buttons come before this one
+          selectedIndex = allButtons.indexOf(selectedButton)
+        }
+      }
+      
+      const firstItem = itemsContainer.firstElementChild as HTMLElement
+      if (firstItem) {
+        itemWidth = firstItem.offsetWidth
+        const computedStyle = window.getComputedStyle(firstItem)
+        const marginRight = parseInt(computedStyle.marginRight) || 0
+        itemWidth += marginRight
+      }
+    } else if (panel === 'wardrobe' && currentStyle && !selectedWardrobeValue) {
+      const selections = getStoredStyleSelections(currentStyle.id)
+      if (selections.wardrobe) {
+        // Instead of trying to replicate the complex filtering logic,
+        // find the selected item directly in the DOM using the data-value attribute
+        const selectedButton = itemsContainer.querySelector(`[data-value="${selections.wardrobe}"]`) as HTMLElement
+        if (selectedButton) {
+          // Count how many buttons come before this one
+          selectedIndex = allButtons.indexOf(selectedButton)
+        }
+      }
+      
+      const firstItem = itemsContainer.firstElementChild as HTMLElement
+      if (firstItem) {
+        itemWidth = firstItem.offsetWidth
+        const computedStyle = window.getComputedStyle(firstItem)
+        const marginRight = parseInt(computedStyle.marginRight) || 0
+        itemWidth += marginRight
+      }
+    }
+
+      if (selectedIndex >= 0 && itemWidth > 0) {
+        // Position the selected item as the first visible item (leftmost position)
+        const scrollPosition = selectedIndex * itemWidth
+        const maxScroll = Math.max(0, itemsContainer.scrollWidth - viewport.clientWidth)
+        const targetScroll = Math.min(scrollPosition, maxScroll)
+        
+        // Temporarily disable smooth scrolling to make it instant
+        const originalScrollBehavior = viewport.style.scrollBehavior
+        viewport.style.scrollBehavior = 'auto'
+        
+        viewport.scrollTo({
+          left: targetScroll
+        })
+        
+        // Restore original scroll behavior
+        viewport.style.scrollBehavior = originalScrollBehavior
+      }
+
+    // Fade in all items after scroll position is set
+    setTimeout(() => {
+      allButtons.forEach(button => {
+        button.classList.add(styles.itemCardLoaded)
+      })
+    }, 50)
+  }, [selectedStyleIndex, currentStyle, scenes, wardrobes, selectedGender, selectedWardrobeValue, stylesWithPreview, panelQuery])
+
   const updateNavButtons = useCallback(() => {
     const el = viewportRef.current
     if (!el) return
@@ -777,6 +948,14 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
     setIsColorsCompact(candidate <= 50)
   }, [colorsForCurrentStyle.length])
 
+  // Effect to scroll to selected item when wardrobe panel switches back from color selection
+  useEffect(() => {
+    if (openPanel === 'wardrobe' && !selectedWardrobeValue && currentStyle) {
+      // When going back from color selection to wardrobe selection, scroll to selected item
+      setTimeout(() => scrollToSelectedItem('wardrobe'), 300)
+    }
+  }, [selectedWardrobeValue, openPanel, currentStyle, scrollToSelectedItem])
+
   React.useEffect(() => {
     // Observe only when wardrobe panel is open and a wardrobe is selected (colors shown)
     if (openPanel !== 'wardrobe') return
@@ -807,7 +986,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
             <div ref={viewportRef} className={styles.carouselViewport} onScroll={updateNavButtons}>
               <div className={styles.itemsRow} style={{ width: 'max-content' }}>
               {stylesWithPreview.filter(s => !panelQuery || s.name.toLowerCase().includes(panelQuery.toLowerCase())).map((s, idx) => (
-                <button key={s.id} className={`${styles.itemCard} ${idx === selectedStyleIndex ? styles.itemSelected : ''}`} onClick={() => onSelectStyle(idx)}>
+                <button key={s.id} data-value={s.id} className={`${styles.itemCard} ${idx === selectedStyleIndex ? styles.itemSelected : ''}`} onClick={() => onSelectStyle(idx)}>
                   {s.preview_images?.[0] && (
                     <Image loader={stylesLoader} src={s.preview_images[0]} alt={s.name} width={80} height={80} className={styles.itemThumb} />
                   )}
@@ -829,7 +1008,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 const sel = currentStyle ? getStoredStyleSelections(currentStyle.id).scene : null
                 const isSelected = sel === opt.value
                 return (
-                <button key={opt.value} className={`${styles.itemCard} ${isSelected ? styles.itemSelected : ''}`} onClick={() => { storeStyleSelections(currentStyle.id, { scene: opt.value }); setSelectionVersion(v=>v+1); clearError('scene'); close() }}>
+                <button key={opt.value} data-value={opt.value} className={`${styles.itemCard} ${isSelected ? styles.itemSelected : ''}`} onClick={() => { storeStyleSelections(currentStyle.id, { scene: opt.value }); setSelectionVersion(v=>v+1); clearError('scene'); close() }}>
                   {opt.image && (
                     <Image loader={scenesLoader} src={opt.image} alt={opt.label} width={80} height={80} className={styles.itemThumb} />
                   )}
@@ -938,10 +1117,40 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                     const v = String(val) as 'man' | 'woman'
                     if (selectedGender === v) return
                     setIsSwitchingGender(true)
+                    
+                    // Reset all cards to initial state (including unisex ones)
+                    const viewport = viewportRef.current
+                    if (viewport) {
+                      const itemsContainer = viewport.firstElementChild as HTMLElement
+                      if (itemsContainer) {
+                        const allButtons = Array.from(itemsContainer.children) as HTMLElement[]
+                        allButtons.forEach((button) => {
+                          button.classList.remove(styles.itemCardLoaded)
+                          // Remove any existing transition delays
+                          button.style.transitionDelay = ''
+                        })
+                      }
+                    }
+                    
                     setTimeout(() => {
                       setSelectedGender(v)
                       save(STORAGE_KEYS.WARDROBE_GENDER, v)
-                      setTimeout(() => setIsSwitchingGender(false), 40)
+                      
+                      // Add 100ms delay then animate all cards back in without staggered timing
+                      setTimeout(() => {
+                        if (viewport) {
+                          const itemsContainer = viewport.firstElementChild as HTMLElement
+                          if (itemsContainer) {
+                            const allButtons = Array.from(itemsContainer.children) as HTMLElement[]
+                            allButtons.forEach((button) => {
+                              // Remove any transition delays for consistent animation
+                              button.style.transitionDelay = ''
+                              button.classList.add(styles.itemCardLoaded)
+                            })
+                          }
+                        }
+                        setIsSwitchingGender(false)
+                      }, 100)
                     }, 120)
                   }}
                   size="sm"
@@ -956,7 +1165,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                   const sel = currentStyle ? getStoredStyleSelections(currentStyle.id).wardrobe : null
                   const isSelected = sel === opt.value
                   return (
-                  <button key={opt.value} className={`${styles.itemCard} ${isSelected ? styles.itemSelected : ''}`} onClick={() => {
+                  <button key={opt.value} data-value={opt.value} className={`${styles.itemCard} ${isSelected ? styles.itemSelected : ''}`} onClick={() => {
                     setSelectedWardrobeValue(opt.value)
                     const g = (opt as any).gender as ('man'|'woman'|'unisex'|undefined)
                     if (g === 'man' || g === 'woman') { if (g !== selectedGender) setSelectedGender(g); save(STORAGE_KEYS.WARDROBE_GENDER, g) }
@@ -1060,7 +1269,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                   uploadedCount={uploadedCounts[m.id] || 0}
                   job={activeJobs[m.id] || null}
                   selectedId={selectedCharacterId || ''}
-                  onSelect={() => onSelectCharacter(m.id)}
+                  onSelect={() => onSelectCharacter(m.id, (m as any)?.gender, (m as any)?.metadata?.gender)}
                   onDeleted={(id) => {
                     // Optimistically remove from UI
                     setCharacters(prev => prev.filter(c => c.id !== id))
@@ -1379,6 +1588,7 @@ function CharacterCard({ character, thumbUrl, uploadedCount = 0, job, onSelect, 
   return (
     <button
       className={`${styles.itemCard} ${styles.characterCard} ${(isRunning ? styles.itemActive : '')} ${isSelected ? styles.itemSelected : ''} ${isFailed ? styles.itemFailed : ''}`}
+      data-gender={(character as any)?.gender || (character as any)?.metadata?.gender || ''}
       onClick={() => {
         // Do not allow selecting failed characters
         if (isFailed) return

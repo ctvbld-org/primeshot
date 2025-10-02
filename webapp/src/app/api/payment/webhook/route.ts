@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import Stripe from 'stripe';
 import { type SupabaseClient } from '@supabase/supabase-js';
 import { createServiceClient } from '@/lib/supabase/server';
+import { createSecuredHandler, SECURITY_PRESETS } from '@/lib/security-middleware';
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
@@ -18,7 +19,16 @@ function devLog(...args: any[]) {
   }
 }
 
-export async function POST(request: Request) {
+// Secured webhook handler with rate limiting for external services
+const securedPOST = createSecuredHandler(
+  async (req: any) => {
+    return await handleWebhookRequest(req);
+  },
+  SECURITY_PRESETS.WEBHOOK
+);
+
+// Extract webhook logic into a separate function
+async function handleWebhookRequest(request: Request): Promise<NextResponse> {
   try {
     // Ensure webhook secret is configured
     if (!webhookSecret) {
@@ -145,6 +155,10 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
+}
+
+export async function POST(request: Request) {
+  return await securedPOST(request);
 }
 
 // Configure POST route to not verify the request body

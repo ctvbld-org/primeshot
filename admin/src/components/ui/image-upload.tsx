@@ -53,6 +53,13 @@ export function ImageUpload({
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
+      // If uploading style images, require a non-empty style name to avoid img-* fallbacks
+      const isStyleUpload = (uploadPath || '').includes('app-images/placeholders/styles')
+      const slug = (styleName || '').trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-_]/g, '')
+      if (!deferUpload && isStyleUpload && !slug) {
+        toast.error('Enter a style name before uploading images')
+        return
+      }
       if (maxFiles && value.length + acceptedFiles.length > maxFiles) {
         toast.error(`You can only upload up to ${maxFiles} images`)
         return
@@ -135,6 +142,13 @@ export function ImageUpload({
     if (!deferUpload || !onRegisterUploader) return
     const uploadNow = async (): Promise<string[]> => {
       if (staged.length === 0) return []
+      // Validate style name at upload time for deferred mode
+      const isStyleUpload = (uploadPath || '').includes('app-images/placeholders/styles')
+      const slug = (styleNameRef.current || '').trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-_]/g, '')
+      if (isStyleUpload && !slug) {
+        toast.error('Enter a style name before uploading images')
+        return []
+      }
       setIsUploading(true)
       const newNames: string[] = []
       try {
