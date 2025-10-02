@@ -105,12 +105,12 @@ async function handleGET() {
 // Secured handlers with authentication and rate limiting
 const securedPOST = createSecuredHandler(
   handlePOST,
-  SECURITY_PRESETS.USER_DATA
+  SECURITY_PRESETS.PUBLIC
 );
 
 const securedGET = createSecuredHandler(
   handleGET,
-  SECURITY_PRESETS.USER_DATA
+  SECURITY_PRESETS.PUBLIC
 );
 
 export async function POST(request: NextRequest) {

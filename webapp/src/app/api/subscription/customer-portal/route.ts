@@ -167,7 +167,7 @@ async function resolveSubscriptionId(
 // Secured handler with authentication and rate limiting
 const securedPOST = createSecuredHandler(
   handlePOST,
-  SECURITY_PRESETS.USER_DATA
+  SECURITY_PRESETS.PAYMENT_OPERATION
 );
 
 export async function POST(request: NextRequest) {

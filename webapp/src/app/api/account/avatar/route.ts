@@ -54,7 +54,7 @@ async function handlePOST(req: NextRequest) {
 // Secured handler with authentication and rate limiting
 const securedPOST = createSecuredHandler(
   handlePOST,
-  SECURITY_PRESETS.USER_DATA
+  SECURITY_PRESETS.IMAGE_UPLOAD
 );
 
 export async function POST(request: NextRequest) {

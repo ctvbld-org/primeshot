@@ -6,48 +6,22 @@ export async function uploadImageToS3(
   uploadPath?: string
 ): Promise<string> {
   try {
-    // Generate base name from style name and enforce presence for styles
-    const finalUploadPath = uploadPath || 'app-images/placeholders/styles'
-    const isStyleUpload = /app-images\/placeholders\/styles/.test(finalUploadPath)
+    // Generate filename: [style-name-in-kebab-case]-[n].webp
     const sanitized = (styleName || '').trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-_]/g, '')
-    if (isStyleUpload && !sanitized) {
-      throw new Error('Style name is required for style image uploads')
-    }
-    const baseName = sanitized || 'img'
-
-    // Determine next number by scanning S3 (authoritative), falling back to current form list
+    const fallbackStamp = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)
+    const baseName = sanitized || `img-${fallbackStamp}`
+    // Find the next available number
     let maxNum = 0
-    try {
-      const params = new URLSearchParams({ prefix: finalUploadPath, max: '500' })
-      const res = await fetch(`/api/images/list?${params.toString()}`)
-      if (res.ok) {
-        const json = await res.json()
-        const files: { filename: string }[] = Array.isArray(json?.files) ? json.files : []
-        const esc = baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-        for (const f of files) {
-          const m = String(f.filename || '').match(new RegExp(`^${esc}-(\\d+)\\.webp$`))
-          if (m) {
-            const n = parseInt(m[1], 10)
-            if (!Number.isNaN(n) && n > maxNum) maxNum = n
-          }
-        }
+    const esc = baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    existingImages.forEach(img => {
+      const match = img.match(new RegExp(`^${esc}-(\\d+)\\.webp$`))
+      if (match) {
+        const num = parseInt(match[1], 10)
+        if (num > maxNum) maxNum = num
       }
-    } catch {
-      // ignore, will fall back to existingImages array below
-    }
-
-    if (maxNum === 0) {
-      const esc2 = baseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-      existingImages.forEach(img => {
-        const match = img.match(new RegExp(`^${esc2}-(\\d+)\\.webp$`))
-        if (match) {
-          const num = parseInt(match[1], 10)
-          if (num > maxNum) maxNum = num
-        }
-      })
-    }
-
+    })
     const nextNum = maxNum + 1
+    const finalUploadPath = uploadPath || 'app-images/placeholders/styles'
 
     // Decide variant widths by upload path
     const isOptions = /app-images\/placeholders\/options/.test(finalUploadPath)

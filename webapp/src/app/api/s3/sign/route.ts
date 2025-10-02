@@ -26,7 +26,7 @@ async function handleGET(req: NextRequest) {
 // Secured handler with authentication and rate limiting
 const securedGET = createSecuredHandler(
   handleGET,
-  SECURITY_PRESETS.USER_DATA
+  SECURITY_PRESETS.IMAGE_UPLOAD
 );
 
 export async function GET(request: NextRequest) {

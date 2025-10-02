@@ -140,32 +140,33 @@ export function validateRequestBody(body: any, schema: any): { valid: boolean; e
 
   // Basic validation - extend with proper schema validation library like Joi or Zod
   for (const [key, rules] of Object.entries(schema)) {
+    const validationRules = rules as any;
     const value = body[key];
 
-    if (rules.required && (value === undefined || value === null)) {
+    if (validationRules.required && (value === undefined || value === null)) {
       errors.push(`Missing required field: ${key}`);
       continue;
     }
 
     if (value !== undefined && value !== null) {
-      if (rules.type && typeof value !== rules.type) {
-        errors.push(`Field ${key} must be of type ${rules.type}, got ${typeof value}`);
+      if (validationRules.type && typeof value !== validationRules.type) {
+        errors.push(`Field ${key} must be of type ${validationRules.type}, got ${typeof value}`);
       }
 
-      if (rules.minLength && typeof value === 'string' && value.length < rules.minLength) {
-        errors.push(`Field ${key} must be at least ${rules.minLength} characters long`);
+      if (validationRules.minLength && typeof value === 'string' && value.length < validationRules.minLength) {
+        errors.push(`Field ${key} must be at least ${validationRules.minLength} characters long`);
       }
 
-      if (rules.maxLength && typeof value === 'string' && value.length > rules.maxLength) {
-        errors.push(`Field ${key} must be at most ${rules.maxLength} characters long`);
+      if (validationRules.maxLength && typeof value === 'string' && value.length > validationRules.maxLength) {
+        errors.push(`Field ${key} must be at most ${validationRules.maxLength} characters long`);
       }
 
-      if (rules.pattern && typeof value === 'string' && !rules.pattern.test(value)) {
+      if (validationRules.pattern && typeof value === 'string' && !validationRules.pattern.test(value)) {
         errors.push(`Field ${key} format is invalid`);
       }
 
-      if (rules.enum && !rules.enum.includes(value)) {
-        errors.push(`Field ${key} must be one of: ${rules.enum.join(', ')}`);
+      if (validationRules.enum && !validationRules.enum.includes(value)) {
+        errors.push(`Field ${key} must be one of: ${validationRules.enum.join(', ')}`);
       }
     }
   }
@@ -268,7 +269,10 @@ export function createSecurityMiddleware(config: SecurityConfig = {}) {
         const rateLimitResponse = await rateLimitMiddleware(request, async () => handler(request));
 
         if (rateLimitResponse.status === 429) {
-          return rateLimitResponse;
+          return new NextResponse(rateLimitResponse.body, {
+            status: rateLimitResponse.status,
+            headers: rateLimitResponse.headers
+          });
         }
 
         // Add rate limit headers to response

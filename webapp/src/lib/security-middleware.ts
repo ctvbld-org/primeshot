@@ -6,6 +6,32 @@ import { createRateLimit, RATE_LIMITS, type RateLimitConfig } from './rate-limit
 import { botProtectionMiddleware, verifyTurnstileToken } from './bot-protection';
 import { createClient } from './supabase/server';
 
+// Utility function to dynamically determine allowed origins
+function getAllowedOrigins(request: NextRequest, overrides?: string[]): string[] {
+  // If explicit overrides are provided, use them
+  if (overrides) {
+    return overrides;
+  }
+
+  // Extract the origin from the current request URL
+  const url = new URL(request.url);
+  const currentOrigin = `${url.protocol}//${url.host}`;
+
+  // Handle development environment - allow localhost with any port
+  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+    return [
+      currentOrigin,
+      'http://localhost:3000',
+      'http://localhost:3001', 
+      'http://127.0.0.1:3000',
+      'http://127.0.0.1:3001'
+    ];
+  }
+
+  // For production and other environments, use the current origin
+  return [currentOrigin];
+}
+
 export interface SecurityConfig {
   rateLimit?: RateLimitConfig;
   botProtection?: boolean;
@@ -13,7 +39,7 @@ export interface SecurityConfig {
   requireAdmin?: boolean;
   validateInput?: boolean;
   cors?: {
-    origins?: string[];
+    origins?: string[] | 'dynamic'; // Allow 'dynamic' for auto-detection
     methods?: string[];
     headers?: string[];
     credentials?: boolean;
@@ -23,7 +49,7 @@ export interface SecurityConfig {
 }
 
 // Default security configurations for different endpoint types
-export const SECURITY_CONFIGS = {
+export const SECURITY_CONFIGS: Record<string, SecurityConfig> = {
   // Public endpoints with minimal protection
   PUBLIC: {
     rateLimit: RATE_LIMITS.PUBLIC,
@@ -31,7 +57,7 @@ export const SECURITY_CONFIGS = {
     requireAuth: false,
     validateInput: true,
     cors: {
-      origins: ['https://primeshot.ai', 'http://localhost:3000'],
+      origins: 'dynamic',
       methods: ['GET', 'POST', 'OPTIONS'],
       headers: ['Content-Type', 'Authorization'],
       credentials: true
@@ -45,7 +71,7 @@ export const SECURITY_CONFIGS = {
     requireAuth: true,
     validateInput: true,
     cors: {
-      origins: ['https://primeshot.ai', 'http://localhost:3000'],
+      origins: 'dynamic',
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       headers: ['Content-Type', 'Authorization'],
       credentials: true
@@ -60,7 +86,7 @@ export const SECURITY_CONFIGS = {
     validateInput: true,
     maxRequestSize: 10 * 1024 * 1024, // 10MB
     cors: {
-      origins: ['https://primeshot.ai', 'http://localhost:3000'],
+      origins: 'dynamic',
       methods: ['POST', 'OPTIONS'],
       headers: ['Content-Type', 'Authorization'],
       credentials: true
@@ -74,7 +100,7 @@ export const SECURITY_CONFIGS = {
     requireAuth: true,
     validateInput: true,
     cors: {
-      origins: ['https://primeshot.ai'],
+      origins: 'dynamic',
       methods: ['POST', 'OPTIONS'],
       headers: ['Content-Type', 'Authorization', 'Stripe-Signature'],
       credentials: true
@@ -88,7 +114,7 @@ export const SECURITY_CONFIGS = {
     requireAuth: true,
     validateInput: true,
     cors: {
-      origins: ['https://primeshot.ai', 'http://localhost:3000'],
+      origins: 'dynamic',
       methods: ['POST', 'OPTIONS'],
       headers: ['Content-Type', 'Authorization'],
       credentials: true
@@ -102,7 +128,7 @@ export const SECURITY_CONFIGS = {
     requireAuth: false, // Webhooks use signature verification instead
     validateInput: true,
     cors: {
-      origins: ['*'], // Allow any origin for webhooks
+      origins: ['*'], // Keep wildcard for webhooks - they need to accept from external services
       methods: ['POST', 'OPTIONS'],
       headers: ['Content-Type', 'Stripe-Signature', 'User-Agent'],
       credentials: false
@@ -113,7 +139,7 @@ export const SECURITY_CONFIGS = {
   ADMIN: {
     rateLimit: {
       windowMs: 60 * 1000, // 1 minute
-      maxRequests: 10, // 10 requests per minute
+      maxRequests: 20, // 10 requests per minute
       keyGenerator: (req: Request) => `admin:${req.headers.get('x-user-id') || 'unknown'}`
     },
     botProtection: true,
@@ -121,7 +147,7 @@ export const SECURITY_CONFIGS = {
     requireAdmin: true,
     validateInput: true,
     cors: {
-      origins: ['https://primeshot.ai'],
+      origins: 'dynamic',
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       headers: ['Content-Type', 'Authorization'],
       credentials: true
@@ -140,32 +166,33 @@ export function validateRequestBody(body: any, schema: any): { valid: boolean; e
 
   // Basic validation - extend with proper schema validation library like Joi or Zod
   for (const [key, rules] of Object.entries(schema)) {
+    const validationRules = rules as any;
     const value = body[key];
 
-    if (rules.required && (value === undefined || value === null)) {
+    if (validationRules.required && (value === undefined || value === null)) {
       errors.push(`Missing required field: ${key}`);
       continue;
     }
 
     if (value !== undefined && value !== null) {
-      if (rules.type && typeof value !== rules.type) {
-        errors.push(`Field ${key} must be of type ${rules.type}, got ${typeof value}`);
+      if (validationRules.type && typeof value !== validationRules.type) {
+        errors.push(`Field ${key} must be of type ${validationRules.type}, got ${typeof value}`);
       }
 
-      if (rules.minLength && typeof value === 'string' && value.length < rules.minLength) {
-        errors.push(`Field ${key} must be at least ${rules.minLength} characters long`);
+      if (validationRules.minLength && typeof value === 'string' && value.length < validationRules.minLength) {
+        errors.push(`Field ${key} must be at least ${validationRules.minLength} characters long`);
       }
 
-      if (rules.maxLength && typeof value === 'string' && value.length > rules.maxLength) {
-        errors.push(`Field ${key} must be at most ${rules.maxLength} characters long`);
+      if (validationRules.maxLength && typeof value === 'string' && value.length > validationRules.maxLength) {
+        errors.push(`Field ${key} must be at most ${validationRules.maxLength} characters long`);
       }
 
-      if (rules.pattern && typeof value === 'string' && !rules.pattern.test(value)) {
+      if (validationRules.pattern && typeof value === 'string' && !validationRules.pattern.test(value)) {
         errors.push(`Field ${key} format is invalid`);
       }
 
-      if (rules.enum && !rules.enum.includes(value)) {
-        errors.push(`Field ${key} must be one of: ${rules.enum.join(', ')}`);
+      if (validationRules.enum && !validationRules.enum.includes(value)) {
+        errors.push(`Field ${key} must be one of: ${validationRules.enum.join(', ')}`);
       }
     }
   }
@@ -215,7 +242,14 @@ export async function authenticateRequest(request: NextRequest): Promise<{
 export function corsMiddleware(config: SecurityConfig['cors']) {
   return (request: NextRequest) => {
     const origin = request.headers.get('origin') || '';
-    const origins = config?.origins || ['https://primeshot.ai', 'http://localhost:3000'];
+    
+    // Determine allowed origins
+    let origins: string[];
+    if (config?.origins === 'dynamic') {
+      origins = getAllowedOrigins(request);
+    } else {
+      origins = config?.origins || getAllowedOrigins(request);
+    }
 
     // Check if origin is allowed
     const isAllowedOrigin = origins.includes('*') ||
@@ -268,7 +302,10 @@ export function createSecurityMiddleware(config: SecurityConfig = {}) {
         const rateLimitResponse = await rateLimitMiddleware(request, async () => handler(request));
 
         if (rateLimitResponse.status === 429) {
-          return rateLimitResponse;
+          return new NextResponse(rateLimitResponse.body, {
+            status: rateLimitResponse.status,
+            headers: rateLimitResponse.headers
+          });
         }
 
         // Add rate limit headers to response
@@ -440,7 +477,7 @@ export function createSecuredHandler(
 }
 
 // Specific security configurations for common endpoint patterns
-export const SECURITY_PRESETS = {
+export const SECURITY_PRESETS: Record<string, SecurityConfig> = {
   // Public endpoints with minimal protection
   PUBLIC: {
     ...SECURITY_CONFIGS.PUBLIC

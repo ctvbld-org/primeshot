@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { headers } from 'next/headers';
 import Stripe from 'stripe';
 import { type SupabaseClient } from '@supabase/supabase-js';
 import { createServiceClient } from '@/lib/supabase/server';
-import { createSecuredHandler, SECURITY_PRESETS } from '@/lib/security-middleware';
+import { createSecuredHandler, SECURITY_CONFIGS } from '@/lib/security-middleware';
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
@@ -24,11 +24,11 @@ const securedPOST = createSecuredHandler(
   async (req: any) => {
     return await handleWebhookRequest(req);
   },
-  SECURITY_PRESETS.WEBHOOK
+  SECURITY_CONFIGS.WEBHOOK
 );
 
 // Extract webhook logic into a separate function
-async function handleWebhookRequest(request: Request): Promise<NextResponse> {
+async function handleWebhookRequest(request: NextRequest): Promise<NextResponse> {
   try {
     // Ensure webhook secret is configured
     if (!webhookSecret) {
@@ -157,7 +157,7 @@ async function handleWebhookRequest(request: Request): Promise<NextResponse> {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   return await securedPOST(request);
 }
 

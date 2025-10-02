@@ -162,12 +162,12 @@ async function handleDELETE(request: NextRequest) {
 // Secured handlers with authentication and rate limiting
 const securedGET = createSecuredHandler(
   handleGET,
-  SECURITY_PRESETS.USER_DATA
+  SECURITY_PRESETS.IMAGE_UPLOAD
 );
 
 const securedDELETE = createSecuredHandler(
   handleDELETE,
-  SECURITY_PRESETS.USER_DATA
+  SECURITY_PRESETS.IMAGE_UPLOAD
 );
 
 export async function GET(request: NextRequest) {

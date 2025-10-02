@@ -31,7 +31,7 @@ const s3 = new S3Client({
 function json(body: any, status = 200, headers: Record<string,string> = {}) {
   return new NextResponse(JSON.stringify(body), {
     status,
-    headers: { 'Content-Type': 'application/json', ...corsHeaders(), ...headers }
+    headers: { 'Content-Type': 'application/json', ...headers }
   })
 }
 
@@ -56,7 +56,7 @@ const securedPOST = createSecuredHandler(
 
 // Upload metrics tracking
 interface UploadMetrics {
-  operation: 'init' | 'sign-part' | 'complete' | 'abort'
+  operation: 'init' | 'sign-part' | 'complete' | 'abort' | 'unknown'
   userId: string
   characterId?: string
   fileSize?: number
@@ -90,8 +90,9 @@ function recordMetric(metric: UploadMetrics) {
 async function handleUploadRequest(req: NextRequest): Promise<NextResponse> {
   const startTime = Date.now()
   let success = false
-  let operation = 'unknown'
+  let operation: 'init' | 'sign-part' | 'complete' | 'abort' | 'unknown' = 'unknown'
   let errorMessage = ''
+  let user: any = null
 
   try {
     const url = new URL(req.url)
@@ -100,7 +101,8 @@ async function handleUploadRequest(req: NextRequest): Promise<NextResponse> {
 
     // Auth (cookie-based) - now handled by security middleware
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user: authUser } } = await supabase.auth.getUser()
+    user = authUser
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }

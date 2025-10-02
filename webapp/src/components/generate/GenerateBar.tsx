@@ -216,7 +216,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
           if (Array.isArray(characters) && characters.length) {
             const char = characters.find((c: any) => c.id === selectedCharacterId)
             const rawCache = (char as any)?.gender ?? (char as any)?.metadata?.gender
-            let mapped = mapGenderToWardrobe(rawCache as any)
+            const mapped = mapGenderToWardrobe(rawCache as any)
             if (!mapped && authUser?.id) {
               ;(async () => {
                 try {

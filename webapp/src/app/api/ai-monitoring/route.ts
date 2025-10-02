@@ -154,7 +154,7 @@ async function handleGET(request: NextRequest): Promise<NextResponse> {
 const securedGET = createSecuredHandler(
   handleGET,
   {
-    ...SECURITY_PRESETS.USER_DATA,
+    ...SECURITY_PRESETS.PUBLIC,
     requireAuth: true
   }
 );
