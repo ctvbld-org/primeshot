@@ -1,8 +1,9 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { deleteCharacterFolder } from '@/lib/s3'
+import { createSecuredHandler, SECURITY_PRESETS } from '@/lib/security-middleware'
 
-export async function POST(request: Request) {
+async function handlePOST(request: NextRequest) {
   try {
     const supabase = await createClient()
     const { data: { user }, error: userError } = await supabase.auth.getUser()
@@ -87,3 +88,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 } 
+
+// Secured handler with authentication and rate limiting
+const securedPOST = createSecuredHandler(
+  handlePOST,
+  SECURITY_PRESETS.PUBLIC
+);
+
+export async function POST(request: NextRequest) {
+  return await securedPOST(request);
+}

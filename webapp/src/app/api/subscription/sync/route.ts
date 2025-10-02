@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import Stripe from 'stripe'
+import { createSecuredHandler, SECURITY_PRESETS } from '@/lib/security-middleware'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-08-27.basil' as any
 })
 
-export async function POST() {
+async function handlePOST() {
   try {
     const supabase = await createClient()
 
@@ -66,4 +67,14 @@ export async function POST() {
     console.error('Error syncing subscription:', error)
     return NextResponse.json({ error: 'Failed to sync subscription' }, { status: 500 })
   }
+}
+
+// Secured handler with authentication and rate limiting
+const securedPOST = createSecuredHandler(
+  handlePOST,
+  SECURITY_PRESETS.PAYMENT_OPERATION
+);
+
+export async function POST(request: NextRequest) {
+  return await securedPOST(request);
 }

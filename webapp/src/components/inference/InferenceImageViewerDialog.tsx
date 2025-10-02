@@ -263,6 +263,25 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
     setOverlaySrc(null);
   }, [currentImageIndex, activeJob.id]);
 
+  // Carousel navigation (instant jump for clicks/keys; drag still slides)
+  const goPrev = useCallback(() => {
+    if (!emblaApi) return;
+    const total = visibleThumbnails.length;
+    if (total <= 1) return;
+    const curr = emblaApi.selectedScrollSnap();
+    const target = curr > 0 ? curr - 1 : total - 1;
+    emblaApi.scrollTo(target, true);
+  }, [emblaApi, visibleThumbnails.length]);
+
+  const goNext = useCallback(() => {
+    if (!emblaApi) return;
+    const total = visibleThumbnails.length;
+    if (total <= 1) return;
+    const curr = emblaApi.selectedScrollSnap();
+    const target = curr < total - 1 ? curr + 1 : 0;
+    emblaApi.scrollTo(target, true);
+  }, [emblaApi, visibleThumbnails.length]);
+
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -270,16 +289,16 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
         closeDialog();
       } else if (event.key === 'ArrowLeft') {
         event.preventDefault();
-        emblaApi?.scrollPrev();
+        goPrev();
       } else if (event.key === 'ArrowRight') {
         event.preventDefault();
-        emblaApi?.scrollNext();
+        goNext();
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [closeDialog, visibleThumbnails.length, emblaApi]);
+  }, [closeDialog, goPrev, goNext]);
 
   // Prefetch neighbor images (±2) for snappier navigation
   useEffect(() => {
@@ -429,7 +448,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
 
   const handleThumbnailClick = useCallback((index: number) => {
     if (index !== currentImageIndex) {
-      emblaApi?.scrollTo(index);
+      emblaApi?.scrollTo(index, true);
     }
   }, [currentImageIndex, emblaApi]);
 
@@ -629,22 +648,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
     emblaApi?.reInit();
   }, [emblaApi, visibleThumbnails.length, imageArClass]);
 
-  // Carousel navigation
-  const goPrev = useCallback(() => {
-    setCurrentImageIndex((prev) => {
-      const total = visibleThumbnails.length;
-      if (total <= 1) return prev;
-      return prev > 0 ? prev - 1 : total - 1;
-    });
-  }, [visibleThumbnails.length]);
-
-  const goNext = useCallback(() => {
-    setCurrentImageIndex((prev) => {
-      const total = visibleThumbnails.length;
-      if (total <= 1) return prev;
-      return prev < total - 1 ? prev + 1 : 0;
-    });
-  }, [visibleThumbnails.length]);
+  // (moved goPrev/goNext above keyboard navigation)
 
   // Keep active thumbnail visible when navigating
   useEffect(() => {
@@ -723,7 +727,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
           <div className={styles.carouselButtons} aria-label={t('inference:viewer.carousel.aria')}>
             <button
               className={styles.navButton}
-              onClick={() => emblaApi?.scrollPrev()}
+              onClick={goPrev}
               disabled={!canScrollPrev || visibleThumbnails.length <= 1}
               aria-label={t('inference:viewer.carousel.prevAria')}
             >
@@ -731,7 +735,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
             </button>
             <button
               className={styles.navButton}
-              onClick={() => emblaApi?.scrollNext()}
+              onClick={goNext}
               disabled={!canScrollNext || visibleThumbnails.length <= 1}
               aria-label={t('inference:viewer.carousel.nextAria')}
             >

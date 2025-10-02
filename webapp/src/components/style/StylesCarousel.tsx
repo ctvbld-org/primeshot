@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useCallback, createElement } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
-import { useStyles } from '@/hooks/useConfig'
+import { useStylesFromContext } from '@/contexts/style-data-context'
 import { StyleConfigsSchema, type Style } from '@/types/styles'
 import Image from 'next/image'
 import { makeCloudfrontLoader } from '@/lib/utils/cloudfrontLoader'
@@ -18,7 +18,7 @@ import styles from './StylesCarousel.module.css'
 export function StylesCarousel() {
   const { t, i18n } = useTranslation(['styles', 'common'])
   const currentLang = i18n.language
-  const { data: styleConfigs = [], isLoading } = useStyles()
+  const { data: styleConfigs = [], isLoading } = useStylesFromContext()
   // Initialize from localStorage early to avoid initial flicker at index 0
   const [initialStartIndex] = useState(() => getStoredSelectedStyleIndex() ?? 0)
   const [selectedIndex, setSelectedIndex] = useState(initialStartIndex)

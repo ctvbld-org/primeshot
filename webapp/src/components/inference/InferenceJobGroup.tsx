@@ -95,31 +95,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
     const scene = (translatedScene?.label || '').toLowerCase();
     const wardrobe = (translatedWardrobe?.label || '').toLowerCase();
     const color = (translatedColor?.label || '').toLowerCase();
-    
-    // Debug logging to identify missing data
-    if (!style || !scene || !wardrobe || !color) {
-      console.log('InferenceJobGroup - Missing subtitle data:', {
-        activeJobIds: {
-          styleId: activeJob.styleId,
-          sceneId: activeJob.sceneId,
-          wardrobeId: activeJob.wardrobeId,
-          colorId: activeJob.colorId
-        },
-        loadedData: {
-          style: style || 'MISSING',
-          scene: scene || 'MISSING',
-          wardrobe: wardrobe || 'MISSING',
-          color: color || 'MISSING'
-        },
-        rawData: {
-          styleData,
-          sceneData,
-          wardrobeData,
-          colorData
-        }
-      });
-    }
-    
+        
     // Return partial subtitle if some data is available, or empty if none
     if (!style && !scene && !wardrobe && !color) return '';
     

@@ -52,7 +52,7 @@ export function LanguageSwitcher({ variant = 'popover', display = 'label', flagS
         const cc = (_a = languageMeta[lng]) === null || _a === void 0 ? void 0 : _a.countryCode;
         if (!cc)
             return null;
-        return (_jsx(ReactCountryFlag, { countryCode: cc, svg: flagStyle === 'svg', "aria-label": cc, className: className, style: { width: size, height: size, borderRadius: 6 } }));
+        return (_jsx(ReactCountryFlag, { countryCode: cc, svg: flagStyle === 'svg', "aria-label": cc, className: className, style: { width: size, height: size } }));
     };
     const selectLang = async (lng) => {
         await setLanguage(lng);

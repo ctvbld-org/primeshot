@@ -4,6 +4,93 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { calculateImageCreditCost, getSubscriptionLimits, getInferenceSettings, type Quality } from "../_shared/pricing.ts";
 import { fillStylePrompt } from "../_shared/prompt.ts";
 
+// Rate limiting store for Edge Functions
+class EdgeRateLimitStore {
+  private store = new Map<string, { count: number; resetTime: number }>();
+
+  async increment(key: string): Promise<number> {
+    const now = Date.now();
+    const existing = this.store.get(key);
+
+    if (!existing || now > existing.resetTime) {
+      this.store.set(key, { count: 1, resetTime: now + 60000 }); // 1 minute window
+      return 1;
+    }
+
+    existing.count++;
+    return existing.count;
+  }
+
+  async resetKey(key: string): Promise<void> {
+    this.store.delete(key);
+  }
+}
+
+// Bot detection utilities
+function isSuspiciousUserAgent(userAgent: string): boolean {
+  if (!userAgent) return false;
+
+  const lowerUA = userAgent.toLowerCase();
+  const botPatterns = [
+    /bot/i, /spider/i, /crawler/i, /scraper/i, /wget/i, /curl/i,
+    /python/i, /java/i, /selenium/i, /phantom/i, /webdriver/i, /puppeteer/i
+  ];
+
+  return botPatterns.some(pattern => pattern.test(userAgent)) ||
+         lowerUA.length < 10 ||
+         lowerUA === 'unknown';
+}
+
+function getClientIP(request: Request): string {
+  const forwarded = request.headers.get('x-forwarded-for');
+  const realIP = request.headers.get('x-real-ip');
+  const clientIP = request.headers.get('x-client-ip');
+
+  return forwarded?.split(',')[0] || realIP || clientIP || 'unknown';
+}
+
+// Rate limiting middleware for Edge Functions
+async function rateLimitMiddleware(request: Request, next: () => Promise<Response>): Promise<Response> {
+  const store = new EdgeRateLimitStore();
+  const ip = getClientIP(request);
+  const userAgent = request.headers.get('user-agent') || '';
+
+  // Skip rate limiting for legitimate requests from real browsers
+  if (!isSuspiciousUserAgent(userAgent)) {
+    return await next();
+  }
+
+  const key = `edge:${ip}:${userAgent}`;
+  const currentCount = await store.increment(key);
+
+  if (currentCount > 10) { // 10 requests per minute for suspicious clients
+    return new Response(
+      JSON.stringify({
+        error: 'Rate limit exceeded',
+        retryAfter: 60,
+        message: 'Too many requests. Please try again later.'
+      }),
+      {
+        status: 429,
+        headers: {
+          'Content-Type': 'application/json',
+          'Retry-After': '60',
+          'X-RateLimit-Limit': '10',
+          'X-RateLimit-Remaining': '0',
+          'X-RateLimit-Reset': new Date(Date.now() + 60000).toISOString()
+        }
+      }
+    );
+  }
+
+  const response = await next();
+  response.headers.set('X-RateLimit-Limit', '10');
+  response.headers.set('X-RateLimit-Remaining', (10 - currentCount).toString());
+  response.headers.set('X-RateLimit-Reset', new Date(Date.now() + 60000).toISOString());
+
+  return response;
+}
+
 interface InferenceRequest {
   user_id: string;
   character_id: string;
@@ -172,17 +259,19 @@ async function findExistingActiveInferenceJob(
 }
 
 serve(async (req) => {
-  // Get dynamic CORS headers based on request origin
-  const dynamicCorsHeaders = getCorsHeaders(req);
-  
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: dynamicCorsHeaders });
-  }
+  // Apply rate limiting middleware first
+  const rateLimitedResponse = await rateLimitMiddleware(req, async () => {
+    // Get dynamic CORS headers based on request origin
+    const dynamicCorsHeaders = getCorsHeaders(req);
 
-  const env = Deno.env.get('ENV') ?? 'prod';
+    // Handle CORS preflight requests
+    if (req.method === 'OPTIONS') {
+      return new Response('ok', { headers: dynamicCorsHeaders });
+    }
 
-  try {
+    const env = Deno.env.get('ENV') ?? 'prod';
+
+    try {
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -841,10 +930,13 @@ serve(async (req) => {
     }
 
   } catch (error) {
-    console.error('Inference start error:', error);
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
-    );
-  }
-}); 
+      console.error('Inference start error:', error);
+      return new Response(
+        JSON.stringify({ error: 'Internal server error' }),
+        { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+  });
+
+  return rateLimitedResponse;
+});

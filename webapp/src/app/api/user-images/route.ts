@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createPresignedGetUrl, deleteFromS3 } from '@/lib/s3'
+import { createSecuredHandler, SECURITY_PRESETS } from '@/lib/security-middleware'
 
 /**
  * API Route: /api/user-images
@@ -13,7 +14,7 @@ import { createPresignedGetUrl, deleteFromS3 } from '@/lib/s3'
  * 
  * Requires authentication and validates user access.
  */
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   try {
     // Parse query parameters
     const url = new URL(request.url)
@@ -94,7 +95,7 @@ export async function GET(request: NextRequest) {
  * Deletes an image from both S3 and the Supabase database.
  * Requires imageId parameter and validates user ownership.
  */
-export async function DELETE(request: NextRequest) {
+async function handleDELETE(request: NextRequest) {
   try {
     // Parse query parameters
     const url = new URL(request.url)
@@ -157,3 +158,22 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 })
   }
 } 
+
+// Secured handlers with authentication and rate limiting
+const securedGET = createSecuredHandler(
+  handleGET,
+  SECURITY_PRESETS.IMAGE_UPLOAD
+);
+
+const securedDELETE = createSecuredHandler(
+  handleDELETE,
+  SECURITY_PRESETS.IMAGE_UPLOAD
+);
+
+export async function GET(request: NextRequest) {
+  return await securedGET(request);
+}
+
+export async function DELETE(request: NextRequest) {
+  return await securedDELETE(request);
+}

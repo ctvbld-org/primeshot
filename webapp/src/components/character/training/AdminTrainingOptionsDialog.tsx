@@ -30,7 +30,7 @@ export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm
   const [batchSize, setBatchSize] = useState<number>(defaults?.batch_size ?? 8)
   const [gradientAccumulationSteps, setGradientAccumulationSteps] = useState<number>(defaults?.gradient_accumulation_steps ?? 1)
   const [resizeSize, setResizeSize] = useState<number>(defaults?.resize_size ?? 896)
-  const [learningRate, setLearningRate] = useState<number>(defaults?.learning_rate ?? 0.0003)
+  const [learningRate, setLearningRate] = useState<number>(defaults?.learning_rate ?? 0.00028)
   const [resolution, setResolution] = useState<string>(
     defaults?.resolution ? JSON.stringify(defaults.resolution) : '[768, 1024, 1536]'
   )

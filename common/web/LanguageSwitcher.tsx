@@ -87,7 +87,7 @@ export function LanguageSwitcher({
         svg={flagStyle === 'svg'}
         aria-label={cc}
         className={className}
-        style={{ width: size, height: size, borderRadius: 6 }}
+        style={{ width: size, height: size }}
       />
     )
   }

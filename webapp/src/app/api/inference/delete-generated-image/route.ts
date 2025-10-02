@@ -1,7 +1,8 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { s3Client } from '@/lib/s3'
 import { DeleteObjectCommand } from '@aws-sdk/client-s3'
+import { createSecuredHandler, SECURITY_PRESETS } from '@/lib/security-middleware'
 
 function assertUserImagesKey(key: string): string {
   const clean = decodeURIComponent(key || '')
@@ -11,7 +12,7 @@ function assertUserImagesKey(key: string): string {
   return clean
 }
 
-export async function POST(req: Request) {
+async function handlePOST(req: NextRequest) {
   try {
     const supabase = await createClient()
     const {
@@ -104,6 +105,16 @@ export async function POST(req: Request) {
     console.error('Delete generated image API failed', e)
     return NextResponse.json({ error: e?.message || 'Server error' }, { status: 500 })
   }
+}
+
+// Secured handler with authentication and rate limiting
+const securedPOST = createSecuredHandler(
+  handlePOST,
+  SECURITY_PRESETS.IMAGE_UPLOAD
+);
+
+export async function POST(request: NextRequest) {
+  return await securedPOST(request);
 }
 
 
