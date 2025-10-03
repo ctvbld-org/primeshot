@@ -1,6 +1,6 @@
 "use client"
 
-import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog'
 import { Button } from './ui/button'
 import { SignInForm } from './SignInForm'
 import { useTranslation } from 'react-i18next'
@@ -16,6 +16,8 @@ export function SignInModal() {
         </Button>
       </DialogTrigger>
       <DialogContent className={styles.signinContent}>
+        <DialogHeader className={styles.signinHeader}></DialogHeader>
+        <DialogTitle></DialogTitle>
         <SignInForm />
       </DialogContent>
     </Dialog>

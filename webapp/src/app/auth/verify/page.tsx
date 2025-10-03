@@ -121,7 +121,7 @@ function VerifyEmailContent() {
       toast.success(t('verify.otp.success'));
       // Redirect to app
       const basePath = typeof window !== 'undefined' && window.location.pathname.startsWith('/create') ? '/create' : '';
-      router.push(basePath || '/');
+      router.push('/');
     } catch (error) {
       toast.error(t('verify.otp.error.generic'));
       console.error("OTP verification error:", error);

@@ -1,46 +1,46 @@
 {
-    "buttons": {
-        "generate": "Generieren",
-        "create": "Erstellen",
-        "done": "Fertig",
-        "cancel": "Abbrechen",
-        "confirm": "Bestätigen"
-    },
-    "labels": {
-        "woman": "Frau",
-        "man": "Mann",
-        "scene": "Szene",
-        "wardrobe": "Kleidung",
-        "creditsSuffix": "Guthaben",
-        "requiresActiveSubscription": "Erfordert aktives Abonnement",
-        "calculating": "Berechnet"
-    },
-    "aria": {
-        "selectStyle": "Stil auswählen",
-        "selectScene": "Szene auswählen",
-        "selectWardrobe": "Garderobe auswählen",
-        "selectCharacter": "Charakter auswählen",
-        "openSettings": "Einstellungen öffnen",
-        "trainingProgress": "Trainingsfortschritt",
-        "characterActions": "Charakter-Aktionen",
-        "closeOverlay": "Overlay schließen",
-        "carouselNavigation": "Karussell-Navigation",
-        "previous": "Vorherige",
-        "next": "Nächste",
-        "search": "{{title}} suchen"
-    },
-    "placeholders": {
-        "find": "{{title}} finden"
-    },
-    "admin": {
-        "title": "Admin-Inferenz-Überschreibungen",
-        "enableNodeOverrides": "Knoten-Überschreibungen aktivieren (JSON nach Knotentitel)",
-        "overridesJson": "Überschreibungen-JSON",
-        "enablePromptOverride": "Prompt-Überschreibung aktivieren",
-        "prompt": "Prompt",
-        "characterMetadata": "Charakter-Metadaten (nur lesen)"
-    },
-    "errors": {
-        "failedToStartGeneration": "Generierung konnte nicht gestartet werden. Bitte versuche es erneut."
-    }
+  "buttons": {
+    "generate": "Generieren",
+    "create": "Erstellen",
+    "done": "Fertig",
+    "cancel": "Abbrechen",
+    "confirm": "Bestätigen"
+  },
+  "labels": {
+    "woman": "Frau",
+    "man": "Mann",
+    "scene": "Szene",
+    "wardrobe": "Kleidung",
+    "creditsSuffix": "Guthaben",
+    "requiresActiveSubscription": "Erfordert aktives Abonnement",
+    "calculating": "Berechnet"
+  },
+  "aria": {
+    "selectStyle": "Stil auswählen",
+    "selectScene": "Szene auswählen",
+    "selectWardrobe": "Garderobe auswählen",
+    "selectCharacter": "Charakter auswählen",
+    "openSettings": "Einstellungen öffnen",
+    "trainingProgress": "Trainingsfortschritt",
+    "characterActions": "Charakter-Aktionen",
+    "closeOverlay": "Overlay schließen",
+    "carouselNavigation": "Karussell-Navigation",
+    "previous": "Vorherige",
+    "next": "Nächste",
+    "search": "{{title}} suchen"
+  },
+  "placeholders": {
+    "find": "{{title}} finden"
+  },
+  "admin": {
+    "title": "Admin-Inferenz-Überschreibungen",
+    "enableNodeOverrides": "Knoten-Überschreibungen aktivieren (JSON nach Knotentitel)",
+    "overridesJson": "Überschreibungen-JSON",
+    "enablePromptOverride": "Prompt-Überschreibung aktivieren",
+    "prompt": "Prompt",
+    "characterMetadata": "Charakter-Metadaten (nur lesen)"
+  },
+  "errors": {
+    "failedToStartGeneration": "Generierung konnte nicht gestartet werden. Bitte versuche es erneut."
+  }
 }

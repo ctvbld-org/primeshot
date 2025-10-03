@@ -216,6 +216,16 @@
   justify-content: center;
 }
 
+.signinHeader {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .signinHeader {
+    display: block;
+  }
+}
+
 @media (max-width: 414px) {
   .card {
     background: none;

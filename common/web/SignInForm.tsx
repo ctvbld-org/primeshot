@@ -18,6 +18,7 @@ export function SignInForm() {
   const heightRef = useRef<HTMLDivElement>(null)
   const optionsRef = useRef<HTMLDivElement>(null)
   const emailRef = useRef<HTMLDivElement>(null)
+  const emailInputRef = useRef<HTMLInputElement>(null)
 
   // Measure and animate height between sections for a seamless transition
   const updateHeight = () => {
@@ -38,6 +39,17 @@ export function SignInForm() {
     window.addEventListener('resize', onResize)
     return () => window.removeEventListener('resize', onResize)
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showEmailForm])
+
+  // Focus email input when email form becomes visible
+  useEffect(() => {
+    if (showEmailForm && emailInputRef.current) {
+      // Small delay to ensure the transition animation completes
+      const timer = setTimeout(() => {
+        emailInputRef.current?.focus()
+      }, 150)
+      return () => clearTimeout(timer)
+    }
   }, [showEmailForm])
 
   const handleEmail = async (e: React.FormEvent) => {
@@ -134,6 +146,11 @@ export function SignInForm() {
         <div ref={emailRef} className={`${styles.section} ${showEmailForm ? styles.sectionVisible : styles.sectionHidden}`}>
           <form onSubmit={handleEmail} className={styles.form}>
             <Input
+              ref={emailInputRef}
+              autoFocus
+              id="email"
+              name="email"
+              autoComplete="email"
               type="email"
               placeholder={t('signin.emailInput.placeholder')}
               value={email}
