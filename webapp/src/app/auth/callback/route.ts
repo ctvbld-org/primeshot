@@ -22,6 +22,13 @@ export async function GET(request: Request) {
       const { data: { user }, error: userError } = await supabase.auth.getUser()
       if (userError) throw userError
 
+      console.log('OAuth User Data:', {
+        id: user?.id,
+        email: user?.email,
+        user_metadata: user?.user_metadata,
+        app_metadata: user?.app_metadata
+      })
+
       if (user) {
         // Get user metadata from OAuth provider if available
         const full_name = user.user_metadata?.name || 

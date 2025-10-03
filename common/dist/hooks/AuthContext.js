@@ -144,7 +144,7 @@ export const AuthProvider = ({ children }) => {
                 provider: 'azure',
                 options: {
                     redirectTo: getCallbackUrl(),
-                    scopes: 'email profile openid User.Read',
+                    scopes: 'email offline_access',
                     queryParams: { prompt: 'consent' }
                 }
             });
