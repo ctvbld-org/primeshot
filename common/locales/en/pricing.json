@@ -10,9 +10,12 @@
   "purchase": {
     "success": {
       "subscriptionTitle": "You have successfully upgraded to {{plan}}",
+      "subscriptionTitleNew": "Welcome to {{plan}}!",
       "creditsTitle": "Credits added!",
       "subscriptionDescriptionWithCredits": "Your new subscription billing cycle starts today. Enjoy {{amount}} credits and much more!",
+      "subscriptionDescriptionWithCreditsNew": "Your new billing cycle starts today. Enjoy {{amount}} credits and much more!",
       "subscriptionDescription": "Your new subscription billing cycle starts today. Enjoy your new benefits!",
+      "subscriptionDescriptionNew": "Your billing cycle starts today. Enjoy your new benefits!",
       "creditsDescription": "Your balance has been updated. You can start generating now.",
       "returnToShoot": "Return to Shoot",
       "defaultPlan": "your new plan"

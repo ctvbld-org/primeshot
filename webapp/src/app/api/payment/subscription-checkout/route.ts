@@ -46,19 +46,25 @@ async function handlePOST(request: NextRequest) {
     // Check if user already has an active subscription
     const { data: existingSubscription } = await supabase
       .from('user_subscriptions')
-      .select('stripe_customer_id, stripe_subscription_id, status')
+      .select('stripe_customer_id, stripe_subscription_id, status, cancel_at_period_end')
       .eq('user_id', user.id)
       .eq('status', 'active')
       .limit(1)
       .single()
+
+    // Determine if this is truly an upgrade (active subscription not scheduled for cancellation)
+    // vs a new subscription (no active subscription, or subscription scheduled for cancellation)
+    const isActiveUpgrade = existingSubscription?.stripe_subscription_id && 
+                           existingSubscription.status === 'active' && 
+                           !existingSubscription.cancel_at_period_end
 
     let customerId: string
 
     if (existingSubscription?.stripe_customer_id) {
       customerId = existingSubscription.stripe_customer_id
       
-      // If user has an active subscription, this is an upgrade - handle it directly
-      if (existingSubscription.stripe_subscription_id) {
+      // If user has an active subscription that's not scheduled for cancellation, this is an upgrade
+      if (isActiveUpgrade) {
         try {
           // Get customer's payment methods to check if we can charge directly
           const paymentMethods = await stripe.paymentMethods.list({
@@ -83,7 +89,8 @@ async function handlePOST(request: NextRequest) {
                 plan_name: product.metadata.plan_name || '',
                 credits_included: product.metadata.credits_included || '0',
                 source: 'webapp_upgrade',
-                is_upgrade: 'true'
+                is_upgrade: 'true',
+                is_new_subscription: 'false'
               }
             })
 
@@ -92,7 +99,7 @@ async function handlePOST(request: NextRequest) {
             return NextResponse.json({
               success: true,
               subscription_id: newSubscription.id,
-              redirect_url: successUrl
+              redirect_url: `${successUrl}${successUrl.includes('?') ? '&' : '?'}subscription=success&upgrade=true`
             })
           }
           
@@ -136,7 +143,8 @@ async function handlePOST(request: NextRequest) {
         credits_included: product.metadata.credits_included || '0',
         checkout_type: 'subscription',
         created_at: new Date().toISOString(),
-        is_upgrade: existingSubscription?.stripe_subscription_id ? 'true' : 'false',
+        is_upgrade: isActiveUpgrade ? 'true' : 'false',
+        is_new_subscription: !isActiveUpgrade ? 'true' : 'false',
         previous_subscription_id: existingSubscription?.stripe_subscription_id || ''
       },
       subscription_data: {
@@ -146,12 +154,13 @@ async function handlePOST(request: NextRequest) {
           plan_name: product.metadata.plan_name || '',
           credits_included: product.metadata.credits_included || '0',
           created_at: new Date().toISOString(),
-          source: existingSubscription?.stripe_subscription_id ? 'webapp_upgrade' : 'webapp_checkout',
-          is_upgrade: existingSubscription?.stripe_subscription_id ? 'true' : 'false',
+          source: isActiveUpgrade ? 'webapp_upgrade' : 'webapp_checkout',
+          is_upgrade: isActiveUpgrade ? 'true' : 'false',
+          is_new_subscription: !isActiveUpgrade ? 'true' : 'false',
           previous_subscription_id: existingSubscription?.stripe_subscription_id || ''
         }
       },
-      success_url: successUrl,
+      success_url: `${successUrl}${successUrl.includes('?') ? '&' : '?'}subscription=success&upgrade=${isActiveUpgrade ? 'true' : 'false'}`,
       cancel_url: cancelUrl,
       allow_promotion_codes: true,
       billing_address_collection: 'auto',

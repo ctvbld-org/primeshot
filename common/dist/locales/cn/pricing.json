@@ -10,9 +10,12 @@
   "purchase": {
     "success": {
       "subscriptionTitle": "您已成功升级到{{plan}}",
+      "subscriptionTitleNew": "欢迎使用{{plan}}！",
       "creditsTitle": "积分已添加！",
       "subscriptionDescriptionWithCredits": "您的新订阅计费周期今天开始。享受{{amount}}积分和更多功能！",
+      "subscriptionDescriptionWithCreditsNew": "您的计费周期今天开始。享受{{amount}}积分和更多功能！",
       "subscriptionDescription": "您的新订阅计费周期今天开始。享受您的新福利！",
+      "subscriptionDescriptionNew": "您的计费周期今天开始。享受您的新福利！",
       "creditsDescription": "您的余额已更新。您现在可以开始生成了。",
       "returnToShoot": "返回拍摄",
       "defaultPlan": "您的新套餐"

@@ -166,9 +166,12 @@ export declare const resources: {
             purchase: {
                 success: {
                     subscriptionTitle: string;
+                    subscriptionTitleNew: string;
                     creditsTitle: string;
                     subscriptionDescriptionWithCredits: string;
+                    subscriptionDescriptionWithCreditsNew: string;
                     subscriptionDescription: string;
+                    subscriptionDescriptionNew: string;
                     creditsDescription: string;
                     returnToShoot: string;
                     defaultPlan: string;
@@ -1213,9 +1216,12 @@ export declare const resources: {
             purchase: {
                 success: {
                     subscriptionTitle: string;
+                    subscriptionTitleNew: string;
                     creditsTitle: string;
                     subscriptionDescriptionWithCredits: string;
+                    subscriptionDescriptionWithCreditsNew: string;
                     subscriptionDescription: string;
+                    subscriptionDescriptionNew: string;
                     creditsDescription: string;
                     returnToShoot: string;
                     defaultPlan: string;
@@ -2241,9 +2247,12 @@ export declare const resources: {
             purchase: {
                 success: {
                     subscriptionTitle: string;
+                    subscriptionTitleNew: string;
                     creditsTitle: string;
                     subscriptionDescriptionWithCredits: string;
+                    subscriptionDescriptionWithCreditsNew: string;
                     subscriptionDescription: string;
+                    subscriptionDescriptionNew: string;
                     creditsDescription: string;
                     returnToShoot: string;
                     defaultPlan: string;
@@ -3269,9 +3278,12 @@ export declare const resources: {
             purchase: {
                 success: {
                     subscriptionTitle: string;
+                    subscriptionTitleNew: string;
                     creditsTitle: string;
                     subscriptionDescriptionWithCredits: string;
+                    subscriptionDescriptionWithCreditsNew: string;
                     subscriptionDescription: string;
+                    subscriptionDescriptionNew: string;
                     creditsDescription: string;
                     returnToShoot: string;
                     defaultPlan: string;
@@ -4297,9 +4309,12 @@ export declare const resources: {
             purchase: {
                 success: {
                     subscriptionTitle: string;
+                    subscriptionTitleNew: string;
                     creditsTitle: string;
                     subscriptionDescriptionWithCredits: string;
+                    subscriptionDescriptionWithCreditsNew: string;
                     subscriptionDescription: string;
+                    subscriptionDescriptionNew: string;
                     creditsDescription: string;
                     returnToShoot: string;
                     defaultPlan: string;
@@ -5325,9 +5340,12 @@ export declare const resources: {
             purchase: {
                 success: {
                     subscriptionTitle: string;
+                    subscriptionTitleNew: string;
                     creditsTitle: string;
                     subscriptionDescriptionWithCredits: string;
+                    subscriptionDescriptionWithCreditsNew: string;
                     subscriptionDescription: string;
+                    subscriptionDescriptionNew: string;
                     creditsDescription: string;
                     returnToShoot: string;
                     defaultPlan: string;
@@ -6353,9 +6371,12 @@ export declare const resources: {
             purchase: {
                 success: {
                     subscriptionTitle: string;
+                    subscriptionTitleNew: string;
                     creditsTitle: string;
                     subscriptionDescriptionWithCredits: string;
+                    subscriptionDescriptionWithCreditsNew: string;
                     subscriptionDescription: string;
+                    subscriptionDescriptionNew: string;
                     creditsDescription: string;
                     returnToShoot: string;
                     defaultPlan: string;
@@ -7382,9 +7403,12 @@ export declare const resources: {
             purchase: {
                 success: {
                     subscriptionTitle: string;
+                    subscriptionTitleNew: string;
                     creditsTitle: string;
                     subscriptionDescriptionWithCredits: string;
+                    subscriptionDescriptionWithCreditsNew: string;
                     subscriptionDescription: string;
+                    subscriptionDescriptionNew: string;
                     creditsDescription: string;
                     returnToShoot: string;
                     defaultPlan: string;
@@ -8410,9 +8434,12 @@ export declare const resources: {
             purchase: {
                 success: {
                     subscriptionTitle: string;
+                    subscriptionTitleNew: string;
                     creditsTitle: string;
                     subscriptionDescriptionWithCredits: string;
+                    subscriptionDescriptionWithCreditsNew: string;
                     subscriptionDescription: string;
+                    subscriptionDescriptionNew: string;
                     creditsDescription: string;
                     returnToShoot: string;
                     defaultPlan: string;

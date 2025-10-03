@@ -10,9 +10,12 @@
   "purchase": {
     "success": {
       "subscriptionTitle": "Du hast erfolgreich auf {{plan}} upgegraded",
+      "subscriptionTitleNew": "Willkommen bei {{plan}}!",
       "creditsTitle": "Guthaben hinzugefügt!",
       "subscriptionDescriptionWithCredits": "Dein neuer Abonnement-Abrechnungszyklus beginnt heute. Genieße {{amount}} Guthaben und vieles mehr!",
+      "subscriptionDescriptionWithCreditsNew": "Dein Abrechnungszyklus beginnt heute. Genieße {{amount}} Guthaben und vieles mehr!",
       "subscriptionDescription": "Dein neuer Abonnement-Abrechnungszyklus beginnt heute. Genieße deine neuen Vorteile!",
+      "subscriptionDescriptionNew": "Dein Abrechnungszyklus beginnt heute. Genieße deine neuen Vorteile!",
       "creditsDescription": "Dein Guthaben wurde aktualisiert. Du kannst jetzt mit der Generierung beginnen.",
       "returnToShoot": "Zurück zum Shooting",
       "defaultPlan": "dein neuer Plan"

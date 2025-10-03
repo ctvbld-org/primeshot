@@ -108,8 +108,8 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
         description: t('character:onboarding.guidelines.naturalLight.description'),
         icon: 'sun',
         images: [
-          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/natural-light-1-w320.webp', alt: t('character:onboarding.guidelines.naturalLight.goodAlt') },
-          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/natural-light-2-w320.webp', alt: t('character:onboarding.guidelines.naturalLight.badAlt') }
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/natural-light-2-w320.webp', alt: t('character:onboarding.guidelines.naturalLight.goodAlt') },
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/natural-light-1-w320.webp', alt: t('character:onboarding.guidelines.naturalLight.badAlt') }
         ]
       },
       {
@@ -128,8 +128,8 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
         description: t('character:onboarding.guidelines.expressions.description'),
         icon: 'smilyFace',
         images: [
-          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/expression-1-w320.webp', alt: t('character:onboarding.guidelines.expressions.goodAlt') },
-          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/expression-2-w320.webp', alt: t('character:onboarding.guidelines.expressions.badAlt') }
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/expression-2-w320.webp', alt: t('character:onboarding.guidelines.expressions.goodAlt') },
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/expression-1-w320.webp', alt: t('character:onboarding.guidelines.expressions.badAlt') }
         ]
       },
       {

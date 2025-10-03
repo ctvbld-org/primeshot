@@ -10,9 +10,12 @@
   "purchase": {
     "success": {
       "subscriptionTitle": "Vous avez mis à niveau avec succès vers {{plan}}",
+      "subscriptionTitleNew": "Bienvenue dans {{plan}} !",
       "creditsTitle": "Crédits ajoutés !",
       "subscriptionDescriptionWithCredits": "Votre nouveau cycle de facturation d'abonnement commence aujourd'hui. Profitez de {{amount}} crédits et bien plus encore !",
+      "subscriptionDescriptionWithCreditsNew": "Votre cycle de facturation commence aujourd'hui. Profitez de {{amount}} crédits et bien plus encore !",
       "subscriptionDescription": "Votre nouveau cycle de facturation d'abonnement commence aujourd'hui. Profitez de vos nouveaux avantages !",
+      "subscriptionDescriptionNew": "Votre cycle de facturation commence aujourd'hui. Profitez de vos nouveaux avantages !",
       "creditsDescription": "Votre solde a été mis à jour. Vous pouvez commencer à générer maintenant.",
       "returnToShoot": "Retourner au shooting",
       "defaultPlan": "votre nouveau forfait"

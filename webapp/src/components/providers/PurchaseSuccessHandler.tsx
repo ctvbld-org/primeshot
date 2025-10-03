@@ -19,8 +19,17 @@ export function PurchaseSuccessHandler() {
     if (!params) return
     const sub = params.get('subscription')
     const credits = params.get('credits')
+    const upgrade = params.get('upgrade')
+    
     if (sub && sub.toLowerCase() === 'success') {
-      openDialog(createElement(PurchaseSuccessDialog, { kind: 'subscription', hideHeader: true } as any), { title: 'Success', description: 'Subscription upgraded' })
+      const isUpgrade = upgrade === 'true'
+      const kind = isUpgrade ? 'subscription' : 'subscription-new'
+      const description = isUpgrade ? 'Subscription upgraded' : 'Subscription created'
+      
+      openDialog(createElement(PurchaseSuccessDialog, { kind, hideHeader: true } as any), { 
+        title: 'Success', 
+        description 
+      })
       setConfetti('subscription')
       return
     }

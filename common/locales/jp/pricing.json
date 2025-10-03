@@ -10,9 +10,12 @@
   "purchase": {
     "success": {
       "subscriptionTitle": "{{plan}}への アップグレードが完了しました",
+      "subscriptionTitleNew": "{{plan}}へようこそ！",
       "creditsTitle": "クレジットが追加されました！",
       "subscriptionDescriptionWithCredits": "新しいサブスクリプションの請求サイクルが今日から始まります。{{amount}}クレジットとその他の特典をお楽しみください！",
+      "subscriptionDescriptionWithCreditsNew": "請求サイクルが今日から始まります。{{amount}}クレジットとその他の特典をお楽しみください！",
       "subscriptionDescription": "新しいサブスクリプションの請求サイクルが今日から始まります。新しい特典をお楽しみください！",
+      "subscriptionDescriptionNew": "請求サイクルが今日から始まります。新しい特典をお楽しみください！",
       "creditsDescription": "残高が更新されました。生成を開始できます。",
       "returnToShoot": "撮影に戻る",
       "defaultPlan": "新しいプラン"

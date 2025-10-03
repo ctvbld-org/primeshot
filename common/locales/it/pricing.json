@@ -10,9 +10,12 @@
   "purchase": {
     "success": {
       "subscriptionTitle": "Hai aggiornato con successo a {{plan}}",
+      "subscriptionTitleNew": "Benvenuto in {{plan}}!",
       "creditsTitle": "Crediti aggiunti!",
       "subscriptionDescriptionWithCredits": "Il tuo nuovo ciclo di fatturazione dell'abbonamento inizia oggi. Goditi {{amount}} crediti e molto altro!",
+      "subscriptionDescriptionWithCreditsNew": "Il tuo ciclo di fatturazione inizia oggi. Goditi {{amount}} crediti e molto altro!",
       "subscriptionDescription": "Il tuo nuovo ciclo di fatturazione dell'abbonamento inizia oggi. Goditi i tuoi nuovi vantaggi!",
+      "subscriptionDescriptionNew": "Il tuo ciclo di fatturazione inizia oggi. Goditi i tuoi nuovi vantaggi!",
       "creditsDescription": "Il tuo saldo è stato aggiornato. Puoi iniziare a generare ora.",
       "returnToShoot": "Torna al servizio",
       "defaultPlan": "il tuo nuovo piano"

@@ -306,10 +306,7 @@
   font-size: 34px;
   line-height: 31px;
   color: #99EFEC;
-  display: flex;
-  flex-flow: nowrap;
-  align-items: end;
-  justify-content: flex-start;
+  display: inline-block;
   flex: 1;
   gap: 8px;
 }
@@ -318,6 +315,10 @@
   font-weight: 500;
   color: #FFFFFF;
   line-height: 17px;
+}
+
+.bannerTitle span {
+  display: inline;
 }
 
 /* Shared pricing helpers (used by subscriptions and credit packs) */

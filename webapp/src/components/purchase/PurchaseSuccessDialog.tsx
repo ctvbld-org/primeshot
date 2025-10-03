@@ -8,7 +8,7 @@ import { useDialogService } from '@/contexts/DialogServiceContext'
 import { useTranslation } from 'react-i18next'
 
 interface PurchaseSuccessDialogProps {
-  kind: 'subscription' | 'credits'
+  kind: 'subscription' | 'subscription-new' | 'credits'
   hideHeader?: boolean
 }
 
@@ -23,6 +23,10 @@ export function PurchaseSuccessDialog({ kind }: PurchaseSuccessDialogProps) {
       const plan = sub?.plan_name || tp('purchase.success.defaultPlan')
       return tp('purchase.success.subscriptionTitle', { plan })
     }
+    if (kind === 'subscription-new') {
+      const plan = sub?.plan_name || tp('purchase.success.defaultPlan')
+      return tp('purchase.success.subscriptionTitleNew', { plan })
+    }
     return tp('purchase.success.creditsTitle')
   }, [kind, sub?.plan_name, t])
 
@@ -32,6 +36,12 @@ export function PurchaseSuccessDialog({ kind }: PurchaseSuccessDialogProps) {
       return amount
         ? tp('purchase.success.subscriptionDescriptionWithCredits', { amount })
         : tp('purchase.success.subscriptionDescription')
+    }
+    if (kind === 'subscription-new') {
+      const amount = sub?.credits_included
+      return amount
+        ? tp('purchase.success.subscriptionDescriptionWithCreditsNew', { amount })
+        : tp('purchase.success.subscriptionDescriptionNew')
     }
     return tp('purchase.success.creditsDescription')
   }, [kind, sub?.credits_included, t])

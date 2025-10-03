@@ -10,9 +10,12 @@
   "purchase": {
     "success": {
       "subscriptionTitle": "Je hebt succesvol geüpgraded naar {{plan}}",
+      "subscriptionTitleNew": "Welkom bij {{plan}}!",
       "creditsTitle": "Credits toegevoegd!",
       "subscriptionDescriptionWithCredits": "Je nieuwe abonnement factureringscyclus begint vandaag. Geniet van {{amount}} credits en veel meer!",
+      "subscriptionDescriptionWithCreditsNew": "Je factureringscyclus begint vandaag. Geniet van {{amount}} credits en veel meer!",
       "subscriptionDescription": "Je nieuwe abonnement factureringscyclus begint vandaag. Geniet van je nieuwe voordelen!",
+      "subscriptionDescriptionNew": "Je factureringscyclus begint vandaag. Geniet van je nieuwe voordelen!",
       "creditsDescription": "Je saldo is bijgewerkt. Je kunt nu beginnen met genereren.",
       "returnToShoot": "Terug naar shoot",
       "defaultPlan": "je nieuwe plan"

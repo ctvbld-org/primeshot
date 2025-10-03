@@ -2132,6 +2132,13 @@ Detected changes in:
 - webapp/src/app/auth/callback/route.ts
 - webapp/src/components/character/CharacterTrainingDialog.tsx
 - webapp/src/components/character/training/OnboardingStep.tsx
+
+
+**Auto-update 2025-10-03**:
+Detected changes in:
+- webapp/src/app/auth/callback/route.ts
+- webapp/src/app/auth/verify/page.tsx
+- webapp/src/components/generate/GenerateBar.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:
