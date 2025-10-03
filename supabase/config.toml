@@ -119,9 +119,9 @@ additional_redirect_urls = [
 ]
 
 [remotes.staging.auth]
-site_url = "http://staging.primeshot.ai"
+site_url = "https://staging.primeshot.ai/create"
 additional_redirect_urls = [
-  "http://staging.primeshot.ai/create"
+  "https://staging.primeshot.ai/create/auth/callback"
 ]
 
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
@@ -304,8 +304,8 @@ url = ""
 skip_nonce_check = false
 
 [remotes.staging.auth.external.twitter]
-client_id = "env(SUPABASE_AUTH_EXTERNAL_TWITTER_CLIENT_ID)"
-secret = "env(SUPABASE_AUTH_EXTERNAL_TWITTER_SECRET)"
+client_id = "wkUxTExvWVXdW1WRjh5dlYzaTE6M"
+secret = "SEJod4fdp_QgR4rIxkx0INxu4WDzYoq4"
 redirect_uri = "https://npalbinvsvbyddagwvjx.supabase.co/auth/v1/callback"
 
 [auth.external.linkedin_oidc]
