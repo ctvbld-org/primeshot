@@ -72,17 +72,15 @@ export const AuthProvider = ({ children }) => {
                 throw error;
             // Handle language prefix and basePath for proper redirect
             let redirectPath = '/auth/verify';
-            if (typeof window !== 'undefined') {
-                const currentPath = window.location.pathname;
-                // Extract language prefix (e.g., /fr/, /en/, etc.)
-                const langMatch = currentPath.match(/^\/([a-z]{2})\//);
-                const langPrefix = langMatch ? `/${langMatch[1]}` : '';
-                // Extract basePath (e.g., /create) only if baseUrl doesn't already contain it
-                const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '');
-                const baseUrlHasCreatePath = baseUrl.includes('/create');
-                const basePath = !baseUrlHasCreatePath && (currentPath.startsWith('/create') || currentPath.includes('/create')) ? '/create' : '';
-                redirectPath = `${langPrefix}${basePath}/auth/verify`;
-            }
+            // if (typeof window !== 'undefined') {
+            //   const currentPath = window.location.pathname
+            //   // Extract language prefix (e.g., /fr/, /en/, etc.)
+            //   const langMatch = currentPath.match(/^\/([a-z]{2})\//);
+            //   const langPrefix = langMatch ? `/${langMatch[1]}` : ''
+            //   // Extract basePath (e.g., /create)
+            //   const basePath = currentPath.startsWith('/create') || currentPath.includes('/create') ? '/create' : ''
+            //   redirectPath = `${basePath}/auth/verify`
+            // }
             const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '');
             window.location.href = `${baseUrl}${redirectPath}?email=${encodeURIComponent(email)}`;
         }
