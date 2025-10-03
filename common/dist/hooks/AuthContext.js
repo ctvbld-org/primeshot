@@ -93,7 +93,8 @@ export const AuthProvider = ({ children }) => {
     };
     // Helper to build redirect URL respecting optional base path
     const getCallbackUrl = () => {
-        const callbackUrl = process.env.NEXT_PUBLIC_APP_URL + '/auth/callback';
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://primeshot.ai/create';
+        const callbackUrl = baseUrl + '/auth/callback';
         return callbackUrl;
     };
     const signInWithGoogle = async () => {

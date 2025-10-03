@@ -5,7 +5,8 @@ import { cookies } from 'next/headers'
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
-  const origin = requestUrl.origin
+  // Use the configured app URL instead of request origin to handle domain rewrites
+  const origin = process.env.NEXT_PUBLIC_APP_URL || requestUrl.origin
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH
 
   if (code) {
@@ -61,7 +62,7 @@ export async function GET(request: Request) {
       }
       
       // If no user, redirect to home
-      return NextResponse.redirect(new URL(basePath || '/', requestUrl.origin))
+      return NextResponse.redirect(new URL(basePath || '/', origin))
     } catch (error) {
       console.error('Auth callback error:', error)
       return NextResponse.redirect(`${origin}${basePath || '/'}auth/auth-code-error`)
