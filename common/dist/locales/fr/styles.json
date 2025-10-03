@@ -1,62 +1,62 @@
 {
-  "titles": {
-    "styleLabel": "Style",
-    "photoStyle": "Style de photo",
-    "sceneLabel": "Scène",
-    "wardrobeLabel": "Vêtements",
-    "characterLabel": "Personnage",
-    "settingsLabel": "Paramètres"
-  },
-  "shoot": {
-    "subtitle": "{{style}} avec un cadre {{scene}}, portant {{wardrobe}} en {{color}}"
-  },
-  "character": {
-    "trainingQueued": "En file d'attente",
-    "trainingPending": "En attente",
-    "trainingInitializing": "Initialisation",
-    "remaining": "restantes",
-    "photos": "photos",
-    "trainingFailedTitle": "Échec de l'entraînement",
-    "trainingFailedDesc": "Ce perso ne peut pas être utilisé pour la génération. Veuillez le supprimer et réessayer."
-  },
-  "qualities": {
-    "basic": "Basique",
-    "medium": "Moyen",
-    "high": "Élevé"
-  },
-  "labels": {
-    "credits": "{{count}} crédits",
-    "includedInPlan": "{{count}} inclus dans le forfait",
-    "limitReached": "Limite atteinte",
-    "upgradePlanAddMore": "Améliorez le forfait pour en ajouter plus",
-    "upgradeOrBuyCredits": "Améliorez le forfait ou achetez un pack de crédits",
-    "buyCredits": "Acheter un pack de crédits"
-  },
-  "settings": {
-    "numberOfTakes": "Nombre de prises",
-    "quality": "Qualité",
-    "aspectRatio": "Ratio d'aspect"
-  },
-  "status": {
-    "badge": {
-      "pending": "En attente",
-      "queued": "En file d'attente",
-      "initializing": "Initialisation",
-      "starting": "Démarrage",
-      "running": "Génération",
-      "generating": "Génération",
-      "completed": "Terminé",
-      "failed": "Échoué",
-      "connecting": "Connexion"
+    "titles": {
+        "styleLabel": "Style",
+        "photoStyle": "Style de photo",
+        "sceneLabel": "Scène",
+        "wardrobeLabel": "Vêtements",
+        "characterLabel": "Personnage",
+        "settingsLabel": "Paramètres"
     },
-    "tooltip": {
-      "pending": "En attente de disponibilité du serveur - devrait procéder bientôt",
-      "queued": "Limite atteinte, en attente qu'une génération se termine",
-      "queueReasons": {
-        "character_not_ready": "Le perso s'entraîne — démarrera automatiquement",
-        "concurrent_limit": "Limite atteinte ({{current}}/{{limit}}). Démarrera automatiquement",
-        "provider_temporary_issue": "Problème temporaire de soumission au fournisseur. Nous réessayerons automatiquement."
-      }
+    "shoot": {
+        "subtitle": "{{style}} avec un cadre {{scene}}, portant {{wardrobe}} en {{color}}"
+    },
+    "character": {
+        "trainingQueued": "En file d'attente",
+        "trainingPending": "En attente",
+        "trainingInitializing": "Initialisation",
+        "remaining": "restantes",
+        "photos": "photos",
+        "trainingFailedTitle": "Échec de l'entraînement",
+        "trainingFailedDesc": "Ce perso ne peut pas être utilisé pour la génération. Veuillez le supprimer et réessayer."
+    },
+    "qualities": {
+        "basic": "Basique",
+        "medium": "Moyen",
+        "high": "Élevé"
+    },
+    "labels": {
+        "credits": "{{count}} crédits",
+        "includedInPlan": "{{count}} inclus dans le forfait",
+        "limitReached": "Limite atteinte",
+        "upgradePlanAddMore": "Améliorez le forfait pour en ajouter plus",
+        "upgradeOrBuyCredits": "Améliorez le forfait ou achetez un pack de crédits",
+        "buyCredits": "Acheter un pack de crédits"
+    },
+    "settings": {
+        "numberOfTakes": "Nombre de prises",
+        "quality": "Qualité",
+        "aspectRatio": "Ratio d'aspect"
+    },
+    "status": {
+        "badge": {
+            "pending": "En attente",
+            "queued": "En file d'attente",
+            "initializing": "Initialisation",
+            "starting": "Démarrage",
+            "running": "Génération",
+            "generating": "Génération",
+            "completed": "Terminé",
+            "failed": "Échoué",
+            "connecting": "Connexion"
+        },
+        "tooltip": {
+            "pending": "En attente de disponibilité du serveur - devrait procéder bientôt",
+            "queued": "Limite atteinte, en attente qu'une génération se termine",
+            "queueReasons": {
+                "character_not_ready": "Le perso s'entraîne — démarrera automatiquement",
+                "concurrent_limit": "Limite atteinte ({{current}}/{{limit}}). Démarrera automatiquement",
+                "provider_temporary_issue": "Problème temporaire de soumission au fournisseur. Nous réessayerons automatiquement."
+            }
+        }
     }
-  }
 }

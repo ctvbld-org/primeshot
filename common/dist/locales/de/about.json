@@ -1,14 +1,14 @@
 {
-  "mission": {
-    "line1": "<span1>Wir enthüllen das Beste von dem, wer du bist.</span1> Primeshot bringt <span2>professionelle Qualität</span2> Porträts zu allen, erfasst unser <span3>wahres Wesen</span3> und gibt dir die Freiheit zu <span4>erkunden</span4>, zu <span5>ausdrücken</span5> und dich der Welt mit <span6>Vertrauen</span6> zu <span7>präsentieren</span7>."
-  },
-  "paragraphs": [
-    "Eine Kamera erzählt nie die ganze Geschichte. Das Objektiv flacht ab, die Beleuchtung verrät, die Garderobe begrenzt, der Hintergrund lenkt ab. Du machst noch ein Selfie, noch einen Zuschnitt, noch einen Filter. Immer noch nicht die Version von dir, die die Welt sehen sollte.",
-    "Diese Frustration wurde zum Funken für Primeshot. Wir fragten uns: Warum fühlt sich etwas so Einfaches wie ein Porträt so unmöglich an?",
-    "Die Antwort war nicht eine weitere Kamera, eine weitere Retusche-App oder eine weitere steife Pose. Die Antwort war Möglichkeit. Endlose Porträts, erstellt in Minuten, uneingeschränkt von deiner Handy-Kamera, deiner Garderobe oder dem Raum, in dem du gerade stehst.",
-    "Primeshot verwandelt die Fotos, die du bereits hast, in Studio-Qualität Porträts in gestochen scharfem 4K. Treu deiner Ähnlichkeit, lebendig mit Details und flexibel genug, um zu jedem Moment zu passen. Selbstbewusst für LinkedIn. Entspannt für deine Website. Kühn für eine Redner-Bio. Verspielt für deinen Feed. Ein lebendiges Spektrum von dir, nicht länger durch eine Aufnahme oder eine Einstellung begrenzt."
-  ],
-  "labels": {
-    "cofounders": "Primeshot-Mitgründer"
-  }
+    "mission": {
+        "line1": "<span1>Wir enthüllen das Beste von dem, wer du bist.</span1> Primeshot bringt <span2>professionelle Qualität</span2> Porträts zu allen, erfasst unser <span3>wahres Wesen</span3> und gibt dir die Freiheit zu <span4>erkunden</span4>, zu <span5>ausdrücken</span5> und dich der Welt mit <span6>Vertrauen</span6> zu <span7>präsentieren</span7>."
+    },
+    "paragraphs": [
+        "Eine Kamera erzählt nie die ganze Geschichte. Das Objektiv flacht ab, die Beleuchtung verrät, die Garderobe begrenzt, der Hintergrund lenkt ab. Du machst noch ein Selfie, noch einen Zuschnitt, noch einen Filter. Immer noch nicht die Version von dir, die die Welt sehen sollte.",
+        "Diese Frustration wurde zum Funken für Primeshot. Wir fragten uns: Warum fühlt sich etwas so Einfaches wie ein Porträt so unmöglich an?",
+        "Die Antwort war nicht eine weitere Kamera, eine weitere Retusche-App oder eine weitere steife Pose. Die Antwort war Möglichkeit. Endlose Porträts, erstellt in Minuten, uneingeschränkt von deiner Handy-Kamera, deiner Garderobe oder dem Raum, in dem du gerade stehst.",
+        "Primeshot verwandelt die Fotos, die du bereits hast, in Studio-Qualität Porträts in gestochen scharfem 4K. Treu deiner Ähnlichkeit, lebendig mit Details und flexibel genug, um zu jedem Moment zu passen. Selbstbewusst für LinkedIn. Entspannt für deine Website. Kühn für eine Redner-Bio. Verspielt für deinen Feed. Ein lebendiges Spektrum von dir, nicht länger durch eine Aufnahme oder eine Einstellung begrenzt."
+    ],
+    "labels": {
+        "cofounders": "Primeshot-Mitgründer"
+    }
 }

@@ -2073,6 +2073,58 @@ Detected changes in:
 - webapp/src/components/upload/FileUploader.tsx
 - webapp/src/components/upload/RejectedImagesContent.module.css
 - webapp/src/components/upload/RejectedImagesContent.tsx
+
+
+**Auto-update 2025-10-03**:
+Detected changes in:
+- admin/src/app/api/admin/aws-cost/route.ts
+- admin/src/app/api/admin/upload-metrics/route.ts
+- admin/src/app/cost/page.tsx
+- admin/src/components/layout/nav.tsx
+- admin/src/lib/api/client.ts
+- admin/src/lib/bot-protection.ts
+- admin/src/lib/rate-limit.ts
+- admin/src/lib/security-middleware.ts
+- webapp/src/app/api/account/avatar/route.ts
+- webapp/src/app/api/account/profile/route.ts
+- webapp/src/app/api/ai-monitoring/route.ts
+- webapp/src/app/api/cleanup-character/route.ts
+- webapp/src/app/api/cleanup-upload/route.ts
+- webapp/src/app/api/credits/balance/route.ts
+- webapp/src/app/api/credits/transactions/route.ts
+- webapp/src/app/api/cron/security-cleanup/route.ts
+- webapp/src/app/api/inference/config/route.ts
+- webapp/src/app/api/inference/delete-generated-image/route.ts
+- webapp/src/app/api/payment/credit-pack-checkout/route.ts
+- webapp/src/app/api/payment/subscription-checkout/route.ts
+- webapp/src/app/api/payment/webhook/route.ts
+- webapp/src/app/api/s3/sign/route.ts
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/app/api/subscription/customer-portal/route.ts
+- webapp/src/app/api/subscription/preview-upgrade/route.ts
+- webapp/src/app/api/subscription/sync/route.ts
+- webapp/src/app/api/upload-chunk/route.ts
+- webapp/src/app/api/user-images/route.ts
+- webapp/src/app/layout.tsx
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/AdminTrainingOptionsDialog.tsx
+- webapp/src/components/character/training/UploadPhotosStep.tsx
+- webapp/src/components/generate/GenerateBar.module.css
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/inference/InferenceImageViewerDialog.tsx
+- webapp/src/components/inference/InferenceJobGroup.tsx
+- webapp/src/components/shared/CaptchaModal.tsx
+- webapp/src/components/style/StylesCarousel.tsx
+- webapp/src/components/upload/FileUploader.tsx
+- webapp/src/components/upload/RejectedImagesContent.tsx
+- webapp/src/contexts/style-data-context.tsx
+- webapp/src/contexts/style-selection-context.tsx
+- webapp/src/lib/ai-job-monitoring.ts
+- webapp/src/lib/bot-protection.ts
+- webapp/src/lib/rate-limit.ts
+- webapp/src/lib/security-middleware.ts
+- webapp/src/lib/security-monitoring.ts
+- webapp/src/lib/utils/cloudfrontLoader.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

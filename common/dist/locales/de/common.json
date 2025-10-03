@@ -1,81 +1,81 @@
 {
-  "welcome": "Willkommen",
-  "error": {
-    "title": "Fehler",
-    "description": "Ein Fehler ist aufgetreten"
-  },
-  "language": "Sprache",
-  "loading": "Lädt...",
-  "buttons": {
-    "customize": "Anpassen",
-    "confirmChanges": "Änderungen bestätigen",
-    "addToShoot": "Zum Shooting hinzufügen",
-    "edit": "Bearbeiten",
-    "delete": "Löschen",
-    "save": "Speichern",
-    "cancel": "Abbrechen",
-    "back": "Zurück",
-    "close": "Schließen",
-    "next": "Weiter",
-    "previous": "Zurück",
-    "keep": "Behalten",
-    "discard": "Verwerfen",
-    "confirm": "Bestätigen",
-    "remove": "Entfernen",
-    "add": "Hinzufügen",
-    "explore": "Entdecken",
-    "signIn": "Anmelden"
-  },
-  "navigation": {
-    "addStyles": "Stile hinzufügen",
-    "payment": "Zahlung",
-    "uploadPhotos": "Fotos hochladen",
-    "generate": "Generieren",
-    "explore": "Entdecken",
-    "create": "Erstellen",
-    "admin": "Admin"
-  },
-  "userNav": {
-    "signOut": "Abmelden",
-    "accountSettings": "Kontoeinstellungen"
-  },
-  "footer": {
-    "about": "Über uns",
-    "terms": "Bedingungen",
-    "privacy": "Datenschutz",
-    "copyright": "© {{year}} Primeshot. Alle Rechte vorbehalten"
-  },
-  "duration": {
-    "year_one": "{{count}} Jahr",
-    "year_other": "{{count}} Jahre",
-    "month_one": "{{count}} Monat",
-    "month_other": "{{count}} Monate",
-    "day_one": "{{count}} Tag",
-    "day_other": "{{count}} Tage"
-  },
-  "aria": {
-    "favourites": "Favoriten",
-    "avatar": "Benutzer-Avatar",
-    "brandLogo": "Primeshot"
-  },
-  "credits": {
-    "remaining_one": "{{value}} Guthaben verbleibt",
-    "remaining_other": "{{value}} Guthaben verbleiben"
-  },
-  "contexts": {
-    "dialogService": {
-      "defaultTitle": "Dialog",
-      "defaultDescription": "Inhalt",
-      "notReadyWarning": "DialogService nicht bereit"
+    "welcome": "Willkommen",
+    "error": {
+        "title": "Fehler",
+        "description": "Ein Fehler ist aufgetreten"
     },
-    "errors": {
-      "missingProvider": {
-        "styleSelection": "useStyleSelection muss innerhalb eines StyleSelectionProvider verwendet werden",
-        "dialogService": "useDialogService muss innerhalb eines DialogServiceProvider verwendet werden",
-        "inferenceQueue": "useInferenceQueue muss innerhalb eines InferenceQueueProvider verwendet werden",
-        "carousel": "useCarouselContext muss innerhalb eines CarouselProvider verwendet werden",
-        "realtime": "useRealtime muss innerhalb eines RealtimeProvider verwendet werden"
-      }
+    "language": "Sprache",
+    "loading": "Lädt...",
+    "buttons": {
+        "customize": "Anpassen",
+        "confirmChanges": "Änderungen bestätigen",
+        "addToShoot": "Zum Shooting hinzufügen",
+        "edit": "Bearbeiten",
+        "delete": "Löschen",
+        "save": "Speichern",
+        "cancel": "Abbrechen",
+        "back": "Zurück",
+        "close": "Schließen",
+        "next": "Weiter",
+        "previous": "Zurück",
+        "keep": "Behalten",
+        "discard": "Verwerfen",
+        "confirm": "Bestätigen",
+        "remove": "Entfernen",
+        "add": "Hinzufügen",
+        "explore": "Entdecken",
+        "signIn": "Anmelden"
+    },
+    "navigation": {
+        "addStyles": "Stile hinzufügen",
+        "payment": "Zahlung",
+        "uploadPhotos": "Fotos hochladen",
+        "generate": "Generieren",
+        "explore": "Entdecken",
+        "create": "Erstellen",
+        "admin": "Admin"
+    },
+    "userNav": {
+        "signOut": "Abmelden",
+        "accountSettings": "Kontoeinstellungen"
+    },
+    "footer": {
+        "about": "Über uns",
+        "terms": "Bedingungen",
+        "privacy": "Datenschutz",
+        "copyright": "© {{year}} Primeshot. Alle Rechte vorbehalten"
+    },
+    "duration": {
+        "year_one": "{{count}} Jahr",
+        "year_other": "{{count}} Jahre",
+        "month_one": "{{count}} Monat",
+        "month_other": "{{count}} Monate",
+        "day_one": "{{count}} Tag",
+        "day_other": "{{count}} Tage"
+    },
+    "aria": {
+        "favourites": "Favoriten",
+        "avatar": "Benutzer-Avatar",
+        "brandLogo": "Primeshot"
+    },
+    "credits": {
+        "remaining_one": "{{value}} Guthaben verbleibt",
+        "remaining_other": "{{value}} Guthaben verbleiben"
+    },
+    "contexts": {
+        "dialogService": {
+            "defaultTitle": "Dialog",
+            "defaultDescription": "Inhalt",
+            "notReadyWarning": "DialogService nicht bereit"
+        },
+        "errors": {
+            "missingProvider": {
+                "styleSelection": "useStyleSelection muss innerhalb eines StyleSelectionProvider verwendet werden",
+                "dialogService": "useDialogService muss innerhalb eines DialogServiceProvider verwendet werden",
+                "inferenceQueue": "useInferenceQueue muss innerhalb eines InferenceQueueProvider verwendet werden",
+                "carousel": "useCarouselContext muss innerhalb eines CarouselProvider verwendet werden",
+                "realtime": "useRealtime muss innerhalb eines RealtimeProvider verwendet werden"
+            }
+        }
     }
-  }
 }

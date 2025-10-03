@@ -1,65 +1,65 @@
 {
-  "dialog": {
-    "title": "账户",
-    "selectSection": "选择部分"
-  },
-  "navigation": {
-    "profile": "个人资料",
-    "subscription": "订阅",
-    "settings": "设置",
-    "support": "支持"
-  },
-  "buttons": {
-    "cancel": "取消",
-    "save": "保存",
-    "saving": "保存中…",
-    "signOut": "退出登录",
-    "subscribe": "订阅",
-    "opening": "打开中…",
-    "manage": "管理",
-    "renew": "续订",
-    "buyCredits": "购买积分",
-    "deleteAccount": "删除账户（即将推出）"
-  },
-  "profile": {
-    "title": "个人资料",
-    "firstName": "名字",
-    "lastName": "姓氏",
-    "email": "邮箱"
-  },
-  "subscription": {
-    "title": "订阅",
-    "loading": "加载中...",
-    "noPlan": "无套餐",
-    "planSuffix": "套餐",
-    "cancelled": "已取消",
-    "expires": "{{date}} 到期",
-    "renews": "{{date}} 续订",
-    "creditBalance": "积分余额",
-    "resets": "{{date}} 重置"
-  },
-  "settings": {
-    "title": "设置",
-    "language": "语言",
-    "deleteAccount": {
-      "title": "删除账户？",
-      "description": "这将清除您的所有数据、设置和历史记录。此操作无法撤销。"
+    "dialog": {
+        "title": "账户",
+        "selectSection": "选择部分"
+    },
+    "navigation": {
+        "profile": "个人资料",
+        "subscription": "订阅",
+        "settings": "设置",
+        "support": "支持"
+    },
+    "buttons": {
+        "cancel": "取消",
+        "save": "保存",
+        "saving": "保存中…",
+        "signOut": "退出登录",
+        "subscribe": "订阅",
+        "opening": "打开中…",
+        "manage": "管理",
+        "renew": "续订",
+        "buyCredits": "购买积分",
+        "deleteAccount": "删除账户（即将推出）"
+    },
+    "profile": {
+        "title": "个人资料",
+        "firstName": "名字",
+        "lastName": "姓氏",
+        "email": "邮箱"
+    },
+    "subscription": {
+        "title": "订阅",
+        "loading": "加载中...",
+        "noPlan": "无套餐",
+        "planSuffix": "套餐",
+        "cancelled": "已取消",
+        "expires": "{{date}} 到期",
+        "renews": "{{date}} 续订",
+        "creditBalance": "积分余额",
+        "resets": "{{date}} 重置"
+    },
+    "settings": {
+        "title": "设置",
+        "language": "语言",
+        "deleteAccount": {
+            "title": "删除账户？",
+            "description": "这将清除您的所有数据、设置和历史记录。此操作无法撤销。"
+        }
+    },
+    "support": {
+        "title": "我们随时为您提供帮助",
+        "description": "有疑问或需要协助？我们随时准备在每个步骤为您提供支持。我们通常在24小时内回复。",
+        "faq": "常见问题",
+        "faqDescription": "查看我们的{{helpCenter}}，快速获得常见问题的答案。",
+        "helpCenter": "帮助中心",
+        "dmUs": "私信我们",
+        "emailUs": "发送邮件"
+    },
+    "errors": {
+        "failedToSave": "保存更改失败"
+    },
+    "accessibility": {
+        "avatar": "头像",
+        "plan": "套餐"
     }
-  },
-  "support": {
-    "title": "我们随时为您提供帮助",
-    "description": "有疑问或需要协助？我们随时准备在每个步骤为您提供支持。我们通常在24小时内回复。",
-    "faq": "常见问题",
-    "faqDescription": "查看我们的{{helpCenter}}，快速获得常见问题的答案。",
-    "helpCenter": "帮助中心",
-    "dmUs": "私信我们",
-    "emailUs": "发送邮件"
-  },
-  "errors": {
-    "failedToSave": "保存更改失败"
-  },
-  "accessibility": {
-    "avatar": "头像",
-    "plan": "套餐"
-  }
 }
