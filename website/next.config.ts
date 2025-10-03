@@ -34,13 +34,14 @@ const nextConfig: NextConfig = {
         { source: '/create', destination: `${webapp}/create` },
         { source: '/create/:path*', destination: `${webapp}/create/:path*` },
         // Locale-prefixed forwards for SSR i18n routing - strip locale and pass via header
+        // BUT exclude API routes from locale handling to prevent webhook redirects
+        { 
+          source: '/:locale(en|fr|es|it|pt|de|nl|cn|jp)/create/:path((?!api).*)*', 
+          destination: `${webapp}/create/:path*`
+        },
         { 
           source: '/:locale(en|fr|es|it|pt|de|nl|cn|jp)/create', 
           destination: `${webapp}/create`
-        },
-        { 
-          source: '/:locale(en|fr|es|it|pt|de|nl|cn|jp)/create/:path*', 
-          destination: `${webapp}/create/:path*`
         },
       );
     }
