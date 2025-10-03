@@ -157,7 +157,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         provider: 'azure',
         options: {
           redirectTo: getCallbackUrl(),
-          scopes: 'email offline_access',
+          scopes: 'https://graph.microsoft.com/User.Read https://graph.microsoft.com/User.ReadBasic.All openid profile email offline_access',
           queryParams: { prompt: 'consent' }
         }
       })

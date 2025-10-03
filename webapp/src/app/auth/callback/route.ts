@@ -7,7 +7,6 @@ export async function GET(request: Request) {
   const code = requestUrl.searchParams.get('code')
   // Use the configured app URL instead of request origin to handle domain rewrites
   const origin = process.env.NEXT_PUBLIC_APP_URL || requestUrl.origin
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH
 
   if (code) {
     const cookieStore = await cookies()
@@ -54,10 +53,9 @@ export async function GET(request: Request) {
         }
 
         // Create a new response with the redirect
-        const targetPath = (basePath || '/')
         const app_url = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
-        const response = NextResponse.redirect(new URL(targetPath, app_url))
+        const response = NextResponse.redirect(new URL('/', app_url))
         
         // Copy over the cookies from the cookie store
         const allCookies = cookieStore.getAll()
@@ -69,12 +67,12 @@ export async function GET(request: Request) {
       }
       
       // If no user, redirect to home
-      return NextResponse.redirect(new URL(basePath || '/', origin))
+      return NextResponse.redirect(new URL('/', origin))
     } catch (error) {
       console.error('Auth callback error:', error)
-      return NextResponse.redirect(`${origin}${basePath || '/'}auth/auth-code-error`)
+      return NextResponse.redirect(`${origin}${'/'}auth/auth-code-error`)
     }
   }
 
-  return NextResponse.redirect(`${origin}${basePath || '/'}`)
+  return NextResponse.redirect(`${origin}${'/'}`)
 } 
