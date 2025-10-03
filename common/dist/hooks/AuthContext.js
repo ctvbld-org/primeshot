@@ -77,8 +77,10 @@ export const AuthProvider = ({ children }) => {
                 // Extract language prefix (e.g., /fr/, /en/, etc.)
                 const langMatch = currentPath.match(/^\/([a-z]{2})\//);
                 const langPrefix = langMatch ? `/${langMatch[1]}` : '';
-                // Extract basePath (e.g., /create)
-                const basePath = currentPath.startsWith('/create') || currentPath.includes('/create') ? '/create' : '';
+                // Extract basePath (e.g., /create) only if baseUrl doesn't already contain it
+                const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+                const baseUrlHasCreatePath = baseUrl.includes('/create');
+                const basePath = !baseUrlHasCreatePath && (currentPath.startsWith('/create') || currentPath.includes('/create')) ? '/create' : '';
                 redirectPath = `${langPrefix}${basePath}/auth/verify`;
             }
             const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '');
