@@ -299,7 +299,7 @@ secret = "mEH8Q~SnntubByWlHjTq7Kb7AejZkMTpaGecya9L"
 redirect_uri = "http://localhost:54321/auth/v1/callback"
 # Overrides the default auth provider URL. Used to support self-hosted gitlab, single-tenant Azure,
 # or any other third-party OIDC providers.
-url = "https://login.microsoftonline.com/consumers"
+url = "https://login.microsoftonline.com/common"
 # If enabled, the nonce check will be skipped. Required for local sign in with Google auth.
 skip_nonce_check = false
 
@@ -307,7 +307,7 @@ skip_nonce_check = false
 client_id = "cbd667b3-f184-4ad2-8c35-59a137502033"
 secret = "mEH8Q~SnntubByWlHjTq7Kb7AejZkMTpaGecya9L"
 redirect_uri = "https://npalbinvsvbyddagwvjx.supabase.co/auth/v1/callback"
-url = "https://login.microsoftonline.com/consumers"
+url = "https://login.microsoftonline.com/common"
 
 [auth.external.linkedin_oidc]
 enabled = true

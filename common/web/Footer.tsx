@@ -56,8 +56,8 @@ export const Footer: React.FC<FooterProps> = ({
                 </a>
                 <a className={styles.iconLink} href={linkedinHref} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
                     <Image
-                        src={`${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/email/base-icon-ig.png`}
-                        alt="X"
+                        src={`${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/email/base-icon-ln.png`}
+                        alt="LinkedIn"
                         width={24}
                         height={24}
                         className={styles.icon}
@@ -65,8 +65,8 @@ export const Footer: React.FC<FooterProps> = ({
                 </a>
                 <a className={styles.iconLink} href={instagramHref} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                     <Image
-                        src={`${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/email/base-icon-ln.png`}
-                        alt="X"
+                        src={`${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/website-images/email/base-icon-ig.png`}
+                        alt="Instagram"
                         width={24}
                         height={24}
                         className={styles.icon}
