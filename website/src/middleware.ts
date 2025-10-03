@@ -47,6 +47,7 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/api') ||
     pathname.startsWith('/create') ||
     pathname.startsWith('/admin') ||
+    pathname.startsWith('/.well-known') ||
     pathname.endsWith('.svg') ||
     pathname.endsWith('.png') ||
     pathname.endsWith('.jpg') ||

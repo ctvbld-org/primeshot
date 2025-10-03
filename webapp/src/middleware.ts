@@ -5,12 +5,29 @@ import { NextResponse } from 'next/server'
 
 export async function middleware(request: NextRequest) {
   const startTime = Date.now()
+  const { pathname } = request.nextUrl
+
+  // Ignore static assets (but not API routes - we want security monitoring on those)
+  if (
+    pathname.startsWith('/_next') ||
+    pathname === '/favicon.ico' ||
+    pathname.startsWith('/public') ||
+    pathname.startsWith('/.well-known') ||
+    pathname.endsWith('.svg') ||
+    pathname.endsWith('.png') ||
+    pathname.endsWith('.jpg') ||
+    pathname.endsWith('.jpeg') ||
+    pathname.endsWith('.webp') ||
+    pathname.endsWith('.ico') ||
+    pathname.endsWith('.webmanifest')
+  ) {
+    return NextResponse.next()
+  }
   
   // First, handle Supabase session
   const response = await updateSession(request)
 
   // Sync i18n cookie with explicit locale prefix when present (no redirects here)
-  const { pathname } = request.nextUrl
   const segments = pathname.split('/').filter(Boolean)
   const first = segments[0]
   const SUPPORTED = ['en','fr','es','it','pt','de','nl','cn','jp']
