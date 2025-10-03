@@ -482,8 +482,6 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
     setJobs(prev => [newJob, ...prev]);
     setTotalCount(prev => prev + 1);
     activeJobIds.current.add(jobId);
-    
-    console.log(`➕ Added job ${jobId} with ${nbTakes} thumbnails`);
   }, []);
 
   // Update job with real ID (replace placeholder)
@@ -501,7 +499,6 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
           thumbnails: updatedThumbnails
         };
         
-        console.log(`🔄 Updated placeholder ${placeholderId} to real job ID ${realJobId}`);
         activeJobIds.current.add(realJobId);
         
         return updatedJob;

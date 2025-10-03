@@ -256,9 +256,7 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
 
     setJobs(prev => [newJob, ...prev]);
     activeJobIds.current.add(jobId);
-    
-    console.log(`➕ Added job ${jobId} with ${nbTakes} thumbnails`);
-    
+      
     // After a short delay, transition job to running if it's still queued
     // This handles cases where the job starts immediately but we haven't received WebSocket updates yet
     setTimeout(() => {
@@ -333,8 +331,6 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
           id: realJobId,
           thumbnails: updatedThumbnails
         };
-        
-        console.log(`🔄 Updated placeholder ${placeholderId} to real job ID ${realJobId}`);
         
         // Add to active jobs tracking
         activeJobIds.current.add(realJobId);

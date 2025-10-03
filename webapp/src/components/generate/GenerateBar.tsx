@@ -470,7 +470,6 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
             updateJobMessage(realJobId, translatedMessage)
           }
           
-          console.log(`📋 Updated job ${realJobId} status to: ${responseStatus}`)
         }
       }
     } catch (e) {
