@@ -2,13 +2,10 @@
 -- This migration creates the storage bucket needed for chunked uploads
 
 -- Create the uploads bucket
-INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+INSERT INTO storage.buckets (id, name)
 VALUES (
   'uploads',
-  'uploads', 
-  false,  -- Private bucket for security
-  104857600,  -- 100MB file size limit
-  ARRAY['application/octet-stream', 'image/jpeg', 'image/png', 'image/webp']
+  'uploads'
 ) ON CONFLICT (id) DO NOTHING;
 
 -- Create RLS policies for the uploads bucket

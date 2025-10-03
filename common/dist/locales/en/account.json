@@ -1,65 +1,65 @@
 {
-    "dialog": {
-        "title": "Account",
-        "selectSection": "Select section"
-    },
-    "navigation": {
-        "profile": "Profile",
-        "subscription": "Subscription",
-        "settings": "Settings",
-        "support": "Support"
-    },
-    "buttons": {
-        "cancel": "Cancel",
-        "save": "Save",
-        "saving": "Saving…",
-        "signOut": "Sign out",
-        "subscribe": "Subscribe",
-        "opening": "Opening…",
-        "manage": "Manage",
-        "renew": "Renew",
-        "buyCredits": "Buy credits",
-        "deleteAccount": "Delete Account (coming soon)"
-    },
-    "profile": {
-        "title": "Profile",
-        "firstName": "First name",
-        "lastName": "Last name",
-        "email": "Email"
-    },
-    "subscription": {
-        "title": "Subscription",
-        "loading": "Loading...",
-        "noPlan": "No plan",
-        "planSuffix": " Plan",
-        "cancelled": "Cancelled",
-        "expires": "Expires {{date}}",
-        "renews": "Renews {{date}}",
-        "creditBalance": "Credit Balance",
-        "resets": "Resets {{date}}"
-    },
-    "settings": {
-        "title": "Settings",
-        "language": "Language",
-        "deleteAccount": {
-            "title": "Delete account?",
-            "description": "This will erase all your data, settings, and history. This action cannot be undone."
-        }
-    },
-    "support": {
-        "title": "We're here to help",
-        "description": "Got questions or need assistance? We're ready to support you every step of the way. We typically respond within 24 hours.",
-        "faq": "FAQ's",
-        "faqDescription": "Check out our {{helpCenter}} for quick answers to common questions.",
-        "helpCenter": "Help Center",
-        "dmUs": "DM US",
-        "emailUs": "Email us"
-    },
-    "errors": {
-        "failedToSave": "Failed to save changes"
-    },
-    "accessibility": {
-        "avatar": "avatar",
-        "plan": "plan"
+  "dialog": {
+    "title": "Account",
+    "selectSection": "Select section"
+  },
+  "navigation": {
+    "profile": "Profile",
+    "subscription": "Subscription",
+    "settings": "Settings",
+    "support": "Support"
+  },
+  "buttons": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving…",
+    "signOut": "Sign out",
+    "subscribe": "Subscribe",
+    "opening": "Opening…",
+    "manage": "Manage",
+    "renew": "Renew",
+    "buyCredits": "Buy credits",
+    "deleteAccount": "Delete Account (coming soon)"
+  },
+  "profile": {
+    "title": "Profile",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email"
+  },
+  "subscription": {
+    "title": "Subscription",
+    "loading": "Loading...",
+    "noPlan": "No plan",
+    "planSuffix": " Plan",
+    "cancelled": "Cancelled",
+    "expires": "Expires {{date}}",
+    "renews": "Renews {{date}}",
+    "creditBalance": "Credit Balance",
+    "resets": "Resets {{date}}"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "deleteAccount": {
+      "title": "Delete account?",
+      "description": "This will erase all your data, settings, and history. This action cannot be undone."
     }
+  },
+  "support": {
+    "title": "We're here to help",
+    "description": "Got questions or need assistance? We're ready to support you every step of the way. We typically respond within 24 hours.",
+    "faq": "FAQ's",
+    "faqDescription": "Check out our {{helpCenter}} for quick answers to common questions.",
+    "helpCenter": "Help Center",
+    "dmUs": "DM US",
+    "emailUs": "Email us"
+  },
+  "errors": {
+    "failedToSave": "Failed to save changes"
+  },
+  "accessibility": {
+    "avatar": "avatar",
+    "plan": "plan"
+  }
 }

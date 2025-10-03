@@ -12,7 +12,7 @@ import { Icon } from './Icon'
 
 export function SignInForm() {
   const { t } = useTranslation('auth')
-  const { signIn, signInWithGoogle, signInWithLinkedIn, signInWithAzure, isLoading, error } = useAuth()
+  const { signIn, signInWithGoogle, signInWithLinkedIn, signInWithTwitter, isLoading, error } = useAuth()
   const [email, setEmail] = useState('')
   const [showEmailForm, setShowEmailForm] = useState(false)
   const heightRef = useRef<HTMLDivElement>(null)
@@ -47,28 +47,28 @@ export function SignInForm() {
 
   const providers: Array<{
     key: string
-    labelKey: string
+    name: string
     onClick?: () => void
     disabled?: boolean
   }> = [
     {
       key: 'google',
-      labelKey: 'signin.google.button',
+      name: 'Google',
       onClick: () => signInWithGoogle(),
     },
     {
-      key: 'microsoft',
-      labelKey: 'signin.microsoft.button',
-      onClick: () => signInWithAzure(),
+      key: 'x',
+      name: 'X',
+      onClick: () => signInWithTwitter(),
     },
     {
       key: 'apple',
-      labelKey: 'signin.apple.button',
+      name: 'Apple',
       disabled: true,
     },
     {
       key: 'linkedin',
-      labelKey: 'signin.linkedin.button',
+      name: 'LinkedIn',
       onClick: () => signInWithLinkedIn(),
     },
   ]
@@ -104,7 +104,7 @@ export function SignInForm() {
                   disabled={isLoading || !!p.disabled}
                 >
                   <Icon variant={p.key as never} size={16} />
-                  <span>{t(p.labelKey as never)}</span>
+                  <span>{t('signin.social.button')}{p.name}{t('signin.social.suffix', '')}</span>
                 </Button>
               ))
             ))}

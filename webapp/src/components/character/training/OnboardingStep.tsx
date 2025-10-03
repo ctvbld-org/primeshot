@@ -37,12 +37,12 @@ export function OnboardingStep({ step, guidelineIndex, guidelines, onNext, onBac
   const [fadeKey, setFadeKey] = React.useState(0)
 
   const floatingImageUrls = React.useMemo(() => ([
-    'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/onboard-character-1-w320.webp',
-    'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/onboard-character-2-w320.webp',
-    'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/onboard-character-3-w320.webp',
-    'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/onboard-character-4-w320.webp',
-    'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/onboard-character-5-w320.webp',
-    'https://d3el9qajjnmn76.cloudfront.net/app-images/character_onboarding/onboard-character-6-w320.webp'
+    'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/onboard-character-1-w320.webp',
+    'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/onboard-character-2-w320.webp',
+    'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/onboard-character-3-w320.webp',
+    'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/onboard-character-4-w320.webp',
+    'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/onboard-character-5-w320.webp',
+    'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/onboard-character-6-w320.webp'
   ]), [])
 
   React.useEffect(() => {
@@ -72,8 +72,6 @@ export function OnboardingStep({ step, guidelineIndex, guidelines, onNext, onBac
     // Only remount/fade when switching step kind; keep guideline sub-steps mounted
     setFadeKey(k => k + 1)
   }, [step])
-
-  const isGuidelineLast = guidelineIndex === guidelines.length - 1
 
   return (
     <div className={layoutStyles.stepCentered}>
@@ -143,7 +141,7 @@ export function OnboardingStep({ step, guidelineIndex, guidelines, onNext, onBac
                   </div>
                   <div className={styles.compareItem}>
                     <div className={styles.imageBox}>
-                      <img src={guidelines[guidelineIndex].images[1].src} alt={guidelines[guidelineIndex].images[1].alt} className={styles.imgCoverGray} />
+                      <img src={guidelines[guidelineIndex].images[1].src} alt={guidelines[guidelineIndex].images[1].alt} className={styles.imgCover} />
                     </div>
                     <div className={styles.badLabel}><Icon variant="cross" size={20} /></div>
                   </div>

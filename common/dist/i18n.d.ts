@@ -94,24 +94,13 @@ export declare const resources: {
                 divider: {
                     text: string;
                 };
-                google: {
-                    button: string;
-                };
-                apple: {
-                    button: string;
-                };
-                linkedin: {
-                    button: string;
-                };
-                microsoft: {
-                    button: string;
-                };
                 emailInput: {
                     placeholder: string;
                     sendButton: string;
                     sendingButton: string;
                 };
                 social: {
+                    button: string;
                     cancelled: {
                         title: string;
                         description: string;
@@ -1152,24 +1141,13 @@ export declare const resources: {
                 divider: {
                     text: string;
                 };
-                google: {
-                    button: string;
-                };
-                apple: {
-                    button: string;
-                };
-                linkedin: {
-                    button: string;
-                };
-                microsoft: {
-                    button: string;
-                };
                 emailInput: {
                     placeholder: string;
                     sendButton: string;
                     sendingButton: string;
                 };
                 social: {
+                    button: string;
                     cancelled: {
                         title: string;
                         description: string;
@@ -2204,24 +2182,13 @@ export declare const resources: {
                 divider: {
                     text: string;
                 };
-                google: {
-                    button: string;
-                };
-                apple: {
-                    button: string;
-                };
-                linkedin: {
-                    button: string;
-                };
-                microsoft: {
-                    button: string;
-                };
                 emailInput: {
                     placeholder: string;
                     sendButton: string;
                     sendingButton: string;
                 };
                 social: {
+                    button: string;
                     cancelled: {
                         title: string;
                         description: string;
@@ -3243,24 +3210,13 @@ export declare const resources: {
                 divider: {
                     text: string;
                 };
-                google: {
-                    button: string;
-                };
-                apple: {
-                    button: string;
-                };
-                linkedin: {
-                    button: string;
-                };
-                microsoft: {
-                    button: string;
-                };
                 emailInput: {
                     placeholder: string;
                     sendButton: string;
                     sendingButton: string;
                 };
                 social: {
+                    button: string;
                     cancelled: {
                         title: string;
                         description: string;
@@ -4282,24 +4238,13 @@ export declare const resources: {
                 divider: {
                     text: string;
                 };
-                google: {
-                    button: string;
-                };
-                apple: {
-                    button: string;
-                };
-                linkedin: {
-                    button: string;
-                };
-                microsoft: {
-                    button: string;
-                };
                 emailInput: {
                     placeholder: string;
                     sendButton: string;
                     sendingButton: string;
                 };
                 social: {
+                    button: string;
                     cancelled: {
                         title: string;
                         description: string;
@@ -5321,24 +5266,13 @@ export declare const resources: {
                 divider: {
                     text: string;
                 };
-                google: {
-                    button: string;
-                };
-                apple: {
-                    button: string;
-                };
-                linkedin: {
-                    button: string;
-                };
-                microsoft: {
-                    button: string;
-                };
                 emailInput: {
                     placeholder: string;
                     sendButton: string;
                     sendingButton: string;
                 };
                 social: {
+                    button: string;
                     cancelled: {
                         title: string;
                         description: string;
@@ -6360,24 +6294,13 @@ export declare const resources: {
                 divider: {
                     text: string;
                 };
-                google: {
-                    button: string;
-                };
-                apple: {
-                    button: string;
-                };
-                linkedin: {
-                    button: string;
-                };
-                microsoft: {
-                    button: string;
-                };
                 emailInput: {
                     placeholder: string;
                     sendButton: string;
                     sendingButton: string;
                 };
                 social: {
+                    button: string;
                     cancelled: {
                         title: string;
                         description: string;
@@ -7399,24 +7322,14 @@ export declare const resources: {
                 divider: {
                     text: string;
                 };
-                google: {
-                    button: string;
-                };
-                apple: {
-                    button: string;
-                };
-                linkedin: {
-                    button: string;
-                };
-                microsoft: {
-                    button: string;
-                };
                 emailInput: {
                     placeholder: string;
                     sendButton: string;
                     sendingButton: string;
                 };
                 social: {
+                    button: string;
+                    suffix: string;
                     cancelled: {
                         title: string;
                         description: string;
@@ -8437,24 +8350,14 @@ export declare const resources: {
                 divider: {
                     text: string;
                 };
-                google: {
-                    button: string;
-                };
-                apple: {
-                    button: string;
-                };
-                linkedin: {
-                    button: string;
-                };
-                microsoft: {
-                    button: string;
-                };
                 emailInput: {
                     placeholder: string;
                     sendButton: string;
                     sendingButton: string;
                 };
                 social: {
+                    button: string;
+                    suffix: string;
                     cancelled: {
                         title: string;
                         description: string;

@@ -64,7 +64,8 @@ interface IconProps extends React.SVGProps<SVGSVGElement> {
     | 'subscription'
     | 'help'
     | 'email'
-    | 'x';
+    | 'x'
+    | 'facebook';
 }
 
 export function Icon({ size = 28, className, variant, ...props }: IconProps) {
@@ -129,6 +130,7 @@ export function Icon({ size = 28, className, variant, ...props }: IconProps) {
     google: "0 0 17 16",
     email: "0 0 16 16",
     x: "0 0 16 16",
+    facebook: "0 0 16 16", 
   } as const;
 
   const icons = {
@@ -444,8 +446,13 @@ export function Icon({ size = 28, className, variant, ...props }: IconProps) {
     ),
     x: (
       <path d="M9.23677 6.925L14.0763 1H12.9295L8.72732 6.14459L5.37105 1H1.5L6.57533 8.77954L1.5 14.9928H2.64688L7.08449 9.55994L10.6289 14.9928H14.5L9.23648 6.925H9.23677ZM7.66595 8.84808L7.15172 8.07341L3.06012 1.90931H4.82166L8.12363 6.88394L8.63787 7.6586L12.93 14.1249H11.1685L7.66595 8.84837V8.84808Z" fill="currentColor"/>
+    ),
+    facebook: (
+      <>
+        <circle cx="8" cy="8" r="7" fill="url(#paint0_linear_4218_17570)"/>
+        <path d="M10.6069 10.1408L10.9178 8.16505H8.97261V6.8835C8.97261 6.34285 9.24383 5.81553 10.1151 5.81553H11V4.1335C11 4.1335 10.1973 4 9.43013 4C7.82742 4 6.78083 4.94647 6.78083 6.65922V8.16505H5V10.1408H6.78083V14.9172C7.13835 14.972 7.50412 15 7.87672 15C8.24932 15 8.61509 14.972 8.97261 14.9172V10.1408H10.6069Z" fill="white"/>
+      </>
     )
-
   } as Record<string, React.ReactNode>;
 
   const computedClassName = [className, variant, 'size-[var(--icon-size)]']

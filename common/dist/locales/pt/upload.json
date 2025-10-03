@@ -1,28 +1,28 @@
 {
-    "title": "Carregar fotos",
-    "description": "Carregue as suas fotos para começar",
-    "requirements": {
-        "title": "Requisitos das fotos",
-        "description": "Por favor, certifique-se de que as suas fotos cumprem estes requisitos"
-    },
-    "buttons": {
-        "upload": "Carregar",
-        "continue": "Continuar",
-        "retry": "Tentar novamente"
-    },
-    "errors": {
-        "invalidFile": "Tipo de ficheiro inválido",
-        "fileTooLarge": "Ficheiro demasiado grande",
-        "uploadFailed": "Carregamento falhado",
-        "invalidFileType": "Tipo não suportado ({{types}})",
-        "fileSizeExceeded": "Ficheiro demasiado grande (máx. {{size}})",
-        "duplicateFile": "Ficheiro duplicado",
-        "uploadFailedCount_one": "1 ficheiro não pôde ser adicionado",
-        "uploadFailedCount_other": "{{count}} ficheiros não puderam ser adicionados"
-    },
-    "progress": {
-        "uploading": "A carregar...",
-        "processing": "A processar...",
-        "complete": "Concluído"
-    }
+  "title": "Carregar fotos",
+  "description": "Carregue as suas fotos para começar",
+  "requirements": {
+    "title": "Requisitos das fotos",
+    "description": "Por favor, certifique-se de que as suas fotos cumprem estes requisitos"
+  },
+  "buttons": {
+    "upload": "Carregar",
+    "continue": "Continuar",
+    "retry": "Tentar novamente"
+  },
+  "errors": {
+    "invalidFile": "Tipo de ficheiro inválido",
+    "fileTooLarge": "Ficheiro demasiado grande",
+    "uploadFailed": "Carregamento falhado",
+    "invalidFileType": "Tipo não suportado ({{types}})",
+    "fileSizeExceeded": "Ficheiro demasiado grande (máx. {{size}})",
+    "duplicateFile": "Ficheiro duplicado",
+    "uploadFailedCount_one": "1 ficheiro não pôde ser adicionado",
+    "uploadFailedCount_other": "{{count}} ficheiros não puderam ser adicionados"
+  },
+  "progress": {
+    "uploading": "A carregar...",
+    "processing": "A processar...",
+    "complete": "Concluído"
+  }
 }

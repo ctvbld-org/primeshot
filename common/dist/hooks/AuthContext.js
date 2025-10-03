@@ -137,14 +137,13 @@ export const AuthProvider = ({ children }) => {
             setState(prev => ({ ...prev, isLoading: false }));
         }
     };
-    const signInWithAzure = async () => {
+    const signInWithTwitter = async () => {
         try {
             setState(prev => ({ ...prev, isLoading: true, error: null }));
             const { error } = await supabase.auth.signInWithOAuth({
-                provider: 'azure',
+                provider: 'twitter',
                 options: {
                     redirectTo: getCallbackUrl(),
-                    scopes: 'email'
                 }
             });
             if (error)
@@ -202,7 +201,7 @@ export const AuthProvider = ({ children }) => {
         signIn,
         signInWithGoogle,
         signInWithLinkedIn,
-        signInWithAzure,
+        signInWithTwitter,
         signOut,
         clearError,
         refreshUser
