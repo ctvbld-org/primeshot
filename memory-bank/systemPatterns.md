@@ -2125,6 +2125,13 @@ Detected changes in:
 - webapp/src/lib/security-middleware.ts
 - webapp/src/lib/security-monitoring.ts
 - webapp/src/lib/utils/cloudfrontLoader.ts
+
+
+**Auto-update 2025-10-03**:
+Detected changes in:
+- webapp/src/app/auth/callback/route.ts
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/OnboardingStep.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

@@ -1,29 +1,29 @@
 {
-  "hero": {
-    "headline": "retratos que abren puertas",
-    "tagline": "Los retratos con <ai>IA</ai> más avanzados. <period>Punto.</period>",
-    "subtitle": "Haz que tu primera impresión cuente. Transforma tus selfies cotidianos en retratos destacados, personalizados y listos en minutos."
-  },
-  "story": {
-    "paragraph1": "Hemos olvidado el arte de mostrarnos en nuestro mejor momento. Nos hacemos un selfie, ajustamos el ángulo, y esperamos que sea suficiente para dejar huella. En un mundo que se desplaza rápido y juzga aún más rápido, necesitas una foto que hable—clara, confiada y con propósito.",
-    "paragraph2": "Primeshot transforma tus fotos cotidianas en retratos premium, rebosantes de estilo y personalidad. Sin poses rígidas. Sin sesiones fotográficas incómodas. Solo retratos auténticos que llaman la atención, entregados en minutos.",
-    "callToAction": "Brilla como eres—con ambición audaz."
-  },
-  "aria": {
-    "photoMetadata": "Visualización de metadatos de foto"
-  },
-  "waitlist": {
-    "placeholder": "Ingresa tu email para acceso anticipado",
-    "ariaLabel": "Dirección de email para lista de espera",
-    "submitLabel": "Enviar email",
-    "submittingLabel": "Enviando...",
-    "validation": {
-      "invalidEmail": "Por favor ingresa una dirección de email válida"
+    "hero": {
+        "headline": "retratos que abren puertas",
+        "tagline": "Los retratos con <ai>IA</ai> más avanzados. <period>Punto.</period>",
+        "subtitle": "Haz que tu primera impresión cuente. Transforma tus selfies cotidianos en retratos destacados, personalizados y listos en minutos."
     },
-    "messages": {
-      "alreadyOnWaitlist": "¡Ya estás en la lista de espera!",
-      "success": "¡Te has unido exitosamente a la lista de espera!",
-      "defaultError": "Algo salió mal"
+    "story": {
+        "paragraph1": "Hemos olvidado el arte de mostrarnos en nuestro mejor momento. Nos hacemos un selfie, ajustamos el ángulo, y esperamos que sea suficiente para dejar huella. En un mundo que se desplaza rápido y juzga aún más rápido, necesitas una foto que hable—clara, confiada y con propósito.",
+        "paragraph2": "Primeshot transforma tus fotos cotidianas en retratos premium, rebosantes de estilo y personalidad. Sin poses rígidas. Sin sesiones fotográficas incómodas. Solo retratos auténticos que llaman la atención, entregados en minutos.",
+        "callToAction": "Brilla como eres—con ambición audaz."
+    },
+    "aria": {
+        "photoMetadata": "Visualización de metadatos de foto"
+    },
+    "waitlist": {
+        "placeholder": "Ingresa tu email para acceso anticipado",
+        "ariaLabel": "Dirección de email para lista de espera",
+        "submitLabel": "Enviar email",
+        "submittingLabel": "Enviando...",
+        "validation": {
+            "invalidEmail": "Por favor ingresa una dirección de email válida"
+        },
+        "messages": {
+            "alreadyOnWaitlist": "¡Ya estás en la lista de espera!",
+            "success": "¡Te has unido exitosamente a la lista de espera!",
+            "defaultError": "Algo salió mal"
+        }
     }
-  }
 }
