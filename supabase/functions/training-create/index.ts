@@ -392,19 +392,30 @@ serve(async (req) => {
     }
 
     // Determine if user is admin (server-side authority)
+    console.log('🔍 Checking admin status for user_id:', user_id);
+    
     let isAdmin = false
     try {
-      const { data: usr } = await supabase
+      const { data: usr, error: adminError } = await supabase
         .from('users')
         .select('admin')
         .eq('id', user_id)
         .single()
+      
+      console.log('👤 Admin query result - data:', usr, '| error:', adminError);
+      
+      if (adminError) {
+        console.error('❌ Admin check error:', adminError.message, '| code:', adminError.code);
+      }
+      
       isAdmin = Boolean(usr?.admin)
+      console.log('👤 usr?.admin value:', usr?.admin, '| Boolean result:', isAdmin);
     } catch (_e) {
+      console.error('❌ Admin check exception:', _e);
       isAdmin = false
     }
 
-    console.log('👤 Admin check result - isAdmin:', isAdmin, '| has training_params:', !!training_params);
+    console.log('👤 FINAL Admin check result - isAdmin:', isAdmin, '| has training_params:', !!training_params);
 
     // Sanitize optional admin-only params
     const approvedParams: Record<string, number | string | number[]> = {}
