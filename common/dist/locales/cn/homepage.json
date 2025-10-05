@@ -1,29 +1,29 @@
 {
-  "hero": {
-    "headline": "开启机遇之门的肖像",
-    "tagline": "最先进的<ai>AI</ai>肖像。<period>就是这样。</period>",
-    "subtitle": "让您的第一印象发挥作用。将日常自拍转换为出色的肖像，个性化定制，几分钟即可完成。"
-  },
-  "story": {
-    "paragraph1": "我们已经忘记了如何展现最好的自己。我们拍个自拍，调整角度，希望这足以留下印象。在这个快速滚动、判断更快的世界里，您需要一张会说话的照片——清晰、自信、有目的。",
-    "paragraph2": "Primeshot将您的日常照片转换为充满风格和个性的高端肖像。没有僵硬的姿势。没有尴尬的拍摄。只有真实、引人注目的肖像，几分钟内交付。",
-    "callToAction": "做真实的自己——怀着大胆的雄心。"
-  },
-  "aria": {
-    "photoMetadata": "照片元数据可视化"
-  },
-  "waitlist": {
-    "placeholder": "输入邮箱获得抢先体验",
-    "ariaLabel": "等待列表邮箱地址",
-    "submitLabel": "提交邮箱",
-    "submittingLabel": "提交中...",
-    "validation": {
-      "invalidEmail": "请输入有效的邮箱地址"
+    "hero": {
+        "headline": "开启机遇之门的肖像",
+        "tagline": "最先进的<ai>AI</ai>肖像。<period>就是这样。</period>",
+        "subtitle": "让您的第一印象发挥作用。将日常自拍转换为出色的肖像，个性化定制，几分钟即可完成。"
     },
-    "messages": {
-      "alreadyOnWaitlist": "您已在等待列表中！",
-      "success": "成功加入等待列表！",
-      "defaultError": "出现了问题"
+    "story": {
+        "paragraph1": "我们已经忘记了如何展现最好的自己。我们拍个自拍，调整角度，希望这足以留下印象。在这个快速滚动、判断更快的世界里，您需要一张会说话的照片——清晰、自信、有目的。",
+        "paragraph2": "Primeshot将您的日常照片转换为充满风格和个性的高端肖像。没有僵硬的姿势。没有尴尬的拍摄。只有真实、引人注目的肖像，几分钟内交付。",
+        "callToAction": "做真实的自己——怀着大胆的雄心。"
+    },
+    "aria": {
+        "photoMetadata": "照片元数据可视化"
+    },
+    "waitlist": {
+        "placeholder": "输入邮箱获得抢先体验",
+        "ariaLabel": "等待列表邮箱地址",
+        "submitLabel": "提交邮箱",
+        "submittingLabel": "提交中...",
+        "validation": {
+            "invalidEmail": "请输入有效的邮箱地址"
+        },
+        "messages": {
+            "alreadyOnWaitlist": "您已在等待列表中！",
+            "success": "成功加入等待列表！",
+            "defaultError": "出现了问题"
+        }
     }
-  }
 }

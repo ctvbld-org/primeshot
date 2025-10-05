@@ -30,6 +30,7 @@ export function buildSubjectCompact(meta: any): string {
   const age = (meta?.age || '').toString().trim()
   const base = gender || 'subject'
   const bodyType = (meta?.body_type || '').toString().trim()
+  const skinTone = (meta?.skin_tone || '').toString().trim()
   //const hairLength = (meta?.hair?.length || '').toString().trim()
   const eyesColor = (meta?.eyes?.color || '').toString().trim()
 
@@ -49,6 +50,7 @@ export function buildSubjectCompact(meta: any): string {
   }
 
   if (bodyType) phrase = `${phrase}, ${bodyType}`
+  if (skinTone) phrase = `${phrase}, ${skinTone}`
 
   //if (hairLength) phrase = `${phrase}, ${hairLength} hair`
 
@@ -62,6 +64,69 @@ export function buildGlassesPrompt(meta: any): string {
   const stylesText = joinWithOr(styles)
   if (!stylesText) return 'Subject has glasses.'
   return `Subject has ${stylesText} glasses.`
+}
+
+/**
+ * Builds head covering description to be appended to wardrobe text.
+ * Returns text like "and with a pink hijab" or "and with an orange patterned turban"
+ * that can be naturally added to wardrobe descriptions.
+ */
+export function buildHeadCoveringForWardrobe(meta: any): string {
+  const present = (meta?.head_covering?.present === true) || (String(meta?.head_covering?.present || '').toLowerCase() === 'true')
+  if (!present) return ''
+  
+  const styles = Array.isArray(meta?.head_covering?.style) ? meta.head_covering.style as string[] : []
+  const colors = Array.isArray(meta?.head_covering?.color) ? meta.head_covering.color as string[] : []
+  const pattern = (meta?.head_covering?.pattern || '').toString().trim()
+  
+  const stylesText = joinWithOr(styles)
+  
+  // Deduplicate colors, count frequency, sort by frequency, limit to 3
+  let processedColors: string[] = []
+  if (colors.length > 0) {
+    const colorCounts = new Map<string, number>()
+    colors.forEach(color => {
+      const normalized = color.toLowerCase().trim()
+      if (normalized) {
+        colorCounts.set(normalized, (colorCounts.get(normalized) || 0) + 1)
+      }
+    })
+    
+    // Sort by frequency (descending), then alphabetically
+    processedColors = Array.from(colorCounts.entries())
+      .sort((a, b) => {
+        if (b[1] !== a[1]) return b[1] - a[1] // Sort by count descending
+        return a[0].localeCompare(b[0]) // Then alphabetically
+      })
+      .slice(0, 3) // Max 3 colors
+      .map(([color]) => color)
+  }
+  
+  const colorsText = joinWithOr(processedColors)
+  
+  let description = ''
+  
+  // Build color + pattern part
+  if (colorsText && pattern && pattern !== 'none') {
+    description = `${colorsText} ${pattern}`
+  } else if (colorsText) {
+    description = colorsText
+  } else if (pattern && pattern !== 'none') {
+    description = pattern
+  }
+  
+  // Add style type
+  if (stylesText) {
+    description = description ? `${description} ${stylesText}` : stylesText
+  } else {
+    description = description ? `${description} head covering` : 'head covering'
+  }
+  
+  // Return with proper article (a/an)
+  const needsAn = /^[aeiou]/i.test(description)
+  const article = needsAn ? 'an' : 'a'
+  
+  return `and with ${article} ${description}`
 }
 
 export function buildFinalPrompt(parts: { style?: string; subject?: string; glasses?: string; wardrobe?: string; scene?: string }): string {
@@ -80,6 +145,7 @@ export function buildFinalPrompt(parts: { style?: string; subject?: string; glas
  * - subject: compact phrase like "woman, blond hair with blue eyes"
  * - scene: uses provided scene prompt
  * - wardrobe: uses provided wardrobe prompt (with color already applied by caller)
+ *   Note: Head covering is automatically appended to wardrobe if present in metadata
  * - atmosphere: uses provided atmosphere description from scene
  * Applies light cleanup to avoid artifacts when optional values are missing (e.g., "with ,").
  */
@@ -92,8 +158,20 @@ export function fillStylePrompt(
     const subjectText = buildSubjectCompact(meta)
 
     const sceneText = String(args?.scene ?? '')
-    const wardrobeText = String(args?.wardrobe ?? '')
+    let wardrobeText = String(args?.wardrobe ?? '')
     const atmosphereText = String(args?.atmosphere ?? '')
+
+    // Append head covering to wardrobe if present
+    // Format: "Wearing [wardrobe], and with a pink hijab"
+    const headCoveringText = buildHeadCoveringForWardrobe(meta)
+    if (headCoveringText) {
+      if (wardrobeText) {
+        wardrobeText = `${wardrobeText}, ${headCoveringText}`
+      } else {
+        // If no wardrobe but head covering exists, strip "and with" prefix
+        wardrobeText = headCoveringText.replace(/^and with /, 'with ')
+      }
+    }
 
     let result = String(template || '')
 

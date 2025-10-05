@@ -402,7 +402,6 @@ serve(async (req) => {
     }
 
     // Sanitize optional admin-only params
-    console.log('🔧 training_params (raw):', training_params)
     const approvedParams: Record<string, number | string | number[]> = {}
     if (isAdmin && training_params) {
       const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v))
@@ -769,8 +768,9 @@ serve(async (req) => {
       ...approvedParams
     };
     console.log('📤 Submitting Modal payload keys:', Object.keys(modalPayload));
+    console.log('📤 Submitting Modal payload (full):', modalPayload);
 
-    console.log('🚀 Starting real Modal training job:', modalPayload);
+    console.log('🚀 Starting real Modal training job');
 
     let controller: AbortController | null = null;
     let timeout: ReturnType<typeof setTimeout> | undefined;

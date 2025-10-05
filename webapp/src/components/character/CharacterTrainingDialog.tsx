@@ -496,11 +496,12 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
       }
 
       // Start training with retry mechanism
+      const finalTrainingParams = overrideParams ?? stepData.adminTrainingParams
       const trainingResponse = await startTraining({
         character_id: character.id,
         user_id: user!.id,
         // Include admin params only if defined
-        training_params: overrideParams ?? stepData.adminTrainingParams
+        training_params: finalTrainingParams
       }, (attempt, maxRetries, error) => {
         setRetryState({ attempt, maxRetries, error })
       })

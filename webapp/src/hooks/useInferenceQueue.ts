@@ -312,8 +312,6 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
     };
 
     setJobs(prev => [newJob, ...prev]);
-    
-    console.log(`📋 Created queued thumbnails with placeholder ${placeholderId} (${nbTakes} takes)`);
     return placeholderId;
   }, []);
 

@@ -2139,6 +2139,16 @@ Detected changes in:
 - webapp/src/app/auth/callback/route.ts
 - webapp/src/app/auth/verify/page.tsx
 - webapp/src/components/generate/GenerateBar.tsx
+
+
+**Auto-update 2025-10-04**:
+Detected changes in:
+- webapp/src/app/api/payment/subscription-checkout/route.ts
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.module.css
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/providers/PurchaseSuccessHandler.tsx
+- webapp/src/components/purchase/PurchaseSuccessDialog.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

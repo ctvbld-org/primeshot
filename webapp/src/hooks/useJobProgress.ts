@@ -88,8 +88,6 @@ export function useJobProgress({
   useEffect(() => {
     if (!jobId || !jobType) return;
 
-    console.log(`🔌 useJobProgress: Subscribing to ${jobType} job ${jobId}`);
-
     const subscriptionId = webSocketManager.subscribe(jobId, jobType, {
       onProgress: (data: JobProgressData) => {
         // Only accept packets with newer timestamps to prevent old data
@@ -102,7 +100,6 @@ export function useJobProgress({
         setProgress(data);
       },
       onComplete: (success: boolean, error?: string) => {
-        console.log(`✅ useJobProgress: Job ${jobId} completed (success: ${success})`);
         onCompleteRef.current?.(success, error);
       },
       onError: (error: string) => {
@@ -122,7 +119,6 @@ export function useJobProgress({
 
     return () => {
       if (subscriptionIdRef.current) {
-        console.log(`🔌 useJobProgress: Unsubscribing from ${jobType} job ${jobId}`);
         webSocketManager.unsubscribe(subscriptionIdRef.current);
         subscriptionIdRef.current = null;
       }
