@@ -1,201 +1,214 @@
 {
-    "nameLabel": "角色名称",
-    "creditsRequired": "训练将使用{{credits}}个积分",
-    "training": "角色训练中",
-    "trainingInitializing": "您的角色正在收拾行李",
-    "trainingInitializingInfo": "您的角色正在被送往训练站。",
-    "trainingQueued": "您的角色正在排队",
-    "trainingQueuedInfo": "等待其他角色腾出空间。",
-    "trainingWarmingUp": "您的角色正在热身",
-    "trainingWarmingUpInfo": "等待绿灯开始训练。",
-    "trainingPending": "您的角色正在等待机器",
-    "trainingPendingInfo": "高峰时段机器繁忙，一旦有空闲机器就会开始。队列中第{{position}}位。",
-    "trainingRunning": "训练大约在",
-    "trainingRunningNoCountdown": "您的角色正在训练，几分钟后就会完成。",
-    "trainingRunningInfo": "您可以返回应用程序安排更多拍摄。",
-    "returnToApp": "返回应用",
-    "trainingError": "错误：",
-    "trainingFailed": "训练您的角色时出现问题",
-    "trainingFailedDescription": "要么太困难，要么您的角色对模型来说太美了。请重试或联系支持，如果问题持续存在。",
-    "confirmClose": {
-        "title": "关闭角色创建？",
-        "description": "您确定要关闭吗？您的所有进度都将丢失，您需要重新开始。",
-        "progressMessages": {
-            "upload": "您上传的照片将丢失。",
-            "profile": "您的个人资料信息将丢失。",
-            "name": "您的角色名称将丢失。"
-        },
-        "buttons": {
-            "cancel": "取消",
-            "confirm": "仍然关闭"
-        }
+  "nameLabel": "角色名称",
+  "creditsRequired": "训练将使用{{credits}}个积分",
+  "training": "角色训练中",
+  "trainingInitializing": "您的角色正在收拾行李",
+  "trainingInitializingInfo": "您的角色正在被送往训练站。",
+  "trainingQueued": "您的角色正在排队",
+  "trainingQueuedInfo": "等待其他角色腾出空间。",
+  "trainingWarmingUp": "您的角色正在热身",
+  "trainingWarmingUpInfo": "等待绿灯开始训练。",
+  "trainingPending": "您的角色正在等待机器",
+  "trainingPendingInfo": "高峰时段机器繁忙，一旦有空闲机器就会开始。队列中第{{position}}位。",
+  "trainingRunning": "训练大约在",
+  "trainingRunningNoCountdown": "您的角色正在训练，几分钟后就会完成。",
+  "trainingRunningInfo": "您可以返回应用程序安排更多拍摄。",
+  "returnToApp": "返回应用",
+  "trainingError": "错误：",
+  "trainingFailed": "训练您的角色时出现问题",
+  "trainingFailedDescription": "要么太困难，要么您的角色对模型来说太美了。请重试或联系支持，如果问题持续存在。",
+
+  "confirmClose": {
+    "title": "关闭角色创建？",
+    "description": "您确定要关闭吗？您的所有进度都将丢失，您需要重新开始。",
+    "progressMessages": {
+      "upload": "您上传的照片将丢失。",
+      "profile": "您的个人资料信息将丢失。",
+      "name": "您的角色名称将丢失。"
     },
-    "errors": {
-        "trainingRetryFailed": "训练在{{attempts}}次尝试后失败。请稍后重试。",
-        "retryError": "错误：{{message}}"
-    },
-    "upload": {
-        "uploadingFiles": "正在上传您的最佳造型 {{current}} / {{total}}",
-        "uploadingInfo": "请保持此页面打开，直到上传完成。"
-    },
-    "dialogTitles": {
-        "onboardingIntro": "角色创建指南",
-        "onboardingGuidelines": "摄影技巧",
-        "onboardingConfirmation": "准备上传",
-        "upload": "上传照片",
-        "name": "为您的角色命名",
-        "uploading": "正在上传照片",
-        "training": "正在训练模型"
-    },
-    "dialogDescription": {
-        "upload": "上传照片创建您的角色",
-        "name": "为您的角色命名",
-        "training": "角色训练进行中",
-        "default": "角色创建对话框"
-    },
-    "beforeUnloadWarning": "您的角色正在处理中。您确定要离开吗？这将取消上传。",
-    "onboarding": {
-        "intro": {
-            "title": "认识您的角色",
-            "description1": "上传您最好的照片，包含不同的<span style='color: #FF81F5;'>表情</span>、<span style='color: #70FFA7;'>角度</span>和<span style='color: #FFCF55;'>姿势</span>，来塑造您独特的AI分身！",
-            "description2": "就像真正的摄影一样，一些准备工作能带来真实、专业的效果。",
-            "privacy": "您的上传是私密和安全的。",
-            "buttonGetStarted": "开始",
-            "buttonSkip": "跳过"
-        },
-        "confirmation": {
-            "title": "就像真正的摄影一样，<span style='color: #2ADED8;'>一些准备工作</span>会带来不同。",
-            "paragraph1": "Primeshot从您的日常照片创建高质量肖像。清晰、光线良好且多样化的照片使您生成的拍摄更自然、更令人印象深刻。低质量或模糊的照片可能会限制效果。",
-            "paragraph2": "如果效果不如预期，请尝试在新角色中使用新的照片集。",
-            "buttonStart": "我明白了。让我们开始吧！"
-        },
-        "guidelines": {
-            "naturalLight": {
-                "title": "自然光",
-                "description": "使用在窗边或户外光线良好的照片！避免黑暗或模糊以获得清晰效果。",
-                "goodAlt": "良好自然光示例",
-                "badAlt": "不良光线示例"
-            },
-            "angles": {
-                "title": "角度",
-                "description": "变换角度！选择肩部特写、正面和侧面，添加一些腰部特写。",
-                "goodAlt": "良好角度示例",
-                "badAlt": "不良角度示例"
-            },
-            "expressions": {
-                "title": "表情",
-                "description": "用不同的笑容和姿势表达您的个性。避免相同的面部表情以获得动态拍摄。",
-                "goodAlt": "良好表情示例",
-                "badAlt": "不良表情示例"
-            },
-            "variety": {
-                "title": "多样性",
-                "description": "选择服装和背景混合的拍摄。避免重度滤镜。",
-                "goodAlt": "良好多样性示例",
-                "badAlt": "不良多样性示例"
-            }
-        },
-        "buttons": {
-            "next": "下一步"
-        },
-        "floatingAlt": "浮动示例{{id}}"
-    },
-    "uploadStep": {
-        "petMode": "宠物模式",
-        "bodyShotRequirementsNotMet": "全身拍摄要求未满足"
-    },
-    "nameStep": {
-        "noPreview": "无预览",
-        "create": "创建",
-        "altPreview": "面部模型预览"
-    },
-    "countdown": {
-        "fallback": "计算中..."
-    },
-    "requirements": {
-        "header": {
-            "title": "创建角色",
-            "description": "上传{{minImages}}张高质量的自拍照片来训练一个可重复使用的角色，在每次拍摄中捕捉您的真实相貌。",
-            "secureNote": "您的上传内容是私密和安全的。"
-        },
-        "sections": {
-            "uploadTips": "上传提示",
-            "dosDonts": "注意事项"
-        },
-        "tips": {
-            "naturalLight": "使用自然光，站在窗边或到户外！",
-            "photos": "包含特写和半身照片。",
-            "expression": "保持中性或自然友好的表情。",
-            "avoid": "避免滤镜、帽子、浓妆或AI生成的图像。",
-            "clothing": "穿着纯色或柔和图案的简单服装。",
-            "quantity": "上传{{minImages}}张或更多不同角度和光线的照片。"
-        },
-        "dodonts": {
-            "eyes": "看向镜头，确保眼睛清晰可见。",
-            "lighting": "使用明亮的自然光。避免昏暗或模糊的照片。",
-            "frame": "确保画面中只有您一个人，没有杂物或其他人。",
-            "face": "构图时确保脸部不会太小或被裁切。"
-        },
-        "altText": {
-            "goodExample": "好的示例",
-            "badExample": "不好的示例"
-        }
-    },
-    "quality": {
-        "issues": {
-            "image": {
-                "lowResolution": "图像分辨率过低。最小尺寸：{{minWidth}}x{{minHeight}}像素。",
-                "suboptimalResolution": "图像分辨率为{{currentWidth}}x{{currentHeight}}像素。为获得最佳效果，请使用至少{{idealWidth}}x{{idealHeight}}像素。",
-                "suboptimalResolutionLow": "图像分辨率为{{currentWidth}}x{{currentHeight}}像素（低于800像素）。建议使用至少800x800像素以获得更好的质量。",
-                "tooDark": "图像太暗。",
-                "tooBright": "图像太亮。"
-            },
-            "face": {
-                "none": "未检测到面部。",
-                "multiple": "检测到多个面部。",
-                "positionNotOptimal": "面部位置不理想。",
-                "detectSkipped": "跳过了面部检测。"
-            },
-            "contrast": {
-                "separation": {
-                    "nearlyIdentical": "主体和背景色调几乎相同 - 请使用强对比度背景。",
-                    "tooSimilar": "主体和背景色调太相似 - 考虑使用对比度背景。",
-                    "couldBeMoreDistinct": "主体和背景可以更加分明 - 尝试不同的背景颜色。"
-                },
-                "poorOrFlat": "图像对比度差或显得太平淡。"
-            },
-            "sharpness": {
-                "tooBlurry": "图像显得模糊或缺乏足够的细节。"
-            },
-            "upload": {
-                "none": "未上传图像"
-            },
-            "body": {
-                "minRequired": "需要至少{{min}}张全身照（目前有{{current}}张）",
-                "tooMany": "全身照太多（{{currentPercent}}%）。最多允许{{maxPercent}}%"
-            },
-            "score": {
-                "tooLow": "图像质量评分太低"
-            },
-            "eyes": {
-                "maybeNotVisible": "眼睛可能不够清晰可见（检查墨镜、头发或光线不佳）"
-            },
-            "reject": {
-                "genericHint": "此照片不符合质量要求。请尝试光线充足的正面照片。"
-            }
-        }
-    },
-    "uploader": {
-        "dragDropMessage": "拖拽{{count}}张自拍到这里，或",
-        "dragDropMoreMessage_one": "再拖拽1张到这里，或",
-        "dragDropMoreMessage_other": "再拖拽{{count}}张到这里，或",
-        "browse": "浏览",
-        "supportedFormats": "支持JPG和PNG文件",
-        "dropMessage": "将照片拖拽到这里",
-        "maxImagesReached": "所有照片已添加，准备就绪！"
-    },
-    "status": {
-        "analyzing": "正在分析{{count}}张照片...",
-        "checkingQuality": "正在检查照片质量..."
+    "buttons": {
+      "cancel": "取消",
+      "confirm": "仍然关闭"
     }
+  },
+
+  "errors": {
+    "trainingRetryFailed": "训练在{{attempts}}次尝试后失败。请稍后重试。",
+    "retryError": "错误：{{message}}"
+  },
+
+  "upload": {
+    "uploadingFiles": "正在上传您的最佳造型 {{current}} / {{total}}",
+    "uploadingInfo": "请保持此页面打开，直到上传完成。"
+  },
+
+  "dialogTitles": {
+    "onboardingIntro": "角色创建指南",
+    "onboardingGuidelines": "摄影技巧",
+    "onboardingConfirmation": "准备上传",
+    "upload": "上传照片",
+    "name": "为您的角色命名",
+    "uploading": "正在上传照片",
+    "training": "正在训练模型"
+  },
+  "dialogDescription": {
+    "upload": "上传照片创建您的角色",
+    "name": "为您的角色命名",
+    "training": "角色训练进行中",
+    "default": "角色创建对话框"
+  },
+  "beforeUnloadWarning": "您的角色正在处理中。您确定要离开吗？这将取消上传。",
+
+  "onboarding": {
+    "intro": {
+      "title": "认识您的角色",
+      "description1": "上传您最好的照片，包含不同的<span style='color: #FF81F5;'>表情</span>、<span style='color: #70FFA7;'>角度</span>和<span style='color: #FFCF55;'>姿势</span>，来塑造您独特的AI分身！",
+      "description2": "就像真正的摄影一样，一些准备工作能带来真实、专业的效果。",
+      "privacy": "您的上传是私密和安全的。",
+      "buttonGetStarted": "开始",
+      "buttonSkip": "跳过"
+    },
+    "confirmation": {
+      "title": "就像真正的摄影一样，<span style='color: #2ADED8;'>一些准备工作</span>会带来不同。",
+      "paragraph1": "Primeshot从您的日常照片创建高质量肖像。清晰、光线良好且多样化的照片使您生成的拍摄更自然、更令人印象深刻。低质量或模糊的照片可能会限制效果。",
+      "paragraph2": "如果效果不如预期，请尝试在新角色中使用新的照片集。",
+      "buttonStart": "我明白了。让我们开始吧！"
+    },
+    "guidelines": {
+      "naturalLight": {
+        "title": "自然光",
+        "description": "使用在窗边或户外光线良好的照片！避免黑暗或模糊以获得清晰效果。",
+        "goodAlt": "良好自然光示例",
+        "badAlt": "不良光线示例"
+      },
+      "angles": {
+        "title": "角度",
+        "description": "变换角度！选择肩部特写、正面和侧面，添加一些腰部特写。",
+        "goodAlt": "良好角度示例",
+        "badAlt": "不良角度示例"
+      },
+      "expressions": {
+        "title": "表情",
+        "description": "用不同的笑容和姿势表达您的个性。避免相同的面部表情以获得动态拍摄。",
+        "goodAlt": "良好表情示例",
+        "badAlt": "不良表情示例"
+      },
+      "variety": {
+        "title": "多样性",
+        "description": "选择服装和背景混合的拍摄。避免重度滤镜。",
+        "goodAlt": "良好多样性示例",
+        "badAlt": "不良多样性示例"
+      }
+    },
+    "buttons": {
+      "next": "下一步"
+    },
+    "floatingAlt": "浮动示例{{id}}"
+  },
+
+  "uploadStep": {
+    "petMode": "宠物模式",
+    "bodyShotRequirementsNotMet": "全身拍摄要求未满足"
+  },
+
+  "nameStep": {
+    "noPreview": "无预览",
+    "create": "创建",
+    "altPreview": "面部模型预览"
+  },
+
+  "countdown": {
+    "fallback": "计算中..."
+  },
+
+  "requirements": {
+    "header": {
+      "title": "创建角色",
+      "description": "上传{{minImages}}张高质量的自拍照片来训练一个可重复使用的角色，在每次拍摄中捕捉您的真实相貌。",
+      "secureNote": "您的上传内容是私密和安全的。"
+    },
+    "sections": {
+      "uploadTips": "上传提示",
+      "dosDonts": "注意事项"
+    },
+    "tips": {
+      "blurredBackground": "建议使用模糊背景，让主体更加突出。",
+      "naturalLight": "使用自然光，站在窗边或到户外！",
+      "photos": "包含特写和半身照片。",
+      "expression": "保持中性或自然友好的表情。",
+      "avoid": "避免滤镜、帽子、浓妆或AI生成的图像。",
+      "clothing": "穿着纯色或柔和图案的简单服装。",
+      "quantity": "上传{{minImages}}张或更多不同角度和光线的照片。"
+    },
+    "dodonts": {
+      "eyes": "看向镜头，确保眼睛清晰可见。",
+      "lighting": "使用明亮的自然光。避免昏暗或模糊的照片。",
+      "frame": "确保画面中只有您一个人，没有杂物或其他人。",
+      "face": "构图时确保脸部不会太小或被裁切。"
+    },
+    "altText": {
+      "goodExample": "好的示例",
+      "badExample": "不好的示例"
+    }
+  },
+
+  "quality": {
+    "issues": {
+      "image": {
+        "lowResolution": "图像分辨率过低。最小尺寸：{{minWidth}}x{{minHeight}}像素。",
+        "suboptimalResolution": "图像分辨率为{{currentWidth}}x{{currentHeight}}像素。为获得最佳效果，请使用至少{{idealWidth}}x{{idealHeight}}像素。",
+        "suboptimalResolutionLow": "图像分辨率为{{currentWidth}}x{{currentHeight}}像素（低于800像素）。建议使用至少800x800像素以获得更好的质量。",
+        "tooDark": "图像太暗。",
+        "tooBright": "图像太亮。"
+      },
+      "face": {
+        "none": "未检测到面部。",
+        "multiple": "检测到多个面部。",
+        "positionNotOptimal": "面部位置不理想。",
+        "detectSkipped": "跳过了面部检测。"
+      },
+      "contrast": {
+        "separation": {
+          "nearlyIdentical": "主体和背景色调几乎相同 - 请使用强对比度背景。",
+          "tooSimilar": "主体和背景色调太相似 - 考虑使用对比度背景。",
+          "couldBeMoreDistinct": "主体和背景可以更加分明 - 尝试不同的背景颜色。"
+        },
+        "poorOrFlat": "图像对比度差或显得太平淡。"
+      },
+      "sharpness": {
+        "tooBlurry": "图像显得模糊或缺乏足够的细节。"
+      },
+      "upload": {
+        "none": "未上传图像"
+      },
+      "body": {
+        "minRequired": "需要至少{{min}}张全身照（目前有{{current}}张）",
+        "tooMany": "全身照太多（{{currentPercent}}%）。最多允许{{maxPercent}}%"
+      },
+      "score": {
+        "tooLow": "图像质量评分太低"
+      },
+      "eyes": {
+        "maybeNotVisible": "眼睛可能不够清晰可见（检查墨镜、头发或光线不佳）"
+      },
+      "reject": {
+        "genericHint": "此照片不符合质量要求。请尝试光线充足的正面照片。"
+      }
+    }
+  },
+
+  "uploader": {
+    "dragDropMessage": "拖拽{{count}}张自拍到这里，或",
+    "dragDropMoreMessage_one": "再拖拽1张到这里，或",
+    "dragDropMoreMessage_other": "再拖拽{{count}}张到这里，或",
+    "browse": "浏览",
+    "supportedFormats": "支持JPG和PNG文件",
+    "dropMessage": "将照片拖拽到这里",
+    "maxImagesReached": "所有照片已添加，准备就绪！"
+  },
+
+  "status": {
+    "analyzing": "正在分析{{count}}张照片...",
+    "checkingQuality": "正在检查照片质量..."
+  }
 }

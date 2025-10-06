@@ -1,28 +1,28 @@
 {
-    "title": "Subir fotos",
-    "description": "Sube tus fotos para empezar",
-    "requirements": {
-        "title": "Requisitos de las fotos",
-        "description": "Por favor, asegúrate de que tus fotos cumplan estos requisitos"
-    },
-    "buttons": {
-        "upload": "Subir",
-        "continue": "Continuar",
-        "retry": "Reintentar"
-    },
-    "errors": {
-        "invalidFile": "Tipo de archivo inválido",
-        "fileTooLarge": "Archivo demasiado grande",
-        "uploadFailed": "Error en la subida",
-        "invalidFileType": "Tipo no admitido ({{types}})",
-        "fileSizeExceeded": "Archivo demasiado grande (máx. {{size}})",
-        "duplicateFile": "Archivo duplicado",
-        "uploadFailedCount_one": "No se pudo añadir 1 archivo",
-        "uploadFailedCount_other": "No se pudieron añadir {{count}} archivos"
-    },
-    "progress": {
-        "uploading": "Subiendo...",
-        "processing": "Procesando...",
-        "complete": "Completo"
-    }
+  "title": "Subir fotos",
+  "description": "Sube tus fotos para empezar",
+  "requirements": {
+    "title": "Requisitos de las fotos",
+    "description": "Por favor, asegúrate de que tus fotos cumplan estos requisitos"
+  },
+  "buttons": {
+    "upload": "Subir",
+    "continue": "Continuar",
+    "retry": "Reintentar"
+  },
+  "errors": {
+    "invalidFile": "Tipo de archivo inválido",
+    "fileTooLarge": "Archivo demasiado grande",
+    "uploadFailed": "Error en la subida",
+    "invalidFileType": "Tipo no admitido ({{types}})",
+    "fileSizeExceeded": "Archivo demasiado grande (máx. {{size}})",
+    "duplicateFile": "Archivo duplicado",
+    "uploadFailedCount_one": "No se pudo añadir 1 archivo",
+    "uploadFailedCount_other": "No se pudieron añadir {{count}} archivos"
+  },
+  "progress": {
+    "uploading": "Subiendo...",
+    "processing": "Procesando...",
+    "complete": "Completo"
+  }
 }

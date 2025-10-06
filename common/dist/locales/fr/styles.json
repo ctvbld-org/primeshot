@@ -28,9 +28,9 @@
         "credits": "{{count}} crédits",
         "includedInPlan": "{{count}} inclus dans le forfait",
         "limitReached": "Limite atteinte",
-        "upgradePlanAddMore": "Améliorez le forfait pour en ajouter plus",
-        "upgradeOrBuyCredits": "Améliorez le forfait ou achetez un pack de crédits",
-        "buyCredits": "Acheter un pack de crédits"
+        "upgradePlanAddMore": "Changez de forfait pour en ajouter plus",
+        "upgradeOrBuyCredits": "Changez de forfait ou achetez des crédits",
+        "buyCredits": "Acheter des crédits"
     },
     "settings": {
         "numberOfTakes": "Nombre de prises",

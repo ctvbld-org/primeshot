@@ -19,6 +19,11 @@ export function buildPronoun(gender?: string | null): 'He' | 'She' | 'They' {
   return 'They'
 }
 
+function pickRandom<T>(items: T[]): T | undefined {
+  if (!items || items.length === 0) return undefined
+  return items[Math.floor(Math.random() * items.length)]
+}
+
 /**
  * Builds a compact subject phrase like:
  *  - "woman, early 20s, blond hair with blue eyes"
@@ -31,8 +36,8 @@ export function buildSubjectCompact(meta: any): string {
   const base = gender || 'subject'
   const bodyType = (meta?.body_type || '').toString().trim()
   const skinTone = (meta?.skin_tone || '').toString().trim()
-  //const hairLength = (meta?.hair?.length || '').toString().trim()
   const eyesColor = (meta?.eyes?.color || '').toString().trim()
+  const hair = meta?.hair.present === "false" ? false : meta?.hair
 
   let phrase = base
 
@@ -40,7 +45,7 @@ export function buildSubjectCompact(meta: any): string {
 
   if (eyesColor) {
     let eyesPhrase = `${eyesColor} eyes`
-    const glassesPresent = (meta?.glasses?.present === true) || (String(meta?.glasses?.present || '').toLowerCase() === 'true')
+    const glassesPresent = (meta?.glasses?.present === "true") || (String(meta?.glasses?.present || '').toLowerCase() === 'true')
     if (glassesPresent) {
       const styles = Array.isArray(meta?.glasses?.style) ? (meta.glasses.style as string[]) : []
       const stylesText = joinWithOr(styles)
@@ -49,22 +54,22 @@ export function buildSubjectCompact(meta: any): string {
     phrase = `${phrase}, ${eyesPhrase}`
   }
 
+  if (hair) {
+    const length = (hair.length || '').toString().trim()
+    const color = (hair.color || '').toString().trim()
+    const texture = (hair.texture || '').toString().trim()
+    const styles = Array.isArray(hair.styles) ? hair.styles as string[] : []
+    const hairstyle = joinWithOr(styles)
+
+    phrase = `${phrase}, ${length} ${texture} ${color} hair that are styled as ${hairstyle}`
+  }
+
   if (bodyType) phrase = `${phrase}, ${bodyType}`
   if (skinTone) phrase = `${phrase}, ${skinTone}`
-
-  //if (hairLength) phrase = `${phrase}, ${hairLength} hair`
 
   return phrase.replace(/\s+/g, ' ').trim()
 }
 
-export function buildGlassesPrompt(meta: any): string {
-  const present = (meta?.glasses?.present === true) || (String(meta?.glasses?.present || '').toLowerCase() === 'true')
-  if (!present) return ''
-  const styles = Array.isArray(meta?.glasses?.style) ? meta.glasses.style as string[] : []
-  const stylesText = joinWithOr(styles)
-  if (!stylesText) return 'Subject has glasses.'
-  return `Subject has ${stylesText} glasses.`
-}
 
 /**
  * Builds head covering description to be appended to wardrobe text.
@@ -129,10 +134,11 @@ export function buildHeadCoveringForWardrobe(meta: any): string {
   return `and with ${article} ${description}`
 }
 
-export function buildFinalPrompt(parts: { style?: string; subject?: string; glasses?: string; wardrobe?: string; scene?: string }): string {
+export function buildFinalPrompt(parts: { style?: string; subject?: string; hair?: string; glasses?: string; wardrobe?: string; scene?: string }): string {
   const lines: string[] = []
   if (parts.style) lines.push(parts.style)
   if (parts.subject) lines.push(parts.subject)
+  if (parts.hair) lines.push(parts.hair)
   if (parts.glasses) lines.push(parts.glasses)
   if (parts.wardrobe) lines.push(parts.wardrobe)
   if (parts.scene) lines.push(parts.scene)

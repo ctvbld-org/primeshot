@@ -14,6 +14,7 @@ import { getStyleImages } from '@/lib/utils/get-styles-images'
 // For options we will use a custom CloudFront loader that selects the nearest variant
 import { makeCloudfrontLoader } from '@/lib/utils/cloudfrontLoader'
 import { storeSelectedStyleIndex, getStoredStyleSelections, storeStyleSelections } from '@/lib/utils/style-storage'
+import { sortColorsByPalette } from '@/lib/utils/colorSort'
 import { useCurrentSubscription } from '@/hooks/useCurrentSubscription'
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus'
 import { useCreditCosts, calculateImageCredits } from '@/hooks/usePricingConfig'
@@ -933,7 +934,8 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   // Precompute available colors for current style (count used for threshold calc)
   const colorsForCurrentStyle = useMemo(() => {
     const available = (currentStyle?.available_colors || []) as string[]
-    return colors.filter(c => available.includes(c.value))
+    const filtered = colors.filter(c => available.includes(c.value))
+    return sortColorsByPalette(filtered)
   }, [colors, currentStyle?.available_colors])
 
   const updateColorsCompact = React.useCallback(() => {
@@ -1085,7 +1087,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
         }
 
         const filteredWardrobes = orderedWardrobes
-        const filteredColors = colors.filter(c => availableColors.includes(c.value))
+        const filteredColors = sortColorsByPalette(colors.filter(c => availableColors.includes(c.value)))
         const showingColors = !!selectedWardrobeValue
 
         return (

@@ -1,156 +1,156 @@
 {
-    "common": {
-        "pleaseTryAgain": "请重试",
-        "cancel": "取消"
-    },
-    "time": {
-        "justNow": "刚刚",
-        "minutesAgo": "{{count}}分钟前",
-        "hoursAgo": "{{count}}小时前",
-        "daysAgo": "{{count}}天前"
-    },
-    "gallery": {
-        "error": "加载推理作业失败：{{error}}",
-        "retry": "重试",
-        "loadingMore": "加载更多拍摄",
-        "endOfList": "您已到达拍摄列表的末尾",
-        "howItWorksAria": "工作原理",
-        "steps": {
-            "choose": {
-                "title": "选择风格",
-                "desc": "选择适合您造型的氛围、场景和服装。"
-            },
-            "character": {
-                "title": "创建角色",
-                "desc": "上传一些照片，让我们的AI准确学习您的特征。"
-            },
-            "generate": {
-                "title": "生成您的拍摄",
-                "desc": "几分钟内获得您的肖像——真实、精致、随时可用。"
-            }
-        }
-    },
-    "viewer": {
-        "confirmDelete": {
-            "title": "删除图像？",
-            "description": "这将永久删除图像且无法撤销。",
-            "confirm": "删除",
-            "cancel": "取消"
-        },
-        "closeAria": "关闭查看器",
-        "carousel": {
-            "aria": "轮播导航",
-            "prevAria": "上一张图像",
-            "nextAria": "下一张图像"
-        },
-        "overlay": {
-            "displayOriginal": "显示原图",
-            "displayOriginalAria": "显示原始图像",
-            "originalUnavailableTitle": "原图不可用",
-            "originalUnavailableDesc": "无法加载原始图像变体。"
-        },
-        "title": "拍摄{{shootNumber}}",
-        "imageIndex": "图像{{index}}",
-        "favourite": {
-            "ariaButton": "收藏",
-            "add": "添加到收藏",
-            "remove": "从收藏中移除",
-            "updateErrorTitle": "收藏更新失败"
-        },
-        "metadata": {
-            "labels": {
-                "aspectRatio": "宽高比",
-                "quality": "质量",
-                "model": "模型",
-                "character": "角色"
-            },
-            "aspectLabels": {
-                "square": "正方形",
-                "landscape": "横向",
-                "portrait": "纵向"
-            }
-        },
-        "actions": {
-            "delete": {
-                "label": "删除",
-                "aria": "删除图像"
-            },
-            "download": {
-                "label": "下载",
-                "aria": "下载图像"
-            }
-        },
-        "alt": {
-            "generated": "生成的图像{{index}}",
-            "thumbnail": "缩略图{{index}}"
-        }
-    },
-    "group": {
-        "status": {
-            "failed": "生成失败"
-        },
-        "error": {
-            "generic": "出现了一些问题，您的积分已退还",
-            "timeout": "创作时间超出预期，您的积分已退还",
-            "serverBusy": "我们的服务器暂时繁忙，您的积分已退还",
-            "memory": "服务器容量超限，您的积分已退还",
-            "connection": "连接暂时中断，您的积分已退还",
-            "imageGeneration": "创作未能完成，您的积分已退还"
-        },
-        "confirmDelete": {
-            "title": "删除拍摄？",
-            "description": "这将从您的画廊中移除拍摄。此操作无法撤销。",
-            "confirm": "删除"
-        },
-        "deleteFailedTitle": "删除失败",
-        "rerun": {
-            "cannot": "无法重新运行",
-            "missingInfo": "缺少必需的作业信息。",
-            "failed": "重新运行失败"
-        },
-        "header": {
-            "shootTitle": "拍摄#{{number}}"
-        },
-        "tooltips": {
-            "deleteShoot": "删除拍摄",
-            "rerunShoot": "重新运行拍摄"
-        },
-        "aria": {
-            "thumbnailsPreview": "缩略图预览",
-            "viewAllImages": "查看所有图像"
-        },
-        "alt": {
-            "preview": "预览{{index}}"
-        },
-        "buttons": {
-            "viewAll": "查看全部"
-        }
-    },
-    "thumbnail": {
-        "alt": {
-            "generatingPreview": "生成预览{{index}}",
-            "generated": "生成的图像{{index}}"
-        },
-        "favourite": {
-            "add": "添加到收藏",
-            "remove": "从收藏中移除"
-        },
-        "loadingTitle": "加载中…",
-        "loadingDesc": "图像详细信息仍在加载。请稍后重试。",
-        "actions": {
-            "delete": {
-                "label": "删除",
-                "aria": "删除图像"
-            },
-            "download": {
-                "label": "下载",
-                "aria": "下载图像"
-            }
-        },
-        "confirmDelete": {
-            "title": "删除图像？",
-            "description": "这将从您的画廊中移除图像。此操作无法撤销。",
-            "confirm": "删除"
-        }
+  "common": {
+    "pleaseTryAgain": "请重试",
+    "cancel": "取消"
+  },
+  "time": {
+    "justNow": "刚刚",
+    "minutesAgo": "{{count}}分钟前",
+    "hoursAgo": "{{count}}小时前",
+    "daysAgo": "{{count}}天前"
+  },
+  "gallery": {
+    "error": "加载推理作业失败：{{error}}",
+    "retry": "重试",
+    "loadingMore": "加载更多拍摄",
+    "endOfList": "您已到达拍摄列表的末尾",
+    "howItWorksAria": "工作原理",
+    "steps": {
+      "choose": {
+        "title": "选择风格",
+        "desc": "选择适合您造型的氛围、场景和服装。"
+      },
+      "character": {
+        "title": "创建角色",
+        "desc": "上传一些照片，让我们的AI准确学习您的特征。"
+      },
+      "generate": {
+        "title": "生成您的拍摄",
+        "desc": "几分钟内获得您的肖像——真实、精致、随时可用。"
+      }
     }
+  },
+  "viewer": {
+    "confirmDelete": {
+      "title": "删除图像？",
+      "description": "这将永久删除图像且无法撤销。",
+      "confirm": "删除",
+      "cancel": "取消"
+    },
+    "closeAria": "关闭查看器",
+    "carousel": {
+      "aria": "轮播导航",
+      "prevAria": "上一张图像",
+      "nextAria": "下一张图像"
+    },
+    "overlay": {
+      "displayOriginal": "显示原图",
+      "displayOriginalAria": "显示原始图像",
+      "originalUnavailableTitle": "原图不可用",
+      "originalUnavailableDesc": "无法加载原始图像变体。"
+    },
+    "title": "拍摄{{shootNumber}}",
+    "imageIndex": "图像{{index}}",
+    "favourite": {
+      "ariaButton": "收藏",
+      "add": "添加到收藏",
+      "remove": "从收藏中移除",
+      "updateErrorTitle": "收藏更新失败"
+    },
+    "metadata": {
+      "labels": {
+        "aspectRatio": "宽高比",
+        "quality": "质量",
+        "model": "模型",
+        "character": "角色"
+      },
+      "aspectLabels": {
+        "square": "正方形",
+        "landscape": "横向",
+        "portrait": "纵向"
+      }
+    },
+    "actions": {
+      "delete": {
+        "label": "删除",
+        "aria": "删除图像"
+      },
+      "download": {
+        "label": "下载",
+        "aria": "下载图像"
+      }
+    },
+    "alt": {
+      "generated": "生成的图像{{index}}",
+      "thumbnail": "缩略图{{index}}"
+    }
+  },
+  "group": {
+    "status": {
+      "failed": "生成失败"
+    },
+    "error": {
+      "generic": "出现了一些问题，您的积分已退还",
+      "timeout": "创作时间超出预期，您的积分已退还",
+      "serverBusy": "我们的服务器暂时繁忙，您的积分已退还",
+      "memory": "服务器容量超限，您的积分已退还",
+      "connection": "连接暂时中断，您的积分已退还",
+      "imageGeneration": "创作未能完成，您的积分已退还"
+    },
+    "confirmDelete": {
+      "title": "删除拍摄？",
+      "description": "这将从您的画廊中移除拍摄。此操作无法撤销。",
+      "confirm": "删除"
+    },
+    "deleteFailedTitle": "删除失败",
+    "rerun": {
+      "cannot": "无法重新运行",
+      "missingInfo": "缺少必需的作业信息。",
+      "failed": "重新运行失败"
+    },
+    "header": {
+      "shootTitle": "拍摄#{{number}}"
+    },
+    "tooltips": {
+      "deleteShoot": "删除拍摄",
+      "rerunShoot": "重新运行拍摄"
+    },
+    "aria": {
+      "thumbnailsPreview": "缩略图预览",
+      "viewAllImages": "查看所有图像"
+    },
+    "alt": {
+      "preview": "预览{{index}}"
+    },
+    "buttons": {
+      "viewAll": "查看全部"
+    }
+  },
+  "thumbnail": {
+    "alt": {
+      "generatingPreview": "生成预览{{index}}",
+      "generated": "生成的图像{{index}}"
+    },
+    "favourite": {
+      "add": "添加到收藏",
+      "remove": "从收藏中移除"
+    },
+    "loadingTitle": "加载中…",
+    "loadingDesc": "图像详细信息仍在加载。请稍后重试。",
+    "actions": {
+      "delete": {
+        "label": "删除",
+        "aria": "删除图像"
+      },
+      "download": {
+        "label": "下载",
+        "aria": "下载图像"
+      }
+    },
+    "confirmDelete": {
+      "title": "删除图像？",
+      "description": "这将从您的画廊中移除图像。此操作无法撤销。",
+      "confirm": "删除"
+    }
+  }
 }

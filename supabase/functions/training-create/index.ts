@@ -358,9 +358,6 @@ serve(async (req) => {
     const body: TrainingRequest = await req.json();
     const { user_id, character_id, training_params } = body;
 
-    console.log('📥 REQUEST BODY:', JSON.stringify(body, null, 2));
-    console.log('🔧 training_params received:', training_params ? JSON.stringify(training_params, null, 2) : 'UNDEFINED/NULL');
-
     // Validate required fields
     if (!user_id || !character_id) {
       return new Response(
@@ -392,95 +389,50 @@ serve(async (req) => {
     }
 
     // Determine if user is admin (server-side authority)
-    console.log('🔍 Checking admin status for user_id:', user_id);
-    
     let isAdmin = false
     try {
-      const { data: usr, error: adminError } = await supabase
+      const { data: usr } = await supabase
         .from('users')
         .select('admin')
         .eq('id', user_id)
         .single()
-      
-      console.log('👤 Admin query result - data:', usr, '| error:', adminError);
-      
-      if (adminError) {
-        console.error('❌ Admin check error:', adminError.message, '| code:', adminError.code);
-      }
-      
       isAdmin = Boolean(usr?.admin)
-      console.log('👤 usr?.admin value:', usr?.admin, '| Boolean result:', isAdmin);
     } catch (_e) {
-      console.error('❌ Admin check exception:', _e);
       isAdmin = false
     }
-
-    console.log('👤 FINAL Admin check result - isAdmin:', isAdmin, '| has training_params:', !!training_params);
 
     // Sanitize optional admin-only params
     const approvedParams: Record<string, number | string | number[]> = {}
     if (isAdmin && training_params) {
-      console.log('✅ Entering admin params validation block');
       const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v))
-      
       if (typeof training_params.steps === 'number') {
         approvedParams.steps = clamp(Math.floor(training_params.steps), 100, 10000)
-        console.log('  ✓ steps:', training_params.steps, '→', approvedParams.steps);
-      } else {
-        console.log('  ✗ steps: invalid type', typeof training_params.steps);
       }
-      
       if (typeof training_params.batch_size === 'number') {
         approvedParams.batch_size = clamp(Math.floor(training_params.batch_size), 1, 12)
-        console.log('  ✓ batch_size:', training_params.batch_size, '→', approvedParams.batch_size);
-      } else {
-        console.log('  ✗ batch_size: invalid type', typeof training_params.batch_size);
       }
-      
       if (typeof training_params.resize_size === 'number') {
         approvedParams.resize_size = clamp(Math.floor(training_params.resize_size), 512, 2048)
-        console.log('  ✓ resize_size:', training_params.resize_size, '→', approvedParams.resize_size);
-      } else {
-        console.log('  ✗ resize_size: invalid type', typeof training_params.resize_size);
       }
-      
       if (typeof training_params.rank === 'number') {
         approvedParams.rank = clamp(Math.floor(training_params.rank), 1, 256)
-        console.log('  ✓ rank:', training_params.rank, '→', approvedParams.rank);
-      } else {
-        console.log('  ✗ rank: invalid type', typeof training_params.rank);
       }
-      
       if (typeof training_params.gradient_accumulation_steps === 'number') {
         approvedParams.gradient_accumulation_steps = clamp(Math.floor(training_params.gradient_accumulation_steps), 1, 32)
-        console.log('  ✓ gradient_accumulation_steps:', training_params.gradient_accumulation_steps, '→', approvedParams.gradient_accumulation_steps);
-      } else {
-        console.log('  ✗ gradient_accumulation_steps: invalid type', typeof training_params.gradient_accumulation_steps);
       }
-      
       if (typeof training_params.learning_rate === 'number') {
         // No floor for floats; clamp range directly
         const lr = Math.min(0.01, Math.max(0.00001, training_params.learning_rate))
         approvedParams.learning_rate = lr
-        console.log('  ✓ learning_rate:', training_params.learning_rate, '→', approvedParams.learning_rate);
-      } else {
-        console.log('  ✗ learning_rate: invalid type', typeof training_params.learning_rate);
       }
-      
       if (typeof training_params.optimizer === 'string') {
         const valid = ['adamw', 'adamw8bit']
         if (valid.includes(training_params.optimizer)) {
           approvedParams.optimizer = training_params.optimizer
-          console.log('  ✓ optimizer:', training_params.optimizer);
-        } else {
-          console.log('  ✗ optimizer: invalid value', training_params.optimizer);
         }
-      } else {
-        console.log('  ✗ optimizer: invalid type', typeof training_params.optimizer);
       }
       // Coerce resolution into number[] if provided as string/number
       if (training_params.resolution !== undefined) {
-        console.log('  📐 resolution (raw):', training_params.resolution, 'type:', typeof training_params.resolution);
         let resArr: number[] | null = null
         const raw: unknown = training_params.resolution as unknown
         try {
@@ -498,7 +450,6 @@ serve(async (req) => {
             resArr = [raw]
           }
         } catch (_e) {
-          console.log('  ✗ resolution: parse error', _e);
           resArr = null
         }
 
@@ -510,22 +461,11 @@ serve(async (req) => {
             .filter((v) => v >= 512 && v <= 2048 && v % 64 === 0)
           if (safe.length > 0) {
             approvedParams.resolution = safe
-            console.log('  ✓ resolution:', resArr, '→', safe);
-          } else {
-            console.log('  ✗ resolution: all values failed validation (must be 512-2048, divisible by 64)');
           }
-        } else {
-          console.log('  ✗ resolution: could not parse to array');
         }
-      } else {
-        console.log('  ⊘ resolution: not provided');
       }
-    } else {
-      console.log('❌ NOT entering admin params validation - isAdmin:', isAdmin, '| has training_params:', !!training_params);
     }
-    
-    console.log('📦 FINAL approvedParams:', JSON.stringify(approvedParams, null, 2));
-    console.log('📊 approvedParams.length:', Object.keys(approvedParams).length, '| isAdmin:', isAdmin)
+    console.log('✅ approvedParams:', approvedParams, 'isAdmin:', isAdmin)
 
     // Check subscription training limits first to know if this training counts towards included quota
     const trainingLimitsCheck = await checkTrainingLimits(supabase, user_id);
@@ -719,7 +659,6 @@ serve(async (req) => {
     };
 
     console.log(`💾 Inserting training job:`, trainingJob);
-    console.log(`🔍 training_params being saved:`, (trainingJob as any).training_params ? JSON.stringify((trainingJob as any).training_params) : 'UNDEFINED/NOT SET');
 
     const { error: insertError } = await supabase
       .from('training_jobs')

@@ -692,6 +692,7 @@ export declare const resources: {
                     dosDonts: string;
                 };
                 tips: {
+                    blurredBackground: string;
                     naturalLight: string;
                     photos: string;
                     expression: string;
@@ -1736,6 +1737,7 @@ export declare const resources: {
                     dosDonts: string;
                 };
                 tips: {
+                    blurredBackground: string;
                     naturalLight: string;
                     photos: string;
                     expression: string;
@@ -2767,6 +2769,7 @@ export declare const resources: {
                     dosDonts: string;
                 };
                 tips: {
+                    blurredBackground: string;
                     naturalLight: string;
                     photos: string;
                     expression: string;
@@ -3798,6 +3801,7 @@ export declare const resources: {
                     dosDonts: string;
                 };
                 tips: {
+                    blurredBackground: string;
                     naturalLight: string;
                     photos: string;
                     expression: string;
@@ -4829,6 +4833,7 @@ export declare const resources: {
                     dosDonts: string;
                 };
                 tips: {
+                    blurredBackground: string;
                     naturalLight: string;
                     photos: string;
                     expression: string;
@@ -5860,6 +5865,7 @@ export declare const resources: {
                     dosDonts: string;
                 };
                 tips: {
+                    blurredBackground: string;
                     naturalLight: string;
                     photos: string;
                     expression: string;
@@ -6891,6 +6897,7 @@ export declare const resources: {
                     dosDonts: string;
                 };
                 tips: {
+                    blurredBackground: string;
                     naturalLight: string;
                     photos: string;
                     expression: string;
@@ -7923,6 +7930,7 @@ export declare const resources: {
                     dosDonts: string;
                 };
                 tips: {
+                    blurredBackground: string;
                     naturalLight: string;
                     photos: string;
                     expression: string;
@@ -8954,6 +8962,7 @@ export declare const resources: {
                     dosDonts: string;
                 };
                 tips: {
+                    blurredBackground: string;
                     naturalLight: string;
                     photos: string;
                     expression: string;

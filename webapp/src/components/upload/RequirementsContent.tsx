@@ -9,6 +9,10 @@ import styles from './RequirementsContent.module.css'
 // Requirements data
 const requirements = [
   {
+    text: "blurredBackground",
+    icon: "scene"
+  },
+  {
     text: "naturalLight",
     icon: "sun"
   },

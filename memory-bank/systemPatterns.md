@@ -2149,6 +2149,13 @@ Detected changes in:
 - webapp/src/components/pricing/SubscriptionDialogContent.tsx
 - webapp/src/components/providers/PurchaseSuccessHandler.tsx
 - webapp/src/components/purchase/PurchaseSuccessDialog.tsx
+
+
+**Auto-update 2025-10-06**:
+Detected changes in:
+- admin/src/app/auth/callback/route.ts
+- webapp/src/app/auth/callback/route.ts
+- webapp/src/components/character/CharacterTrainingDialog.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

@@ -8,6 +8,7 @@ import { AuthProvider, LanguageProvider, I18nProvider } from '@primeshot/common'
 import { GoogleAnalytics } from '@next/third-parties/google'
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { getCdnUrl } from '@/lib/utils/cdn'
 
 const SUPPORTED_LOCALES = ['en','cn','es','fr','pt','de','jp','it','nl'] as const;
 
@@ -103,15 +104,15 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     icons: {
       icon: [
-        { url: '/favicon.ico' },
-        { url: '/favicon.svg', type: 'image/svg+xml' },
-        { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' }
+        { url: getCdnUrl('favicon.ico') },
+        { url: getCdnUrl('favicon.svg'), type: 'image/svg+xml' },
+        { url: getCdnUrl('favicon-96x96.png'), sizes: '96x96', type: 'image/png' }
       ],
       apple: [
-        { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }
+        { url: getCdnUrl('apple-touch-icon.png'), sizes: '180x180', type: 'image/png' }
       ]
     },
-    manifest: '/site.webmanifest',
+    manifest: getCdnUrl('site.webmanifest'),
     openGraph: {
       type: "website",
       locale: ogLocale, // Dynamic locale based on URL
@@ -121,7 +122,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       siteName: "Primeshot",
       images: [
         {
-          url: new URL("/og-image.webp", baseUrl).toString(),
+          url: getCdnUrl('og-image.webp'),
           width: 1200,
           height: 630,
           alt: "Primeshot - AI Headshots",
@@ -133,7 +134,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       title: "AI Headshots That Open Doors | Primeshot",
       description: "Make your first impression count. Primeshot turns everyday selfies into stunning, studio-quality AI headshots—crafted to reflect your style, ambition, and story.",
       creator: "@primeshotai",
-      images: [new URL("/og-image.webp", baseUrl).toString()],
+      images: [getCdnUrl('og-image.webp')],
     },
     robots: {
       index: true,
@@ -177,13 +178,13 @@ export default async function LocaleLayout({ children, params }: { children: Rea
         <meta name="theme-color" content="#0c1013" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
         <meta name="apple-mobile-web-app-title" content="Primeshot" />
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="icon" href={getCdnUrl('favicon.ico')} />
+        <link rel="icon" type="image/svg+xml" href={getCdnUrl('favicon.svg')} />
+        <link rel="icon" type="image/png" sizes="96x96" href={getCdnUrl('favicon-96x96.png')} />
+        <link rel="apple-touch-icon" href={getCdnUrl('apple-touch-icon.png')} />
+        <link rel="apple-touch-icon" sizes="180x180" href={getCdnUrl('apple-touch-icon.png')} />
         <script type="application/json" id="initial-data" dangerouslySetInnerHTML={{ __html: JSON.stringify(initialData) }} />
         <meta name="locale" content={finalLocale} />
       </head>
