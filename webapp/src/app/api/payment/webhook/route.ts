@@ -172,6 +172,74 @@ export const config = {
 
 
 /**
+ * Ensure a user exists in public.users table
+ * This is a defensive measure in case the signup trigger failed
+ */
+async function ensureUserExists(
+  userId: string,
+  supabase: SupabaseClient
+): Promise<boolean> {
+  try {
+    // Check if user exists in public.users
+    const { data: existingUser, error: checkError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('id', userId)
+      .single();
+
+    if (existingUser) {
+      return true; // User already exists
+    }
+
+    // User doesn't exist - fetch from auth.users and create
+    console.warn(`User ${userId} missing from public.users - attempting to create`);
+    
+    const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(userId);
+    
+    if (authError || !authUser) {
+      console.error(`Failed to fetch auth user ${userId}:`, authError);
+      return false;
+    }
+
+    // Extract metadata same way as handle_new_user trigger
+    const fullName = authUser.user.user_metadata?.full_name
+      || authUser.user.user_metadata?.name
+      || (authUser.user.user_metadata?.given_name && authUser.user.user_metadata?.family_name
+        ? `${authUser.user.user_metadata.given_name} ${authUser.user.user_metadata.family_name}`.trim()
+        : null)
+      || authUser.user.user_metadata?.user_name
+      || null;
+
+    const avatarUrl = authUser.user.user_metadata?.avatar_url
+      || authUser.user.user_metadata?.picture
+      || null;
+
+    // Insert into public.users
+    const { error: insertError } = await supabase
+      .from('users')
+      .insert({
+        id: userId,
+        email: authUser.user.email || '',
+        full_name: fullName,
+        avatar_url: avatarUrl,
+        created_at: authUser.user.created_at,
+        updated_at: new Date().toISOString()
+      });
+
+    if (insertError) {
+      console.error(`Failed to create user ${userId} in public.users:`, insertError);
+      return false;
+    }
+
+    console.log(`Successfully created missing user ${userId} in public.users`);
+    return true;
+  } catch (error) {
+    console.error(`Error ensuring user exists for ${userId}:`, error);
+    return false;
+  }
+}
+
+/**
  * Ensures subscription record exists by creating or updating it
  * Used to handle race conditions between webhook events
  */
@@ -268,6 +336,14 @@ async function ensureSubscriptionRecord(
 
     if (!userId) {
       console.error(`No user_id found in customer metadata for customer: ${customerId}`);
+      return null;
+    }
+
+    // CRITICAL: Ensure user exists in public.users before creating subscription
+    // This prevents foreign key constraint violations if the signup trigger failed
+    const userExists = await ensureUserExists(userId, supabase);
+    if (!userExists) {
+      console.error(`Failed to ensure user ${userId} exists in public.users - cannot create subscription`);
       return null;
     }
 

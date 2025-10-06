@@ -21,7 +21,7 @@ import { StyleDataProvider } from '@/contexts/style-data-context'
 import QueryParamCleaner from '@/components/shared/QueryParamCleaner'
 import { PurchaseSuccessHandler } from '@/components/providers/PurchaseSuccessHandler'
 import { CrispInitializer } from '@/components/providers/CrispInitializer'
-import { getCdnUrl } from '@/lib/utils/cdn'
+import { getWebsiteCdnUrl } from '@/lib/utils/cdn'
 
 const inter = Inter({
   subsets: ["latin"],
@@ -49,15 +49,15 @@ export const metadata: Metadata = {
   metadataBase: new URL(getBaseUrl()),
   icons: {
     icon: [
-      { url: getCdnUrl('assets/favicon.ico') },
-      { url: getCdnUrl('assets/favicon.svg'), type: 'image/svg+xml' },
-      { url: getCdnUrl('assets/favicon-96x96.png'), sizes: '96x96', type: 'image/png' }
+      { url: getWebsiteCdnUrl('favicon.ico') },
+      { url: getWebsiteCdnUrl('favicon.svg'), type: 'image/svg+xml' },
+      { url: getWebsiteCdnUrl('favicon-96x96.png'), sizes: '96x96', type: 'image/png' }
     ],
     apple: [
-      { url: getCdnUrl('assets/apple-touch-icon.png'), sizes: '180x180', type: 'image/png' }
+      { url: getWebsiteCdnUrl('apple-touch-icon.png'), sizes: '180x180', type: 'image/png' }
     ]
   },
-  manifest: getCdnUrl('assets/site.webmanifest'),
+  manifest: getWebsiteCdnUrl('site.webmanifest'),
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
     siteName: "Primeshot",
     images: [
       {
-        url: getCdnUrl('assets/og-image.webp'),
+        url: getWebsiteCdnUrl('og-image.webp'),
         width: 1200,
         height: 630,
         alt: "Primeshot - AI Headshots",
@@ -79,7 +79,7 @@ export const metadata: Metadata = {
     title: "Primeshot - Create Your AI Headshots",
     description: "Transform your selfies into professional AI headshots. Upload your photos, choose your style, and get stunning studio-quality results in minutes.",
     creator: "@primeshotai",
-    images: [getCdnUrl('assets/og-image.webp')],
+    images: [getWebsiteCdnUrl('og-image.webp')],
   },
   robots: {
     index: true,
@@ -113,11 +113,11 @@ export default async function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
         <meta name="apple-mobile-web-app-title" content="Primeshot" />
-        <link rel="icon" href={getCdnUrl('assets/favicon.ico')} />
-        <link rel="icon" type="image/svg+xml" href={getCdnUrl('assets/favicon.svg')} />
-        <link rel="icon" type="image/png" sizes="96x96" href={getCdnUrl('assets/favicon-96x96.png')} />
-        <link rel="apple-touch-icon" href={getCdnUrl('assets/apple-touch-icon.png')} />
-        <link rel="apple-touch-icon" sizes="180x180" href={getCdnUrl('assets/apple-touch-icon.png')} />
+        <link rel="icon" href={getWebsiteCdnUrl('favicon.ico')} />
+        <link rel="icon" type="image/svg+xml" href={getWebsiteCdnUrl('favicon.svg')} />
+        <link rel="icon" type="image/png" sizes="96x96" href={getWebsiteCdnUrl('favicon-96x96.png')} />
+        <link rel="apple-touch-icon" href={getWebsiteCdnUrl('apple-touch-icon.png')} />
+        <link rel="apple-touch-icon" sizes="180x180" href={getWebsiteCdnUrl('apple-touch-icon.png')} />
       </head>
       <body className={`${carb.variable} ${inter.className} dark`}>
         <I18nServerProvider language={serverLanguage}>
