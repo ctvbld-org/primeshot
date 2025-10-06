@@ -59,13 +59,14 @@ export function buildSubjectCompact(meta: any): string {
     const color = (hair.color || '').toString().trim()
     const texture = (hair.texture || '').toString().trim()
     const styles = Array.isArray(hair.styles) ? hair.styles as string[] : []
-    const hairstyle = joinWithOr(styles)
+    //const hairstyle = joinWithOr(styles)
 
-    phrase = `${phrase}, ${length} ${texture} ${color} hair that are styled as ${hairstyle}`
+    //phrase = `${phrase}, ${length} ${texture} ${color} hair that are styled as ${hairstyle}`
+    phrase = `${phrase}, ${length} ${texture} ${color} hair`
   }
 
   if (bodyType) phrase = `${phrase}, ${bodyType}`
-  if (skinTone) phrase = `${phrase}, ${skinTone}`
+  //if (skinTone) phrase = `${phrase}, ${skinTone}`
 
   return phrase.replace(/\s+/g, ' ').trim()
 }
@@ -112,13 +113,13 @@ export function buildHeadCoveringForWardrobe(meta: any): string {
   let description = ''
   
   // Build color + pattern part
-  if (colorsText && pattern && pattern !== 'none') {
-    description = `${colorsText} ${pattern}`
-  } else if (colorsText) {
-    description = colorsText
-  } else if (pattern && pattern !== 'none') {
-    description = pattern
-  }
+  // if (colorsText && pattern && pattern !== 'none') {
+  //   description = `${colorsText} ${pattern}`
+  // } else if (colorsText) {
+  //   description = colorsText
+  // } else if (pattern && pattern !== 'none') {
+  //   description = pattern
+  // }
   
   // Add style type
   if (stylesText) {

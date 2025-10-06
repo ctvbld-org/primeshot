@@ -818,7 +818,6 @@ export function useInfiniteInferenceJobsWithProgress() {
     // Use the addJob function from infiniteJobs to create the placeholder
     infiniteJobs.addJob(placeholderId, nbTakes, meta);
     
-    console.log(`📋 Created initializing thumbnails with placeholder ${placeholderId} (${nbTakes} takes)`);
     return placeholderId;
   }, [infiniteJobs]);
 
