@@ -42,12 +42,9 @@ async function handlePOST(request: NextRequest) {
       }
     }
 
-    // Create portal session - construct return URL properly
-    // Use the request origin to maintain the same access pattern (direct vs rewrite)
-    const requestUrl = new URL(request.url)
-    // Extract the base path from the request URL (everything before /api/)
-    const pathBeforeApi = requestUrl.pathname.split('/api/')[0] || ''
-    const returnUrl = `${requestUrl.protocol}//${requestUrl.host}${pathBeforeApi}`
+    // Create portal session - use configured app URL
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://primeshot.ai/create'
+    const returnUrl = appUrl
     const sessionConfig: any = {
       customer: customerId,
       return_url: returnUrl,

@@ -4,14 +4,20 @@
  * This endpoint handles Stripe webhook events including:
  * - customer.subscription.updated
  * - customer.subscription.deleted  
- * - payment_intent.succeeded (for credit pack purchases)
+ * - payment_intent.succeeded (for paid credit pack purchases)
+ * - checkout.session.completed (for all credit pack purchases, including 100% coupon)
  * 
  * Note: There are two webhook endpoints in this app:
  * - /api/payment/webhook (comprehensive handler)
- * - /api/webhooks/stripe (this handler - now includes credit packs)
+ * - /api/webhooks/stripe (this handler)
  * 
  * Both endpoints handle credit pack purchases to ensure compatibility
  * with different webhook configurations across environments.
+ * 
+ * Important: For credit packs with 100% coupon codes, Stripe only fires
+ * checkout.session.completed (not payment_intent.succeeded) since no
+ * payment processing occurs. Both events are handled with idempotency
+ * to prevent double-crediting.
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
@@ -83,6 +89,9 @@ export async function POST(request: NextRequest) {
           break
         case 'payment_intent.succeeded':
           await handleCreditPackPurchase(event.data.object as Stripe.PaymentIntent)
+          break
+        case 'checkout.session.completed':
+          await handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session)
           break
         default:
           console.log(`Unhandled event type: ${event.type}`)
@@ -164,7 +173,79 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 }
 
 /**
+ * Handle checkout session completed (for 100% coupon credit packs)
+ * This fires for ALL checkout completions, including those with 100% coupons
+ * where payment_intent.succeeded never fires.
+ */
+async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
+  // Only process credit pack purchases (mode: 'payment')
+  if (session.mode !== 'payment' || session.metadata?.pack_type !== 'credit_pack') {
+    console.log(`Skipping checkout session ${session.id} - not a credit pack purchase`)
+    return
+  }
+
+  const userId = session.metadata?.user_id
+  const credits = parseInt(session.metadata?.credits || '0')
+  const validityDays = parseInt(session.metadata?.validity_days || '60')
+
+  if (!userId || !credits) {
+    console.error('Missing user_id or credits in checkout session metadata', session.id)
+    return
+  }
+
+  // Use payment_intent ID if it exists (paid purchase), otherwise use session ID (100% coupon)
+  const sourceId = session.payment_intent 
+    ? (typeof session.payment_intent === 'string' 
+        ? session.payment_intent 
+        : session.payment_intent.id)
+    : session.id
+
+  // Get amount paid (0 for 100% coupon, actual amount otherwise)
+  const amountPaid = session.amount_total || 0
+
+  console.log(`Processing checkout session for credit pack: ${credits} credits for user ${userId}, amount: $${amountPaid / 100}`)
+
+  // Calculate expiry date
+  const expiresAt = new Date()
+  expiresAt.setDate(expiresAt.getDate() + validityDays)
+
+  const description = `Credits from credit pack purchase - ${credits} credits`
+  const metadata = {
+    payment_intent_id: sourceId,
+    checkout_session_id: session.id,
+    amount_paid: amountPaid,
+    validity_days: validityDays,
+    coupon_applied: amountPaid === 0
+  }
+
+  // Use service role client for webhook operations
+  const supabase = createServiceClient()
+
+  // Use atomic RPC function to record purchase and award credits
+  // The idempotency check in the function prevents double-crediting if both
+  // checkout.session.completed and payment_intent.succeeded fire
+  const { error: atomicError } = await supabase.rpc('process_credit_pack_purchase', {
+    p_user_id: userId,
+    p_payment_intent_id: sourceId,
+    p_price_id: session.metadata?.price_id || '',
+    p_credits: credits,
+    p_amount_paid: amountPaid,
+    p_expires_at: expiresAt.toISOString(),
+    p_description: description,
+    p_metadata: metadata
+  })
+
+  if (atomicError) {
+    console.error('Error in atomic credit pack purchase operation:', atomicError.message)
+    throw new Error(`Failed to process credit pack purchase atomically: ${atomicError.message}`)
+  }
+
+  console.log(`Successfully processed credit pack checkout: ${credits} credits awarded to user ${userId}`)
+}
+
+/**
  * Handle credit pack purchase (payment_intent.succeeded)
+ * This fires for paid purchases. For 100% coupon purchases, only checkout.session.completed fires.
  */
 async function handleCreditPackPurchase(paymentIntent: Stripe.PaymentIntent) {
   // Check if this is a credit pack purchase

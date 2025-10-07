@@ -51,7 +51,7 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
         body: JSON.stringify({
           priceId,
           successUrl: `${window.location.origin}${window.location.pathname}?credits=success`,
-          cancelUrl: `${window.location.origin}/pricing`
+          cancelUrl: `${window.location.origin}${window.location.pathname}`
         })
       })
 

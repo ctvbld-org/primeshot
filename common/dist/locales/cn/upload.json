@@ -1,27 +1,27 @@
 {
-  "title": "上传照片",
-  "description": "上传您的照片开始使用",
-  "requirements": {
-    "title": "照片要求",
-    "description": "请确保您的照片符合这些要求"
-  },
-  "buttons": {
-    "upload": "上传",
-    "continue": "继续",
-    "retry": "重试"
-  },
-  "errors": {
-    "invalidFile": "无效的文件类型",
-    "fileTooLarge": "文件过大",
-    "uploadFailed": "上传失败",
-    "invalidFileType": "不支持的文件类型（{{types}}）",
-    "fileSizeExceeded": "文件过大（最大 {{size}}）",
-    "duplicateFile": "重复的文件",
-    "uploadFailedCount_other": "有 {{count}} 个文件无法添加"
-  },
-  "progress": {
-    "uploading": "上传中...",
-    "processing": "处理中...",
-    "complete": "完成"
-  }
+    "title": "上传照片",
+    "description": "上传您的照片开始使用",
+    "requirements": {
+        "title": "照片要求",
+        "description": "请确保您的照片符合这些要求"
+    },
+    "buttons": {
+        "upload": "上传",
+        "continue": "继续",
+        "retry": "重试"
+    },
+    "errors": {
+        "invalidFile": "无效的文件类型",
+        "fileTooLarge": "文件过大",
+        "uploadFailed": "上传失败",
+        "invalidFileType": "不支持的文件类型（{{types}}）",
+        "fileSizeExceeded": "文件过大（最大 {{size}}）",
+        "duplicateFile": "重复的文件",
+        "uploadFailedCount_other": "有 {{count}} 个文件无法添加"
+    },
+    "progress": {
+        "uploading": "上传中...",
+        "processing": "处理中...",
+        "complete": "完成"
+    }
 }

@@ -180,7 +180,7 @@ export function SubscriptionDialogContent({
         body: JSON.stringify({
           priceId,
           successUrl: `${window.location.origin}${window.location.pathname}?subscription=success`,
-          cancelUrl: `${window.location.origin}/pricing`
+          cancelUrl: `${window.location.origin}${window.location.pathname}`
         })
       })
       

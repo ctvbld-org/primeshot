@@ -114,6 +114,13 @@ async function handleWebhookRequest(request: NextRequest): Promise<NextResponse>
           break;
         }
 
+        case 'checkout.session.completed': {
+          const session = event.data.object as Stripe.Checkout.Session;
+          await handleCheckoutSessionCompleted(session, supabase);
+          devLog(`Processed checkout.session.completed: ${session.id}`);
+          break;
+        }
+
         case 'product.updated':
         case 'price.updated': {
           // Clear cache when Stripe data changes
@@ -705,7 +712,79 @@ async function handleSubscriptionDeleted(
 }
 
 /**
+ * Handle checkout session completed (for 100% coupon credit packs)
+ * This fires for ALL checkout completions, including those with 100% coupons
+ * where payment_intent.succeeded never fires.
+ */
+async function handleCheckoutSessionCompleted(
+  session: Stripe.Checkout.Session,
+  supabase: SupabaseClient
+) {
+  // Only process credit pack purchases (mode: 'payment')
+  if (session.mode !== 'payment' || session.metadata?.pack_type !== 'credit_pack') {
+    devLog(`Skipping checkout session ${session.id} - not a credit pack purchase`);
+    return;
+  }
+
+  const userId = session.metadata?.user_id;
+  const credits = parseInt(session.metadata?.credits || '0');
+  const validityDays = parseInt(session.metadata?.validity_days || '60');
+
+  if (!userId || !credits) {
+    console.error('Missing user_id or credits in checkout session metadata', session.id);
+    return;
+  }
+
+  // Use payment_intent ID if it exists (paid purchase), otherwise use session ID (100% coupon)
+  const sourceId = session.payment_intent 
+    ? (typeof session.payment_intent === 'string' 
+        ? session.payment_intent 
+        : session.payment_intent.id)
+    : session.id;
+
+  // Get amount paid (0 for 100% coupon, actual amount otherwise)
+  const amountPaid = session.amount_total || 0;
+
+  // Calculate expiry date
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + validityDays);
+
+  const description = `Credits from credit pack purchase - ${credits} credits`;
+  const metadata = {
+    payment_intent_id: sourceId,
+    checkout_session_id: session.id,
+    amount_paid: amountPaid,
+    validity_days: validityDays,
+    coupon_applied: amountPaid === 0
+  };
+
+  devLog(`Processing checkout session for credit pack: ${credits} credits for user ${userId}, amount: $${amountPaid / 100}`);
+
+  // Use atomic RPC function to record purchase and award credits
+  // The idempotency check in the function prevents double-crediting if both
+  // checkout.session.completed and payment_intent.succeeded fire
+  const { error: atomicError } = await supabase.rpc('process_credit_pack_purchase', {
+    p_user_id: userId,
+    p_payment_intent_id: sourceId,
+    p_price_id: session.metadata?.price_id || '',
+    p_credits: credits,
+    p_amount_paid: amountPaid,
+    p_expires_at: expiresAt.toISOString(),
+    p_description: description,
+    p_metadata: metadata
+  });
+
+  if (atomicError) {
+    console.error('Error in atomic credit pack purchase operation:', atomicError.message);
+    throw new Error(`Failed to process credit pack purchase atomically: ${atomicError.message}`);
+  }
+
+  devLog(`Atomically processed credit pack checkout: ${credits} credits awarded to user ${userId}`);
+}
+
+/**
  * Handle credit pack purchase (payment_intent.succeeded)
+ * This fires for paid purchases. For 100% coupon purchases, only checkout.session.completed fires.
  */
 async function handleCreditPackPurchase(
   paymentIntent: Stripe.PaymentIntent,

@@ -76,14 +76,6 @@ function recordMetric(metric: UploadMetrics) {
   if (uploadMetrics.length > 1000) {
     uploadMetrics.shift()
   }
-
-  // Log to console for debugging
-  console.log(`[UPLOAD METRIC] ${metric.operation}: ${metric.duration}ms, success: ${metric.success}`, {
-    userId: metric.userId,
-    characterId: metric.characterId,
-    fileSize: metric.fileSize,
-    error: metric.error
-  })
 }
 
 // Extract the upload logic into a separate function
