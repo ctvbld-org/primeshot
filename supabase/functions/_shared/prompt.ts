@@ -62,7 +62,7 @@ export function buildSubjectCompact(meta: any): string {
     //const hairstyle = joinWithOr(styles)
 
     //phrase = `${phrase}, ${length} ${texture} ${color} hair that are styled as ${hairstyle}`
-    phrase = `${phrase}, ${texture} ${color} hair`
+    phrase = `${phrase}, ${color} hair`
   }
 
   if (bodyType) phrase = `${phrase}, ${bodyType}`
