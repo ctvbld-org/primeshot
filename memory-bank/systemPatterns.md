@@ -2173,6 +2173,20 @@ Detected changes in:
 - website/src/app/[locale]/page.tsx
 - website/src/app/api/waitlist/route.ts
 - website/src/lib/utils/cdn.ts
+
+
+**Auto-update 2025-10-08**:
+Detected changes in:
+- webapp/src/app/api/payment/webhook/route.ts
+- webapp/src/app/api/subscription/customer-portal/route.ts
+- webapp/src/app/api/upload-chunk/route.ts
+- webapp/src/app/api/webhooks/stripe/route.ts
+- webapp/src/app/layout.tsx
+- webapp/src/components/character/training/AdminTrainingOptionsDialog.tsx
+- webapp/src/components/pricing/CreditPackDialogContent.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/contexts/credit-balance-context.tsx
+- webapp/src/lib/image-quality.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

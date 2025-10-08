@@ -70,7 +70,7 @@ const FRONT_CAMERA_FOCAL_LENGTH_MAX = 30; // Front cameras typically have focal 
 const FRONT_CAMERA_SCORE_PENALTY = 0.35; // Multiply score by 0.35 (65% reduction) when front camera detected
 
 // Constants for body detection
-const MIN_BODY_COUNT = 2; // Minimum 2 images with body shots
+const MIN_BODY_COUNT = 1; // Minimum 2 images with body shots
 const MAX_BODY_PERCENTAGE = 0.60; // 50% maximum for body shots
 
 // Add after other constants
@@ -95,7 +95,7 @@ const MIN_AGE_CONFIDENCE = 0.6; // Minimum confidence for age detection
 
 // Contrast detection constants
 const MIN_ACCEPTABLE_CONTRAST = 0.05; // Minimum contrast to avoid completely flat images
-const MIN_SUBJECT_BACKGROUND_SEPARATION = 0.05; // Minimum separation between subject and background (relaxed)
+const MIN_SUBJECT_BACKGROUND_SEPARATION = 0.15; // Minimum separation between subject and background (relaxed)
 const FACE_PERIMETER_SAMPLE_WIDTH = 20; // Width of sampling area around face perimeter
 
 // Subject-background separation penalty tiers (AGGRESSIVE penalties for portrait quality):
@@ -859,6 +859,8 @@ function isFrontCamera(exifData: Record<string, any>): { isFrontCamera: boolean;
   let indicators = 0;
   let positiveIndicators = 0;
   
+console.log(exifData);
+
   // Check focal length in 35mm equivalent (most reliable)
   if (exifData.FocalLengthIn35mmFilm) {
     indicators++;
