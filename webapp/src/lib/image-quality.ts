@@ -33,8 +33,6 @@ const SERVER_STUB_RESULT = {
   i18nIssues: [] as Array<{ key: string; params?: Record<string, string | number> }>,
   eyesVisible: true,
   eyeDetectionSkipped: true,
-  isFrontCamera: false,
-  frontCameraConfidence: 0,
 } as const;
 
 // Using dynamic import for face-api.js to ensure it only loads on the client side
@@ -65,12 +63,8 @@ const MAX_BRIGHTNESS = 0.8;
 const MIN_CONTRAST = 0.15; // Reduced from 0.4 - more realistic threshold
 const MAX_BLUR = 0.15; // Reduced from 0.5 - more realistic threshold
 
-// Front camera detection constants
-const FRONT_CAMERA_FOCAL_LENGTH_MAX = 30; // Front cameras typically have focal length < 30mm equivalent
-const FRONT_CAMERA_SCORE_PENALTY = 0.35; // Multiply score by 0.35 (65% reduction) when front camera detected
-
 // Constants for body detection
-const MIN_BODY_COUNT = 1; // Minimum 2 images with body shots
+const MIN_BODY_COUNT = 2; // Minimum 2 images with body shots
 const MAX_BODY_PERCENTAGE = 0.60; // 50% maximum for body shots
 
 // Add after other constants
@@ -95,7 +89,7 @@ const MIN_AGE_CONFIDENCE = 0.6; // Minimum confidence for age detection
 
 // Contrast detection constants
 const MIN_ACCEPTABLE_CONTRAST = 0.05; // Minimum contrast to avoid completely flat images
-const MIN_SUBJECT_BACKGROUND_SEPARATION = 0.15; // Minimum separation between subject and background (relaxed)
+const MIN_SUBJECT_BACKGROUND_SEPARATION = 0.05; // Minimum separation between subject and background (relaxed)
 const FACE_PERIMETER_SAMPLE_WIDTH = 20; // Width of sampling area around face perimeter
 
 // Subject-background separation penalty tiers (AGGRESSIVE penalties for portrait quality):
@@ -210,8 +204,6 @@ export interface ImageQualityResult {
   // New properties
   eyesVisible: boolean;
   eyeDetectionSkipped: boolean;
-  isFrontCamera: boolean;
-  frontCameraConfidence: number;
 }
 
 // Analyze image quality using face-api.js and browser canvas
@@ -238,12 +230,6 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
   
   // Initialize result
   const result: ImageQualityResult = initializeResult(width, height);
-  
-  // Extract EXIF and detect front camera (selfie)
-  const exifData = await extractExifData(file);
-  const cameraDetection = isFrontCamera(exifData);
-  result.isFrontCamera = cameraDetection.isFrontCamera;
-  result.frontCameraConfidence = cameraDetection.confidence;
   
   // Helper to push both legacy string and i18n key
   const pushIssue = (key: string, legacy: string, params?: Record<string, string | number>) => {
@@ -625,18 +611,7 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
 
   
   // Calculate overall score
-  let rawOverallScore = calculateOverallScore(result);
-  
-  // Apply heavy penalty for front camera (selfie) detection
-  if (result.isFrontCamera) {
-    rawOverallScore *= FRONT_CAMERA_SCORE_PENALTY; // 65% reduction
-    pushIssue(
-      'quality.issues.camera.frontCamera',
-      'Selfie detected - please use your back camera for better quality training photos',
-      { confidence: Math.round(result.frontCameraConfidence * 100) }
-    );
-  }
-  
+  const rawOverallScore = calculateOverallScore(result);
   // Less aggressive calibration to avoid unfairly low scores:
   // - Reduced compression and higher scaling factor
   const calibratedPercent = Math.round(
@@ -689,236 +664,6 @@ async function createImageElement(file: File): Promise<HTMLImageElement> {
     img.onerror = reject;
     img.src = URL.createObjectURL(file);
   });
-}
-
-// Extract EXIF metadata from image file
-async function extractExifData(file: File): Promise<Record<string, any>> {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    
-    reader.onload = (e) => {
-      try {
-        const arrayBuffer = e.target?.result as ArrayBuffer;
-        if (!arrayBuffer) {
-          resolve({});
-          return;
-        }
-        
-        const view = new DataView(arrayBuffer);
-        
-        // Check for valid JPEG (starts with 0xFFD8)
-        if (view.getUint16(0, false) !== 0xFFD8) {
-          resolve({});
-          return;
-        }
-        
-        // Find EXIF marker (0xFFE1)
-        let offset = 2;
-        while (offset < view.byteLength) {
-          const marker = view.getUint16(offset, false);
-          
-          if (marker === 0xFFE1) {
-            // Found APP1 (EXIF) marker
-            const exifData = parseExifData(view, offset);
-            resolve(exifData);
-            return;
-          }
-          
-          // Move to next marker
-          if (marker === 0xFFD9) break; // End of image
-          offset += 2 + view.getUint16(offset + 2, false);
-        }
-        
-        resolve({});
-      } catch (error) {
-        console.error('Error extracting EXIF:', error);
-        resolve({});
-      }
-    };
-    
-    reader.onerror = () => resolve({});
-    reader.readAsArrayBuffer(file.slice(0, 128 * 1024)); // Read first 128KB (EXIF is usually in first few KB)
-  });
-}
-
-// Parse EXIF data from DataView
-function parseExifData(view: DataView, offset: number): Record<string, any> {
-  try {
-    // Skip APP1 marker and length
-    offset += 4;
-    
-    // Check for "Exif" identifier
-    const exifHeader = String.fromCharCode(
-      view.getUint8(offset),
-      view.getUint8(offset + 1),
-      view.getUint8(offset + 2),
-      view.getUint8(offset + 3)
-    );
-    
-    if (exifHeader !== 'Exif') {
-      return {};
-    }
-    
-    offset += 6; // Skip "Exif\0\0"
-    
-    // Check byte order (II=little endian, MM=big endian)
-    const byteOrder = view.getUint16(offset, false);
-    const littleEndian = byteOrder === 0x4949;
-    
-    offset += 2;
-    
-    // Check for 0x002A
-    const magic = view.getUint16(offset, littleEndian);
-    if (magic !== 0x002A) {
-      return {};
-    }
-    
-    offset += 2;
-    
-    // Get IFD0 offset
-    const ifd0Offset = view.getUint32(offset, littleEndian);
-    const tiffOffset = offset - 6;
-    
-    // Parse IFD0
-    const exifData: Record<string, any> = {};
-    parseIFD(view, tiffOffset + ifd0Offset, tiffOffset, littleEndian, exifData);
-    
-    return exifData;
-  } catch (error) {
-    console.error('Error parsing EXIF data:', error);
-    return {};
-  }
-}
-
-// Parse IFD (Image File Directory)
-function parseIFD(view: DataView, offset: number, tiffOffset: number, littleEndian: boolean, result: Record<string, any>): void {
-  try {
-    const numEntries = view.getUint16(offset, littleEndian);
-    offset += 2;
-    
-    // EXIF tags we care about
-    const TAGS: Record<number, string> = {
-      0x010F: 'Make',                  // Camera make
-      0x0110: 'Model',                 // Camera model
-      0x829A: 'ExposureTime',
-      0x829D: 'FNumber',
-      0x920A: 'FocalLength',           // Focal length in mm
-      0xA405: 'FocalLengthIn35mmFilm', // Focal length in 35mm equivalent
-      0xA433: 'LensMake',              // Lens manufacturer
-      0xA434: 'LensModel',             // Lens model
-    };
-    
-    for (let i = 0; i < numEntries; i++) {
-      const entryOffset = offset + i * 12;
-      
-      const tag = view.getUint16(entryOffset, littleEndian);
-      const type = view.getUint16(entryOffset + 2, littleEndian);
-      const count = view.getUint32(entryOffset + 4, littleEndian);
-      const valueOffset = view.getUint32(entryOffset + 8, littleEndian);
-      
-      if (TAGS[tag]) {
-        let value: any;
-        
-        // Type 2 = ASCII string
-        if (type === 2) {
-          const strOffset = count > 4 ? tiffOffset + valueOffset : entryOffset + 8;
-          value = '';
-          for (let j = 0; j < count - 1; j++) {
-            value += String.fromCharCode(view.getUint8(strOffset + j));
-          }
-        }
-        // Type 5 = Rational (two LONGs: numerator and denominator)
-        else if (type === 5) {
-          const dataOffset = tiffOffset + valueOffset;
-          const numerator = view.getUint32(dataOffset, littleEndian);
-          const denominator = view.getUint32(dataOffset + 4, littleEndian);
-          value = denominator !== 0 ? numerator / denominator : 0;
-        }
-        // Type 3 = SHORT (16-bit)
-        else if (type === 3) {
-          value = view.getUint16(entryOffset + 8, littleEndian);
-        }
-        // Type 4 = LONG (32-bit)
-        else if (type === 4) {
-          value = view.getUint32(entryOffset + 8, littleEndian);
-        }
-        
-        if (value !== undefined) {
-          result[TAGS[tag]] = value;
-        }
-      }
-    }
-  } catch (error) {
-    console.error('Error parsing IFD:', error);
-  }
-}
-
-// Detect if image is from front camera (selfie)
-function isFrontCamera(exifData: Record<string, any>): { isFrontCamera: boolean; confidence: number } {
-  let confidence = 0;
-  let indicators = 0;
-  let positiveIndicators = 0;
-  
-console.log(exifData);
-
-  // Check focal length in 35mm equivalent (most reliable)
-  if (exifData.FocalLengthIn35mmFilm) {
-    indicators++;
-    const focalLength = exifData.FocalLengthIn35mmFilm;
-    
-    if (focalLength < FRONT_CAMERA_FOCAL_LENGTH_MAX) {
-      positiveIndicators++;
-      confidence += 0.5; // Strong indicator
-      
-      // Very short focal length (< 24mm) is almost certain front camera
-      if (focalLength < 24) {
-        confidence += 0.3;
-      }
-    }
-  }
-  
-  // Check raw focal length
-  if (exifData.FocalLength && !exifData.FocalLengthIn35mmFilm) {
-    indicators++;
-    const focalLength = exifData.FocalLength;
-    
-    // Most phone front cameras have very short raw focal lengths (2-4mm)
-    if (focalLength < 5) {
-      positiveIndicators++;
-      confidence += 0.4;
-    }
-  }
-  
-  // Check lens model for "front" or "selfie" keywords
-  if (exifData.LensModel) {
-    indicators++;
-    const lensModel = String(exifData.LensModel).toLowerCase();
-    
-    if (lensModel.includes('front') || lensModel.includes('selfie')) {
-      positiveIndicators++;
-      confidence += 0.6; // Very strong indicator
-    }
-  }
-  
-  // Check camera model for indicators
-  if (exifData.Model) {
-    indicators++;
-    const model = String(exifData.Model).toLowerCase();
-    
-    // Some phones embed camera info in model string
-    if (model.includes('front') || model.includes('selfie')) {
-      positiveIndicators++;
-      confidence += 0.4;
-    }
-  }
-  
-  // Calculate final confidence (0-1 range)
-  confidence = Math.min(1, confidence);
-  
-  // Consider it a front camera if confidence > 0.5 or if we have strong indicators
-  const isFrontCamera = confidence > 0.5 || (positiveIndicators >= 2 && indicators >= 2);
-  
-  return { isFrontCamera, confidence };
 }
 
 function evaluateFacePosition(detection: WithFaceLandmarks<{ detection: FaceDetection }>, imgWidth: number, imgHeight: number): number {
@@ -1942,8 +1687,6 @@ function initializeResult(width: number, height: number): ImageQualityResult {
     issues: [],
     i18nIssues: [],
     eyesVisible: false,
-    eyeDetectionSkipped: false,
-    isFrontCamera: false,
-    frontCameraConfidence: 0
+    eyeDetectionSkipped: false
   };
 } 
