@@ -24,5 +24,10 @@
     "uploading": "Lädt hoch...",
     "processing": "Verarbeitet...",
     "complete": "Abgeschlossen"
+  },
+  "quality": {
+    "rejected": {
+      "title": "{{rejected}} von {{total}} Fotos erfüllen nicht die Anforderungen"
+    }
   }
 }

@@ -24,6 +24,11 @@
     "uploading": "Uploading...",
     "processing": "Processing...",
     "complete": "Complete"
+  },
+  "quality": {
+    "rejected": {
+      "title": "{{rejected}} of {{total}} photos didn't make the cut"
+    }
   }
 }
 

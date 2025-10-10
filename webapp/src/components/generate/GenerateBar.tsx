@@ -177,9 +177,9 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const selectedLabels = useMemo(() => {
     if (!currentStyle) return { scene: '', wardrobe: '', color: '' }
     const sel = getStoredStyleSelections(currentStyle.id)
-    const sceneLabel = scenes.find(sc => sc.value === sel.scene)?.label || ''
-    const wardrobeLabel = wardrobes.find(w => w.value === sel.wardrobe)?.label || ''
-    const colorLabel = colors.find(c => c.value === sel.color)?.label || ''
+    const sceneLabel = scenes.find(sc => sc.value.toLowerCase() === sel.scene?.toLowerCase())?.label || ''
+    const wardrobeLabel = wardrobes.find(w => w.value.toLowerCase() === sel.wardrobe?.toLowerCase())?.label || ''
+    const colorLabel = colors.find(c => c.value.toLowerCase() === sel.color?.toLowerCase())?.label || ''
     return { scene: sceneLabel, wardrobe: wardrobeLabel, color: colorLabel }
   }, [currentStyle?.id, scenes, wardrobes, colors, selectedStyleIndex, selectionVersion])
 
@@ -991,7 +991,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                   {s.preview_images?.[0] && (
                     <Image loader={stylesLoader} src={s.preview_images[0]} alt={s.name} width={80} height={80} className={styles.itemThumb} />
                   )}
-                  <div className={styles.itemLabel}>{s.name}</div>
+                  <div className={styles.itemLabel} title={s.name}>{s.name}</div>
                 </button>
               ))}
               </div>
@@ -1000,20 +1000,21 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
         )
       case 'scenes': {
         const available = (currentStyle?.available_scenes || [])
-        const items = scenes.filter(s => available.includes(s.value)).filter(s => !panelQuery || s.label.toLowerCase().includes(panelQuery.toLowerCase()))
+        const availableLower = available.map(v => v.toLowerCase())
+        const items = scenes.filter(s => availableLower.includes(s.value.toLowerCase())).filter(s => !panelQuery || s.label.toLowerCase().includes(panelQuery.toLowerCase()))
         return (
           <OptionsPanel title={t('titles.sceneLabel', { ns: 'styles' })} onClose={close} onSearchChange={setPanelQuery} searchValue={panelQuery} canPrev={navState.canPrev} canNext={navState.canNext} onPrev={handlePrev} onNext={handleNext}>
             <div ref={viewportRef} className={styles.carouselViewport} onScroll={updateNavButtons}>
               <div className={styles.itemsRow} style={{ width: 'max-content' }}>
               {items.map(opt => {
                 const sel = currentStyle ? getStoredStyleSelections(currentStyle.id).scene : null
-                const isSelected = sel === opt.value
+                const isSelected = sel?.toLowerCase() === opt.value.toLowerCase()
                 return (
                 <button key={opt.value} data-value={opt.value} className={`${styles.itemCard} ${isSelected ? styles.itemSelected : ''}`} onClick={() => { storeStyleSelections(currentStyle.id, { scene: opt.value }); setSelectionVersion(v=>v+1); clearError('scene'); close() }}>
                   {opt.image && (
                     <Image loader={scenesLoader} src={opt.image} alt={opt.label} width={80} height={80} className={styles.itemThumb} />
                   )}
-                  <div className={styles.itemLabel}>{opt.label}</div>
+                  <div className={styles.itemLabel} title={opt.label}>{opt.label}</div>
                 </button>)
               })}
               </div>
@@ -1024,9 +1025,10 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
       case 'wardrobe': {
         const availableWardrobes = (currentStyle?.available_wardrobes || [])
         const availableColors = (currentStyle?.available_colors || [])
+        const availableWardrobesLower = availableWardrobes.map(v => v.toLowerCase())
         // Base filtered list by availability, search, and gender
         const baseWardrobes = wardrobes
-          .filter(w => availableWardrobes.includes(w.value))
+          .filter(w => availableWardrobesLower.includes(w.value.toLowerCase()))
           .filter(w => !panelQuery || w.label.toLowerCase().includes(panelQuery.toLowerCase()))
           .filter(w => {
             const raw = (w as any).gender as (string | undefined)
@@ -1087,7 +1089,8 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
         }
 
         const filteredWardrobes = orderedWardrobes
-        const filteredColors = sortColorsByPalette(colors.filter(c => availableColors.includes(c.value)))
+        const availableColorsLower = availableColors.map(v => v.toLowerCase())
+        const filteredColors = sortColorsByPalette(colors.filter(c => availableColorsLower.includes(c.value.toLowerCase())))
         const showingColors = !!selectedWardrobeValue
 
         return (
@@ -1164,7 +1167,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 <div className={styles.itemsRow} style={{ width: 'max-content' }}>
                 {filteredWardrobes.map(opt => {
                   const sel = currentStyle ? getStoredStyleSelections(currentStyle.id).wardrobe : null
-                  const isSelected = sel === opt.value
+                  const isSelected = sel?.toLowerCase() === opt.value.toLowerCase()
                   return (
                   <button key={opt.value} data-value={opt.value} className={`${styles.itemCard} ${isSelected ? styles.itemSelected : ''}`} onClick={() => {
                     setSelectedWardrobeValue(opt.value)
@@ -1175,7 +1178,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                     {opt.image && (
                       <Image loader={wardrobesLoader} src={opt.image} alt={opt.label} width={80} height={80} className={styles.itemThumb} />
                     )}
-                    <div className={styles.itemLabel}>{opt.label}</div>
+                    <div className={styles.itemLabel} title={opt.label}>{opt.label}</div>
                   </button>)
                 })}
                 </div>
@@ -1430,7 +1433,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 className={`${errors.scene ? styles.selectorError : ''} ${!selectedLabels.scene ? styles.selectorEmpty : ''}`}
                 thumbnail={(() => {
                   const sel = currentStyle ? getStoredStyleSelections(currentStyle.id).scene : null
-                  const scene = scenes.find(s => s.value === sel)
+                  const scene = scenes.find(s => s.value.toLowerCase() === sel?.toLowerCase())
                 
                   if (scene?.image) return <Image loader={scenesLoader} src={scene.image} alt={scene.label} width={32} height={32} className={styles.thumbImg} />
                     return <Icon variant="scene" size={20} />
@@ -1446,7 +1449,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 className={`${errors.wardrobe ? styles.selectorError : ''} ${!selectedLabels.wardrobe ? styles.selectorEmpty : ''}`}
                 thumbnail={(() => {
                 const sel = currentStyle ? getStoredStyleSelections(currentStyle.id) : null
-                const wrb = wardrobes.find(w => w.value === (sel?.wardrobe || ''))
+                const wrb = wardrobes.find(w => w.value.toLowerCase() === (sel?.wardrobe?.toLowerCase() || ''))
                 if (wrb?.image) {
                     return (
                     <Image loader={wardrobesLoader} src={wrb.image} alt={wrb.label} width={32} height={32} className={styles.thumbImg} />
@@ -1458,7 +1461,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 const sel = currentStyle ? getStoredStyleSelections(currentStyle.id) : null
                 if (!sel?.color) return null
                 return (
-                    <span className={styles.colorSelected} style={{ background: colors.find(c=>c.value===sel.color)?.color || '#fff' }} />
+                    <span className={styles.colorSelected} style={{ background: colors.find(c=>c.value.toLowerCase()===sel.color?.toLowerCase())?.color || '#fff' }} />
                 )
                 })()}
                 label={selectedLabels.wardrobe || t('labels.wardrobe', { ns: 'generate' })}
@@ -1620,7 +1623,7 @@ function CharacterCard({ character, thumbUrl, uploadedCount = 0, job, onSelect, 
           </span>
         </div>
       </div>
-      <div className={styles.itemLabel}>{character.name}</div>
+      <div className={styles.itemLabel} title={character.name}>{character.name}</div>
       <div className={styles.itemSubLabel}>
         {isFailed ? (
           t('character.trainingFailedTitle', { ns: 'styles' })

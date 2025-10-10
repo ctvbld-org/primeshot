@@ -1,7 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders } from '../_shared/cors.ts'  
-import { fillStylePrompt } from '../_shared/prompt.ts'
+import { fillStylePrompt, addArticleToColor } from '../_shared/prompt.ts'
 
 interface InferenceJobRow {
   id: string
@@ -135,7 +135,7 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
     const negativePrompt = ''
 
     if (wardrobePrompt && colorValue) {
-      wardrobePrompt = wardrobePrompt.replace(/\[color\]/g, colorValue)
+      wardrobePrompt = wardrobePrompt.replace(/\[color\]/g, addArticleToColor(colorValue))
     }
 
     const builtPrompt = fillStylePrompt(stylePrompt, { meta: character?.metadata || {}, wardrobe: wardrobePrompt, scene: scenePrompt, atmosphere: atmosphereText })

@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { calculateImageCreditCost, getSubscriptionLimits, getInferenceSettings, type Quality } from "../_shared/pricing.ts";
-import { fillStylePrompt } from "../_shared/prompt.ts";
+import { fillStylePrompt, addArticleToColor } from "../_shared/prompt.ts";
 
 // Rate limiting store for Edge Functions
 class EdgeRateLimitStore {
@@ -588,7 +588,7 @@ serve(async (req) => {
 
     // Replace [color] placeholder in wardrobe prompt with actual color value
     if (wardrobePrompt && colorValue) {
-      wardrobePrompt = wardrobePrompt.replace(/\[color\]/g, colorValue);
+      wardrobePrompt = wardrobePrompt.replace(/\[color\]/g, addArticleToColor(colorValue));
     }
     
     let scenePrompt = '';

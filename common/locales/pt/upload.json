@@ -24,5 +24,10 @@
     "uploading": "A carregar...",
     "processing": "A processar...",
     "complete": "Concluído"
+  },
+  "quality": {
+    "rejected": {
+      "title": "{{rejected}} das {{total}} fotos não cumprem os requisitos"
+    }
   }
 }

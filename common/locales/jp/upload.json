@@ -23,5 +23,10 @@
     "uploading": "アップロード中...",
     "processing": "処理中...",
     "complete": "完了"
+  },
+  "quality": {
+    "rejected": {
+      "title": "{{total}}枚中{{rejected}}枚の写真が基準を満たしていません"
+    }
   }
 }

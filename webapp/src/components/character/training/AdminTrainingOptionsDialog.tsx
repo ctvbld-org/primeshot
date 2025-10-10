@@ -26,13 +26,13 @@ interface AdminTrainingOptionsDialogProps {
 }
 
 export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm }: AdminTrainingOptionsDialogProps) {
-  const [steps, setSteps] = useState<number>(defaults?.steps ?? 3008)
-  const [batchSize, setBatchSize] = useState<number>(defaults?.batch_size ?? 8)
-  const [gradientAccumulationSteps, setGradientAccumulationSteps] = useState<number>(defaults?.gradient_accumulation_steps ?? 1)
+  const [steps, setSteps] = useState<number>(defaults?.steps ?? 2688)
+  const [batchSize, setBatchSize] = useState<number>(defaults?.batch_size ?? 7)
+  const [gradientAccumulationSteps, setGradientAccumulationSteps] = useState<number>(defaults?.gradient_accumulation_steps ?? 2)
   const [resizeSize, setResizeSize] = useState<number>(defaults?.resize_size ?? 896)
-  const [learningRate, setLearningRate] = useState<number>(defaults?.learning_rate ?? 0.00018)
+  const [learningRate, setLearningRate] = useState<number>(defaults?.learning_rate ?? 0.0006)
   const [resolution, setResolution] = useState<string>(
-    defaults?.resolution ? JSON.stringify(defaults.resolution) : '[1024, 1024]'
+    defaults?.resolution ? JSON.stringify(defaults.resolution) : '[1024]'
   )
   const [rank, setRank] = useState<number>(defaults?.rank ?? 32)
   const [optimizer, setOptimizer] = useState<string>(defaults?.optimizer ?? 'adamw')
@@ -52,9 +52,9 @@ export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm
         .filter((v) => Number.isFinite(v))
         .map((v) => Math.floor(v))
         .filter((v) => v >= 512 && v <= 2048 && v % 64 === 0)
-      return safe.length > 0 ? safe : [1024, 1024]
+      return safe.length > 0 ? safe : [1024]
     } catch (_e) {
-      return [960]
+      return [1024]
     }
   }
 

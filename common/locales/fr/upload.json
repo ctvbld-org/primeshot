@@ -24,5 +24,10 @@
     "uploading": "Téléchargement en cours...",
     "processing": "Traitement en cours...",
     "complete": "Terminé"
+  },
+  "quality": {
+    "rejected": {
+      "title": "{{rejected}} photos sur {{total}} ne répondent pas aux critères"
+    }
   }
 }

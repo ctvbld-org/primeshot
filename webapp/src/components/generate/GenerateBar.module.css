@@ -654,6 +654,18 @@
   }
 }
 
+@media (max-width: 560px) {
+  .itemLabel {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
 @media (max-width: 370px) {
   .credits {
     display: none;

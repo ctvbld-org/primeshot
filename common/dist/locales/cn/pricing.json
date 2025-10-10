@@ -1,128 +1,128 @@
 {
-    "buyCredits": {
-        "title": "购买积分",
-        "description": "选择积分套餐"
-    },
-    "upgradePlan": {
-        "title": "升级套餐",
-        "description": "选择订阅套餐"
-    },
-    "purchase": {
-        "success": {
-            "subscriptionTitle": "您已成功升级到{{plan}}",
-            "subscriptionTitleNew": "欢迎使用{{plan}}！",
-            "creditsTitle": "积分已添加！",
-            "subscriptionDescriptionWithCredits": "您的新订阅计费周期今天开始。享受{{amount}}积分和更多功能！",
-            "subscriptionDescriptionWithCreditsNew": "您的计费周期今天开始。享受{{amount}}积分和更多功能！",
-            "subscriptionDescription": "您的新订阅计费周期今天开始。享受您的新福利！",
-            "subscriptionDescriptionNew": "您的计费周期今天开始。享受您的新福利！",
-            "creditsDescription": "您的余额已更新。您现在可以开始生成了。",
-            "returnToShoot": "返回拍摄",
-            "defaultPlan": "您的新套餐"
-        }
-    },
-    "subscription": {
-        "context": {
-            "characterLimit": { "title": "您已达到角色限制。", "description": "升级以获得额外角色" },
-            "qualityUpgrade": { "title": "想要更高质量？", "description": "升级以获得更清晰的图像和额外福利" },
-            "creditUpgrade": { "title": "积分不够用？", "description": "升级以获得更多月度积分" },
-            "general": { "title": "升级您的套餐", "description": "解锁更多功能和灵活性" },
-            "default": { "title": "选择您的套餐", "description": "选择适合的，随时更换" }
-        },
-        "loading": "加载套餐中...",
-        "empty": {
-            "title": "无可用升级",
-            "description": "您已经在最高可用套餐上了。"
-        },
-        "headers": {
-            "chooseYourPlan": "选择您的套餐"
-        },
-        "banner": {
-            "titleStart": "加入创始人",
-            "titleNumber": "300",
-            "description": {
-                "start": "帮助塑造Primeshot，获得",
-                "lifetime": "终身",
-                "annualDiscount": "70%折扣",
-                "annualWord": "年付",
-                "or": "或",
-                "monthlyDiscount": "50%折扣",
-                "monthlyWord": "月付",
-                "end": "并获得创始人300的专属福利。"
-            },
-            "small": "终身优惠持续到您取消为止。"
-        },
-        "toggle": {
-            "monthly": "月付",
-            "yearly": "年付",
-            "aria": "计费周期"
-        },
-        "card": {
-            "recommended": "推荐",
-            "save": "节省{{pct}}%",
-            "perMonth": "/月",
-            "billed": "{{cycle}}计费",
-            "creditsCount": "{{count}}积分",
-            "perMonthWord": "每月",
-            "perCredit": "每积分{{price}}",
-            "button": {
-                "select": "选择套餐",
-                "current": "当前套餐",
-                "processing": "处理中…",
-                "disabledTooltip": "特别优惠期间不可用🚀"
-            },
-            "features": {
-                "quality": "{{quality}}质量图像",
-                "characterIncluded": "包含{{count}}个角色",
-                "maxCharacters": "最多{{count}}个角色存储",
-                "concurrentShoots": "最多{{count}}个并发拍摄",
-                "commercialUse": "商业使用"
-            }
-        },
-        "footer": {
-            "upgradeNotice": "您当前的订阅将被取消并替换为新套餐。现有积分将保留。"
-        },
-        "toasts": {
-            "loginRequired": "请登录",
-            "selectPlan": "请选择套餐",
-            "invalidPlan": "选择了无效的订阅套餐",
-            "openingPortal": "正在打开Stripe客户门户...",
-            "customerPortalFailed": "无法打开客户门户",
-            "upgradePreviewFailed": "无法打开升级预览",
-            "upgraded": "订阅升级成功！",
-            "checkoutFailed": "结账失败",
-            "invalidCheckout": "结账响应无效"
-        }
-    },
-    "credits": {
-        "dialog": {
-            "headerSub": {
-                "lowBalance": "积分余额不足。",
-                "creativity": "激发您的创造力🚀"
-            },
-            "headerTitle": {
-                "lowBalance": "充值积分以继续生成",
-                "fun": "更多积分，更多创作，更多乐趣！"
-            }
-        },
-        "card": {
-            "images": "最多{{count}}张{{quality}}图像",
-            "characters": "最多{{count}}个角色",
-            "footnote": "*仅限标准和专业套餐",
-            "button": {
-                "buy": "购买",
-                "processing": "处理中…"
-            },
-            "validity": "有效期{{duration}}",
-            "oneTime": "一次性",
-            "perCredit": "每积分{{price}}",
-            "perCreditWord": "每积分"
-        },
-        "toasts": {
-            "loginRequired": "请登录",
-            "invalidPackConfig": "无效的积分套餐配置",
-            "createCheckoutFailed": "无法创建结账会话",
-            "purchaseFailed": "积分套餐购买失败"
-        }
+  "buyCredits": {
+    "title": "购买积分",
+    "description": "选择积分套餐"
+  },
+  "upgradePlan": {
+    "title": "升级套餐",
+    "description": "选择订阅套餐"
+  },
+  "purchase": {
+    "success": {
+      "subscriptionTitle": "您已成功升级到{{plan}}",
+      "subscriptionTitleNew": "欢迎使用{{plan}}！",
+      "creditsTitle": "积分已添加！",
+      "subscriptionDescriptionWithCredits": "您的新订阅计费周期今天开始。享受{{amount}}积分和更多功能！",
+      "subscriptionDescriptionWithCreditsNew": "您的计费周期今天开始。享受{{amount}}积分和更多功能！",
+      "subscriptionDescription": "您的新订阅计费周期今天开始。享受您的新福利！",
+      "subscriptionDescriptionNew": "您的计费周期今天开始。享受您的新福利！",
+      "creditsDescription": "您的余额已更新。您现在可以开始生成了。",
+      "returnToShoot": "返回拍摄",
+      "defaultPlan": "您的新套餐"
     }
+  },
+  "subscription": {
+    "context": {
+      "characterLimit": { "title": "您已达到角色限制。", "description": "升级以获得额外角色" },
+      "qualityUpgrade": { "title": "想要更高质量？", "description": "升级以获得更清晰的图像和额外福利" },
+      "creditUpgrade": { "title": "积分不够用？", "description": "升级以获得更多月度积分" },
+      "general": { "title": "升级您的套餐", "description": "解锁更多功能和灵活性" },
+      "default": { "title": "选择您的套餐", "description": "选择适合的，随时更换" }
+    },
+    "loading": "加载套餐中...",
+    "empty": {
+      "title": "无可用升级",
+      "description": "您已经在最高可用套餐上了。"
+    },
+    "headers": {
+      "chooseYourPlan": "选择您的套餐"
+    },
+    "banner": {
+      "titleStart": "加入创始人",
+      "titleNumber": "300",
+      "description": {
+        "start": "帮助塑造Primeshot，获得",
+        "lifetime": "终身",
+        "annualDiscount": "70%折扣",
+        "annualWord": "年付",
+        "or": "或",
+        "monthlyDiscount": "50%折扣",
+        "monthlyWord": "月付",
+        "end": "并获得创始人300的专属福利。"
+      },
+      "small": "终身优惠持续到您取消为止。"
+    },
+    "toggle": {
+      "monthly": "月付",
+      "yearly": "年付",
+      "aria": "计费周期"
+    },
+    "card": {
+      "recommended": "推荐",
+      "save": "节省{{pct}}%",
+      "perMonth": "/月",
+      "billed": "{{cycle}}计费",
+      "creditsCount": "{{count}}积分",
+      "perMonthWord": "每月",
+      "perCredit": "每积分{{price}}",
+      "button": {
+        "select": "选择套餐",
+        "current": "当前套餐",
+        "processing": "处理中…",
+        "disabledTooltip": "特别优惠期间不可用🚀"
+      },
+      "features": {
+        "quality": "{{quality}}质量图像",
+        "characterIncluded": "包含{{count}}个角色",
+        "maxCharacters": "最多{{count}}个角色存储",
+        "concurrentShoots": "最多{{count}}个并发拍摄",
+        "commercialUse": "商业使用"
+      }
+    },
+    "footer": {
+      "upgradeNotice": "您当前的订阅将被取消并替换为新套餐。现有积分将保留。"
+    },
+    "toasts": {
+      "loginRequired": "请登录",
+      "selectPlan": "请选择套餐",
+      "invalidPlan": "选择了无效的订阅套餐",
+      "openingPortal": "正在打开Stripe客户门户...",
+      "customerPortalFailed": "无法打开客户门户",
+      "upgradePreviewFailed": "无法打开升级预览",
+      "upgraded": "订阅升级成功！",
+      "checkoutFailed": "结账失败",
+      "invalidCheckout": "结账响应无效"
+    }
+  },
+  "credits": {
+    "dialog": {
+      "headerSub": {
+        "lowBalance": "积分余额不足。",
+        "creativity": "激发您的创造力🚀"
+      },
+      "headerTitle": {
+        "lowBalance": "充值积分以继续生成",
+        "fun": "更多积分，更多创作，更多乐趣！"
+      }
+    },
+    "card": {
+      "images": "最多{{count}}张{{quality}}图像",
+      "characters": "最多{{count}}个角色",
+      "footnote": "*仅限标准和专业套餐",
+      "button": {
+        "buy": "购买",
+        "processing": "处理中…"
+      },
+      "validity": "有效期{{duration}}",
+      "oneTime": "一次性",
+      "perCredit": "每积分{{price}}",
+      "perCreditWord": "每积分"
+    },
+    "toasts": {
+      "loginRequired": "请登录",
+      "invalidPackConfig": "无效的积分套餐配置",
+      "createCheckoutFailed": "无法创建结账会话",
+      "purchaseFailed": "积分套餐购买失败"
+    }
+  }
 }

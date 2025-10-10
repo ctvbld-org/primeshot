@@ -23,5 +23,10 @@
     "uploading": "上传中...",
     "processing": "处理中...",
     "complete": "完成"
+  },
+  "quality": {
+    "rejected": {
+      "title": "{{total}}张照片中有{{rejected}}张未达标准"
+    }
   }
 }

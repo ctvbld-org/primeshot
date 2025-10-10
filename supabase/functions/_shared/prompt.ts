@@ -14,8 +14,8 @@ export function joinWithOr(list: string[]): string {
 
 export function buildPronoun(gender?: string | null): 'He' | 'She' | 'They' {
   const g = (gender || '').toLowerCase()
-  if (g.startsWith('male') || g === 'man' || g === 'm') return 'He'
-  if (g.startsWith('female') || g === 'woman' || g === 'f') return 'She'
+  if (g.startsWith('male') || g === 'man' || g === 'boy' || g === 'm') return 'He'
+  if (g.startsWith('female') || g === 'woman' || g === 'girl' || g === 'f') return 'She'
   return 'They'
 }
 
@@ -77,6 +77,23 @@ export function buildSubjectCompact(meta: any): string {
  * Returns text like "and with a pink hijab" or "and with an orange patterned turban"
  * that can be naturally added to wardrobe descriptions.
  */
+/**
+ * Adds the appropriate article ("a" or "an") before a color value.
+ * Returns the color with the correct article prefix.
+ * @example addArticleToColor("red") => "a red"
+ * @example addArticleToColor("orange") => "an orange"
+ */
+export function addArticleToColor(colorValue: string): string {
+  if (!colorValue || typeof colorValue !== 'string') return colorValue
+  const trimmed = colorValue.trim()
+  if (!trimmed) return colorValue
+  
+  const needsAn = /^[aeiou]/i.test(trimmed)
+  const article = needsAn ? 'an' : 'a'
+  
+  return `${article} ${trimmed}`
+}
+
 export function buildHeadCoveringForWardrobe(meta: any): string {
   const present = (meta?.head_covering?.present === true) || (String(meta?.head_covering?.present || '').toLowerCase() === 'true')
   if (!present) return ''

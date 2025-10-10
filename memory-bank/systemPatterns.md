@@ -2187,6 +2187,11 @@ Detected changes in:
 - webapp/src/components/pricing/SubscriptionDialogContent.tsx
 - webapp/src/contexts/credit-balance-context.tsx
 - webapp/src/lib/image-quality.ts
+
+
+**Auto-update 2025-10-10**:
+Detected changes in:
+- webapp/src/lib/image-quality.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

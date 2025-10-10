@@ -24,5 +24,10 @@
     "uploading": "Caricamento...",
     "processing": "Elaborazione...",
     "complete": "Completato"
+  },
+  "quality": {
+    "rejected": {
+      "title": "{{rejected}} foto su {{total}} non soddisfano i requisiti"
+    }
   }
 }

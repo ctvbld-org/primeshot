@@ -24,5 +24,10 @@
     "uploading": "Uploaden...",
     "processing": "Verwerken...",
     "complete": "Voltooid"
+  },
+  "quality": {
+    "rejected": {
+      "title": "{{rejected}} van de {{total}} foto's voldoen niet aan de eisen"
+    }
   }
 }

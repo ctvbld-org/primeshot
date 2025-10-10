@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
-import { fillStylePrompt } from "../_shared/prompt.ts";
+import { fillStylePrompt, addArticleToColor } from "../_shared/prompt.ts";
 
 interface PreviewRequest {
   character_id: string;
@@ -73,7 +73,7 @@ serve(async (req) => {
       const { data: c } = await supabase.from('style_colors').select('value').eq('value', color_id).maybeSingle();
       if (c) colorValue = (c.value || '').toString();
     }
-    if (wardrobePrompt && colorValue) wardrobePrompt = wardrobePrompt.replace(/\[color\]/g, colorValue);
+    if (wardrobePrompt && colorValue) wardrobePrompt = wardrobePrompt.replace(/\[color\]/g, addArticleToColor(colorValue));
 
     // Scene by value
     let scenePrompt = '';

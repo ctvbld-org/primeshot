@@ -24,5 +24,10 @@
     "uploading": "Subiendo...",
     "processing": "Procesando...",
     "complete": "Completo"
+  },
+  "quality": {
+    "rejected": {
+      "title": "{{rejected}} de {{total}} fotos no pasaron el corte"
+    }
   }
 }

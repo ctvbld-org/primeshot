@@ -99,15 +99,20 @@ export function validateStyleSettings(
   const wardrobe = 'wardrobe' in settings ? settings.wardrobe : ('clothing' in settings ? (settings as any).clothing : undefined);
   const color = 'color' in settings ? settings.color : ('clothingColor' in settings ? (settings as any).clothingColor : undefined);
 
-  if (scene && !validOptions.scenes.includes(scene)) {
+  // Case-insensitive validation for scenes, wardrobes, and colors
+  const scenesLower = validOptions.scenes.map(s => s.toLowerCase());
+  const wardrobesLower = validOptions.wardrobes.map(w => w.toLowerCase());
+  const colorsLower = validOptions.colors.map(c => c.toLowerCase());
+
+  if (scene && !scenesLower.includes(scene.toLowerCase())) {
     errors.push(`Invalid scene: ${escapeHtml(scene)}`)
   }
 
-  if (wardrobe && !validOptions.wardrobes.includes(wardrobe)) {
+  if (wardrobe && !wardrobesLower.includes(wardrobe.toLowerCase())) {
     errors.push(`Invalid wardrobe: ${escapeHtml(wardrobe)}`)
   }
 
-  if (color && !validOptions.colors.includes(color)) {
+  if (color && !colorsLower.includes(color.toLowerCase())) {
     errors.push(`Invalid color: ${escapeHtml(color)}`)
   }
 
@@ -129,11 +134,15 @@ export function validateStyleSettingsLegacy(
     errors.push(`Invalid photography style: ${escapeHtml(settings.photographyStyle)}`)
   }
 
-  if (settings.background && !validOptions.backgrounds.includes(settings.background)) {
+  // Case-insensitive validation for backgrounds and clothing
+  const backgroundsLower = validOptions.backgrounds.map(b => b.toLowerCase());
+  const clothingLower = validOptions.clothing.map(c => c.toLowerCase());
+
+  if (settings.background && !backgroundsLower.includes(settings.background.toLowerCase())) {
     errors.push(`Invalid background: ${escapeHtml(settings.background)}`)
   }
 
-  if (settings.clothing && !validOptions.clothing.includes(settings.clothing)) {
+  if (settings.clothing && !clothingLower.includes(settings.clothing.toLowerCase())) {
     errors.push(`Invalid clothing: ${escapeHtml(settings.clothing)}`)
   }
 

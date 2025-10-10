@@ -1,156 +1,158 @@
 {
-    "common": {
-        "pleaseTryAgain": "Please try again",
-        "cancel": "Cancel"
-    },
-    "time": {
-        "justNow": "Just now",
-        "minutesAgo": "{{count}}m ago",
-        "hoursAgo": "{{count}}h ago",
-        "daysAgo": "{{count}}d ago"
-    },
-    "gallery": {
-        "error": "Failed to load inference jobs: {{error}}",
-        "retry": "Retry",
-        "loadingMore": "Loading more shoots",
-        "endOfList": "You've reached the end of your shoots",
-        "howItWorksAria": "How it works",
-        "steps": {
-            "choose": {
-                "title": "Choose a style",
-                "desc": "Pick the mood, scene, and outfit that fit your look."
-            },
-            "character": {
-                "title": "Create a Character",
-                "desc": "Upload a few photos so our AI learns exactly what makes you, you."
-            },
-            "generate": {
-                "title": "Generate your shoot",
-                "desc": "Get your portraits in minutes — authentic, polished, and ready to use."
-            }
-        }
-    },
-    "viewer": {
-        "confirmDelete": {
-            "title": "Delete image?",
-            "description": "This will permanently delete the image and can’t be undone.",
-            "confirm": "Delete",
-            "cancel": "Cancel"
-        },
-        "closeAria": "Close viewer",
-        "carousel": {
-            "aria": "Carousel navigation",
-            "prevAria": "Previous image",
-            "nextAria": "Next image"
-        },
-        "overlay": {
-            "displayOriginal": "Display original",
-            "displayOriginalAria": "Display original image",
-            "originalUnavailableTitle": "Original unavailable",
-            "originalUnavailableDesc": "Could not load original image variant."
-        },
-        "title": "Shoot {{shootNumber}}",
-        "imageIndex": "IMG {{index}}",
-        "favourite": {
-            "ariaButton": "Favourite",
-            "add": "Add to Favourites",
-            "remove": "Remove from Favourites",
-            "updateErrorTitle": "Failed to update favourite"
-        },
-        "metadata": {
-            "labels": {
-                "aspectRatio": "Aspect Ratio",
-                "quality": "Quality",
-                "model": "Model",
-                "character": "Character"
-            },
-            "aspectLabels": {
-                "square": "Square",
-                "landscape": "Landscape",
-                "portrait": "Portrait"
-            }
-        },
-        "actions": {
-            "delete": {
-                "label": "Delete",
-                "aria": "Delete image"
-            },
-            "download": {
-                "label": "Download",
-                "aria": "Download image"
-            }
-        },
-        "alt": {
-            "generated": "Generated image {{index}}",
-            "thumbnail": "Thumbnail {{index}}"
-        }
-    },
-    "group": {
-        "status": {
-            "failed": "Generation failed"
-        },
-        "error": {
-            "generic": "Error generating images, credits refunded",
-            "timeout": "Generation took too long, credits refunded",
-            "serverBusy": "Server was busy, credits refunded",
-            "memory": "Server overloaded, credits refunded",
-            "connection": "Connection issue, credits refunded",
-            "imageGeneration": "Image generation failed, credits refunded"
-        },
-        "confirmDelete": {
-            "title": "Delete shoot?",
-            "description": "This will remove the shoot from your gallery. This cannot be undone.",
-            "confirm": "Delete"
-        },
-        "deleteFailedTitle": "Delete failed",
-        "rerun": {
-            "cannot": "Cannot rerun",
-            "missingInfo": "Missing required job information.",
-            "failed": "Rerun failed"
-        },
-        "header": {
-            "shootTitle": "SHOOT #{{number}}"
-        },
-        "tooltips": {
-            "deleteShoot": "Delete shoot",
-            "rerunShoot": "Rerun shoot"
-        },
-        "aria": {
-            "thumbnailsPreview": "Thumbnails preview",
-            "viewAllImages": "View all images"
-        },
-        "alt": {
-            "preview": "Preview {{index}}"
-        },
-        "buttons": {
-            "viewAll": "View all"
-        }
-    },
-    "thumbnail": {
-        "alt": {
-            "generatingPreview": "Generating preview {{index}}",
-            "generated": "Generated image {{index}}"
-        },
-        "favourite": {
-            "add": "Add to favourites",
-            "remove": "Remove from favourites"
-        },
-        "loadingTitle": "Loading…",
-        "loadingDesc": "Image details are still loading. Please try again in a moment.",
-        "actions": {
-            "delete": {
-                "label": "Delete",
-                "aria": "Delete image"
-            },
-            "download": {
-                "label": "Download",
-                "aria": "Download image"
-            }
-        },
-        "confirmDelete": {
-            "title": "Delete image?",
-            "description": "This will remove the image from your gallery. This cannot be undone.",
-            "confirm": "Delete"
-        }
+  "common": {
+    "pleaseTryAgain": "Please try again",
+    "cancel": "Cancel"
+  },
+  "time": {
+    "justNow": "Just now",
+    "minutesAgo": "{{count}}m ago",
+    "hoursAgo": "{{count}}h ago",
+    "daysAgo": "{{count}}d ago"
+  },
+  "gallery": {
+    "error": "Failed to load inference jobs: {{error}}",
+    "retry": "Retry",
+    "loadingMore": "Loading more shoots",
+    "endOfList": "You've reached the end of your shoots",
+    "howItWorksAria": "How it works",
+    "steps": {
+      "choose": {
+        "title": "Choose a style",
+        "desc": "Pick the mood, scene, and outfit that fit your look."
+      },
+      "character": {
+        "title": "Create a Character",
+        "desc": "Upload a few photos so our AI learns exactly what makes you, you."
+      },
+      "generate": {
+        "title": "Generate your shoot",
+        "desc": "Get your portraits in minutes — authentic, polished, and ready to use."
+      }
     }
+  },
+  "viewer": {
+    "confirmDelete": {
+      "title": "Delete image?",
+      "description": "This will permanently delete the image and can’t be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "closeAria": "Close viewer",
+    "carousel": {
+      "aria": "Carousel navigation",
+      "prevAria": "Previous image",
+      "nextAria": "Next image"
+    },
+    "overlay": {
+      "displayOriginal": "Display original",
+      "displayOriginalAria": "Display original image",
+      "originalUnavailableTitle": "Original unavailable",
+      "originalUnavailableDesc": "Could not load original image variant."
+    },
+    "title": "Shoot {{shootNumber}}",
+    "imageIndex": "IMG {{index}}",
+    "favourite": {
+      "ariaButton": "Favourite",
+      "add": "Add to Favourites",
+      "remove": "Remove from Favourites",
+      "updateErrorTitle": "Failed to update favourite"
+    },
+    "metadata": {
+      "labels": {
+        "aspectRatio": "Aspect Ratio",
+        "quality": "Quality",
+        "model": "Model",
+        "character": "Character"
+      },
+      "aspectLabels": {
+        "square": "Square",
+        "landscape": "Landscape",
+        "portrait": "Portrait"
+      }
+    },
+    "actions": {
+      "delete": {
+        "label": "Delete",
+        "aria": "Delete image"
+      },
+      "download": {
+        "label": "Download",
+        "aria": "Download image"
+      }
+    },
+    "alt": {
+      "generated": "Generated image {{index}}",
+      "thumbnail": "Thumbnail {{index}}"
+    }
+  },
+  "group": {
+    "status": {
+      "failed": "Generation failed"
+    },
+    "error": {
+      "generic": "Error generating images, credits refunded",
+      "timeout": "Generation took too long, credits refunded",
+      "serverBusy": "Server was busy, credits refunded",
+      "memory": "Server overloaded, credits refunded",
+      "connection": "Connection issue, credits refunded",
+      "imageGeneration": "Image generation failed, credits refunded"
+    },
+    "confirmDelete": {
+      "title": "Delete shoot?",
+      "description": "This will remove the shoot from your gallery. This cannot be undone.",
+      "confirm": "Delete"
+    },
+    "deleteFailedTitle": "Delete failed",
+    "rerun": {
+      "cannot": "Cannot rerun",
+      "missingInfo": "Missing required job information.",
+      "failed": "Rerun failed"
+    },
+    "header": {
+      "shootTitle": "SHOOT #{{number}}"
+    },
+    "tooltips": {
+      "deleteShoot": "Delete shoot",
+      "rerunShoot": "Rerun shoot"
+    },
+    "aria": {
+      "thumbnailsPreview": "Thumbnails preview",
+      "viewAllImages": "View all images"
+    },
+    "alt": {
+      "preview": "Preview {{index}}"
+    },
+    "buttons": {
+      "viewAll": "View all"
+    }
+  },
+  "thumbnail": {
+    "alt": {
+      "generatingPreview": "Generating preview {{index}}",
+      "generated": "Generated image {{index}}"
+    },
+    "favourite": {
+      "add": "Add to favourites",
+      "remove": "Remove from favourites"
+    },
+    "loadingTitle": "Loading…",
+    "loadingDesc": "Image details are still loading. Please try again in a moment.",
+    "actions": {
+      "delete": {
+        "label": "Delete",
+        "aria": "Delete image"
+      },
+      "download": {
+        "label": "Download",
+        "aria": "Download image"
+      }
+    },
+    "confirmDelete": {
+      "title": "Delete image?",
+      "description": "This will remove the image from your gallery. This cannot be undone.",
+      "confirm": "Delete"
+    }
+  }
 }
+
+

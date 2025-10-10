@@ -955,6 +955,11 @@ export declare const resources: {
                 processing: string;
                 complete: string;
             };
+            quality: {
+                rejected: {
+                    title: string;
+                };
+            };
         };
         homepage: {
             hero: {
@@ -2000,6 +2005,11 @@ export declare const resources: {
                 processing: string;
                 complete: string;
             };
+            quality: {
+                rejected: {
+                    title: string;
+                };
+            };
         };
         homepage: {
             hero: {
@@ -3031,6 +3041,11 @@ export declare const resources: {
                 uploading: string;
                 processing: string;
                 complete: string;
+            };
+            quality: {
+                rejected: {
+                    title: string;
+                };
             };
         };
         homepage: {
@@ -4064,6 +4079,11 @@ export declare const resources: {
                 processing: string;
                 complete: string;
             };
+            quality: {
+                rejected: {
+                    title: string;
+                };
+            };
         };
         homepage: {
             hero: {
@@ -5095,6 +5115,11 @@ export declare const resources: {
                 uploading: string;
                 processing: string;
                 complete: string;
+            };
+            quality: {
+                rejected: {
+                    title: string;
+                };
             };
         };
         homepage: {
@@ -6128,6 +6153,11 @@ export declare const resources: {
                 processing: string;
                 complete: string;
             };
+            quality: {
+                rejected: {
+                    title: string;
+                };
+            };
         };
         homepage: {
             hero: {
@@ -7159,6 +7189,11 @@ export declare const resources: {
                 uploading: string;
                 processing: string;
                 complete: string;
+            };
+            quality: {
+                rejected: {
+                    title: string;
+                };
             };
         };
         homepage: {
@@ -8192,6 +8227,11 @@ export declare const resources: {
                 processing: string;
                 complete: string;
             };
+            quality: {
+                rejected: {
+                    title: string;
+                };
+            };
         };
         homepage: {
             hero: {
@@ -9223,6 +9263,11 @@ export declare const resources: {
                 uploading: string;
                 processing: string;
                 complete: string;
+            };
+            quality: {
+                rejected: {
+                    title: string;
+                };
             };
         };
         homepage: {
