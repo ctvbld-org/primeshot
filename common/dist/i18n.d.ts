@@ -462,6 +462,12 @@ export declare const resources: {
                     originalUnavailableTitle: string;
                     originalUnavailableDesc: string;
                 };
+                viewOriginal: {
+                    label: string;
+                    viewing: string;
+                    aria: string;
+                    viewingAria: string;
+                };
                 title: string;
                 imageIndex: string;
                 favourite: {

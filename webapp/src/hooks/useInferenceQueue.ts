@@ -31,7 +31,7 @@ export interface InferenceJob {
 interface UseInferenceQueueReturn {
   jobs: InferenceJob[];
   addJob: (jobId: string, nbTakes: number) => void;
-  createQueuedThumbnails: (nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string; aspectRatio?: string; quality?: string }) => string; // Returns placeholder ID
+  createQueuedThumbnails: (nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string; aspectRatio?: string; quality?: string; characterId?: string }) => string; // Returns placeholder ID
   updateJobWithRealId: (placeholderId: string, realJobId: string) => void;
   updateJobStatus: (jobId: string, status: InferenceJob['status']) => void;
   updateJobMessage: (jobId: string, message?: string) => void;
@@ -285,7 +285,7 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
     }, 3000); // 3 second delay to allow for job initialization
   }, []);
 
-  const createQueuedThumbnails = useCallback((nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string; aspectRatio?: string; quality?: string }) => {
+  const createQueuedThumbnails = useCallback((nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string; aspectRatio?: string; quality?: string; characterId?: string }) => {
     // Create a placeholder ID for the thumbnails (no WebSocket connection yet)
     const placeholderId = `placeholder_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
@@ -309,9 +309,37 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
       // Ensure correct aspect ratio/quality classes while initializing
       aspectRatio: meta?.aspectRatio,
       quality: meta?.quality,
+      characterId: meta?.characterId,
     };
 
     setJobs(prev => [newJob, ...prev]);
+    
+    // Fetch character details asynchronously if characterId is provided
+    if (meta?.characterId) {
+      const characterId = meta.characterId; // Capture for closure
+      (async () => {
+        try {
+          const { charactersApi } = await import('@/lib/api/characters');
+          const characters = await charactersApi.getCharactersByIds([characterId]);
+          if (characters && characters.length > 0) {
+            const char = characters[0];
+            // Update the job with character details
+            setJobs(prev => prev.map(job => 
+              job.id === placeholderId
+                ? {
+                    ...job,
+                    characterName: char.name,
+                    characterThumbnailUrl: char.thumbnail_url as any
+                  }
+                : job
+            ));
+          }
+        } catch (error) {
+          console.warn('Failed to fetch character details for new job:', error);
+        }
+      })();
+    }
+    
     return placeholderId;
   }, []);
 

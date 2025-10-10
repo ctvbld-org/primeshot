@@ -523,6 +523,44 @@
   cursor: not-allowed;
 }
 
+/* View Original button */
+.viewOriginalButton {
+  height: 48px;
+  padding: 0 16px;
+  border-radius: 16px;
+  background-color: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #ffffff;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.viewOriginalButton:hover:not(:disabled) {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.viewOriginalButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.viewOriginalActive {
+  background-color: rgba(68, 227, 201, 0.15);
+  color: #44E3C9;
+}
+
+.viewOriginalButtonText {
+  display: inline-block;
+}
+
 @keyframes deletionBlur {
   0% {
     backdrop-filter: blur(0px);

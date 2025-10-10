@@ -49,6 +49,12 @@
       "originalUnavailableTitle": "Original unavailable",
       "originalUnavailableDesc": "Could not load original image variant."
     },
+    "viewOriginal": {
+      "label": "View Original",
+      "viewing": "Viewing Original",
+      "aria": "Load and display original quality image",
+      "viewingAria": "Currently viewing original quality image"
+    },
     "title": "Shoot {{shootNumber}}",
     "imageIndex": "IMG {{index}}",
     "favourite": {

@@ -58,6 +58,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
   const [isDeleting, setIsDeleting] = useState(false);
   const [overlaySrc, setOverlaySrc] = useState<string | null>(null);
   const [overlayActive, setOverlayActive] = useState(false);
+  const [isLoadingOriginal, setIsLoadingOriginal] = useState(false);
   const { t } = useTranslation(['styles']);
   const queue = useOptionalInferenceQueue();
   const { toast } = useToast();
@@ -261,6 +262,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
     setShowOriginal(false);
     setOverlayActive(false);
     setOverlaySrc(null);
+    setIsLoadingOriginal(false);
   }, [currentImageIndex, activeJob.id]);
 
   // Carousel navigation (instant jump for clicks/keys; drag still slides)
@@ -562,6 +564,13 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
     return true;
   }, [buildOriginalCandidates, currentThumbnail?.webImageUrl, currentThumbnail?.imageUrl, toast]);
 
+  const handleViewOriginal = useCallback(async () => {
+    if (overlayActive) return; // Already viewing original
+    setIsLoadingOriginal(true);
+    await loadAndShowOriginal();
+    setIsLoadingOriginal(false);
+  }, [loadAndShowOriginal, overlayActive]);
+
   const mainImageUrl = showOriginal ? resolveOriginalFromBase(baseImageUrl) : baseImageUrl;
 
   // Direct DOM ref to swap src after preload for seamless transition
@@ -741,6 +750,32 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
             >
               <Icon variant="arrowRight" size={20} />
             </button>
+            {currentThumbnail?.status === 'completed' && currentThumbnail?.webImageUrl && (
+              <button
+                className={`${styles.viewOriginalButton} ${overlayActive ? styles.viewOriginalActive : ''}`}
+                onClick={handleViewOriginal}
+                disabled={isLoadingOriginal || overlayActive}
+                aria-label={
+                  overlayActive 
+                    ? t('inference:viewer.viewOriginal.viewingAria', { defaultValue: 'Currently viewing original quality image' })
+                    : t('inference:viewer.viewOriginal.aria', { defaultValue: 'Load and display original quality image' })
+                }
+              >
+                {isLoadingOriginal ? (
+                  <Loader size="sm" />
+                ) : (
+                  <>
+                    <Icon variant={overlayActive ? "check" : "camera"} size={16} />
+                    <span className={styles.viewOriginalButtonText}>
+                      {overlayActive 
+                        ? t('inference:viewer.viewOriginal.viewing', { defaultValue: 'Viewing Original' })
+                        : t('inference:viewer.viewOriginal.label', { defaultValue: 'View Original' })
+                      }
+                    </span>
+                  </>
+                )}
+              </button>
+            )}
           </div>
           { overlaySrc && (
             <>
