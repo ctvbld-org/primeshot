@@ -2203,6 +2203,12 @@ Detected changes in:
 - webapp/src/components/inference/InferenceImageViewerDialog.tsx
 - webapp/src/components/upload/ImageQualityScore.tsx
 - webapp/src/lib/utils/style-validation.ts
+
+
+**Auto-update 2025-10-10**:
+Detected changes in:
+- webapp/src/components/inference/InferenceImageViewerDialog.module.css
+- webapp/src/components/inference/InferenceImageViewerDialog.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

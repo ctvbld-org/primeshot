@@ -157,16 +157,15 @@ export function StylesCarousel() {
 
   // Function to open the preview dialog
   const openPreviewDialog = useCallback((style: any) => {
-    const styleName = getTranslatedField(style, 'name') || style.name
     openDialog(
       createElement(StylePreviewDialog, {
-        styleName,
+        styleName: style.name,
         previewImages: style.preview_images || [],
         fullscreen: true,
         noContainer: true
       })
     )
-  }, [openDialog, getTranslatedField])
+  }, [openDialog])
 
   // subtitle translation is constant per request
 
