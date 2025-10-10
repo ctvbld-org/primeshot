@@ -49,6 +49,12 @@
       "originalUnavailableTitle": "Origineel niet beschikbaar",
       "originalUnavailableDesc": "Kon originele afbeelding variant niet laden."
     },
+    "viewOriginal": {
+      "label": "Schakel naar origineel",
+      "viewing": "Origineel wordt getoond",
+      "aria": "Schakel naar originele afbeelding in volledige kwaliteit",
+      "viewingAria": "Originele afbeelding in volledige kwaliteit wordt getoond"
+    },
     "title": "Shoot {{shootNumber}}",
     "imageIndex": "IMG {{index}}",
     "favourite": {

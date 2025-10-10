@@ -2192,6 +2192,17 @@ Detected changes in:
 **Auto-update 2025-10-10**:
 Detected changes in:
 - webapp/src/lib/image-quality.ts
+
+
+**Auto-update 2025-10-10**:
+Detected changes in:
+- webapp/src/components/character/training/AdminTrainingOptionsDialog.tsx
+- webapp/src/components/generate/GenerateBar.module.css
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/inference/InferenceImageViewerDialog.module.css
+- webapp/src/components/inference/InferenceImageViewerDialog.tsx
+- webapp/src/components/upload/ImageQualityScore.tsx
+- webapp/src/lib/utils/style-validation.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

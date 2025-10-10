@@ -49,6 +49,12 @@
       "originalUnavailableTitle": "Original indisponível",
       "originalUnavailableDesc": "Não foi possível carregar a variante da imagem original."
     },
+    "viewOriginal": {
+      "label": "Mudar para original",
+      "viewing": "A ver original",
+      "aria": "Mudar para imagem em qualidade original",
+      "viewingAria": "A visualizar imagem em qualidade original"
+    },
     "title": "Ensaio {{shootNumber}}",
     "imageIndex": "IMG {{index}}",
     "favourite": {

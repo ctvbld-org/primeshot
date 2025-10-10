@@ -62,6 +62,11 @@
 }
 
 .mainImage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
   max-height: 100%;
   max-width: 100%;
   object-fit: contain;
@@ -525,7 +530,6 @@
 
 /* View Original button */
 .viewOriginalButton {
-  height: 48px;
   padding: 0 16px;
   border-radius: 16px;
   background-color: rgba(255, 255, 255, 0.08);
@@ -541,6 +545,9 @@
   font-size: 14px;
   font-weight: 500;
   white-space: nowrap;
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
 }
 
 .viewOriginalButton:hover:not(:disabled) {
@@ -548,6 +555,7 @@
 }
 
 .viewOriginalButton:disabled {
+  color: #ffffff60;
   opacity: 0.6;
   cursor: not-allowed;
 }

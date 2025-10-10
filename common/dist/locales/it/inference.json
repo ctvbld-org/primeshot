@@ -1,156 +1,162 @@
 {
-  "common": {
-    "pleaseTryAgain": "Per favore riprova",
-    "cancel": "Annulla"
-  },
-  "time": {
-    "justNow": "Proprio ora",
-    "minutesAgo": "{{count}}min fa",
-    "hoursAgo": "{{count}}h fa",
-    "daysAgo": "{{count}}g fa"
-  },
-  "gallery": {
-    "error": "Caricamento dei lavori di inferenza fallito: {{error}}",
-    "retry": "Riprova",
-    "loadingMore": "Caricamento di più servizi",
-    "endOfList": "Hai raggiunto la fine dei tuoi servizi",
-    "howItWorksAria": "Come funziona",
-    "steps": {
-      "choose": {
-        "title": "Scegli uno stile",
-        "desc": "Seleziona l'atmosfera, la scena e l'outfit che si adattano al tuo look."
-      },
-      "character": {
-        "title": "Crea un personaggio",
-        "desc": "Carica alcune foto così la nostra IA impara esattamente quello che ti rende te."
-      },
-      "generate": {
-        "title": "Genera il tuo servizio",
-        "desc": "Ottieni i tuoi ritratti in minuti — autentici, raffinati e pronti all'uso."
-      }
+    "common": {
+        "pleaseTryAgain": "Per favore riprova",
+        "cancel": "Annulla"
+    },
+    "time": {
+        "justNow": "Proprio ora",
+        "minutesAgo": "{{count}}min fa",
+        "hoursAgo": "{{count}}h fa",
+        "daysAgo": "{{count}}g fa"
+    },
+    "gallery": {
+        "error": "Caricamento dei lavori di inferenza fallito: {{error}}",
+        "retry": "Riprova",
+        "loadingMore": "Caricamento di più servizi",
+        "endOfList": "Hai raggiunto la fine dei tuoi servizi",
+        "howItWorksAria": "Come funziona",
+        "steps": {
+            "choose": {
+                "title": "Scegli uno stile",
+                "desc": "Seleziona l'atmosfera, la scena e l'outfit che si adattano al tuo look."
+            },
+            "character": {
+                "title": "Crea un personaggio",
+                "desc": "Carica alcune foto così la nostra IA impara esattamente quello che ti rende te."
+            },
+            "generate": {
+                "title": "Genera il tuo servizio",
+                "desc": "Ottieni i tuoi ritratti in minuti — autentici, raffinati e pronti all'uso."
+            }
+        }
+    },
+    "viewer": {
+        "confirmDelete": {
+            "title": "Eliminare l'immagine?",
+            "description": "Questo eliminerà permanentemente l'immagine e non può essere annullato.",
+            "confirm": "Elimina",
+            "cancel": "Annulla"
+        },
+        "closeAria": "Chiudi visualizzatore",
+        "carousel": {
+            "aria": "Navigazione carosello",
+            "prevAria": "Immagine precedente",
+            "nextAria": "Immagine successiva"
+        },
+        "overlay": {
+            "displayOriginal": "Mostra originale",
+            "displayOriginalAria": "Mostra immagine originale",
+            "originalUnavailableTitle": "Originale non disponibile",
+            "originalUnavailableDesc": "Impossibile caricare la variante dell'immagine originale."
+        },
+        "viewOriginal": {
+            "label": "Passa all'originale",
+            "viewing": "Originale visualizzato",
+            "aria": "Passa all'immagine in qualità originale",
+            "viewingAria": "Immagine in qualità originale visualizzata"
+        },
+        "title": "Servizio {{shootNumber}}",
+        "imageIndex": "IMG {{index}}",
+        "favourite": {
+            "ariaButton": "Preferito",
+            "add": "Aggiungi ai preferiti",
+            "remove": "Rimuovi dai preferiti",
+            "updateErrorTitle": "Aggiornamento del preferito fallito"
+        },
+        "metadata": {
+            "labels": {
+                "aspectRatio": "Rapporto d'aspetto",
+                "quality": "Qualità",
+                "model": "Modello",
+                "character": "Personaggio"
+            },
+            "aspectLabels": {
+                "square": "Quadrato",
+                "landscape": "Orizzontale",
+                "portrait": "Verticale"
+            }
+        },
+        "actions": {
+            "delete": {
+                "label": "Elimina",
+                "aria": "Elimina immagine"
+            },
+            "download": {
+                "label": "Scarica",
+                "aria": "Scarica immagine"
+            }
+        },
+        "alt": {
+            "generated": "Immagine generata {{index}}",
+            "thumbnail": "Miniatura {{index}}"
+        }
+    },
+    "group": {
+        "status": {
+            "failed": "Generazione fallita"
+        },
+        "error": {
+            "generic": "Qualcosa è andato storto, i tuoi crediti sono stati rimborsati",
+            "timeout": "La creazione ha richiesto più tempo del previsto, i tuoi crediti sono stati rimborsati",
+            "serverBusy": "I nostri server erano temporaneamente occupati, i tuoi crediti sono stati rimborsati",
+            "memory": "Capacità del server superata, i tuoi crediti sono stati rimborsati",
+            "connection": "Problema di connessione temporaneo, i tuoi crediti sono stati rimborsati",
+            "imageGeneration": "La creazione non è andata a buon fine, i tuoi crediti sono stati rimborsati"
+        },
+        "confirmDelete": {
+            "title": "Eliminare il servizio?",
+            "description": "Questo rimuoverà il servizio dalla tua galleria. Questa azione non può essere annullata.",
+            "confirm": "Elimina"
+        },
+        "deleteFailedTitle": "Eliminazione fallita",
+        "rerun": {
+            "cannot": "Impossibile rieseguire",
+            "missingInfo": "Informazioni del lavoro richieste mancanti.",
+            "failed": "Riesecuzione fallita"
+        },
+        "header": {
+            "shootTitle": "SERVIZIO #{{number}}"
+        },
+        "tooltips": {
+            "deleteShoot": "Elimina servizio",
+            "rerunShoot": "Riesegui servizio"
+        },
+        "aria": {
+            "thumbnailsPreview": "Anteprima miniature",
+            "viewAllImages": "Visualizza tutte le immagini"
+        },
+        "alt": {
+            "preview": "Anteprima {{index}}"
+        },
+        "buttons": {
+            "viewAll": "Visualizza tutto"
+        }
+    },
+    "thumbnail": {
+        "alt": {
+            "generatingPreview": "Generazione anteprima {{index}}",
+            "generated": "Immagine generata {{index}}"
+        },
+        "favourite": {
+            "add": "Aggiungi ai preferiti",
+            "remove": "Rimuovi dai preferiti"
+        },
+        "loadingTitle": "Caricamento…",
+        "loadingDesc": "I dettagli dell'immagine sono ancora in caricamento. Per favore riprova tra un momento.",
+        "actions": {
+            "delete": {
+                "label": "Elimina",
+                "aria": "Elimina immagine"
+            },
+            "download": {
+                "label": "Scarica",
+                "aria": "Scarica immagine"
+            }
+        },
+        "confirmDelete": {
+            "title": "Eliminare l'immagine?",
+            "description": "Questo rimuoverà l'immagine dalla tua galleria. Questa azione non può essere annullata.",
+            "confirm": "Elimina"
+        }
     }
-  },
-  "viewer": {
-    "confirmDelete": {
-      "title": "Eliminare l'immagine?",
-      "description": "Questo eliminerà permanentemente l'immagine e non può essere annullato.",
-      "confirm": "Elimina",
-      "cancel": "Annulla"
-    },
-    "closeAria": "Chiudi visualizzatore",
-    "carousel": {
-      "aria": "Navigazione carosello",
-      "prevAria": "Immagine precedente",
-      "nextAria": "Immagine successiva"
-    },
-    "overlay": {
-      "displayOriginal": "Mostra originale",
-      "displayOriginalAria": "Mostra immagine originale",
-      "originalUnavailableTitle": "Originale non disponibile",
-      "originalUnavailableDesc": "Impossibile caricare la variante dell'immagine originale."
-    },
-    "title": "Servizio {{shootNumber}}",
-    "imageIndex": "IMG {{index}}",
-    "favourite": {
-      "ariaButton": "Preferito",
-      "add": "Aggiungi ai preferiti",
-      "remove": "Rimuovi dai preferiti",
-      "updateErrorTitle": "Aggiornamento del preferito fallito"
-    },
-    "metadata": {
-      "labels": {
-        "aspectRatio": "Rapporto d'aspetto",
-        "quality": "Qualità",
-        "model": "Modello",
-        "character": "Personaggio"
-      },
-      "aspectLabels": {
-        "square": "Quadrato",
-        "landscape": "Orizzontale",
-        "portrait": "Verticale"
-      }
-    },
-    "actions": {
-      "delete": {
-        "label": "Elimina",
-        "aria": "Elimina immagine"
-      },
-      "download": {
-        "label": "Scarica",
-        "aria": "Scarica immagine"
-      }
-    },
-    "alt": {
-      "generated": "Immagine generata {{index}}",
-      "thumbnail": "Miniatura {{index}}"
-    }
-  },
-  "group": {
-    "status": {
-      "failed": "Generazione fallita"
-    },
-    "error": {
-      "generic": "Qualcosa è andato storto, i tuoi crediti sono stati rimborsati",
-      "timeout": "La creazione ha richiesto più tempo del previsto, i tuoi crediti sono stati rimborsati",
-      "serverBusy": "I nostri server erano temporaneamente occupati, i tuoi crediti sono stati rimborsati",
-      "memory": "Capacità del server superata, i tuoi crediti sono stati rimborsati",
-      "connection": "Problema di connessione temporaneo, i tuoi crediti sono stati rimborsati",
-      "imageGeneration": "La creazione non è andata a buon fine, i tuoi crediti sono stati rimborsati"
-    },
-    "confirmDelete": {
-      "title": "Eliminare il servizio?",
-      "description": "Questo rimuoverà il servizio dalla tua galleria. Questa azione non può essere annullata.",
-      "confirm": "Elimina"
-    },
-    "deleteFailedTitle": "Eliminazione fallita",
-    "rerun": {
-      "cannot": "Impossibile rieseguire",
-      "missingInfo": "Informazioni del lavoro richieste mancanti.",
-      "failed": "Riesecuzione fallita"
-    },
-    "header": {
-      "shootTitle": "SERVIZIO #{{number}}"
-    },
-    "tooltips": {
-      "deleteShoot": "Elimina servizio",
-      "rerunShoot": "Riesegui servizio"
-    },
-    "aria": {
-      "thumbnailsPreview": "Anteprima miniature",
-      "viewAllImages": "Visualizza tutte le immagini"
-    },
-    "alt": {
-      "preview": "Anteprima {{index}}"
-    },
-    "buttons": {
-      "viewAll": "Visualizza tutto"
-    }
-  },
-  "thumbnail": {
-    "alt": {
-      "generatingPreview": "Generazione anteprima {{index}}",
-      "generated": "Immagine generata {{index}}"
-    },
-    "favourite": {
-      "add": "Aggiungi ai preferiti",
-      "remove": "Rimuovi dai preferiti"
-    },
-    "loadingTitle": "Caricamento…",
-    "loadingDesc": "I dettagli dell'immagine sono ancora in caricamento. Per favore riprova tra un momento.",
-    "actions": {
-      "delete": {
-        "label": "Elimina",
-        "aria": "Elimina immagine"
-      },
-      "download": {
-        "label": "Scarica",
-        "aria": "Scarica immagine"
-      }
-    },
-    "confirmDelete": {
-      "title": "Eliminare l'immagine?",
-      "description": "Questo rimuoverà l'immagine dalla tua galleria. Questa azione non può essere annullata.",
-      "confirm": "Elimina"
-    }
-  }
 }

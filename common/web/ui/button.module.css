@@ -204,13 +204,13 @@
 }
 
 .iconOnly.size-md {
-  height: 3rem;
-  width: 3rem;
+  height: 48px;
+  width: 48px;
 }
 
 .iconOnly.size-lg {
-  height: 2.75rem;
-  width: 2.75rem;
+  height: 56px;
+  width: 56px;
 }
 
 /* Loading state */

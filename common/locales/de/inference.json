@@ -49,6 +49,12 @@
       "originalUnavailableTitle": "Original nicht verfügbar",
       "originalUnavailableDesc": "Original-Bildvariante konnte nicht geladen werden."
     },
+    "viewOriginal": {
+      "label": "Zum Original wechseln",
+      "viewing": "Original wird angezeigt",
+      "aria": "Zum Originalbild in voller Qualität wechseln",
+      "viewingAria": "Originalbild in voller Qualität wird angezeigt"
+    },
     "title": "Shooting {{shootNumber}}",
     "imageIndex": "IMG {{index}}",
     "favourite": {

@@ -49,6 +49,12 @@
       "originalUnavailableTitle": "Original no disponible",
       "originalUnavailableDesc": "No se pudo cargar la variante de imagen original."
     },
+    "viewOriginal": {
+      "label": "Cambiar a original",
+      "viewing": "Viendo original",
+      "aria": "Cambiar a imagen en calidad original",
+      "viewingAria": "Viendo imagen en calidad original"
+    },
     "title": "Shooting {{shootNumber}}",
     "imageIndex": "IMG {{index}}",
     "favourite": {

@@ -1,156 +1,162 @@
 {
-  "common": {
-    "pleaseTryAgain": "Por favor, tente novamente",
-    "cancel": "Cancelar"
-  },
-  "time": {
-    "justNow": "Agora mesmo",
-    "minutesAgo": "há {{count}}min",
-    "hoursAgo": "há {{count}}h",
-    "daysAgo": "há {{count}}d"
-  },
-  "gallery": {
-    "error": "Falha ao carregar trabalhos de inferência: {{error}}",
-    "retry": "Tentar novamente",
-    "loadingMore": "A carregar mais ensaios",
-    "endOfList": "Chegou ao fim dos seus ensaios",
-    "howItWorksAria": "Como funciona",
-    "steps": {
-      "choose": {
-        "title": "Escolha um estilo",
-        "desc": "Selecione o ambiente, cenário e roupa que se adequam ao seu visual."
-      },
-      "character": {
-        "title": "Crie um personagem",
-        "desc": "Carregue algumas fotos para que a nossa IA aprenda exatamente o que o torna único."
-      },
-      "generate": {
-        "title": "Gere o seu ensaio",
-        "desc": "Obtenha os seus retratos em minutos — autênticos, polidos e prontos a usar."
-      }
+    "common": {
+        "pleaseTryAgain": "Por favor, tente novamente",
+        "cancel": "Cancelar"
+    },
+    "time": {
+        "justNow": "Agora mesmo",
+        "minutesAgo": "há {{count}}min",
+        "hoursAgo": "há {{count}}h",
+        "daysAgo": "há {{count}}d"
+    },
+    "gallery": {
+        "error": "Falha ao carregar trabalhos de inferência: {{error}}",
+        "retry": "Tentar novamente",
+        "loadingMore": "A carregar mais ensaios",
+        "endOfList": "Chegou ao fim dos seus ensaios",
+        "howItWorksAria": "Como funciona",
+        "steps": {
+            "choose": {
+                "title": "Escolha um estilo",
+                "desc": "Selecione o ambiente, cenário e roupa que se adequam ao seu visual."
+            },
+            "character": {
+                "title": "Crie um personagem",
+                "desc": "Carregue algumas fotos para que a nossa IA aprenda exatamente o que o torna único."
+            },
+            "generate": {
+                "title": "Gere o seu ensaio",
+                "desc": "Obtenha os seus retratos em minutos — autênticos, polidos e prontos a usar."
+            }
+        }
+    },
+    "viewer": {
+        "confirmDelete": {
+            "title": "Eliminar imagem?",
+            "description": "Isto eliminará permanentemente a imagem e não pode ser desfeito.",
+            "confirm": "Eliminar",
+            "cancel": "Cancelar"
+        },
+        "closeAria": "Fechar visualizador",
+        "carousel": {
+            "aria": "Navegação do carrossel",
+            "prevAria": "Imagem anterior",
+            "nextAria": "Imagem seguinte"
+        },
+        "overlay": {
+            "displayOriginal": "Mostrar original",
+            "displayOriginalAria": "Mostrar imagem original",
+            "originalUnavailableTitle": "Original indisponível",
+            "originalUnavailableDesc": "Não foi possível carregar a variante da imagem original."
+        },
+        "viewOriginal": {
+            "label": "Mudar para original",
+            "viewing": "A ver original",
+            "aria": "Mudar para imagem em qualidade original",
+            "viewingAria": "A visualizar imagem em qualidade original"
+        },
+        "title": "Ensaio {{shootNumber}}",
+        "imageIndex": "IMG {{index}}",
+        "favourite": {
+            "ariaButton": "Favorito",
+            "add": "Adicionar aos favoritos",
+            "remove": "Remover dos favoritos",
+            "updateErrorTitle": "Falha ao atualizar favorito"
+        },
+        "metadata": {
+            "labels": {
+                "aspectRatio": "Proporção",
+                "quality": "Qualidade",
+                "model": "Modelo",
+                "character": "Personagem"
+            },
+            "aspectLabels": {
+                "square": "Quadrado",
+                "landscape": "Horizontal",
+                "portrait": "Vertical"
+            }
+        },
+        "actions": {
+            "delete": {
+                "label": "Eliminar",
+                "aria": "Eliminar imagem"
+            },
+            "download": {
+                "label": "Descarregar",
+                "aria": "Descarregar imagem"
+            }
+        },
+        "alt": {
+            "generated": "Imagem gerada {{index}}",
+            "thumbnail": "Miniatura {{index}}"
+        }
+    },
+    "group": {
+        "status": {
+            "failed": "Geração falhada"
+        },
+        "error": {
+            "generic": "Algo correu mal, os seus créditos foram reembolsados",
+            "timeout": "A criação demorou mais do que o esperado, os seus créditos foram reembolsados",
+            "serverBusy": "Os nossos servidores estavam temporariamente ocupados, os seus créditos foram reembolsados",
+            "memory": "Capacidade do servidor excedida, os seus créditos foram reembolsados",
+            "connection": "Problema de ligação temporário, os seus créditos foram reembolsados",
+            "imageGeneration": "A criação não foi concluída, os seus créditos foram reembolsados"
+        },
+        "confirmDelete": {
+            "title": "Eliminar ensaio?",
+            "description": "Isto removerá o ensaio da sua galeria. Esta ação não pode ser desfeita.",
+            "confirm": "Eliminar"
+        },
+        "deleteFailedTitle": "Eliminação falhada",
+        "rerun": {
+            "cannot": "Não é possível executar novamente",
+            "missingInfo": "Informações de trabalho necessárias em falta.",
+            "failed": "Nova execução falhada"
+        },
+        "header": {
+            "shootTitle": "ENSAIO #{{number}}"
+        },
+        "tooltips": {
+            "deleteShoot": "Eliminar ensaio",
+            "rerunShoot": "Executar ensaio novamente"
+        },
+        "aria": {
+            "thumbnailsPreview": "Pré-visualização de miniaturas",
+            "viewAllImages": "Ver todas as imagens"
+        },
+        "alt": {
+            "preview": "Pré-visualização {{index}}"
+        },
+        "buttons": {
+            "viewAll": "Ver tudo"
+        }
+    },
+    "thumbnail": {
+        "alt": {
+            "generatingPreview": "A gerar pré-visualização {{index}}",
+            "generated": "Imagem gerada {{index}}"
+        },
+        "favourite": {
+            "add": "Adicionar aos favoritos",
+            "remove": "Remover dos favoritos"
+        },
+        "loadingTitle": "A carregar…",
+        "loadingDesc": "Os detalhes da imagem ainda estão a carregar. Por favor, tente novamente num momento.",
+        "actions": {
+            "delete": {
+                "label": "Eliminar",
+                "aria": "Eliminar imagem"
+            },
+            "download": {
+                "label": "Descarregar",
+                "aria": "Descarregar imagem"
+            }
+        },
+        "confirmDelete": {
+            "title": "Eliminar imagem?",
+            "description": "Isto removerá a imagem da sua galeria. Esta ação não pode ser desfeita.",
+            "confirm": "Eliminar"
+        }
     }
-  },
-  "viewer": {
-    "confirmDelete": {
-      "title": "Eliminar imagem?",
-      "description": "Isto eliminará permanentemente a imagem e não pode ser desfeito.",
-      "confirm": "Eliminar",
-      "cancel": "Cancelar"
-    },
-    "closeAria": "Fechar visualizador",
-    "carousel": {
-      "aria": "Navegação do carrossel",
-      "prevAria": "Imagem anterior",
-      "nextAria": "Imagem seguinte"
-    },
-    "overlay": {
-      "displayOriginal": "Mostrar original",
-      "displayOriginalAria": "Mostrar imagem original",
-      "originalUnavailableTitle": "Original indisponível",
-      "originalUnavailableDesc": "Não foi possível carregar a variante da imagem original."
-    },
-    "title": "Ensaio {{shootNumber}}",
-    "imageIndex": "IMG {{index}}",
-    "favourite": {
-      "ariaButton": "Favorito",
-      "add": "Adicionar aos favoritos",
-      "remove": "Remover dos favoritos",
-      "updateErrorTitle": "Falha ao atualizar favorito"
-    },
-    "metadata": {
-      "labels": {
-        "aspectRatio": "Proporção",
-        "quality": "Qualidade",
-        "model": "Modelo",
-        "character": "Personagem"
-      },
-      "aspectLabels": {
-        "square": "Quadrado",
-        "landscape": "Horizontal",
-        "portrait": "Vertical"
-      }
-    },
-    "actions": {
-      "delete": {
-        "label": "Eliminar",
-        "aria": "Eliminar imagem"
-      },
-      "download": {
-        "label": "Descarregar",
-        "aria": "Descarregar imagem"
-      }
-    },
-    "alt": {
-      "generated": "Imagem gerada {{index}}",
-      "thumbnail": "Miniatura {{index}}"
-    }
-  },
-  "group": {
-    "status": {
-      "failed": "Geração falhada"
-    },
-    "error": {
-      "generic": "Algo correu mal, os seus créditos foram reembolsados",
-      "timeout": "A criação demorou mais do que o esperado, os seus créditos foram reembolsados",
-      "serverBusy": "Os nossos servidores estavam temporariamente ocupados, os seus créditos foram reembolsados",
-      "memory": "Capacidade do servidor excedida, os seus créditos foram reembolsados",
-      "connection": "Problema de ligação temporário, os seus créditos foram reembolsados",
-      "imageGeneration": "A criação não foi concluída, os seus créditos foram reembolsados"
-    },
-    "confirmDelete": {
-      "title": "Eliminar ensaio?",
-      "description": "Isto removerá o ensaio da sua galeria. Esta ação não pode ser desfeita.",
-      "confirm": "Eliminar"
-    },
-    "deleteFailedTitle": "Eliminação falhada",
-    "rerun": {
-      "cannot": "Não é possível executar novamente",
-      "missingInfo": "Informações de trabalho necessárias em falta.",
-      "failed": "Nova execução falhada"
-    },
-    "header": {
-      "shootTitle": "ENSAIO #{{number}}"
-    },
-    "tooltips": {
-      "deleteShoot": "Eliminar ensaio",
-      "rerunShoot": "Executar ensaio novamente"
-    },
-    "aria": {
-      "thumbnailsPreview": "Pré-visualização de miniaturas",
-      "viewAllImages": "Ver todas as imagens"
-    },
-    "alt": {
-      "preview": "Pré-visualização {{index}}"
-    },
-    "buttons": {
-      "viewAll": "Ver tudo"
-    }
-  },
-  "thumbnail": {
-    "alt": {
-      "generatingPreview": "A gerar pré-visualização {{index}}",
-      "generated": "Imagem gerada {{index}}"
-    },
-    "favourite": {
-      "add": "Adicionar aos favoritos",
-      "remove": "Remover dos favoritos"
-    },
-    "loadingTitle": "A carregar…",
-    "loadingDesc": "Os detalhes da imagem ainda estão a carregar. Por favor, tente novamente num momento.",
-    "actions": {
-      "delete": {
-        "label": "Eliminar",
-        "aria": "Eliminar imagem"
-      },
-      "download": {
-        "label": "Descarregar",
-        "aria": "Descarregar imagem"
-      }
-    },
-    "confirmDelete": {
-      "title": "Eliminar imagem?",
-      "description": "Isto removerá a imagem da sua galeria. Esta ação não pode ser desfeita.",
-      "confirm": "Eliminar"
-    }
-  }
 }

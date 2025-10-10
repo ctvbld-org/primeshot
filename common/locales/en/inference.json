@@ -50,9 +50,9 @@
       "originalUnavailableDesc": "Could not load original image variant."
     },
     "viewOriginal": {
-      "label": "View Original",
-      "viewing": "Viewing Original",
-      "aria": "Load and display original quality image",
+      "label": "Switch to original",
+      "viewing": "Viewing original",
+      "aria": "Switch to original quality image",
       "viewingAria": "Currently viewing original quality image"
     },
     "title": "Shoot {{shootNumber}}",

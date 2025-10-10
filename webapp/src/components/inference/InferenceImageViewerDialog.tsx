@@ -53,11 +53,10 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
   const [currentImageIndex, setCurrentImageIndex] = useState(initialImageIndex);
   const [imageLoading, setImageLoading] = useState(true);
   const [characterImageUrl, setCharacterImageUrl] = useState<string | null>(null);
-  const [showOriginal, setShowOriginal] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [overlaySrc, setOverlaySrc] = useState<string | null>(null);
-  const [overlayActive, setOverlayActive] = useState(false);
+  // Store overlay per image ID to persist when navigating
+  const [overlayCache, setOverlayCache] = useState<Record<string, { src: string, loaded: boolean }>>({});
   const [isLoadingOriginal, setIsLoadingOriginal] = useState(false);
   const { t } = useTranslation(['styles']);
   const queue = useOptionalInferenceQueue();
@@ -257,13 +256,11 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
     setImageLoading(true);
   }, [currentImageIndex]);
 
-  // Reset original display when switching images/jobs
+  // Reset overlay cache only when switching jobs (not when navigating within same job)
   useEffect(() => {
-    setShowOriginal(false);
-    setOverlayActive(false);
-    setOverlaySrc(null);
+    setOverlayCache({});
     setIsLoadingOriginal(false);
-  }, [currentImageIndex, activeJob.id]);
+  }, [activeJob.id]);
 
   // Carousel navigation (instant jump for clicks/keys; drag still slides)
   const goPrev = useCallback(() => {
@@ -379,7 +376,6 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
     // Disable UI and pulse main image
     setIsDownloading(true);
     setIsDeleting(true);
-    setOverlayActive(true);
 
     try {
       const { deleteGeneratedImage } = await import('@/lib/api/inference-images');
@@ -433,7 +429,6 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
         // isDelete flag semantics reserved for future disabling logic of other buttons
         setIsDeleting(false);
         setIsDownloading(false);
-        setOverlayActive(false);
       }, 600);
     }
   }, [currentThumbnail?.imageId, currentThumbnail?.id, queue, activeJob.id, activeJob.thumbnails, visibleThumbnails.length]);
@@ -539,6 +534,8 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
 
   // Unified handler: preload original and show in overlay without touching base img
   const loadAndShowOriginal = useCallback(async () => {
+    if (!currentThumbnail?.id) return false;
+    
     const base = currentThumbnail?.webImageUrl || currentThumbnail?.imageUrl || '';
     const candidates = buildOriginalCandidates(base);
     let loadedUrl: string | null = null;
@@ -557,21 +554,24 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
       toast({ title: t('inference:viewer.overlay.originalUnavailableTitle'), description: t('inference:viewer.overlay.originalUnavailableDesc'), variant: 'destructive' });
       return false;
     }
-    // Only populate the overlay image; do NOT change the base image tag
-    setOverlaySrc(loadedUrl);
-    setOverlayActive(true);
-    setShowOriginal(true); // hide the button after activation
+    // Store in cache with loaded: false initially for fade-in effect
+    setOverlayCache(prev => ({
+      ...prev,
+      [currentThumbnail.id]: { src: loadedUrl, loaded: false }
+    }));
     return true;
-  }, [buildOriginalCandidates, currentThumbnail?.webImageUrl, currentThumbnail?.imageUrl, toast]);
+  }, [buildOriginalCandidates, currentThumbnail?.webImageUrl, currentThumbnail?.imageUrl, currentThumbnail?.id, toast, t]);
 
   const handleViewOriginal = useCallback(async () => {
-    if (overlayActive) return; // Already viewing original
+    if (!currentThumbnail?.id) return;
+    // If 1K quality, already showing original
+    if (activeJob.quality === '1K') return;
+    // Check if already in cache
+    if (overlayCache[currentThumbnail.id]) return;
     setIsLoadingOriginal(true);
     await loadAndShowOriginal();
     setIsLoadingOriginal(false);
-  }, [loadAndShowOriginal, overlayActive]);
-
-  const mainImageUrl = showOriginal ? resolveOriginalFromBase(baseImageUrl) : baseImageUrl;
+  }, [loadAndShowOriginal, overlayCache, currentThumbnail?.id, activeJob.quality]);
 
   // Direct DOM ref to swap src after preload for seamless transition
   const mainImgRef = React.useRef<HTMLImageElement | null>(null);
@@ -710,14 +710,17 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
           <div className={styles.emblaViewport} ref={emblaRef}>
             <div className={styles.emblaContainer}>
               {visibleThumbnails.map((thumb, idx) => {
-                const base = thumb.webImageUrl || thumb.imageUrl || '';
                 const isActive = idx === currentImageIndex;
-                const src = isActive ? mainImageUrl : base;
+                const cachedOverlay = overlayCache[thumb.id];
+                // If quality is 1K, always use original
+                const is1K = activeJob.quality === '1K';
+                const base = is1K ? (thumb.imageUrl || thumb.webImageUrl || '') : (thumb.webImageUrl || thumb.imageUrl || '');
+                const isAlreadyOriginal = is1K;
                 return (
                   <div className={styles.emblaSlide} key={thumb.id} aria-hidden={!isActive}>
-                    {src && (
+                    {base && (
                       <img
-                        src={src}
+                        src={base}
                         alt={t('inference:viewer.alt.generated', { index: idx + 1 })}
                         className={`${styles.mainImage} ${imageArClass}`}
                         ref={isActive ? mainImgRef : undefined}
@@ -727,83 +730,99 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
                         decoding="async"
                       />
                     )}
+                    {isActive && cachedOverlay && !isAlreadyOriginal && (
+                      <img
+                        data-overlay="true"
+                        src={cachedOverlay.src}
+                        alt={t('inference:viewer.alt.generated', { index: idx + 1 })}
+                        aria-hidden="true"
+                        className={`${styles.mainImage} ${imageArClass}`}
+                        decoding="async"
+                        onLoad={() => {
+                          setOverlayCache(prev => ({
+                            ...prev,
+                            [thumb.id]: { ...prev[thumb.id], loaded: true }
+                          }));
+                        }}
+                        style={{ 
+                          zIndex: 3, 
+                          display: 'block',
+                          opacity: cachedOverlay.loaded ? 1 : 0,
+                          transition: 'opacity 0.3s ease-in-out'
+                        }}
+                      />
+                    )}
                   </div>
                 );
               })}
             </div>
-          </div>
+          </div>          
+          {/* Deletion loading overlay */}
+          {isDeleting && (
+            <div className={styles.deletionOverlay}>
+            </div>
+          )}
+        </div>
+        <div className={styles.imageControls}>
           {/* Carousel navigation buttons */}
           <div className={styles.carouselButtons} aria-label={t('inference:viewer.carousel.aria')}>
-            <button
+            <Button
+              variant="secondary"
+              size="md"
+              iconOnly
               className={styles.navButton}
               onClick={goPrev}
               disabled={!canScrollPrev || visibleThumbnails.length <= 1}
               aria-label={t('inference:viewer.carousel.prevAria')}
             >
               <Icon variant="arrowLeft" size={20} />
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="secondary"
+              size="md"
+              iconOnly
               className={styles.navButton}
               onClick={goNext}
               disabled={!canScrollNext || visibleThumbnails.length <= 1}
               aria-label={t('inference:viewer.carousel.nextAria')}
             >
               <Icon variant="arrowRight" size={20} />
-            </button>
-            {currentThumbnail?.status === 'completed' && currentThumbnail?.webImageUrl && (
-              <button
-                className={`${styles.viewOriginalButton} ${overlayActive ? styles.viewOriginalActive : ''}`}
-                onClick={handleViewOriginal}
-                disabled={isLoadingOriginal || overlayActive}
-                aria-label={
-                  overlayActive 
-                    ? t('inference:viewer.viewOriginal.viewingAria', { defaultValue: 'Currently viewing original quality image' })
-                    : t('inference:viewer.viewOriginal.aria', { defaultValue: 'Load and display original quality image' })
-                }
-              >
-                {isLoadingOriginal ? (
-                  <Loader size="sm" />
-                ) : (
-                  <>
-                    <Icon variant={overlayActive ? "check" : "camera"} size={16} />
-                    <span className={styles.viewOriginalButtonText}>
-                      {overlayActive 
-                        ? t('inference:viewer.viewOriginal.viewing', { defaultValue: 'Viewing Original' })
-                        : t('inference:viewer.viewOriginal.label', { defaultValue: 'View Original' })
-                      }
-                    </span>
-                  </>
-                )}
-              </button>
-            )}
+            </Button>
           </div>
-          { overlaySrc && (
-            <>
-              <img
-                data-overlay="true"
-                src={overlaySrc || ''}
-                alt=""
-                aria-hidden="true"
-                className={`${styles.mainImage} ${styles.overlayImage} ${imageArClass}`}
-                decoding="async"
-                style={{ position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none', display: overlayActive ? 'block' : 'none' }}
-              />
-              <Button
-                variant="ghost"
-                className={`${styles.downloadOriginalButton} ${styles.iconButton}`}
-                onClick={loadAndShowOriginal}
-                aria-label={t('inference:viewer.overlay.displayOriginalAria')}
-              >
-                <Icon variant="download" size={18} />
-                {t('inference:viewer.overlay.displayOriginal')}
-              </Button>
-            </>
-          )}
-          
-          {/* Deletion loading overlay */}
-          {isDeleting && (
-            <div className={styles.deletionOverlay}>
-            </div>
+
+          {currentThumbnail?.status === 'completed' && (currentThumbnail.webImageUrl || currentThumbnail.imageUrl) && (
+            (() => {
+              const is1K = activeJob.quality === '1K';
+              const isViewingOriginal = is1K || !!(currentThumbnail && overlayCache[currentThumbnail.id]);
+              return (
+                <Button
+                  variant="secondary"
+                  size="md"
+                  className={`${styles.viewOriginalButton} ${isViewingOriginal ? styles.viewOriginalActive : ''}`}
+                  onClick={handleViewOriginal}
+                  disabled={isLoadingOriginal || isViewingOriginal}
+                  aria-label={
+                    isViewingOriginal
+                      ? t('inference:viewer.viewOriginal.viewingAria', { defaultValue: 'Currently viewing original quality image' })
+                      : t('inference:viewer.viewOriginal.aria', { defaultValue: 'Load and display original quality image' })
+                  }
+                >
+                  {isLoadingOriginal ? (
+                    <Loader size="sm" />
+                  ) : (
+                    <>
+                      <Icon variant={isViewingOriginal ? "check" : "camera"} size={16} />
+                      <span className={styles.viewOriginalButtonText}>
+                        {isViewingOriginal
+                          ? t('inference:viewer.viewOriginal.viewing', { defaultValue: 'Viewing original' })
+                          : t('inference:viewer.viewOriginal.label', { defaultValue: 'Toggle original' })
+                        }
+                      </span>
+                    </>
+                  )}
+                </Button>
+              );
+            })()
           )}
         </div>
       </div>

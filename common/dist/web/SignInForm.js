@@ -61,6 +61,7 @@ export function SignInForm() {
             key: 'x',
             name: 'X',
             onClick: () => signInWithTwitter(),
+            disabled: true,
         },
         {
             key: 'apple',

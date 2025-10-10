@@ -49,6 +49,12 @@
       "originalUnavailableTitle": "原图不可用",
       "originalUnavailableDesc": "无法加载原始图像变体。"
     },
+    "viewOriginal": {
+      "label": "切换到原图",
+      "viewing": "正在查看原图",
+      "aria": "切换到原图",
+      "viewingAria": "正在查看原图"
+    },
     "title": "拍摄{{shootNumber}}",
     "imageIndex": "图像{{index}}",
     "favourite": {

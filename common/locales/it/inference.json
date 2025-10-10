@@ -49,6 +49,12 @@
       "originalUnavailableTitle": "Originale non disponibile",
       "originalUnavailableDesc": "Impossibile caricare la variante dell'immagine originale."
     },
+    "viewOriginal": {
+      "label": "Passa all'originale",
+      "viewing": "Originale visualizzato",
+      "aria": "Passa all'immagine in qualità originale",
+      "viewingAria": "Immagine in qualità originale visualizzata"
+    },
     "title": "Servizio {{shootNumber}}",
     "imageIndex": "IMG {{index}}",
     "favourite": {
