@@ -69,12 +69,13 @@ const MAX_BODY_PERCENTAGE = 0.60; // 50% maximum for body shots
 
 // Add after other constants
 const MIN_EYE_CONFIDENCE = 0.3;
-// More lenient thresholds to reduce false "sunglasses" detection from normal lighting/glasses
-const MIN_EYE_BRIGHTNESS = QC_EYE_LENIENT ? 0.06 : 0.08; // Further reduced to be more forgiving
-const MIN_EYE_CONTRAST = QC_EYE_LENIENT ? 0.08 : 0.1;    // Reduced from previous values
-const MAX_DARKNESS_RATIO = QC_EYE_LENIENT ? 0.8 : 0.7;   // Increased to allow more shadow tolerance
-const MIN_BRIGHTNESS_VARIANCE = 0.03;                    // Reduced to allow more uniform lighting
-const MAX_COLOR_UNIFORMITY = QC_EYE_LENIENT ? 0.95 : 0.85; // Increased to reduce false tinted lens detection
+// Very lenient thresholds to reduce false "sunglasses" detection from normal lighting/glasses
+// These thresholds are specifically tuned to avoid rejecting people wearing regular eyeglasses
+const MIN_EYE_BRIGHTNESS = QC_EYE_LENIENT ? 0.04 : 0.05; // Much more forgiving - glasses glare is okay
+const MIN_EYE_CONTRAST = QC_EYE_LENIENT ? 0.05 : 0.06;    // Very reduced - allow low contrast through glasses
+const MAX_DARKNESS_RATIO = QC_EYE_LENIENT ? 0.85 : 0.75;  // Higher tolerance for shadows/glasses frames
+const MIN_BRIGHTNESS_VARIANCE = 0.015;                     // Much lower - allow very uniform lighting
+const MAX_COLOR_UNIFORMITY = QC_EYE_LENIENT ? 0.98 : 0.92; // Very high - avoid false tinted lens detection
 const EYE_REGION_SIZE = 25;
 
 // Age detection constants
@@ -273,21 +274,29 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
       // First try with TinyFaceDetector with more conservative threshold to reduce false positives
       const faceDetections = await faceapi.detectAllFaces(
         img, 
-        new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.3 }) // Increased from 0.2 to reduce false detections
+        new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.5 }) // Increased from 0.3 to 0.5 to significantly reduce false detections
       ).withFaceLandmarks();
       
-      // Set faceCount based on TinyFaceDetector results
-      result.faceCount = faceDetections.length;
+      // Filter out very small detections immediately to prevent false positives from affecting faceCount
+      const initialSignificantFaces = faceDetections.filter((detection: WithFaceLandmarks<{ detection: FaceDetection }>) => {
+        const faceArea = detection.detection.box.width * detection.detection.box.height;
+        const imageArea = img.width * img.height;
+        const relativeSize = faceArea / imageArea;
+        return relativeSize > 0.015; // Face must be at least 1.5% of image area (increased from 1%)
+      });
+      
+      // Set faceCount based on filtered significant faces
+      result.faceCount = initialSignificantFaces.length;
       
       // Store primary face detection for contrast analysis
-      if (faceDetections.length > 0) {
-        primaryFaceDetection = faceDetections[0];
+      if (initialSignificantFaces.length > 0) {
+        primaryFaceDetection = initialSignificantFaces[0];
       }
       
       // Only proceed with body detection if we have at least one face
-      if (faceDetections.length > 0) {
+      if (initialSignificantFaces.length > 0) {
         // Detect body presence by checking face position and size relative to image
-        const faceBox = faceDetections[0].detection.box;
+        const faceBox = initialSignificantFaces[0].detection.box;
         const faceArea = faceBox.width * faceBox.height;
         const imageArea = img.width * img.height;
         const faceRelativeSize = faceArea / imageArea;
@@ -310,7 +319,7 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
       }
       
       // If no faces detected, try SSD MobileNet as a fallback with lower threshold
-      if (faceDetections.length === 0) {
+      if (initialSignificantFaces.length === 0) {
         // Load SSD model lazily if needed (not preloaded)
         if (!faceapi.nets.ssdMobilenetv1.isLoaded) {
           const ssdModelPath = `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/face-models`;
@@ -469,39 +478,19 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
       
       faceDetectionPerformed = true;
       
-      if (faceDetections.length === 0) {
+      if (initialSignificantFaces.length === 0) {
         // No face detected - mark as an issue
         result.hasFace = false;
         result.faceCount = 0;
         result.faceScore = 0.1; // Very low score for no face
         pushIssue('quality.issues.face.none', 'No face detected.');
         // gender detection removed
-      } else if (faceDetections.length > 1) {
-        // Filter out very small detections that might be false positives
-        const significantFaces = faceDetections.filter((detection: WithFaceLandmarks<{ detection: FaceDetection }>) => {
-          const faceArea = detection.detection.box.width * detection.detection.box.height;
-          const imageArea = img.width * img.height;
-          const relativeSize = faceArea / imageArea;
-          return relativeSize > 0.01; // Face must be at least 1% of image area to be considered significant
-        });
-        
-        result.hasFace = significantFaces.length > 0;
-        result.faceCount = significantFaces.length;
-        
-        if (significantFaces.length > 1) {
-          pushIssue('quality.issues.face.multiple', 'Multiple faces detected.');
-          result.faceScore = 0.5;
-        } else if (significantFaces.length === 1) {
-          // Only one significant face after filtering
-          result.faceScore = evaluateFacePosition(significantFaces[0], width, height);
-          if (result.faceScore < 0.7) {
-            pushIssue('quality.issues.face.positionNotOptimal', 'Face position is not optimal.');
-          }
-        } else {
-          // No significant faces after filtering
-          result.faceScore = 0.1;
-          pushIssue('quality.issues.face.none', 'No clear face detected.');
-        }
+      } else if (initialSignificantFaces.length > 1) {
+        // Multiple significant faces detected
+        result.hasFace = true;
+        result.faceCount = initialSignificantFaces.length;
+        pushIssue('quality.issues.face.multiple', 'Multiple faces detected.');
+        result.faceScore = 0.5;
         // gender detection removed
       } else {
         // One face detected
@@ -509,7 +498,7 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
         result.faceCount = 1;
         
         // Evaluate face position and size
-        result.faceScore = evaluateFacePosition(faceDetections[0], width, height);
+        result.faceScore = evaluateFacePosition(initialSignificantFaces[0], width, height);
         
         if (result.faceScore < 0.7) {
           pushIssue('quality.issues.face.positionNotOptimal', 'Face position is not optimal.');
@@ -523,7 +512,7 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
           canvas.height = img.height;
           ctx.drawImage(img, 0, 0);
           
-          const eyeCheck = await checkEyesVisible(img, faceDetections[0].landmarks, ctx);
+          const eyeCheck = await checkEyesVisible(img, initialSignificantFaces[0].landmarks, ctx);
           result.eyesVisible = eyeCheck.visible;
           result.eyeDetectionSkipped = false;
           
@@ -1481,29 +1470,24 @@ async function checkEyesVisible(img: HTMLImageElement, landmarks: any, ctx: Canv
     const leftAnalysis = analyzeEyeRegion(leftRegion);
     const rightAnalysis = analyzeEyeRegion(rightRegion);
 
-    // More balanced eye visibility detection - less prone to false positives
+    // Very lenient eye visibility detection - avoid false rejections for people with glasses
     const isEyeVisible = (analysis: ReturnType<typeof analyzeEyeRegion>) => {
-      // More conservative sunglasses detection - only flag obvious cases
-      const hasSunglassesCharacteristics = 
-        // Very dark AND uniform AND low contrast (all three conditions required)
-        (analysis.darknessRatio > MAX_DARKNESS_RATIO && 
-         analysis.brightnessVariance < MIN_BRIGHTNESS_VARIANCE && 
-         analysis.brightness < MIN_EYE_BRIGHTNESS * 0.7) ||
-        // Extremely dark with very high uniformity (clear sunglasses case)
-        (analysis.brightness < MIN_EYE_BRIGHTNESS * 0.5 && 
-         analysis.colorUniformity > MAX_COLOR_UNIFORMITY && 
-         analysis.darknessRatio > 0.8);
+      // Only flag VERY OBVIOUS sunglasses - require multiple strong indicators
+      const hasVeryObviousSunglasses = 
+        // Extremely dark AND extremely uniform AND very low contrast (all three required, very strict thresholds)
+        (analysis.darknessRatio > 0.9 && // 90%+ dark pixels
+         analysis.brightnessVariance < 0.01 && // Almost no variance at all
+         analysis.brightness < MIN_EYE_BRIGHTNESS * 0.4 && // Extremely dark
+         analysis.colorUniformity > 0.95 && // Very uniform color
+         !analysis.hasHighContrast); // AND no high contrast edges
       
-      // More lenient natural eye characteristics
-      const hasNaturalEyeCharacteristics = 
-        // Decent brightness OR some color variation
-        (analysis.brightness > MIN_EYE_BRIGHTNESS || analysis.colorUniformity < MAX_COLOR_UNIFORMITY) ||
-        // OR has some contrast and brightness variance (normal lighting variations)
-        (analysis.hasHighContrast || analysis.brightnessVariance > MIN_BRIGHTNESS_VARIANCE) ||
-        // OR reasonable brightness with moderate darkness ratio (shadows/lighting)
-        (analysis.brightness > MIN_EYE_BRIGHTNESS * 0.8 && analysis.darknessRatio < MAX_DARKNESS_RATIO);
-      
-      return !hasSunglassesCharacteristics || hasNaturalEyeCharacteristics;
+      // Default to eyes being visible unless we have VERY strong evidence otherwise
+      // This avoids false rejections from:
+      // - Glasses glare/reflections
+      // - Glasses frames causing shadows
+      // - Lighting variations
+      // - Normal eye makeup
+      return !hasVeryObviousSunglasses;
     };
 
     const leftVisible = isEyeVisible(leftAnalysis);

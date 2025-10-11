@@ -803,8 +803,8 @@ serve(async (req) => {
           const bodySettings = (body as any)?.settings_override || {};
           const styleSettings = (style as any)?.settings || {};
           const mergedSettings = {
-            ...bodySettings,
-            ...styleSettings
+            ...styleSettings,
+            ...bodySettings
           };
 
           console.log('🔧 SETTINGS_OVERRIDE DEBUG: Body settings_override:', JSON.stringify(bodySettings));

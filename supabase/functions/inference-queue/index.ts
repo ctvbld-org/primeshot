@@ -192,8 +192,8 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
         const jobSettings = jobRow?.settings_override || {};
         const styleSettings = (style as any)?.settings || {};
         const mergedSettings = {
-          ...jobSettings,
-          ...styleSettings
+          ...styleSettings,
+          ...jobSettings
         };
 
         console.log('🔧 SETTINGS_OVERRIDE DEBUG: Job row settings_override:', JSON.stringify(jobSettings));
