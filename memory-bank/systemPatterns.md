@@ -2215,6 +2215,11 @@ Detected changes in:
 Detected changes in:
 - webapp/src/components/inference/InferenceImageViewerDialog.module.css
 - webapp/src/components/style/StylesCarousel.tsx
+
+
+**Auto-update 2025-10-11**:
+Detected changes in:
+- webapp/src/lib/image-quality.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

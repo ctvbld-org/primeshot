@@ -160,8 +160,9 @@
   border-radius: 0; 
   overflow: hidden; 
   opacity: 0;
+  filter: blur(0);
   transform: translateY(8px) scale(0.95);
-  transition: opacity 300ms ease, transform 300ms ease;
+  transition: opacity 300ms ease, transform 300ms ease, filter 300ms ease;
 }
 .itemCard:first-child,
 .itemCard:first-child::before {
@@ -187,8 +188,9 @@
 
 .itemCardLoaded {
   opacity: 1;
+  filter: blur(0);
   transform: translateY(0) scale(1);
-  transition: opacity 400ms ease, transform 400ms ease;
+  transition: opacity 400ms ease, transform 400ms ease, filter 400ms ease;
 }
 
 .itemSelected::before { 

@@ -271,32 +271,82 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
   
   if (!petMode && modelsReady && faceapi) {
     try {
-      // First try with TinyFaceDetector with more conservative threshold to reduce false positives
+      // First try with TinyFaceDetector with balanced threshold
       const faceDetections = await faceapi.detectAllFaces(
         img, 
-        new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.5 }) // Increased from 0.3 to 0.5 to significantly reduce false detections
+        new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.3 }) // Balanced threshold
       ).withFaceLandmarks();
       
-      // Filter out very small detections immediately to prevent false positives from affecting faceCount
+      // Log face detection results for debugging
+      console.log(`[Face Detection] TinyFaceDetector found ${faceDetections.length} raw detections`);
+      
+      // Filter out very small detections that are likely false positives
+      // BUT keep a reasonable threshold to not filter out legitimate faces
       const initialSignificantFaces = faceDetections.filter((detection: WithFaceLandmarks<{ detection: FaceDetection }>) => {
         const faceArea = detection.detection.box.width * detection.detection.box.height;
         const imageArea = img.width * img.height;
         const relativeSize = faceArea / imageArea;
-        return relativeSize > 0.015; // Face must be at least 1.5% of image area (increased from 1%)
+        // Face must be at least 2% of image area - this filters tiny false positives
+        // but keeps real faces even in wider shots
+        const isSignificant = relativeSize > 0.02;
+        if (QC_DEBUG) {
+          console.debug(`Face ${relativeSize.toFixed(3)} (${(relativeSize * 100).toFixed(1)}% of image) - ${isSignificant ? 'KEPT' : 'FILTERED'}`);
+        }
+        return isSignificant;
       });
       
-      // Set faceCount based on filtered significant faces
-      result.faceCount = initialSignificantFaces.length;
+      console.log(`[Face Detection] After size filtering: ${initialSignificantFaces.length} significant faces`);
+      if (faceDetections.length > initialSignificantFaces.length) {
+        const filtered = faceDetections.length - initialSignificantFaces.length;
+        console.log(`[Face Detection] Filtered out ${filtered} tiny detections (< 2% of image)`);
+      }
+      
+      // Additional filtering: if we have multiple faces, check if one is significantly larger
+      // This helps filter out glasses reflections or artifacts that got through size filter
+      let finalFaces = initialSignificantFaces;
+      if (initialSignificantFaces.length > 1) {
+        // Sort by size (largest first)
+        const sorted = [...initialSignificantFaces].sort((a, b) => {
+          const areaA = a.detection.box.width * a.detection.box.height;
+          const areaB = b.detection.box.width * b.detection.box.height;
+          return areaB - areaA;
+        });
+        
+        const largestFace = sorted[0];
+        const largestArea = largestFace.detection.box.width * largestFace.detection.box.height;
+        
+        // Keep only faces that are at least 30% the size of the largest face
+        // This filters out small artifacts while keeping legitimate multiple faces
+        finalFaces = sorted.filter(face => {
+          const faceArea = face.detection.box.width * face.detection.box.height;
+          const relativeSizeToLargest = faceArea / largestArea;
+          const kept = relativeSizeToLargest >= 0.3;
+          if (QC_DEBUG) {
+            console.debug(`Face relative size: ${(relativeSizeToLargest * 100).toFixed(1)}% of largest - ${kept ? 'KEPT' : 'FILTERED'}`);
+          }
+          return kept;
+        });
+        
+        if (finalFaces.length < initialSignificantFaces.length) {
+          const filtered = initialSignificantFaces.length - finalFaces.length;
+          console.log(`[Face Detection] Filtered out ${filtered} small secondary detections (< 30% of largest face)`);
+        }
+      }
+      
+      console.log(`[Face Detection] Final result: ${finalFaces.length} face(s) detected`);
+      
+      // Set faceCount based on final filtered faces
+      result.faceCount = finalFaces.length;
       
       // Store primary face detection for contrast analysis
-      if (initialSignificantFaces.length > 0) {
-        primaryFaceDetection = initialSignificantFaces[0];
+      if (finalFaces.length > 0) {
+        primaryFaceDetection = finalFaces[0];
       }
       
       // Only proceed with body detection if we have at least one face
-      if (initialSignificantFaces.length > 0) {
+      if (finalFaces.length > 0) {
         // Detect body presence by checking face position and size relative to image
-        const faceBox = initialSignificantFaces[0].detection.box;
+        const faceBox = finalFaces[0].detection.box;
         const faceArea = faceBox.width * faceBox.height;
         const imageArea = img.width * img.height;
         const faceRelativeSize = faceArea / imageArea;
@@ -319,7 +369,7 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
       }
       
       // If no faces detected, try SSD MobileNet as a fallback with lower threshold
-      if (initialSignificantFaces.length === 0) {
+      if (finalFaces.length === 0) {
         // Load SSD model lazily if needed (not preloaded)
         if (!faceapi.nets.ssdMobilenetv1.isLoaded) {
           const ssdModelPath = `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/face-models`;
@@ -478,17 +528,17 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
       
       faceDetectionPerformed = true;
       
-      if (initialSignificantFaces.length === 0) {
+      if (finalFaces.length === 0) {
         // No face detected - mark as an issue
         result.hasFace = false;
         result.faceCount = 0;
         result.faceScore = 0.1; // Very low score for no face
         pushIssue('quality.issues.face.none', 'No face detected.');
         // gender detection removed
-      } else if (initialSignificantFaces.length > 1) {
+      } else if (finalFaces.length > 1) {
         // Multiple significant faces detected
         result.hasFace = true;
-        result.faceCount = initialSignificantFaces.length;
+        result.faceCount = finalFaces.length;
         pushIssue('quality.issues.face.multiple', 'Multiple faces detected.');
         result.faceScore = 0.5;
         // gender detection removed
@@ -498,7 +548,7 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
         result.faceCount = 1;
         
         // Evaluate face position and size
-        result.faceScore = evaluateFacePosition(initialSignificantFaces[0], width, height);
+        result.faceScore = evaluateFacePosition(finalFaces[0], width, height);
         
         if (result.faceScore < 0.7) {
           pushIssue('quality.issues.face.positionNotOptimal', 'Face position is not optimal.');
@@ -512,12 +562,13 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
           canvas.height = img.height;
           ctx.drawImage(img, 0, 0);
           
-          const eyeCheck = await checkEyesVisible(img, initialSignificantFaces[0].landmarks, ctx);
+          const eyeCheck = await checkEyesVisible(img, finalFaces[0].landmarks, ctx);
           result.eyesVisible = eyeCheck.visible;
           result.eyeDetectionSkipped = false;
           
-          if (!eyeCheck.visible && QC_DEBUG) {
-            console.debug('Eye check: invisible with confidence', eyeCheck.confidence);
+          console.log(`[Eye Detection] Eyes visible: ${eyeCheck.visible} (confidence: ${eyeCheck.confidence.toFixed(3)})`);
+          if (!eyeCheck.visible) {
+            console.log('[Eye Detection] Eyes may not be clearly visible - this could be glasses glare, check thresholds');
           }
                     
         }
@@ -1470,28 +1521,45 @@ async function checkEyesVisible(img: HTMLImageElement, landmarks: any, ctx: Canv
     const leftAnalysis = analyzeEyeRegion(leftRegion);
     const rightAnalysis = analyzeEyeRegion(rightRegion);
 
-    // Very lenient eye visibility detection - avoid false rejections for people with glasses
+    // Extremely lenient eye visibility detection - prioritize avoiding false rejections
     const isEyeVisible = (analysis: ReturnType<typeof analyzeEyeRegion>) => {
-      // Only flag VERY OBVIOUS sunglasses - require multiple strong indicators
-      const hasVeryObviousSunglasses = 
-        // Extremely dark AND extremely uniform AND very low contrast (all three required, very strict thresholds)
-        (analysis.darknessRatio > 0.9 && // 90%+ dark pixels
-         analysis.brightnessVariance < 0.01 && // Almost no variance at all
-         analysis.brightness < MIN_EYE_BRIGHTNESS * 0.4 && // Extremely dark
-         analysis.colorUniformity > 0.95 && // Very uniform color
-         !analysis.hasHighContrast); // AND no high contrast edges
+      // Only flag EXTREMELY OBVIOUS sunglasses with overwhelming evidence
+      // ALL of these conditions must be true simultaneously:
+      const hasObviousSunglasses = 
+        analysis.darknessRatio > 0.92 &&          // 92%+ dark pixels (nearly black)
+        analysis.brightnessVariance < 0.008 &&    // Extremely uniform (no detail)
+        analysis.brightness < 0.02 &&              // Very dark (< 2% brightness)
+        analysis.colorUniformity > 0.96 &&         // Almost perfectly uniform color
+        !analysis.hasHighContrast &&               // No visible edges/features
+        analysis.contrast < MIN_EYE_CONTRAST * 0.5; // Extremely low contrast
       
-      // Default to eyes being visible unless we have VERY strong evidence otherwise
+      if (QC_DEBUG && hasObviousSunglasses) {
+        console.debug('[Eye Detection] Sunglasses detected:', {
+          darkness: analysis.darknessRatio.toFixed(3),
+          variance: analysis.brightnessVariance.toFixed(4),
+          brightness: analysis.brightness.toFixed(3),
+          uniformity: analysis.colorUniformity.toFixed(3),
+          contrast: analysis.contrast.toFixed(3)
+        });
+      }
+      
+      // Default to eyes being visible unless we have overwhelming evidence of sunglasses
       // This avoids false rejections from:
-      // - Glasses glare/reflections
-      // - Glasses frames causing shadows
-      // - Lighting variations
+      // - Glasses with glare/reflections (common)
+      // - Glasses frames causing shadows (common)
+      // - Lighting variations and shadows
       // - Normal eye makeup
-      return !hasVeryObviousSunglasses;
+      // - Slightly darker lighting
+      return !hasObviousSunglasses;
     };
 
     const leftVisible = isEyeVisible(leftAnalysis);
     const rightVisible = isEyeVisible(rightAnalysis);
+    
+    if (QC_DEBUG) {
+      console.debug('[Eye Detection] Left eye:', leftAnalysis, '→', leftVisible);
+      console.debug('[Eye Detection] Right eye:', rightAnalysis, '→', rightVisible);
+    }
 
     // Calculate confidence
     const confidence = Math.max(
