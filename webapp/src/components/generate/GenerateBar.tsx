@@ -14,7 +14,7 @@ import { getStyleImages } from '@/lib/utils/get-styles-images'
 // For options we will use a custom CloudFront loader that selects the nearest variant
 import { makeCloudfrontLoader } from '@/lib/utils/cloudfrontLoader'
 import { storeSelectedStyleIndex, getStoredStyleSelections, storeStyleSelections } from '@/lib/utils/style-storage'
-import { sortColorsByPalette } from '@/lib/utils/colorSort'
+import { sortColorsByPalette, isLightColor } from '@/lib/utils/colorSort'
 import { useCurrentSubscription } from '@/hooks/useCurrentSubscription'
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus'
 import { useCreditCosts, calculateImageCredits } from '@/hooks/usePricingConfig'
@@ -1193,7 +1193,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                         setSelectionVersion(v=>v+1);
                         clearError('color');
                         close()
-                      }} title={col.label} value={col.value} />
+                      }} title={col.label} value={col.value} data-light-bg={isLightColor(col.color || '#fff')} />
                     ))}
                   </div>
                 ) : (
@@ -1205,7 +1205,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                           setSelectionVersion(v=>v+1);
                           clearError('color');
                           close()
-                        }} title={col.label} value={col.value} />
+                        }} title={col.label} value={col.value} data-light-bg={isLightColor(col.color || '#fff')} />
                       ))}
                     </div>
                   </div>
