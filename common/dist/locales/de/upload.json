@@ -1,33 +1,33 @@
 {
-  "title": "Fotos hochladen",
-  "description": "Lade deine Fotos hoch, um zu beginnen",
-  "requirements": {
-    "title": "Foto-Anforderungen",
-    "description": "Bitte stelle sicher, dass deine Fotos diese Anforderungen erfüllen"
-  },
-  "buttons": {
-    "upload": "Hochladen",
-    "continue": "Fortfahren",
-    "retry": "Erneut versuchen"
-  },
-  "errors": {
-    "invalidFile": "Ungültiger Dateityp",
-    "fileTooLarge": "Datei zu groß",
-    "uploadFailed": "Upload fehlgeschlagen",
-    "invalidFileType": "Nicht unterstützter Typ ({{types}})",
-    "fileSizeExceeded": "Datei zu groß (max. {{size}})",
-    "duplicateFile": "Doppelte Datei",
-    "uploadFailedCount_one": "1 Datei konnte nicht hinzugefügt werden",
-    "uploadFailedCount_other": "{{count}} Dateien konnten nicht hinzugefügt werden"
-  },
-  "progress": {
-    "uploading": "Lädt hoch...",
-    "processing": "Verarbeitet...",
-    "complete": "Abgeschlossen"
-  },
-  "quality": {
-    "rejected": {
-      "title": "{{rejected}} von {{total}} Fotos erfüllen nicht die Anforderungen"
+    "title": "Fotos hochladen",
+    "description": "Lade deine Fotos hoch, um zu beginnen",
+    "requirements": {
+        "title": "Foto-Anforderungen",
+        "description": "Bitte stelle sicher, dass deine Fotos diese Anforderungen erfüllen"
+    },
+    "buttons": {
+        "upload": "Hochladen",
+        "continue": "Fortfahren",
+        "retry": "Erneut versuchen"
+    },
+    "errors": {
+        "invalidFile": "Ungültiger Dateityp",
+        "fileTooLarge": "Datei zu groß",
+        "uploadFailed": "Upload fehlgeschlagen",
+        "invalidFileType": "Nicht unterstützter Typ ({{types}})",
+        "fileSizeExceeded": "Datei zu groß (max. {{size}})",
+        "duplicateFile": "Doppelte Datei",
+        "uploadFailedCount_one": "1 Datei konnte nicht hinzugefügt werden",
+        "uploadFailedCount_other": "{{count}} Dateien konnten nicht hinzugefügt werden"
+    },
+    "progress": {
+        "uploading": "Lädt hoch...",
+        "processing": "Verarbeitet...",
+        "complete": "Abgeschlossen"
+    },
+    "quality": {
+        "rejected": {
+            "title": "{{rejected}} von {{total}} Fotos erfüllen nicht die Anforderungen"
+        }
     }
-  }
 }

@@ -160,7 +160,7 @@
   border-radius: 0; 
   overflow: hidden; 
   opacity: 0;
-  filter: blur(0);
+  filter: blur(10px);
   transform: translateY(8px) scale(0.95);
   transition: opacity 300ms ease, transform 300ms ease, filter 300ms ease;
 }

@@ -1,46 +1,46 @@
 {
-  "buttons": {
-    "generate": "Generar",
-    "create": "Crear",
-    "done": "Hecho",
-    "cancel": "Cancelar",
-    "confirm": "Confirmar"
-  },
-  "labels": {
-    "woman": "Mujer",
-    "man": "Hombre",
-    "scene": "Escena",
-    "wardrobe": "Ropa",
-    "creditsSuffix": "créditos",
-    "requiresActiveSubscription": "Requiere suscripción activa",
-    "calculating": "Calculando"
-  },
-  "aria": {
-    "selectStyle": "Seleccionar estilo",
-    "selectScene": "Seleccionar escena",
-    "selectWardrobe": "Seleccionar vestuario",
-    "selectCharacter": "Seleccionar personaje",
-    "openSettings": "Abrir configuración",
-    "trainingProgress": "Progreso del entrenamiento",
-    "characterActions": "Acciones del personaje",
-    "closeOverlay": "Cerrar superposición",
-    "carouselNavigation": "Navegación del carrusel",
-    "previous": "Anterior",
-    "next": "Siguiente",
-    "search": "Buscar {{title}}"
-  },
-  "placeholders": {
-    "find": "Buscar {{title}}"
-  },
-  "admin": {
-    "title": "Anulaciones de inferencia de administrador",
-    "enableNodeOverrides": "Habilitar anulaciones de nodo (JSON por título de nodo)",
-    "overridesJson": "JSON de anulaciones",
-    "enablePromptOverride": "Habilitar anulación de prompt",
-    "prompt": "Prompt",
-    "characterMetadata": "Metadatos del personaje (solo lectura)"
-  },
-  "errors": {
-    "failedToStartGeneration": "Error al iniciar la generación. Por favor, inténtalo de nuevo."
-  }
+    "buttons": {
+        "generate": "Generar",
+        "create": "Crear",
+        "done": "Hecho",
+        "cancel": "Cancelar",
+        "confirm": "Confirmar"
+    },
+    "labels": {
+        "woman": "Mujer",
+        "man": "Hombre",
+        "scene": "Escena",
+        "wardrobe": "Ropa",
+        "creditsSuffix": "créditos",
+        "requiresActiveSubscription": "Requiere suscripción activa",
+        "calculating": "Calculando"
+    },
+    "aria": {
+        "selectStyle": "Seleccionar estilo",
+        "selectScene": "Seleccionar escena",
+        "selectWardrobe": "Seleccionar vestuario",
+        "selectCharacter": "Seleccionar personaje",
+        "openSettings": "Abrir configuración",
+        "trainingProgress": "Progreso del entrenamiento",
+        "characterActions": "Acciones del personaje",
+        "closeOverlay": "Cerrar superposición",
+        "carouselNavigation": "Navegación del carrusel",
+        "previous": "Anterior",
+        "next": "Siguiente",
+        "search": "Buscar {{title}}"
+    },
+    "placeholders": {
+        "find": "Buscar {{title}}"
+    },
+    "admin": {
+        "title": "Anulaciones de inferencia de administrador",
+        "enableNodeOverrides": "Habilitar anulaciones de nodo (JSON por título de nodo)",
+        "overridesJson": "JSON de anulaciones",
+        "enablePromptOverride": "Habilitar anulación de prompt",
+        "prompt": "Prompt",
+        "characterMetadata": "Metadatos del personaje (solo lectura)"
+    },
+    "errors": {
+        "failedToStartGeneration": "Error al iniciar la generación. Por favor, inténtalo de nuevo."
+    }
 }

@@ -4,23 +4,45 @@ const SUPPORTED = ['en','cn','es','fr','pt','de','jp','it','nl'] as const
 
 function parseAcceptLanguage(header: string | null): string | null {
   if (!header) return null
+  
+  // Parse Accept-Language header (e.g., "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7")
   const parts = header.split(',').map(s => s.trim())
+  
+  // Build array of languages with their quality values
+  const languages: Array<{ lang: string; quality: number }> = []
+  
   for (const part of parts) {
-    const [tag] = part.split(';')
-    // Map base to region if needed
-    const normalized = mapToSupported(tag)
-    if (normalized) return normalized
+    const [tag, qValue] = part.split(';')
+    const quality = qValue ? parseFloat(qValue.replace('q=', '')) : 1.0
+    
+    if (tag && !isNaN(quality)) {
+      languages.push({ lang: tag.trim(), quality })
+    }
   }
+  
+  // Sort by quality (highest first)
+  languages.sort((a, b) => b.quality - a.quality)
+  
+  // Try to find a supported language
+  for (const { lang } of languages) {
+    const normalized = mapToSupported(lang)
+    if (normalized) {
+      return normalized
+    }
+  }
+  
   return null
 }
 
 function mapToSupported(tag: string | undefined | null): typeof SUPPORTED[number] | null {
   if (!tag) return null
-  const lower = tag.toLowerCase()
-  // Exact match first
+  const lower = tag.toLowerCase().trim()
+  
+  // Exact match first (e.g., "fr" -> "fr")
   const exact = SUPPORTED.find(l => l.toLowerCase() === lower)
   if (exact) return exact
-  // Map base language to a default region
+  
+  // Map base language to a default region (e.g., "fr-FR" -> "fr")
   const base = lower.split('-')[0]
   switch (base) {
     case 'en': return 'en'
@@ -72,8 +94,31 @@ export function middleware(request: NextRequest) {
 
   // Determine locale from cookie or Accept-Language
   const cookieLocale = request.cookies.get('i18n_lang')?.value || null
-  const headerLocale = parseAcceptLanguage(request.headers.get('accept-language'))
-  const locale = (mapToSupported(cookieLocale) || headerLocale || 'en') as string
+  const acceptLanguageHeader = request.headers.get('accept-language')
+  const headerLocale = parseAcceptLanguage(acceptLanguageHeader)
+  
+  // Priority: valid cookie > Accept-Language header > default 'en'
+  // Only use cookie if it's a valid supported language
+  let locale: string
+  const validCookieLocale = cookieLocale && mapToSupported(cookieLocale)
+  
+  if (validCookieLocale) {
+    locale = validCookieLocale
+  } else if (headerLocale) {
+    locale = headerLocale
+  } else {
+    locale = 'en'
+  }
+
+  // Debug logging - can be removed after testing
+  console.log('[Language Detection]', {
+    pathname,
+    cookieLocale,
+    validCookieLocale,
+    acceptLanguageHeader,
+    headerLocale,
+    finalLocale: locale
+  })
 
   const url = request.nextUrl.clone()
   url.pathname = `/${locale}${pathname}`
@@ -82,7 +127,10 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|/.well-known|_next/image|favicon.ico|public|api|images|og-image).*)'
+    // Match all paths except static assets and API routes
+    '/((?!_next/static|_next/image|favicon.ico|public|api|images|og-image|.*\\..*|_next).*)',
+    // Explicitly match root path
+    '/'
   ]
 }
 

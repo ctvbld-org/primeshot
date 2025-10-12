@@ -38,8 +38,12 @@ export function buildSubjectCompact(meta: any): string {
   const skinTone = (meta?.skin_tone || '').toString().trim()
   const eyesColor = (meta?.eyes?.color || '').toString().trim()
   const hair = meta?.hair.present === "false" ? false : meta?.hair
-
+  const ethnicity = (meta?.ethnicity || '').toString().trim()
   let phrase = base
+
+  if (ethnicity.includes('Black') || ethnicity.includes('African')) {
+    phrase = `${ethnicity} ${base}`
+  }
 
   if (age) phrase = `${phrase}, ${age}`
 

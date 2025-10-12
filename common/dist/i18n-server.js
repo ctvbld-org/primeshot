@@ -8,10 +8,13 @@ function getLanguageFromAcceptLanguage(acceptLanguage) {
     const languages = acceptLanguage
         .split(',')
         .map(lang => {
-        const [code, q] = lang.trim().split(';q=');
+        const parts = lang.trim().split(';');
+        const code = parts[0].toLowerCase().trim();
+        const qPart = parts.find(p => p.trim().startsWith('q='));
+        const quality = qPart ? parseFloat(qPart.replace('q=', '').trim()) : 1.0;
         return {
-            code: code.toLowerCase(),
-            quality: q ? parseFloat(q) : 1.0
+            code,
+            quality: isNaN(quality) ? 1.0 : quality
         };
     })
         .sort((a, b) => b.quality - a.quality);

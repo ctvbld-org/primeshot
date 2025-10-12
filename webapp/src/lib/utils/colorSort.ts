@@ -144,35 +144,38 @@ function getColorCategory(hsl: HSL): ColorCategory {
   if (s < 8) return ColorCategory.GRAY;
   
   // Browns: warm hues with low-medium saturation and medium lightness
-  // Browns typically fall in orange-yellow range but with muted saturation
-  if (s < 40 && l > 20 && l < 60 && h >= 15 && h <= 70) {
-    return ColorCategory.BROWN;
+  // Covers orange-browns (30-60°) and yellow-browns (60-80°)
+  // More permissive saturation threshold (< 50%) and wider lightness range
+  if (s < 50 && l > 15 && l < 65) {
+    if ((h >= 20 && h <= 80)) {
+      return ColorCategory.BROWN;
+    }
   }
   
-  // Chromatic colors - categorize by hue
-  // Red: 345-360° and 0-15°
-  if (h >= 345 || h < 15) return ColorCategory.RED;
+  // Chromatic colors - categorize by hue with refined boundaries
+  // Red: 340-360° and 0-20° (includes coral/salmon tones)
+  if (h >= 340 || h < 20) return ColorCategory.RED;
   
-  // Orange: 15-45°
-  if (h >= 15 && h < 45) return ColorCategory.ORANGE;
+  // Orange: 20-50° (warm oranges)
+  if (h >= 20 && h < 50) return ColorCategory.ORANGE;
   
-  // Yellow: 45-70°
-  if (h >= 45 && h < 70) return ColorCategory.YELLOW;
+  // Yellow: 50-80° (includes yellow-greens)
+  if (h >= 50 && h < 80) return ColorCategory.YELLOW;
   
-  // Green: 70-170°
-  if (h >= 70 && h < 170) return ColorCategory.GREEN;
+  // Green: 80-165° (pure greens and blue-greens)
+  if (h >= 80 && h < 165) return ColorCategory.GREEN;
   
-  // Cyan: 170-200°
-  if (h >= 170 && h < 200) return ColorCategory.CYAN;
+  // Cyan: 165-195° (true cyans)
+  if (h >= 165 && h < 195) return ColorCategory.CYAN;
   
-  // Blue: 200-260°
-  if (h >= 200 && h < 260) return ColorCategory.BLUE;
+  // Blue: 195-270° (includes deep blues)
+  if (h >= 195 && h < 270) return ColorCategory.BLUE;
   
-  // Purple: 260-290°
-  if (h >= 260 && h < 290) return ColorCategory.PURPLE;
+  // Purple: 270-310° (purples and violets)
+  if (h >= 270 && h < 310) return ColorCategory.PURPLE;
   
-  // Pink/Magenta: 290-345°
-  if (h >= 290 && h < 345) return ColorCategory.PINK;
+  // Pink/Magenta: 310-340° (hot pinks and magentas)
+  if (h >= 310 && h < 340) return ColorCategory.PINK;
   
   return ColorCategory.GRAY;
 }
@@ -206,26 +209,38 @@ export function sortColorsByPalette<T extends { color?: string }>(colors: T[]): 
         return hslA.l - hslB.l;
       
       case ColorCategory.BROWN:
-        // Sort browns by lightness, then saturation
-        if (Math.abs(hslA.l - hslB.l) > 10) {
-          return hslA.l - hslB.l;
+        // Sort browns by hue (orange-browns → yellow-browns), then saturation
+        if (Math.abs(hslA.h - hslB.h) > 8) {
+          return hslA.h - hslB.h;
         }
-        return hslB.s - hslA.s; // More saturated first
+        // Then by saturation (more saturated first)
+        if (Math.abs(hslA.s - hslB.s) > 5) {
+          return hslB.s - hslA.s;
+        }
+        // Finally by lightness (darker first)
+        return hslA.l - hslB.l;
       
       default:
         // Chromatic colors: sort by hue, then saturation, then lightness
-        // Fine-tune ordering within the same hue family
-        if (Math.abs(hslA.h - hslB.h) > 3) {
+        // Group similar hues more tightly (5° threshold)
+        if (Math.abs(hslA.h - hslB.h) > 5) {
           return hslA.h - hslB.h;
         }
         
-        // If hues are very close, prefer more saturated colors
-        if (Math.abs(hslA.s - hslB.s) > 5) {
+        // Within same hue range, strongly prefer more saturated colors
+        // More aggressive saturation sorting for better visual flow
+        if (Math.abs(hslA.s - hslB.s) > 10) {
           return hslB.s - hslA.s; // Higher saturation first
         }
         
-        // Finally sort by lightness (darker to lighter)
-        return hslA.l - hslB.l;
+        // For similar saturation, sort by lightness
+        // Darker shades before lighter shades for smooth progression
+        if (Math.abs(hslA.l - hslB.l) > 10) {
+          return hslA.l - hslB.l;
+        }
+        
+        // Final tiebreaker: prefer slightly more saturated
+        return hslB.s - hslA.s;
     }
   });
 }
