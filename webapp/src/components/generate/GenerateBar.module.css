@@ -306,14 +306,16 @@
   overflow: hidden; 
   text-overflow: ellipsis; 
   opacity: 0;
+  filter: blur(10px);
   transform: translateY(0);
   pointer-events: none;
   z-index: 1;
-  transition: opacity .18s ease, transform .18s ease;
+  transition: opacity .2s ease, transform .2s ease, filter .2s ease;
 }
 
 .itemCard:not(.itemActive):hover .itemLabel { 
   opacity: 1;
+  filter: blur(0);
   transform: translateY(-12px);
 }
 
