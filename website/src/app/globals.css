@@ -128,7 +128,7 @@
   /* Prevent pinch-to-zoom on mobile */
   html,
   body {
-    touch-action: pan-x pan-y;
+    touch-action: manipulation;
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
   }
@@ -139,8 +139,9 @@
   }
 
   body {
-    /* Prevent zoom on double-tap */
+    /* Prevent zoom on double-tap and improve scroll performance */
     touch-action: manipulation;
+    position: relative;
   }
 
   /* Prevent iOS zoom on input focus by ensuring minimum font size */
@@ -148,8 +149,22 @@
   textarea,
   select,
   button {
-    font-size: max(16px, 1em);
+    font-size: 16px !important;
     touch-action: manipulation;
+  }
+  
+  /* Ensure all input types are covered */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="search"],
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    font-size: 16px !important;
   }
 }
 
