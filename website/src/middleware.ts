@@ -67,7 +67,6 @@ export function middleware(request: NextRequest) {
     pathname === '/favicon.ico' ||
     pathname.startsWith('/public') ||
     pathname.startsWith('/api') ||
-    pathname.startsWith('/create') ||
     pathname.startsWith('/admin') ||
     pathname.startsWith('/.well-known') ||
     pathname.endsWith('.svg') ||
@@ -78,6 +77,35 @@ export function middleware(request: NextRequest) {
     pathname.endsWith('.ico') ||
     pathname.endsWith('.webmanifest')
   ) {
+    return NextResponse.next()
+  }
+
+  // Handle /create paths: detect language and set cookie before rewrite
+  if (pathname.startsWith('/create')) {
+    const cookieLocale = request.cookies.get('i18n_lang')?.value || null
+    const validCookieLocale = cookieLocale && mapToSupported(cookieLocale)
+    
+    // If no valid cookie exists, detect from Accept-Language header
+    if (!validCookieLocale) {
+      const acceptLanguageHeader = request.headers.get('accept-language')
+      const headerLocale = parseAcceptLanguage(acceptLanguageHeader)
+      const detectedLocale = headerLocale || 'en'
+      
+      // Set the detected language cookie before the rewrite
+      const res = NextResponse.next()
+      res.cookies.set('i18n_lang', detectedLocale, { path: '/', maxAge: 60 * 60 * 24 * 365, sameSite: 'lax' })
+      
+      console.log('[Website Language Detection for /create]', {
+        pathname,
+        acceptLanguageHeader,
+        headerLocale,
+        detectedLocale
+      })
+      
+      return res
+    }
+    
+    // Cookie already exists, let the rewrite happen
     return NextResponse.next()
   }
 
