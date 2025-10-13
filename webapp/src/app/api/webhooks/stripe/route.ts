@@ -87,12 +87,33 @@ export async function POST(request: NextRequest) {
         case 'customer.subscription.deleted':
           await handleSubscriptionDeleted(event.data.object as Stripe.Subscription)
           break
-        case 'payment_intent.succeeded':
-          await handleCreditPackPurchase(event.data.object as Stripe.PaymentIntent)
+        case 'payment_intent.succeeded': {
+          const paymentIntent = event.data.object as Stripe.PaymentIntent
+          console.log(`[WEBHOOK DEBUG] payment_intent.succeeded received:`, {
+            payment_intent_id: paymentIntent.id,
+            pack_type: paymentIntent.metadata?.pack_type,
+            amount: paymentIntent.amount,
+            user_id: paymentIntent.metadata?.user_id,
+            credits: paymentIntent.metadata?.credits
+          })
+          await handleCreditPackPurchase(paymentIntent)
           break
-        case 'checkout.session.completed':
-          await handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session)
+        }
+        case 'checkout.session.completed': {
+          const session = event.data.object as Stripe.Checkout.Session
+          console.log(`[WEBHOOK DEBUG] checkout.session.completed received:`, {
+            session_id: session.id,
+            mode: session.mode,
+            pack_type: session.metadata?.pack_type,
+            has_payment_intent: !!session.payment_intent,
+            payment_intent_value: session.payment_intent,
+            amount_total: session.amount_total,
+            user_id: session.metadata?.user_id,
+            credits: session.metadata?.credits
+          })
+          await handleCheckoutSessionCompleted(session)
           break
+        }
         default:
           console.log(`Unhandled event type: ${event.type}`)
       }
@@ -178,8 +199,11 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
  * Regular paid purchases are handled by payment_intent.succeeded to avoid race conditions.
  */
 async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
+  console.log(`[HANDLER DEBUG] handleCheckoutSessionCompleted called for session ${session.id}`)
+  
   // Only process credit pack purchases (mode: 'payment')
   if (session.mode !== 'payment' || session.metadata?.pack_type !== 'credit_pack') {
+    console.log(`[HANDLER DEBUG] Skipping - mode: ${session.mode}, pack_type: ${session.metadata?.pack_type}`)
     console.log(`Skipping checkout session ${session.id} - not a credit pack purchase`)
     return
   }
@@ -187,9 +211,12 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
   // Skip if payment_intent exists - let payment_intent.succeeded handle regular payments
   // This event should ONLY process 100% coupon purchases (no payment_intent)
   if (session.payment_intent) {
+    console.log(`[HANDLER DEBUG] Skipping - has payment_intent: ${typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id}`)
     console.log(`Skipping checkout session ${session.id} - has payment_intent, will be handled by payment_intent.succeeded`)
     return
   }
+  
+  console.log(`[HANDLER DEBUG] Processing 100% coupon purchase`)
 
   const userId = session.metadata?.user_id
   const credits = parseInt(session.metadata?.credits || '0')
@@ -249,11 +276,16 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
  * This fires for regular PAID purchases. For 100% coupon purchases, only checkout.session.completed fires.
  */
 async function handleCreditPackPurchase(paymentIntent: Stripe.PaymentIntent) {
+  console.log(`[HANDLER DEBUG] handleCreditPackPurchase called for payment_intent ${paymentIntent.id}`)
+  
   // Check if this is a credit pack purchase
   if (paymentIntent.metadata?.pack_type !== 'credit_pack') {
+    console.log(`[HANDLER DEBUG] Skipping - pack_type: ${paymentIntent.metadata?.pack_type}`)
     console.log(`Skipping payment intent ${paymentIntent.id} - not a credit pack purchase`)
     return
   }
+  
+  console.log(`[HANDLER DEBUG] Processing paid credit pack purchase`)
 
   const userId = paymentIntent.metadata?.user_id
   const credits = parseInt(paymentIntent.metadata?.credits || '0')
