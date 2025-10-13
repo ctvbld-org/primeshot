@@ -786,23 +786,41 @@ async function handleCheckoutSessionCompleted(
 
   devLog(`Processing 100% coupon checkout session for credit pack: ${credits} credits for user ${userId}`);
 
-  // Use atomic RPC function to record purchase and award credits
-  const { error: atomicError } = await supabase.rpc('process_credit_pack_purchase', {
+  console.log(`[RPC DEBUG] About to call process_credit_pack_purchase (100% coupon) with:`, {
     p_user_id: userId,
     p_payment_intent_id: sourceId,
-    p_price_id: session.metadata?.price_id || '',
     p_credits: credits,
     p_amount_paid: amountPaid,
-    p_expires_at: expiresAt.toISOString(),
-    p_description: description,
-    p_metadata: metadata
+    p_expires_at: expiresAt.toISOString()
   });
 
+  // Use atomic RPC function to record purchase and award credits
+  let atomicError;
+  try {
+    const result = await supabase.rpc('process_credit_pack_purchase', {
+      p_user_id: userId,
+      p_payment_intent_id: sourceId,
+      p_price_id: session.metadata?.price_id || '',
+      p_credits: credits,
+      p_amount_paid: amountPaid,
+      p_expires_at: expiresAt.toISOString(),
+      p_description: description,
+      p_metadata: metadata
+    });
+    atomicError = result.error;
+    console.log(`[RPC DEBUG] RPC call completed (100% coupon). Error:`, atomicError, 'Result:', result);
+  } catch (rpcException) {
+    console.error('[RPC DEBUG] RPC call threw exception (100% coupon):', rpcException);
+    throw rpcException;
+  }
+
   if (atomicError) {
-    console.error('Error in atomic credit pack purchase operation (100% coupon):', atomicError.message);
+    console.error('Error in atomic credit pack purchase operation (100% coupon):', atomicError);
+    console.error('Full error details:', JSON.stringify(atomicError, null, 2));
     throw new Error(`Failed to process credit pack purchase atomically: ${atomicError.message}`);
   }
 
+  console.log(`[SUCCESS] Successfully processed 100% coupon credit pack: ${credits} credits awarded to user ${userId}`);
   devLog(`Successfully processed 100% coupon credit pack: ${credits} credits awarded to user ${userId}`);
 }
 
@@ -849,22 +867,40 @@ async function handleCreditPackPurchase(
     payment_method: 'card'
   };
 
-  // Use atomic RPC function to record purchase and award credits
-  const { error: atomicError } = await supabase.rpc('process_credit_pack_purchase', {
+  console.log(`[RPC DEBUG] About to call process_credit_pack_purchase with:`, {
     p_user_id: userId,
     p_payment_intent_id: paymentIntent.id,
-    p_price_id: paymentIntent.metadata?.price_id || '',
     p_credits: credits,
     p_amount_paid: paymentIntent.amount,
-    p_expires_at: expiresAt.toISOString(),
-    p_description: description,
-    p_metadata: metadata
+    p_expires_at: expiresAt.toISOString()
   });
 
+  // Use atomic RPC function to record purchase and award credits
+  let atomicError;
+  try {
+    const result = await supabase.rpc('process_credit_pack_purchase', {
+      p_user_id: userId,
+      p_payment_intent_id: paymentIntent.id,
+      p_price_id: paymentIntent.metadata?.price_id || '',
+      p_credits: credits,
+      p_amount_paid: paymentIntent.amount,
+      p_expires_at: expiresAt.toISOString(),
+      p_description: description,
+      p_metadata: metadata
+    });
+    atomicError = result.error;
+    console.log(`[RPC DEBUG] RPC call completed. Error:`, atomicError, 'Result:', result);
+  } catch (rpcException) {
+    console.error('[RPC DEBUG] RPC call threw exception:', rpcException);
+    throw rpcException;
+  }
+
   if (atomicError) {
-    console.error('Error in atomic credit pack purchase operation (paid):', atomicError.message);
+    console.error('Error in atomic credit pack purchase operation (paid):', atomicError);
+    console.error('Full error details:', JSON.stringify(atomicError, null, 2));
     throw new Error(`Failed to process credit pack purchase atomically: ${atomicError.message}`);
   }
 
+  console.log(`[SUCCESS] Successfully processed paid credit pack purchase: ${credits} credits awarded to user ${userId}`);
   devLog(`Successfully processed paid credit pack purchase: ${credits} credits awarded to user ${userId}`);
 } 
