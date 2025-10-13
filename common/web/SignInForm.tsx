@@ -148,7 +148,6 @@ export function SignInForm() {
           <form onSubmit={handleEmail} className={styles.form}>
             <Input
               ref={emailInputRef}
-              autoFocus
               id="email"
               name="email"
               autoComplete="email"

@@ -138,6 +138,26 @@
   html,
   body {
     @apply bg-background text-foreground;
+    /* Prevent pinch-to-zoom on mobile */
+    touch-action: pan-x pan-y;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+  }
+  html {
+    /* Additional iOS zoom prevention */
+    -webkit-touch-callout: none;
+  }
+  body {
+    /* Prevent zoom on double-tap */
+    touch-action: manipulation;
+  }
+  /* Prevent iOS zoom on input focus by ensuring minimum font size */
+  input,
+  textarea,
+  select,
+  button {
+    font-size: max(16px, 1em);
+    touch-action: manipulation;
   }
   .wrapper {
     height: 100%;
