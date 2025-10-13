@@ -736,7 +736,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
                         src={cachedOverlay.src}
                         alt={t('inference:viewer.alt.generated', { index: idx + 1 })}
                         aria-hidden="true"
-                        className={`${styles.mainImage} ${imageArClass}`}
+                        className={`${styles.mainImage} ${styles.overlayImage} ${imageArClass}`}
                         decoding="async"
                         onLoad={() => {
                           setOverlayCache(prev => ({
@@ -1012,3 +1012,6 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
     </div>
   );
 };
+
+// Apply custom class to dialog content wrapper
+(InferenceImageViewerDialog as any).dialogContentClassNameDefault = styles.dialogContentViewer;

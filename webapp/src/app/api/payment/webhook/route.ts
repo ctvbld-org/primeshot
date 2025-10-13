@@ -712,9 +712,9 @@ async function handleSubscriptionDeleted(
 }
 
 /**
- * Handle checkout session completed (for 100% coupon credit packs)
- * This fires for ALL checkout completions, including those with 100% coupons
- * where payment_intent.succeeded never fires.
+ * Handle checkout session completed (for 100% coupon credit packs ONLY)
+ * This fires for ALL checkout completions, but we only process 100% coupon purchases here.
+ * Regular paid purchases are handled by payment_intent.succeeded to avoid race conditions.
  */
 async function handleCheckoutSessionCompleted(
   session: Stripe.Checkout.Session,
@@ -723,6 +723,13 @@ async function handleCheckoutSessionCompleted(
   // Only process credit pack purchases (mode: 'payment')
   if (session.mode !== 'payment' || session.metadata?.pack_type !== 'credit_pack') {
     devLog(`Skipping checkout session ${session.id} - not a credit pack purchase`);
+    return;
+  }
+
+  // Skip if payment_intent exists - let payment_intent.succeeded handle regular payments
+  // This event should ONLY process 100% coupon purchases (no payment_intent)
+  if (session.payment_intent) {
+    devLog(`Skipping checkout session ${session.id} - has payment_intent, will be handled by payment_intent.succeeded`);
     return;
   }
 
@@ -735,34 +742,28 @@ async function handleCheckoutSessionCompleted(
     return;
   }
 
-  // Use payment_intent ID if it exists (paid purchase), otherwise use session ID (100% coupon)
-  const sourceId = session.payment_intent 
-    ? (typeof session.payment_intent === 'string' 
-        ? session.payment_intent 
-        : session.payment_intent.id)
-    : session.id;
+  // For 100% coupon purchases, use session ID as the unique identifier
+  const sourceId = session.id;
 
-  // Get amount paid (0 for 100% coupon, actual amount otherwise)
+  // Amount is 0 for 100% coupon
   const amountPaid = session.amount_total || 0;
 
   // Calculate expiry date
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + validityDays);
 
-  const description = `Credits from credit pack purchase - ${credits} credits`;
+  const description = `Credits from credit pack purchase (100% coupon) - ${credits} credits`;
   const metadata = {
-    payment_intent_id: sourceId,
     checkout_session_id: session.id,
     amount_paid: amountPaid,
     validity_days: validityDays,
-    coupon_applied: amountPaid === 0
+    coupon_applied: true,
+    payment_method: '100% coupon'
   };
 
-  devLog(`Processing checkout session for credit pack: ${credits} credits for user ${userId}, amount: $${amountPaid / 100}`);
+  devLog(`Processing 100% coupon checkout session for credit pack: ${credits} credits for user ${userId}`);
 
   // Use atomic RPC function to record purchase and award credits
-  // The idempotency check in the function prevents double-crediting if both
-  // checkout.session.completed and payment_intent.succeeded fire
   const { error: atomicError } = await supabase.rpc('process_credit_pack_purchase', {
     p_user_id: userId,
     p_payment_intent_id: sourceId,
@@ -775,16 +776,16 @@ async function handleCheckoutSessionCompleted(
   });
 
   if (atomicError) {
-    console.error('Error in atomic credit pack purchase operation:', atomicError.message);
+    console.error('Error in atomic credit pack purchase operation (100% coupon):', atomicError.message);
     throw new Error(`Failed to process credit pack purchase atomically: ${atomicError.message}`);
   }
 
-  devLog(`Atomically processed credit pack checkout: ${credits} credits awarded to user ${userId}`);
+  devLog(`Successfully processed 100% coupon credit pack: ${credits} credits awarded to user ${userId}`);
 }
 
 /**
  * Handle credit pack purchase (payment_intent.succeeded)
- * This fires for paid purchases. For 100% coupon purchases, only checkout.session.completed fires.
+ * This fires for regular PAID purchases. For 100% coupon purchases, only checkout.session.completed fires.
  */
 async function handleCreditPackPurchase(
   paymentIntent: Stripe.PaymentIntent,
@@ -805,7 +806,9 @@ async function handleCreditPackPurchase(
     return;
   }
 
-  // Calculate expiry date (60 days from purchase)
+  devLog(`Processing paid credit pack purchase: ${credits} credits for user ${userId}, amount: $${paymentIntent.amount / 100}`);
+
+  // Calculate expiry date
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + validityDays);
 
@@ -813,7 +816,9 @@ async function handleCreditPackPurchase(
   const metadata = {
     payment_intent_id: paymentIntent.id,
     amount_paid: paymentIntent.amount,
-    validity_days: validityDays
+    validity_days: validityDays,
+    coupon_applied: false,
+    payment_method: 'card'
   };
 
   // Use atomic RPC function to record purchase and award credits
@@ -829,9 +834,9 @@ async function handleCreditPackPurchase(
   });
 
   if (atomicError) {
-    console.error('Error in atomic credit pack purchase operation:', atomicError.message);
+    console.error('Error in atomic credit pack purchase operation (paid):', atomicError.message);
     throw new Error(`Failed to process credit pack purchase atomically: ${atomicError.message}`);
   }
 
-  devLog(`Atomically processed credit pack purchase: ${credits} credits awarded to user ${userId}`);
+  devLog(`Successfully processed paid credit pack purchase: ${credits} credits awarded to user ${userId}`);
 } 

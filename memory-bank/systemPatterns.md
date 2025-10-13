@@ -2237,6 +2237,13 @@ Detected changes in:
 Detected changes in:
 - webapp/src/components/generate/GenerateBar.module.css
 - webapp/src/lib/utils/colorSort.ts
+
+
+**Auto-update 2025-10-13**:
+Detected changes in:
+- admin/src/app/api/images/list/route.ts
+- admin/src/components/ui/image-upload.tsx
+- webapp/src/components/generate/GenerateBar.module.css
 ## Component Organization
 
 Components are organized by feature and reusability:
