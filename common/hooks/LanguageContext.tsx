@@ -39,9 +39,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         // Try to read locale from URL prefix (explicit user intent)
         let urlLocale: string | null = null
         if (typeof window !== 'undefined') {
+          // Match both country codes (us, gb, fr) and legacy ISO format (en-GB, fr-FR)
           const match = window.location.pathname.match(/^\/([a-z]{2})(?:-[A-Z]{2})?(?:\/|$)/)
           if (match) {
-            urlLocale = match[1]
+            const rawLocale = match[1]
+            // Normalize if it's legacy 'en' to 'gb'
+            urlLocale = rawLocale === 'en' ? 'gb' : rawLocale
           }
         }
 
@@ -63,7 +66,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         } catch {}
 
         // Precedence: URL > DB > cookie > localStorage > default
-        const lang = urlLocale || dbLang || cookieLocale || localStorage.getItem('i18nextLng') || 'en'
+        const lang = urlLocale || dbLang || cookieLocale || localStorage.getItem('i18nextLng') || 'us'
         
         // Only change language if it's different from current
         if (lang !== i18n.language) {
@@ -86,16 +89,16 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     // Get supported languages from i18n configuration
     const supportedLangs = (i18n.options.supportedLngs || []).filter((lng: string) => lng !== 'cimode')
     
-    // Validate language is supported, fallback to 'en' if not
+    // Validate language is supported, fallback to 'us' if not
     let targetLang = lang
     if (!supportedLangs.includes(lang)) {
-      console.warn(`Unsupported language: ${lang}, falling back to 'en'`)
-      targetLang = 'en'
+      console.warn(`Unsupported language: ${lang}, falling back to 'us'`)
+      targetLang = 'us'
       
-      // If 'en' is also not supported (edge case), use first available language
-      if (!supportedLangs.includes('en') && supportedLangs.length > 0) {
+      // If 'us' is also not supported (edge case), use first available language
+      if (!supportedLangs.includes('us') && supportedLangs.length > 0) {
         targetLang = supportedLangs[0]
-        console.warn(`'en' not available, using first supported language: ${targetLang}`)
+        console.warn(`'us' not available, using first supported language: ${targetLang}`)
       }
     }
 
@@ -134,9 +137,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       if (typeof window !== 'undefined') {
         try {
           const currentPath = window.location.pathname
-          // Strip any existing locale prefix (e.g., /fr/create -> /create)
-          // More robust regex to handle edge cases
-          const cleanPath = currentPath.replace(/^\/[a-z]{2}(-[A-Z]{2})?(\/|$)/, '/')
+          // Strip any existing locale prefix (e.g., /fr/create -> /create, /en-GB/create -> /create)
+          // More robust regex to handle edge cases including ISO format
+          const cleanPath = currentPath.replace(/^\/([a-z]{2}(-[A-Z]{2})?)(\/|$)/, '/')
           const targetPath = cleanPath || '/'
           
           // Use assign for better browser compatibility

@@ -1,19 +1,33 @@
 import i18n from 'i18next';
 
 // Import all translation files from common package
-// English
-import commonEn from './locales/en/common.json';
-import authEn from './locales/en/auth.json';
-import pricingEn from './locales/en/pricing.json';
-import stylesEn from './locales/en/styles.json';
-import generateEn from './locales/en/generate.json';
-import inferenceEn from './locales/en/inference.json';
-import characterEn from './locales/en/character.json';
-import aboutEn from './locales/en/about.json';
-import legalEn from './locales/en/legal.json';
-import uploadEn from './locales/en/upload.json';
-import homepageEn from './locales/en/homepage.json';
-import accountEn from './locales/en/account.json';
+// US English
+import commonUs from './locales/us/common.json';
+import authUs from './locales/us/auth.json';
+import pricingUs from './locales/us/pricing.json';
+import stylesUs from './locales/us/styles.json';
+import generateUs from './locales/us/generate.json';
+import inferenceUs from './locales/us/inference.json';
+import characterUs from './locales/us/character.json';
+import aboutUs from './locales/us/about.json';
+import legalUs from './locales/us/legal.json';
+import uploadUs from './locales/us/upload.json';
+import homepageUs from './locales/us/homepage.json';
+import accountUs from './locales/us/account.json';
+
+// UK English
+import commonGb from './locales/gb/common.json';
+import authGb from './locales/gb/auth.json';
+import pricingGb from './locales/gb/pricing.json';
+import stylesGb from './locales/gb/styles.json';
+import generateGb from './locales/gb/generate.json';
+import inferenceGb from './locales/gb/inference.json';
+import characterGb from './locales/gb/character.json';
+import aboutGb from './locales/gb/about.json';
+import legalGb from './locales/gb/legal.json';
+import uploadGb from './locales/gb/upload.json';
+import homepageGb from './locales/gb/homepage.json';
+import accountGb from './locales/gb/account.json';
 
 // French
 import commonFr from './locales/fr/common.json';
@@ -129,19 +143,33 @@ import accountJp from './locales/jp/account.json';
 
 // Global resources with all namespaces
 export const resources = {
-  en: {
-    common: commonEn,
-    auth: authEn,
-    pricing: pricingEn,
-    styles: stylesEn,
-    generate: generateEn,
-    inference: inferenceEn,
-    character: characterEn,
-    about: aboutEn,
-    legal: legalEn,
-    upload: uploadEn,
-    homepage: homepageEn,
-    account: accountEn,
+  us: {
+    common: commonUs,
+    auth: authUs,
+    pricing: pricingUs,
+    styles: stylesUs,
+    generate: generateUs,
+    inference: inferenceUs,
+    character: characterUs,
+    about: aboutUs,
+    legal: legalUs,
+    upload: uploadUs,
+    homepage: homepageUs,
+    account: accountUs,
+  },
+  gb: {
+    common: commonGb,
+    auth: authGb,
+    pricing: pricingGb,
+    styles: stylesGb,
+    generate: generateGb,
+    inference: inferenceGb,
+    character: characterGb,
+    about: aboutGb,
+    legal: legalGb,
+    upload: uploadGb,
+    homepage: homepageGb,
+    account: accountGb,
   },
   fr: {
     common: commonFr,
@@ -257,8 +285,8 @@ export const resources = {
   },
 };
 
-export const SUPPORTED_LANGUAGES = ['en', 'fr', 'es', 'it', 'pt', 'de', 'nl', 'cn', 'jp'] as const;
-export const DEFAULT_LANGUAGE = 'en';
+export const SUPPORTED_LANGUAGES = ['us', 'gb', 'cn', 'es', 'fr', 'pt', 'de', 'jp', 'it', 'nl'] as const;
+export const DEFAULT_LANGUAGE = 'us';
 export const LANGUAGE_COOKIE_NAME = 'i18n_lang';
 
 export type SupportedLanguage = typeof SUPPORTED_LANGUAGES[number];
@@ -266,7 +294,7 @@ export type SupportedLanguage = typeof SUPPORTED_LANGUAGES[number];
 // Server-side: basic initialization without browser-specific features
 if (!i18n.isInitialized) {
   i18n.init({
-    lng: DEFAULT_LANGUAGE, // Force server to always use English
+    lng: DEFAULT_LANGUAGE, // Force server to always use US English
     fallbackLng: DEFAULT_LANGUAGE,
     supportedLngs: SUPPORTED_LANGUAGES as readonly string[],
     interpolation: {

@@ -1,46 +1,46 @@
 {
-    "buttons": {
-        "generate": "Générer",
-        "create": "Créer",
-        "done": "Terminé",
-        "cancel": "Annuler",
-        "confirm": "Confirmer"
-    },
-    "labels": {
-        "woman": "Femme",
-        "man": "Homme",
-        "scene": "Scène",
-        "wardrobe": "Vêtements",
-        "creditsSuffix": "crédits",
-        "requiresActiveSubscription": "Nécessite un abonnement actif",
-        "calculating": "Calcul en cours"
-    },
-    "aria": {
-        "selectStyle": "Sélectionner le style",
-        "selectScene": "Sélectionner la scène",
-        "selectWardrobe": "Sélectionner la garde-robe",
-        "selectCharacter": "Sélectionner le perso",
-        "openSettings": "Ouvrir les paramètres",
-        "trainingProgress": "Progression de l'entraînement",
-        "characterActions": "Actions du perso",
-        "closeOverlay": "Fermer la superposition",
-        "carouselNavigation": "Navigation du carrousel",
-        "previous": "Précédent",
-        "next": "Suivant",
-        "search": "Rechercher {{title}}"
-    },
-    "placeholders": {
-        "find": "Trouver {{title}}"
-    },
-    "admin": {
-        "title": "Remplacements d'inférence administrateur",
-        "enableNodeOverrides": "Activer les remplacements de nœud (JSON par titre de nœud)",
-        "overridesJson": "JSON des remplacements",
-        "enablePromptOverride": "Activer le remplacement d'invite",
-        "prompt": "Invite",
-        "characterMetadata": "Métadonnées du perso (lecture seule)"
-    },
-    "errors": {
-        "failedToStartGeneration": "Échec du démarrage de la génération. Veuillez réessayer."
-    }
+  "buttons": {
+    "generate": "Générer",
+    "create": "Créer",
+    "done": "Terminé",
+    "cancel": "Annuler",
+    "confirm": "Confirmer"
+  },
+  "labels": {
+    "woman": "Femme",
+    "man": "Homme",
+    "scene": "Scène",
+    "wardrobe": "Vêtements",
+    "creditsSuffix": "crédits",
+    "requiresActiveSubscription": "Nécessite un abonnement actif",
+    "calculating": "Calcul en cours"
+  },
+  "aria": {
+    "selectStyle": "Sélectionner le style",
+    "selectScene": "Sélectionner la scène",
+    "selectWardrobe": "Sélectionner la garde-robe",
+    "selectCharacter": "Sélectionner le perso",
+    "openSettings": "Ouvrir les paramètres",
+    "trainingProgress": "Progression de l'entraînement",
+    "characterActions": "Actions du perso",
+    "closeOverlay": "Fermer la superposition",
+    "carouselNavigation": "Navigation du carrousel",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "search": "Rechercher {{title}}"
+  },
+  "placeholders": {
+    "find": "Trouver {{title}}"
+  },
+  "admin": {
+    "title": "Remplacements d'inférence administrateur",
+    "enableNodeOverrides": "Activer les remplacements de nœud (JSON par titre de nœud)",
+    "overridesJson": "JSON des remplacements",
+    "enablePromptOverride": "Activer le remplacement d'invite",
+    "prompt": "Invite",
+    "characterMetadata": "Métadonnées du perso (lecture seule)"
+  },
+  "errors": {
+    "failedToStartGeneration": "Échec du démarrage de la génération. Veuillez réessayer."
+  }
 }

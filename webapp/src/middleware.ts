@@ -3,7 +3,27 @@ import { logSecurityEvent } from '@/lib/security-monitoring'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
-const SUPPORTED = ['en','fr','es','it','pt','de','nl','cn','jp'] as const
+const SUPPORTED = ['us','gb','cn','es','fr','pt','de','jp','it','nl'] as const
+
+// Backward compatibility: normalize legacy formats to country codes
+function normalizeLegacyLanguage(lang: string): string {
+  const lower = lang.toLowerCase().trim()
+  
+  // Handle ISO format (en-GB, en-US, fr-FR, etc.)
+  if (lower.includes('-')) {
+    const [base, region] = lower.split('-')
+    if (base === 'en') {
+      return (region === 'us' || region === 'usa') ? 'us' : 'gb'
+    }
+    // For other languages, return the base language as country code
+    return base
+  }
+  
+  // Handle legacy 'en' -> 'gb'
+  if (lower === 'en') return 'gb'
+  
+  return lang
+}
 
 function parseAcceptLanguage(header: string | null): string | null {
   if (!header) return null
@@ -45,10 +65,13 @@ function mapToSupported(tag: string | undefined | null): typeof SUPPORTED[number
   const exact = SUPPORTED.find(l => l.toLowerCase() === lower)
   if (exact) return exact
   
-  // Map base language to a default region (e.g., "fr-FR" -> "fr")
+  // Map base language to a default region
   const base = lower.split('-')[0]
   switch (base) {
-    case 'en': return 'en'
+    case 'en':
+      // Map English to US by default, unless explicitly GB
+      if (lower.includes('gb') || lower.includes('uk')) return 'gb'
+      return 'us'
     case 'zh': return 'cn'
     case 'es': return 'es'
     case 'fr': return 'fr'
@@ -87,7 +110,9 @@ export async function middleware(request: NextRequest) {
 
   // Detect and set language cookie if not already set
   const cookieLocale = request.cookies.get('i18n_lang')?.value || null
-  const validCookieLocale = cookieLocale && mapToSupported(cookieLocale)
+  // Normalize legacy 'en' to 'gb' for backward compatibility
+  const normalizedCookie = cookieLocale ? normalizeLegacyLanguage(cookieLocale) : null
+  const validCookieLocale = normalizedCookie && mapToSupported(normalizedCookie)
   
   // Sync i18n cookie with explicit locale prefix when present (no redirects here)
   const segments = pathname.split('/').filter(Boolean)
@@ -101,7 +126,7 @@ export async function middleware(request: NextRequest) {
     // No valid cookie exists - detect from Accept-Language header
     const acceptLanguageHeader = request.headers.get('accept-language')
     const headerLocale = parseAcceptLanguage(acceptLanguageHeader)
-    const detectedLocale = headerLocale || 'en'
+    const detectedLocale = headerLocale || 'us'
     
     // Set the detected language cookie
     response.cookies.set('i18n_lang', detectedLocale, { path: '/', maxAge: 60 * 60 * 24 * 365, sameSite: 'lax' })

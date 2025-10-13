@@ -10,7 +10,8 @@ import ReactCountryFlag from 'react-country-flag';
 import styles from './LanguageSwitcher.module.css';
 import { Icon } from './Icon';
 const baseLanguageMeta = {
-    'en': { label: 'English', countryCode: 'GB', country: 'United Kingdom' },
+    'us': { label: 'English', countryCode: 'US', country: 'United States' },
+    'gb': { label: 'English', countryCode: 'GB', country: 'United Kingdom' },
     'cn': { label: '中文', countryCode: 'CN', country: '中国' },
     'es': { label: 'Español', countryCode: 'ES', country: 'España' },
     'fr': { label: 'Français', countryCode: 'FR', country: 'France' },

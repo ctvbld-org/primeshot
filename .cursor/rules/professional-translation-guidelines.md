@@ -71,8 +71,9 @@ When translating content from English to target languages (French, Spanish, Ital
 
 ## Regional Variants Policy
 
-- All languages use simplified country codes. Examples:
-  - English: en
+- All languages use country codes. Examples:
+  - US English: us
+  - UK English: gb (Great Britain)
   - Spanish: es
   - Portuguese: pt
   - Chinese Simplified: cn
@@ -81,11 +82,67 @@ When translating content from English to target languages (French, Spanish, Ital
   - German: de
   - Italian: it
   - Dutch: nl
-- Default reference source is en. Ensure target translations reflect en strings.
+- Default reference source is us (US English). Ensure target translations reflect us strings.
 - No i18n fallback is configured. Every supported language must provide all keys for each namespace.
 - Persisted user preference uses the same country codes and must be maintained consistently across files and database values.
+- **English Variants**: We support both US English (`us`) and UK English (`gb`) to accommodate regional spelling and terminology differences.
+- **Backward Compatibility**: The system automatically maps legacy `en` code to `gb` for existing users.
 
 ## Language-Specific Guidelines
+
+### US English (us)
+
+**Brand Voice - The Primeshot Standard:**
+- US English is the primary reference for all translations
+- Embodies the core Primeshot tone: professional yet friendly, simple yet premium, playful yet trustworthy
+- Uses American spelling conventions (color, organize, analyze, center)
+- Employs American terminology (apartment, elevator, pants, vacation)
+
+**Language Guidelines:**
+- Use American spelling: -or (color), -ize (realize), -er (center), -og (catalog)
+- American punctuation: periods and commas inside quotation marks
+- Date format: MM/DD/YYYY
+- Measurement: Imperial system references when needed (feet, inches, pounds)
+- **Tone Examples**:
+  - Clear & Premium: "Studio-quality portraits, no hassle"
+  - Friendly & Reassuring: "Your photos in expert hands"
+  - Playful: "Say goodbye to endless photo shoots"
+- **Preferred Terminology**:
+  - Use "apartment" not "flat"
+  - Use "elevator" not "lift"
+  - Use "vacation" not "holiday"
+  - Use "pants" not "trousers"
+  - Use "check" not "tick" (for checkboxes)
+
+### UK English (gb)
+
+**Brand Voice Adaptation for British Culture:**
+- British users appreciate understated elegance and quality without excessive enthusiasm
+- Maintain professionalism with British reserve while staying approachable
+- Use British spelling to respect regional preferences
+- British humor tends to be dry and self-deprecating; keep playfulness subtle
+
+**Language Guidelines:**
+- Use British spelling: -our (colour), -ise (realise), -re (centre), -ogue (catalogue)
+- British punctuation: punctuation outside quotation marks
+- Date format: DD/MM/YYYY
+- Measurement: Mix of metric and imperial in everyday use
+- **Tone Examples**:
+  - Clear & Premium: "Studio-quality portraits, without the fuss"
+  - Friendly & Reassuring: "Your photos in safe hands"
+  - Playful: "No more endless photo shoots"
+- **Preferred Terminology**:
+  - Use "flat" not "apartment"
+  - Use "lift" not "elevator"
+  - Use "holiday" not "vacation"
+  - Use "trousers" not "pants"
+  - Use "tick" not "check" (for checkboxes)
+- **Common Spelling Differences**:
+  - colour, favourite, honour, behaviour
+  - realise, organise, analyse, recognise
+  - centre, theatre, metre, litre
+  - catalogue, dialogue, analogue
+  - grey, cheque, programme
 
 ### French (fr)
 
@@ -286,9 +343,43 @@ Before finalizing translations, verify that they:
 
 ## Examples of Quality Translations
 
-### Example 1: Button and Action Text
+### Example 1: US vs UK English Differences
 
-**English Original:**
+**US English (us) - Primary Reference:**
+```json
+{
+  "interface": {
+    "colorSettings": "Color Settings",
+    "customize": "Customize your profile",
+    "analyzePhotos": "Analyze photos",
+    "favoriteStyles": "Favorite styles"
+  },
+  "messages": {
+    "optimized": "Your photos have been optimized.",
+    "organize": "Organize your albums"
+  }
+}
+```
+
+**UK English (gb) - British Variant:**
+```json
+{
+  "interface": {
+    "colorSettings": "Colour Settings",
+    "customize": "Customise your profile",
+    "analyzePhotos": "Analyse photos",
+    "favoriteStyles": "Favourite styles"
+  },
+  "messages": {
+    "optimized": "Your photos have been optimised.",
+    "organize": "Organise your albums"
+  }
+}
+```
+
+### Example 2: Button and Action Text
+
+**US English (us):**
 ```json
 {
   "buttons": {
@@ -299,7 +390,7 @@ Before finalizing translations, verify that they:
 }
 ```
 
-**Quality French Translation:**
+**French Translation (fr):**
 ```json
 {
   "buttons": {
@@ -310,9 +401,9 @@ Before finalizing translations, verify that they:
 }
 ```
 
-### Example 2: Technical Feature Description
+### Example 3: Technical Feature Description
 
-**English Original:**
+**US English (us):**
 ```json
 {
   "features": {
@@ -322,7 +413,7 @@ Before finalizing translations, verify that they:
 }
 ```
 
-**Quality Japanese Translation:**
+**Japanese Translation (ja):**
 ```json
 {
   "features": {
@@ -332,9 +423,9 @@ Before finalizing translations, verify that they:
 }
 ```
 
-### Example 3: Form Validation Message
+### Example 4: Form Validation Message
 
-**English Original:**
+**US English (us):**
 ```json
 {
   "validation": {
@@ -344,7 +435,7 @@ Before finalizing translations, verify that they:
 }
 ```
 
-**Quality German Translation:**
+**German Translation (de):**
 ```json
 {
   "validation": {

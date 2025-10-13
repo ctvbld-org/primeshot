@@ -15,30 +15,37 @@ common/
 ├── web/
 │   └── LanguageSwitcher.tsx  # Language selection component
 └── locales/                  # Translation files (centralized)
-    ├── en/                   # English translations
+    ├── us/                   # US English translations
     │   ├── albums.json
     │   ├── auth.json
     │   ├── common.json
     │   └── ...
+    ├── gb/                   # UK English translations
+    │   ├── albums.json
+    │   ├── auth.json
+    │   ├── common.json
+    │   └── ...
+    ├── cn/                   # Chinese translations
     ├── es/                   # Spanish translations
     │   ├── albums.json
     │   ├── auth.json
     │   ├── common.json
     │   └── ...
     ├── fr/
-    ├── it/
     ├── pt/
     ├── de/
-    ├── nl/
-    ├── cn/
-    └── jp/
+    ├── jp/
+    ├── it/
+    └── nl/
 ```
 
 ## Runtime Policy
-- Default language is en.
+- Default language is us (US English).
 - Fallback is disabled; all supported languages must include all keys per namespace.
 - User language preference is persisted in DB (`public.user_settings.preferred_language`) and must use the same country code values. Use RPCs `get_user_language` and `set_user_language`.
 - All i18n logic is centralized in the `@primeshot/common` package.
+- **English Variants**: We support both US English (`us`) and UK English (`gb`) to accommodate spelling and terminology preferences (e.g., "color" vs "colour", "apartment" vs "flat").
+- **Backward Compatibility**: The system automatically maps legacy `en` code to `gb` for existing users and cookies.
 
 ## Primeshot Brand Voice for All Languages
 
