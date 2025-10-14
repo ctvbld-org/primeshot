@@ -165,7 +165,14 @@
         "none": "No se detectó ningún rostro.",
         "multiple": "Se detectaron múltiples rostros.",
         "positionNotOptimal": "La posición del rostro no es óptima.",
-        "detectSkipped": "Se omitió la detección de rostros."
+        "detectSkipped": "Se omitió la detección de rostros.",
+        "angleExtreme": "El ángulo del rostro es demasiado extremo (cabeceo: {{pitch}}°, guiñada: {{yaw}}°, balanceo: {{roll}}°)",
+        "sunglasses": "Los ojos están cubiertos por gafas de sol o lentes oscuros.",
+        "sunglasses.critical": "Gafas de sol detectadas - por favor quítate las gafas de sol.",
+        "eyesClosed": "Los ojos parecen estar cerrados o no visibles.",
+        "tooSmall": "El rostro es demasiado pequeño en el encuadre.",
+        "tooLarge": "El rostro es demasiado grande/cerca.",
+        "sizeNotOptimal": "El tamaño del rostro no es óptimo."
       },
       "contrast": {
         "separation": {
@@ -176,7 +183,12 @@
         "poorOrFlat": "La imagen tiene poco contraste o parece demasiado plana."
       },
       "sharpness": {
-        "tooBlurry": "La imagen parece borrosa o carece de suficientes detalles."
+        "tooBlurry": "La imagen parece borrosa o carece de suficientes detalles.",
+        "pixelated": "La imagen parece pixelada o tiene artefactos de compresión.",
+        "suboptimal": "La nitidez de la imagen podría mejorarse."
+      },
+      "background": {
+        "notBlurred": "El fondo no está desenfocado. Por favor, usa el modo retrato o un fondo desenfocado."
       },
       "upload": {
         "none": "No se subieron imágenes"

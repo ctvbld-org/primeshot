@@ -165,7 +165,14 @@
         "none": "未检测到面部。",
         "multiple": "检测到多个面部。",
         "positionNotOptimal": "面部位置不理想。",
-        "detectSkipped": "跳过了面部检测。"
+        "detectSkipped": "跳过了面部检测。",
+        "angleExtreme": "面部角度过于极端（俯仰角：{{pitch}}°，偏航角：{{yaw}}°，翻滚角：{{roll}}°）",
+        "sunglasses": "眼睛被太阳镜或深色眼镜遮挡。",
+        "sunglasses.critical": "检测到太阳镜 - 请摘下太阳镜。",
+        "eyesClosed": "眼睛似乎闭上了或看不见。",
+        "tooSmall": "画面中面部太小。",
+        "tooLarge": "面部太大/太近。",
+        "sizeNotOptimal": "面部大小不理想。"
       },
       "contrast": {
         "separation": {
@@ -176,7 +183,12 @@
         "poorOrFlat": "图像对比度差或显得太平淡。"
       },
       "sharpness": {
-        "tooBlurry": "图像显得模糊或缺乏足够的细节。"
+        "tooBlurry": "图像显得模糊或缺乏足够的细节。",
+        "pixelated": "图像显得像素化或有压缩伪影。",
+        "suboptimal": "图像清晰度可以改善。"
+      },
+      "background": {
+        "notBlurred": "背景未模糊。请使用人像模式或模糊背景。"
       },
       "upload": {
         "none": "未上传图像"

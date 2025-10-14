@@ -165,7 +165,14 @@
         "none": "Nessun volto rilevato.",
         "multiple": "Rilevati più volti.",
         "positionNotOptimal": "La posizione del volto non è ottimale.",
-        "detectSkipped": "Il rilevamento del volto è stato saltato."
+        "detectSkipped": "Il rilevamento del volto è stato saltato.",
+        "angleExtreme": "L'angolo del volto è troppo estremo (beccheggio: {{pitch}}°, imbardata: {{yaw}}°, rollio: {{roll}}°)",
+        "sunglasses": "Gli occhi sono coperti da occhiali da sole o lenti scure.",
+        "sunglasses.critical": "Occhiali da sole rilevati - si prega di rimuovere gli occhiali da sole.",
+        "eyesClosed": "Gli occhi sembrano chiusi o non visibili.",
+        "tooSmall": "Il volto è troppo piccolo nell'inquadratura.",
+        "tooLarge": "Il volto è troppo grande/vicino.",
+        "sizeNotOptimal": "La dimensione del volto non è ottimale."
       },
       "contrast": {
         "separation": {
@@ -176,7 +183,12 @@
         "poorOrFlat": "L'immagine ha un contrasto scarso o appare troppo piatta."
       },
       "sharpness": {
-        "tooBlurry": "L'immagine appare sfocata o manca di dettagli sufficienti."
+        "tooBlurry": "L'immagine appare sfocata o manca di dettagli sufficienti.",
+        "pixelated": "L'immagine appare pixelata o ha artefatti di compressione.",
+        "suboptimal": "La nitidezza dell'immagine potrebbe essere migliorata."
+      },
+      "background": {
+        "notBlurred": "Lo sfondo non è sfocato. Si prega di utilizzare la modalità ritratto o uno sfondo sfocato."
       },
       "upload": {
         "none": "Nessuna immagine caricata"

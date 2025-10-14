@@ -165,7 +165,14 @@
         "none": "Nenhum rosto detectado.",
         "multiple": "Múltiplos rostos detectados.",
         "positionNotOptimal": "A posição do rosto não é ideal.",
-        "detectSkipped": "A detecção de rosto foi ignorada."
+        "detectSkipped": "A detecção de rosto foi ignorada.",
+        "angleExtreme": "O ângulo do rosto é muito extremo (arfagem: {{pitch}}°, guinada: {{yaw}}°, rolagem: {{roll}}°)",
+        "sunglasses": "Os olhos estão cobertos por óculos de sol ou lentes escuras.",
+        "sunglasses.critical": "Óculos de sol detectados - por favor remova os óculos de sol.",
+        "eyesClosed": "Os olhos parecem estar fechados ou não visíveis.",
+        "tooSmall": "O rosto é muito pequeno no enquadramento.",
+        "tooLarge": "O rosto é muito grande/próximo.",
+        "sizeNotOptimal": "O tamanho do rosto não é ideal."
       },
       "contrast": {
         "separation": {
@@ -176,7 +183,12 @@
         "poorOrFlat": "A imagem tem contraste fraco ou parece demasiado plana."
       },
       "sharpness": {
-        "tooBlurry": "A imagem parece desfocada ou carece de detalhes suficientes."
+        "tooBlurry": "A imagem parece desfocada ou carece de detalhes suficientes.",
+        "pixelated": "A imagem parece pixelizada ou tem artefactos de compressão.",
+        "suboptimal": "A nitidez da imagem poderia ser melhorada."
+      },
+      "background": {
+        "notBlurred": "O fundo não está desfocado. Por favor, use o modo retrato ou um fundo desfocado."
       },
       "upload": {
         "none": "Nenhuma imagem carregada"

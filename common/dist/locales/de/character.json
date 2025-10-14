@@ -165,7 +165,14 @@
         "none": "Kein Gesicht erkannt.",
         "multiple": "Mehrere Gesichter erkannt.",
         "positionNotOptimal": "Die Gesichtsposition ist nicht optimal.",
-        "detectSkipped": "Gesichtserkennung wurde übersprungen."
+        "detectSkipped": "Gesichtserkennung wurde übersprungen.",
+        "angleExtreme": "Der Gesichtswinkel ist zu extrem (Neigung: {{pitch}}°, Gieren: {{yaw}}°, Rollen: {{roll}}°)",
+        "sunglasses": "Die Augen sind durch Sonnenbrille oder dunkle Gläser verdeckt.",
+        "sunglasses.critical": "Sonnenbrille erkannt - bitte Sonnenbrille entfernen.",
+        "eyesClosed": "Die Augen scheinen geschlossen oder nicht sichtbar zu sein.",
+        "tooSmall": "Das Gesicht ist zu klein im Bild.",
+        "tooLarge": "Das Gesicht ist zu groß/nah.",
+        "sizeNotOptimal": "Die Gesichtsgröße ist nicht optimal."
       },
       "contrast": {
         "separation": {
@@ -176,7 +183,12 @@
         "poorOrFlat": "Das Bild hat schlechten Kontrast oder wirkt zu flach."
       },
       "sharpness": {
-        "tooBlurry": "Das Bild erscheint unscharf oder es fehlen ausreichende Details."
+        "tooBlurry": "Das Bild erscheint unscharf oder es fehlen ausreichende Details.",
+        "pixelated": "Das Bild erscheint verpixelt oder hat Kompressionsartefakte.",
+        "suboptimal": "Die Bildschärfe könnte verbessert werden."
+      },
+      "background": {
+        "notBlurred": "Der Hintergrund ist nicht unscharf. Bitte verwenden Sie den Porträtmodus oder einen unscharfen Hintergrund."
       },
       "upload": {
         "none": "Keine Bilder hochgeladen"
