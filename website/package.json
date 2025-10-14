@@ -42,7 +42,7 @@
     "i18next": "^25.0.1",
     "i18next-browser-languagedetector": "^8.0.5",
     "lucide-react": "^0.486.0",
-    "next": "15.3.2",
+    "next": "^15.5.5",
     "postcss": "^8.4.35",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -52,7 +52,8 @@
     "tailwind-merge": "^3.1.0",
     "tailwindcss": "^3.4.1",
     "three": "^0.177.0",
-    "zod": "^3.25.30"
+    "zod": "^3.25.30",
+    "framer-motion": "^11.15.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -63,6 +64,7 @@
     "dotenv": "^16.4.7",
     "eslint": "^9",
     "eslint-config-next": "15.3.2",
+    "tailwindcss-animate": "^1.0.7",
     "typescript": "^5"
   },
   "overrides": {
