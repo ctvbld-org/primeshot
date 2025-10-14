@@ -51,9 +51,10 @@
     "resend": "^4.5.1",
     "tailwind-merge": "^3.1.0",
     "tailwindcss": "^3.4.1",
+    "tailwindcss-animate": "^1.0.7",
     "three": "^0.177.0",
     "zod": "^3.25.30",
-    "framer-motion": "^11.15.0"
+    "framer-motion": "^12.7.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -64,7 +65,6 @@
     "dotenv": "^16.4.7",
     "eslint": "^9",
     "eslint-config-next": "15.3.2",
-    "tailwindcss-animate": "^1.0.7",
     "typescript": "^5"
   },
   "overrides": {
