@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin-client';
 import { z } from 'zod';
 import { Resend } from 'resend';
-import { getCdnUrl } from '@/lib/utils/cdn';
 
 export const runtime = 'nodejs';
 
@@ -69,7 +68,7 @@ export async function POST(request: Request) {
       subject: "Your Primeshot Beta Invite is Coming Soon 🚀",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <img src="${getCdnUrl('email/logo.png')}" alt="Primeshot" style="width: 64px; height: 64px; margin-bottom: 20px; margin-top: 20px;" />
+          <img src="https://primeshot.ai/email/logo.png" alt="Primeshot" style="width: 64px; height: 64px; margin-bottom: 20px; margin-top: 20px;" />
           <h1 style="color: #052322; text-align: left;">You're on the waitlist!</h1>
           <p style="color: #666; font-size: 16px;">
             Great news! We’re excited to let you know that Primeshot is ready for beta! 🎉
@@ -93,7 +92,7 @@ export async function POST(request: Request) {
           <p style="color: #666; font-size: 16px; margin-top: 30px;">
             We're thrilled to have you with us, 
             <br /><br />
-              <img src="${getCdnUrl('email/sig.png')}" alt="David and Rich" style="width: 132px; height: 48px;" />
+              <img src="https://primeshot.ai/email/sig.png" alt="David and Rich" style="width: 132px; height: 48px;" />
             <br />
             <span style="color: #999; font-size: 14px;">Founders of Primeshot</span>
           </p>
