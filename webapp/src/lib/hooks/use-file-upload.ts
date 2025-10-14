@@ -203,6 +203,16 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     return validateFiles(newFiles)
   }, [validateFiles, fileStates])
 
+  // Helper function to run analysis with timeout
+  const analyzeWithTimeout = async (file: File, timeoutMs: number = 30000): Promise<ImageQualityResult> => {
+    return Promise.race([
+      analyzeImageQuality(file, { petMode }),
+      new Promise<ImageQualityResult>((_, reject) => 
+        setTimeout(() => reject(new Error('Analysis timeout')), timeoutMs)
+      )
+    ]);
+  };
+
   const analyzeImages = async (files: File[]): Promise<[File[], Record<string, ImageQualityResult>]> => {
     // Calculate the starting display index based on current accepted files
     const startingDisplayIndex = fileStates.filter(state => state.qualityResult?.isAcceptable).length
@@ -232,7 +242,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
         try {
           // Random delay between 400ms and 800ms
           await delay(Math.floor(Math.random() * (800 - 400 + 1)) + 400)
-          const result = await analyzeImageQuality(file, { petMode })
+          const result = await analyzeWithTimeout(file, 30000) // 30 second timeout
           results[file.name] = result
           
           if (result.isAcceptable) {
@@ -260,7 +270,18 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
             currentIndex++ // Try next file but keep the loader on the same position
           }
         } catch (error) {
-          console.error(`Error analyzing ${file.name}:`, error)
+          const isTimeout = error instanceof Error && error.message === 'Analysis timeout';
+          console.error(`Error analyzing ${file.name}:`, error);
+          
+          if (isTimeout) {
+            toast({
+              title: t('errors.analysisTimeout'),
+              description: t('errors.analysisTimeoutDescription'),
+              variant: 'destructive'
+            });
+          }
+          
+          const errorMessage = isTimeout ? 'Analysis timeout - please try again' : 'Analysis error';
           const errorResult: ImageQualityResult = {
             width: 0,
             height: 0,
@@ -281,7 +302,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
             faceDetectionSkipped: true,
             eyesVisible: false,
             eyeDetectionSkipped: true,
-            issues: ['Analysis error'],
+            issues: [errorMessage],
             i18nIssues: [] as Array<{ key: string; params?: Record<string, string | number> }>
           }
           results[file.name] = errorResult
@@ -302,7 +323,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
       for (let i = currentIndex; i < files.length; i++) {
         const file = files[i]
         try {
-          const result = await analyzeImageQuality(file, { petMode })
+          const result = await analyzeWithTimeout(file, 30000) // 30 second timeout
           results[file.name] = result
           
           // Collect rejected file state but don't add it yet
@@ -315,7 +336,10 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
             })
           }
         } catch (error) {
-          console.error(`Error analyzing remaining file ${file.name}:`, error)
+          const isTimeout = error instanceof Error && error.message === 'Analysis timeout';
+          console.error(`Error analyzing remaining file ${file.name}:`, error);
+          
+          const errorMessage = isTimeout ? 'Analysis timeout - please try again' : 'Analysis error';
           const errorResult: ImageQualityResult = {
             width: 0,
             height: 0,
@@ -336,7 +360,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
             faceDetectionSkipped: true,
             eyesVisible: false,
             eyeDetectionSkipped: true,
-            issues: ['Analysis error'],
+            issues: [errorMessage],
             i18nIssues: [] as Array<{ key: string; params?: Record<string, string | number> }>
           }
           results[file.name] = errorResult

@@ -956,6 +956,8 @@ export declare const resources: {
                 duplicateFile: string;
                 uploadFailedCount_one: string;
                 uploadFailedCount_other: string;
+                analysisTimeout: string;
+                analysisTimeoutDescription: string;
             };
             progress: {
                 uploading: string;

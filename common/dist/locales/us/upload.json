@@ -18,7 +18,9 @@
     "fileSizeExceeded": "File is too large (max {{size}})",
     "duplicateFile": "Duplicate file",
     "uploadFailedCount_one": "1 file couldn't be added",
-    "uploadFailedCount_other": "{{count}} files couldn't be added"
+    "uploadFailedCount_other": "{{count}} files couldn't be added",
+    "analysisTimeout": "Analysis Timeout",
+    "analysisTimeoutDescription": "Image analysis took too long. Please try again or use a different photo."
   },
   "progress": {
     "uploading": "Uploading...",

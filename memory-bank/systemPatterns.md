@@ -2288,6 +2288,15 @@ Detected changes in:
 **Auto-update 2025-10-14**:
 Detected changes in:
 - website/src/app/api/waitlist/route.ts
+
+
+**Auto-update 2025-10-14**:
+Detected changes in:
+- website/src/app/[locale]/layout.tsx
+- website/src/app/[locale]/page.tsx
+- website/src/app/api/waitlist/route.ts
+- website/src/app/globals.css
+- website/src/components/WaitlistForm.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

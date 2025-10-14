@@ -130,8 +130,16 @@ export async function loadModels() {
     }
     
     console.log('Starting to load face detection models...');
+    
+    // Check if NEXT_PUBLIC_AWS_DISTRIBUTION is set
+    if (!process.env.NEXT_PUBLIC_AWS_DISTRIBUTION) {
+      console.error('NEXT_PUBLIC_AWS_DISTRIBUTION environment variable is not set');
+      throw new Error('AWS CloudFront distribution URL is not configured');
+    }
+    
     // Use CloudFront distribution URL for models
     const modelPath = `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/face-models`;
+    console.log(`Loading models from: ${modelPath}`);
     
     // Check if models are available at the path
     try {
