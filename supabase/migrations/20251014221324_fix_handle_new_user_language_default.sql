@@ -1,4 +1,5 @@
--- Add detailed logging to handle_new_user to diagnose the issue
+-- Fix handle_new_user default language to match check constraint
+-- The default was 'en-GB' but the check constraint expects 'gb'
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -50,7 +51,7 @@ BEGIN
   _preferred_language := coalesce(
     NEW.raw_user_meta_data->>'preferred_language',
     NEW.raw_user_meta_data->>'locale',
-    'gb'  -- Fixed: Changed from 'en-GB' to 'gb' to match check constraint
+    'gb'  -- FIXED: Changed from 'en-GB' to 'gb' to match check constraint
   );
   
   RAISE LOG 'handle_new_user: Attempting insert into user_settings with language: %', _preferred_language;
@@ -72,3 +73,4 @@ EXCEPTION WHEN OTHERS THEN
   RETURN NEW;
 END;
 $$;
+

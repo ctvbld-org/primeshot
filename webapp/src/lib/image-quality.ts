@@ -34,8 +34,6 @@ const SERVER_STUB_RESULT = {
   i18nIssues: [] as Array<{ key: string; params?: Record<string, string | number> }>,
   eyesVisible: true,
   eyeDetectionSkipped: true,
-  depthOfFieldScore: 100,
-  hasDepthOfField: true,
 } as const;
 
 // MediaPipe instances
@@ -219,11 +217,9 @@ export interface ImageQualityResult {
   // i18n-aware issues: UI should prefer these keys over legacy strings
   i18nIssues: Array<{ key: string; params?: Record<string, string | number> }>;
   
-  // New properties
+  // Eye detection
   eyesVisible: boolean;
   eyeDetectionSkipped: boolean;
-  depthOfFieldScore: number; // 0-1: background blur vs face sharpness
-  hasDepthOfField: boolean; // True if background is blurred (REQUIRED)
 }
 
 // Analyze image quality using face-api.js and browser canvas
@@ -305,8 +301,6 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
       result.bodyScore = faceResult.bodyScore;
       result.eyesVisible = faceResult.eyesVisible;
       result.eyeDetectionSkipped = faceResult.eyeDetectionSkipped;
-      result.depthOfFieldScore = faceResult.depthOfFieldScore;
-      result.hasDepthOfField = faceResult.hasDepthOfField;
       
       // Add face-related issues
       result.issues.push(...faceResult.issues);
@@ -1675,8 +1669,6 @@ function initializeResult(width: number, height: number): ImageQualityResult {
     issues: [],
     i18nIssues: [],
     eyesVisible: false,
-    eyeDetectionSkipped: false,
-    depthOfFieldScore: 0,
-    hasDepthOfField: false
+    eyeDetectionSkipped: false
   };
 } 

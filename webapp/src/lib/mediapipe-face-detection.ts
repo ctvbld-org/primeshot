@@ -12,8 +12,6 @@ export interface MediaPipeFaceResult {
   eyeDetectionSkipped: boolean;
   primaryFaceBox: { x: number; y: number; width: number; height: number } | null;
   faceOrientation: { pitch: number; yaw: number; roll: number } | null;
-  depthOfFieldScore: number; // 0-1: background blur vs face sharpness
-  hasDepthOfField: boolean; // True if background is blurred
   issues: string[];
   i18nIssues: Array<{ key: string; params?: Record<string, string | number> }>;
 }
@@ -36,8 +34,6 @@ export async function detectFaces(
     eyeDetectionSkipped: false,
     primaryFaceBox: null,
     faceOrientation: null,
-    depthOfFieldScore: 0,
-    hasDepthOfField: false,
     issues: [],
     i18nIssues: []
   };
@@ -205,12 +201,6 @@ export async function detectFaces(
     // Calculate overall face score based on size and position
     result.faceScore = sizeScore * 0.6 + positionScore * 0.4;
     
-    // Depth of field check DISABLED - accept any background
-    result.depthOfFieldScore = 1.0;
-    result.hasDepthOfField = true;
-    
-    console.log('[MediaPipe] ℹ️ Depth of field check disabled - accepting all backgrounds');
-    
     // Detect body shot
     const faceBottomY = faceBox.y + faceBox.height;
     const spaceBelow = (height - faceBottomY) / height;
@@ -224,7 +214,7 @@ export async function detectFaces(
                     faceBox.y < height * 0.30;
     result.bodyScore = result.hasBody ? 1 : 0;
     
-    console.log(`[MediaPipe] Face score: ${result.faceScore.toFixed(2)}, Body shot: ${result.hasBody}, Depth of field: ${result.depthOfFieldScore.toFixed(2)}`);
+    console.log(`[MediaPipe] Face score: ${result.faceScore.toFixed(2)}, Body shot: ${result.hasBody}`);
     
   } catch (error) {
     console.error('[MediaPipe] Face detection error:', error);
