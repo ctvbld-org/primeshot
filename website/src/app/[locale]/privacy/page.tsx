@@ -1,5 +1,6 @@
 "use client";
 import Footer from '@primeshot/common/web/Footer';
+import ContentPageHeader from '@/components/ContentPageHeader';
 import { useTranslation } from 'react-i18next';
 
 export default function Privacy() {
@@ -8,7 +9,11 @@ export default function Privacy() {
   const securityItems = (t('privacy.sections.security.items', { returnObjects: true }) as unknown as string[]) || [];
   const rightsItems = (t('privacy.sections.rights.items', { returnObjects: true }) as unknown as string[]) || [];
   return (
-    <div className="w-full min-h-screen text-white">
+    <div className="w-full min-h-screen text-white px-3">
+      <ContentPageHeader 
+          title={t('privacy.title')}
+          backgroundImage=""
+        />
       <div className="max-w-3xl text-sm mx-auto space-y-8 pb-40">
         <div className='w-full pt-40 pb-20'>
             <h1 className="font-carb-bold text-glacier text-7xl mb-4">{t('privacy.title')}</h1>

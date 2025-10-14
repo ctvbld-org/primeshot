@@ -2,6 +2,26 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+### Environment Variables
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```bash
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+
+# Resend Configuration
+RESEND_API_KEY=re_xxxxxxxxxxxxx
+RESEND_AUDIENCE_ID=aud_xxxxxxxxxxxxx  # Optional - see RESEND_SETUP.md
+RESEND_FROM_EMAIL="Primeshot <team@mail.primeshot.ai>"  # Optional - defaults to team@mail.primeshot.ai
+```
+
+For detailed Resend waitlist integration setup, see [RESEND_SETUP.md](./RESEND_SETUP.md).
+
+### Development Server
+
 First, run the development server:
 
 ```bash

@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+
+
+/* Lazy loading styles */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* WebGL Background styles */
 #slider {
   position: fixed;
@@ -70,102 +86,124 @@
     color: #000000; /* black */
   }
 
-  /* Fade in up animation */
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(4px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+}
 
-  .animate-fade-in-up {
-    animation: fadeInUp 0.6s ease-out forwards;
-    opacity: 0; /* Start invisible */
-  }
-
-  /* Staggered fade in up animation */
-  .animate-fade-in-up-delay-1 {
-    animation: fadeInUp 0.6s ease-out 0.1s forwards;
+/* Fade in up animation */
+@keyframes fadeInUp {
+  from {
     opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Sticky section responsive behavior */
+.sticky-section {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+}
+
+/* Media query for small screen heights */
+@media (max-height: 768px) {
+  .sticky-section {
+    position: static !important;
   }
 
-  .animate-fade-in-up-delay-2 {
-    animation: fadeInUp 0.6s ease-out 0.15s forwards;
-    opacity: 0;
+  /* Hide spacer on small heights */
+  #section1-spacer {
+    display: none;
   }
+}
 
-  .animate-fade-in-up-delay-3 {
-    animation: fadeInUp 0.6s ease-out 0.2s forwards;
-    opacity: 0;
-  }
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0; /* Start invisible */
+}
 
-  .animate-fade-in-up-delay-4 {
-    animation: fadeInUp 0.6s ease-out 0.25s forwards;
-    opacity: 0;
-  }
+/* Staggered fade in up animation */
+.animate-fade-in-up-delay-1 {
+  animation: fadeInUp 0.6s ease-out 0.1s forwards;
+  opacity: 0;
+}
 
-  .animate-fade-in-up-delay-5 {
-    animation: fadeInUp 0.6s ease-out 0.3s forwards;
-    opacity: 0;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --background: #0a0a0a;
-      --foreground: #ededed;
-    }
-  }
+.animate-fade-in-up-delay-2 {
+  animation: fadeInUp 0.6s ease-out 0.15s forwards;
+  opacity: 0;
+}
 
-  body {
-    background: var(--background);
-    color: var(--foreground);
-    font-family: var(--font-sans), Arial, Helvetica, sans-serif;
-  }
+.animate-fade-in-up-delay-3 {
+  animation: fadeInUp 0.6s ease-out 0.2s forwards;
+  opacity: 0;
+}
 
-  /* Prevent pinch-to-zoom on mobile */
-  html,
-  body {
-    touch-action: manipulation;
-    -webkit-text-size-adjust: 100%;
-    -ms-text-size-adjust: 100%;
-  }
+.animate-fade-in-up-delay-4 {
+  animation: fadeInUp 0.6s ease-out 0.25s forwards;
+  opacity: 0;
+}
 
-  html {
-    /* Additional iOS zoom prevention */
-    -webkit-touch-callout: none;
+.animate-fade-in-up-delay-5 {
+  animation: fadeInUp 0.6s ease-out 0.3s forwards;
+  opacity: 0;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
   }
+}
 
-  body {
-    /* Prevent zoom on double-tap and improve scroll performance */
-    touch-action: manipulation;
-    position: relative;
-  }
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
 
-  /* Prevent iOS zoom on input focus by ensuring minimum font size */
-  input,
-  textarea,
-  select,
-  button {
-    font-size: 16px !important;
-    touch-action: manipulation;
-  }
-  
-  /* Ensure all input types are covered */
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="number"],
-  input[type="tel"],
-  input[type="url"],
-  input[type="search"],
-  input[type="date"],
-  input[type="time"],
-  input[type="datetime-local"] {
-    font-size: 16px !important;
-  }
+/* Prevent pinch-to-zoom on mobile */
+html,
+body {
+  touch-action: pan-x pan-y;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+html {
+  /* Additional iOS zoom prevention */
+  -webkit-touch-callout: none;
+}
+
+body {
+  /* Prevent zoom on double-tap and improve scroll performance */
+  touch-action: manipulation;
+  position: relative;
+}
+
+/* Prevent iOS zoom on input focus by ensuring minimum font size */
+input,
+textarea,
+select,
+button {
+  font-size: 16px !important;
+  touch-action: manipulation;
+}
+
+/* Ensure all input types are covered */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  font-size: 16px !important;
 }
 
 input:-webkit-autofill,
@@ -176,4 +214,160 @@ input:-webkit-autofill:active {
   box-shadow: 0 0 0 1000px transparent inset !important;
   -webkit-text-fill-color: inherit !important;
   transition: background-color 5000s ease-in-out 0s;
+}
+
+/* shadcn NavigationMenu animations for smooth fade transitions */
+.animate-in {
+  animation: enter 150ms ease-out;
+}
+
+.animate-out {
+  animation: exit 150ms ease-in;
+}
+
+.fade-in {
+  animation: fadeIn 150ms ease-out;
+}
+
+.fade-out {
+  animation: fadeOut 150ms ease-in;
+}
+
+.slide-in-from-right-52 {
+  animation: slideInFromRight 150ms ease-out;
+}
+
+.slide-in-from-left-52 {
+  animation: slideInFromLeft 150ms ease-out;
+}
+
+.slide-out-to-right-52 {
+  animation: slideOutToRight 150ms ease-in;
+}
+
+.slide-out-to-left-52 {
+  animation: slideOutToLeft 150ms ease-in;
+}
+
+.zoom-in-90 {
+  animation: zoomIn 150ms ease-out;
+}
+
+.zoom-out-95 {
+  animation: zoomOut 150ms ease-in;
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes exit {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(13rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-13rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutToRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(13rem);
+  }
+}
+
+@keyframes slideOutToLeft {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-13rem);
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes zoomOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+html, body {
+  scroll-behavior: auto; /* Let GSAP control scroll behavior */
+}
+
+/* Prevent scroll momentum on iOS devices */
+* {
+  -webkit-overflow-scrolling: auto;
 }

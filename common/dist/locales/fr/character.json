@@ -1,214 +1,202 @@
 {
-  "nameLabel": "Nom du perso",
-  "creditsRequired": "L'entraînement utilisera {{credits}} crédits",
-  "training": "Entraînement du perso",
-  "trainingInitializing": "Votre perso fait ses bagages",
-  "trainingInitializingInfo": "Votre perso est en cours de transfert vers la station d'entraînement.",
-  "trainingQueued": "Votre perso fait la queue",
-  "trainingQueuedInfo": "En attente qu'un autre perso libère de l'espace.",
-  "trainingWarmingUp": "Votre perso s'échauffe",
-  "trainingWarmingUpInfo": "En attente du feu vert pour commencer l'entraînement.",
-  "trainingPending": "Votre perso attend une machine",
-  "trainingPendingInfo": "Les machines sont occupées aux heures de pointe, l'entraînement commencera dès qu'une machine se libère. Position {{position}} dans la file d'attente.",
-  "trainingRunning": "L'entraînement se termine dans environ ",
-  "trainingRunningNoCountdown": "Votre perso s'entraîne et sera prêt dans quelques minutes.",
-  "trainingRunningInfo": "Vous pouvez retourner à l'application pour continuer à programmer des shootings.",
-  "returnToApp": "Retourner à l'application",
-  "trainingError": "Erreur :",
-  "trainingFailed": "Un problème s'est produit lors de l'entraînement de votre perso",
-  "trainingFailedDescription": "C'était soit trop difficile, soit votre perso était trop beau pour le modèle. Veuillez réessayer ou contacter le support si le problème persiste.",
-
-  "confirmClose": {
-    "title": "Fermer la création de perso ?",
-    "description": "Êtes-vous sûr de vouloir fermer ? Tous vos progrès seront perdus et vous devrez recommencer.",
-    "progressMessages": {
-      "upload": "Vos photos téléchargées seront perdues.",
-      "profile": "Vos informations de profil seront perdues.",
-      "name": "Le nom de votre perso sera perdu."
-    },
-    "buttons": {
-      "cancel": "Annuler",
-      "confirm": "Fermer quand même"
-    }
-  },
-
-  "errors": {
-    "trainingRetryFailed": "L'entraînement a échoué après {{attempts}} tentatives. Veuillez réessayer plus tard.",
-    "retryError": "Erreur : {{message}}"
-  },
-
-  "upload": {
-    "uploadingFiles": "Chargement de vos meilleurs looks {{current}} sur {{total}}",
-    "uploadingInfo": "Veuillez garder cette page ouverte jusqu'à la fin du téléchargement."
-  },
-
-  "dialogTitles": {
-    "onboardingIntro": "Guide de création de perso",
-    "onboardingGuidelines": "Conseils photographiques",
-    "onboardingConfirmation": "Prêt à télécharger",
-    "upload": "Télécharger des photos",
-    "name": "Nommez votre perso",
-    "uploading": "Téléchargement des photos",
-    "training": "Entraînement du modèle"
-  },
-  "dialogDescription": {
-    "upload": "Téléchargez des photos pour créer votre perso",
-    "name": "Nommez votre perso",
-    "training": "Entraînement du perso en cours",
-    "default": "Dialogue de création de perso"
-  },
-  "beforeUnloadWarning": "Votre perso est actuellement en cours de traitement. Êtes-vous sûr de vouloir partir ? Cela annulera le téléchargement.",
-
-  "onboarding": {
-    "intro": {
-      "title": "Rencontrez votre perso",
-      "description1": "Téléchargez vos meilleures photos avec des <span style='color: #FF81F5;'>expressions</span>, <span style='color: #70FFA7;'>angles</span> et <span style='color: #FFCF55;'>poses</span> variés pour façonner votre jumeau IA unique !",
-      "description2": "Comme pour un vrai shooting photo, un peu de préparation offre des résultats authentiques et professionnels.",
-      "privacy": "Vos téléchargements sont privés et sécurisés.",
-      "buttonGetStarted": "Commencer",
-      "buttonSkip": "Passer"
-    },
-    "confirmation": {
-      "title": "Comme pour un vrai shooting photo, <span style='color: #2ADED8;'>un peu de préparation</span> fait toute la différence.",
-      "paragraph1": "Primeshot crée des portraits de haute qualité à partir de vos photos du quotidien. Des photos claires, bien éclairées et variées rendent vos shootings générés plus naturels et impressionnants. Des photos de mauvaise qualité ou floues peuvent limiter les résultats.",
-      "paragraph2": "Si les résultats ne correspondent pas à vos attentes, essayez un nouvel ensemble de photos dans un nouveau perso.",
-      "buttonStart": "Je comprends. Commençons !"
-    },
-    "guidelines": {
-      "naturalLight": {
-        "title": "Lumière naturelle",
-        "description": "Utilisez des photos bien éclairées près d'une fenêtre ou à l'extérieur ! Évitez l'obscurité ou le flou pour des résultats nets.",
-        "goodAlt": "Exemple de bonne lumière naturelle",
-        "badAlt": "Exemple de mauvais éclairage"
-      },
-      "angles": {
-        "title": "Angles",
-        "description": "Variez les angles ! Choisissez des plans épaules, de face et de profil, ajoutez quelques plans taille.",
-        "goodAlt": "Exemple de bon angle",
-        "badAlt": "Exemple de mauvais angle"
-      },
-      "expressions": {
-        "title": "Expressions",
-        "description": "Exprimez votre personnalité avec des sourires et poses variés. Évitez la même expression pour des clichés dynamiques.",
-        "goodAlt": "Exemple de bonne expression",
-        "badAlt": "Exemple de mauvaise expression"
-      },
-      "variety": {
-        "title": "Variété",
-        "description": "Choisissez des photos avec un mélange de vêtements et d'arrière-plans. Évitez les filtres lourds.",
-        "goodAlt": "Exemple de bonne variété",
-        "badAlt": "Exemple de mauvaise variété"
-      }
-    },
-    "buttons": {
-      "next": "Suivant"
-    },
-    "floatingAlt": "Exemple flottant {{id}}"
-  },
-
-  "uploadStep": {
-    "petMode": "Mode animal",
-    "bodyShotRequirementsNotMet": "Exigences de plan corps non respectées"
-  },
-
-  "nameStep": {
-    "noPreview": "Aucun aperçu",
-    "create": "Créer",
-    "altPreview": "Aperçu du modèle de visage"
-  },
-
-  "countdown": {
-    "fallback": "Calcul en cours..."
-  },
-
-  "requirements": {
-    "header": {
-      "title": "Créer un Perso",
-      "description": "Téléchargez {{minImages}} photos de haute qualité de vous-même pour entraîner un Perso réutilisable qui capture votre vraie ressemblance à chaque séance.",
-      "secureNote": "Vos téléchargements sont privés et sécurisés."
-    },
-    "sections": {
-      "uploadTips": "Conseils de téléchargement",
-      "dosDonts": "À faire et à éviter"
-    },
-    "tips": {
-      "blurredBackground": "Privilégiez les arrière-plans flous pour bien détacher votre sujet.",
-      "naturalLight": "Utilisez la lumière naturelle en vous plaçant près d'une fenêtre ou en sortant !",
-      "photos": "Incluez des photos en gros plan et en buste.",
-      "expression": "Gardez une expression neutre ou naturellement amicale.",
-      "avoid": "Évitez les filtres, chapeaux, maquillage lourd ou images générées par IA.",
-      "clothing": "Portez des vêtements unis avec des couleurs solides ou des motifs doux.",
-      "quantity": "Téléchargez {{minImages}} photos ou plus avec des angles et éclairages variés."
-    },
-    "dodonts": {
-      "eyes": "Regardez l'appareil photo avec vos yeux clairement visibles.",
-      "lighting": "Utilisez un éclairage naturel et lumineux. Évitez les photos sombres ou floues.",
-      "frame": "Assurez-vous d'être seul dans le cadre, sans désordre ni autres personnes.",
-      "face": "Cadrez votre visage pour qu'il ne soit ni trop petit ni coupé."
-    },
-    "altText": {
-      "goodExample": "Bon exemple",
-      "badExample": "Mauvais exemple"
-    }
-  },
-
-  "quality": {
-    "issues": {
-      "image": {
-        "lowResolution": "Image de faible résolution. Taille minimale requise : {{minWidth}}x{{minHeight}}px.",
-        "suboptimalResolution": "La résolution de l'image est {{currentWidth}}x{{currentHeight}}px. Pour de meilleurs résultats, utilisez au moins {{idealWidth}}x{{idealHeight}}px.",
-        "suboptimalResolutionLow": "La résolution de l'image est {{currentWidth}}x{{currentHeight}}px (en dessous de 800px). Considérez utiliser au moins 800x800px pour une meilleure qualité.",
-        "tooDark": "L'image est trop sombre.",
-        "tooBright": "L'image est trop lumineuse."
-      },
-      "face": {
-        "none": "Aucun visage détecté.",
-        "multiple": "Plusieurs visages détectés.",
-        "positionNotOptimal": "La position du visage n'est pas optimale.",
-        "detectSkipped": "La détection de visage a été ignorée."
-      },
-      "contrast": {
-        "separation": {
-          "nearlyIdentical": "Le sujet et l'arrière-plan ont des tons presque identiques - utilisez un arrière-plan fortement contrasté.",
-          "tooSimilar": "Le sujet et l'arrière-plan ont des tons trop similaires - considérez utiliser un arrière-plan contrasté.",
-          "couldBeMoreDistinct": "Le sujet et l'arrière-plan pourraient être plus distincts - essayez une couleur d'arrière-plan différente."
+    "nameLabel": "Nom du perso",
+    "creditsRequired": "L'entraînement utilisera {{credits}} crédits",
+    "training": "Entraînement du perso",
+    "trainingInitializing": "Votre perso fait ses bagages",
+    "trainingInitializingInfo": "Votre perso est en cours de transfert vers la station d'entraînement.",
+    "trainingQueued": "Votre perso fait la queue",
+    "trainingQueuedInfo": "En attente qu'un autre perso libère de l'espace.",
+    "trainingWarmingUp": "Votre perso s'échauffe",
+    "trainingWarmingUpInfo": "En attente du feu vert pour commencer l'entraînement.",
+    "trainingPending": "Votre perso attend une machine",
+    "trainingPendingInfo": "Les machines sont occupées aux heures de pointe, l'entraînement commencera dès qu'une machine se libère. Position {{position}} dans la file d'attente.",
+    "trainingRunning": "L'entraînement se termine dans environ ",
+    "trainingRunningNoCountdown": "Votre perso s'entraîne et sera prêt dans quelques minutes.",
+    "trainingRunningInfo": "Vous pouvez retourner à l'application pour continuer à programmer des shootings.",
+    "returnToApp": "Retourner à l'application",
+    "trainingError": "Erreur :",
+    "trainingFailed": "Un problème s'est produit lors de l'entraînement de votre perso",
+    "trainingFailedDescription": "C'était soit trop difficile, soit votre perso était trop beau pour le modèle. Veuillez réessayer ou contacter le support si le problème persiste.",
+    "confirmClose": {
+        "title": "Fermer la création de perso ?",
+        "description": "Êtes-vous sûr de vouloir fermer ? Tous vos progrès seront perdus et vous devrez recommencer.",
+        "progressMessages": {
+            "upload": "Vos photos téléchargées seront perdues.",
+            "profile": "Vos informations de profil seront perdues.",
+            "name": "Le nom de votre perso sera perdu."
         },
-        "poorOrFlat": "L'image a un contraste faible ou paraît trop plate."
-      },
-      "sharpness": {
-        "tooBlurry": "L'image semble floue ou manque de détails suffisants."
-      },
-      "upload": {
-        "none": "Aucune image téléchargée"
-      },
-      "body": {
-        "minRequired": "Au moins {{min}} photos en pied nécessaires (actuellement {{current}})",
-        "tooMany": "Trop de photos en pied ({{currentPercent}}%). Maximum {{maxPercent}}% autorisé"
-      },
-      "score": {
-        "tooLow": "Le score de qualité de l'image est trop faible"
-      },
-      "eyes": {
-        "maybeNotVisible": "Les yeux peuvent ne pas être clairement visibles (vérifiez les lunettes de soleil, cheveux ou mauvais éclairage)"
-      },
-      "reject": {
-        "genericHint": "Cette photo ne répond pas aux exigences de qualité. Essayez une photo bien éclairée de face."
-      }
+        "buttons": {
+            "cancel": "Annuler",
+            "confirm": "Fermer quand même"
+        }
+    },
+    "errors": {
+        "trainingRetryFailed": "L'entraînement a échoué après {{attempts}} tentatives. Veuillez réessayer plus tard.",
+        "retryError": "Erreur : {{message}}"
+    },
+    "upload": {
+        "uploadingFiles": "Chargement de vos meilleurs looks {{current}} sur {{total}}",
+        "uploadingInfo": "Veuillez garder cette page ouverte jusqu'à la fin du téléchargement."
+    },
+    "dialogTitles": {
+        "onboardingIntro": "Guide de création de perso",
+        "onboardingGuidelines": "Conseils photographiques",
+        "onboardingConfirmation": "Prêt à télécharger",
+        "upload": "Télécharger des photos",
+        "name": "Nommez votre perso",
+        "uploading": "Téléchargement des photos",
+        "training": "Entraînement du modèle"
+    },
+    "dialogDescription": {
+        "upload": "Téléchargez des photos pour créer votre perso",
+        "name": "Nommez votre perso",
+        "training": "Entraînement du perso en cours",
+        "default": "Dialogue de création de perso"
+    },
+    "beforeUnloadWarning": "Votre perso est actuellement en cours de traitement. Êtes-vous sûr de vouloir partir ? Cela annulera le téléchargement.",
+    "onboarding": {
+        "intro": {
+            "title": "Rencontrez votre perso",
+            "description1": "Téléchargez vos meilleures photos avec des <span style='color: #FF81F5;'>expressions</span>, <span style='color: #70FFA7;'>angles</span> et <span style='color: #FFCF55;'>poses</span> variés pour façonner votre jumeau IA unique !",
+            "description2": "Comme pour un vrai shooting photo, un peu de préparation offre des résultats authentiques et professionnels.",
+            "privacy": "Vos téléchargements sont privés et sécurisés.",
+            "buttonGetStarted": "Commencer",
+            "buttonSkip": "Passer"
+        },
+        "confirmation": {
+            "title": "Comme pour un vrai shooting photo, <span style='color: #2ADED8;'>un peu de préparation</span> fait toute la différence.",
+            "paragraph1": "Primeshot crée des portraits de haute qualité à partir de vos photos du quotidien. Des photos claires, bien éclairées et variées rendent vos shootings générés plus naturels et impressionnants. Des photos de mauvaise qualité ou floues peuvent limiter les résultats.",
+            "paragraph2": "Si les résultats ne correspondent pas à vos attentes, essayez un nouvel ensemble de photos dans un nouveau perso.",
+            "buttonStart": "Je comprends. Commençons !"
+        },
+        "guidelines": {
+            "naturalLight": {
+                "title": "Lumière naturelle",
+                "description": "Utilisez des photos bien éclairées près d'une fenêtre ou à l'extérieur ! Évitez l'obscurité ou le flou pour des résultats nets.",
+                "goodAlt": "Exemple de bonne lumière naturelle",
+                "badAlt": "Exemple de mauvais éclairage"
+            },
+            "angles": {
+                "title": "Angles",
+                "description": "Variez les angles ! Choisissez des plans épaules, de face et de profil, ajoutez quelques plans taille.",
+                "goodAlt": "Exemple de bon angle",
+                "badAlt": "Exemple de mauvais angle"
+            },
+            "expressions": {
+                "title": "Expressions",
+                "description": "Exprimez votre personnalité avec des sourires et poses variés. Évitez la même expression pour des clichés dynamiques.",
+                "goodAlt": "Exemple de bonne expression",
+                "badAlt": "Exemple de mauvaise expression"
+            },
+            "variety": {
+                "title": "Variété",
+                "description": "Choisissez des photos avec un mélange de vêtements et d'arrière-plans. Évitez les filtres lourds.",
+                "goodAlt": "Exemple de bonne variété",
+                "badAlt": "Exemple de mauvaise variété"
+            }
+        },
+        "buttons": {
+            "next": "Suivant"
+        },
+        "floatingAlt": "Exemple flottant {{id}}"
+    },
+    "uploadStep": {
+        "petMode": "Mode animal",
+        "bodyShotRequirementsNotMet": "Exigences de plan corps non respectées"
+    },
+    "nameStep": {
+        "noPreview": "Aucun aperçu",
+        "create": "Créer",
+        "altPreview": "Aperçu du modèle de visage"
+    },
+    "countdown": {
+        "fallback": "Calcul en cours..."
+    },
+    "requirements": {
+        "header": {
+            "title": "Créer un Perso",
+            "description": "Téléchargez {{minImages}} photos de haute qualité de vous-même pour entraîner un Perso réutilisable qui capture votre vraie ressemblance à chaque séance.",
+            "secureNote": "Vos téléchargements sont privés et sécurisés."
+        },
+        "sections": {
+            "uploadTips": "Conseils de téléchargement",
+            "dosDonts": "À faire et à éviter"
+        },
+        "tips": {
+            "blurredBackground": "Privilégiez les arrière-plans flous pour bien détacher votre sujet.",
+            "naturalLight": "Utilisez la lumière naturelle en vous plaçant près d'une fenêtre ou en sortant !",
+            "photos": "Incluez des photos en gros plan et en buste.",
+            "expression": "Gardez une expression neutre ou naturellement amicale.",
+            "avoid": "Évitez les filtres, chapeaux, maquillage lourd ou images générées par IA.",
+            "clothing": "Portez des vêtements unis avec des couleurs solides ou des motifs doux.",
+            "quantity": "Téléchargez {{minImages}} photos ou plus avec des angles et éclairages variés."
+        },
+        "dodonts": {
+            "eyes": "Regardez l'appareil photo avec vos yeux clairement visibles.",
+            "lighting": "Utilisez un éclairage naturel et lumineux. Évitez les photos sombres ou floues.",
+            "frame": "Assurez-vous d'être seul dans le cadre, sans désordre ni autres personnes.",
+            "face": "Cadrez votre visage pour qu'il ne soit ni trop petit ni coupé."
+        },
+        "altText": {
+            "goodExample": "Bon exemple",
+            "badExample": "Mauvais exemple"
+        }
+    },
+    "quality": {
+        "issues": {
+            "image": {
+                "lowResolution": "Image de faible résolution. Taille minimale requise : {{minWidth}}x{{minHeight}}px.",
+                "suboptimalResolution": "La résolution de l'image est {{currentWidth}}x{{currentHeight}}px. Pour de meilleurs résultats, utilisez au moins {{idealWidth}}x{{idealHeight}}px.",
+                "suboptimalResolutionLow": "La résolution de l'image est {{currentWidth}}x{{currentHeight}}px (en dessous de 800px). Considérez utiliser au moins 800x800px pour une meilleure qualité.",
+                "tooDark": "L'image est trop sombre.",
+                "tooBright": "L'image est trop lumineuse."
+            },
+            "face": {
+                "none": "Aucun visage détecté.",
+                "multiple": "Plusieurs visages détectés.",
+                "positionNotOptimal": "La position du visage n'est pas optimale.",
+                "detectSkipped": "La détection de visage a été ignorée."
+            },
+            "contrast": {
+                "separation": {
+                    "nearlyIdentical": "Le sujet et l'arrière-plan ont des tons presque identiques - utilisez un arrière-plan fortement contrasté.",
+                    "tooSimilar": "Le sujet et l'arrière-plan ont des tons trop similaires - considérez utiliser un arrière-plan contrasté.",
+                    "couldBeMoreDistinct": "Le sujet et l'arrière-plan pourraient être plus distincts - essayez une couleur d'arrière-plan différente."
+                },
+                "poorOrFlat": "L'image a un contraste faible ou paraît trop plate."
+            },
+            "sharpness": {
+                "tooBlurry": "L'image semble floue ou manque de détails suffisants."
+            },
+            "upload": {
+                "none": "Aucune image téléchargée"
+            },
+            "body": {
+                "minRequired": "Au moins {{min}} photos en pied nécessaires (actuellement {{current}})",
+                "tooMany": "Trop de photos en pied ({{currentPercent}}%). Maximum {{maxPercent}}% autorisé"
+            },
+            "score": {
+                "tooLow": "Le score de qualité de l'image est trop faible"
+            },
+            "eyes": {
+                "maybeNotVisible": "Les yeux peuvent ne pas être clairement visibles (vérifiez les lunettes de soleil, cheveux ou mauvais éclairage)"
+            },
+            "reject": {
+                "genericHint": "Cette photo ne répond pas aux exigences de qualité. Essayez une photo bien éclairée de face."
+            }
+        }
+    },
+    "uploader": {
+        "dragDropMessage": "Glissez et déposez {{count}} selfies ici, ou",
+        "dragDropMoreMessage_one": "Glissez et déposez 1 de plus ici, ou",
+        "dragDropMoreMessage_other": "Glissez et déposez {{count}} de plus ici, ou",
+        "browse": "parcourir",
+        "supportedFormats": "Supporte les fichiers JPG et PNG",
+        "dropMessage": "Déposez vos photos ici",
+        "maxImagesReached": "Toutes les photos ajoutées, tout est prêt !"
+    },
+    "status": {
+        "analyzing": "Analyse de {{count}} photos...",
+        "checkingQuality": "Vérification de la qualité des photos..."
     }
-  },
-
-  "uploader": {
-    "dragDropMessage": "Glissez et déposez {{count}} selfies ici, ou",
-    "dragDropMoreMessage_one": "Glissez et déposez 1 de plus ici, ou",
-    "dragDropMoreMessage_other": "Glissez et déposez {{count}} de plus ici, ou",
-    "browse": "parcourir",
-    "supportedFormats": "Supporte les fichiers JPG et PNG",
-    "dropMessage": "Déposez vos photos ici",
-    "maxImagesReached": "Toutes les photos ajoutées, tout est prêt !"
-  },
-
-  "status": {
-    "analyzing": "Analyse de {{count}} photos...",
-    "checkingQuality": "Vérification de la qualité des photos..."
-  }
 }

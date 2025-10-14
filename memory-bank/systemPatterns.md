@@ -2244,6 +2244,20 @@ Detected changes in:
 - admin/src/app/api/images/list/route.ts
 - admin/src/components/ui/image-upload.tsx
 - webapp/src/components/generate/GenerateBar.module.css
+
+
+**Auto-update 2025-10-14**:
+Detected changes in:
+- webapp/src/app/api/payment/webhook/route.ts
+- webapp/src/app/api/webhooks/stripe/route.ts
+- webapp/src/app/globals.css
+- webapp/src/app/layout.tsx
+- webapp/src/components/character/training/AdminTrainingOptionsDialog.tsx
+- webapp/src/components/inference/InferenceImageViewerDialog.module.css
+- webapp/src/components/inference/InferenceImageViewerDialog.tsx
+- webapp/src/components/inference/InferenceJobGroup.module.css
+- website/src/app/[locale]/layout.tsx
+- website/src/app/globals.css
 ## Component Organization
 
 Components are organized by feature and reusability:

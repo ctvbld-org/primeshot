@@ -35,25 +35,58 @@ export async function POST(request: Request) {
       throw supabaseError;
     }
 
+    // Add contact to Resend Audience (if configured)
+    let addedToAudience = false;
+    const audienceId = process.env.RESEND_AUDIENCE_ID;
+    
+    if (audienceId) {
+      try {
+        await resend.contacts.create({
+          email,
+          audienceId,
+        });
+        addedToAudience = true;
+        console.log(`Contact ${email} added to Resend Audience ${audienceId}`);
+      } catch (audienceError: any) {
+        // Don't fail the entire request if audience addition fails
+        console.error('Failed to add contact to Resend Audience:', audienceError);
+        
+        // Check if contact already exists in audience (this is OK)
+        if (audienceError?.message?.includes('already exists') || 
+            audienceError?.message?.includes('Contact already exists')) {
+          console.log(`Contact ${email} already exists in Resend Audience`);
+          addedToAudience = true;
+        }
+      }
+    } else {
+      console.warn('RESEND_AUDIENCE_ID not configured - skipping audience addition');
+    }
+
     // Send welcome email
     const { error: emailError } = await resend.emails.send({
-      from: 'Primeshot <team@msg.primeshot.ai>',
+      from: process.env.RESEND_FROM_EMAIL || 'Primeshot <team@mail.primeshot.ai>',
       to: [email],
-      subject: "You're on the waitlist! 🚀",
+      subject: "Your Primeshot Beta Invite is Coming Soon 🚀",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <img src="${getCdnUrl('email/logo.png')}" alt="Primeshot" style="width: 64px; height: 64px; margin-bottom: 20px; margin-top: 20px;" />
           <h1 style="color: #052322; text-align: left;">You're on the waitlist!</h1>
           <p style="color: #666; font-size: 16px;">
-            Great news! You've secured early access to Primeshot, our AI headshot generator that transforms everyday photos into studio quality results, no photoshoot required.
+            Great news! We’re excited to let you know that Primeshot is ready for beta! 🎉
+            <br />
+            As a valued waitlist member, you’ll be among the very first to try it out.
           </p>
           <div style="background: #E5FBFA; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <p style="margin: 0; color: #000; font-size: 14px;">
               <strong>What to expect:</strong>
+              <br /> 
               <br />
-              We're putting the finishing touches on Primeshot and will be sending out early access invites soon. As a waitlist member, you'll be among the first to experience it.
+              Your exclusive beta invite link will be landing in your inbox very soon. As a thank-you for joining early, you’ll also unlock a special lifetime offer when you subscribe during this beta phase.
             </p>
           </div>
+          <p style="color: #666; font-size: 16px;">
+            Get ready! You’re about to experience Primeshot before anyone else.
+          </p>
           <p style="color: #666; font-size: 16px;">
             In the meantime, keep an eye on your inbox for updates, and feel free to <a href="https://x.com/primeshotai" style="color: #148580; text-decoration: none;">follow us on X</a> for behind-the-scenes updates.
           </p>
@@ -80,7 +113,8 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { 
         message: 'Thanks! You\'re on the waitlist.',
-        emailSent: !emailError 
+        emailSent: !emailError,
+        addedToAudience 
       },
       { status: 200 }
     );
