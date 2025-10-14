@@ -188,7 +188,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
         <script type="application/json" id="initial-data" dangerouslySetInnerHTML={{ __html: JSON.stringify(initialData) }} />
         <meta name="locale" content={finalLocale} />
       </head>
-      <body className={`${inter.variable} font-sans antialiased bg-[#0c1013] min-h-screen`}>
+      <body className={`${inter.variable} font-sans antialiased bg-[#0c1013] min-h-screen text-[#FFFFFF70]`}>
         <I18nProvider>
           <AuthProvider>
             <LanguageProvider>

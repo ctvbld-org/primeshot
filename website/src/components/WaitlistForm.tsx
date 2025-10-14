@@ -28,7 +28,7 @@ interface WaitlistFormProps {
 }
 
 export default function WaitlistForm({ className }: WaitlistFormProps) {
-  const { t } = useTranslation('homepage');
+  const { t, i18n } = useTranslation('homepage');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>({ 
     type: null, 
@@ -71,7 +71,7 @@ export default function WaitlistForm({ className }: WaitlistFormProps) {
       const response = await fetch('/api/waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, language: i18n.language }),
       });
 
       const result = await response.json();
@@ -86,15 +86,15 @@ export default function WaitlistForm({ className }: WaitlistFormProps) {
       if (response.ok) {
         setSubmitStatus({
           type: 'success',
-          message: result.message || t('waitlist.messages.success'),
+          message: t('waitlist.messages.success'),
         });
-      } else if (result.error === 'This email is already on the waitlist') {
+      } else if (result.error === 'ALREADY_EXISTS') {
         setSubmitStatus({
           type: 'error',
           message: t('waitlist.messages.alreadyOnWaitlist'),
         });
       } else {
-        throw new Error(result.error || t('waitlist.messages.defaultError'));
+        throw new Error(t('waitlist.messages.defaultError'));
       }
       
       // Reset form after a short delay to ensure message visibility
@@ -112,7 +112,7 @@ export default function WaitlistForm({ className }: WaitlistFormProps) {
     } finally {
       setIsSubmitting(false);
     }
-  }, [reset, t]);
+  }, [reset, t, i18n.language]);
 
   // Handle autofill detection and submission
   useEffect(() => {
@@ -235,7 +235,7 @@ export default function WaitlistForm({ className }: WaitlistFormProps) {
     <form 
       ref={formRef}
       onSubmit={handleFormSubmit} 
-      className={`w-full max-w-xs ${className || ''}`}
+      className={`w-full ${className || ''}`}
     >
       <div className="flex items-center w-full h-11 bg-mist/70 focus-within:bg-mist rounded-full pl-5 pr-0.5">
         <input

@@ -22,7 +22,7 @@
     },
     "messages": {
       "alreadyOnWaitlist": "You're already on the waitlist!",
-      "success": "Successfully joined the waitlist!",
+      "success": "Thanks! You will receive an email for your early access.",
       "defaultError": "Something went wrong"
     }
   }

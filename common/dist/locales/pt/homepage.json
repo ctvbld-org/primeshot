@@ -1,29 +1,29 @@
 {
-    "hero": {
-        "headline": "retratos que abrem portas",
-        "tagline": "Os retratos com <ai>IA</ai> mais avançados. <period>Ponto final.</period>",
-        "subtitle": "Faça a sua primeira impressão contar. Transforme os seus selfies do dia a dia em retratos marcantes, personalizados e prontos em minutos."
+  "hero": {
+    "headline": "retratos que abrem portas",
+    "tagline": "Os retratos com <ai>IA</ai> mais avançados. <period>Ponto final.</period>",
+    "subtitle": "Faça a sua primeira impressão contar. Transforme os seus selfies do dia a dia em retratos marcantes, personalizados e prontos em minutos."
+  },
+  "story": {
+    "paragraph1": "Esquecemos a arte de nos mostrarmos no nosso melhor. Tiramos um selfie, ajustamos o ângulo, e esperamos que seja suficiente para marcar a diferença. Num mundo que passa rápido e julga ainda mais depressa, precisa de uma foto que fale—claramente, com confiança e propósito.",
+    "paragraph2": "A Primeshot transforma as suas fotos do quotidiano em retratos premium, repletos de estilo e personalidade. Sem poses rígidas. Sem sessões fotográficas constrangedoras. Apenas retratos autênticos que chamam a atenção, entregues em minutos.",
+    "callToAction": "Brilhe como é—com ambição audaciosa."
+  },
+  "aria": {
+    "photoMetadata": "Visualização de metadados da foto"
+  },
+  "waitlist": {
+    "placeholder": "Insira o seu email para acesso antecipado",
+    "ariaLabel": "Endereço de email para lista de espera",
+    "submitLabel": "Enviar email",
+    "submittingLabel": "A enviar...",
+    "validation": {
+      "invalidEmail": "Por favor insira um endereço de email válido"
     },
-    "story": {
-        "paragraph1": "Esquecemos a arte de nos mostrarmos no nosso melhor. Tiramos um selfie, ajustamos o ângulo, e esperamos que seja suficiente para marcar a diferença. Num mundo que passa rápido e julga ainda mais depressa, precisa de uma foto que fale—claramente, com confiança e propósito.",
-        "paragraph2": "A Primeshot transforma as suas fotos do quotidiano em retratos premium, repletos de estilo e personalidade. Sem poses rígidas. Sem sessões fotográficas constrangedoras. Apenas retratos autênticos que chamam a atenção, entregues em minutos.",
-        "callToAction": "Brilhe como é—com ambição audaciosa."
-    },
-    "aria": {
-        "photoMetadata": "Visualização de metadados da foto"
-    },
-    "waitlist": {
-        "placeholder": "Insira o seu email para acesso antecipado",
-        "ariaLabel": "Endereço de email para lista de espera",
-        "submitLabel": "Enviar email",
-        "submittingLabel": "A enviar...",
-        "validation": {
-            "invalidEmail": "Por favor insira um endereço de email válido"
-        },
-        "messages": {
-            "alreadyOnWaitlist": "Já está na lista de espera!",
-            "success": "Juntou-se com sucesso à lista de espera!",
-            "defaultError": "Algo correu mal"
-        }
+    "messages": {
+      "alreadyOnWaitlist": "Já está na lista de espera!",
+      "success": "Obrigado! Receberá um email para o seu acesso antecipado.",
+      "defaultError": "Algo correu mal"
     }
+  }
 }

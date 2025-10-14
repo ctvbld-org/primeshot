@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { initServerI18n } from '@primeshot/common';
+import { initServerI18n, LanguageSwitcher } from '@primeshot/common';
 import WaitlistForm from "@/components/WaitlistForm";
 import SocialIcons from "@/components/SocialIcons";
 import { WebGLBackground, TransitionButton } from "@/components/WebGLBackground";
@@ -39,6 +39,17 @@ export default async function Home({ params }: HomeProps) {
       <main className="relative w-full min-h-screen">
         <WebGLBackground images={transitionImages} />
       
+      {/* Language Switcher - Fixed top right */}
+      <div className="fixed top-2 right-12 sm:top-2 sm:right-2 z-20">
+        <LanguageSwitcher 
+          variant="modal"
+          display="flag-label"
+          flagStyle="svg"
+          showListFlags={true}
+          className="text-frost hover:text-glacier hover:bg-frost/5 transition-colors"
+        />
+      </div>
+
       {/* Content overlay */}
       <div 
         className="relative z-10 flex flex-col md:flex-row w-full mix-blend-lighten justify-between min-h-screen h-full overflow-y-auto">

@@ -22,7 +22,7 @@
     },
     "messages": {
       "alreadyOnWaitlist": "Je staat al op de wachtlijst!",
-      "success": "Succesvol toegevoegd aan de wachtlijst!",
+      "success": "Bedankt! Je ontvangt een email voor je vroege toegang.",
       "defaultError": "Er ging iets mis"
     }
   }

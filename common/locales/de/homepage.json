@@ -22,7 +22,7 @@
     },
     "messages": {
       "alreadyOnWaitlist": "Du stehst bereits auf der Warteliste!",
-      "success": "Erfolgreich der Warteliste beigetreten!",
+      "success": "Danke! Du erhältst eine E-Mail für deinen Frühzugang.",
       "defaultError": "Etwas ist schiefgelaufen"
     }
   }

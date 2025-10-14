@@ -22,7 +22,7 @@
     },
     "messages": {
       "alreadyOnWaitlist": "您已在等待列表中！",
-      "success": "成功加入等待列表！",
+      "success": "感谢！您将收到一封早期访问的邮件。",
       "defaultError": "出现了问题"
     }
   }
