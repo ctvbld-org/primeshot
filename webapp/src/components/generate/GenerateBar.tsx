@@ -41,6 +41,7 @@ import { useCreateCharacter } from './useCreateCharacter'
 import { Button } from '@primeshot/common/web/ui/button'
 import { SegmentedControl } from '@primeshot/common/web/ui/segmented-control'
 import { useToast } from '@primeshot/common/web/ui/use-toast'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@primeshot/common/web/ui/tooltip'
 import { useOpenCreditPackDialog } from '@/hooks/useOpenCreditPackDialog'
 import { useQueryClient } from '@tanstack/react-query'
 import { confirmationService } from '@/lib/services/confirmationService'
@@ -757,13 +758,15 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
 
   // Handle Character button click: always open the panel (credit checks happen on create action)
   const handleButtonClick = useCallback(() => {
+    // Clear character error when user clicks to select
+    clearError('character')
     // Open immediately for better responsiveness; refresh in background if stale
     open('characters')
     const isStale = (Date.now() - (lastCharactersRefreshRef.current || 0)) > CHARACTER_LIST_TTL_MS
     if (isStale && !isRefreshingRef.current) {
       try { refreshCharacters() } catch {}
     }
-  }, [refreshCharacters]);
+  }, [clearError, refreshCharacters]);
 
   // Carousel + search state shared by panels
   const viewportRef = React.useRef<HTMLDivElement>(null)
@@ -1470,26 +1473,35 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
 
         <div className={styles.rightContent}>
             {/* Character */}
-            <GenerateBarSelect
-                onClick={handleButtonClick}
-                ariaLabel={t('aria.selectCharacter', { ns: 'generate' })}
-                variant="no-label"
-                className={errors.character ? styles.selectorError : ''}
-                thumbnail={(() => {
-                const url = selectedCharacterId ? characterThumbs[selectedCharacterId] : ''
-                  if (url) return <Image src={url} alt="Character" width={44} height={44} className={styles.thumbImg} unoptimized />
-                return <span className={styles.characterIcon}><Image src={(process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/assets/logo-primeshot.svg` : '/app-images/assets/logo-primeshot.svg')} alt="Primeshot" width={32} height={32} /></span>
-                })()}
-                overlay={(
-                <>
-                    {selectedHasActiveJob && (
-                    <span className={styles.tinyProgress} aria-label={t('aria.trainingProgress', { ns: 'generate' })}>
-                        <CircleProgress className={styles.circleProgress} value={selectedPct} size={44} thickness={2} />
-                    </span>
-                    )}
-                </>
-                )}
-            />
+            <TooltipProvider>
+              <Tooltip open={errors.character}>
+                <TooltipTrigger asChild>
+                  <GenerateBarSelect
+                      onClick={handleButtonClick}
+                      ariaLabel={t('aria.selectCharacter', { ns: 'generate' })}
+                      variant="no-label"
+                      className={errors.character ? styles.selectorError : ''}
+                      thumbnail={(() => {
+                      const url = selectedCharacterId ? characterThumbs[selectedCharacterId] : ''
+                        if (url) return <Image src={url} alt="Character" width={44} height={44} className={styles.thumbImg} unoptimized />
+                      return <span className={styles.characterIcon}><Image src={(process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/assets/logo-primeshot.svg` : '/app-images/assets/logo-primeshot.svg')} alt="Primeshot" width={32} height={32} /></span>
+                      })()}
+                      overlay={(
+                      <>
+                          {selectedHasActiveJob && (
+                          <span className={styles.tinyProgress} aria-label={t('aria.trainingProgress', { ns: 'generate' })}>
+                              <CircleProgress className={styles.circleProgress} value={selectedPct} size={44} thickness={2} />
+                          </span>
+                          )}
+                      </>
+                      )}
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  {t('errors.selectCharacterToGenerate', { ns: 'generate' })}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
 
             {/* Settings */}
             <div className={styles.settingsContainer}>

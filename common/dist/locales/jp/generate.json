@@ -41,6 +41,7 @@
         "characterMetadata": "キャラクターメタデータ（読み取り専用）"
     },
     "errors": {
-        "failedToStartGeneration": "生成の開始に失敗しました。再度お試しください。"
+        "failedToStartGeneration": "生成の開始に失敗しました。再度お試しください。",
+        "selectCharacterToGenerate": "生成するキャラクターを選択してください"
     }
 }

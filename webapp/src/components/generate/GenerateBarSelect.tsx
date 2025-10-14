@@ -17,40 +17,45 @@ export type GenerateBarSelectProps = {
   thumbClassName?: string
 }
 
-export function GenerateBarSelect({
-  onClick,
-  ariaLabel,
-  thumbnail,
-  label,
-  variant = 'labeled',
-  overlay,
-  disabled,
-  error,
-  className,
-  thumbClassName,
-}: GenerateBarSelectProps) {
-  const noLabel = variant === 'no-label'
-  const iconOnly = variant === 'icon'
+export const GenerateBarSelect = React.forwardRef<HTMLButtonElement, GenerateBarSelectProps>(
+  ({
+    onClick,
+    ariaLabel,
+    thumbnail,
+    label,
+    variant = 'labeled',
+    overlay,
+    disabled,
+    error,
+    className,
+    thumbClassName,
+  }, ref) => {
+    const noLabel = variant === 'no-label'
+    const iconOnly = variant === 'icon'
 
-  return (
-    <button
-      className={`${styles.barButton} ${noLabel ? styles.noLabel : ''} ${iconOnly ? styles.iconOnly : ''} ${error ? styles.selectorError : ''} ${className || ''}`.trim()}
-      onClick={onClick}
-      aria-label={ariaLabel}
-      disabled={disabled}
-    >
-      <div className={`${styles.thumb} ${thumbClassName || ''}`.trim()} style={{ position: 'relative' }}>
-        {thumbnail}
-        {overlay}
-      </div>
-      {variant === 'labeled' && (
-        <>
-          <span className={styles.text}>{label}</span>
-          <Icon variant="chevronDown" size={16} className={styles.icon} />
-        </>
-      )}
-    </button>
-  )
-}
+    return (
+      <button
+        ref={ref}
+        className={`${styles.barButton} ${noLabel ? styles.noLabel : ''} ${iconOnly ? styles.iconOnly : ''} ${error ? styles.selectorError : ''} ${className || ''}`.trim()}
+        onClick={onClick}
+        aria-label={ariaLabel}
+        disabled={disabled}
+      >
+        <div className={`${styles.thumb} ${thumbClassName || ''}`.trim()} style={{ position: 'relative' }}>
+          {thumbnail}
+          {overlay}
+        </div>
+        {variant === 'labeled' && (
+          <>
+            <span className={styles.text}>{label}</span>
+            <Icon variant="chevronDown" size={16} className={styles.icon} />
+          </>
+        )}
+      </button>
+    )
+  }
+)
+
+GenerateBarSelect.displayName = 'GenerateBarSelect'
 
 

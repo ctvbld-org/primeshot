@@ -41,6 +41,7 @@
     "characterMetadata": "角色元数据（只读）"
   },
   "errors": {
-    "failedToStartGeneration": "启动生成失败。请重试。"
+    "failedToStartGeneration": "启动生成失败。请重试。",
+    "selectCharacterToGenerate": "选择角色以生成"
   }
 }

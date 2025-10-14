@@ -1,11 +1,11 @@
 .content {
-  z-index: 50; /* z-50 */
+  z-index: 9999; /* Ensure tooltip appears above all UI elements */
   overflow: hidden; /* overflow-hidden */
   border-radius: 7px; /* rounded-md */
   border: 1px solid rgba(255, 255, 255, 0.06); /* border */
-  background: rgba(12, 16, 19, 0.4); /* bg-popover */
-  color: var(--text-popover-foreground, #111); /* text-popover-foreground */
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1.5px 4px rgba(0,0,0,0.04); /* shadow-md */
+  background: rgba(12, 16, 19, 0.9); /* bg-popover with higher opacity for visibility */
+  color: #ffffff; /* Ensure text is visible */
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3), 0 1.5px 4px rgba(0,0,0,0.2); /* shadow-md with more contrast */
   font-size: 12px; /* text-sm */
   line-height: 1.25rem; /* text-sm line-height */
   padding: 0.375rem 0.75rem; /* py-1.5 px-3 */

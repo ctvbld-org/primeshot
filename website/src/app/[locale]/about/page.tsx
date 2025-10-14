@@ -1,11 +1,35 @@
-"use client";
 import Footer from '@primeshot/common/web/Footer';
 import SocialIcons from '@/components/SocialIcons';
 import ContentPageHeader from '@/components/ContentPageHeader';
-import { Trans, useTranslation } from 'react-i18next';
+import { initServerI18n } from '@primeshot/common';
 
-export default function About() {
-  const { t } = useTranslation('about');
+interface AboutProps {
+  params: Promise<{ locale: string }>;
+}
+
+export default async function About({ params }: AboutProps) {
+  const { locale } = await params;
+  const i18n = initServerI18n(locale);
+  const t = i18n.getFixedT(locale, 'about');
+  
+  const missionText = t('mission.line1');
+  const paragraphs = (t('paragraphs', { returnObjects: true }) as unknown as string[]) || [];
+  
+  // Parse mission text server-side: replace <span1>text</span1> with proper React elements
+  const parseMission = (text: string) => {
+    const parts = text.split(/(<span\d+>.*?<\/span\d+>)/);
+    return parts.map((part, idx) => {
+      const match = part.match(/<span(\d+)>(.*?)<\/span\d+>/);
+      if (match) {
+        const spanNum = parseInt(match[1]);
+        const content = match[2];
+        const className = spanNum === 1 ? 'text-glacier' : 'text-white';
+        return <span key={idx} className={className}>{content}</span>;
+      }
+      return part;
+    });
+  };
+  
   return (
     <div className="w-full min-h-screen px-3">
        <ContentPageHeader 
@@ -14,30 +38,16 @@ export default function About() {
         />
       <div className="w-full max-w-screen-xl mx-auto">
         <div className="max-w-3xl px-6 text-sm space-y-8 py-8 xl:py-16">
-          
-          
-          
-            
-          {/* Mission Statement - Left side on MD+ */}
+          {/* Mission Statement */}
           <section className="mb-8 xl:mb-16">
-              <p className="text-white/60 text-2xl sm:text-3xl xl:text-4xl leading-none font-semibold tracking-tight">        
-                <Trans i18nKey="mission.line1" ns="about"
-                  components={{
-                    span1: <span className="text-glacier" />,
-                    span2: <span className="text-white" />,
-                    span3: <span className="text-white" />,
-                    span4: <span className="text-white" />,
-                    span5: <span className="text-white" />,
-                    span6: <span className="text-white" />,
-                    span7: <span className="text-white" />,
-                  }}
-                />    
+              <p className="text-white/60 text-2xl sm:text-3xl xl:text-4xl leading-none font-semibold tracking-tight">
+                {parseMission(missionText)}
               </p>
           </section>
 
-          {/* About Text - Right side on MD+ */}
+          {/* About Text */}
           <section className="space-y-6">
-              {((t('paragraphs', { returnObjects: true }) as unknown as string[]) || []).map((para, idx) => (
+              {paragraphs.map((para, idx) => (
                 <p key={idx} className="text-white/60 text-md sm:text-lg leading-tight font-semibold tracking-tight">
                   {para}
                 </p>

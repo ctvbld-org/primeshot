@@ -47,13 +47,13 @@ export async function POST(request: Request) {
         });
         addedToAudience = true;
         console.log(`Contact ${email} added to Resend Audience ${audienceId}`);
-      } catch (audienceError: any) {
+      } catch (audienceError: unknown) {
         // Don't fail the entire request if audience addition fails
         console.error('Failed to add contact to Resend Audience:', audienceError);
         
         // Check if contact already exists in audience (this is OK)
-        if (audienceError?.message?.includes('already exists') || 
-            audienceError?.message?.includes('Contact already exists')) {
+        const errorMessage = audienceError instanceof Error ? audienceError.message : String(audienceError);
+        if (errorMessage.includes('already exists') || errorMessage.includes('Contact already exists')) {
           console.log(`Contact ${email} already exists in Resend Audience`);
           addedToAudience = true;
         }

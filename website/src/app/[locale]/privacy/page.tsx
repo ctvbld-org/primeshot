@@ -1,13 +1,20 @@
-"use client";
 import Footer from '@primeshot/common/web/Footer';
 import ContentPageHeader from '@/components/ContentPageHeader';
-import { useTranslation } from 'react-i18next';
+import { initServerI18n } from '@primeshot/common';
 
-export default function Privacy() {
-  const { t } = useTranslation('legal');
+interface PrivacyProps {
+  params: Promise<{ locale: string }>;
+}
+
+export default async function Privacy({ params }: PrivacyProps) {
+  const { locale } = await params;
+  const i18n = initServerI18n(locale);
+  const t = i18n.getFixedT(locale, 'legal');
+  
   const useItems = (t('privacy.sections.use.items', { returnObjects: true }) as unknown as string[]) || [];
   const securityItems = (t('privacy.sections.security.items', { returnObjects: true }) as unknown as string[]) || [];
   const rightsItems = (t('privacy.sections.rights.items', { returnObjects: true }) as unknown as string[]) || [];
+  
   return (
     <div className="w-full min-h-screen text-white px-3">
       <ContentPageHeader 

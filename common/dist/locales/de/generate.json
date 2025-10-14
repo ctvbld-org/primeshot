@@ -41,6 +41,7 @@
         "characterMetadata": "Charakter-Metadaten (nur lesen)"
     },
     "errors": {
-        "failedToStartGeneration": "Generierung konnte nicht gestartet werden. Bitte versuche es erneut."
+        "failedToStartGeneration": "Generierung konnte nicht gestartet werden. Bitte versuche es erneut.",
+        "selectCharacterToGenerate": "Wähle einen Charakter zum Generieren"
     }
 }

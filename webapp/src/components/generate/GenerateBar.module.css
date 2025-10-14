@@ -144,6 +144,7 @@
 .selectorError { background: rgba(239, 68, 68,0.3); }
 .selectorError .text { opacity: 0.6; }
 .selectorError .thumb { color: #ef4444; }
+.noLabel.selectorError, .noLabel.selectorError img { background-color: #ef4444; }
 
 .itemsRow { 
   display: flex; 

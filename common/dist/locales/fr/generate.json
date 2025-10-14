@@ -41,6 +41,7 @@
         "characterMetadata": "Métadonnées du perso (lecture seule)"
     },
     "errors": {
-        "failedToStartGeneration": "Échec du démarrage de la génération. Veuillez réessayer."
+        "failedToStartGeneration": "Échec du démarrage de la génération. Veuillez réessayer.",
+        "selectCharacterToGenerate": "Sélectionnez un perso pour générer"
     }
 }

@@ -41,6 +41,7 @@
         "characterMetadata": "Character metadata (read-only)"
     },
     "errors": {
-        "failedToStartGeneration": "Failed to start generation. Please try again."
+        "failedToStartGeneration": "Failed to start generation. Please try again.",
+        "selectCharacterToGenerate": "Select a character to generate"
     }
 }

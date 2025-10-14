@@ -409,6 +409,7 @@ export declare const resources: {
             };
             errors: {
                 failedToStartGeneration: string;
+                selectCharacterToGenerate: string;
             };
         };
         inference: {
@@ -1471,6 +1472,7 @@ export declare const resources: {
             };
             errors: {
                 failedToStartGeneration: string;
+                selectCharacterToGenerate: string;
             };
         };
         inference: {
@@ -2527,6 +2529,7 @@ export declare const resources: {
             };
             errors: {
                 failedToStartGeneration: string;
+                selectCharacterToGenerate: string;
             };
         };
         inference: {
@@ -3570,6 +3573,7 @@ export declare const resources: {
             };
             errors: {
                 failedToStartGeneration: string;
+                selectCharacterToGenerate: string;
             };
         };
         inference: {
@@ -4613,6 +4617,7 @@ export declare const resources: {
             };
             errors: {
                 failedToStartGeneration: string;
+                selectCharacterToGenerate: string;
             };
         };
         inference: {
@@ -5656,6 +5661,7 @@ export declare const resources: {
             };
             errors: {
                 failedToStartGeneration: string;
+                selectCharacterToGenerate: string;
             };
         };
         inference: {
@@ -6699,6 +6705,7 @@ export declare const resources: {
             };
             errors: {
                 failedToStartGeneration: string;
+                selectCharacterToGenerate: string;
             };
         };
         inference: {
@@ -7742,6 +7749,7 @@ export declare const resources: {
             };
             errors: {
                 failedToStartGeneration: string;
+                selectCharacterToGenerate: string;
             };
         };
         inference: {
@@ -8786,6 +8794,7 @@ export declare const resources: {
             };
             errors: {
                 failedToStartGeneration: string;
+                selectCharacterToGenerate: string;
             };
         };
         inference: {
@@ -9829,6 +9838,7 @@ export declare const resources: {
             };
             errors: {
                 failedToStartGeneration: string;
+                selectCharacterToGenerate: string;
             };
         };
         inference: {

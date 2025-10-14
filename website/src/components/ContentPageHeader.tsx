@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
+import styles from './ContentPageHeader.module.css';
 
 interface HeaderProps {
   title: string | React.ReactNode;
@@ -27,31 +28,31 @@ export default function ContentPageHeader({ title, backgroundImage, className = 
   }, [backgroundImage]);
 
   return (
-    <div className="w-full">
+    <div className={styles.wrapper}>
       <div 
         ref={containerRef}
-        className={`w-full px-1 rounded-2xl sm:rounded-[28px] overflow-hidden h-[240px] sm:h-[340px] mt-5 relative ${className}`}
+        className={`${styles.container} ${className}`}
       >
         {/* Background image - always visible, no transition */}
         {backgroundImage && (
           <>
             <div 
-              className="absolute inset-0 h-full w-full bg-cover bg-center"
+              className={styles.backgroundImage}
               style={{ backgroundImage: `url('${backgroundImage}')` }}
             ></div>
             {/* Black overlay that fades OUT */}
             <div 
-              className={`absolute inset-0 h-full w-full bg-black transition-opacity duration-500 ${imageLoaded ? 'opacity-0' : 'opacity-100'}`}
+              className={`${styles.blackOverlay} ${imageLoaded ? styles.loaded : styles.loading}`}
             ></div>
           </>
         )}
         {backgroundImage && (
-          <div className="absolute inset-0 h-full w-full backdrop-blur-[40px] sm:backdrop-blur-[60px] md:backdrop-blur-[80px]"></div>
+          <div className={styles.blurLayer}></div>
         )}
-        <div className="absolute inset-0 px-6 h-full w-full bg-[#102B34] mix-blend-lighten"></div>
-        <div className="absolute inset-0 h-full w-full bg-[url('/noise.png')] bg-repeat mix-blend-color-dodge" style={{ backgroundSize: '130px 130px' }}></div>
-        <div className="max-w-screen-xl mx-auto h-full relative z-10 flex items-end justify-start text-left px-6 pb-6 xl:pb-12 mix-blend-lighten">
-          <h1 className={`font-carb-bold tracking-tightest text-mist leading-none text-5xl sm:text-[68px] md:text-[88px] transition-opacity duration-700 ease-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}>{title}</h1>
+        <div className={styles.colorLayer}></div>
+        <div className={styles.noiseLayer}></div>
+        <div className={styles.contentWrapper}>
+          <h1 className={`${styles.title} ${isVisible ? styles.visible : styles.hidden}`}>{title}</h1>
         </div>
       </div>
     </div>

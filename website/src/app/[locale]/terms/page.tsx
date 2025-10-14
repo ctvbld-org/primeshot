@@ -1,11 +1,18 @@
-"use client";
 import Footer from '@primeshot/common/web/Footer';
-import { useTranslation } from 'react-i18next';
+import { initServerI18n } from '@primeshot/common';
 
-export default function Terms() {
-  const { t } = useTranslation('legal');
+interface TermsProps {
+  params: Promise<{ locale: string }>;
+}
+
+export default async function Terms({ params }: TermsProps) {
+  const { locale } = await params;
+  const i18n = initServerI18n(locale);
+  const t = i18n.getFixedT(locale, 'legal');
+  
   const userAccountItems = (t('terms.sections.userAccounts.items', { returnObjects: true }) as unknown as string[]) || [];
   const prohibitedItems = (t('terms.sections.prohibitedContent.items', { returnObjects: true }) as unknown as string[]) || [];
+  
   return (
     <div className="w-full min-h-screen text-white">
       <div className="max-w-3xl text-sm mx-auto space-y-8 pb-40">

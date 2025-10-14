@@ -41,6 +41,7 @@
     "characterMetadata": "Karakter metadata (alleen lezen)"
   },
   "errors": {
-    "failedToStartGeneration": "Generatie starten mislukt. Probeer opnieuw."
+    "failedToStartGeneration": "Generatie starten mislukt. Probeer opnieuw.",
+    "selectCharacterToGenerate": "Selecteer een personage om te genereren"
   }
 }

@@ -119,6 +119,7 @@ additional_redirect_urls = [
 ]
 
 [remotes.staging.auth]
+enabled = false
 site_url = "https://staging.primeshot.ai/create"
 additional_redirect_urls = [
   "https://staging.primeshot.ai/create/auth/callback"
