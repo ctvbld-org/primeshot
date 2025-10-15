@@ -9,7 +9,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 async function handlePOST(request: NextRequest) {
   try {
-    const { priceId, successUrl, cancelUrl } = await request.json()
+    const { priceId, successUrl, cancelUrl, referralId } = await request.json()
 
     if (!priceId || !successUrl || !cancelUrl) {
       return NextResponse.json(
@@ -90,7 +90,8 @@ async function handlePOST(request: NextRequest) {
                 credits_included: product.metadata.credits_included || '0',
                 source: 'webapp_upgrade',
                 is_upgrade: 'true',
-                is_new_subscription: 'false'
+                is_new_subscription: 'false',
+                ...(referralId && { referral: referralId })
               }
             })
 
@@ -136,6 +137,7 @@ async function handlePOST(request: NextRequest) {
         price: priceId,
         quantity: 1,
       }],
+      ...(referralId && { client_reference_id: referralId }),
       metadata: {
         user_id: user.id,
         user_email: user.email || '',
@@ -145,7 +147,8 @@ async function handlePOST(request: NextRequest) {
         created_at: new Date().toISOString(),
         is_upgrade: isActiveUpgrade ? 'true' : 'false',
         is_new_subscription: !isActiveUpgrade ? 'true' : 'false',
-        previous_subscription_id: existingSubscription?.stripe_subscription_id || ''
+        previous_subscription_id: existingSubscription?.stripe_subscription_id || '',
+        ...(referralId && { referral: referralId })
       },
       subscription_data: {
         metadata: {
@@ -157,7 +160,8 @@ async function handlePOST(request: NextRequest) {
           source: isActiveUpgrade ? 'webapp_upgrade' : 'webapp_checkout',
           is_upgrade: isActiveUpgrade ? 'true' : 'false',
           is_new_subscription: !isActiveUpgrade ? 'true' : 'false',
-          previous_subscription_id: existingSubscription?.stripe_subscription_id || ''
+          previous_subscription_id: existingSubscription?.stripe_subscription_id || '',
+          ...(referralId && { referral: referralId })
         }
       },
       success_url: `${successUrl}${successUrl.includes('?') ? '&' : '?'}subscription=success&upgrade=${isActiveUpgrade ? 'true' : 'false'}`,

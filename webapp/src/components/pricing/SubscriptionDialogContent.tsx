@@ -14,6 +14,7 @@ import styles from './SubscriptionDialogContent.module.css'
 import { useInferenceSettings } from '@/hooks/useInferenceSettings'
 import { useDialogService } from '@/contexts/DialogServiceContext'
 import { useTranslation } from 'react-i18next'
+import { useRewardful } from '@/hooks/useRewardful'
 
 // Context types for different upgrade scenarios
 export type SubscriptionDialogContext = 
@@ -64,6 +65,7 @@ export function SubscriptionDialogContent({
   const { data: subscriptionTiers, isLoading: tiersLoading } = useSubscriptionTiers()
   const { data: currentSubscription } = useCurrentSubscription()
   const { data: inferenceSettings } = useInferenceSettings()
+  const { referralId } = useRewardful()
   const isSpecialOffer = true // TODO: Remove this when special offer is over
   const { t } = useTranslation('pricing')
   const tp = (k: string, o?: any) => String((t as any)(k, o))
@@ -180,7 +182,8 @@ export function SubscriptionDialogContent({
         body: JSON.stringify({
           priceId,
           successUrl: `${window.location.origin}${window.location.pathname}?subscription=success`,
-          cancelUrl: `${window.location.origin}${window.location.pathname}`
+          cancelUrl: `${window.location.origin}${window.location.pathname}`,
+          referralId: referralId || undefined
         })
       })
       

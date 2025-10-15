@@ -9,7 +9,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 async function handlePOST(request: NextRequest) {
   try {
-    const { priceId, successUrl, cancelUrl } = await request.json()
+    const { priceId, successUrl, cancelUrl, referralId } = await request.json()
 
     if (!priceId || !successUrl || !cancelUrl) {
       return NextResponse.json(
@@ -100,6 +100,7 @@ async function handlePOST(request: NextRequest) {
         price: priceId,
         quantity: 1,
       }],
+      ...(referralId && { client_reference_id: referralId }),
       metadata: {
         user_id: user.id,
         user_email: user.email || '',
@@ -107,7 +108,8 @@ async function handlePOST(request: NextRequest) {
         credits: product.metadata.credits || '0',
         validity_days: product.metadata.validity_days || '60',
         checkout_type: 'credit_pack',
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        ...(referralId && { referral: referralId })
       },
       payment_intent_data: {
         metadata: {
@@ -117,7 +119,8 @@ async function handlePOST(request: NextRequest) {
           credits: product.metadata.credits || '0',
           validity_days: product.metadata.validity_days || '60',
           created_at: new Date().toISOString(),
-          source: 'webapp_checkout'
+          source: 'webapp_checkout',
+          ...(referralId && { referral: referralId })
         }
       },
       success_url: successUrl,

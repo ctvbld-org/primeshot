@@ -10,6 +10,7 @@ import { useInferenceSettings } from '@/hooks/useInferenceSettings'
 import { Icon } from '@primeshot/common/web/Icon'
 import styles from './SubscriptionDialogContent.module.css'
 import { useTranslation } from 'react-i18next'
+import { useRewardful } from '@/hooks/useRewardful'
 
 interface CreditPackDialogContentProps {
   requiredCredits?: number
@@ -25,6 +26,7 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
   const { data: creditPacks = [] } = useCreditPacks()
   const { data: creditCosts } = useCreditCosts()
   const { data: inferenceSettings } = useInferenceSettings()
+  const { referralId } = useRewardful()
   const { t } = useTranslation('pricing')
   const tp = (k: string, o?: any) => String((t as any)(k, o))
 
@@ -51,7 +53,8 @@ export function CreditPackDialogContent({ requiredCredits }: CreditPackDialogCon
         body: JSON.stringify({
           priceId,
           successUrl: `${window.location.origin}${window.location.pathname}?credits=success`,
-          cancelUrl: `${window.location.origin}${window.location.pathname}`
+          cancelUrl: `${window.location.origin}${window.location.pathname}`,
+          referralId: referralId || undefined
         })
       })
 

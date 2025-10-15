@@ -2,6 +2,7 @@ import { Inter } from 'next/font/google'
 import { carb } from '@/fonts'
 import './globals.css'
 import { cookies, headers } from 'next/headers'
+import Script from 'next/script'
 
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next"
@@ -150,6 +151,23 @@ export default async function RootLayout({
         <GoogleAnalytics gaId="G-MHV2EKTQZG" />
         <Analytics />
         <CrispInitializer />
+        {/* Rewardful tracking scripts */}
+        {process.env.NEXT_PUBLIC_REWARDFUL_API_KEY && (
+          <>
+            <Script
+              src={`https://r.wdfl.co/rw.js`}
+              data-rewardful={process.env.NEXT_PUBLIC_REWARDFUL_API_KEY}
+              strategy="beforeInteractive"
+            />
+            <Script
+              id="rewardful-queue"
+              strategy="beforeInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `(function(w,r){w._rwq=r;w[r]=w[r]||function(){(w[r].q=w[r].q||[]).push(arguments)}})(window,'rewardful');`
+              }}
+            />
+          </>
+        )}
       </body>
     </html>
   )
