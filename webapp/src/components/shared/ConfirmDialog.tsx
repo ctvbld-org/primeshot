@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Dialog as PSDialog, DialogContent as PSDialogContent } from '@primeshot/common/web/ui/dialog'
+import { Dialog as PSDialog, DialogContent as PSDialogContent, DialogTitle, DialogDescription } from '@primeshot/common/web/ui/dialog'
 import { Button } from '@primeshot/common/web/ui/button'
 import { Icon } from '@primeshot/common/web/Icon'
 import confirmStyles from '@/lib/services/confirmation.module.css'
@@ -43,11 +43,13 @@ export function ConfirmDialog({
         <div className={confirmStyles.container}>
           <div className={confirmStyles.content}>
             <Icon className={confirmStyles.icon} variant={iconVariant} size={40} aria-hidden="true" style={{ color: iconColor }} />
-            <h2 className={confirmStyles.title}>{title}</h2>
-            {description && (
-              <div className={confirmStyles.description}>
+            <DialogTitle className={confirmStyles.title}>{title}</DialogTitle>
+            {description ? (
+              <DialogDescription className={confirmStyles.description}>
                 {description}
-              </div>
+              </DialogDescription>
+            ) : (
+              <DialogDescription className="sr-only">Confirmation dialog</DialogDescription>
             )}
           </div>
           <div className={confirmStyles.footer}>

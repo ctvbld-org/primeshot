@@ -37,7 +37,8 @@
     "limitReached": "Limit reached",
     "upgradePlanAddMore": "Upgrade plan to add more",
     "upgradeOrBuyCredits": "Upgrade plan or buy credit pack",
-    "buyCredits": "Buy credit pack"
+    "buyCredits": "Buy credit pack",
+    "newStylesDropWeekly": "New styles drop weekly"
   },
   "settings": {
     "numberOfTakes": "Number of Takes",

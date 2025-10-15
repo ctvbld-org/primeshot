@@ -336,6 +336,7 @@ export declare const resources: {
                 upgradePlanAddMore: string;
                 upgradeOrBuyCredits: string;
                 buyCredits: string;
+                newStylesDropWeekly: string;
             };
             settings: {
                 numberOfTakes: string;
@@ -730,8 +731,16 @@ export declare const resources: {
                     face: {
                         none: string;
                         multiple: string;
+                        lowScore: string;
                         positionNotOptimal: string;
                         detectSkipped: string;
+                        angleExtreme: string;
+                        sunglasses: string;
+                        "sunglasses.critical": string;
+                        eyesClosed: string;
+                        tooSmall: string;
+                        tooLarge: string;
+                        sizeNotOptimal: string;
                     };
                     contrast: {
                         separation: {
@@ -740,9 +749,21 @@ export declare const resources: {
                             couldBeMoreDistinct: string;
                         };
                         poorOrFlat: string;
+                        suboptimal: string;
                     };
                     sharpness: {
                         tooBlurry: string;
+                        pixelated: string;
+                        suboptimal: string;
+                    };
+                    background: {
+                        notBlurred: string;
+                    };
+                    brightness: {
+                        suboptimal: string;
+                    };
+                    resolution: {
+                        low: string;
                     };
                     upload: {
                         none: string;
@@ -1401,6 +1422,7 @@ export declare const resources: {
                 upgradePlanAddMore: string;
                 upgradeOrBuyCredits: string;
                 buyCredits: string;
+                newStylesDropWeekly: string;
             };
             settings: {
                 numberOfTakes: string;
@@ -1797,6 +1819,13 @@ export declare const resources: {
                         multiple: string;
                         positionNotOptimal: string;
                         detectSkipped: string;
+                        angleExtreme: string;
+                        sunglasses: string;
+                        "sunglasses.critical": string;
+                        eyesClosed: string;
+                        tooSmall: string;
+                        tooLarge: string;
+                        sizeNotOptimal: string;
                     };
                     contrast: {
                         separation: {
@@ -1808,6 +1837,11 @@ export declare const resources: {
                     };
                     sharpness: {
                         tooBlurry: string;
+                        pixelated: string;
+                        suboptimal: string;
+                    };
+                    background: {
+                        notBlurred: string;
                     };
                     upload: {
                         none: string;
@@ -2458,6 +2492,7 @@ export declare const resources: {
                 upgradePlanAddMore: string;
                 upgradeOrBuyCredits: string;
                 buyCredits: string;
+                newStylesDropWeekly: string;
             };
             settings: {
                 numberOfTakes: string;
@@ -2854,6 +2889,13 @@ export declare const resources: {
                         multiple: string;
                         positionNotOptimal: string;
                         detectSkipped: string;
+                        angleExtreme: string;
+                        sunglasses: string;
+                        "sunglasses.critical": string;
+                        eyesClosed: string;
+                        tooSmall: string;
+                        tooLarge: string;
+                        sizeNotOptimal: string;
                     };
                     contrast: {
                         separation: {
@@ -2865,6 +2907,11 @@ export declare const resources: {
                     };
                     sharpness: {
                         tooBlurry: string;
+                        pixelated: string;
+                        suboptimal: string;
+                    };
+                    background: {
+                        notBlurred: string;
                     };
                     upload: {
                         none: string;
@@ -3502,6 +3549,7 @@ export declare const resources: {
                 upgradePlanAddMore: string;
                 upgradeOrBuyCredits: string;
                 buyCredits: string;
+                newStylesDropWeekly: string;
             };
             settings: {
                 numberOfTakes: string;
@@ -3898,6 +3946,13 @@ export declare const resources: {
                         multiple: string;
                         positionNotOptimal: string;
                         detectSkipped: string;
+                        angleExtreme: string;
+                        sunglasses: string;
+                        "sunglasses.critical": string;
+                        eyesClosed: string;
+                        tooSmall: string;
+                        tooLarge: string;
+                        sizeNotOptimal: string;
                     };
                     contrast: {
                         separation: {
@@ -3909,6 +3964,11 @@ export declare const resources: {
                     };
                     sharpness: {
                         tooBlurry: string;
+                        pixelated: string;
+                        suboptimal: string;
+                    };
+                    background: {
+                        notBlurred: string;
                     };
                     upload: {
                         none: string;
@@ -4546,6 +4606,7 @@ export declare const resources: {
                 upgradePlanAddMore: string;
                 upgradeOrBuyCredits: string;
                 buyCredits: string;
+                newStylesDropWeekly: string;
             };
             settings: {
                 numberOfTakes: string;
@@ -4942,6 +5003,13 @@ export declare const resources: {
                         multiple: string;
                         positionNotOptimal: string;
                         detectSkipped: string;
+                        angleExtreme: string;
+                        sunglasses: string;
+                        "sunglasses.critical": string;
+                        eyesClosed: string;
+                        tooSmall: string;
+                        tooLarge: string;
+                        sizeNotOptimal: string;
                     };
                     contrast: {
                         separation: {
@@ -4953,6 +5021,11 @@ export declare const resources: {
                     };
                     sharpness: {
                         tooBlurry: string;
+                        pixelated: string;
+                        suboptimal: string;
+                    };
+                    background: {
+                        notBlurred: string;
                     };
                     upload: {
                         none: string;
@@ -5590,6 +5663,7 @@ export declare const resources: {
                 upgradePlanAddMore: string;
                 upgradeOrBuyCredits: string;
                 buyCredits: string;
+                newStylesDropWeekly: string;
             };
             settings: {
                 numberOfTakes: string;
@@ -5986,6 +6060,13 @@ export declare const resources: {
                         multiple: string;
                         positionNotOptimal: string;
                         detectSkipped: string;
+                        angleExtreme: string;
+                        sunglasses: string;
+                        "sunglasses.critical": string;
+                        eyesClosed: string;
+                        tooSmall: string;
+                        tooLarge: string;
+                        sizeNotOptimal: string;
                     };
                     contrast: {
                         separation: {
@@ -5997,6 +6078,11 @@ export declare const resources: {
                     };
                     sharpness: {
                         tooBlurry: string;
+                        pixelated: string;
+                        suboptimal: string;
+                    };
+                    background: {
+                        notBlurred: string;
                     };
                     upload: {
                         none: string;
@@ -6634,6 +6720,7 @@ export declare const resources: {
                 upgradePlanAddMore: string;
                 upgradeOrBuyCredits: string;
                 buyCredits: string;
+                newStylesDropWeekly: string;
             };
             settings: {
                 numberOfTakes: string;
@@ -7030,6 +7117,13 @@ export declare const resources: {
                         multiple: string;
                         positionNotOptimal: string;
                         detectSkipped: string;
+                        angleExtreme: string;
+                        sunglasses: string;
+                        "sunglasses.critical": string;
+                        eyesClosed: string;
+                        tooSmall: string;
+                        tooLarge: string;
+                        sizeNotOptimal: string;
                     };
                     contrast: {
                         separation: {
@@ -7041,6 +7135,11 @@ export declare const resources: {
                     };
                     sharpness: {
                         tooBlurry: string;
+                        pixelated: string;
+                        suboptimal: string;
+                    };
+                    background: {
+                        notBlurred: string;
                     };
                     upload: {
                         none: string;
@@ -7678,6 +7777,7 @@ export declare const resources: {
                 upgradePlanAddMore: string;
                 upgradeOrBuyCredits: string;
                 buyCredits: string;
+                newStylesDropWeekly: string;
             };
             settings: {
                 numberOfTakes: string;
@@ -8074,6 +8174,13 @@ export declare const resources: {
                         multiple: string;
                         positionNotOptimal: string;
                         detectSkipped: string;
+                        angleExtreme: string;
+                        sunglasses: string;
+                        "sunglasses.critical": string;
+                        eyesClosed: string;
+                        tooSmall: string;
+                        tooLarge: string;
+                        sizeNotOptimal: string;
                     };
                     contrast: {
                         separation: {
@@ -8085,6 +8192,11 @@ export declare const resources: {
                     };
                     sharpness: {
                         tooBlurry: string;
+                        pixelated: string;
+                        suboptimal: string;
+                    };
+                    background: {
+                        notBlurred: string;
                     };
                     upload: {
                         none: string;
@@ -8723,6 +8835,7 @@ export declare const resources: {
                 upgradePlanAddMore: string;
                 upgradeOrBuyCredits: string;
                 buyCredits: string;
+                newStylesDropWeekly: string;
             };
             settings: {
                 numberOfTakes: string;
@@ -9119,6 +9232,13 @@ export declare const resources: {
                         multiple: string;
                         positionNotOptimal: string;
                         detectSkipped: string;
+                        angleExtreme: string;
+                        sunglasses: string;
+                        "sunglasses.critical": string;
+                        eyesClosed: string;
+                        tooSmall: string;
+                        tooLarge: string;
+                        sizeNotOptimal: string;
                     };
                     contrast: {
                         separation: {
@@ -9130,6 +9250,11 @@ export declare const resources: {
                     };
                     sharpness: {
                         tooBlurry: string;
+                        pixelated: string;
+                        suboptimal: string;
+                    };
+                    background: {
+                        notBlurred: string;
                     };
                     upload: {
                         none: string;
@@ -9767,6 +9892,7 @@ export declare const resources: {
                 upgradePlanAddMore: string;
                 upgradeOrBuyCredits: string;
                 buyCredits: string;
+                newStylesDropWeekly: string;
             };
             settings: {
                 numberOfTakes: string;
@@ -10163,6 +10289,13 @@ export declare const resources: {
                         multiple: string;
                         positionNotOptimal: string;
                         detectSkipped: string;
+                        angleExtreme: string;
+                        sunglasses: string;
+                        "sunglasses.critical": string;
+                        eyesClosed: string;
+                        tooSmall: string;
+                        tooLarge: string;
+                        sizeNotOptimal: string;
                     };
                     contrast: {
                         separation: {
@@ -10174,6 +10307,11 @@ export declare const resources: {
                     };
                     sharpness: {
                         tooBlurry: string;
+                        pixelated: string;
+                        suboptimal: string;
+                    };
+                    background: {
+                        notBlurred: string;
                     };
                     upload: {
                         none: string;

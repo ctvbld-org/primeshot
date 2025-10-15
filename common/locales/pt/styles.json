@@ -30,7 +30,8 @@
     "limitReached": "Limite atingido",
     "upgradePlanAddMore": "Atualize o plano para adicionar mais",
     "upgradeOrBuyCredits": "Atualize o plano ou compre pacote de créditos",
-    "buyCredits": "Comprar pacote de créditos"
+    "buyCredits": "Comprar pacote de créditos",
+    "newStylesDropWeekly": "Novos estilos todas as semanas"
   },
   "settings": {
     "numberOfTakes": "Número de tomadas",

@@ -165,7 +165,14 @@
         "none": "Geen gezicht gedetecteerd.",
         "multiple": "Meerdere gezichten gedetecteerd.",
         "positionNotOptimal": "De gezichtspositie is niet optimaal.",
-        "detectSkipped": "Gezichtsdetectie werd overgeslagen."
+        "detectSkipped": "Gezichtsdetectie werd overgeslagen.",
+        "angleExtreme": "De gezichtshoek is te extreem (pitch: {{pitch}}°, yaw: {{yaw}}°, roll: {{roll}}°)",
+        "sunglasses": "De ogen zijn bedekt door een zonnebril of donkere glazen.",
+        "sunglasses.critical": "Zonnebril gedetecteerd - verwijder de zonnebril alstublieft.",
+        "eyesClosed": "De ogen lijken gesloten of niet zichtbaar te zijn.",
+        "tooSmall": "Het gezicht is te klein in het beeld.",
+        "tooLarge": "Het gezicht is te groot/dichtbij.",
+        "sizeNotOptimal": "De gezichtsgrootte is niet optimaal."
       },
       "contrast": {
         "separation": {
@@ -176,7 +183,12 @@
         "poorOrFlat": "De afbeelding heeft slecht contrast of lijkt te vlak."
       },
       "sharpness": {
-        "tooBlurry": "De afbeelding lijkt wazig of mist voldoende detail."
+        "tooBlurry": "De afbeelding lijkt wazig of mist voldoende detail.",
+        "pixelated": "De afbeelding lijkt gepixeld of heeft compressie-artefacten.",
+        "suboptimal": "De scherpte van de afbeelding kan worden verbeterd."
+      },
+      "background": {
+        "notBlurred": "De achtergrond is niet wazig. Gebruik de portretmodus of een wazige achtergrond."
       },
       "upload": {
         "none": "Geen afbeeldingen geüpload"

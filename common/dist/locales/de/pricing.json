@@ -1,128 +1,128 @@
 {
-  "buyCredits": {
-    "title": "Guthaben kaufen",
-    "description": "Wähle ein Guthaben-Paket"
-  },
-  "upgradePlan": {
-    "title": "Plan upgraden",
-    "description": "Wähle einen Abonnement-Plan"
-  },
-  "purchase": {
-    "success": {
-      "subscriptionTitle": "Du hast erfolgreich auf {{plan}} upgegraded",
-      "subscriptionTitleNew": "Willkommen bei {{plan}}!",
-      "creditsTitle": "Guthaben hinzugefügt!",
-      "subscriptionDescriptionWithCredits": "Dein neuer Abonnement-Abrechnungszyklus beginnt heute. Genieße {{amount}} Guthaben und vieles mehr!",
-      "subscriptionDescriptionWithCreditsNew": "Dein Abrechnungszyklus beginnt heute. Genieße {{amount}} Guthaben und vieles mehr!",
-      "subscriptionDescription": "Dein neuer Abonnement-Abrechnungszyklus beginnt heute. Genieße deine neuen Vorteile!",
-      "subscriptionDescriptionNew": "Dein Abrechnungszyklus beginnt heute. Genieße deine neuen Vorteile!",
-      "creditsDescription": "Dein Guthaben wurde aktualisiert. Du kannst jetzt mit der Generierung beginnen.",
-      "returnToShoot": "Zurück zum Shooting",
-      "defaultPlan": "dein neuer Plan"
+    "buyCredits": {
+        "title": "Guthaben kaufen",
+        "description": "Wähle ein Guthaben-Paket"
+    },
+    "upgradePlan": {
+        "title": "Plan upgraden",
+        "description": "Wähle einen Abonnement-Plan"
+    },
+    "purchase": {
+        "success": {
+            "subscriptionTitle": "Du hast erfolgreich auf {{plan}} upgegraded",
+            "subscriptionTitleNew": "Willkommen bei {{plan}}!",
+            "creditsTitle": "Guthaben hinzugefügt!",
+            "subscriptionDescriptionWithCredits": "Dein neuer Abonnement-Abrechnungszyklus beginnt heute. Genieße {{amount}} Guthaben und vieles mehr!",
+            "subscriptionDescriptionWithCreditsNew": "Dein Abrechnungszyklus beginnt heute. Genieße {{amount}} Guthaben und vieles mehr!",
+            "subscriptionDescription": "Dein neuer Abonnement-Abrechnungszyklus beginnt heute. Genieße deine neuen Vorteile!",
+            "subscriptionDescriptionNew": "Dein Abrechnungszyklus beginnt heute. Genieße deine neuen Vorteile!",
+            "creditsDescription": "Dein Guthaben wurde aktualisiert. Du kannst jetzt mit der Generierung beginnen.",
+            "returnToShoot": "Zurück zum Shooting",
+            "defaultPlan": "dein neuer Plan"
+        }
+    },
+    "subscription": {
+        "context": {
+            "characterLimit": { "title": "Du hast dein Charakterlimit erreicht.", "description": "Upgrade für zusätzliche Charaktere" },
+            "qualityUpgrade": { "title": "Willst du höhere Qualität?", "description": "Upgrade für schärfere Bilder und zusätzliche Vorteile" },
+            "creditUpgrade": { "title": "Geht dir das Guthaben aus?", "description": "Upgrade für mehr monatliches Guthaben" },
+            "general": { "title": "Upgrade deinen Plan", "description": "Schalte mehr Funktionen und Flexibilität frei" },
+            "default": { "title": "Wähle deinen Plan", "description": "Wähle was passt, wechsle jederzeit" }
+        },
+        "loading": "Lade Pläne...",
+        "empty": {
+            "title": "Kein Upgrade verfügbar",
+            "description": "Du bist bereits auf dem höchsten verfügbaren Plan."
+        },
+        "headers": {
+            "chooseYourPlan": "Wähle deinen Plan"
+        },
+        "banner": {
+            "titleStart": "Tritt den Gründer",
+            "titleNumber": "300",
+            "description": {
+                "start": "bei. Hilf Primeshot zu formen, erhalte",
+                "lifetime": "lebenslang",
+                "annualDiscount": "70% Rabatt",
+                "annualWord": "jährlich",
+                "or": "oder",
+                "monthlyDiscount": "50% Rabatt",
+                "monthlyWord": "monatlich",
+                "end": "und sichere dir exklusive Vorteile für die Gründer 300."
+            },
+            "small": "Lebenslang-Angebot läuft weiter bis zur Kündigung."
+        },
+        "toggle": {
+            "monthly": "Monatlich",
+            "yearly": "Jährlich",
+            "aria": "Abrechnungszyklus"
+        },
+        "card": {
+            "recommended": "Empfohlen",
+            "save": "Spare {{pct}}%",
+            "perMonth": "/ Monat",
+            "billed": "Abgerechnet {{cycle}}",
+            "creditsCount": "{{count}} Guthaben",
+            "perMonthWord": "pro Monat",
+            "perCredit": "{{price}} pro Guthaben",
+            "button": {
+                "select": "Plan wählen",
+                "current": "Aktueller Plan",
+                "processing": "Verarbeitet…",
+                "disabledTooltip": "Nicht verfügbar während Sonderangebot 🚀"
+            },
+            "features": {
+                "quality": "{{quality}} Qualitätsbilder",
+                "characterIncluded": "{{count}}x Charakter inklusive",
+                "maxCharacters": "Bis zu {{count}} Charakter-Speicher",
+                "concurrentShoots": "Bis zu {{count}} gleichzeitige Shootings",
+                "commercialUse": "Kommerzielle Nutzung"
+            }
+        },
+        "footer": {
+            "upgradeNotice": "Dein aktuelles Abonnement wird gekündigt und durch den neuen Plan ersetzt. Vorhandenes Guthaben bleibt erhalten."
+        },
+        "toasts": {
+            "loginRequired": "Bitte melde dich an",
+            "selectPlan": "Bitte wähle einen Plan",
+            "invalidPlan": "Ungültiger Abonnement-Plan ausgewählt",
+            "openingPortal": "Öffne Stripe-Kundenportal...",
+            "customerPortalFailed": "Kundenportal konnte nicht geöffnet werden",
+            "upgradePreviewFailed": "Upgrade-Vorschau konnte nicht geöffnet werden",
+            "upgraded": "Abonnement erfolgreich upgegraded!",
+            "checkoutFailed": "Checkout fehlgeschlagen",
+            "invalidCheckout": "Ungültige Antwort vom Checkout"
+        }
+    },
+    "credits": {
+        "dialog": {
+            "headerSub": {
+                "lowBalance": "Guthaben-Saldo zu niedrig.",
+                "creativity": "Befeuere deine Kreativität 🚀"
+            },
+            "headerTitle": {
+                "lowBalance": "Lade dein Guthaben auf, um weiter zu generieren",
+                "fun": "Mehr Guthaben, mehr Kreationen, mehr Spaß!"
+            }
+        },
+        "card": {
+            "images": "Bis zu {{count}} {{quality}} Bilder",
+            "characters": "Bis zu {{count}} Charaktere",
+            "footnote": "*Nur Standard- und Pro-Pläne",
+            "button": {
+                "buy": "Kaufen",
+                "processing": "Verarbeitet…"
+            },
+            "validity": "Gültig für {{duration}}",
+            "oneTime": "einmalig",
+            "perCredit": "{{price}} pro Guthaben",
+            "perCreditWord": "pro Guthaben"
+        },
+        "toasts": {
+            "loginRequired": "Bitte melde dich an",
+            "invalidPackConfig": "Ungültige Guthaben-Paket-Konfiguration",
+            "createCheckoutFailed": "Checkout-Sitzung konnte nicht erstellt werden",
+            "purchaseFailed": "Guthaben-Paket-Kauf fehlgeschlagen"
+        }
     }
-  },
-  "subscription": {
-    "context": {
-      "characterLimit": { "title": "Du hast dein Charakterlimit erreicht.", "description": "Upgrade für zusätzliche Charaktere" },
-      "qualityUpgrade": { "title": "Willst du höhere Qualität?", "description": "Upgrade für schärfere Bilder und zusätzliche Vorteile" },
-      "creditUpgrade": { "title": "Geht dir das Guthaben aus?", "description": "Upgrade für mehr monatliches Guthaben" },
-      "general": { "title": "Upgrade deinen Plan", "description": "Schalte mehr Funktionen und Flexibilität frei" },
-      "default": { "title": "Wähle deinen Plan", "description": "Wähle was passt, wechsle jederzeit" }
-    },
-    "loading": "Lade Pläne...",
-    "empty": {
-      "title": "Kein Upgrade verfügbar",
-      "description": "Du bist bereits auf dem höchsten verfügbaren Plan."
-    },
-    "headers": {
-      "chooseYourPlan": "Wähle deinen Plan"
-    },
-    "banner": {
-      "titleStart": "Tritt den Gründer",
-      "titleNumber": "300",
-      "description": {
-        "start": "bei. Hilf Primeshot zu formen, erhalte",
-        "lifetime": "lebenslang",
-        "annualDiscount": "70% Rabatt",
-        "annualWord": "jährlich",
-        "or": "oder",
-        "monthlyDiscount": "50% Rabatt",
-        "monthlyWord": "monatlich",
-        "end": "und sichere dir exklusive Vorteile für die Gründer 300."
-      },
-      "small": "Lebenslang-Angebot läuft weiter bis zur Kündigung."
-    },
-    "toggle": {
-      "monthly": "Monatlich",
-      "yearly": "Jährlich",
-      "aria": "Abrechnungszyklus"
-    },
-    "card": {
-      "recommended": "Empfohlen",
-      "save": "Spare {{pct}}%",
-      "perMonth": "/ Monat",
-      "billed": "Abgerechnet {{cycle}}",
-      "creditsCount": "{{count}} Guthaben",
-      "perMonthWord": "pro Monat",
-      "perCredit": "{{price}} pro Guthaben",
-      "button": {
-        "select": "Plan wählen",
-        "current": "Aktueller Plan",
-        "processing": "Verarbeitet…",
-        "disabledTooltip": "Nicht verfügbar während Sonderangebot 🚀"
-      },
-      "features": {
-        "quality": "{{quality}} Qualitätsbilder",
-        "characterIncluded": "{{count}}x Charakter inklusive",
-        "maxCharacters": "Bis zu {{count}} Charakter-Speicher",
-        "concurrentShoots": "Bis zu {{count}} gleichzeitige Shootings",
-        "commercialUse": "Kommerzielle Nutzung"
-      }
-    },
-    "footer": {
-      "upgradeNotice": "Dein aktuelles Abonnement wird gekündigt und durch den neuen Plan ersetzt. Vorhandenes Guthaben bleibt erhalten."
-    },
-    "toasts": {
-      "loginRequired": "Bitte melde dich an",
-      "selectPlan": "Bitte wähle einen Plan",
-      "invalidPlan": "Ungültiger Abonnement-Plan ausgewählt",
-      "openingPortal": "Öffne Stripe-Kundenportal...",
-      "customerPortalFailed": "Kundenportal konnte nicht geöffnet werden",
-      "upgradePreviewFailed": "Upgrade-Vorschau konnte nicht geöffnet werden",
-      "upgraded": "Abonnement erfolgreich upgegraded!",
-      "checkoutFailed": "Checkout fehlgeschlagen",
-      "invalidCheckout": "Ungültige Antwort vom Checkout"
-    }
-  },
-  "credits": {
-    "dialog": {
-      "headerSub": {
-        "lowBalance": "Guthaben-Saldo zu niedrig.",
-        "creativity": "Befeuere deine Kreativität 🚀"
-      },
-      "headerTitle": {
-        "lowBalance": "Lade dein Guthaben auf, um weiter zu generieren",
-        "fun": "Mehr Guthaben, mehr Kreationen, mehr Spaß!"
-      }
-    },
-    "card": {
-      "images": "Bis zu {{count}} {{quality}} Bilder",
-      "characters": "Bis zu {{count}} Charaktere",
-      "footnote": "*Nur Standard- und Pro-Pläne",
-      "button": {
-        "buy": "Kaufen",
-        "processing": "Verarbeitet…"
-      },
-      "validity": "Gültig für {{duration}}",
-      "oneTime": "einmalig",
-      "perCredit": "{{price}} pro Guthaben",
-      "perCreditWord": "pro Guthaben"
-    },
-    "toasts": {
-      "loginRequired": "Bitte melde dich an",
-      "invalidPackConfig": "Ungültige Guthaben-Paket-Konfiguration",
-      "createCheckoutFailed": "Checkout-Sitzung konnte nicht erstellt werden",
-      "purchaseFailed": "Guthaben-Paket-Kauf fehlgeschlagen"
-    }
-  }
 }

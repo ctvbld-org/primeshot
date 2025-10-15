@@ -165,7 +165,14 @@
         "none": "No face detected.",
         "multiple": "Multiple faces detected.",
         "positionNotOptimal": "Face position is not optimal.",
-        "detectSkipped": "Face detection was skipped."
+        "detectSkipped": "Face detection was skipped.",
+        "angleExtreme": "Face angle is too extreme (pitch: {{pitch}}°, yaw: {{yaw}}°, roll: {{roll}}°)",
+        "sunglasses": "Eyes are obscured by sunglasses or dark glasses.",
+        "sunglasses.critical": "Sunglasses detected - please remove sunglasses.",
+        "eyesClosed": "Eyes appear to be closed or not visible.",
+        "tooSmall": "Face is too small in the frame.",
+        "tooLarge": "Face is too large/close.",
+        "sizeNotOptimal": "Face size is not optimal."
       },
       "contrast": {
         "separation": {
@@ -176,7 +183,12 @@
         "poorOrFlat": "Image has poor contrast or appears too flat."
       },
       "sharpness": {
-        "tooBlurry": "Image appears to be blurry or lacks sufficient detail."
+        "tooBlurry": "Image appears to be blurry or lacks sufficient detail.",
+        "pixelated": "Image appears pixelated or has compression artefacts.",
+        "suboptimal": "Image sharpness could be improved."
+      },
+      "background": {
+        "notBlurred": "Background is not blurred. Please use portrait mode or a blurred background."
       },
       "upload": {
         "none": "No images uploaded"

@@ -2297,6 +2297,21 @@ Detected changes in:
 - website/src/app/api/waitlist/route.ts
 - website/src/app/globals.css
 - website/src/components/WaitlistForm.tsx
+
+
+**Auto-update 2025-10-15**:
+Detected changes in:
+- webapp/src/app/globals.css
+- webapp/src/components/character/CharacterTrainingDialog.module.css
+- webapp/src/components/generate/GenerateBar.module.css
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/inference/InferenceImageViewerDialog.module.css
+- webapp/src/components/upload/ImageQualityScore.module.css
+- webapp/src/components/upload/ImageQualityScore.tsx
+- webapp/src/lib/hooks/use-file-upload.ts
+- webapp/src/lib/image-quality.ts
+- webapp/src/lib/mediapipe-face-detection.ts
+- website/src/app/globals.css
 ## Component Organization
 
 Components are organized by feature and reusability:

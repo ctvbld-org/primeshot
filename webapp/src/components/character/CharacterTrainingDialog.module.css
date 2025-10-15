@@ -297,10 +297,12 @@ flex: 1 1 auto; /* flex-1 */
     min-width: 240px;
     background-color: #0A0A0B;
     border-left: 1px solid #202A32; /* border-l border-[#202A32] */
-    display: flex;
+    display: block;
     flex-direction: column;
     overflow: hidden;
     position: relative;
+    height: 100%;
+    overflow-y: auto;
 }
 
 .sidebar:before {  

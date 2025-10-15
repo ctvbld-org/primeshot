@@ -1,62 +1,63 @@
 {
-  "titles": {
-    "styleLabel": "风格",
-    "photoStyle": "照片风格",
-    "sceneLabel": "场景",
-    "wardrobeLabel": "服装",
-    "characterLabel": "角色",
-    "settingsLabel": "设置"
-  },
-  "shoot": {
-    "subtitle": "{{style}}风格，{{scene}}背景，穿着{{color}}的{{wardrobe}}"
-  },
-  "character": {
-    "trainingQueued": "排队中",
-    "trainingPending": "等待中",
-    "trainingInitializing": "初始化中",
-    "remaining": "剩余",
-    "photos": "照片",
-    "trainingFailedTitle": "训练失败",
-    "trainingFailedDesc": "此角色无法用于生成。请删除并重试。"
-  },
-  "qualities": {
-    "basic": "基础",
-    "medium": "中等",
-    "high": "高级"
-  },
-  "labels": {
-    "credits": "{{count}}积分",
-    "includedInPlan": "套餐包含{{count}}个",
-    "limitReached": "已达限制",
-    "upgradePlanAddMore": "升级套餐以添加更多",
-    "upgradeOrBuyCredits": "升级套餐或购买积分套餐",
-    "buyCredits": "购买积分套餐"
-  },
-  "settings": {
-    "numberOfTakes": "拍摄次数",
-    "quality": "质量",
-    "aspectRatio": "宽高比"
-  },
-  "status": {
-    "badge": {
-      "pending": "等待中",
-      "queued": "排队中",
-      "initializing": "初始化中",
-      "starting": "启动中",
-      "running": "生成中",
-      "generating": "生成中",
-      "completed": "已完成",
-      "failed": "失败",
-      "connecting": "连接中"
+    "titles": {
+        "styleLabel": "风格",
+        "photoStyle": "照片风格",
+        "sceneLabel": "场景",
+        "wardrobeLabel": "服装",
+        "characterLabel": "角色",
+        "settingsLabel": "设置"
     },
-    "tooltip": {
-      "pending": "等待服务器可用性 - 应该很快继续",
-      "queued": "已达限制，等待生成完成",
-      "queueReasons": {
-        "character_not_ready": "角色仍在训练中 — 将自动开始",
-        "concurrent_limit": "已达限制（{{current}}/{{limit}}）。将自动开始",
-        "provider_temporary_issue": "发送到提供商时出现临时问题。我们将自动重试。"
-      }
+    "shoot": {
+        "subtitle": "{{style}}风格，{{scene}}背景，穿着{{color}}的{{wardrobe}}"
+    },
+    "character": {
+        "trainingQueued": "排队中",
+        "trainingPending": "等待中",
+        "trainingInitializing": "初始化中",
+        "remaining": "剩余",
+        "photos": "照片",
+        "trainingFailedTitle": "训练失败",
+        "trainingFailedDesc": "此角色无法用于生成。请删除并重试。"
+    },
+    "qualities": {
+        "basic": "基础",
+        "medium": "中等",
+        "high": "高级"
+    },
+    "labels": {
+        "credits": "{{count}}积分",
+        "includedInPlan": "套餐包含{{count}}个",
+        "limitReached": "已达限制",
+        "upgradePlanAddMore": "升级套餐以添加更多",
+        "upgradeOrBuyCredits": "升级套餐或购买积分套餐",
+        "buyCredits": "购买积分套餐",
+        "newStylesDropWeekly": "每周上新"
+    },
+    "settings": {
+        "numberOfTakes": "拍摄次数",
+        "quality": "质量",
+        "aspectRatio": "宽高比"
+    },
+    "status": {
+        "badge": {
+            "pending": "等待中",
+            "queued": "排队中",
+            "initializing": "初始化中",
+            "starting": "启动中",
+            "running": "生成中",
+            "generating": "生成中",
+            "completed": "已完成",
+            "failed": "失败",
+            "connecting": "连接中"
+        },
+        "tooltip": {
+            "pending": "等待服务器可用性 - 应该很快继续",
+            "queued": "已达限制，等待生成完成",
+            "queueReasons": {
+                "character_not_ready": "角色仍在训练中 — 将自动开始",
+                "concurrent_limit": "已达限制（{{current}}/{{limit}}）。将自动开始",
+                "provider_temporary_issue": "发送到提供商时出现临时问题。我们将自动重试。"
+            }
+        }
     }
-  }
 }

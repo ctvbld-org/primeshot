@@ -165,7 +165,14 @@
         "none": "顔が検出されませんでした。",
         "multiple": "複数の顔が検出されました。",
         "positionNotOptimal": "顔の位置が最適ではありません。",
-        "detectSkipped": "顔検出がスキップされました。"
+        "detectSkipped": "顔検出がスキップされました。",
+        "angleExtreme": "顔の角度が極端すぎます（ピッチ：{{pitch}}°、ヨー：{{yaw}}°、ロール：{{roll}}°）",
+        "sunglasses": "目がサングラスや濃い色のメガネで隠れています。",
+        "sunglasses.critical": "サングラスが検出されました - サングラスを外してください。",
+        "eyesClosed": "目が閉じているか、見えません。",
+        "tooSmall": "フレーム内で顔が小さすぎます。",
+        "tooLarge": "顔が大きすぎる/近すぎます。",
+        "sizeNotOptimal": "顔のサイズが最適ではありません。"
       },
       "contrast": {
         "separation": {
@@ -176,7 +183,12 @@
         "poorOrFlat": "画像のコントラストが悪いか、平坦すぎます。"
       },
       "sharpness": {
-        "tooBlurry": "画像がぼやけているか、十分な詳細が不足しています。"
+        "tooBlurry": "画像がぼやけているか、十分な詳細が不足しています。",
+        "pixelated": "画像がピクセル化されているか、圧縮アーティファクトがあります。",
+        "suboptimal": "画像の鮮明度を向上させることができます。"
+      },
+      "background": {
+        "notBlurred": "背景がぼかされていません。ポートレートモードまたはぼかした背景を使用してください。"
       },
       "upload": {
         "none": "画像がアップロードされていません"

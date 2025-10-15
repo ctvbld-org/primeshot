@@ -1,36 +1,35 @@
 {
-  "title": "Upload Photos",
-  "description": "Upload your photos to get started",
-  "requirements": {
-    "title": "Photo Requirements",
-    "description": "Please ensure your photos meet these requirements"
-  },
-  "buttons": {
-    "upload": "Upload",
-    "continue": "Continue",
-    "retry": "Retry"
-  },
-  "errors": {
-    "invalidFile": "Invalid file type",
-    "fileTooLarge": "File too large",
-    "uploadFailed": "Upload failed",
-    "invalidFileType": "Unsupported file type ({{types}})",
-    "fileSizeExceeded": "File is too large (max {{size}})",
-    "duplicateFile": "Duplicate file",
-    "uploadFailedCount_one": "1 file couldn't be added",
-    "uploadFailedCount_other": "{{count}} files couldn't be added",
-    "analysisTimeout": "Analysis Timeout",
-    "analysisTimeoutDescription": "Image analysis took too long. Please try again or use a different photo."
-  },
-  "progress": {
-    "uploading": "Uploading...",
-    "processing": "Processing...",
-    "complete": "Complete"
-  },
-  "quality": {
-    "rejected": {
-      "title": "{{rejected}} of {{total}} photos were rejected"
+    "title": "Upload Photos",
+    "description": "Upload your photos to get started",
+    "requirements": {
+        "title": "Photo Requirements",
+        "description": "Please ensure your photos meet these requirements"
+    },
+    "buttons": {
+        "upload": "Upload",
+        "continue": "Continue",
+        "retry": "Retry"
+    },
+    "errors": {
+        "invalidFile": "Invalid file type",
+        "fileTooLarge": "File too large",
+        "uploadFailed": "Upload failed",
+        "invalidFileType": "Unsupported file type ({{types}})",
+        "fileSizeExceeded": "File is too large (max {{size}})",
+        "duplicateFile": "Duplicate file",
+        "uploadFailedCount_one": "1 file couldn't be added",
+        "uploadFailedCount_other": "{{count}} files couldn't be added",
+        "analysisTimeout": "Analysis Timeout",
+        "analysisTimeoutDescription": "Image analysis took too long. Please try again or use a different photo."
+    },
+    "progress": {
+        "uploading": "Uploading...",
+        "processing": "Processing...",
+        "complete": "Complete"
+    },
+    "quality": {
+        "rejected": {
+            "title": "{{rejected}} of {{total}} photos were rejected"
+        }
     }
-  }
 }
-

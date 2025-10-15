@@ -1,128 +1,128 @@
 {
-  "buyCredits": {
-    "title": "Buy credits",
-    "description": "Choose a credit pack"
-  },
-  "upgradePlan": {
-    "title": "Upgrade plan",
-    "description": "Choose a subscription plan"
-  },
-  "purchase": {
-    "success": {
-      "subscriptionTitle": "You have successfully upgraded to {{plan}}",
-      "subscriptionTitleNew": "Welcome to {{plan}}!",
-      "creditsTitle": "Credits added!",
-      "subscriptionDescriptionWithCredits": "Your new subscription billing cycle starts today. Enjoy {{amount}} credits and much more!",
-      "subscriptionDescriptionWithCreditsNew": "Your new billing cycle starts today. Enjoy {{amount}} credits and much more!",
-      "subscriptionDescription": "Your new subscription billing cycle starts today. Enjoy your new benefits!",
-      "subscriptionDescriptionNew": "Your billing cycle starts today. Enjoy your new benefits!",
-      "creditsDescription": "Your balance has been updated. You can start generating now.",
-      "returnToShoot": "Return to Shoot",
-      "defaultPlan": "your new plan"
+    "buyCredits": {
+        "title": "Buy credits",
+        "description": "Choose a credit pack"
+    },
+    "upgradePlan": {
+        "title": "Upgrade plan",
+        "description": "Choose a subscription plan"
+    },
+    "purchase": {
+        "success": {
+            "subscriptionTitle": "You have successfully upgraded to {{plan}}",
+            "subscriptionTitleNew": "Welcome to {{plan}}!",
+            "creditsTitle": "Credits added!",
+            "subscriptionDescriptionWithCredits": "Your new subscription billing cycle starts today. Enjoy {{amount}} credits and much more!",
+            "subscriptionDescriptionWithCreditsNew": "Your new billing cycle starts today. Enjoy {{amount}} credits and much more!",
+            "subscriptionDescription": "Your new subscription billing cycle starts today. Enjoy your new benefits!",
+            "subscriptionDescriptionNew": "Your billing cycle starts today. Enjoy your new benefits!",
+            "creditsDescription": "Your balance has been updated. You can start generating now.",
+            "returnToShoot": "Return to Shoot",
+            "defaultPlan": "your new plan"
+        }
+    },
+    "subscription": {
+        "context": {
+            "characterLimit": { "title": "You've hit your character limit.", "description": "Upgrade to get additional characters" },
+            "qualityUpgrade": { "title": "Want higher quality?", "description": "Upgrade for sharper images and extra perks" },
+            "creditUpgrade": { "title": "Running low on credits?", "description": "Upgrade to get more credits monthly" },
+            "general": { "title": "Upgrade your plan", "description": "Unlock more features and flexibility" },
+            "default": { "title": "Pick your plan", "description": "Choose what fits, switch anytime" }
+        },
+        "loading": "Loading Plans...",
+        "empty": {
+            "title": "No Upgrade Available",
+            "description": "You're already on the highest available plan."
+        },
+        "headers": {
+            "chooseYourPlan": "Choose your plan"
+        },
+        "banner": {
+            "titleStart": "Join the Founding",
+            "titleNumber": "300",
+            "description": {
+                "start": "Help shape Primeshot, get",
+                "lifetime": "lifetime",
+                "annualDiscount": "70% off",
+                "annualWord": "annual",
+                "or": "or",
+                "monthlyDiscount": "50% off",
+                "monthlyWord": "monthly",
+                "end": "and claim exclusive perks for the Founding 300."
+            },
+            "small": "Lifetime offer continues until you cancel."
+        },
+        "toggle": {
+            "monthly": "Monthly",
+            "yearly": "Yearly",
+            "aria": "Billing cycle"
+        },
+        "card": {
+            "recommended": "Recommended",
+            "save": "Save {{pct}}%",
+            "perMonth": "/ month",
+            "billed": "Billed {{cycle}}",
+            "creditsCount": "{{count}} credits",
+            "perMonthWord": "per month",
+            "perCredit": "{{price}} per credit",
+            "button": {
+                "select": "Select Plan",
+                "current": "Current Plan",
+                "processing": "Processing…",
+                "disabledTooltip": "Unavailable during special offer 🚀"
+            },
+            "features": {
+                "quality": "{{quality}} quality images",
+                "characterIncluded": "{{count}}x Character Included",
+                "maxCharacters": "Up to {{count}} Character Storage",
+                "concurrentShoots": "Up to {{count}} concurrent Shoots",
+                "commercialUse": "Commercial use"
+            }
+        },
+        "footer": {
+            "upgradeNotice": "Your current subscription will be canceled and replaced with the new plan. Existing credits will be kept."
+        },
+        "toasts": {
+            "loginRequired": "Please log in",
+            "selectPlan": "Please select a plan",
+            "invalidPlan": "Invalid subscription plan selected",
+            "openingPortal": "Opening Stripe customer portal...",
+            "customerPortalFailed": "Failed to open customer portal",
+            "upgradePreviewFailed": "Failed to open upgrade preview",
+            "upgraded": "Subscription upgraded successfully!",
+            "checkoutFailed": "Checkout failed",
+            "invalidCheckout": "Invalid response from checkout"
+        }
+    },
+    "credits": {
+        "dialog": {
+            "headerSub": {
+                "lowBalance": "Credit balance too low.",
+                "creativity": "Fuel your creativity  🚀"
+            },
+            "headerTitle": {
+                "lowBalance": "Top up your credits to continue generating",
+                "fun": "More credits, more creations, more fun!"
+            }
+        },
+        "card": {
+            "images": "Up to {{count}} {{quality}} images",
+            "characters": "Up to {{count}} Characters",
+            "footnote": "*Standard and Pro plans only",
+            "button": {
+                "buy": "Buy",
+                "processing": "Processing…"
+            },
+            "validity": "Valid for {{duration}}",
+            "oneTime": "one-time",
+            "perCredit": "{{price}} per credit",
+            "perCreditWord": "per credit"
+        },
+        "toasts": {
+            "loginRequired": "Please log in",
+            "invalidPackConfig": "Invalid credit pack configuration",
+            "createCheckoutFailed": "Failed to create checkout session",
+            "purchaseFailed": "Failed to purchase credit pack"
+        }
     }
-  },
-  "subscription": {
-    "context": {
-      "characterLimit": { "title": "You've hit your character limit.", "description": "Upgrade to get additional characters" },
-      "qualityUpgrade": { "title": "Want higher quality?", "description": "Upgrade for sharper images and extra perks" },
-      "creditUpgrade": { "title": "Running low on credits?", "description": "Upgrade to get more credits monthly" },
-      "general": { "title": "Upgrade your plan", "description": "Unlock more features and flexibility" },
-      "default": { "title": "Pick your plan", "description": "Choose what fits, switch anytime" }
-    },
-    "loading": "Loading Plans...",
-    "empty": {
-      "title": "No Upgrade Available",
-      "description": "You're already on the highest available plan."
-    },
-    "headers": {
-      "chooseYourPlan": "Choose your plan"
-    },
-    "banner": {
-      "titleStart": "Join the Founding",
-      "titleNumber": "300",
-      "description": {
-        "start": "Help shape Primeshot, get",
-        "lifetime": "lifetime",
-        "annualDiscount": "70% off",
-        "annualWord": "annual",
-        "or": "or",
-        "monthlyDiscount": "50% off",
-        "monthlyWord": "monthly",
-        "end": "and claim exclusive perks for the Founding 300."
-      },
-      "small": "Lifetime offer continues until you cancel."
-    },
-    "toggle": {
-      "monthly": "Monthly",
-      "yearly": "Yearly",
-      "aria": "Billing cycle"
-    },
-    "card": {
-      "recommended": "Recommended",
-      "save": "Save {{pct}}%",
-      "perMonth": "/ month",
-      "billed": "Billed {{cycle}}",
-      "creditsCount": "{{count}} credits",
-      "perMonthWord": "per month",
-      "perCredit": "{{price}} per credit",
-      "button": {
-        "select": "Select Plan",
-        "current": "Current Plan",
-        "processing": "Processing…",
-        "disabledTooltip": "Unavailable during special offer 🚀"
-      },
-      "features": {
-        "quality": "{{quality}} quality images",
-        "characterIncluded": "{{count}}x Character Included",
-        "maxCharacters": "Up to {{count}} Character Storage",
-        "concurrentShoots": "Up to {{count}} concurrent Shoots",
-        "commercialUse": "Commercial use"
-      }
-    },
-      "footer": {
-    "upgradeNotice": "Your current subscription will be canceled and replaced with the new plan. Existing credits will be kept."
-  },
-    "toasts": {
-      "loginRequired": "Please log in",
-      "selectPlan": "Please select a plan",
-      "invalidPlan": "Invalid subscription plan selected",
-      "openingPortal": "Opening Stripe customer portal...",
-      "customerPortalFailed": "Failed to open customer portal",
-      "upgradePreviewFailed": "Failed to open upgrade preview",
-      "upgraded": "Subscription upgraded successfully!",
-      "checkoutFailed": "Checkout failed",
-      "invalidCheckout": "Invalid response from checkout"
-    }
-  },
-  "credits": {
-    "dialog": {
-      "headerSub": {
-        "lowBalance": "Credit balance too low.",
-        "creativity": "Fuel your creativity  🚀"
-      },
-      "headerTitle": {
-        "lowBalance": "Top up your credits to continue generating",
-        "fun": "More credits, more creations, more fun!"
-      }
-    },
-    "card": {
-      "images": "Up to {{count}} {{quality}} images",
-      "characters": "Up to {{count}} Characters",
-      "footnote": "*Standard and Pro plans only",
-      "button": {
-        "buy": "Buy",
-        "processing": "Processing…"
-      },
-      "validity": "Valid for {{duration}}",
-      "oneTime": "one-time",
-      "perCredit": "{{price}} per credit",
-      "perCreditWord": "per credit"
-    },
-    "toasts": {
-      "loginRequired": "Please log in",
-      "invalidPackConfig": "Invalid credit pack configuration",
-      "createCheckoutFailed": "Failed to create checkout session",
-      "purchaseFailed": "Failed to purchase credit pack"
-    }
-  }
 }

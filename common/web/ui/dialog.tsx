@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
+import * as VisuallyHiddenPrimitive from "@radix-ui/react-visually-hidden"
 import styles from "./dialog.module.css"
 import { Icon } from "../Icon"
 import { useTranslation } from "react-i18next"
@@ -136,6 +137,8 @@ function DialogDescription({
   )
 }
 
+const VisuallyHidden = VisuallyHiddenPrimitive.Root
+
 export {
   Dialog,
   DialogClose,
@@ -148,4 +151,5 @@ export {
   DialogTitle,
   DialogBody,
   DialogTrigger,
+  VisuallyHidden,
 }
