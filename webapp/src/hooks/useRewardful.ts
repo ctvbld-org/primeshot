@@ -1,5 +1,15 @@
 import { useState, useEffect } from 'react'
 
+// Extend Window interface to include Rewardful types
+declare global {
+  interface Window {
+    Rewardful?: {
+      referral?: string
+    }
+    rewardful?: (event: string, callback: () => void) => void
+  }
+}
+
 /**
  * Hook to capture Rewardful referral ID
  * Returns the referral ID from the Rewardful object if available
@@ -13,9 +23,7 @@ export function useRewardful() {
     if (typeof window === 'undefined') return
 
     const checkRewardful = () => {
-      // @ts-ignore - Rewardful is loaded via external script
-      if (window.Rewardful && window.Rewardful.referral) {
-        // @ts-ignore
+      if (window.Rewardful?.referral) {
         setReferralId(window.Rewardful.referral)
         setIsReady(true)
       } else {
@@ -27,9 +35,7 @@ export function useRewardful() {
     checkRewardful()
 
     // Also listen for Rewardful ready event
-    // @ts-ignore
     if (window.rewardful) {
-      // @ts-ignore
       window.rewardful('ready', () => {
         checkRewardful()
       })

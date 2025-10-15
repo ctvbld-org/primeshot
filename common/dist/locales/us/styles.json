@@ -1,70 +1,69 @@
 {
-  
-  "titles": {
-    "styleLabel": "Style",
-    "photoStyle": "Photo Style",
-    "sceneLabel": "Scene",
-    "wardrobeLabel": "Clothing",
-    "characterLabel": "Character",
-    "settingsLabel": "Settings"
-  },
-  "buttons": {
-    "viewExamples": "View Examples"
-  },
-  "messages": {
-    "noPreviewImages": "No preview images available for this style."
-  },
-  "shoot": {
-    "subtitle": "{{style}} with {{scene}} setting, wearing a {{wardrobe}} in {{color}}"
-  },
-  "character": {
-    "trainingQueued": "Queued",
-    "trainingPending": "Pending",
-    "trainingInitializing": "Initializing",
-    "remaining": "remaining",
-    "photos": "photos",
-    "trainingFailedTitle": "Training failed",
-    "trainingFailedDesc": "This character cannot be used for generation. Please delete it and try again."
-  },
-  "qualities": {
-    "basic": "Basic",
-    "medium": "Medium",
-    "high": "High"
-  },
-  "labels": {
-    "credits": "{{count}} credits",
-    "includedInPlan": "{{count}} included in plan",
-    "limitReached": "Limit reached",
-    "upgradePlanAddMore": "Upgrade plan to add more",
-    "upgradeOrBuyCredits": "Upgrade plan or buy credit pack",
-    "buyCredits": "Buy credit pack",
-    "newStylesDropWeekly": "New styles drop weekly"
-  },
-  "settings": {
-    "numberOfTakes": "Number of Takes",
-    "quality": "Quality",
-    "aspectRatio": "Aspect Ratio"
-  },
-  "status": {
-    "badge": {
-      "pending": "Pending",
-      "queued": "Queued",
-      "initializing": "Initializing",
-      "starting": "Starting up",
-      "running": "Generating",
-      "generating": "Generating",
-      "completed": "Completed",
-      "failed": "Failed",
-      "connecting": "Connecting"
+    "titles": {
+        "styleLabel": "Style",
+        "photoStyle": "Photo Style",
+        "sceneLabel": "Scene",
+        "wardrobeLabel": "Clothing",
+        "characterLabel": "Character",
+        "settingsLabel": "Settings"
     },
-    "tooltip": {
-      "pending": "Awaiting server availability - should proceed soon",
-      "queued": "Limit reached, waiting for a generation to complete",
-      "queueReasons": {
-        "character_not_ready": "Character is training — will start automatically",
-        "concurrent_limit": "Limit reached ({{current}}/{{limit}}). Will start automatically",
-        "provider_temporary_issue": "Temporary issue submitting to provider. We will retry automatically."
-      }
+    "buttons": {
+        "viewExamples": "View Examples"
+    },
+    "messages": {
+        "noPreviewImages": "No preview images available for this style."
+    },
+    "shoot": {
+        "subtitle": "{{style}} with {{scene}} setting, wearing a {{wardrobe}} in {{color}}"
+    },
+    "character": {
+        "trainingQueued": "Queued",
+        "trainingPending": "Pending",
+        "trainingInitializing": "Initializing",
+        "remaining": "remaining",
+        "photos": "photos",
+        "trainingFailedTitle": "Training failed",
+        "trainingFailedDesc": "This character cannot be used for generation. Please delete it and try again."
+    },
+    "qualities": {
+        "basic": "Basic",
+        "medium": "Medium",
+        "high": "High"
+    },
+    "labels": {
+        "credits": "{{count}} credits",
+        "includedInPlan": "{{count}} included in plan",
+        "limitReached": "Limit reached",
+        "upgradePlanAddMore": "Upgrade plan to add more",
+        "upgradeOrBuyCredits": "Upgrade plan or buy credit pack",
+        "buyCredits": "Buy credit pack",
+        "newStylesDropWeekly": "New styles drop weekly"
+    },
+    "settings": {
+        "numberOfTakes": "Number of Takes",
+        "quality": "Quality",
+        "aspectRatio": "Aspect Ratio"
+    },
+    "status": {
+        "badge": {
+            "pending": "Pending",
+            "queued": "Queued",
+            "initializing": "Initializing",
+            "starting": "Starting up",
+            "running": "Generating",
+            "generating": "Generating",
+            "completed": "Completed",
+            "failed": "Failed",
+            "connecting": "Connecting"
+        },
+        "tooltip": {
+            "pending": "Awaiting server availability - should proceed soon",
+            "queued": "Limit reached, waiting for a generation to complete",
+            "queueReasons": {
+                "character_not_ready": "Character is training — will start automatically",
+                "concurrent_limit": "Limit reached ({{current}}/{{limit}}). Will start automatically",
+                "provider_temporary_issue": "Temporary issue submitting to provider. We will retry automatically."
+            }
+        }
     }
-  }
-} 
+}

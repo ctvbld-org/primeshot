@@ -2312,6 +2312,20 @@ Detected changes in:
 - webapp/src/lib/image-quality.ts
 - webapp/src/lib/mediapipe-face-detection.ts
 - website/src/app/globals.css
+
+
+**Auto-update 2025-10-15**:
+Detected changes in:
+- webapp/src/app/api/payment/credit-pack-checkout/route.ts
+- webapp/src/app/api/payment/subscription-checkout/route.ts
+- webapp/src/app/layout.tsx
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/pricing/CreditPackDialogContent.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/shared/ConfirmDialog.tsx
+- webapp/src/lib/image-quality.ts
+- webapp/src/lib/mediapipe-face-detection.ts
+- website/src/app/[locale]/layout.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

@@ -1,162 +1,162 @@
 {
-  "common": {
-    "pleaseTryAgain": "Probeer opnieuw",
-    "cancel": "Annuleren"
-  },
-  "time": {
-    "justNow": "Zojuist",
-    "minutesAgo": "{{count}}min geleden",
-    "hoursAgo": "{{count}}u geleden",
-    "daysAgo": "{{count}}d geleden"
-  },
-  "gallery": {
-    "error": "Inferentie jobs laden mislukt: {{error}}",
-    "retry": "Opnieuw proberen",
-    "loadingMore": "Meer shoots laden",
-    "endOfList": "Je hebt het einde van je shoots bereikt",
-    "howItWorksAria": "Hoe het werkt",
-    "steps": {
-      "choose": {
-        "title": "Kies een stijl",
-        "desc": "Selecteer de sfeer, scène en outfit die bij je look passen."
-      },
-      "character": {
-        "title": "Maak een karakter",
-        "desc": "Upload wat foto's zodat onze AI precies leert wat jou jou maakt."
-      },
-      "generate": {
-        "title": "Genereer je shoot",
-        "desc": "Krijg je portretten in minuten — authentiek, gepolijst en klaar voor gebruik."
-      }
+    "common": {
+        "pleaseTryAgain": "Probeer opnieuw",
+        "cancel": "Annuleren"
+    },
+    "time": {
+        "justNow": "Zojuist",
+        "minutesAgo": "{{count}}min geleden",
+        "hoursAgo": "{{count}}u geleden",
+        "daysAgo": "{{count}}d geleden"
+    },
+    "gallery": {
+        "error": "Inferentie jobs laden mislukt: {{error}}",
+        "retry": "Opnieuw proberen",
+        "loadingMore": "Meer shoots laden",
+        "endOfList": "Je hebt het einde van je shoots bereikt",
+        "howItWorksAria": "Hoe het werkt",
+        "steps": {
+            "choose": {
+                "title": "Kies een stijl",
+                "desc": "Selecteer de sfeer, scène en outfit die bij je look passen."
+            },
+            "character": {
+                "title": "Maak een karakter",
+                "desc": "Upload wat foto's zodat onze AI precies leert wat jou jou maakt."
+            },
+            "generate": {
+                "title": "Genereer je shoot",
+                "desc": "Krijg je portretten in minuten — authentiek, gepolijst en klaar voor gebruik."
+            }
+        }
+    },
+    "viewer": {
+        "confirmDelete": {
+            "title": "Afbeelding verwijderen?",
+            "description": "Dit verwijdert de afbeelding permanent en kan niet ongedaan worden gemaakt.",
+            "confirm": "Verwijderen",
+            "cancel": "Annuleren"
+        },
+        "closeAria": "Viewer sluiten",
+        "carousel": {
+            "aria": "Carrousel navigatie",
+            "prevAria": "Vorige afbeelding",
+            "nextAria": "Volgende afbeelding"
+        },
+        "overlay": {
+            "displayOriginal": "Origineel tonen",
+            "displayOriginalAria": "Originele afbeelding tonen",
+            "originalUnavailableTitle": "Origineel niet beschikbaar",
+            "originalUnavailableDesc": "Kon originele afbeelding variant niet laden."
+        },
+        "viewOriginal": {
+            "label": "Schakel naar origineel",
+            "viewing": "Origineel wordt getoond",
+            "aria": "Schakel naar originele afbeelding in volledige kwaliteit",
+            "viewingAria": "Originele afbeelding in volledige kwaliteit wordt getoond"
+        },
+        "title": "Shoot {{shootNumber}}",
+        "imageIndex": "IMG {{index}}",
+        "favourite": {
+            "ariaButton": "Favoriet",
+            "add": "Toevoegen aan favorieten",
+            "remove": "Verwijderen uit favorieten",
+            "updateErrorTitle": "Favoriet bijwerken mislukt"
+        },
+        "metadata": {
+            "labels": {
+                "aspectRatio": "Beeldverhouding",
+                "quality": "Kwaliteit",
+                "model": "Model",
+                "character": "Karakter"
+            },
+            "aspectLabels": {
+                "square": "Vierkant",
+                "landscape": "Liggend",
+                "portrait": "Staand"
+            }
+        },
+        "actions": {
+            "delete": {
+                "label": "Verwijderen",
+                "aria": "Afbeelding verwijderen"
+            },
+            "download": {
+                "label": "Downloaden",
+                "aria": "Afbeelding downloaden"
+            }
+        },
+        "alt": {
+            "generated": "Gegenereerde afbeelding {{index}}",
+            "thumbnail": "Miniatuur {{index}}"
+        }
+    },
+    "group": {
+        "status": {
+            "failed": "Generatie mislukt"
+        },
+        "error": {
+            "generic": "Er ging iets mis, je credits zijn terugbetaald",
+            "timeout": "Het maken duurde langer dan verwacht, je credits zijn terugbetaald",
+            "serverBusy": "Onze servers waren tijdelijk bezet, je credits zijn terugbetaald",
+            "memory": "Servercapaciteit overschreden, je credits zijn terugbetaald",
+            "connection": "Tijdelijk verbindingsprobleem, je credits zijn terugbetaald",
+            "imageGeneration": "Het maken kon niet worden voltooid, je credits zijn terugbetaald"
+        },
+        "confirmDelete": {
+            "title": "Shoot verwijderen?",
+            "description": "Dit verwijdert de shoot uit je galerij. Dit kan niet ongedaan worden gemaakt.",
+            "confirm": "Verwijderen"
+        },
+        "deleteFailedTitle": "Verwijderen mislukt",
+        "rerun": {
+            "cannot": "Kan niet opnieuw uitvoeren",
+            "missingInfo": "Vereiste job informatie ontbreekt.",
+            "failed": "Opnieuw uitvoeren mislukt"
+        },
+        "header": {
+            "shootTitle": "SHOOT #{{number}}"
+        },
+        "tooltips": {
+            "deleteShoot": "Shoot verwijderen",
+            "rerunShoot": "Shoot opnieuw uitvoeren"
+        },
+        "aria": {
+            "thumbnailsPreview": "Miniaturen voorvertoning",
+            "viewAllImages": "Alle afbeeldingen bekijken"
+        },
+        "alt": {
+            "preview": "Voorvertoning {{index}}"
+        },
+        "buttons": {
+            "viewAll": "Alles bekijken"
+        }
+    },
+    "thumbnail": {
+        "alt": {
+            "generatingPreview": "Voorvertoning genereren {{index}}",
+            "generated": "Gegenereerde afbeelding {{index}}"
+        },
+        "favourite": {
+            "add": "Toevoegen aan favorieten",
+            "remove": "Verwijderen uit favorieten"
+        },
+        "loadingTitle": "Laden…",
+        "loadingDesc": "Afbeelding details laden nog. Probeer over een moment opnieuw.",
+        "actions": {
+            "delete": {
+                "label": "Verwijderen",
+                "aria": "Afbeelding verwijderen"
+            },
+            "download": {
+                "label": "Downloaden",
+                "aria": "Afbeelding downloaden"
+            }
+        },
+        "confirmDelete": {
+            "title": "Afbeelding verwijderen?",
+            "description": "Dit verwijdert de afbeelding uit je galerij. Dit kan niet ongedaan worden gemaakt.",
+            "confirm": "Verwijderen"
+        }
     }
-  },
-  "viewer": {
-    "confirmDelete": {
-      "title": "Afbeelding verwijderen?",
-      "description": "Dit verwijdert de afbeelding permanent en kan niet ongedaan worden gemaakt.",
-      "confirm": "Verwijderen",
-      "cancel": "Annuleren"
-    },
-    "closeAria": "Viewer sluiten",
-    "carousel": {
-      "aria": "Carrousel navigatie",
-      "prevAria": "Vorige afbeelding",
-      "nextAria": "Volgende afbeelding"
-    },
-    "overlay": {
-      "displayOriginal": "Origineel tonen",
-      "displayOriginalAria": "Originele afbeelding tonen",
-      "originalUnavailableTitle": "Origineel niet beschikbaar",
-      "originalUnavailableDesc": "Kon originele afbeelding variant niet laden."
-    },
-    "viewOriginal": {
-      "label": "Schakel naar origineel",
-      "viewing": "Origineel wordt getoond",
-      "aria": "Schakel naar originele afbeelding in volledige kwaliteit",
-      "viewingAria": "Originele afbeelding in volledige kwaliteit wordt getoond"
-    },
-    "title": "Shoot {{shootNumber}}",
-    "imageIndex": "IMG {{index}}",
-    "favourite": {
-      "ariaButton": "Favoriet",
-      "add": "Toevoegen aan favorieten",
-      "remove": "Verwijderen uit favorieten",
-      "updateErrorTitle": "Favoriet bijwerken mislukt"
-    },
-    "metadata": {
-      "labels": {
-        "aspectRatio": "Beeldverhouding",
-        "quality": "Kwaliteit",
-        "model": "Model",
-        "character": "Karakter"
-      },
-      "aspectLabels": {
-        "square": "Vierkant",
-        "landscape": "Liggend",
-        "portrait": "Staand"
-      }
-    },
-    "actions": {
-      "delete": {
-        "label": "Verwijderen",
-        "aria": "Afbeelding verwijderen"
-      },
-      "download": {
-        "label": "Downloaden",
-        "aria": "Afbeelding downloaden"
-      }
-    },
-    "alt": {
-      "generated": "Gegenereerde afbeelding {{index}}",
-      "thumbnail": "Miniatuur {{index}}"
-    }
-  },
-  "group": {
-    "status": {
-      "failed": "Generatie mislukt"
-    },
-    "error": {
-      "generic": "Er ging iets mis, je credits zijn terugbetaald",
-      "timeout": "Het maken duurde langer dan verwacht, je credits zijn terugbetaald",
-      "serverBusy": "Onze servers waren tijdelijk bezet, je credits zijn terugbetaald",
-      "memory": "Servercapaciteit overschreden, je credits zijn terugbetaald",
-      "connection": "Tijdelijk verbindingsprobleem, je credits zijn terugbetaald",
-      "imageGeneration": "Het maken kon niet worden voltooid, je credits zijn terugbetaald"
-    },
-    "confirmDelete": {
-      "title": "Shoot verwijderen?",
-      "description": "Dit verwijdert de shoot uit je galerij. Dit kan niet ongedaan worden gemaakt.",
-      "confirm": "Verwijderen"
-    },
-    "deleteFailedTitle": "Verwijderen mislukt",
-    "rerun": {
-      "cannot": "Kan niet opnieuw uitvoeren",
-      "missingInfo": "Vereiste job informatie ontbreekt.",
-      "failed": "Opnieuw uitvoeren mislukt"
-    },
-    "header": {
-      "shootTitle": "SHOOT #{{number}}"
-    },
-    "tooltips": {
-      "deleteShoot": "Shoot verwijderen",
-      "rerunShoot": "Shoot opnieuw uitvoeren"
-    },
-    "aria": {
-      "thumbnailsPreview": "Miniaturen voorvertoning",
-      "viewAllImages": "Alle afbeeldingen bekijken"
-    },
-    "alt": {
-      "preview": "Voorvertoning {{index}}"
-    },
-    "buttons": {
-      "viewAll": "Alles bekijken"
-    }
-  },
-  "thumbnail": {
-    "alt": {
-      "generatingPreview": "Voorvertoning genereren {{index}}",
-      "generated": "Gegenereerde afbeelding {{index}}"
-    },
-    "favourite": {
-      "add": "Toevoegen aan favorieten",
-      "remove": "Verwijderen uit favorieten"
-    },
-    "loadingTitle": "Laden…",
-    "loadingDesc": "Afbeelding details laden nog. Probeer over een moment opnieuw.",
-    "actions": {
-      "delete": {
-        "label": "Verwijderen",
-        "aria": "Afbeelding verwijderen"
-      },
-      "download": {
-        "label": "Downloaden",
-        "aria": "Afbeelding downloaden"
-      }
-    },
-    "confirmDelete": {
-      "title": "Afbeelding verwijderen?",
-      "description": "Dit verwijdert de afbeelding uit je galerij. Dit kan niet ongedaan worden gemaakt.",
-      "confirm": "Verwijderen"
-    }
-  }
 }
