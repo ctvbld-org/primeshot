@@ -13,6 +13,7 @@
     "dev": "concurrently -k \"npm:watch\" \"npm:watch:assets\""
   },
   "dependencies": {
+    "@radix-ui/react-visually-hidden": "^1.2.3",
     "archiver": "^6.0.2",
     "dotenv": "^17.0.1",
     "embla-carousel-react": "^8.6.0",

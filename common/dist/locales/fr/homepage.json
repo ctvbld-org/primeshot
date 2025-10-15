@@ -1,29 +1,29 @@
 {
-  "hero": {
-    "headline": "des portraits qui ouvrent les portes",
-    "tagline": "Les portraits <ai>IA</ai> les plus avancés. <period>Point final.</period>",
-    "subtitle": "Faites bonne impression dès le premier regard. Transformez vos selfies du quotidien en portraits remarquables, personnalisés et prêts en quelques minutes."
-  },
-  "story": {
-    "paragraph1": "Nous avons oublié l'art de nous montrer sous notre meilleur jour. Nous prenons un selfie, ajustons l'angle, et espérons que cela suffira à marquer les esprits. Dans un monde qui défile vite et juge encore plus vite, vous avez besoin d'une photo qui parle—clairement, avec assurance et détermination.",
-    "paragraph2": "Primeshot transforme vos photos du quotidien en portraits haut de gamme, débordants de style et de personnalité. Fini les poses figées. Fini les séances photo gênantes. Juste des portraits authentiques et saisissants, livrés en quelques minutes.",
-    "callToAction": "Brillez tel que vous êtes—avec une ambition audacieuse."
-  },
-  "aria": {
-    "photoMetadata": "Visualisation des métadonnées photo"
-  },
-  "waitlist": {
-    "placeholder": "Entrez votre email pour un accès anticipé",
-    "ariaLabel": "Adresse email pour la liste d'attente",
-    "submitLabel": "Envoyer l'email",
-    "submittingLabel": "Envoi en cours...",
-    "validation": {
-      "invalidEmail": "Veuillez entrer une adresse email valide"
+    "hero": {
+        "headline": "des portraits qui ouvrent les portes",
+        "tagline": "Les portraits <ai>IA</ai> les plus avancés. <period>Point final.</period>",
+        "subtitle": "Faites bonne impression dès le premier regard. Transformez vos selfies du quotidien en portraits remarquables, personnalisés et prêts en quelques minutes."
     },
-    "messages": {
-      "alreadyOnWaitlist": "Vous êtes déjà sur la liste d'attente !",
-      "success": "Merci ! Vous recevrez un email pour votre accès anticipé.",
-      "defaultError": "Une erreur s'est produite"
+    "story": {
+        "paragraph1": "Nous avons oublié l'art de nous montrer sous notre meilleur jour. Nous prenons un selfie, ajustons l'angle, et espérons que cela suffira à marquer les esprits. Dans un monde qui défile vite et juge encore plus vite, vous avez besoin d'une photo qui parle—clairement, avec assurance et détermination.",
+        "paragraph2": "Primeshot transforme vos photos du quotidien en portraits haut de gamme, débordants de style et de personnalité. Fini les poses figées. Fini les séances photo gênantes. Juste des portraits authentiques et saisissants, livrés en quelques minutes.",
+        "callToAction": "Brillez tel que vous êtes—avec une ambition audacieuse."
+    },
+    "aria": {
+        "photoMetadata": "Visualisation des métadonnées photo"
+    },
+    "waitlist": {
+        "placeholder": "Entrez votre email pour un accès anticipé",
+        "ariaLabel": "Adresse email pour la liste d'attente",
+        "submitLabel": "Envoyer l'email",
+        "submittingLabel": "Envoi en cours...",
+        "validation": {
+            "invalidEmail": "Veuillez entrer une adresse email valide"
+        },
+        "messages": {
+            "alreadyOnWaitlist": "Vous êtes déjà sur la liste d'attente !",
+            "success": "Merci ! Vous recevrez un email pour votre accès anticipé.",
+            "defaultError": "Une erreur s'est produite"
+        }
     }
-  }
 }

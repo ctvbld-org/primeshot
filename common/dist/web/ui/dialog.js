@@ -2,6 +2,7 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
+import * as VisuallyHiddenPrimitive from "@radix-ui/react-visually-hidden";
 import styles from "./dialog.module.css";
 import { Icon } from "../Icon";
 import { useTranslation } from "react-i18next";
@@ -38,4 +39,5 @@ function DialogTitle({ className, ...props }) {
 function DialogDescription({ className, ...props }) {
     return (_jsx(DialogPrimitive.Description, { "data-slot": "dialog-description", className: `${styles.description} ${className || ''}`, ...props }));
 }
-export { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogOverlay, DialogPortal, DialogTitle, DialogBody, DialogTrigger, };
+const VisuallyHidden = VisuallyHiddenPrimitive.Root;
+export { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogOverlay, DialogPortal, DialogTitle, DialogBody, DialogTrigger, VisuallyHidden, };

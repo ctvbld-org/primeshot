@@ -1,65 +1,65 @@
 {
-  "dialog": {
-    "title": "Account",
-    "selectSection": "Sectie selecteren"
-  },
-  "navigation": {
-    "profile": "Profiel",
-    "subscription": "Abonnement",
-    "settings": "Instellingen",
-    "support": "Ondersteuning"
-  },
-  "buttons": {
-    "cancel": "Annuleren",
-    "save": "Opslaan",
-    "saving": "Opslaan…",
-    "signOut": "Uitloggen",
-    "subscribe": "Abonneren",
-    "opening": "Openen…",
-    "manage": "Beheren",
-    "renew": "Verlengen",
-    "buyCredits": "Credits kopen",
-    "deleteAccount": "Account verwijderen (binnenkort)"
-  },
-  "profile": {
-    "title": "Profiel",
-    "firstName": "Voornaam",
-    "lastName": "Achternaam",
-    "email": "E-mail"
-  },
-  "subscription": {
-    "title": "Abonnement",
-    "loading": "Laden...",
-    "noPlan": "Geen abonnement",
-    "planSuffix": "-abonnement",
-    "cancelled": "Geannuleerd",
-    "expires": "Verloopt op {{date}}",
-    "renews": "Verlengt op {{date}}",
-    "creditBalance": "Creditsaldo",
-    "resets": "Reset op {{date}}"
-  },
-  "settings": {
-    "title": "Instellingen",
-    "language": "Taal",
-    "deleteAccount": {
-      "title": "Account verwijderen?",
-      "description": "Dit wist al je gegevens, instellingen en geschiedenis. Deze actie kan niet ongedaan worden gemaakt."
+    "dialog": {
+        "title": "Account",
+        "selectSection": "Sectie selecteren"
+    },
+    "navigation": {
+        "profile": "Profiel",
+        "subscription": "Abonnement",
+        "settings": "Instellingen",
+        "support": "Ondersteuning"
+    },
+    "buttons": {
+        "cancel": "Annuleren",
+        "save": "Opslaan",
+        "saving": "Opslaan…",
+        "signOut": "Uitloggen",
+        "subscribe": "Abonneren",
+        "opening": "Openen…",
+        "manage": "Beheren",
+        "renew": "Verlengen",
+        "buyCredits": "Credits kopen",
+        "deleteAccount": "Account verwijderen (binnenkort)"
+    },
+    "profile": {
+        "title": "Profiel",
+        "firstName": "Voornaam",
+        "lastName": "Achternaam",
+        "email": "E-mail"
+    },
+    "subscription": {
+        "title": "Abonnement",
+        "loading": "Laden...",
+        "noPlan": "Geen abonnement",
+        "planSuffix": "-abonnement",
+        "cancelled": "Geannuleerd",
+        "expires": "Verloopt op {{date}}",
+        "renews": "Verlengt op {{date}}",
+        "creditBalance": "Creditsaldo",
+        "resets": "Reset op {{date}}"
+    },
+    "settings": {
+        "title": "Instellingen",
+        "language": "Taal",
+        "deleteAccount": {
+            "title": "Account verwijderen?",
+            "description": "Dit wist al je gegevens, instellingen en geschiedenis. Deze actie kan niet ongedaan worden gemaakt."
+        }
+    },
+    "support": {
+        "title": "We zijn er om te helpen",
+        "description": "Heb je vragen of hulp nodig? We staan klaar om je bij elke stap te ondersteunen. We reageren meestal binnen 24 uur.",
+        "faq": "Veelgestelde vragen",
+        "faqDescription": "Bekijk ons {{helpCenter}} voor snelle antwoorden op veelgestelde vragen.",
+        "helpCenter": "Helpcentrum",
+        "dmUs": "STUUR ONS BERICHT",
+        "emailUs": "Stuur ons een e-mail"
+    },
+    "errors": {
+        "failedToSave": "Wijzigingen opslaan mislukt"
+    },
+    "accessibility": {
+        "avatar": "avatar",
+        "plan": "abonnement"
     }
-  },
-  "support": {
-    "title": "We zijn er om te helpen",
-    "description": "Heb je vragen of hulp nodig? We staan klaar om je bij elke stap te ondersteunen. We reageren meestal binnen 24 uur.",
-    "faq": "Veelgestelde vragen",
-    "faqDescription": "Bekijk ons {{helpCenter}} voor snelle antwoorden op veelgestelde vragen.",
-    "helpCenter": "Helpcentrum",
-    "dmUs": "STUUR ONS BERICHT",
-    "emailUs": "Stuur ons een e-mail"
-  },
-  "errors": {
-    "failedToSave": "Wijzigingen opslaan mislukt"
-  },
-  "accessibility": {
-    "avatar": "avatar",
-    "plan": "abonnement"
-  }
 }

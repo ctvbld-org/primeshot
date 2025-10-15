@@ -39,6 +39,11 @@ export async function detectFaces(
   };
   
   try {
+    // Ensure image is valid before detection
+    if (!img.complete || !img.naturalWidth || !img.naturalHeight) {
+      throw new Error('Image not fully loaded');
+    }
+    
     // Run face detection and landmarking
     const detection = faceLandmarker.detect(img);
     

@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { useDialogService } from '@/contexts/DialogServiceContext'
-import { Dialog, DialogContent, DialogBody, DialogFooter, DialogTitle, DialogDescription } from '@primeshot/common/web/ui/dialog'
+import { Dialog, DialogContent, DialogBody, DialogFooter, DialogTitle, DialogDescription, VisuallyHidden } from '@primeshot/common/web/ui/dialog'
 import { Button, buttonVariants } from '@primeshot/common/web/ui/button'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { useTranslation } from 'react-i18next'
@@ -639,13 +639,17 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
     <Dialog open onOpenChange={handleOpenChange}>
       <DialogContent fullscreen className={styles.dialogContent}>
         {/* Hidden DialogTitle for accessibility */}
-        <DialogTitle className={styles.srOnly}>{getDialogTitle()}</DialogTitle>
-        <DialogDescription className={styles.srOnly}>
-          {currentStep === 'upload' ? t('character:dialogDescription.upload') : 
-           currentStep === 'name' ? t('character:dialogDescription.name') : 
-           currentStep === 'training' ? t('character:dialogDescription.training') : 
-           t('character:dialogDescription.default')}
-        </DialogDescription>
+        <VisuallyHidden>
+          <DialogTitle>{getDialogTitle()}</DialogTitle>
+        </VisuallyHidden>
+        <VisuallyHidden>
+          <DialogDescription>
+            {currentStep === 'upload' ? t('character:dialogDescription.upload') : 
+             currentStep === 'name' ? t('character:dialogDescription.name') : 
+             currentStep === 'training' ? t('character:dialogDescription.training') : 
+             t('character:dialogDescription.default')}
+          </DialogDescription>
+        </VisuallyHidden>
         <div className={styles.header}>
           <div className={styles.headerLeft}>
             {canGoBack && (
