@@ -171,6 +171,7 @@
         "sunglasses.critical": "サングラスが検出されました - サングラスを外してください。",
         "eyesClosed": "目が閉じているか、見えません。",
         "tooSmall": "フレーム内で顔が小さすぎます。",
+      "tooSmallToDetect": "顔が小さすぎて検出が困難です。",
         "tooLarge": "顔が大きすぎる/近すぎます。",
         "sizeNotOptimal": "顔のサイズが最適ではありません。"
       },

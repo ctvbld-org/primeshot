@@ -1,222 +1,235 @@
 {
-    "nameLabel": "Character Name",
-    "creditsRequired": "Training will use {{credits}} credits",
-    "training": "Training Character",
-    "trainingInitializing": "Your character is packing up",
-    "trainingInitializingInfo": "Your character is being moved to the training station.",
-    "trainingQueued": "Your character is queuing",
-    "trainingQueuedInfo": "Waiting for another character to free some space.",
-    "trainingWarmingUp": "Your character is warming up",
-    "trainingWarmingUpInfo": "Waiting for the green light to start training.",
-    "trainingPending": "Your character is waiting for a machine",
-    "trainingPendingInfo": "Machines are busy during pick time, will start as soon as one becomes available. Position {{position}} in queue.",
-    "trainingRunning": "Training finishes in about ",
-    "trainingRunningNoCountdown": "Your character is training and will be ready in a few minutes.",
-    "trainingRunningInfo": "You can return to app to continue queuing shoots.",
-    "returnToApp": "Return to app",
-    "trainingError": "Error:",
-    "trainingFailed": "There was an issue training your character",
-    "trainingFailedDescription": "It was either too hard or your character was too pretty for the model. Please try again or contact support if the problem persists.",
-    "confirmClose": {
-        "title": "Close Character Creation?",
-        "description": "Are you sure? All your progress will be lost and you'll need to start over.",
-        "progressMessages": {
-            "upload": "Your uploaded photos will be lost.",
-            "profile": "Your profile information will be lost.",
-            "name": "Your character name will be lost."
-        },
-        "buttons": {
-            "cancel": "Cancel",
-            "confirm": "Close Anyway"
-        }
+  "nameLabel": "Character Name",
+  "creditsRequired": "Training will use {{credits}} credits",
+  "training": "Training Character",
+  "trainingInitializing": "Your character is packing up",
+  "trainingInitializingInfo": "Your character is being moved to the training station.",
+  "trainingQueued": "Your character is queuing",
+  "trainingQueuedInfo": "Waiting for another character to free some space.",
+  "trainingWarmingUp": "Your character is warming up",
+  "trainingWarmingUpInfo": "Waiting for the green light to start training.",
+  "trainingPending": "Your character is waiting for a machine",
+  "trainingPendingInfo": "Machines are busy during pick time, will start as soon as one becomes available. Position {{position}} in queue.",
+  "trainingRunning": "Training finishes in about ",
+  "trainingRunningNoCountdown": "Your character is training and will be ready in a few minutes.",
+  "trainingRunningInfo": "You can return to app to continue queuing shoots.",
+  "returnToApp": "Return to app",
+  "trainingError": "Error:",
+  "trainingFailed": "There was an issue training your character",
+  "trainingFailedDescription": "It was either too hard or your character was too pretty for the model. Please try again or contact support if the problem persists.",
+
+  "confirmClose": {
+    "title": "Close Character Creation?",
+    "description": "Are you sure? All your progress will be lost and you'll need to start over.",
+    "progressMessages": {
+      "upload": "Your uploaded photos will be lost.",
+      "profile": "Your profile information will be lost.",
+      "name": "Your character name will be lost."
     },
-    "errors": {
-        "trainingRetryFailed": "Training failed after {{attempts}} attempts. Please try again later.",
-        "retryError": "Error: {{message}}"
-    },
-    "upload": {
-        "uploadingFiles": "Loading your best looks {{current}} of {{total}}",
-        "uploadingInfo": "Please keep this page open until upload completes."
-    },
-    "dialogTitles": {
-        "onboardingIntro": "Character Creation Guide",
-        "onboardingGuidelines": "Photography Tips",
-        "onboardingConfirmation": "Ready to Upload",
-        "upload": "Upload Photos",
-        "name": "Name Your Character",
-        "uploading": "Uploading Photos",
-        "training": "Training Model"
-    },
-    "dialogDescription": {
-        "upload": "Upload photos to create your character",
-        "name": "Name your character",
-        "training": "Character training in progress",
-        "default": "Character creation dialog"
-    },
-    "beforeUnloadWarning": "Your character is currently being processed. Are you sure you want to leave? This will cancel the upload.",
-    "onboarding": {
-        "intro": {
-            "title": "Meet your Character",
-            "description1": "Upload the best photos of yourself with varied <span style='color: #FF81F5;'>expressions</span>, <span style='color: #70FFA7;'>angles</span>, and <span style='color: #FFCF55;'>poses</span> to shape your unique AI twin!",
-            "description2": "Like a real photoshoot, a little prep delivers authentic, pro-level results.",
-            "privacy": "Your uploads are private and secure.",
-            "buttonGetStarted": "Get started",
-            "buttonSkip": "Skip"
-        },
-        "confirmation": {
-            "title": "Like a real photo shoot, <span style='color: #2ADED8;'>a little prep</span> goes a long way.",
-            "paragraph1": "Primeshot creates high quality portraits from your everyday photos. Clear, well lit, and varied photos make your generated shoots more natural and impressive. Low quality or blurry photos can limit results.",
-            "paragraph2": "If results are not what you expected, try a new set of photos in a fresh Character.",
-            "buttonStart": "I understand. Let's start!"
-        },
-        "guidelines": {
-            "naturalLight": {
-                "title": "Natural Light",
-                "description": "Use well-lit photos by a window or outside! Avoid dark or blurry for sharp results.",
-                "goodAlt": "Good natural light example",
-                "badAlt": "Poor lighting example"
-            },
-            "angles": {
-                "title": "Angles",
-                "description": "Mix it up with angles! Pick shoulder-ups, front and side, add a few waist-ups.",
-                "goodAlt": "Good angle example",
-                "badAlt": "Poor angle example"
-            },
-            "expressions": {
-                "title": "Expressions",
-                "description": "Express your vibe with varied smiles, poses. Skip same-face for dynamic shots.",
-                "goodAlt": "Good expression example",
-                "badAlt": "Poor expression example"
-            },
-            "variety": {
-                "title": "Variety",
-                "description": "Pick shots with a mix of clothing and backgrounds. Skip heavy filters.",
-                "goodAlt": "Good variety example",
-                "badAlt": "Poor variety example"
-            }
-        },
-        "buttons": {
-            "next": "Next"
-        },
-        "floatingAlt": "Floating example {{id}}"
-    },
-    "uploadStep": {
-        "petMode": "Pet mode",
-        "bodyShotRequirementsNotMet": "Body shot requirements not met"
-    },
-    "nameStep": {
-        "noPreview": "No preview",
-        "create": "Create",
-        "altPreview": "Face Model Preview"
-    },
-    "countdown": {
-        "fallback": "Calculating..."
-    },
-    "requirements": {
-        "header": {
-            "title": "Create a Character",
-            "description": "Upload {{minImages}} high-quality photos of yourself to train a reusable Character that captures your true likeness in every shoot.",
-            "secureNote": "Uploads are private and secure."
-        },
-        "sections": {
-            "uploadTips": "Upload tips",
-            "dosDonts": "Do's and don'ts"
-        },
-        "tips": {
-            "blurredBackground": "Use blurred backgrounds for clear subject separation.",
-            "naturalLight": "Stand near a window or go outside for natural light!",
-            "photos": "Include both close-up and waist-up photos.",
-            "expression": "Keep your expression neutral or naturally friendly.",
-            "avoid": "Skip filters, hats, heavy makeup, or AI-generated images.",
-            "clothing": "Wear simple clothing in solid colors or subtle patterns.",
-            "quantity": "Upload {{minImages}}+ photos with different angles and lighting."
-        },
-        "dodonts": {
-            "eyes": "Look at the camera with your eyes clearly visible.",
-            "lighting": "Use bright, natural lighting. Skip dark or blurry photos.",
-            "frame": "Make sure you're alone in the frame—no clutter or other people.",
-            "face": "Frame your face so it's not too small or cut off."
-        },
-        "altText": {
-            "goodExample": "Good example",
-            "badExample": "Bad example"
-        }
-    },
-    "quality": {
-        "issues": {
-            "image": {
-                "lowResolution": "Low resolution image. Minimum size is {{minWidth}}x{{minHeight}}px.",
-                "suboptimalResolution": "Image resolution is {{currentWidth}}x{{currentHeight}}px. For best results, use at least {{idealWidth}}x{{idealHeight}}px.",
-                "suboptimalResolutionLow": "Image resolution is {{currentWidth}}x{{currentHeight}}px (below 800px). Consider using at least 800x800px for better quality.",
-                "tooDark": "Image is too dark.",
-                "tooBright": "Image is too bright."
-            },
-            "face": {
-                "none": "No face detected.",
-                "multiple": "Multiple faces detected.",
-                "lowScore": "Face detection score could be improved.",
-                "positionNotOptimal": "Face position is not optimal.",
-                "detectSkipped": "Face detection was skipped.",
-                "angleExtreme": "Face angle is too extreme (pitch: {{pitch}}°, yaw: {{yaw}}°, roll: {{roll}}°)",
-                "sunglasses": "Eyes are obscured by sunglasses or dark glasses.",
-                "sunglasses.critical": "Sunglasses detected - please remove sunglasses.",
-                "eyesClosed": "Eyes appear to be closed or not visible.",
-                "tooSmall": "Face is too small in the frame.",
-                "tooLarge": "Face is too large/close.",
-                "sizeNotOptimal": "Face size is not optimal."
-            },
-            "contrast": {
-                "separation": {
-                    "nearlyIdentical": "Subject and background are nearly identical in tone - use a strongly contrasting background.",
-                    "tooSimilar": "Subject and background are too similar in tone - consider using a contrasting background.",
-                    "couldBeMoreDistinct": "Subject and background could be more distinct - try a different background color."
-                },
-                "poorOrFlat": "Image has poor contrast or appears too flat.",
-                "suboptimal": "Contrast could be improved."
-            },
-            "sharpness": {
-                "tooBlurry": "Image appears to be blurry or lacks sufficient detail.",
-                "pixelated": "Image appears pixelated or has compression artifacts.",
-                "suboptimal": "Image sharpness could be improved."
-            },
-            "background": {
-                "notBlurred": "Background is not blurred. Please use portrait mode or a blurred background."
-            },
-            "brightness": {
-                "suboptimal": "Brightness could be improved."
-            },
-            "resolution": {
-                "low": "Image resolution could be higher."
-            },
-            "upload": {
-                "none": "No images uploaded"
-            },
-            "body": {
-                "minRequired": "Need at least {{min}} body shots (currently have {{current}})",
-                "tooMany": "Too many body shots ({{currentPercent}}%). Maximum {{maxPercent}}% allowed"
-            },
-            "score": {
-                "tooLow": "Image quality score is too low"
-            },
-            "eyes": {
-                "maybeNotVisible": "Eyes may not be clearly visible (check for sunglasses, hair, or poor lighting)"
-            },
-            "reject": {
-                "genericHint": "This photo didn't meet the quality requirements. Try a front-facing, well-lit photo."
-            }
-        }
-    },
-    "uploader": {
-        "dragDropMessage": "Drag and drop {{count}} selfies here, or",
-        "dragDropMoreMessage_one": "Drag and drop 1 more here, or",
-        "dragDropMoreMessage_other": "Drag and drop {{count}} more here, or",
-        "browse": "browse",
-        "supportedFormats": "Supports JPG and PNG files",
-        "dropMessage": "Drop your photos here",
-        "maxImagesReached": "All photos added, you're all set!"
-    },
-    "status": {
-        "analyzing": "Analyzing {{count}} photos...",
-        "checkingQuality": "Checking photo quality..."
+    "buttons": {
+      "cancel": "Cancel",
+      "confirm": "Close Anyway"
     }
+  },
+
+  "errors": {
+    "trainingRetryFailed": "Training failed after {{attempts}} attempts. Please try again later.",
+    "retryError": "Error: {{message}}"
+  },
+
+  "upload": {
+    "uploadingFiles": "Loading your best looks {{current}} of {{total}}",
+    "uploadingInfo": "Please keep this page open until upload completes."
+  },
+
+  "dialogTitles": {
+    "onboardingIntro": "Character Creation Guide",
+    "onboardingGuidelines": "Photography Tips",
+    "onboardingConfirmation": "Ready to Upload",
+    "upload": "Upload Photos",
+    "name": "Name Your Character",
+    "uploading": "Uploading Photos",
+    "training": "Training Model"
+  },
+  "dialogDescription": {
+    "upload": "Upload photos to create your character",
+    "name": "Name your character",
+    "training": "Character training in progress",
+    "default": "Character creation dialog"
+  },
+  "beforeUnloadWarning": "Your character is currently being processed. Are you sure you want to leave? This will cancel the upload.",
+
+  "onboarding": {
+    "intro": {
+      "title": "Meet your Character",
+      "description1": "Upload the best photos of yourself with varied <span style='color: #FF81F5;'>expressions</span>, <span style='color: #70FFA7;'>angles</span>, and <span style='color: #FFCF55;'>poses</span> to shape your unique AI twin!",
+      "description2": "Like a real photoshoot, a little prep delivers authentic, pro-level results.",
+      "privacy": "Your uploads are private and secure.",
+      "buttonGetStarted": "Get started",
+      "buttonSkip": "Skip"
+    },
+    "confirmation": {
+      "title": "Like a real photo shoot, <span style='color: #2ADED8;'>a little prep</span> goes a long way.",
+      "paragraph1": "Primeshot creates high quality portraits from your everyday photos. Clear, well lit, and varied photos make your generated shoots more natural and impressive. Low quality or blurry photos can limit results.",
+      "paragraph2": "If results are not what you expected, try a new set of photos in a fresh Character.",
+      "buttonStart": "I understand. Let's start!"
+    },
+    "guidelines": {
+      "naturalLight": {
+        "title": "Natural Light",
+        "description": "Use well-lit photos by a window or outside! Avoid dark or blurry for sharp results.",
+        "goodAlt": "Good natural light example",
+        "badAlt": "Poor lighting example"
+      },
+      "angles": {
+        "title": "Angles",
+        "description": "Mix it up with angles! Pick shoulder-ups, front and side, add a few waist-ups.",
+        "goodAlt": "Good angle example",
+        "badAlt": "Poor angle example"
+      },
+      "expressions": {
+        "title": "Expressions",
+        "description": "Express your vibe with varied smiles, poses. Skip same-face for dynamic shots.",
+        "goodAlt": "Good expression example",
+        "badAlt": "Poor expression example"
+      },
+      "variety": {
+        "title": "Variety",
+        "description": "Pick shots with a mix of clothing and backgrounds. Skip heavy filters.",
+        "goodAlt": "Good variety example",
+        "badAlt": "Poor variety example"
+      }
+    },
+    "buttons": {
+      "next": "Next"
+    },
+    "floatingAlt": "Floating example {{id}}"
+  },
+
+  "uploadStep": {
+    "petMode": "Pet mode",
+    "bodyShotRequirementsNotMet": "Body shot requirements not met"
+  },
+
+  "nameStep": {
+    "noPreview": "No preview",
+    "create": "Create",
+    "altPreview": "Face Model Preview"
+  },
+
+  "countdown": {
+    "fallback": "Calculating..."
+  },
+
+  "requirements": {
+    "header": {
+      "title": "Create a Character",
+      "description": "Upload {{minImages}} high-quality photos of yourself to train a reusable Character that captures your true likeness in every shoot.",
+      "secureNote": "Uploads are private and secure."
+    },
+    "sections": {
+      "uploadTips": "Upload tips",
+      "dosDonts": "Do's and don'ts"
+    },
+    "tips": {
+      "blurredBackground": "Use blurred backgrounds for clear subject separation.",
+      "naturalLight": "Stand near a window or go outside for natural light!",
+      "photos": "Include both close-up and waist-up photos.",
+      "expression": "Keep your expression neutral or naturally friendly.",
+      "avoid": "Skip filters, hats, heavy makeup, or AI-generated images.",
+      "clothing": "Wear simple clothing in solid colors or subtle patterns.",
+      "quantity": "Upload {{minImages}}+ photos with different angles and lighting."
+    },
+    "dodonts": {
+      "eyes": "Look at the camera with your eyes clearly visible.",
+      "lighting": "Use bright, natural lighting. Skip dark or blurry photos.",
+      "frame": "Make sure you're alone in the frame—no clutter or other people.",
+      "face": "Frame your face so it's not too small or cut off."
+    },
+    "altText": {
+      "goodExample": "Good example",
+      "badExample": "Bad example"
+    }
+  },
+
+  "quality": {
+    "issues": {
+      "image": {
+        "lowResolution": "Low resolution image. Minimum size is {{minWidth}}x{{minHeight}}px.",
+        "suboptimalResolution": "Image resolution is {{currentWidth}}x{{currentHeight}}px. For best results, use at least {{idealWidth}}x{{idealHeight}}px.",
+        "suboptimalResolutionLow": "Image resolution is {{currentWidth}}x{{currentHeight}}px (below 800px). Consider using at least 800x800px for better quality.",
+        "tooDark": "Image is too dark.",
+        "tooBright": "Image is too bright."
+      },
+      "face": {
+        "none": "No face detected.",
+        "multiple": "Multiple faces detected.",
+        "lowScore": "Face detection score could be improved.",
+        "positionNotOptimal": "Face position is not optimal.",
+        "detectSkipped": "Face detection was skipped.",
+        "angleExtreme": "Face angle is too extreme (pitch: {{pitch}}°, yaw: {{yaw}}°, roll: {{roll}}°)",
+        "sunglasses": "Eyes are obscured by sunglasses or dark glasses.",
+        "sunglasses.critical": "Sunglasses detected - please remove sunglasses.",
+        "eyesClosed": "Eyes appear to be closed or not visible.",
+        "tooSmall": "Face is too small in the frame.",
+      "tooSmallToDetect": "Face is too small and hard to detect.",
+        "tooLarge": "Face is too large/close.",
+        "sizeNotOptimal": "Face size is not optimal."
+      },
+      "contrast": {
+        "separation": {
+          "nearlyIdentical": "Subject and background are nearly identical in tone - use a strongly contrasting background.",
+          "tooSimilar": "Subject and background are too similar in tone - consider using a contrasting background.",
+          "couldBeMoreDistinct": "Subject and background could be more distinct - try a different background color."
+        },
+        "poorOrFlat": "Image has poor contrast or appears too flat.",
+        "suboptimal": "Contrast could be improved."
+      },
+      "sharpness": {
+        "tooBlurry": "Image appears to be blurry or lacks sufficient detail.",
+        "pixelated": "Image appears pixelated or has compression artifacts.",
+        "suboptimal": "Image sharpness could be improved."
+      },
+      "background": {
+        "notBlurred": "Background is not blurred. Please use portrait mode or a blurred background."
+      },
+      "brightness": {
+        "suboptimal": "Brightness could be improved."
+      },
+      "resolution": {
+        "low": "Image resolution could be higher."
+      },
+      "upload": {
+        "none": "No images uploaded"
+      },
+      "body": {
+        "minRequired": "Need at least {{min}} body shots (currently have {{current}})",
+        "tooMany": "Too many body shots ({{currentPercent}}%). Maximum {{maxPercent}}% allowed"
+      },
+      "score": {
+        "tooLow": "Image quality score is too low"
+      },
+      "eyes": {
+        "maybeNotVisible": "Eyes may not be clearly visible (check for sunglasses, hair, or poor lighting)"
+      },
+      "reject": {
+        "genericHint": "This photo didn't meet the quality requirements. Try a front-facing, well-lit photo."
+      }
+    }
+  },
+
+  "uploader": {
+    "dragDropMessage": "Drag and drop {{count}} selfies here, or",
+    "dragDropMoreMessage_one": "Drag and drop 1 more here, or",
+    "dragDropMoreMessage_other": "Drag and drop {{count}} more here, or",
+    "browse": "browse",
+    "supportedFormats": "Supports JPG and PNG files",
+    "dropMessage": "Drop your photos here",
+    "maxImagesReached": "All photos added, you're all set!"
+  },
+
+  "status": {
+    "analyzing": "Analyzing {{count}} photos...",
+    "checkingQuality": "Checking photo quality..."
+  }
 }

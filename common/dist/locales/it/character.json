@@ -161,6 +161,7 @@
                 "sunglasses.critical": "Occhiali da sole rilevati - si prega di rimuovere gli occhiali da sole.",
                 "eyesClosed": "Gli occhi sembrano chiusi o non visibili.",
                 "tooSmall": "Il volto è troppo piccolo nell'inquadratura.",
+                "tooSmallToDetect": "Il volto è troppo piccolo e difficile da rilevare.",
                 "tooLarge": "Il volto è troppo grande/vicino.",
                 "sizeNotOptimal": "La dimensione del volto non è ottimale."
             },

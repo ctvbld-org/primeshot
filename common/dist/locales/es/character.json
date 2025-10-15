@@ -161,6 +161,7 @@
                 "sunglasses.critical": "Gafas de sol detectadas - por favor quítate las gafas de sol.",
                 "eyesClosed": "Los ojos parecen estar cerrados o no visibles.",
                 "tooSmall": "El rostro es demasiado pequeño en el encuadre.",
+                "tooSmallToDetect": "El rostro es demasiado pequeño y difícil de detectar.",
                 "tooLarge": "El rostro es demasiado grande/cerca.",
                 "sizeNotOptimal": "El tamaño del rostro no es óptimo."
             },

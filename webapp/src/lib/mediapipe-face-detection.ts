@@ -49,14 +49,41 @@ export async function detectFaces(
     
     const numFaces = detection.faceLandmarks?.length || 0;
     
+    // DEBUG: Log detection results
+    console.log(`[DEBUG] Image size: ${width}x${height}, Faces detected: ${numFaces}`);
+    if (detection.faceLandmarks && detection.faceLandmarks.length > 0) {
+      const landmarks = detection.faceLandmarks[0];
+      const xs = landmarks.map((l: any) => l.x * width);
+      const ys = landmarks.map((l: any) => l.y * height);
+      const faceWidth = Math.max(...xs) - Math.min(...xs);
+      const faceHeight = Math.max(...ys) - Math.min(...ys);
+      const faceArea = (faceWidth * faceHeight) / (width * height) * 100;
+      console.log(`[DEBUG] Face size: ${faceWidth.toFixed(0)}x${faceHeight.toFixed(0)} (${faceArea.toFixed(1)}% of image)`);
+    }
+    
     result.faceCount = numFaces;
     result.hasFace = numFaces > 0;
     result.hasSingleFace = numFaces === 1;
     
     if (numFaces === 0) {
       result.faceScore = 0.1;
-      result.issues.push('No face detected.');
-      result.i18nIssues.push({ key: 'quality.issues.face.none' });
+      
+      // Check if this looks like a body shot (tall vertical image)
+      // If so, use more appropriate message
+      const aspectRatio = height / width;
+      const isLikelyBodyShot = aspectRatio > 1.3 && height >= 1500;
+      
+      if (isLikelyBodyShot) {
+        // Body shot with face too small to detect
+        result.hasBody = true;
+        result.bodyScore = 0.7;
+        result.faceScore = 0.5;
+        result.i18nIssues.push({ key: 'quality.issues.face.tooSmallToDetect' });
+      } else {
+        // Portrait with no face detected
+        result.i18nIssues.push({ key: 'quality.issues.face.none' });
+      }
+      
       return result;
     }
     
@@ -154,26 +181,58 @@ export async function detectFaces(
     const imageArea = width * height;
     const faceRelativeSize = faceArea / imageArea;
     
-    // Ideal face size is 20-60% of image
+    // FIRST: Detect if this is a body shot (before applying size thresholds)
+    const faceBottomY = faceBox.y + faceBox.height;
+    const spaceBelow = (height - faceBottomY) / height;
+    
+    // Body shot indicators:
+    // 1. Small face (< 10% of image)
+    // 2. Significant space below face (> 50%)
+    // 3. Face in upper portion of image (< 35%)
+    const isBodyShot = faceRelativeSize < 0.10 && 
+                      spaceBelow > 0.50 && 
+                      faceBox.y < height * 0.35;
+    
+    result.hasBody = isBodyShot;
+    result.bodyScore = isBodyShot ? 1 : 0;
+    
+    // NOW: Apply different face size thresholds based on shot type
     let sizeScore = 1.0;
-    if (faceRelativeSize < 0.08) {
-      // Face is WAY too small (< 8% of image) - critical
-      sizeScore = Math.max(0.2, faceRelativeSize / 0.08);
-      result.issues.push('Face is too small in the frame.');
-      result.i18nIssues.push({ key: 'quality.issues.face.tooSmall' });
-    } else if (faceRelativeSize > 0.75) {
-      // Face is WAY too large (> 75% of image) - critical
-      sizeScore = Math.max(0.2, 1 - (faceRelativeSize - 0.75) / 0.25);
-      result.issues.push('Face is too large/close.');
-      result.i18nIssues.push({ key: 'quality.issues.face.tooLarge' });
-    } else if (faceRelativeSize < 0.15) {
-      // Face is small but acceptable (8-15%)
-      sizeScore = 0.85;
-    } else if (faceRelativeSize > 0.65) {
-      // Face is large but acceptable (65-75%)
-      sizeScore = 0.90;
+    
+    if (isBodyShot) {
+      // FULL-BODY SHOT: Very lenient - faces can be tiny (1-10%)
+      if (faceRelativeSize < 0.01) {
+        // Face < 1% is TOO small even for body shots
+        sizeScore = Math.max(0.3, faceRelativeSize / 0.01);
+        result.issues.push('Face is extremely small, even for a full-body shot.');
+        result.i18nIssues.push({ key: 'quality.issues.face.tooSmall' });
+      } else {
+        // Faces 1-10% are perfect for full-body shots
+        sizeScore = 0.98; // Excellent score for body shots
+      }
+    } else {
+      // PORTRAIT/HEADSHOT: Stricter requirements - face should be prominent
+      if (faceRelativeSize < 0.10) {
+        // Face < 10% in a portrait is TOO small
+        sizeScore = Math.max(0.2, faceRelativeSize / 0.10);
+        result.issues.push('Face is too small for a portrait. Consider cropping closer or using a full-body shot.');
+        result.i18nIssues.push({ key: 'quality.issues.face.tooSmall' });
+      } else if (faceRelativeSize < 0.20) {
+        // Face 10-20% is acceptable but not ideal for portraits
+        sizeScore = 0.85;
+        result.issues.push('Face could be larger in the frame for better quality.');
+        result.i18nIssues.push({ key: 'quality.issues.face.sizeNotOptimal' });
+      } else if (faceRelativeSize > 0.80) {
+        // Face > 80% is too close
+        sizeScore = Math.max(0.5, 1 - (faceRelativeSize - 0.80) / 0.20);
+        result.issues.push('Face is too large/close.');
+        result.i18nIssues.push({ key: 'quality.issues.face.tooLarge' });
+      } else if (faceRelativeSize > 0.70) {
+        // Face 70-80% is a bit too close but acceptable
+        sizeScore = 0.90;
+      }
+      // Face size 20-70% is ideal for portraits - full score!
     }
-    // Face size 15-65% is ideal - no warning needed!
     
     // Check face position (should be centered vertically and horizontally)
     const faceCenterX = faceBox.x + faceBox.width / 2;
@@ -185,29 +244,20 @@ export async function detectFaces(
     const verticalOffset = Math.abs(faceCenterY - centerY) / (height / 2);
     
     let positionScore = 1.0;
-    if (horizontalOffset > 0.4 || verticalOffset > 0.4) {
+    // More lenient position requirements for body shots
+    const positionThreshold = isBodyShot ? 0.5 : 0.4;
+    const positionThresholdModerate = isBodyShot ? 0.3 : 0.2;
+    
+    if (horizontalOffset > positionThreshold || verticalOffset > positionThreshold) {
       positionScore = 0.7;
       result.issues.push('Face is not well-centered.');
       result.i18nIssues.push({ key: 'quality.issues.face.positionNotOptimal' });
-    } else if (horizontalOffset > 0.2 || verticalOffset > 0.2) {
+    } else if (horizontalOffset > positionThresholdModerate || verticalOffset > positionThresholdModerate) {
       positionScore = 0.9;
     }
     
     // Calculate overall face score based on size and position
     result.faceScore = sizeScore * 0.6 + positionScore * 0.4;
-    
-    // Detect body shot
-    const faceBottomY = faceBox.y + faceBox.height;
-    const spaceBelow = (height - faceBottomY) / height;
-    
-    // Body shot criteria (STRICT - only full-body shots):
-    // 1. Face < 8% of image (very small face = full body visible)
-    // 2. Significant space below face (> 50%)
-    // 3. Face in upper 30% of image
-    result.hasBody = faceRelativeSize < 0.08 && 
-                    spaceBelow > 0.5 && 
-                    faceBox.y < height * 0.30;
-    result.bodyScore = result.hasBody ? 1 : 0;
     
   } catch (error) {
     console.error('[MediaPipe] Face detection error:', error);

@@ -161,6 +161,7 @@
                 "sunglasses.critical": "检测到太阳镜 - 请摘下太阳镜。",
                 "eyesClosed": "眼睛似乎闭上了或看不见。",
                 "tooSmall": "画面中面部太小。",
+                "tooSmallToDetect": "面部太小，难以检测。",
                 "tooLarge": "面部太大/太近。",
                 "sizeNotOptimal": "面部大小不理想。"
             },

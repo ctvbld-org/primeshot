@@ -1,162 +1,162 @@
 {
-    "common": {
-        "pleaseTryAgain": "Bitte versuche es erneut",
-        "cancel": "Abbrechen"
-    },
-    "time": {
-        "justNow": "Gerade eben",
-        "minutesAgo": "vor {{count}}min",
-        "hoursAgo": "vor {{count}}h",
-        "daysAgo": "vor {{count}}d"
-    },
-    "gallery": {
-        "error": "Fehler beim Laden der Inferenz-Jobs: {{error}}",
-        "retry": "Erneut versuchen",
-        "loadingMore": "Lade weitere Shootings",
-        "endOfList": "Du hast das Ende deiner Shootings erreicht",
-        "howItWorksAria": "Wie es funktioniert",
-        "steps": {
-            "choose": {
-                "title": "Wähle einen Stil",
-                "desc": "Wähle die Stimmung, Szene und das Outfit, die zu deinem Look passen."
-            },
-            "character": {
-                "title": "Erstelle einen Charakter",
-                "desc": "Lade ein paar Fotos hoch, damit unsere KI genau lernt, was dich ausmacht."
-            },
-            "generate": {
-                "title": "Generiere dein Shooting",
-                "desc": "Erhalte deine Porträts in Minuten — authentisch, poliert und einsatzbereit."
-            }
-        }
-    },
-    "viewer": {
-        "confirmDelete": {
-            "title": "Bild löschen?",
-            "description": "Dies löscht das Bild dauerhaft und kann nicht rückgängig gemacht werden.",
-            "confirm": "Löschen",
-            "cancel": "Abbrechen"
-        },
-        "closeAria": "Viewer schließen",
-        "carousel": {
-            "aria": "Karussell-Navigation",
-            "prevAria": "Vorheriges Bild",
-            "nextAria": "Nächstes Bild"
-        },
-        "overlay": {
-            "displayOriginal": "Original anzeigen",
-            "displayOriginalAria": "Originalbild anzeigen",
-            "originalUnavailableTitle": "Original nicht verfügbar",
-            "originalUnavailableDesc": "Original-Bildvariante konnte nicht geladen werden."
-        },
-        "viewOriginal": {
-            "label": "Zum Original wechseln",
-            "viewing": "Original wird angezeigt",
-            "aria": "Zum Originalbild in voller Qualität wechseln",
-            "viewingAria": "Originalbild in voller Qualität wird angezeigt"
-        },
-        "title": "Shooting {{shootNumber}}",
-        "imageIndex": "IMG {{index}}",
-        "favourite": {
-            "ariaButton": "Favorit",
-            "add": "Zu Favoriten hinzufügen",
-            "remove": "Aus Favoriten entfernen",
-            "updateErrorTitle": "Favorit-Aktualisierung fehlgeschlagen"
-        },
-        "metadata": {
-            "labels": {
-                "aspectRatio": "Seitenverhältnis",
-                "quality": "Qualität",
-                "model": "Modell",
-                "character": "Charakter"
-            },
-            "aspectLabels": {
-                "square": "Quadrat",
-                "landscape": "Querformat",
-                "portrait": "Hochformat"
-            }
-        },
-        "actions": {
-            "delete": {
-                "label": "Löschen",
-                "aria": "Bild löschen"
-            },
-            "download": {
-                "label": "Herunterladen",
-                "aria": "Bild herunterladen"
-            }
-        },
-        "alt": {
-            "generated": "Generiertes Bild {{index}}",
-            "thumbnail": "Miniaturansicht {{index}}"
-        }
-    },
-    "group": {
-        "status": {
-            "failed": "Generierung fehlgeschlagen"
-        },
-        "error": {
-            "generic": "Etwas ist schiefgelaufen, deine Credits wurden erstattet",
-            "timeout": "Die Erstellung hat länger gedauert als erwartet, deine Credits wurden erstattet",
-            "serverBusy": "Unsere Server waren vorübergehend ausgelastet, deine Credits wurden erstattet",
-            "memory": "Serverkapazität überschritten, deine Credits wurden erstattet",
-            "connection": "Vorübergehendes Verbindungsproblem, deine Credits wurden erstattet",
-            "imageGeneration": "Die Erstellung konnte nicht abgeschlossen werden, deine Credits wurden erstattet"
-        },
-        "confirmDelete": {
-            "title": "Shooting löschen?",
-            "description": "Dies entfernt das Shooting aus deiner Galerie. Diese Aktion kann nicht rückgängig gemacht werden.",
-            "confirm": "Löschen"
-        },
-        "deleteFailedTitle": "Löschung fehlgeschlagen",
-        "rerun": {
-            "cannot": "Kann nicht erneut ausgeführt werden",
-            "missingInfo": "Erforderliche Job-Informationen fehlen.",
-            "failed": "Erneute Ausführung fehlgeschlagen"
-        },
-        "header": {
-            "shootTitle": "SHOOTING #{{number}}"
-        },
-        "tooltips": {
-            "deleteShoot": "Shooting löschen",
-            "rerunShoot": "Shooting erneut ausführen"
-        },
-        "aria": {
-            "thumbnailsPreview": "Miniaturansichten-Vorschau",
-            "viewAllImages": "Alle Bilder anzeigen"
-        },
-        "alt": {
-            "preview": "Vorschau {{index}}"
-        },
-        "buttons": {
-            "viewAll": "Alle anzeigen"
-        }
-    },
-    "thumbnail": {
-        "alt": {
-            "generatingPreview": "Generiere Vorschau {{index}}",
-            "generated": "Generiertes Bild {{index}}"
-        },
-        "favourite": {
-            "add": "Zu Favoriten hinzufügen",
-            "remove": "Aus Favoriten entfernen"
-        },
-        "loadingTitle": "Lädt…",
-        "loadingDesc": "Bilddetails werden noch geladen. Bitte versuche es in einem Moment erneut.",
-        "actions": {
-            "delete": {
-                "label": "Löschen",
-                "aria": "Bild löschen"
-            },
-            "download": {
-                "label": "Herunterladen",
-                "aria": "Bild herunterladen"
-            }
-        },
-        "confirmDelete": {
-            "title": "Bild löschen?",
-            "description": "Dies entfernt das Bild aus deiner Galerie. Diese Aktion kann nicht rückgängig gemacht werden.",
-            "confirm": "Löschen"
-        }
+  "common": {
+    "pleaseTryAgain": "Bitte versuche es erneut",
+    "cancel": "Abbrechen"
+  },
+  "time": {
+    "justNow": "Gerade eben",
+    "minutesAgo": "vor {{count}}min",
+    "hoursAgo": "vor {{count}}h",
+    "daysAgo": "vor {{count}}d"
+  },
+  "gallery": {
+    "error": "Fehler beim Laden der Inferenz-Jobs: {{error}}",
+    "retry": "Erneut versuchen",
+    "loadingMore": "Lade weitere Shootings",
+    "endOfList": "Du hast das Ende deiner Shootings erreicht",
+    "howItWorksAria": "Wie es funktioniert",
+    "steps": {
+      "choose": {
+        "title": "Wähle einen Stil",
+        "desc": "Wähle die Stimmung, Szene und das Outfit, die zu deinem Look passen."
+      },
+      "character": {
+        "title": "Erstelle einen Charakter",
+        "desc": "Lade ein paar Fotos hoch, damit unsere KI genau lernt, was dich ausmacht."
+      },
+      "generate": {
+        "title": "Generiere dein Shooting",
+        "desc": "Erhalte deine Porträts in Minuten — authentisch, poliert und einsatzbereit."
+      }
     }
+  },
+  "viewer": {
+    "confirmDelete": {
+      "title": "Bild löschen?",
+      "description": "Dies löscht das Bild dauerhaft und kann nicht rückgängig gemacht werden.",
+      "confirm": "Löschen",
+      "cancel": "Abbrechen"
+    },
+    "closeAria": "Viewer schließen",
+    "carousel": {
+      "aria": "Karussell-Navigation",
+      "prevAria": "Vorheriges Bild",
+      "nextAria": "Nächstes Bild"
+    },
+    "overlay": {
+      "displayOriginal": "Original anzeigen",
+      "displayOriginalAria": "Originalbild anzeigen",
+      "originalUnavailableTitle": "Original nicht verfügbar",
+      "originalUnavailableDesc": "Original-Bildvariante konnte nicht geladen werden."
+    },
+    "viewOriginal": {
+      "label": "Zum Original wechseln",
+      "viewing": "Original wird angezeigt",
+      "aria": "Zum Originalbild in voller Qualität wechseln",
+      "viewingAria": "Originalbild in voller Qualität wird angezeigt"
+    },
+    "title": "Shooting {{shootNumber}}",
+    "imageIndex": "IMG {{index}}",
+    "favourite": {
+      "ariaButton": "Favorit",
+      "add": "Zu Favoriten hinzufügen",
+      "remove": "Aus Favoriten entfernen",
+      "updateErrorTitle": "Favorit-Aktualisierung fehlgeschlagen"
+    },
+    "metadata": {
+      "labels": {
+        "aspectRatio": "Seitenverhältnis",
+        "quality": "Qualität",
+        "model": "Modell",
+        "character": "Charakter"
+      },
+      "aspectLabels": {
+        "square": "Quadrat",
+        "landscape": "Querformat",
+        "portrait": "Hochformat"
+      }
+    },
+    "actions": {
+      "delete": {
+        "label": "Löschen",
+        "aria": "Bild löschen"
+      },
+      "download": {
+        "label": "Herunterladen",
+        "aria": "Bild herunterladen"
+      }
+    },
+    "alt": {
+      "generated": "Generiertes Bild {{index}}",
+      "thumbnail": "Miniaturansicht {{index}}"
+    }
+  },
+  "group": {
+    "status": {
+      "failed": "Generierung fehlgeschlagen"
+    },
+    "error": {
+      "generic": "Etwas ist schiefgelaufen, deine Credits wurden erstattet",
+      "timeout": "Die Erstellung hat länger gedauert als erwartet, deine Credits wurden erstattet",
+      "serverBusy": "Unsere Server waren vorübergehend ausgelastet, deine Credits wurden erstattet",
+      "memory": "Serverkapazität überschritten, deine Credits wurden erstattet",
+      "connection": "Vorübergehendes Verbindungsproblem, deine Credits wurden erstattet",
+      "imageGeneration": "Die Erstellung konnte nicht abgeschlossen werden, deine Credits wurden erstattet"
+    },
+    "confirmDelete": {
+      "title": "Shooting löschen?",
+      "description": "Dies entfernt das Shooting aus deiner Galerie. Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirm": "Löschen"
+    },
+    "deleteFailedTitle": "Löschung fehlgeschlagen",
+    "rerun": {
+      "cannot": "Kann nicht erneut ausgeführt werden",
+      "missingInfo": "Erforderliche Job-Informationen fehlen.",
+      "failed": "Erneute Ausführung fehlgeschlagen"
+    },
+    "header": {
+      "shootTitle": "SHOOTING #{{number}}"
+    },
+    "tooltips": {
+      "deleteShoot": "Shooting löschen",
+      "rerunShoot": "Shooting erneut ausführen"
+    },
+    "aria": {
+      "thumbnailsPreview": "Miniaturansichten-Vorschau",
+      "viewAllImages": "Alle Bilder anzeigen"
+    },
+    "alt": {
+      "preview": "Vorschau {{index}}"
+    },
+    "buttons": {
+      "viewAll": "Alle anzeigen"
+    }
+  },
+  "thumbnail": {
+    "alt": {
+      "generatingPreview": "Generiere Vorschau {{index}}",
+      "generated": "Generiertes Bild {{index}}"
+    },
+    "favourite": {
+      "add": "Zu Favoriten hinzufügen",
+      "remove": "Aus Favoriten entfernen"
+    },
+    "loadingTitle": "Lädt…",
+    "loadingDesc": "Bilddetails werden noch geladen. Bitte versuche es in einem Moment erneut.",
+    "actions": {
+      "delete": {
+        "label": "Löschen",
+        "aria": "Bild löschen"
+      },
+      "download": {
+        "label": "Herunterladen",
+        "aria": "Bild herunterladen"
+      }
+    },
+    "confirmDelete": {
+      "title": "Bild löschen?",
+      "description": "Dies entfernt das Bild aus deiner Galerie. Diese Aktion kann nicht rückgängig gemacht werden.",
+      "confirm": "Löschen"
+    }
+  }
 }

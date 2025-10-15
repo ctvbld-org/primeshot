@@ -739,6 +739,7 @@ export declare const resources: {
                         "sunglasses.critical": string;
                         eyesClosed: string;
                         tooSmall: string;
+                        tooSmallToDetect: string;
                         tooLarge: string;
                         sizeNotOptimal: string;
                     };
@@ -1824,6 +1825,7 @@ export declare const resources: {
                         "sunglasses.critical": string;
                         eyesClosed: string;
                         tooSmall: string;
+                        tooSmallToDetect: string;
                         tooLarge: string;
                         sizeNotOptimal: string;
                     };
@@ -2894,6 +2896,7 @@ export declare const resources: {
                         "sunglasses.critical": string;
                         eyesClosed: string;
                         tooSmall: string;
+                        tooSmallToDetect: string;
                         tooLarge: string;
                         sizeNotOptimal: string;
                     };
@@ -3951,6 +3954,7 @@ export declare const resources: {
                         "sunglasses.critical": string;
                         eyesClosed: string;
                         tooSmall: string;
+                        tooSmallToDetect: string;
                         tooLarge: string;
                         sizeNotOptimal: string;
                     };
@@ -5008,6 +5012,7 @@ export declare const resources: {
                         "sunglasses.critical": string;
                         eyesClosed: string;
                         tooSmall: string;
+                        tooSmallToDetect: string;
                         tooLarge: string;
                         sizeNotOptimal: string;
                     };
@@ -6065,6 +6070,7 @@ export declare const resources: {
                         "sunglasses.critical": string;
                         eyesClosed: string;
                         tooSmall: string;
+                        tooSmallToDetect: string;
                         tooLarge: string;
                         sizeNotOptimal: string;
                     };
@@ -7122,6 +7128,7 @@ export declare const resources: {
                         "sunglasses.critical": string;
                         eyesClosed: string;
                         tooSmall: string;
+                        tooSmallToDetect: string;
                         tooLarge: string;
                         sizeNotOptimal: string;
                     };
@@ -8179,6 +8186,7 @@ export declare const resources: {
                         "sunglasses.critical": string;
                         eyesClosed: string;
                         tooSmall: string;
+                        tooSmallToDetect: string;
                         tooLarge: string;
                         sizeNotOptimal: string;
                     };
@@ -9237,6 +9245,7 @@ export declare const resources: {
                         "sunglasses.critical": string;
                         eyesClosed: string;
                         tooSmall: string;
+                        tooSmallToDetect: string;
                         tooLarge: string;
                         sizeNotOptimal: string;
                     };
@@ -10294,6 +10303,7 @@ export declare const resources: {
                         "sunglasses.critical": string;
                         eyesClosed: string;
                         tooSmall: string;
+                        tooSmallToDetect: string;
                         tooLarge: string;
                         sizeNotOptimal: string;
                     };

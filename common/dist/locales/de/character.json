@@ -161,6 +161,7 @@
                 "sunglasses.critical": "Sonnenbrille erkannt - bitte Sonnenbrille entfernen.",
                 "eyesClosed": "Die Augen scheinen geschlossen oder nicht sichtbar zu sein.",
                 "tooSmall": "Das Gesicht ist zu klein im Bild.",
+                "tooSmallToDetect": "Das Gesicht ist zu klein und schwer zu erkennen.",
                 "tooLarge": "Das Gesicht ist zu groß/nah.",
                 "sizeNotOptimal": "Die Gesichtsgröße ist nicht optimal."
             },

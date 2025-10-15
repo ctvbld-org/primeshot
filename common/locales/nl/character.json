@@ -171,6 +171,7 @@
         "sunglasses.critical": "Zonnebril gedetecteerd - verwijder de zonnebril alstublieft.",
         "eyesClosed": "De ogen lijken gesloten of niet zichtbaar te zijn.",
         "tooSmall": "Het gezicht is te klein in het beeld.",
+      "tooSmallToDetect": "Het gezicht is te klein en moeilijk te detecteren.",
         "tooLarge": "Het gezicht is te groot/dichtbij.",
         "sizeNotOptimal": "De gezichtsgrootte is niet optimaal."
       },

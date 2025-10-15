@@ -172,6 +172,7 @@
         "sunglasses.critical": "Sunglasses detected - please remove sunglasses.",
         "eyesClosed": "Eyes appear to be closed or not visible.",
         "tooSmall": "Face is too small in the frame.",
+      "tooSmallToDetect": "Face is too small and hard to detect.",
         "tooLarge": "Face is too large/close.",
         "sizeNotOptimal": "Face size is not optimal."
       },

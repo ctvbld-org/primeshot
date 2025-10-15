@@ -106,11 +106,20 @@ let modelsLoaded = false;
 let modelsLoading = false;
 let modelLoadError = false;
 
-export async function loadModels() {
+export async function loadModels(forceReload = false) {
   if (isServer) {
     // Skip model loading during SSR/prerendering
     return false;
   }
+  
+  // Force reload if requested (clears cached models)
+  if (forceReload) {
+    console.log('[DEBUG] Force reloading MediaPipe models...');
+    modelsLoaded = false;
+    faceDetector = null;
+    faceLandmarker = null;
+  }
+  
   if (modelsLoaded) return true;
   if (modelsLoading) {
     // Wait for loading to complete
@@ -142,7 +151,7 @@ export async function loadModels() {
           delegate: 'GPU' // Use GPU acceleration
         },
         runningMode: 'IMAGE',
-        minDetectionConfidence: 0.3 // Lowered from 0.5 to detect faces in full-body shots
+        minDetectionConfidence: 0.05 // VERY low - catch even distant faces in body shots
       });
     }
     
@@ -155,9 +164,9 @@ export async function loadModels() {
         },
         runningMode: 'IMAGE',
         numFaces: 5, // Detect up to 5 faces
-        minFaceDetectionConfidence: 0.3, // Lowered from 0.5 for full-body shots
-        minFacePresenceConfidence: 0.3,  // Lowered from 0.5 for full-body shots
-        minTrackingConfidence: 0.3,      // Lowered from 0.5 for full-body shots
+        minFaceDetectionConfidence: 0.05, // VERY low for body shots
+        minFacePresenceConfidence: 0.05,  // VERY low for body shots
+        minTrackingConfidence: 0.05,      // VERY low for body shots
         outputFaceBlendshapes: true, // Get eye/mouth open status
         outputFacialTransformationMatrixes: true // Get face orientation
       });
@@ -165,6 +174,7 @@ export async function loadModels() {
     
     modelsLoaded = true;
     modelLoadError = false;
+    console.log('✅ [DEBUG] MediaPipe models loaded successfully with confidence: 0.05');
     return true;
   } catch (error) {
     console.error('❌ Error loading MediaPipe models:', error);
@@ -277,8 +287,11 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
   let faceDetectionPerformed = false;
   let primaryFaceDetection: any = null;
   
+  console.log(`[DEBUG] Face detection check - petMode: ${petMode}, modelsReady: ${modelsReady}, faceLandmarker: ${!!faceLandmarker}`);
+  
   if (!petMode && modelsReady && faceLandmarker) {
     try {
+      console.log('[DEBUG] Starting face detection...');
       // Use MediaPipe helper for face detection
       const { detectFaces } = await import('./mediapipe-face-detection');
       const faceResult = await detectFaces(img, faceLandmarker);

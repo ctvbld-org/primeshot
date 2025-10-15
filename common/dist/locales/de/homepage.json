@@ -1,29 +1,29 @@
 {
-    "hero": {
-        "headline": "porträts die türen öffnen",
-        "tagline": "Die fortschrittlichsten <ai>KI</ai>-Porträts. <period>Punkt.</period>",
-        "subtitle": "Lass deinen ersten Eindruck zählen. Verwandle alltägliche Selfies in herausragende Porträts, personalisiert und in Minuten fertig."
+  "hero": {
+    "headline": "porträts die türen öffnen",
+    "tagline": "Die fortschrittlichsten <ai>KI</ai>-Porträts. <period>Punkt.</period>",
+    "subtitle": "Lass deinen ersten Eindruck zählen. Verwandle alltägliche Selfies in herausragende Porträts, personalisiert und in Minuten fertig."
+  },
+  "story": {
+    "paragraph1": "Wir haben die Kunst vergessen, uns von unserer besten Seite zu zeigen. Wir machen ein Selfie, justieren den Winkel und hoffen, dass es reicht, um einen Eindruck zu hinterlassen. In einer Welt, die schnell scrollt und noch schneller urteilt, brauchst du ein Foto, das spricht—klar, selbstbewusst und mit Absicht.",
+    "paragraph2": "Primeshot verwandelt deine alltäglichen Fotos in Premium-Porträts voller Stil und Persönlichkeit. Keine steifen Posen. Keine peinlichen Fotoshootings. Nur authentische, aufmerksamkeitsstarke Porträts, geliefert in Minuten.",
+    "callToAction": "Strahle so wie du bist—mit kühner Ambition."
+  },
+  "aria": {
+    "photoMetadata": "Foto-Metadaten-Visualisierung"
+  },
+  "waitlist": {
+    "placeholder": "E-Mail für frühen Zugang eingeben",
+    "ariaLabel": "E-Mail-Adresse für Warteliste",
+    "submitLabel": "E-Mail senden",
+    "submittingLabel": "Wird gesendet...",
+    "validation": {
+      "invalidEmail": "Bitte gib eine gültige E-Mail-Adresse ein"
     },
-    "story": {
-        "paragraph1": "Wir haben die Kunst vergessen, uns von unserer besten Seite zu zeigen. Wir machen ein Selfie, justieren den Winkel und hoffen, dass es reicht, um einen Eindruck zu hinterlassen. In einer Welt, die schnell scrollt und noch schneller urteilt, brauchst du ein Foto, das spricht—klar, selbstbewusst und mit Absicht.",
-        "paragraph2": "Primeshot verwandelt deine alltäglichen Fotos in Premium-Porträts voller Stil und Persönlichkeit. Keine steifen Posen. Keine peinlichen Fotoshootings. Nur authentische, aufmerksamkeitsstarke Porträts, geliefert in Minuten.",
-        "callToAction": "Strahle so wie du bist—mit kühner Ambition."
-    },
-    "aria": {
-        "photoMetadata": "Foto-Metadaten-Visualisierung"
-    },
-    "waitlist": {
-        "placeholder": "E-Mail für frühen Zugang eingeben",
-        "ariaLabel": "E-Mail-Adresse für Warteliste",
-        "submitLabel": "E-Mail senden",
-        "submittingLabel": "Wird gesendet...",
-        "validation": {
-            "invalidEmail": "Bitte gib eine gültige E-Mail-Adresse ein"
-        },
-        "messages": {
-            "alreadyOnWaitlist": "Du stehst bereits auf der Warteliste!",
-            "success": "Danke! Du erhältst eine E-Mail für deinen Frühzugang.",
-            "defaultError": "Etwas ist schiefgelaufen"
-        }
+    "messages": {
+      "alreadyOnWaitlist": "Du stehst bereits auf der Warteliste!",
+      "success": "Danke! Du erhältst eine E-Mail für deinen Frühzugang.",
+      "defaultError": "Etwas ist schiefgelaufen"
     }
+  }
 }
