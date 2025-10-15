@@ -47,19 +47,65 @@ export async function detectFaces(
     // Run face detection and landmarking
     const detection = faceLandmarker.detect(img);
     
-    const numFaces = detection.faceLandmarks?.length || 0;
+    const allFaces = detection.faceLandmarks || [];
+    const rawFaceCount = allFaces.length;
     
-    // DEBUG: Log detection results
-    console.log(`[DEBUG] Image size: ${width}x${height}, Faces detected: ${numFaces}`);
-    if (detection.faceLandmarks && detection.faceLandmarks.length > 0) {
-      const landmarks = detection.faceLandmarks[0];
-      const xs = landmarks.map((l: any) => l.x * width);
-      const ys = landmarks.map((l: any) => l.y * height);
-      const faceWidth = Math.max(...xs) - Math.min(...xs);
-      const faceHeight = Math.max(...ys) - Math.min(...ys);
-      const faceArea = (faceWidth * faceHeight) / (width * height) * 100;
-      console.log(`[DEBUG] Face size: ${faceWidth.toFixed(0)}x${faceHeight.toFixed(0)} (${faceArea.toFixed(1)}% of image)`);
+    // Filter faces to remove false positives
+    // Strategy: Secondary faces that are much smaller than primary are likely artifacts
+    let validFaces = allFaces;
+    
+    if (rawFaceCount > 1) {
+      // Calculate face bounding boxes for overlap detection only
+      const faceBoxes = allFaces.map((landmarks: any) => {
+        const xs = landmarks.map((l: any) => l.x * width);
+        const ys = landmarks.map((l: any) => l.y * height);
+        const minX = Math.min(...xs);
+        const minY = Math.min(...ys);
+        const maxX = Math.max(...xs);
+        const maxY = Math.max(...ys);
+        const faceWidth = maxX - minX;
+        const faceHeight = maxY - minY;
+        return {
+          x: minX,
+          y: minY,
+          width: faceWidth,
+          height: faceHeight,
+          area: faceWidth * faceHeight
+        };
+      });
+      
+      const primaryFaceBox = faceBoxes[0];
+      
+      // Helper function to calculate overlap between two boxes
+      const calculateOverlap = (box1: any, box2: any) => {
+        const x1 = Math.max(box1.x, box2.x);
+        const y1 = Math.max(box1.y, box2.y);
+        const x2 = Math.min(box1.x + box1.width, box2.x + box2.width);
+        const y2 = Math.min(box1.y + box1.height, box2.y + box2.height);
+        
+        if (x2 <= x1 || y2 <= y1) return 0; // No overlap
+        
+        const overlapArea = (x2 - x1) * (y2 - y1);
+        const smallerArea = Math.min(box1.area, box2.area);
+        return overlapArea / smallerArea;
+      };
+      
+      // SIMPLE filtering: Only filter DUPLICATE detections (high overlap)
+      // Real secondary people should still be detected and cause rejection
+      validFaces = allFaces.filter((landmarks: any, index: number) => {
+        if (index === 0) return true; // Always keep primary face
+        
+        const faceBox = faceBoxes[index];
+        const overlapWithPrimary = calculateOverlap(faceBox, primaryFaceBox);
+        
+        // Only filter if >50% overlap (clear duplicate detection)
+        const isDuplicate = overlapWithPrimary > 0.50;
+        
+        return !isDuplicate;
+      });
     }
+    
+    const numFaces = validFaces.length;
     
     result.faceCount = numFaces;
     result.hasFace = numFaces > 0;
@@ -95,9 +141,13 @@ export async function detectFaces(
     }
     
     // Process the primary (first) face
-    const landmarks = detection.faceLandmarks[0];
-    const blendshapes = detection.faceBlendshapes?.[0];
-    const transformation = detection.facialTransformationMatrixes?.[0];
+    const landmarks = validFaces[0];
+    
+    // Find the index of the primary face in the original detection array
+    // to get the correct blendshapes and transformation data
+    const primaryFaceIndex = allFaces.indexOf(validFaces[0]);
+    const blendshapes = detection.faceBlendshapes?.[primaryFaceIndex];
+    const transformation = detection.facialTransformationMatrixes?.[primaryFaceIndex];
     
     // Calculate bounding box from landmarks
     const xs = landmarks.map((l: any) => l.x * width);
