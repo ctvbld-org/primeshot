@@ -30,7 +30,8 @@
     "limitReached": "制限に達しました",
     "upgradePlanAddMore": "プランをアップグレードしてさらに追加",
     "upgradeOrBuyCredits": "プランをアップグレードまたはクレジットパッケージを購入",
-    "buyCredits": "クレジットパッケージを購入"
+    "buyCredits": "クレジットパッケージを購入",
+    "newStylesDropWeekly": "毎週新しいスタイルが登場"
   },
   "settings": {
     "numberOfTakes": "撮影回数",

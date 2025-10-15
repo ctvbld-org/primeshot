@@ -997,6 +997,15 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                   <div className={styles.itemLabel} title={s.name}>{s.name}</div>
                 </button>
               ))}
+              {/* Informational card - always shown at the end, not clickable */}
+              {!panelQuery && (
+                <div className={`${styles.itemCard} ${styles.createCard} ${styles.newDropCard}`} style={{ cursor: 'default', pointerEvents: 'none' }}>
+                  <Icon className={styles.createIcon} variant="plus" size={32} />
+                  <div className={styles.itemLabel}>
+                    {t('labels.newStylesDropWeekly', { ns: 'styles' })}
+                  </div>
+                </div>
+              )}
               </div>
             </div>
           </OptionsPanel>

@@ -39,13 +39,10 @@ export async function detectFaces(
   };
   
   try {
-    console.log('[MediaPipe] Starting face detection...');
-    
     // Run face detection and landmarking
     const detection = faceLandmarker.detect(img);
     
     const numFaces = detection.faceLandmarks?.length || 0;
-    console.log(`[MediaPipe] Detected ${numFaces} face(s)`);
     
     result.faceCount = numFaces;
     result.hasFace = numFaces > 0;
@@ -101,8 +98,6 @@ export async function detectFaces(
       
       result.faceOrientation = { pitch, yaw, roll };
       
-      console.log(`[MediaPipe] Face orientation - Pitch: ${pitch.toFixed(1)}°, Yaw: ${yaw.toFixed(1)}°, Roll: ${roll.toFixed(1)}°`);
-      
       // Check if face angle is too extreme
       const MAX_ANGLE = 35;
       if (Math.abs(pitch) > MAX_ANGLE || Math.abs(yaw) > MAX_ANGLE || Math.abs(roll) > MAX_ANGLE) {
@@ -125,8 +120,6 @@ export async function detectFaces(
       const rightEyeOpen = rightEyeBlink ? (1 - rightEyeBlink.score) : 1;
       const avgEyeOpen = (leftEyeOpen + rightEyeOpen) / 2;
       
-      console.log(`[MediaPipe] Eyes open (blendshapes): ${(avgEyeOpen * 100).toFixed(1)}%`);
-      
       // Only check for VERY OBVIOUS sunglasses - not a hard rejection
       const hasSunglasses = detectSunglasses(img, landmarks);
       
@@ -135,7 +128,6 @@ export async function detectFaces(
         result.issues.push('Eyes may be obscured by sunglasses.');
         result.i18nIssues.push({ key: 'quality.issues.face.sunglasses' });
         result.faceScore *= 0.7; // Moderate penalty, not instant fail
-        console.log('[MediaPipe] ⚠️ Possible sunglasses detected - score penalized');
       }
       
       if (avgEyeOpen <= 0.3) {
@@ -148,8 +140,6 @@ export async function detectFaces(
         result.eyesVisible = true;
         result.eyeDetectionSkipped = false;
       }
-      
-      console.log(`[MediaPipe] Final eyes visible: ${result.eyesVisible}`);
     } else {
       result.eyeDetectionSkipped = true;
     }
@@ -213,8 +203,6 @@ export async function detectFaces(
                     spaceBelow > 0.5 && 
                     faceBox.y < height * 0.30;
     result.bodyScore = result.hasBody ? 1 : 0;
-    
-    console.log(`[MediaPipe] Face score: ${result.faceScore.toFixed(2)}, Body shot: ${result.hasBody}`);
     
   } catch (error) {
     console.error('[MediaPipe] Face detection error:', error);
@@ -331,8 +319,6 @@ function detectSunglasses(img: HTMLImageElement, landmarks: any[]): boolean {
     
     // Flag ONLY if overwhelming evidence (catch only obvious cases)
     const hasSunglasses = obviousSunglasses || veryDarkSunglasses;
-    
-    console.log(`[Sunglasses Detection] Brightness: ${avgBrightness.toFixed(2)}, Variance: ${brightnessStdDev.toFixed(3)}, Dark: ${(darkRatio * 100).toFixed(0)}%, VeryDark: ${(veryDarkRatio * 100).toFixed(0)}%, ColorStdDev: ${colorStdDev.toFixed(1)}, Sunglasses: ${hasSunglasses}`);
     
     return {
       hasSunglasses,

@@ -30,7 +30,8 @@
     "limitReached": "Limite atteinte",
     "upgradePlanAddMore": "Changez de forfait pour en ajouter plus",
     "upgradeOrBuyCredits": "Changez de forfait ou achetez des crédits",
-    "buyCredits": "Acheter des crédits"
+    "buyCredits": "Acheter des crédits",
+    "newStylesDropWeekly": "Nouveaux styles chaque semaine"
   },
   "settings": {
     "numberOfTakes": "Nombre de prises",

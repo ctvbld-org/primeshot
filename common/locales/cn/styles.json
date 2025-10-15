@@ -30,7 +30,8 @@
     "limitReached": "已达限制",
     "upgradePlanAddMore": "升级套餐以添加更多",
     "upgradeOrBuyCredits": "升级套餐或购买积分套餐",
-    "buyCredits": "购买积分套餐"
+    "buyCredits": "购买积分套餐",
+    "newStylesDropWeekly": "每周上新"
   },
   "settings": {
     "numberOfTakes": "拍摄次数",

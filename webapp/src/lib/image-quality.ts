@@ -125,8 +125,6 @@ export async function loadModels() {
   modelsLoading = true;
   
   try {
-    console.log('🎯 Loading MediaPipe models...');
-    
     // Dynamically import MediaPipe
     const { FaceDetector, FaceLandmarker, FilesetResolver } = await import('@mediapipe/tasks-vision');
     
@@ -135,8 +133,6 @@ export async function loadModels() {
       // Use jsDelivr CDN for WASM files
       'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
     );
-    
-    console.log('✓ MediaPipe vision tasks initialized');
     
     // Create Face Detector (for detecting faces)
     if (!faceDetector) {
@@ -148,7 +144,6 @@ export async function loadModels() {
         runningMode: 'IMAGE',
         minDetectionConfidence: 0.3 // Lowered from 0.5 to detect faces in full-body shots
       });
-      console.log('✓ Face Detector loaded');
     }
     
     // Create Face Landmarker (for 478 facial landmarks)
@@ -166,12 +161,10 @@ export async function loadModels() {
         outputFaceBlendshapes: true, // Get eye/mouth open status
         outputFacialTransformationMatrixes: true // Get face orientation
       });
-      console.log('✓ Face Landmarker loaded (478 points)');
     }
     
     modelsLoaded = true;
     modelLoadError = false;
-    console.log('✅ All MediaPipe models loaded successfully');
     return true;
   } catch (error) {
     console.error('❌ Error loading MediaPipe models:', error);
@@ -971,8 +964,6 @@ function detectBlockiness(canvas: HTMLCanvasElement): number {
   // Balanced weights
   const qualityScore = (blockScore * 0.35 + textureScore * 0.35 + noiseScore * 0.30);
   
-  console.log(`[Blockiness Detection] Block: ${blockScore.toFixed(2)}, Texture: ${textureScore.toFixed(2)}, Noise: ${noiseScore.toFixed(2)}, Overall: ${qualityScore.toFixed(2)}`);
-  
   return qualityScore;
 }
 
@@ -1245,7 +1236,6 @@ function isAcceptable(result: ImageQualityResult, opts?: { petMode?: boolean }):
 
   // Sunglasses and blockiness are now handled as SCORING factors, not hard rejections
   // They contribute to the overall score but won't instantly reject images
-  console.log(`[isAcceptable] Quality scores - Face: ${result.faceScore.toFixed(2)}, Blur: ${result.blurScore.toFixed(2)}, Blockiness: ${result.blockinessScore.toFixed(2)}, Overall: ${result.score}%`);
 
   // Depth of field check DISABLED - no longer required
 
@@ -1253,20 +1243,15 @@ function isAcceptable(result: ImageQualityResult, opts?: { petMode?: boolean }):
   
   // Check for overall quality score (percent-based threshold)
   result.hasGoodScore = result.score >= 50; // Reduced from 60% to 50% to be more forgiving
-  console.log(`[isAcceptable] Overall score: ${result.score}%, threshold: 50%, hasGoodScore: ${result.hasGoodScore}`);
   if (!result.hasGoodScore) {
     // Only add as a critical failure if there are NO other specific issues
     // This prevents redundant "score too low" when we already have detailed reasons
     if (criticalFailures.length === 0 && result.issues.length === 0) {
-      console.log('[isAcceptable] ❌ REJECTING: Low overall score with no specific issues');
       criticalFailures.push('Image quality score is too low');
-    } else {
-      console.log(`[isAcceptable] ℹ️ Low score (${result.score}%) but have ${criticalFailures.length} specific critical failures already`);
     }
   }
 
   // Image is acceptable only if there are no critical failures
-  console.log(`[isAcceptable] Critical failures: ${criticalFailures.length}, isAcceptable: ${criticalFailures.length === 0}`);
   result.isAcceptable = criticalFailures.length === 0;
   
   // Smart issue filtering: Show ONLY critical failures if they exist,

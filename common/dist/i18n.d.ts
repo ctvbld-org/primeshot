@@ -336,6 +336,7 @@ export declare const resources: {
                 upgradePlanAddMore: string;
                 upgradeOrBuyCredits: string;
                 buyCredits: string;
+                newStylesDropWeekly: string;
             };
             settings: {
                 numberOfTakes: string;
@@ -1421,6 +1422,7 @@ export declare const resources: {
                 upgradePlanAddMore: string;
                 upgradeOrBuyCredits: string;
                 buyCredits: string;
+                newStylesDropWeekly: string;
             };
             settings: {
                 numberOfTakes: string;
@@ -2490,6 +2492,7 @@ export declare const resources: {
                 upgradePlanAddMore: string;
                 upgradeOrBuyCredits: string;
                 buyCredits: string;
+                newStylesDropWeekly: string;
             };
             settings: {
                 numberOfTakes: string;
@@ -3546,6 +3549,7 @@ export declare const resources: {
                 upgradePlanAddMore: string;
                 upgradeOrBuyCredits: string;
                 buyCredits: string;
+                newStylesDropWeekly: string;
             };
             settings: {
                 numberOfTakes: string;
@@ -4602,6 +4606,7 @@ export declare const resources: {
                 upgradePlanAddMore: string;
                 upgradeOrBuyCredits: string;
                 buyCredits: string;
+                newStylesDropWeekly: string;
             };
             settings: {
                 numberOfTakes: string;
@@ -5658,6 +5663,7 @@ export declare const resources: {
                 upgradePlanAddMore: string;
                 upgradeOrBuyCredits: string;
                 buyCredits: string;
+                newStylesDropWeekly: string;
             };
             settings: {
                 numberOfTakes: string;
@@ -6714,6 +6720,7 @@ export declare const resources: {
                 upgradePlanAddMore: string;
                 upgradeOrBuyCredits: string;
                 buyCredits: string;
+                newStylesDropWeekly: string;
             };
             settings: {
                 numberOfTakes: string;
@@ -7770,6 +7777,7 @@ export declare const resources: {
                 upgradePlanAddMore: string;
                 upgradeOrBuyCredits: string;
                 buyCredits: string;
+                newStylesDropWeekly: string;
             };
             settings: {
                 numberOfTakes: string;
@@ -8827,6 +8835,7 @@ export declare const resources: {
                 upgradePlanAddMore: string;
                 upgradeOrBuyCredits: string;
                 buyCredits: string;
+                newStylesDropWeekly: string;
             };
             settings: {
                 numberOfTakes: string;
@@ -9883,6 +9892,7 @@ export declare const resources: {
                 upgradePlanAddMore: string;
                 upgradeOrBuyCredits: string;
                 buyCredits: string;
+                newStylesDropWeekly: string;
             };
             settings: {
                 numberOfTakes: string;
