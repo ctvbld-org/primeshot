@@ -22,7 +22,7 @@
     },
     "messages": {
       "alreadyOnWaitlist": "您已在等待列表中！",
-      "success": "感谢！您将收到一封早期访问的邮件。",
+      "success": "我们刚刚向您发送了早期访问权限，请查看您的邮箱（或垃圾邮件文件夹）。",
       "defaultError": "出现了问题"
     }
   }

@@ -22,7 +22,7 @@
     },
     "messages": {
       "alreadyOnWaitlist": "Je staat al op de wachtlijst!",
-      "success": "Bedankt! Je ontvangt een email voor je vroege toegang.",
+      "success": "We hebben je zojuist je vroege toegang gestuurd, controleer je email (of je spammap).",
       "defaultError": "Er ging iets mis"
     }
   }

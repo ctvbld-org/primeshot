@@ -22,7 +22,7 @@
     },
     "messages": {
       "alreadyOnWaitlist": "Já está na lista de espera!",
-      "success": "Obrigado! Receberá um email para o seu acesso antecipado.",
+      "success": "Acabámos de lhe enviar o seu acesso antecipado, por favor verifique o seu email (ou a pasta de spam).",
       "defaultError": "Algo correu mal"
     }
   }
