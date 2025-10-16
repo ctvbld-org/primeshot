@@ -2326,6 +2326,12 @@ Detected changes in:
 - webapp/src/lib/image-quality.ts
 - webapp/src/lib/mediapipe-face-detection.ts
 - website/src/app/[locale]/layout.tsx
+
+
+**Auto-update 2025-10-16**:
+Detected changes in:
+- webapp/src/lib/image-quality.ts
+- webapp/src/lib/mediapipe-face-detection.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

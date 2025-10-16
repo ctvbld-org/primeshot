@@ -124,5 +124,35 @@
       "createCheckoutFailed": "Checkout-Sitzung konnte nicht erstellt werden",
       "purchaseFailed": "Guthaben-Paket-Kauf fehlgeschlagen"
     }
+  },
+  "comparisonTable": {
+    "categories": {
+      "credits": "Guthaben",
+      "image": "Bild",
+      "characters": "Charaktere",
+      "generation": "Generierung",
+      "support": "Support"
+    },
+    "features": {
+      "creditsPerMonth": "Guthaben pro Monat",
+      "pricePerCredit": "Preis pro Guthaben",
+      "resolution": "Auflösung",
+      "takesPerShoot": "Aufnahmen pro Shooting",
+      "portraitAspectRatio": "Hochformat",
+      "squareAspectRatio": "Quadratisches Format",
+      "landscapeAspectRatio": "Querformat",
+      "included": "Enthalten",
+      "storage": "Speicher",
+      "concurrentShoots": "Gleichzeitige Shootings",
+      "commercialUse": "Kommerzielle Nutzung",
+      "priorityFeatures": "Prioritätszugang zu neuen Funktionen",
+      "betaAccess": "Beta-Test-Zugang",
+      "emailSupport": "E-Mail-Support",
+      "chatSupport": "Chat-Support",
+      "dedicatedSupport": "Dedizierter Support"
+    },
+    "values": {
+      "upTo": "Bis zu {{value}}"
+    }
   }
 }

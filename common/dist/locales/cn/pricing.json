@@ -124,5 +124,35 @@
             "createCheckoutFailed": "无法创建结账会话",
             "purchaseFailed": "积分套餐购买失败"
         }
+    },
+    "comparisonTable": {
+        "categories": {
+            "credits": "积分",
+            "image": "图像",
+            "characters": "角色",
+            "generation": "生成",
+            "support": "支持"
+        },
+        "features": {
+            "creditsPerMonth": "每月积分",
+            "pricePerCredit": "每积分价格",
+            "resolution": "分辨率",
+            "takesPerShoot": "每次拍摄张数",
+            "portraitAspectRatio": "竖屏比例",
+            "squareAspectRatio": "方形比例",
+            "landscapeAspectRatio": "横屏比例",
+            "included": "包含",
+            "storage": "存储空间",
+            "concurrentShoots": "并发拍摄",
+            "commercialUse": "商业使用",
+            "priorityFeatures": "优先使用新功能",
+            "betaAccess": "测试版访问权限",
+            "emailSupport": "邮件支持",
+            "chatSupport": "在线客服",
+            "dedicatedSupport": "专属支持"
+        },
+        "values": {
+            "upTo": "最多{{value}}"
+        }
     }
 }

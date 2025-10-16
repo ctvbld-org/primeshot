@@ -788,7 +788,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
     // Hide all items initially by removing the loaded class
     const allButtons = Array.from(itemsContainer.children) as HTMLElement[]
     allButtons.forEach(button => {
-      button.classList.add(styles.itemCardLoaded)
+      button.classList.remove(styles.itemCardLoaded)
     })
 
     let selectedIndex = -1
@@ -875,7 +875,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
         button.classList.add(styles.itemCardLoaded)
       })
     }, 50)
-  }, [selectedStyleIndex, currentStyle, scenes, wardrobes, selectedGender, selectedWardrobeValue, stylesWithPreview, panelQuery])
+  }, [selectedStyleIndex, currentStyle, scenes, wardrobes, selectedGender, selectedWardrobeValue, stylesWithPreview, panelQuery, characters])
 
   const updateNavButtons = useCallback(() => {
     const el = viewportRef.current

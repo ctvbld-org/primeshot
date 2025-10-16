@@ -296,6 +296,36 @@ export declare const resources: {
                     purchaseFailed: string;
                 };
             };
+            comparisonTable: {
+                categories: {
+                    credits: string;
+                    image: string;
+                    characters: string;
+                    generation: string;
+                    support: string;
+                };
+                features: {
+                    creditsPerMonth: string;
+                    pricePerCredit: string;
+                    resolution: string;
+                    takesPerShoot: string;
+                    portraitAspectRatio: string;
+                    squareAspectRatio: string;
+                    landscapeAspectRatio: string;
+                    included: string;
+                    storage: string;
+                    concurrentShoots: string;
+                    commercialUse: string;
+                    priorityFeatures: string;
+                    betaAccess: string;
+                    emailSupport: string;
+                    chatSupport: string;
+                    dedicatedSupport: string;
+                };
+                values: {
+                    upTo: string;
+                };
+            };
         };
         styles: {
             titles: {
@@ -1383,6 +1413,36 @@ export declare const resources: {
                     purchaseFailed: string;
                 };
             };
+            comparisonTable: {
+                categories: {
+                    credits: string;
+                    image: string;
+                    characters: string;
+                    generation: string;
+                    support: string;
+                };
+                features: {
+                    creditsPerMonth: string;
+                    pricePerCredit: string;
+                    resolution: string;
+                    takesPerShoot: string;
+                    portraitAspectRatio: string;
+                    squareAspectRatio: string;
+                    landscapeAspectRatio: string;
+                    included: string;
+                    storage: string;
+                    concurrentShoots: string;
+                    commercialUse: string;
+                    priorityFeatures: string;
+                    betaAccess: string;
+                    emailSupport: string;
+                    chatSupport: string;
+                    dedicatedSupport: string;
+                };
+                values: {
+                    upTo: string;
+                };
+            };
         };
         styles: {
             titles: {
@@ -2460,6 +2520,36 @@ export declare const resources: {
                     purchaseFailed: string;
                 };
             };
+            comparisonTable: {
+                categories: {
+                    credits: string;
+                    image: string;
+                    characters: string;
+                    generation: string;
+                    support: string;
+                };
+                features: {
+                    creditsPerMonth: string;
+                    pricePerCredit: string;
+                    resolution: string;
+                    takesPerShoot: string;
+                    portraitAspectRatio: string;
+                    squareAspectRatio: string;
+                    landscapeAspectRatio: string;
+                    included: string;
+                    storage: string;
+                    concurrentShoots: string;
+                    commercialUse: string;
+                    priorityFeatures: string;
+                    betaAccess: string;
+                    emailSupport: string;
+                    chatSupport: string;
+                    dedicatedSupport: string;
+                };
+                values: {
+                    upTo: string;
+                };
+            };
         };
         styles: {
             titles: {
@@ -3516,6 +3606,36 @@ export declare const resources: {
                     invalidPackConfig: string;
                     createCheckoutFailed: string;
                     purchaseFailed: string;
+                };
+            };
+            comparisonTable: {
+                categories: {
+                    credits: string;
+                    image: string;
+                    characters: string;
+                    generation: string;
+                    support: string;
+                };
+                features: {
+                    creditsPerMonth: string;
+                    pricePerCredit: string;
+                    resolution: string;
+                    takesPerShoot: string;
+                    portraitAspectRatio: string;
+                    squareAspectRatio: string;
+                    landscapeAspectRatio: string;
+                    included: string;
+                    storage: string;
+                    concurrentShoots: string;
+                    commercialUse: string;
+                    priorityFeatures: string;
+                    betaAccess: string;
+                    emailSupport: string;
+                    chatSupport: string;
+                    dedicatedSupport: string;
+                };
+                values: {
+                    upTo: string;
                 };
             };
         };
@@ -4576,6 +4696,36 @@ export declare const resources: {
                     purchaseFailed: string;
                 };
             };
+            comparisonTable: {
+                categories: {
+                    credits: string;
+                    image: string;
+                    characters: string;
+                    generation: string;
+                    support: string;
+                };
+                features: {
+                    creditsPerMonth: string;
+                    pricePerCredit: string;
+                    resolution: string;
+                    takesPerShoot: string;
+                    portraitAspectRatio: string;
+                    squareAspectRatio: string;
+                    landscapeAspectRatio: string;
+                    included: string;
+                    storage: string;
+                    concurrentShoots: string;
+                    commercialUse: string;
+                    priorityFeatures: string;
+                    betaAccess: string;
+                    emailSupport: string;
+                    chatSupport: string;
+                    dedicatedSupport: string;
+                };
+                values: {
+                    upTo: string;
+                };
+            };
         };
         styles: {
             titles: {
@@ -5632,6 +5782,36 @@ export declare const resources: {
                     invalidPackConfig: string;
                     createCheckoutFailed: string;
                     purchaseFailed: string;
+                };
+            };
+            comparisonTable: {
+                categories: {
+                    credits: string;
+                    image: string;
+                    characters: string;
+                    generation: string;
+                    support: string;
+                };
+                features: {
+                    creditsPerMonth: string;
+                    pricePerCredit: string;
+                    resolution: string;
+                    takesPerShoot: string;
+                    portraitAspectRatio: string;
+                    squareAspectRatio: string;
+                    landscapeAspectRatio: string;
+                    included: string;
+                    storage: string;
+                    concurrentShoots: string;
+                    commercialUse: string;
+                    priorityFeatures: string;
+                    betaAccess: string;
+                    emailSupport: string;
+                    chatSupport: string;
+                    dedicatedSupport: string;
+                };
+                values: {
+                    upTo: string;
                 };
             };
         };
@@ -6692,6 +6872,36 @@ export declare const resources: {
                     purchaseFailed: string;
                 };
             };
+            comparisonTable: {
+                categories: {
+                    credits: string;
+                    image: string;
+                    characters: string;
+                    generation: string;
+                    support: string;
+                };
+                features: {
+                    creditsPerMonth: string;
+                    pricePerCredit: string;
+                    resolution: string;
+                    takesPerShoot: string;
+                    portraitAspectRatio: string;
+                    squareAspectRatio: string;
+                    landscapeAspectRatio: string;
+                    included: string;
+                    storage: string;
+                    concurrentShoots: string;
+                    commercialUse: string;
+                    priorityFeatures: string;
+                    betaAccess: string;
+                    emailSupport: string;
+                    chatSupport: string;
+                    dedicatedSupport: string;
+                };
+                values: {
+                    upTo: string;
+                };
+            };
         };
         styles: {
             titles: {
@@ -7748,6 +7958,36 @@ export declare const resources: {
                     invalidPackConfig: string;
                     createCheckoutFailed: string;
                     purchaseFailed: string;
+                };
+            };
+            comparisonTable: {
+                categories: {
+                    credits: string;
+                    image: string;
+                    characters: string;
+                    generation: string;
+                    support: string;
+                };
+                features: {
+                    creditsPerMonth: string;
+                    pricePerCredit: string;
+                    resolution: string;
+                    takesPerShoot: string;
+                    portraitAspectRatio: string;
+                    squareAspectRatio: string;
+                    landscapeAspectRatio: string;
+                    included: string;
+                    storage: string;
+                    concurrentShoots: string;
+                    commercialUse: string;
+                    priorityFeatures: string;
+                    betaAccess: string;
+                    emailSupport: string;
+                    chatSupport: string;
+                    dedicatedSupport: string;
+                };
+                values: {
+                    upTo: string;
                 };
             };
         };
@@ -8809,6 +9049,36 @@ export declare const resources: {
                     purchaseFailed: string;
                 };
             };
+            comparisonTable: {
+                categories: {
+                    credits: string;
+                    image: string;
+                    characters: string;
+                    generation: string;
+                    support: string;
+                };
+                features: {
+                    creditsPerMonth: string;
+                    pricePerCredit: string;
+                    resolution: string;
+                    takesPerShoot: string;
+                    portraitAspectRatio: string;
+                    squareAspectRatio: string;
+                    landscapeAspectRatio: string;
+                    included: string;
+                    storage: string;
+                    concurrentShoots: string;
+                    commercialUse: string;
+                    priorityFeatures: string;
+                    betaAccess: string;
+                    emailSupport: string;
+                    chatSupport: string;
+                    dedicatedSupport: string;
+                };
+                values: {
+                    upTo: string;
+                };
+            };
         };
         styles: {
             titles: {
@@ -9865,6 +10135,36 @@ export declare const resources: {
                     invalidPackConfig: string;
                     createCheckoutFailed: string;
                     purchaseFailed: string;
+                };
+            };
+            comparisonTable: {
+                categories: {
+                    credits: string;
+                    image: string;
+                    characters: string;
+                    generation: string;
+                    support: string;
+                };
+                features: {
+                    creditsPerMonth: string;
+                    pricePerCredit: string;
+                    resolution: string;
+                    takesPerShoot: string;
+                    portraitAspectRatio: string;
+                    squareAspectRatio: string;
+                    landscapeAspectRatio: string;
+                    included: string;
+                    storage: string;
+                    concurrentShoots: string;
+                    commercialUse: string;
+                    priorityFeatures: string;
+                    betaAccess: string;
+                    emailSupport: string;
+                    chatSupport: string;
+                    dedicatedSupport: string;
+                };
+                values: {
+                    upTo: string;
                 };
             };
         };

@@ -124,5 +124,35 @@
       "createCheckoutFailed": "Error al crear sesión de pago",
       "purchaseFailed": "Error al comprar paquete de créditos"
     }
+  },
+  "comparisonTable": {
+    "categories": {
+      "credits": "Créditos",
+      "image": "Imagen",
+      "characters": "Personajes",
+      "generation": "Generación",
+      "support": "Soporte"
+    },
+    "features": {
+      "creditsPerMonth": "Créditos por mes",
+      "pricePerCredit": "Precio por crédito",
+      "resolution": "Resolución",
+      "takesPerShoot": "Tomas por sesión",
+      "portraitAspectRatio": "Formato vertical",
+      "squareAspectRatio": "Formato cuadrado",
+      "landscapeAspectRatio": "Formato horizontal",
+      "included": "Incluido",
+      "storage": "Almacenamiento",
+      "concurrentShoots": "Sesiones simultáneas",
+      "commercialUse": "Uso comercial",
+      "priorityFeatures": "Acceso prioritario a nuevas funciones",
+      "betaAccess": "Acceso a pruebas beta",
+      "emailSupport": "Soporte por correo",
+      "chatSupport": "Soporte por chat",
+      "dedicatedSupport": "Soporte dedicado"
+    },
+    "values": {
+      "upTo": "Hasta {{value}}"
+    }
   }
 }

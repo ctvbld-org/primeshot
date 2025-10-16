@@ -124,5 +124,35 @@
             "createCheckoutFailed": "チェックアウトセッションの作成に失敗しました",
             "purchaseFailed": "クレジットパッケージの購入に失敗しました"
         }
+    },
+    "comparisonTable": {
+        "categories": {
+            "credits": "クレジット",
+            "image": "画像",
+            "characters": "キャラクター",
+            "generation": "生成",
+            "support": "サポート"
+        },
+        "features": {
+            "creditsPerMonth": "月間クレジット",
+            "pricePerCredit": "クレジット単価",
+            "resolution": "解像度",
+            "takesPerShoot": "撮影枚数",
+            "portraitAspectRatio": "縦向き比率",
+            "squareAspectRatio": "正方形比率",
+            "landscapeAspectRatio": "横向き比率",
+            "included": "含まれる",
+            "storage": "ストレージ",
+            "concurrentShoots": "同時撮影数",
+            "commercialUse": "商用利用",
+            "priorityFeatures": "新機能への優先アクセス",
+            "betaAccess": "ベータテストアクセス",
+            "emailSupport": "メールサポート",
+            "chatSupport": "チャットサポート",
+            "dedicatedSupport": "専用サポート"
+        },
+        "values": {
+            "upTo": "最大{{value}}"
+        }
     }
 }

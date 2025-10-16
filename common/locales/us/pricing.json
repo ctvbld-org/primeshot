@@ -124,5 +124,35 @@
       "createCheckoutFailed": "Failed to create checkout session",
       "purchaseFailed": "Failed to purchase credit pack"
     }
+  },
+  "comparisonTable": {
+    "categories": {
+      "credits": "Credits",
+      "image": "Image",
+      "characters": "Characters",
+      "generation": "Generation",
+      "support": "Support"
+    },
+    "features": {
+      "creditsPerMonth": "Credits per month",
+      "pricePerCredit": "Price per credit",
+      "resolution": "Resolution",
+      "takesPerShoot": "Takes per shoot",
+      "portraitAspectRatio": "Portrait aspect ratio",
+      "squareAspectRatio": "Square aspect ratio",
+      "landscapeAspectRatio": "Landscape aspect ratio",
+      "included": "Included",
+      "storage": "Storage",
+      "concurrentShoots": "Concurrent shoots",
+      "commercialUse": "Commercial use",
+      "priorityFeatures": "Priority access to new features",
+      "betaAccess": "Beta testing access",
+      "emailSupport": "Email support",
+      "chatSupport": "Chat support",
+      "dedicatedSupport": "Dedicated support"
+    },
+    "values": {
+      "upTo": "Upto {{value}}"
+    }
   }
 }

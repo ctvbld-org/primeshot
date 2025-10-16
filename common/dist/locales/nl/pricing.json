@@ -124,5 +124,35 @@
             "createCheckoutFailed": "Afrekensessie maken mislukt",
             "purchaseFailed": "Creditpakket kopen mislukt"
         }
+    },
+    "comparisonTable": {
+        "categories": {
+            "credits": "Credits",
+            "image": "Afbeelding",
+            "characters": "Personages",
+            "generation": "Generatie",
+            "support": "Ondersteuning"
+        },
+        "features": {
+            "creditsPerMonth": "Credits per maand",
+            "pricePerCredit": "Prijs per credit",
+            "resolution": "Resolutie",
+            "takesPerShoot": "Opnames per shoot",
+            "portraitAspectRatio": "Portretformaat",
+            "squareAspectRatio": "Vierkant formaat",
+            "landscapeAspectRatio": "Landschapsformaat",
+            "included": "Inbegrepen",
+            "storage": "Opslag",
+            "concurrentShoots": "Gelijktijdige shoots",
+            "commercialUse": "Commercieel gebruik",
+            "priorityFeatures": "Prioritaire toegang tot nieuwe functies",
+            "betaAccess": "Beta-test toegang",
+            "emailSupport": "E-mailondersteuning",
+            "chatSupport": "Chatondersteuning",
+            "dedicatedSupport": "Toegewijde ondersteuning"
+        },
+        "values": {
+            "upTo": "Tot {{value}}"
+        }
     }
 }
