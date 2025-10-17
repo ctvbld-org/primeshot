@@ -26,11 +26,11 @@ interface AdminTrainingOptionsDialogProps {
 }
 
 export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm }: AdminTrainingOptionsDialogProps) {
-  const [steps, setSteps] = useState<number>(defaults?.steps ?? 2700)
+  const [steps, setSteps] = useState<number>(defaults?.steps ?? 2688)
   const [batchSize, setBatchSize] = useState<number>(defaults?.batch_size ?? 7)
   const [gradientAccumulationSteps, setGradientAccumulationSteps] = useState<number>(defaults?.gradient_accumulation_steps ?? 2)
   const [resizeSize, setResizeSize] = useState<number>(defaults?.resize_size ?? 896)
-  const [learningRate, setLearningRate] = useState<number>(defaults?.learning_rate ?? 0.0006)
+  const [learningRate, setLearningRate] = useState<number>(defaults?.learning_rate ?? 0.00064)
   const [resolution, setResolution] = useState<string>(
     defaults?.resolution ? JSON.stringify(defaults.resolution) : '[1024]'
   )

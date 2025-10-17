@@ -875,7 +875,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
         button.classList.add(styles.itemCardLoaded)
       })
     }, 50)
-  }, [selectedStyleIndex, currentStyle, scenes, wardrobes, selectedGender, selectedWardrobeValue, stylesWithPreview, panelQuery, characters])
+  }, [selectedStyleIndex, currentStyle, scenes, wardrobes, selectedGender, selectedWardrobeValue, stylesWithPreview, panelQuery])
 
   const updateNavButtons = useCallback(() => {
     const el = viewportRef.current
@@ -959,6 +959,27 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
       setTimeout(() => scrollToSelectedItem('wardrobe'), 300)
     }
   }, [selectedWardrobeValue, openPanel, currentStyle, scrollToSelectedItem])
+
+  // Effect to apply animation to character cards when characters list updates
+  useEffect(() => {
+    if (openPanel !== 'characters') return
+    
+    // Apply itemCardLoaded class to all character cards after they render
+    const timer = setTimeout(() => {
+      const viewport = viewportRef.current
+      if (viewport) {
+        const itemsContainer = viewport.firstElementChild as HTMLElement
+        if (itemsContainer) {
+          const allButtons = Array.from(itemsContainer.children) as HTMLElement[]
+          allButtons.forEach((button) => {
+            button.classList.add(styles.itemCardLoaded)
+          })
+        }
+      }
+    }, 50)
+    
+    return () => clearTimeout(timer)
+  }, [openPanel, characters])
 
   React.useEffect(() => {
     // Observe only when wardrobe panel is open and a wardrobe is selected (colors shown)
