@@ -95,7 +95,8 @@
       },
       "variety": {
         "title": "Variedade",
-        "description": "Escolha fotos com uma mistura de roupas e fundos. Evite filtros pesados.",
+        "description": "Escolha fotos com uma mistura de roupas e fundos.",
+        "description2": "Não use filtros.",
         "goodAlt": "Exemplo de boa variedade",
         "badAlt": "Exemplo de má variedade"
       }

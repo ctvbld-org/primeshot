@@ -2332,6 +2332,18 @@ Detected changes in:
 Detected changes in:
 - webapp/src/lib/image-quality.ts
 - webapp/src/lib/mediapipe-face-detection.ts
+
+
+**Auto-update 2025-10-17**:
+Detected changes in:
+- webapp/src/components/character/training/AdminTrainingOptionsDialog.tsx
+- webapp/src/components/generate/GenerateBar.tsx
+- website/src/app/[locale]/explore/page.tsx
+- website/src/app/[locale]/pricing/page.tsx
+- website/src/app/[locale]/privacy/page.tsx
+- website/src/app/[locale]/terms/page.tsx
+- website/src/app/api/subscriptions/route.ts
+- website/src/components/ContentPageHeader.module.css
 ## Component Organization
 
 Components are organized by feature and reusability:

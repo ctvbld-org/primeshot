@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next';
-import { getCdnUrl } from '@/lib/utils/cdn';
+import { getAppCdnUrl } from '@/lib/utils/cdn';
 
 export default function AuthCodeErrorPage() {
   const { t } = useTranslation('auth');
@@ -13,7 +13,7 @@ export default function AuthCodeErrorPage() {
       <div className="w-full max-w-sm space-y-8 text-center">
         <div className="flex flex-col items-center space-y-2 gap-4">
           <Image
-            src={getCdnUrl('assets/logo-primeshot.svg')}
+            src={getAppCdnUrl('assets/logo-primeshot.svg')}
             alt="Primeshot"
             width={40}
             height={40}

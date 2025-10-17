@@ -40,13 +40,19 @@ interface InferenceThumbnailProps {
    * - 'hero': single large mobile hero (should request up to 1024w)
    */
   variant?: 'grid' | 'hero';
+  /**
+   * Optional background image URL to display behind the thumbnail
+   * (usually the style's preview image for colorful backgrounds)
+   */
+  backgroundImage?: string;
 }
 
 export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
   thumbnail,
   jobStatus,
   onClick,
-  variant = 'grid'
+  variant = 'grid',
+  backgroundImage
 }) => {
   const { t } = useTranslation('inference');
   // Track layered transition state between preview and final image
@@ -265,6 +271,11 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
     >
       {/* Image or placeholder */}
       <div className={styles.imageContainer + ' ' + (variant === 'hero' ? styles.hero : '')}>
+        {/* Background image layer from style preview */}
+        {backgroundImage && (
+          <div className={styles.backgroundImageLayer} style={{ backgroundImage: `url(${backgroundImage})` }} />
+        )}
+        
         {/* Gradient loader: hide if we have a visible preview layer; fade out once final is loaded */}
         {((thumbnail.status === 'running' && !prevUrl && !isBase64Preview) || (!finalLoaded && !prevUrl && !isBase64Preview)) && (
           <div className={`${styles.gradientLoader} ${finalLoaded || thumbnail.status === 'completed' ? styles.fadeOut : ''}`} />

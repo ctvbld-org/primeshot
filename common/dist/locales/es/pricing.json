@@ -1,158 +1,158 @@
 {
-  "buyCredits": {
-    "title": "Comprar créditos",
-    "description": "Elige un paquete de créditos"
-  },
-  "upgradePlan": {
-    "title": "Mejorar plan",
-    "description": "Elige un plan de suscripción"
-  },
-  "purchase": {
-    "success": {
-      "subscriptionTitle": "Has mejorado exitosamente a {{plan}}",
-      "subscriptionTitleNew": "¡Bienvenido a {{plan}}!",
-      "creditsTitle": "¡Créditos añadidos!",
-      "subscriptionDescriptionWithCredits": "Tu nuevo ciclo de facturación de suscripción comienza hoy. ¡Disfruta de {{amount}} créditos y mucho más!",
-      "subscriptionDescriptionWithCreditsNew": "Tu ciclo de facturación comienza hoy. ¡Disfruta de {{amount}} créditos y mucho más!",
-      "subscriptionDescription": "Tu nuevo ciclo de facturación de suscripción comienza hoy. ¡Disfruta de tus nuevos beneficios!",
-      "subscriptionDescriptionNew": "Tu ciclo de facturación comienza hoy. ¡Disfruta de tus nuevos beneficios!",
-      "creditsDescription": "Tu saldo ha sido actualizado. Puedes empezar a generar ahora.",
-      "returnToShoot": "Volver al shooting",
-      "defaultPlan": "tu nuevo plan"
+    "buyCredits": {
+        "title": "Comprar créditos",
+        "description": "Elige un paquete de créditos"
+    },
+    "upgradePlan": {
+        "title": "Mejorar plan",
+        "description": "Elige un plan de suscripción"
+    },
+    "purchase": {
+        "success": {
+            "subscriptionTitle": "Has mejorado exitosamente a {{plan}}",
+            "subscriptionTitleNew": "¡Bienvenido a {{plan}}!",
+            "creditsTitle": "¡Créditos añadidos!",
+            "subscriptionDescriptionWithCredits": "Tu nuevo ciclo de facturación de suscripción comienza hoy. ¡Disfruta de {{amount}} créditos y mucho más!",
+            "subscriptionDescriptionWithCreditsNew": "Tu ciclo de facturación comienza hoy. ¡Disfruta de {{amount}} créditos y mucho más!",
+            "subscriptionDescription": "Tu nuevo ciclo de facturación de suscripción comienza hoy. ¡Disfruta de tus nuevos beneficios!",
+            "subscriptionDescriptionNew": "Tu ciclo de facturación comienza hoy. ¡Disfruta de tus nuevos beneficios!",
+            "creditsDescription": "Tu saldo ha sido actualizado. Puedes empezar a generar ahora.",
+            "returnToShoot": "Volver al shooting",
+            "defaultPlan": "tu nuevo plan"
+        }
+    },
+    "subscription": {
+        "context": {
+            "characterLimit": { "title": "Has alcanzado tu límite de personajes.", "description": "Mejora tu plan para obtener personajes adicionales" },
+            "qualityUpgrade": { "title": "¿Quieres mayor calidad?", "description": "Mejora para imágenes más nítidas y beneficios extra" },
+            "creditUpgrade": { "title": "¿Te estás quedando sin créditos?", "description": "Mejora para obtener más créditos mensuales" },
+            "general": { "title": "Mejora tu plan", "description": "Desbloquea más funciones y flexibilidad" },
+            "default": { "title": "Elige tu plan", "description": "Elige lo que te convenga, cambia cuando quieras" }
+        },
+        "loading": "Cargando planes...",
+        "empty": {
+            "title": "No hay mejora disponible",
+            "description": "Ya estás en el plan más alto disponible."
+        },
+        "headers": {
+            "chooseYourPlan": "Elige tu plan"
+        },
+        "banner": {
+            "titleStart": "Únete a los",
+            "titleNumber": "300",
+            "description": {
+                "start": "Ayuda a dar forma a Primeshot, obtén",
+                "lifetime": "de por vida",
+                "annualDiscount": "70% de descuento",
+                "annualWord": "anual",
+                "or": "o",
+                "monthlyDiscount": "50% de descuento",
+                "monthlyWord": "mensual",
+                "end": "y reclama beneficios exclusivos para los 300 fundadores."
+            },
+            "small": "La oferta de por vida continúa hasta que canceles."
+        },
+        "toggle": {
+            "monthly": "Mensual",
+            "yearly": "Anual",
+            "aria": "Ciclo de facturación"
+        },
+        "card": {
+            "recommended": "Recomendado",
+            "save": "Ahorra {{pct}}%",
+            "perMonth": "/ mes",
+            "billed": "Facturado {{cycle}}",
+            "creditsCount": "{{count}} créditos",
+            "perMonthWord": "por mes",
+            "perCredit": "{{price}} por crédito",
+            "button": {
+                "select": "Seleccionar plan",
+                "current": "Plan actual",
+                "processing": "Procesando…",
+                "disabledTooltip": "No disponible durante la oferta especial 🚀"
+            },
+            "features": {
+                "quality": "Imágenes de calidad {{quality}}",
+                "characterIncluded": "{{count}}x Personaje incluido",
+                "maxCharacters": "Hasta {{count}} almacenamiento de personajes",
+                "concurrentShoots": "Hasta {{count}} shootings simultáneos",
+                "commercialUse": "Uso comercial"
+            }
+        },
+        "footer": {
+            "upgradeNotice": "Tu suscripción actual será cancelada y reemplazada con el nuevo plan. Los créditos existentes se conservarán."
+        },
+        "toasts": {
+            "loginRequired": "Por favor, inicia sesión",
+            "selectPlan": "Por favor, selecciona un plan",
+            "invalidPlan": "Plan de suscripción seleccionado inválido",
+            "openingPortal": "Abriendo portal de cliente de Stripe...",
+            "customerPortalFailed": "Error al abrir el portal de cliente",
+            "upgradePreviewFailed": "Error al abrir la vista previa de mejora",
+            "upgraded": "¡Suscripción mejorada exitosamente!",
+            "checkoutFailed": "Pago fallido",
+            "invalidCheckout": "Respuesta inválida del pago"
+        }
+    },
+    "credits": {
+        "dialog": {
+            "headerSub": {
+                "lowBalance": "Saldo de créditos demasiado bajo.",
+                "creativity": "Alimenta tu creatividad 🚀"
+            },
+            "headerTitle": {
+                "lowBalance": "Recarga tus créditos para continuar generando",
+                "fun": "¡Más créditos, más creaciones, más diversión!"
+            }
+        },
+        "card": {
+            "images": "Hasta {{count}} imágenes {{quality}}",
+            "characters": "Hasta {{count}} personajes",
+            "footnote": "*Solo planes Estándar y Pro",
+            "button": {
+                "buy": "Comprar",
+                "processing": "Procesando…"
+            },
+            "validity": "Válido por {{duration}}",
+            "oneTime": "una vez",
+            "perCredit": "{{price}} por crédito",
+            "perCreditWord": "por crédito"
+        },
+        "toasts": {
+            "loginRequired": "Por favor, inicia sesión",
+            "invalidPackConfig": "Configuración de paquete de créditos inválida",
+            "createCheckoutFailed": "Error al crear sesión de pago",
+            "purchaseFailed": "Error al comprar paquete de créditos"
+        }
+    },
+    "comparisonTable": {
+        "categories": {
+            "credits": "Créditos",
+            "image": "Imagen",
+            "characters": "Personajes",
+            "generation": "Generación",
+            "support": "Soporte"
+        },
+        "features": {
+            "creditsPerMonth": "Créditos por mes",
+            "pricePerCredit": "Precio por crédito",
+            "resolution": "Resolución",
+            "takesPerShoot": "Tomas por sesión",
+            "portraitAspectRatio": "Formato vertical",
+            "squareAspectRatio": "Formato cuadrado",
+            "landscapeAspectRatio": "Formato horizontal",
+            "included": "Incluido",
+            "storage": "Almacenamiento",
+            "concurrentShoots": "Sesiones simultáneas",
+            "commercialUse": "Uso comercial",
+            "priorityFeatures": "Acceso prioritario a nuevas funciones",
+            "betaAccess": "Acceso a pruebas beta",
+            "emailSupport": "Soporte por correo",
+            "chatSupport": "Soporte por chat",
+            "dedicatedSupport": "Soporte dedicado"
+        },
+        "values": {
+            "upTo": "Hasta {{value}}"
+        }
     }
-  },
-  "subscription": {
-    "context": {
-      "characterLimit": { "title": "Has alcanzado tu límite de personajes.", "description": "Mejora tu plan para obtener personajes adicionales" },
-      "qualityUpgrade": { "title": "¿Quieres mayor calidad?", "description": "Mejora para imágenes más nítidas y beneficios extra" },
-      "creditUpgrade": { "title": "¿Te estás quedando sin créditos?", "description": "Mejora para obtener más créditos mensuales" },
-      "general": { "title": "Mejora tu plan", "description": "Desbloquea más funciones y flexibilidad" },
-      "default": { "title": "Elige tu plan", "description": "Elige lo que te convenga, cambia cuando quieras" }
-    },
-    "loading": "Cargando planes...",
-    "empty": {
-      "title": "No hay mejora disponible",
-      "description": "Ya estás en el plan más alto disponible."
-    },
-    "headers": {
-      "chooseYourPlan": "Elige tu plan"
-    },
-    "banner": {
-      "titleStart": "Únete a los",
-      "titleNumber": "300",
-      "description": {
-        "start": "Ayuda a dar forma a Primeshot, obtén",
-        "lifetime": "de por vida",
-        "annualDiscount": "70% de descuento",
-        "annualWord": "anual",
-        "or": "o",
-        "monthlyDiscount": "50% de descuento",
-        "monthlyWord": "mensual",
-        "end": "y reclama beneficios exclusivos para los 300 fundadores."
-      },
-      "small": "La oferta de por vida continúa hasta que canceles."
-    },
-    "toggle": {
-      "monthly": "Mensual",
-      "yearly": "Anual",
-      "aria": "Ciclo de facturación"
-    },
-    "card": {
-      "recommended": "Recomendado",
-      "save": "Ahorra {{pct}}%",
-      "perMonth": "/ mes",
-      "billed": "Facturado {{cycle}}",
-      "creditsCount": "{{count}} créditos",
-      "perMonthWord": "por mes",
-      "perCredit": "{{price}} por crédito",
-      "button": {
-        "select": "Seleccionar plan",
-        "current": "Plan actual",
-        "processing": "Procesando…",
-        "disabledTooltip": "No disponible durante la oferta especial 🚀"
-      },
-      "features": {
-        "quality": "Imágenes de calidad {{quality}}",
-        "characterIncluded": "{{count}}x Personaje incluido",
-        "maxCharacters": "Hasta {{count}} almacenamiento de personajes",
-        "concurrentShoots": "Hasta {{count}} shootings simultáneos",
-        "commercialUse": "Uso comercial"
-      }
-    },
-    "footer": {
-      "upgradeNotice": "Tu suscripción actual será cancelada y reemplazada con el nuevo plan. Los créditos existentes se conservarán."
-    },
-    "toasts": {
-      "loginRequired": "Por favor, inicia sesión",
-      "selectPlan": "Por favor, selecciona un plan",
-      "invalidPlan": "Plan de suscripción seleccionado inválido",
-      "openingPortal": "Abriendo portal de cliente de Stripe...",
-      "customerPortalFailed": "Error al abrir el portal de cliente",
-      "upgradePreviewFailed": "Error al abrir la vista previa de mejora",
-      "upgraded": "¡Suscripción mejorada exitosamente!",
-      "checkoutFailed": "Pago fallido",
-      "invalidCheckout": "Respuesta inválida del pago"
-    }
-  },
-  "credits": {
-    "dialog": {
-      "headerSub": {
-        "lowBalance": "Saldo de créditos demasiado bajo.",
-        "creativity": "Alimenta tu creatividad 🚀"
-      },
-      "headerTitle": {
-        "lowBalance": "Recarga tus créditos para continuar generando",
-        "fun": "¡Más créditos, más creaciones, más diversión!"
-      }
-    },
-    "card": {
-      "images": "Hasta {{count}} imágenes {{quality}}",
-      "characters": "Hasta {{count}} personajes",
-      "footnote": "*Solo planes Estándar y Pro",
-      "button": {
-        "buy": "Comprar",
-        "processing": "Procesando…"
-      },
-      "validity": "Válido por {{duration}}",
-      "oneTime": "una vez",
-      "perCredit": "{{price}} por crédito",
-      "perCreditWord": "por crédito"
-    },
-    "toasts": {
-      "loginRequired": "Por favor, inicia sesión",
-      "invalidPackConfig": "Configuración de paquete de créditos inválida",
-      "createCheckoutFailed": "Error al crear sesión de pago",
-      "purchaseFailed": "Error al comprar paquete de créditos"
-    }
-  },
-  "comparisonTable": {
-    "categories": {
-      "credits": "Créditos",
-      "image": "Imagen",
-      "characters": "Personajes",
-      "generation": "Generación",
-      "support": "Soporte"
-    },
-    "features": {
-      "creditsPerMonth": "Créditos por mes",
-      "pricePerCredit": "Precio por crédito",
-      "resolution": "Resolución",
-      "takesPerShoot": "Tomas por sesión",
-      "portraitAspectRatio": "Formato vertical",
-      "squareAspectRatio": "Formato cuadrado",
-      "landscapeAspectRatio": "Formato horizontal",
-      "included": "Incluido",
-      "storage": "Almacenamiento",
-      "concurrentShoots": "Sesiones simultáneas",
-      "commercialUse": "Uso comercial",
-      "priorityFeatures": "Acceso prioritario a nuevas funciones",
-      "betaAccess": "Acceso a pruebas beta",
-      "emailSupport": "Soporte por correo",
-      "chatSupport": "Soporte por chat",
-      "dedicatedSupport": "Soporte dedicado"
-    },
-    "values": {
-      "upTo": "Hasta {{value}}"
-    }
-  }
 }

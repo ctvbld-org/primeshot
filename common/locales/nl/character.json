@@ -95,7 +95,8 @@
       },
       "variety": {
         "title": "Variatie",
-        "description": "Kies shots met een mix van kleding en achtergronden. Vermijd zware filters.",
+        "description": "Kies shots met een mix van kleding en achtergronden.",
+        "description2": "Gebruik geen filters.",
         "goodAlt": "Voorbeeld van goede variatie",
         "badAlt": "Voorbeeld van slechte variatie"
       }

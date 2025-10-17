@@ -5,7 +5,7 @@ import WaitlistForm from "@/components/WaitlistForm";
 import SocialIcons from "@/components/SocialIcons";
 import { WebGLBackground, TransitionButton } from "@/components/WebGLBackground";
 import { HomePageWrapper } from "@/components/HomePageWrapper";
-import { getCdnUrl, getAppCdnUrl } from "@/lib/utils/cdn";
+import { getWebsiteCdnUrl, getAppCdnUrl } from "@/lib/utils/cdn";
 
 interface HomeProps {
   params: Promise<{ locale: string }>;
@@ -17,18 +17,18 @@ export default async function Home({ params }: HomeProps) {
   const t = i18n.getFixedT(locale, 'homepage');
   
   const allTransitionImages = [
-    getCdnUrl('landing-page-1-w1920.webp'),
-    getCdnUrl('landing-page-2-w1920.webp'),
-    getCdnUrl('landing-page-3-w1920.webp'),
-    getCdnUrl('landing-page-4-w1920.webp'),
-    getCdnUrl('landing-page-5-w1920.webp'),
-    getCdnUrl('landing-page-6-w1920.webp'),
-    getCdnUrl('landing-page-12-w1920.webp'),
-    getCdnUrl('landing-page-8-w1920.webp'),
-    getCdnUrl('landing-page-9-w1920.webp'),
-    getCdnUrl('landing-page-10-w1920.webp'),
-    getCdnUrl('landing-page-13-w1920.webp'),
-    getCdnUrl('landing-page-15-w1920.webp'),
+    getWebsiteCdnUrl('landing-page-1-w1920.webp'),
+    getWebsiteCdnUrl('landing-page-2-w1920.webp'),
+    getWebsiteCdnUrl('landing-page-3-w1920.webp'),
+    getWebsiteCdnUrl('landing-page-4-w1920.webp'),
+    getWebsiteCdnUrl('landing-page-5-w1920.webp'),
+    getWebsiteCdnUrl('landing-page-6-w1920.webp'),
+    getWebsiteCdnUrl('landing-page-12-w1920.webp'),
+    getWebsiteCdnUrl('landing-page-8-w1920.webp'),
+    getWebsiteCdnUrl('landing-page-9-w1920.webp'),
+    getWebsiteCdnUrl('landing-page-10-w1920.webp'),
+    getWebsiteCdnUrl('landing-page-13-w1920.webp'),
+    getWebsiteCdnUrl('landing-page-15-w1920.webp'),
   ];
 
   // Shuffle the images randomly on each page load
@@ -57,10 +57,10 @@ export default async function Home({ params }: HomeProps) {
         <div className="relative bg-gradient-to-b from-abyss to-obsidian flex h-full min-h-dvh md:h-auto md:min-h-0 flex-col w-full md:w-1/2 lg:w-1/3 lg:min-w-[420px] justify-end p-4 sm:p-8 pb-16 sm:pb-16 lg:p-12 lg:pb-20">
           
           {/* Cross SVGs in corners */}
-          <Image src={getCdnUrl('cross.svg')} alt="" width={24} height={24} className="absolute top-4 left-4 sm:top-8 sm:left-8 w-5 h-5" />
-          <Image src={getCdnUrl('cross.svg')} alt="" width={24} height={24} className="absolute top-4 right-4 sm:top-8 sm:right-8 w-5 h-5" />
-          <Image src={getCdnUrl('cross.svg')} alt="" width={24} height={24} className="absolute bottom-4 sm:bottom-8 left-4 sm:left-8 w-5 h-5" />
-          <Image src={getCdnUrl('cross.svg')} alt="" width={24} height={24} className="absolute bottom-4 sm:bottom-8 right-4 sm:right-8 w-5 h-5" />
+          <Image src={getWebsiteCdnUrl('cross.svg')} alt="" width={24} height={24} className="absolute top-4 left-4 sm:top-8 sm:left-8 w-5 h-5" />
+          <Image src={getWebsiteCdnUrl('cross.svg')} alt="" width={24} height={24} className="absolute top-4 right-4 sm:top-8 sm:right-8 w-5 h-5" />
+          <Image src={getWebsiteCdnUrl('cross.svg')} alt="" width={24} height={24} className="absolute bottom-4 sm:bottom-8 left-4 sm:left-8 w-5 h-5" />
+          <Image src={getWebsiteCdnUrl('cross.svg')} alt="" width={24} height={24} className="absolute bottom-4 sm:bottom-8 right-4 sm:right-8 w-5 h-5" />
           <div className="space-y-8 pt-16">
             <Link href="/" className="select-none">
               <Image src={getAppCdnUrl('assets/logo-primeshot.svg')} alt="Primeshot" width={64} height={64} className="w-16 h-16 animate-fade-in-up-delay-1" />
@@ -95,7 +95,7 @@ export default async function Home({ params }: HomeProps) {
           
           <div className="flex flex-col flex-1 select-none">
             <Image 
-              src={getCdnUrl('photo-meta.svg')} 
+              src={getWebsiteCdnUrl('photo-meta.svg')} 
               alt={t('aria.photoMetadata')}
               width={280}
               height={280}

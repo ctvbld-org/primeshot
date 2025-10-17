@@ -95,7 +95,8 @@
       },
       "variety": {
         "title": "Vielfalt",
-        "description": "Wähle Aufnahmen mit einer Mischung aus Kleidung und Hintergründen. Vermeide starke Filter.",
+        "description": "Wähle Aufnahmen mit einer Mischung aus Kleidung und Hintergründen.",
+        "description2": "Verwende keine Filter.",
         "goodAlt": "Beispiel für gute Vielfalt",
         "badAlt": "Beispiel für schlechte Vielfalt"
       }

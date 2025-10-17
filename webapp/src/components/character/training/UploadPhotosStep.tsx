@@ -117,6 +117,37 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
     clearRejectedFiles()
   }, [clearRejectedFiles])
 
+  // Shared drag handlers for both FileUploader and UploadFooter
+  const handleDrop = useCallback(async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const disabled = !isAdmin && acceptedFiles.length >= maxImages
+    if (disabled) return
+
+    const droppedFiles = Array.from(e.dataTransfer.files)
+    const filesToAdd = handleNewFiles(droppedFiles)
+    if (filesToAdd.length > 0) {
+      await addFiles(filesToAdd)
+    }
+  }, [handleNewFiles, addFiles, isAdmin, acceptedFiles.length, maxImages])
+
+  const [isDragging, setIsDragging] = useState(false)
+
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const disabled = !isAdmin && acceptedFiles.length >= maxImages
+    if (!disabled) {
+      setIsDragging(true)
+    }
+  }, [isAdmin, acceptedFiles.length, maxImages])
+
+  const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+  }, [])
+
   return (
     <>
       {/* Left Column - Upload Area */}
@@ -173,6 +204,10 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
             currentUploadingIndex={null}
             uploadedFiles={[]}
             onEmptySquareClick={() => fileUploaderRef.current?.openFileDialog()}
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            disabled={!isAdmin && acceptedFiles.length >= maxImages}
           />
         </div>
       </div>

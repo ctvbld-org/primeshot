@@ -14,6 +14,7 @@ export interface GuidelineItem {
   id: string
   title: string
   description: string
+  description2?: string
   icon: string
   images: Array<{ src: string; alt: string }>
 }
@@ -131,7 +132,7 @@ export function OnboardingStep({ step, guidelineIndex, guidelines, onNext, onBac
                   </div>
                 </div>
                 <h2 className={styles.title}>{guidelines[guidelineIndex].title}</h2>
-                <p className={styles.description}>{guidelines[guidelineIndex].description}</p>
+                <p className={styles.description}>{guidelines[guidelineIndex].description}{guidelines[guidelineIndex].description2 && <span className="text-[#FF4242]">{guidelines[guidelineIndex].description2}</span>}</p>
                 <div className={styles.compareRow}>
                   <div className={styles.compareItem}>
                     <div className={styles.imageBox}>

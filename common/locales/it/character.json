@@ -95,7 +95,8 @@
       },
       "variety": {
         "title": "Varietà",
-        "description": "Scegli scatti con un mix di abbigliamento e sfondi. Evita filtri pesanti.",
+        "description": "Scegli scatti con un mix di abbigliamento e sfondi.",
+        "description2": "Non usare filtri.",
         "goodAlt": "Esempio di buona varietà",
         "badAlt": "Esempio di cattiva varietà"
       }

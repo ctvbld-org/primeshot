@@ -74,6 +74,7 @@ interface StepData {
     id: string
     title: string
     description: string
+    description2?: string
     icon: string
     images: Array<{ src: string; alt: string }>
   }>
@@ -136,6 +137,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
         id: 'variety',
         title: t('character:onboarding.guidelines.variety.title'),
         description: t('character:onboarding.guidelines.variety.description'),
+        description2: t('character:onboarding.guidelines.variety.description2'),
         icon: 'variety',
         images: [
           { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/variety-1-w320.webp', alt: t('character:onboarding.guidelines.variety.goodAlt') },

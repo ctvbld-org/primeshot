@@ -2,7 +2,7 @@
   position: relative;
   aspect-ratio: 1 / 1;
   overflow: hidden;
-  background: #2ADED810;
+  background: rgba(0, 0, 0, 0.8);
   cursor: pointer;
 }
 
@@ -17,11 +17,25 @@
   height: 100%;
 }
 
+.backgroundImageLayer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(40px);
+  opacity: 0.6;
+  z-index: 0;
+  transform: scale(1.2);
+}
+
 .imageContainer:after {
   content: '';
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 3;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.8) 100%);
   pointer-events: none;
   background-blend-mode: hard-light;
@@ -43,6 +57,7 @@
   opacity: 0;
   filter: blur(10px);
   transition: opacity 0.3s ease, transform 0.3s ease-out, filter 0.3s ease-out;
+  z-index: 2;
 }
 
 .imageLayer:hover {
@@ -109,10 +124,11 @@
   justify-content: center;
   width: 100%;
   height: 100%;
-  background: rgba(42, 222, 216, 0.1);
+  background: rgba(0, 0, 0, 0.3);
   color: var(--color-text-secondary);
   position: relative;
   overflow: hidden;
+  z-index: 1;
 }
 
 /* Status overlay */
@@ -196,6 +212,7 @@
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(1px);
+  z-index: 4;
 }
 
 /* Live preview badge */
@@ -277,7 +294,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  z-index: 10;
+  z-index: 5;
   overflow: hidden;
   opacity: 1;
   filter: blur(0);
@@ -291,10 +308,10 @@
 }
 
 .gradientLoader {
-  background: rgba(42, 222, 216, 0.1);
+  background: rgba(0, 0, 0, 0.4);
 }
 .placeholder {
-  background: rgba(42, 222, 216, 0.1);
+  background: rgba(0, 0, 0, 0.3);
 }
 
 /* Inline hover actions */
@@ -353,10 +370,10 @@
 }
 
 .statusQueued .gradientLoader {
-  background: rgba(42, 222, 216, 0.02);
+  background: rgba(0, 0, 0, 0.2);
 }
 .statusFailed .gradientLoader {
-  background: rgba(239, 68, 68, 0.01);
+  background: rgba(239, 68, 68, 0.3);
 }
 .statusQueued .placeholder,
 .statusFailed .placeholder {
@@ -364,9 +381,9 @@
 }
 
 @keyframes simpleOpacityPulse {
-  0% { background: rgba(42, 222, 216, 0.1); }
-  50% { background: rgba(42, 222, 216, 0.2); }
-  100% { background: rgba(42, 222, 216, 0.1); }
+  0% { background: rgba(0, 0, 0, 0.3); }
+  50% { background: rgba(0, 0, 0, 0.5); }
+  100% { background: rgba(0, 0, 0, 0.3); }
 }
 
 /* Responsive grid adjustments */

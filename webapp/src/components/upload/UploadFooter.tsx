@@ -21,6 +21,10 @@ interface UploadFooterProps {
   currentUploadingIndex?: number | null
   uploadedFiles?: string[]
   onEmptySquareClick?: () => void
+  onDrop?: (e: React.DragEvent<HTMLDivElement>) => void
+  onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void
+  onDragLeave?: (e: React.DragEvent<HTMLDivElement>) => void
+  disabled?: boolean
 }
 
 interface ScrollState {
@@ -40,7 +44,11 @@ export function UploadFooter({
   currentAnalyzingIndex,
   currentUploadingIndex = null,
   uploadedFiles = [],
-  onEmptySquareClick
+  onEmptySquareClick,
+  onDrop,
+  onDragOver,
+  onDragLeave,
+  disabled = false
 }: UploadFooterProps) {
   // 1. Hooks
   const { t } = useTranslation('upload')
@@ -54,6 +62,7 @@ export function UploadFooter({
   })
   const [openTooltipIndex, setOpenTooltipIndex] = useState<number | null>(null)
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({})
+  const [isDragging, setIsDragging] = useState(false)
 
   // 3a. Refs for Object URL caching / cleanup (moved up so callbacks can reference them)
   const objectUrlCache = useRef(new WeakMap<File, string>()).current
@@ -65,6 +74,30 @@ export function UploadFooter({
   const handleTooltipOpenChange = useCallback((open: boolean, index: number) => {
     setOpenTooltipIndex(open ? index : null)
   }, [])
+
+  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (disabled) return
+    setIsDragging(false)
+    onDrop?.(e)
+  }, [disabled, onDrop])
+
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!disabled) {
+      setIsDragging(true)
+      onDragOver?.(e)
+    }
+  }, [disabled, onDragOver])
+
+  const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+    onDragLeave?.(e)
+  }, [onDragLeave])
 
   // Immediately revoke object URL if the user removes a file mid-session to avoid memory leaks
   const handleRemoveFile = useCallback((index: number) => {
@@ -292,7 +325,15 @@ export function UploadFooter({
 
   // 7. Render
   return (
-    <div className={styles.footer}>
+    <div 
+      className={cn(
+        styles.footer,
+        isDragging && styles.footerDragging
+      )}
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+    >
       <div className={styles.footerContent}>        
         <div className={styles.squares}>
           <div 
@@ -301,7 +342,8 @@ export function UploadFooter({
               styles.squaresWrapper,
               scrollState.atStart && styles.atStart,
               scrollState.atEnd && styles.atEnd,
-              scrollState.noScroll && styles.noScroll
+              scrollState.noScroll && styles.noScroll,
+              isDragging && styles.squaresWrapperDragging
             )}
           >
             <div className={styles.squaresContainer}>

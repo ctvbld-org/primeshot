@@ -68,6 +68,11 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
   const translatedWardrobe = useTranslatedWardrobe(wardrobeData);
   const translatedColor = useTranslatedColor(colorData);
 
+  // Extract style background image for thumbnails
+  const styleBackgroundImage = useMemo(() => {
+    return styleData?.preview_images?.[0] || '';
+  }, [styleData?.preview_images]);
+
   const subtitle = useMemo(() => {
     // Prefer prompt_override when available and enabled
     const rawOverride = (activeJob as any)?.prompt_override ?? (activeJob as any)?.promptOverride ?? null;
@@ -516,6 +521,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
                   jobStatus={activeJob.status as any}
                   onClick={() => handleThumbnailClick(0)}
                   variant="hero"
+                  backgroundImage={styleBackgroundImage}
                 />
               );
             })()}
@@ -575,6 +581,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
               thumbnail={thumbnail}
               jobStatus={activeJob.status as any}
               onClick={() => handleThumbnailClick(index)}
+              backgroundImage={styleBackgroundImage}
             />
           ))
         ) : (

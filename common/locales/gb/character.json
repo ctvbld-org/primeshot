@@ -95,7 +95,8 @@
       },
       "variety": {
         "title": "Variety",
-        "description": "Pick shots with a mix of clothing and backgrounds. Skip heavy filters.",
+        "description": "Pick shots with a mix of clothing and backgrounds.",
+        "description2": "Don't use any filters.",
         "goodAlt": "Good variety example",
         "badAlt": "Poor variety example"
       }

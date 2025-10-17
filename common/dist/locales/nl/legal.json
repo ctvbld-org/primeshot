@@ -1,173 +1,173 @@
 {
-  "common": {
-    "effectiveDate": "Ingangsdatum: {{date}}",
-    "endMarker": "/einde",
-    "contact": "Contact:",
-    "email": "team@primeshot.ai"
-  },
-  "terms": {
-    "title": "Algemene voorwaarden",
-    "intro": "Door onze service te gebruiken, ga je akkoord met deze algemene voorwaarden. Lees ze zorgvuldig door.",
-    "sections": {
-      "definitions": {
-        "title": "1. Definities",
-        "items": {
-          "service": "Primeshot / Service: Het AI-aangedreven platform dat portretten genereert uit door gebruikers geüploade selfies.",
-          "user": "Gebruiker / Jij: Iedereen die toegang heeft tot of Primeshot gebruikt.",
-          "userContent": "Gebruikersinhoud: Alle afbeeldingen, selfies of andere inhoud die je uploadt naar Primeshot.",
-          "aiGenerated": "AI-gegenereerde inhoud / Portretten: Afbeeldingen geproduceerd door Primeshot's AI-modellen gebaseerd op je gebruikersinhoud.",
-          "credits": "Credits: Eenheden gebruikt om AI-model training of afbeelding generatie te betalen."
+    "common": {
+        "effectiveDate": "Ingangsdatum: {{date}}",
+        "endMarker": "/einde",
+        "contact": "Contact:",
+        "email": "team@primeshot.ai"
+    },
+    "terms": {
+        "title": "Algemene voorwaarden",
+        "intro": "Door onze service te gebruiken, ga je akkoord met deze algemene voorwaarden. Lees ze zorgvuldig door.",
+        "sections": {
+            "definitions": {
+                "title": "1. Definities",
+                "items": {
+                    "service": "Primeshot / Service: Het AI-aangedreven platform dat portretten genereert uit door gebruikers geüploade selfies.",
+                    "user": "Gebruiker / Jij: Iedereen die toegang heeft tot of Primeshot gebruikt.",
+                    "userContent": "Gebruikersinhoud: Alle afbeeldingen, selfies of andere inhoud die je uploadt naar Primeshot.",
+                    "aiGenerated": "AI-gegenereerde inhoud / Portretten: Afbeeldingen geproduceerd door Primeshot's AI-modellen gebaseerd op je gebruikersinhoud.",
+                    "credits": "Credits: Eenheden gebruikt om AI-model training of afbeelding generatie te betalen."
+                }
+            },
+            "eligibility": {
+                "title": "2. Geschiktheid",
+                "content": "Je moet minstens 16 jaar oud zijn om Primeshot te gebruiken. Door de service te gebruiken, bevestig je dat je aan deze leeftijdsvereiste voldoet."
+            },
+            "userAccounts": {
+                "title": "3. Gebruikersaccounts",
+                "items": [
+                    "Je moet een account aanmaken om Primeshot te gebruiken.",
+                    "Je bent verantwoordelijk voor het veilig houden van je inloggegevens en voor alle activiteit onder je account.",
+                    "Meld ons onmiddellijk bij ongeautoriseerde toegang."
+                ]
+            },
+            "payments": {
+                "title": "4. Betalingen en abonnementen",
+                "content": "Alle betalingen worden online verwerkt via veilige betalingsproviders. Abonnementskosten worden vooraf in rekening gebracht; credits verlopen volgens planvoorwaarden en worden niet overgedragen. Mislukte betalingen kunnen leiden tot opschorting tot oplossing.",
+                "refundsTitle": "4.1 Terugbetalingen",
+                "refunds": "Geen terugbetalingen voor ongebruikte credits of wijzigingen halverwege cyclus, behalve voor technische fouten bij afbeelding generatie.",
+                "priceChangesTitle": "4.2 Prijswijzigingen",
+                "priceChanges": "Primeshot kan kosten of creditprijzen op elk moment wijzigen; bestaande abonnementen worden niet beïnvloed tot vernieuwing."
+            },
+            "ownership": {
+                "title": "5. Gebruikersinhoud en eigendom",
+                "content": "Je behoudt alle eigendomsrechten op je geüploade afbeeldingen en AI-gegenereerde portretten. Je verleent Primeshot een beperkte, niet-exclusieve, royalty-vrije licentie om je gebruikersinhoud uitsluitend te gebruiken voor het leveren van de service. Je bent alleen verantwoordelijk voor de inhoud die je uploadt en alle gevolgen daarvan."
+            },
+            "prohibitedContent": {
+                "title": "6. Verboden inhoud",
+                "intro": "Je mag geen inhoud uploaden die:",
+                "items": [
+                    "Illegaal, misbruikend, intimiderend, lasterlijk of bedreigend is",
+                    "Naaktheid, seksueel expliciet of pornografisch materiaal bevat",
+                    "Haatspraak, geweld of discriminatie bevordert",
+                    "Intellectueel eigendom of rechten van derden schendt",
+                    "Malware of schadelijke code bevat"
+                ],
+                "note": "Primeshot kan inhoud die deze regels schendt zonder waarschuwing verwijderen."
+            },
+            "aiGenerated": {
+                "title": "7. AI-gegenereerde inhoud",
+                "content": "AI-portretten worden gegenereerd op basis van je gebruikersinhoud. Hoewel we streven naar hoogwaardige resultaten, garandeert Primeshot geen gelijkenis nauwkeurigheid of stijltrouw. Je accepteert dat AI-outputs kunnen variëren, onvolkomenheden bevatten of vooroordelen weerspiegelen die inherent zijn aan AI-modellen. Primeshot is niet aansprakelijk voor persoonlijk, professioneel of commercieel gebruik van AI-gegenereerde inhoud."
+            },
+            "privacy": {
+                "title": "8. Privacy en gegevensverwerking",
+                "content": "Geüploade afbeeldingen en AI-gegenereerde modellen zijn privé en worden niet gedeeld of verkocht. Gegevens worden veilig opgeslagen en verwijderd na 60 dagen na accountbeëindiging, tenzij de wet langere bewaring vereist. Door de service te gebruiken, stem je in met ons privacybeleid betreffende gegevensverzameling en -verwerking."
+            },
+            "ip": {
+                "title": "9. Intellectueel eigendom",
+                "content": "Primeshot behoudt eigendom van alle AI-modellen, software en technologie gebruikt voor het leveren van de service. Je mag geen Primeshot-technologie reverse-engineeren, kopiëren of reproduceren."
+            },
+            "liability": {
+                "title": "10. Beperking van aansprakelijkheid",
+                "content": "Voor zover maximaal toegestaan door de wet, zijn Primeshot en zijn gelieerde ondernemingen niet aansprakelijk voor indirecte, incidentele of gevolgschade door gebruik van de service, fouten, onnauwkeurigheden of onvolkomenheden in AI-gegenereerde inhoud, of verlies van gegevens, winst of zakelijke kansen."
+            },
+            "indemnity": {
+                "title": "11. Vrijwaring",
+                "content": "Je stemt ermee in Primeshot en zijn functionarissen, directeuren, werknemers en agenten te vrijwaren, verdedigen en schadeloos te stellen van claims, aansprakelijkheden, schade of kosten voortvloeiend uit je gebruik van de service, je gebruikersinhoud of schending van deze voorwaarden."
+            },
+            "termination": {
+                "title": "12. Beëindiging",
+                "content": "Primeshot kan accounts opschorten of beëindigen wegens schendingen van deze voorwaarden. Gebruikers kunnen hun account op elk moment beëindigen; gegevens worden na 60 dagen verwijderd. Beëindiging ontslaat je niet van eerder aangegane betalingsverplichtingen."
+            },
+            "law": {
+                "title": "13. Toepasselijk recht en geschillenbeslechting",
+                "content": "Deze voorwaarden vallen onder Brits recht. Geschillen worden opgelost onder Britse jurisdictie. Partijen stemmen ermee in informele oplossing te proberen voordat ze juridische stappen ondernemen."
+            },
+            "changes": {
+                "title": "14. Wijzigingen in voorwaarden",
+                "content": "Primeshot kan deze voorwaarden op elk moment bijwerken. Voortgezet gebruik van de service vormt acceptatie van bijgewerkte voorwaarden."
+            },
+            "misc": {
+                "title": "15. Diversen",
+                "items": {
+                    "severability": "Deelbaarheid: Als een deel van deze voorwaarden ongeldig wordt bevonden, blijft de rest van kracht.",
+                    "entireAgreement": "Volledige overeenkomst: Deze voorwaarden vormen samen met het privacybeleid de volledige overeenkomst tussen jou en Primeshot.",
+                    "contact": "Contact:"
+                }
+            }
         }
-      },
-      "eligibility": {
-        "title": "2. Geschiktheid",
-        "content": "Je moet minstens 16 jaar oud zijn om Primeshot te gebruiken. Door de service te gebruiken, bevestig je dat je aan deze leeftijdsvereiste voldoet."
-      },
-      "userAccounts": {
-        "title": "3. Gebruikersaccounts",
-        "items": [
-          "Je moet een account aanmaken om Primeshot te gebruiken.",
-          "Je bent verantwoordelijk voor het veilig houden van je inloggegevens en voor alle activiteit onder je account.",
-          "Meld ons onmiddellijk bij ongeautoriseerde toegang."
-        ]
-      },
-      "payments": {
-        "title": "4. Betalingen en abonnementen",
-        "content": "Alle betalingen worden online verwerkt via veilige betalingsproviders. Abonnementskosten worden vooraf in rekening gebracht; credits verlopen volgens planvoorwaarden en worden niet overgedragen. Mislukte betalingen kunnen leiden tot opschorting tot oplossing.",
-        "refundsTitle": "4.1 Terugbetalingen",
-        "refunds": "Geen terugbetalingen voor ongebruikte credits of wijzigingen halverwege cyclus, behalve voor technische fouten bij afbeelding generatie.",
-        "priceChangesTitle": "4.2 Prijswijzigingen",
-        "priceChanges": "Primeshot kan kosten of creditprijzen op elk moment wijzigen; bestaande abonnementen worden niet beïnvloed tot vernieuwing."
-      },
-      "ownership": {
-        "title": "5. Gebruikersinhoud en eigendom",
-        "content": "Je behoudt alle eigendomsrechten op je geüploade afbeeldingen en AI-gegenereerde portretten. Je verleent Primeshot een beperkte, niet-exclusieve, royalty-vrije licentie om je gebruikersinhoud uitsluitend te gebruiken voor het leveren van de service. Je bent alleen verantwoordelijk voor de inhoud die je uploadt en alle gevolgen daarvan."
-      },
-      "prohibitedContent": {
-        "title": "6. Verboden inhoud",
-        "intro": "Je mag geen inhoud uploaden die:",
-        "items": [
-          "Illegaal, misbruikend, intimiderend, lasterlijk of bedreigend is",
-          "Naaktheid, seksueel expliciet of pornografisch materiaal bevat",
-          "Haatspraak, geweld of discriminatie bevordert",
-          "Intellectueel eigendom of rechten van derden schendt",
-          "Malware of schadelijke code bevat"
-        ],
-        "note": "Primeshot kan inhoud die deze regels schendt zonder waarschuwing verwijderen."
-      },
-      "aiGenerated": {
-        "title": "7. AI-gegenereerde inhoud",
-        "content": "AI-portretten worden gegenereerd op basis van je gebruikersinhoud. Hoewel we streven naar hoogwaardige resultaten, garandeert Primeshot geen gelijkenis nauwkeurigheid of stijltrouw. Je accepteert dat AI-outputs kunnen variëren, onvolkomenheden bevatten of vooroordelen weerspiegelen die inherent zijn aan AI-modellen. Primeshot is niet aansprakelijk voor persoonlijk, professioneel of commercieel gebruik van AI-gegenereerde inhoud."
-      },
-      "privacy": {
-        "title": "8. Privacy en gegevensverwerking",
-        "content": "Geüploade afbeeldingen en AI-gegenereerde modellen zijn privé en worden niet gedeeld of verkocht. Gegevens worden veilig opgeslagen en verwijderd na 60 dagen na accountbeëindiging, tenzij de wet langere bewaring vereist. Door de service te gebruiken, stem je in met ons privacybeleid betreffende gegevensverzameling en -verwerking."
-      },
-      "ip": {
-        "title": "9. Intellectueel eigendom",
-        "content": "Primeshot behoudt eigendom van alle AI-modellen, software en technologie gebruikt voor het leveren van de service. Je mag geen Primeshot-technologie reverse-engineeren, kopiëren of reproduceren."
-      },
-      "liability": {
-        "title": "10. Beperking van aansprakelijkheid",
-        "content": "Voor zover maximaal toegestaan door de wet, zijn Primeshot en zijn gelieerde ondernemingen niet aansprakelijk voor indirecte, incidentele of gevolgschade door gebruik van de service, fouten, onnauwkeurigheden of onvolkomenheden in AI-gegenereerde inhoud, of verlies van gegevens, winst of zakelijke kansen."
-      },
-      "indemnity": {
-        "title": "11. Vrijwaring",
-        "content": "Je stemt ermee in Primeshot en zijn functionarissen, directeuren, werknemers en agenten te vrijwaren, verdedigen en schadeloos te stellen van claims, aansprakelijkheden, schade of kosten voortvloeiend uit je gebruik van de service, je gebruikersinhoud of schending van deze voorwaarden."
-      },
-      "termination": {
-        "title": "12. Beëindiging",
-        "content": "Primeshot kan accounts opschorten of beëindigen wegens schendingen van deze voorwaarden. Gebruikers kunnen hun account op elk moment beëindigen; gegevens worden na 60 dagen verwijderd. Beëindiging ontslaat je niet van eerder aangegane betalingsverplichtingen."
-      },
-      "law": {
-        "title": "13. Toepasselijk recht en geschillenbeslechting",
-        "content": "Deze voorwaarden vallen onder Brits recht. Geschillen worden opgelost onder Britse jurisdictie. Partijen stemmen ermee in informele oplossing te proberen voordat ze juridische stappen ondernemen."
-      },
-      "changes": {
-        "title": "14. Wijzigingen in voorwaarden",
-        "content": "Primeshot kan deze voorwaarden op elk moment bijwerken. Voortgezet gebruik van de service vormt acceptatie van bijgewerkte voorwaarden."
-      },
-      "misc": {
-        "title": "15. Diversen",
-        "items": {
-          "severability": "Deelbaarheid: Als een deel van deze voorwaarden ongeldig wordt bevonden, blijft de rest van kracht.",
-          "entireAgreement": "Volledige overeenkomst: Deze voorwaarden vormen samen met het privacybeleid de volledige overeenkomst tussen jou en Primeshot.",
-          "contact": "Contact:"
+    },
+    "privacy": {
+        "title": "Privacybeleid",
+        "intro": "Bij Primeshot is je privacy belangrijk voor ons. Dit privacybeleid legt uit hoe we je persoonlijke gegevens verzamelen, gebruiken, opslaan en beschermen wanneer je onze service gebruikt. Door Primeshot te gebruiken, stem je in met de hier beschreven praktijken.",
+        "sections": {
+            "collect": {
+                "title": "1. Informatie die we verzamelen",
+                "items": {
+                    "account": "Accountinformatie: Naam, e-mailadres en sociale login details als je registreert via Google of vergelijkbare services.",
+                    "userContent": "Gebruikersinhoud: Selfies en AI-gegenereerde portretten.",
+                    "device": "Apparaat en gebruiksgegevens: Browsertype, apparaattype, IP-adres en app gebruiksstatistieken."
+                },
+                "note": "Opmerking: We verzamelen of slaan geen betalingsinformatie op. Betalingen worden veilig verwerkt door Stripe."
+            },
+            "use": {
+                "title": "2. Hoe we je informatie gebruiken",
+                "intro": "We gebruiken de informatie die je verstrekt uitsluitend om:",
+                "items": [
+                    "Onze AI-portret service te leveren en verbeteren.",
+                    "Je account en voorkeuren te beheren.",
+                    "Technische prestaties te monitoren en problemen op te lossen.",
+                    "Sociale login functionaliteit te faciliteren."
+                ],
+                "note": "We gebruiken je gegevens niet voor marketingdoeleinden of delen ze met derden voor reclame."
+            },
+            "thirdParty": {
+                "title": "3. Diensten van derden",
+                "items": {
+                    "aws": "AWS: Voor veilige opslag en verwerking van je geüploade selfies en AI-gegenereerde portretten.",
+                    "stripe": "Stripe: Voor veilige abonnementsbetalingen en credit aankopen."
+                },
+                "note": "We zorgen ervoor dat externe providers voldoen aan privacy- en beveiligingsvereisten."
+            },
+            "cookies": {
+                "title": "4. Cookies en tracking",
+                "content": "We gebruiken cookies alleen voor sociale login functionaliteit. Er worden geen tracking- of advertentiecookies gebruikt."
+            },
+            "retention": {
+                "title": "5. Gegevensbewaring",
+                "content": "Geüploade selfies en AI-gegenereerde portretten worden opgeslagen zolang je account actief is. Na accountverwijdering worden gegevens 60 dagen bewaard voor hersteldoeleinden en nog 30 dagen in back-ups. Na deze periode worden alle gegevens permanent verwijderd."
+            },
+            "security": {
+                "title": "6. Gegevensbeveiliging",
+                "intro": "We implementeren passende technische en organisatorische maatregelen om je gegevens te beschermen tegen ongeautoriseerde toegang, verlies of misbruik, waaronder:",
+                "items": [
+                    "Versleutelde bestandsopslag op AWS.",
+                    "Veilige gegevensoverdracht met HTTPS.",
+                    "Beperkte toegang tot geautoriseerd personeel."
+                ]
+            },
+            "rights": {
+                "title": "7. Je rechten",
+                "intro": "Onder Britse en EU gegevensbeschermingswetten heb je het recht om:",
+                "items": [
+                    "Toegang te krijgen tot de persoonlijke gegevens die we over je hebben.",
+                    "Correctie of verwijdering van je persoonlijke gegevens aan te vragen.",
+                    "Bezwaar te maken tegen of bepaalde verwerking van je gegevens te beperken."
+                ],
+                "contact": "Om een van deze rechten uit te oefenen, neem contact met ons op via {{email}}."
+            },
+            "children": {
+                "title": "8. Kinderen",
+                "content": "Primeshot is niet bedoeld voor personen onder de 16 jaar. We verzamelen niet bewust gegevens van kinderen."
+            },
+            "changes": {
+                "title": "9. Wijzigingen in dit privacybeleid",
+                "content": "We kunnen dit privacybeleid van tijd tot tijd bijwerken. Voortgezet gebruik van de service vormt acceptatie van updates."
+            },
+            "contact": {
+                "title": "10. Contact opnemen",
+                "content": "Voor vragen of zorgen over je privacy of dit beleid, neem contact met ons op via: {{email}}."
+            }
         }
-      }
     }
-  },
-  "privacy": {
-    "title": "Privacybeleid",
-    "intro": "Bij Primeshot is je privacy belangrijk voor ons. Dit privacybeleid legt uit hoe we je persoonlijke gegevens verzamelen, gebruiken, opslaan en beschermen wanneer je onze service gebruikt. Door Primeshot te gebruiken, stem je in met de hier beschreven praktijken.",
-    "sections": {
-      "collect": {
-        "title": "1. Informatie die we verzamelen",
-        "items": {
-          "account": "Accountinformatie: Naam, e-mailadres en sociale login details als je registreert via Google of vergelijkbare services.",
-          "userContent": "Gebruikersinhoud: Selfies en AI-gegenereerde portretten.",
-          "device": "Apparaat en gebruiksgegevens: Browsertype, apparaattype, IP-adres en app gebruiksstatistieken."
-        },
-        "note": "Opmerking: We verzamelen of slaan geen betalingsinformatie op. Betalingen worden veilig verwerkt door Stripe."
-      },
-      "use": {
-        "title": "2. Hoe we je informatie gebruiken",
-        "intro": "We gebruiken de informatie die je verstrekt uitsluitend om:",
-        "items": [
-          "Onze AI-portret service te leveren en verbeteren.",
-          "Je account en voorkeuren te beheren.",
-          "Technische prestaties te monitoren en problemen op te lossen.",
-          "Sociale login functionaliteit te faciliteren."
-        ],
-        "note": "We gebruiken je gegevens niet voor marketingdoeleinden of delen ze met derden voor reclame."
-      },
-      "thirdParty": {
-        "title": "3. Diensten van derden",
-        "items": {
-          "aws": "AWS: Voor veilige opslag en verwerking van je geüploade selfies en AI-gegenereerde portretten.",
-          "stripe": "Stripe: Voor veilige abonnementsbetalingen en credit aankopen."
-        },
-        "note": "We zorgen ervoor dat externe providers voldoen aan privacy- en beveiligingsvereisten."
-      },
-      "cookies": {
-        "title": "4. Cookies en tracking",
-        "content": "We gebruiken cookies alleen voor sociale login functionaliteit. Er worden geen tracking- of advertentiecookies gebruikt."
-      },
-      "retention": {
-        "title": "5. Gegevensbewaring",
-        "content": "Geüploade selfies en AI-gegenereerde portretten worden opgeslagen zolang je account actief is. Na accountverwijdering worden gegevens 60 dagen bewaard voor hersteldoeleinden en nog 30 dagen in back-ups. Na deze periode worden alle gegevens permanent verwijderd."
-      },
-      "security": {
-        "title": "6. Gegevensbeveiliging",
-        "intro": "We implementeren passende technische en organisatorische maatregelen om je gegevens te beschermen tegen ongeautoriseerde toegang, verlies of misbruik, waaronder:",
-        "items": [
-          "Versleutelde bestandsopslag op AWS.",
-          "Veilige gegevensoverdracht met HTTPS.",
-          "Beperkte toegang tot geautoriseerd personeel."
-        ]
-      },
-      "rights": {
-        "title": "7. Je rechten",
-        "intro": "Onder Britse en EU gegevensbeschermingswetten heb je het recht om:",
-        "items": [
-          "Toegang te krijgen tot de persoonlijke gegevens die we over je hebben.",
-          "Correctie of verwijdering van je persoonlijke gegevens aan te vragen.",
-          "Bezwaar te maken tegen of bepaalde verwerking van je gegevens te beperken."
-        ],
-        "contact": "Om een van deze rechten uit te oefenen, neem contact met ons op via {{email}}."
-      },
-      "children": {
-        "title": "8. Kinderen",
-        "content": "Primeshot is niet bedoeld voor personen onder de 16 jaar. We verzamelen niet bewust gegevens van kinderen."
-      },
-      "changes": {
-        "title": "9. Wijzigingen in dit privacybeleid",
-        "content": "We kunnen dit privacybeleid van tijd tot tijd bijwerken. Voortgezet gebruik van de service vormt acceptatie van updates."
-      },
-      "contact": {
-        "title": "10. Contact opnemen",
-        "content": "Voor vragen of zorgen over je privacy of dit beleid, neem contact met ons op via: {{email}}."
-      }
-    }
-  }
 }

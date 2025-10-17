@@ -95,7 +95,8 @@
       },
       "variety": {
         "title": "多样性",
-        "description": "选择服装和背景混合的拍摄。避免重度滤镜。",
+        "description": "选择服装和背景混合的拍摄。",
+        "description2": "不要使用滤镜。",
         "goodAlt": "良好多样性示例",
         "badAlt": "不良多样性示例"
       }

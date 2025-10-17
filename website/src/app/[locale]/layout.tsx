@@ -1,6 +1,3 @@
-import { Inter } from 'next/font/google'
-import { carb } from '@/fonts'
-import '../globals.css'
 import Script from 'next/script'
 
 import type { Metadata } from "next";
@@ -9,14 +6,9 @@ import { AuthProvider, LanguageProvider, I18nProvider } from '@primeshot/common'
 import { GoogleAnalytics } from '@next/third-parties/google'
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import { getCdnUrl } from '@/lib/utils/cdn'
+import { getWebsiteCdnUrl } from '@/lib/utils/cdn'
 
 const SUPPORTED_LOCALES = ['en','cn','es','fr','pt','de','jp','it','nl'] as const;
-
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter'
-})
 
 async function getBaseUrl() {
   const headersList = await headers();
@@ -93,10 +85,24 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     authors: [{ name: "Primeshot" }],
     creator: "Primeshot",
     publisher: "Primeshot",
+    applicationName: "Primeshot",
+    appleWebApp: {
+      capable: true,
+      title: "Primeshot",
+      statusBarStyle: "black-translucent",
+    },
     formatDetection: {
       email: false,
       address: false,
       telephone: false,
+    },
+    themeColor: "#0c1013",
+    viewport: {
+      width: "device-width",
+      initialScale: 1.0,
+      maximumScale: 1.0,
+      userScalable: false,
+      viewportFit: "cover",
     },
     metadataBase: new URL(baseUrl),
     alternates: {
@@ -105,15 +111,15 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     icons: {
       icon: [
-        { url: getCdnUrl('favicon.ico') },
-        { url: getCdnUrl('favicon.svg'), type: 'image/svg+xml' },
-        { url: getCdnUrl('favicon-96x96.png'), sizes: '96x96', type: 'image/png' }
+        { url: getWebsiteCdnUrl('favicon.ico') },
+        { url: getWebsiteCdnUrl('favicon.svg'), type: 'image/svg+xml' },
+        { url: getWebsiteCdnUrl('favicon-96x96.png'), sizes: '96x96', type: 'image/png' }
       ],
       apple: [
-        { url: getCdnUrl('apple-touch-icon.png'), sizes: '180x180', type: 'image/png' }
+        { url: getWebsiteCdnUrl('apple-touch-icon.png'), sizes: '180x180', type: 'image/png' }
       ]
     },
-    manifest: getCdnUrl('site.webmanifest'),
+    manifest: getWebsiteCdnUrl('site.webmanifest'),
     openGraph: {
       type: "website",
       locale: ogLocale, // Dynamic locale based on URL
@@ -123,7 +129,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       siteName: "Primeshot",
       images: [
         {
-          url: getCdnUrl('og-image.webp'),
+          url: getWebsiteCdnUrl('og-image.webp'),
           width: 1200,
           height: 630,
           alt: "Primeshot - AI Headshots",
@@ -135,7 +141,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       title: "AI Headshots That Open Doors | Primeshot",
       description: "Make your first impression count. Primeshot turns everyday selfies into stunning, studio-quality AI headshots—crafted to reflect your style, ambition, and story.",
       creator: "@primeshotai",
-      images: [getCdnUrl('og-image.webp')],
+      images: [getWebsiteCdnUrl('og-image.webp')],
     },
     robots: {
       index: true,
@@ -150,6 +156,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     verification: {
       google: "your-google-site-verification", // Add your Google Search Console verification code
+    },
+    other: {
+      "locale": finalLocale,
     },
   };
 }
@@ -174,50 +183,39 @@ export default async function LocaleLayout({ children, params }: { children: Rea
     locale: finalLocale
   }
   return (
-    <html lang={finalLocale} className={`${carb.variable} bg-[#0c1013]`}>
-      <head>
-        <meta name="theme-color" content="#0c1013" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-        <meta name="apple-mobile-web-app-title" content="Primeshot" />
-        <link rel="icon" href={getCdnUrl('favicon.ico')} />
-        <link rel="icon" type="image/svg+xml" href={getCdnUrl('favicon.svg')} />
-        <link rel="icon" type="image/png" sizes="96x96" href={getCdnUrl('favicon-96x96.png')} />
-        <link rel="apple-touch-icon" href={getCdnUrl('apple-touch-icon.png')} />
-        <link rel="apple-touch-icon" sizes="180x180" href={getCdnUrl('apple-touch-icon.png')} />
-        <script type="application/json" id="initial-data" dangerouslySetInnerHTML={{ __html: JSON.stringify(initialData) }} />
-        <meta name="locale" content={finalLocale} />
-      </head>
-      <body className={`${inter.variable} font-sans antialiased bg-[#0c1013] min-h-screen text-[#FFFFFF70]`}>
-        <I18nProvider>
-          <AuthProvider>
-            <LanguageProvider>
-              {children}
-            </LanguageProvider>
-          </AuthProvider>
-        </I18nProvider>
-        <SpeedInsights/>
-        <GoogleAnalytics gaId="G-MHV2EKTQZG" />
-        <Analytics />
-        {/* Rewardful tracking scripts */}
-        {process.env.NEXT_PUBLIC_REWARDFUL_API_KEY && (
-          <>
-            <Script
-              src={`https://r.wdfl.co/rw.js`}
-              data-rewardful={process.env.NEXT_PUBLIC_REWARDFUL_API_KEY}
-              strategy="beforeInteractive"
-            />
-            <Script
-              id="rewardful-queue"
-              strategy="beforeInteractive"
-              dangerouslySetInnerHTML={{
-                __html: `(function(w,r){w._rwq=r;w[r]=w[r]||function(){(w[r].q=w[r].q||[]).push(arguments)}})(window,'rewardful');`
-              }}
-            />
-          </>
-        )}
-      </body>
-    </html>
+    <>
+      <script 
+        type="application/json" 
+        id="initial-data" 
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(initialData) }} 
+      />
+      <I18nProvider>
+        <AuthProvider>
+          <LanguageProvider>
+            {children}
+          </LanguageProvider>
+        </AuthProvider>
+      </I18nProvider>
+      <SpeedInsights/>
+      <GoogleAnalytics gaId="G-MHV2EKTQZG" />
+      <Analytics />
+      {/* Rewardful tracking scripts */}
+      {process.env.NEXT_PUBLIC_REWARDFUL_API_KEY && (
+        <>
+          <Script
+            src={`https://r.wdfl.co/rw.js`}
+            data-rewardful={process.env.NEXT_PUBLIC_REWARDFUL_API_KEY}
+            strategy="beforeInteractive"
+          />
+          <Script
+            id="rewardful-queue"
+            strategy="beforeInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `(function(w,r){w._rwq=r;w[r]=w[r]||function(){(w[r].q=w[r].q||[]).push(arguments)}})(window,'rewardful');`
+            }}
+          />
+        </>
+      )}
+    </>
   )
 }

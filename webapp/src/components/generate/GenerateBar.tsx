@@ -259,22 +259,6 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
     if (panel === 'styles' || panel === 'scenes' || panel === 'wardrobe') {
       setTimeout(() => scrollToSelectedItem(panel), 300)
     }
-    
-    // Apply animation to character cards
-    if (panel === 'characters') {
-      setTimeout(() => {
-        const viewport = viewportRef.current
-        if (viewport) {
-          const itemsContainer = viewport.firstElementChild as HTMLElement
-          if (itemsContainer) {
-            const allButtons = Array.from(itemsContainer.children) as HTMLElement[]
-            allButtons.forEach((button) => {
-              button.classList.add(styles.itemCardLoaded)
-            })
-          }
-        }
-      }, 300)
-    }
   }
   const close = () => { 
     setOpenPanel(null); 
@@ -960,27 +944,6 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
     }
   }, [selectedWardrobeValue, openPanel, currentStyle, scrollToSelectedItem])
 
-  // Effect to apply animation to character cards when characters list updates
-  useEffect(() => {
-    if (openPanel !== 'characters') return
-    
-    // Apply itemCardLoaded class to all character cards after they render
-    const timer = setTimeout(() => {
-      const viewport = viewportRef.current
-      if (viewport) {
-        const itemsContainer = viewport.firstElementChild as HTMLElement
-        if (itemsContainer) {
-          const allButtons = Array.from(itemsContainer.children) as HTMLElement[]
-          allButtons.forEach((button) => {
-            button.classList.add(styles.itemCardLoaded)
-          })
-        }
-      }
-    }, 50)
-    
-    return () => clearTimeout(timer)
-  }, [openPanel, characters])
-
   React.useEffect(() => {
     // Observe only when wardrobe panel is open and a wardrobe is selected (colors shown)
     if (openPanel !== 'wardrobe') return
@@ -1253,7 +1216,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
           <OptionsPanel title={t('titles.characterLabel', { ns: 'styles' })} onClose={close} onSearchChange={setPanelQuery} searchValue={panelQuery} canPrev={navState.canPrev} canNext={navState.canNext} onPrev={handlePrev} onNext={handleNext}>
             <div ref={viewportRef} className={styles.carouselViewport} onScroll={updateNavButtons}>
               <div className={styles.itemsRow} style={{ width: 'max-content' }}>
-              <button className={`${styles.itemCard} ${styles.createCard}`} onClick={handleCreateCharacterClick} disabled={createCharacterAction.type === 'limit_reached' && !authUser?.admin}>
+              <button className={`${styles.itemCard} ${styles.createCard} ${styles.itemCardLoaded}`} onClick={handleCreateCharacterClick} disabled={createCharacterAction.type === 'limit_reached' && !authUser?.admin}>
                 <Icon className={styles.createIcon} variant="plus" size={32} />
                 <div className={styles.itemLabel}>
                   {createCharacterAction.type === 'upgrade_subscription' && t('labels.upgradePlanAddMore', { ns: 'styles' })}
@@ -1633,7 +1596,7 @@ function CharacterCard({ character, thumbUrl, uploadedCount = 0, job, onSelect, 
 
   return (
     <button
-      className={`${styles.itemCard} ${styles.characterCard} ${(isRunning ? styles.itemActive : '')} ${isSelected ? styles.itemSelected : ''} ${isFailed ? styles.itemFailed : ''}`}
+      className={`${styles.itemCard} ${styles.characterCard} ${styles.itemCardLoaded} ${(isRunning ? styles.itemActive : '')} ${isSelected ? styles.itemSelected : ''} ${isFailed ? styles.itemFailed : ''}`}
       data-gender={(character as any)?.gender || (character as any)?.metadata?.gender || ''}
       onClick={() => {
         // Do not allow selecting failed characters

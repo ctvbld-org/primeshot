@@ -1,227 +1,216 @@
 {
-  "nameLabel": "キャラクター名",
-  "creditsRequired": "トレーニングには{{credits}}クレジットを使用します",
-  "training": "キャラクタートレーニング",
-  "trainingInitializing": "キャラクターが荷造りをしています",
-  "trainingInitializingInfo": "キャラクターをトレーニングステーションに送っています。",
-  "trainingQueued": "キャラクターが待機中です",
-  "trainingQueuedInfo": "他のキャラクターがスペースを空けるのを待っています。",
-  "trainingWarmingUp": "キャラクターがウォームアップ中です",
-  "trainingWarmingUpInfo": "トレーニング開始の合図を待っています。",
-  "trainingPending": "キャラクターがマシンを待機中です",
-  "trainingPendingInfo": "ピーク時はマシンが混雑しています。利用可能になり次第開始します。待機列{{position}}番目です。",
-  "trainingRunning": "トレーニング終了まで約",
-  "trainingRunningNoCountdown": "キャラクターがトレーニング中で、数分で完了します。",
-  "trainingRunningInfo": "アプリに戻ってさらに撮影をスケジュールできます。",
-  "returnToApp": "アプリに戻る",
-  "trainingError": "エラー：",
-  "trainingFailed": "キャラクターのトレーニング中に問題が発生しました",
-  "trainingFailedDescription": "難しすぎるか、キャラクターがモデルには美しすぎました。再度お試しいただくか、問題が続く場合はサポートにお問い合わせください。",
-
-  "confirmClose": {
-    "title": "キャラクター作成を閉じますか？",
-    "description": "本当に閉じますか？すべての進行状況が失われ、最初からやり直す必要があります。",
-    "progressMessages": {
-      "upload": "アップロードした写真が失われます。",
-      "profile": "プロフィール情報が失われます。",
-      "name": "キャラクター名が失われます。"
-    },
-    "buttons": {
-      "cancel": "キャンセル",
-      "confirm": "それでも閉じる"
-    }
-  },
-
-  "errors": {
-    "trainingRetryFailed": "{{attempts}}回の試行後にトレーニングが失敗しました。後でもう一度お試しください。",
-    "retryError": "エラー：{{message}}"
-  },
-
-  "upload": {
-    "uploadingFiles": "最高のルックをアップロード中 {{current}} / {{total}}",
-    "uploadingInfo": "アップロードが完了するまでこのページを開いたままにしてください。"
-  },
-
-  "dialogTitles": {
-    "onboardingIntro": "キャラクター作成ガイド",
-    "onboardingGuidelines": "写真撮影のコツ",
-    "onboardingConfirmation": "アップロード準備完了",
-    "upload": "写真をアップロード",
-    "name": "キャラクターに名前を付ける",
-    "uploading": "写真をアップロード中",
-    "training": "モデルをトレーニング中"
-  },
-  "dialogDescription": {
-    "upload": "写真をアップロードしてキャラクターを作成",
-    "name": "キャラクターに名前を付ける",
-    "training": "キャラクタートレーニング進行中",
-    "default": "キャラクター作成ダイアログ"
-  },
-  "beforeUnloadWarning": "キャラクターを現在処理中です。本当に離れますか？これによりアップロードがキャンセルされます。",
-
-  "onboarding": {
-    "intro": {
-      "title": "キャラクターと出会う",
-      "description1": "さまざまな<span style='color: #FF81F5;'>表情</span>、<span style='color: #70FFA7;'>角度</span>、<span style='color: #FFCF55;'>ポーズ</span>の最高の写真をアップロードして、あなただけのAI分身を作りましょう！",
-      "description2": "本物の写真撮影と同様に、少しの準備が本格的でプロフェッショナルな結果をもたらします。",
-      "privacy": "アップロードはプライベートで安全です。",
-      "buttonGetStarted": "開始",
-      "buttonSkip": "スキップ"
-    },
-    "confirmation": {
-      "title": "本物の写真撮影と同様に、<span style='color: #2ADED8;'>少しの準備</span>が違いを生みます。",
-      "paragraph1": "Primeshotは日常の写真から高品質なポートレートを作成します。明るく、よく照らされ、バラエティに富んだ写真により、生成される撮影がより自然で印象的になります。低品質やぼやけた写真は結果を制限する可能性があります。",
-      "paragraph2": "結果が期待通りでない場合は、新しいキャラクターで新しい写真セットをお試しください。",
-      "buttonStart": "理解しました。始めましょう！"
-    },
-    "guidelines": {
-      "naturalLight": {
-        "title": "自然光",
-        "description": "窓際や屋外でよく照らされた写真を使用してください！鮮明な結果のために暗さやぼやけを避けてください。",
-        "goodAlt": "良い自然光の例",
-        "badAlt": "悪い照明の例"
-      },
-      "angles": {
-        "title": "角度",
-        "description": "角度を変えてください！肩のショット、正面と横から、腰のショットを追加してください。",
-        "goodAlt": "良い角度の例",
-        "badAlt": "悪い角度の例"
-      },
-      "expressions": {
-        "title": "表情",
-        "description": "さまざまな笑顔とポーズで個性を表現してください。ダイナミックなショットのために同じ顔を避けてください。",
-        "goodAlt": "良い表情の例",
-        "badAlt": "悪い表情の例"
-      },
-      "variety": {
-        "title": "バラエティ",
-        "description": "服装と背景のミックスでショットを選んでください。重いフィルターは避けてください。",
-        "goodAlt": "良いバラエティの例",
-        "badAlt": "悪いバラエティの例"
-      }
-    },
-    "buttons": {
-      "next": "次へ"
-    },
-    "floatingAlt": "フローティング例{{id}}"
-  },
-
-  "uploadStep": {
-    "petMode": "ペットモード",
-    "bodyShotRequirementsNotMet": "全身ショット要件が満たされていません"
-  },
-
-  "nameStep": {
-    "noPreview": "プレビューなし",
-    "create": "作成",
-    "altPreview": "顔モデルプレビュー"
-  },
-
-  "countdown": {
-    "fallback": "計算中..."
-  },
-
-  "requirements": {
-    "header": {
-      "title": "キャラクターを作成",
-      "description": "{{minImages}}枚の高品質な写真をアップロードして、すべての撮影であなたの真の似顔絵を捉える再利用可能なキャラクターを訓練してください。",
-      "secureNote": "アップロードは非公開で安全です。"
-    },
-    "sections": {
-      "uploadTips": "アップロードのコツ",
-      "dosDonts": "すべきこととすべきでないこと"
-    },
-    "tips": {
-      "blurredBackground": "背景をぼかして、被写体をはっきりと際立たせましょう。",
-      "naturalLight": "窓の近くに立つか屋外に出て自然光を使用してください！",
-      "photos": "クローズアップと上半身の写真を含めてください。",
-      "expression": "中性的または自然に親しみやすい表情を保ってください。",
-      "avoid": "フィルター、帽子、濃いメイク、AI生成画像は避けてください。",
-      "clothing": "無地の色や柔らかなパターンのシンプルな服装を着用してください。",
-      "quantity": "様々な角度と照明で{{minImages}}枚以上の写真をアップロードしてください。"
-    },
-    "dodonts": {
-      "eyes": "目がはっきりと見えるようにカメラを見てください。",
-      "lighting": "明るい自然光を使用してください。暗いまたはぼやけた写真は避けてください。",
-      "frame": "フレーム内に一人だけで、散らかりや他の人がいないことを確認してください。",
-      "face": "顔が小さすぎたり切れたりしないようにフレーミングしてください。"
-    },
-    "altText": {
-      "goodExample": "良い例",
-      "badExample": "悪い例"
-    }
-  },
-
-  "quality": {
-    "issues": {
-      "image": {
-        "lowResolution": "低解像度の画像。最小サイズ：{{minWidth}}x{{minHeight}}ピクセル。",
-        "suboptimalResolution": "画像の解像度は{{currentWidth}}x{{currentHeight}}ピクセルです。最良の結果を得るには、少なくとも{{idealWidth}}x{{idealHeight}}ピクセルを使用してください。",
-        "suboptimalResolutionLow": "画像の解像度は{{currentWidth}}x{{currentHeight}}ピクセル（800ピクセル未満）です。より良い品質のために少なくとも800x800ピクセルの使用を検討してください。",
-        "tooDark": "画像が暗すぎます。",
-        "tooBright": "画像が明るすぎます。"
-      },
-      "face": {
-        "none": "顔が検出されませんでした。",
-        "multiple": "複数の顔が検出されました。",
-        "positionNotOptimal": "顔の位置が最適ではありません。",
-        "detectSkipped": "顔検出がスキップされました。",
-        "angleExtreme": "顔の角度が極端すぎます（ピッチ：{{pitch}}°、ヨー：{{yaw}}°、ロール：{{roll}}°）",
-        "sunglasses": "目がサングラスや濃い色のメガネで隠れています。",
-        "sunglasses.critical": "サングラスが検出されました - サングラスを外してください。",
-        "eyesClosed": "目が閉じているか、見えません。",
-        "tooSmall": "フレーム内で顔が小さすぎます。",
-      "tooSmallToDetect": "顔が小さすぎて検出が困難です。",
-        "tooLarge": "顔が大きすぎる/近すぎます。",
-        "sizeNotOptimal": "顔のサイズが最適ではありません。"
-      },
-      "contrast": {
-        "separation": {
-          "nearlyIdentical": "被写体と背景のトーンがほぼ同じです - 強くコントラストのある背景を使用してください。",
-          "tooSimilar": "被写体と背景のトーンが似すぎています - コントラストのある背景の使用を検討してください。",
-          "couldBeMoreDistinct": "被写体と背景をもっと区別できます - 異なる背景色を試してください。"
+    "nameLabel": "キャラクター名",
+    "creditsRequired": "トレーニングには{{credits}}クレジットを使用します",
+    "training": "キャラクタートレーニング",
+    "trainingInitializing": "キャラクターが荷造りをしています",
+    "trainingInitializingInfo": "キャラクターをトレーニングステーションに送っています。",
+    "trainingQueued": "キャラクターが待機中です",
+    "trainingQueuedInfo": "他のキャラクターがスペースを空けるのを待っています。",
+    "trainingWarmingUp": "キャラクターがウォームアップ中です",
+    "trainingWarmingUpInfo": "トレーニング開始の合図を待っています。",
+    "trainingPending": "キャラクターがマシンを待機中です",
+    "trainingPendingInfo": "ピーク時はマシンが混雑しています。利用可能になり次第開始します。待機列{{position}}番目です。",
+    "trainingRunning": "トレーニング終了まで約",
+    "trainingRunningNoCountdown": "キャラクターがトレーニング中で、数分で完了します。",
+    "trainingRunningInfo": "アプリに戻ってさらに撮影をスケジュールできます。",
+    "returnToApp": "アプリに戻る",
+    "trainingError": "エラー：",
+    "trainingFailed": "キャラクターのトレーニング中に問題が発生しました",
+    "trainingFailedDescription": "難しすぎるか、キャラクターがモデルには美しすぎました。再度お試しいただくか、問題が続く場合はサポートにお問い合わせください。",
+    "confirmClose": {
+        "title": "キャラクター作成を閉じますか？",
+        "description": "本当に閉じますか？すべての進行状況が失われ、最初からやり直す必要があります。",
+        "progressMessages": {
+            "upload": "アップロードした写真が失われます。",
+            "profile": "プロフィール情報が失われます。",
+            "name": "キャラクター名が失われます。"
         },
-        "poorOrFlat": "画像のコントラストが悪いか、平坦すぎます。"
-      },
-      "sharpness": {
-        "tooBlurry": "画像がぼやけているか、十分な詳細が不足しています。",
-        "pixelated": "画像がピクセル化されているか、圧縮アーティファクトがあります。",
-        "suboptimal": "画像の鮮明度を向上させることができます。"
-      },
-      "background": {
-        "notBlurred": "背景がぼかされていません。ポートレートモードまたはぼかした背景を使用してください。"
-      },
-      "upload": {
-        "none": "画像がアップロードされていません"
-      },
-      "body": {
-        "minRequired": "少なくとも{{min}}枚の全身写真が必要です（現在{{current}}枚）",
-        "tooMany": "全身写真が多すぎます（{{currentPercent}}%）。最大{{maxPercent}}%まで許可"
-      },
-      "score": {
-        "tooLow": "画像品質スコアが低すぎます"
-      },
-      "eyes": {
-        "maybeNotVisible": "目がはっきりと見えない可能性があります（サングラス、髪、または照明不良をチェック）"
-      },
-      "reject": {
-        "genericHint": "この写真は品質要件を満たしていませんでした。よく照らされた正面写真を試してください。"
-      }
+        "buttons": {
+            "cancel": "キャンセル",
+            "confirm": "それでも閉じる"
+        }
+    },
+    "errors": {
+        "trainingRetryFailed": "{{attempts}}回の試行後にトレーニングが失敗しました。後でもう一度お試しください。",
+        "retryError": "エラー：{{message}}"
+    },
+    "upload": {
+        "uploadingFiles": "最高のルックをアップロード中 {{current}} / {{total}}",
+        "uploadingInfo": "アップロードが完了するまでこのページを開いたままにしてください。"
+    },
+    "dialogTitles": {
+        "onboardingIntro": "キャラクター作成ガイド",
+        "onboardingGuidelines": "写真撮影のコツ",
+        "onboardingConfirmation": "アップロード準備完了",
+        "upload": "写真をアップロード",
+        "name": "キャラクターに名前を付ける",
+        "uploading": "写真をアップロード中",
+        "training": "モデルをトレーニング中"
+    },
+    "dialogDescription": {
+        "upload": "写真をアップロードしてキャラクターを作成",
+        "name": "キャラクターに名前を付ける",
+        "training": "キャラクタートレーニング進行中",
+        "default": "キャラクター作成ダイアログ"
+    },
+    "beforeUnloadWarning": "キャラクターを現在処理中です。本当に離れますか？これによりアップロードがキャンセルされます。",
+    "onboarding": {
+        "intro": {
+            "title": "キャラクターと出会う",
+            "description1": "さまざまな<span style='color: #FF81F5;'>表情</span>、<span style='color: #70FFA7;'>角度</span>、<span style='color: #FFCF55;'>ポーズ</span>の最高の写真をアップロードして、あなただけのAI分身を作りましょう！",
+            "description2": "本物の写真撮影と同様に、少しの準備が本格的でプロフェッショナルな結果をもたらします。",
+            "privacy": "アップロードはプライベートで安全です。",
+            "buttonGetStarted": "開始",
+            "buttonSkip": "スキップ"
+        },
+        "confirmation": {
+            "title": "本物の写真撮影と同様に、<span style='color: #2ADED8;'>少しの準備</span>が違いを生みます。",
+            "paragraph1": "Primeshotは日常の写真から高品質なポートレートを作成します。明るく、よく照らされ、バラエティに富んだ写真により、生成される撮影がより自然で印象的になります。低品質やぼやけた写真は結果を制限する可能性があります。",
+            "paragraph2": "結果が期待通りでない場合は、新しいキャラクターで新しい写真セットをお試しください。",
+            "buttonStart": "理解しました。始めましょう！"
+        },
+        "guidelines": {
+            "naturalLight": {
+                "title": "自然光",
+                "description": "窓際や屋外でよく照らされた写真を使用してください！鮮明な結果のために暗さやぼやけを避けてください。",
+                "goodAlt": "良い自然光の例",
+                "badAlt": "悪い照明の例"
+            },
+            "angles": {
+                "title": "角度",
+                "description": "角度を変えてください！肩のショット、正面と横から、腰のショットを追加してください。",
+                "goodAlt": "良い角度の例",
+                "badAlt": "悪い角度の例"
+            },
+            "expressions": {
+                "title": "表情",
+                "description": "さまざまな笑顔とポーズで個性を表現してください。ダイナミックなショットのために同じ顔を避けてください。",
+                "goodAlt": "良い表情の例",
+                "badAlt": "悪い表情の例"
+            },
+            "variety": {
+                "title": "バラエティ",
+                "description": "服装と背景のミックスでショットを選んでください。",
+                "description2": "フィルターは使わないでください。",
+                "goodAlt": "良いバラエティの例",
+                "badAlt": "悪いバラエティの例"
+            }
+        },
+        "buttons": {
+            "next": "次へ"
+        },
+        "floatingAlt": "フローティング例{{id}}"
+    },
+    "uploadStep": {
+        "petMode": "ペットモード",
+        "bodyShotRequirementsNotMet": "全身ショット要件が満たされていません"
+    },
+    "nameStep": {
+        "noPreview": "プレビューなし",
+        "create": "作成",
+        "altPreview": "顔モデルプレビュー"
+    },
+    "countdown": {
+        "fallback": "計算中..."
+    },
+    "requirements": {
+        "header": {
+            "title": "キャラクターを作成",
+            "description": "{{minImages}}枚の高品質な写真をアップロードして、すべての撮影であなたの真の似顔絵を捉える再利用可能なキャラクターを訓練してください。",
+            "secureNote": "アップロードは非公開で安全です。"
+        },
+        "sections": {
+            "uploadTips": "アップロードのコツ",
+            "dosDonts": "すべきこととすべきでないこと"
+        },
+        "tips": {
+            "blurredBackground": "背景をぼかして、被写体をはっきりと際立たせましょう。",
+            "naturalLight": "窓の近くに立つか屋外に出て自然光を使用してください！",
+            "photos": "クローズアップと上半身の写真を含めてください。",
+            "expression": "中性的または自然に親しみやすい表情を保ってください。",
+            "avoid": "フィルター、帽子、濃いメイク、AI生成画像は避けてください。",
+            "clothing": "無地の色や柔らかなパターンのシンプルな服装を着用してください。",
+            "quantity": "様々な角度と照明で{{minImages}}枚以上の写真をアップロードしてください。"
+        },
+        "dodonts": {
+            "eyes": "目がはっきりと見えるようにカメラを見てください。",
+            "lighting": "明るい自然光を使用してください。暗いまたはぼやけた写真は避けてください。",
+            "frame": "フレーム内に一人だけで、散らかりや他の人がいないことを確認してください。",
+            "face": "顔が小さすぎたり切れたりしないようにフレーミングしてください。"
+        },
+        "altText": {
+            "goodExample": "良い例",
+            "badExample": "悪い例"
+        }
+    },
+    "quality": {
+        "issues": {
+            "image": {
+                "lowResolution": "低解像度の画像。最小サイズ：{{minWidth}}x{{minHeight}}ピクセル。",
+                "suboptimalResolution": "画像の解像度は{{currentWidth}}x{{currentHeight}}ピクセルです。最良の結果を得るには、少なくとも{{idealWidth}}x{{idealHeight}}ピクセルを使用してください。",
+                "suboptimalResolutionLow": "画像の解像度は{{currentWidth}}x{{currentHeight}}ピクセル（800ピクセル未満）です。より良い品質のために少なくとも800x800ピクセルの使用を検討してください。",
+                "tooDark": "画像が暗すぎます。",
+                "tooBright": "画像が明るすぎます。"
+            },
+            "face": {
+                "none": "顔が検出されませんでした。",
+                "multiple": "複数の顔が検出されました。",
+                "positionNotOptimal": "顔の位置が最適ではありません。",
+                "detectSkipped": "顔検出がスキップされました。",
+                "angleExtreme": "顔の角度が極端すぎます（ピッチ：{{pitch}}°、ヨー：{{yaw}}°、ロール：{{roll}}°）",
+                "sunglasses": "目がサングラスや濃い色のメガネで隠れています。",
+                "sunglasses.critical": "サングラスが検出されました - サングラスを外してください。",
+                "eyesClosed": "目が閉じているか、見えません。",
+                "tooSmall": "フレーム内で顔が小さすぎます。",
+                "tooSmallToDetect": "顔が小さすぎて検出が困難です。",
+                "tooLarge": "顔が大きすぎる/近すぎます。",
+                "sizeNotOptimal": "顔のサイズが最適ではありません。"
+            },
+            "contrast": {
+                "separation": {
+                    "nearlyIdentical": "被写体と背景のトーンがほぼ同じです - 強くコントラストのある背景を使用してください。",
+                    "tooSimilar": "被写体と背景のトーンが似すぎています - コントラストのある背景の使用を検討してください。",
+                    "couldBeMoreDistinct": "被写体と背景をもっと区別できます - 異なる背景色を試してください。"
+                },
+                "poorOrFlat": "画像のコントラストが悪いか、平坦すぎます。"
+            },
+            "sharpness": {
+                "tooBlurry": "画像がぼやけているか、十分な詳細が不足しています。",
+                "pixelated": "画像がピクセル化されているか、圧縮アーティファクトがあります。",
+                "suboptimal": "画像の鮮明度を向上させることができます。"
+            },
+            "background": {
+                "notBlurred": "背景がぼかされていません。ポートレートモードまたはぼかした背景を使用してください。"
+            },
+            "upload": {
+                "none": "画像がアップロードされていません"
+            },
+            "body": {
+                "minRequired": "少なくとも{{min}}枚の全身写真が必要です（現在{{current}}枚）",
+                "tooMany": "全身写真が多すぎます（{{currentPercent}}%）。最大{{maxPercent}}%まで許可"
+            },
+            "score": {
+                "tooLow": "画像品質スコアが低すぎます"
+            },
+            "eyes": {
+                "maybeNotVisible": "目がはっきりと見えない可能性があります（サングラス、髪、または照明不良をチェック）"
+            },
+            "reject": {
+                "genericHint": "この写真は品質要件を満たしていませんでした。よく照らされた正面写真を試してください。"
+            }
+        }
+    },
+    "uploader": {
+        "dragDropMessage": "{{count}}枚のセルフィーをここにドラッグ＆ドロップするか、",
+        "dragDropMoreMessage_one": "あと1枚をここにドラッグ＆ドロップ、または",
+        "dragDropMoreMessage_other": "あと{{count}}枚をここにドラッグ＆ドロップ、または",
+        "browse": "参照",
+        "supportedFormats": "JPGとPNGファイルをサポート",
+        "dropMessage": "写真をここにドロップしてください",
+        "maxImagesReached": "すべての写真を追加しました。準備完了です！"
+    },
+    "status": {
+        "analyzing": "{{count}}枚の写真を分析中...",
+        "checkingQuality": "写真品質をチェック中..."
     }
-  },
-
-  "uploader": {
-    "dragDropMessage": "{{count}}枚のセルフィーをここにドラッグ＆ドロップするか、",
-    "dragDropMoreMessage_one": "あと1枚をここにドラッグ＆ドロップ、または",
-    "dragDropMoreMessage_other": "あと{{count}}枚をここにドラッグ＆ドロップ、または",
-    "browse": "参照",
-    "supportedFormats": "JPGとPNGファイルをサポート",
-    "dropMessage": "写真をここにドロップしてください",
-    "maxImagesReached": "すべての写真を追加しました。準備完了です！"
-  },
-
-  "status": {
-    "analyzing": "{{count}}枚の写真を分析中...",
-    "checkingQuality": "写真品質をチェック中..."
-  }
 }

@@ -698,6 +698,7 @@ export declare const resources: {
                     variety: {
                         title: string;
                         description: string;
+                        description2: string;
                         goodAlt: string;
                         badAlt: string;
                     };
@@ -1815,6 +1816,7 @@ export declare const resources: {
                     variety: {
                         title: string;
                         description: string;
+                        description2: string;
                         goodAlt: string;
                         badAlt: string;
                     };
@@ -2916,6 +2918,7 @@ export declare const resources: {
                     variety: {
                         title: string;
                         description: string;
+                        description2: string;
                         goodAlt: string;
                         badAlt: string;
                     };
@@ -4004,6 +4007,7 @@ export declare const resources: {
                     variety: {
                         title: string;
                         description: string;
+                        description2: string;
                         goodAlt: string;
                         badAlt: string;
                     };
@@ -5092,6 +5096,7 @@ export declare const resources: {
                     variety: {
                         title: string;
                         description: string;
+                        description2: string;
                         goodAlt: string;
                         badAlt: string;
                     };
@@ -6180,6 +6185,7 @@ export declare const resources: {
                     variety: {
                         title: string;
                         description: string;
+                        description2: string;
                         goodAlt: string;
                         badAlt: string;
                     };
@@ -7268,6 +7274,7 @@ export declare const resources: {
                     variety: {
                         title: string;
                         description: string;
+                        description2: string;
                         goodAlt: string;
                         badAlt: string;
                     };
@@ -8356,6 +8363,7 @@ export declare const resources: {
                     variety: {
                         title: string;
                         description: string;
+                        description2: string;
                         goodAlt: string;
                         badAlt: string;
                     };
@@ -9445,6 +9453,7 @@ export declare const resources: {
                     variety: {
                         title: string;
                         description: string;
+                        description2: string;
                         goodAlt: string;
                         badAlt: string;
                     };
@@ -10533,6 +10542,7 @@ export declare const resources: {
                     variety: {
                         title: string;
                         description: string;
+                        description2: string;
                         goodAlt: string;
                         badAlt: string;
                     };

@@ -136,17 +136,31 @@ export async function loadModels(forceReload = false) {
     // Dynamically import MediaPipe
     const { FaceDetector, FaceLandmarker, FilesetResolver } = await import('@mediapipe/tasks-vision');
     
+    // Get CDN base URL from environment variable
+    const cdnBase = process.env.NEXT_PUBLIC_AWS_DISTRIBUTION || '';
+    
+    // Use self-hosted MediaPipe assets to avoid ad blocker issues
+    // Falls back to public CDN if not configured
+    const wasmPath = cdnBase 
+      ? `${cdnBase}/mediapipe/wasm`
+      : 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm';
+    
+    const faceDetectorPath = cdnBase
+      ? `${cdnBase}/mediapipe/blaze_face_short_range.tflite`
+      : 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite';
+    
+    const faceLandmarkerPath = cdnBase
+      ? `${cdnBase}/mediapipe/face_landmarker.task`
+      : 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task';
+    
     // Initialize the vision tasks
-    const vision = await FilesetResolver.forVisionTasks(
-      // Use jsDelivr CDN for WASM files
-      'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
-    );
+    const vision = await FilesetResolver.forVisionTasks(wasmPath);
     
     // Create Face Detector (for detecting faces)
     if (!faceDetector) {
       faceDetector = await FaceDetector.createFromOptions(vision, {
         baseOptions: {
-          modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite',
+          modelAssetPath: faceDetectorPath,
           delegate: 'GPU' // Use GPU acceleration
         },
         runningMode: 'IMAGE',
@@ -158,7 +172,7 @@ export async function loadModels(forceReload = false) {
     if (!faceLandmarker) {
       faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
         baseOptions: {
-          modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
+          modelAssetPath: faceLandmarkerPath,
           delegate: 'GPU'
         },
         runningMode: 'IMAGE',

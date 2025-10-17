@@ -23,7 +23,7 @@ import {
 } from "@primeshot/common/web/ui/tabs";
 import Footer from "@primeshot/common/web/Footer";
 import ContentPageHeader from "@/components/ContentPageHeader";
-import { getCdnUrl } from "@/lib/utils/cdn";
+import { getWebsiteCdnUrl } from "@/lib/utils/cdn";
 import { SubscriptionTier, PricingCategory, transformPricingData } from "@primeshot/common";
 
 // Fallback pricing data for error states or loading
@@ -252,7 +252,7 @@ export default function PricingPage() {
        
       <ContentPageHeader 
         title="Pricing" 
-        backgroundImage={getCdnUrl('explore/blindlight-01.webp')} 
+        backgroundImage={getWebsiteCdnUrl('explore/blindlight-01.webp')} 
       />
 
       {/* Pricing Plans */}

@@ -3,6 +3,13 @@
   align-items: center;
   min-height: 145px;
   padding: 0;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.footerDragging {
+  background: rgba(68, 227, 201, 0.05);
+  border-radius: 16px;
 }
 
 .footerContent {
@@ -76,6 +83,16 @@
 
 .squaresWrapper {
   position: relative;
+  transition: all 0.2s ease;
+}
+
+.squaresWrapperDragging {
+  filter: brightness(1.1);
+}
+
+.squaresWrapperDragging .square:after,
+.squaresWrapperDragging .squareOptional:after {
+  border: 1px solid rgba(68, 227, 201, 0.3);
 }
 
 .squaresContainer {

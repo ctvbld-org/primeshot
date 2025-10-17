@@ -95,7 +95,8 @@
       },
       "variety": {
         "title": "Variété",
-        "description": "Choisissez des photos avec un mélange de vêtements et d'arrière-plans. Évitez les filtres lourds.",
+        "description": "Choisissez des photos avec un mélange de vêtements et d'arrière-plans.",
+        "description2": "N'utilisez aucun filtre.",
         "goodAlt": "Exemple de bonne variété",
         "badAlt": "Exemple de mauvaise variété"
       }
