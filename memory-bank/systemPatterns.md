@@ -2344,6 +2344,31 @@ Detected changes in:
 - website/src/app/[locale]/terms/page.tsx
 - website/src/app/api/subscriptions/route.ts
 - website/src/components/ContentPageHeader.module.css
+
+
+**Auto-update 2025-10-19**:
+Detected changes in:
+- webapp/src/app/auth/auth-code-error/page.tsx
+- webapp/src/app/site.webmanifest/route.ts
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/OnboardingStep.tsx
+- webapp/src/components/character/training/UploadPhotosStep.tsx
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/inference/InferenceJobGroup.tsx
+- webapp/src/components/inference/InferenceThumbnail.module.css
+- webapp/src/components/inference/InferenceThumbnail.tsx
+- webapp/src/components/upload/FileUploader.module.css
+- webapp/src/components/upload/FileUploader.tsx
+- webapp/src/components/upload/UploadFooter.module.css
+- webapp/src/components/upload/UploadFooter.tsx
+- webapp/src/lib/image-quality.ts
+- webapp/src/lib/utils/cdn.ts
+- website/src/app/[locale]/layout.tsx
+- website/src/app/[locale]/page.tsx
+- website/src/app/[locale]/pricing/page.tsx
+- website/src/app/layout.tsx
+- website/src/app/site.webmanifest/route.ts
+- website/src/lib/utils/cdn.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

@@ -129,7 +129,6 @@
 .thumbnailGrid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 1px;
   border-radius: 28px;
   overflow: hidden;
 }

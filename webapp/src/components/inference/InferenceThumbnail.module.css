@@ -1,9 +1,27 @@
 .thumbnail {
+  border-right: 1px solid #000000;
   position: relative;
   aspect-ratio: 1 / 1;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.8);
   cursor: pointer;
+}
+
+.thumbnail:last-child {
+  border-right: none;
+}
+
+.thumbnail:before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url(https://d3el9qajjnmn76.cloudfront.net/website-images/noise-overlay100.png);
+  background-size: 140px;
+  background-blend-mode: color-dodge;
+  mix-blend-mode: color-dodge;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.3s ease-out;
 }
 
 .empty {
@@ -12,30 +30,18 @@
 }
 
 .imageContainer {
+  mix-blend-mode: color-dodge;
+  backdrop-filter: blur(80px);
   position: relative;
   width: 100%;
   height: 100%;
-}
-
-.backgroundImageLayer {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  filter: blur(40px);
-  opacity: 0.6;
-  z-index: 0;
-  transform: scale(1.2);
 }
 
 .imageContainer:after {
   content: '';
   position: absolute;
   inset: 0;
-  z-index: 3;
+  z-index: 0;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.8) 100%);
   pointer-events: none;
   background-blend-mode: hard-light;
@@ -48,6 +54,18 @@
   opacity: 1;
 }
 
+
+.statusCompleted:before,
+.statusGenerating:before {
+  display: none;
+}
+
+.statusCompleted .imageContainer,
+.statusGenerating .imageContainer {
+  mix-blend-mode: normal;
+  backdrop-filter: blur(0);
+}
+
 .imageLayer {
   position: absolute;
   inset: 0;
@@ -57,7 +75,6 @@
   opacity: 0;
   filter: blur(10px);
   transition: opacity 0.3s ease, transform 0.3s ease-out, filter 0.3s ease-out;
-  z-index: 2;
 }
 
 .imageLayer:hover {
@@ -124,11 +141,19 @@
   justify-content: center;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.3);
   color: var(--color-text-secondary);
   position: relative;
   overflow: hidden;
-  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .placeholder {
+    border-right: none;
+  }
+}
+
+.statusQueued {
+  background-color: rgba(20, 20, 20, 0.6);
 }
 
 /* Status overlay */
@@ -212,7 +237,6 @@
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(1px);
-  z-index: 4;
 }
 
 /* Live preview badge */
@@ -294,7 +318,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  z-index: 5;
+  z-index: 10;
   overflow: hidden;
   opacity: 1;
   filter: blur(0);
@@ -308,10 +332,10 @@
 }
 
 .gradientLoader {
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 216, 0.1);
 }
 .placeholder {
-  background: rgba(0, 0, 0, 0.3);
+  background: #2ADED815;
 }
 
 /* Inline hover actions */
@@ -361,19 +385,17 @@
 }
 
 /* Generating state gradient loader */
-.statusGenerating .gradientLoader,
-.statusInitializing .gradientLoader,
-.statusGenerating .placeholder,
-.statusInitializing .placeholder {
-  animation: simpleOpacityPulse 2s ease-in-out infinite;
+.statusGenerating .imageContainer,
+.statusInitializing .imageContainer {
+  animation: simpleOpacityPulse 4s ease-in-out infinite;
   animation-delay: calc((var(--stagger, 0)) * 200ms);
 }
 
 .statusQueued .gradientLoader {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 216, 0.02);
 }
 .statusFailed .gradientLoader {
-  background: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.01);
 }
 .statusQueued .placeholder,
 .statusFailed .placeholder {
@@ -381,9 +403,11 @@
 }
 
 @keyframes simpleOpacityPulse {
-  0% { background: rgba(0, 0, 0, 0.3); }
-  50% { background: rgba(0, 0, 0, 0.5); }
-  100% { background: rgba(0, 0, 0, 0.3); }
+  0% { backdrop-filter: blur(80px); }
+  25% { backdrop-filter: blur(40px); }
+  50% { backdrop-filter: blur(160px); }
+  75% { backdrop-filter: blur(40px); }
+  100% { backdrop-filter: blur(80px); }
 }
 
 /* Responsive grid adjustments */

@@ -18,6 +18,7 @@ import { useToast } from '@primeshot/common/web/ui/use-toast';
 import { Button } from '@primeshot/common/web/ui/button';
 import { confirmationService } from '@/lib/services/confirmationService';
 import { useJobsApi } from '@/lib/api/jobs';
+import { getStyleImages } from '@/lib/utils/get-styles-images';
 
 interface InferenceJobGroupProps {
   job: InferenceJob;
@@ -72,6 +73,23 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
   const styleBackgroundImage = useMemo(() => {
     return styleData?.preview_images?.[0] || '';
   }, [styleData?.preview_images]);
+
+  // Delayed background image to prevent flickering
+  const [delayedBackgroundImage, setDelayedBackgroundImage] = useState<string>('');
+
+  useEffect(() => {
+    // Only show background image if job is not completed
+    if (styleBackgroundImage && activeJob.status !== 'completed') {
+      // Delay applying the background image to prevent flickering
+      const timer = setTimeout(() => {
+        setDelayedBackgroundImage(styleBackgroundImage);
+      }, 500); // 500ms delay
+      return () => clearTimeout(timer);
+    } else {
+      // Remove background if job is completed or no image available
+      setDelayedBackgroundImage('');
+    }
+  }, [styleBackgroundImage, activeJob.status]);
 
   const subtitle = useMemo(() => {
     // Prefer prompt_override when available and enabled
@@ -521,7 +539,6 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
                   jobStatus={activeJob.status as any}
                   onClick={() => handleThumbnailClick(0)}
                   variant="hero"
-                  backgroundImage={styleBackgroundImage}
                 />
               );
             })()}
@@ -568,12 +585,19 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
       </div>
 
       {/* Thumbnails Grid - desktop and tablets */}
-      <div className={[
-        styles.thumbnailGrid,
-        runtimeAR === '2:3' ? styles.ar23 : '',
-        runtimeAR === '3:2' ? styles.ar32 : '',
-        runtimeAR === '1:1' ? styles.ar11 : ''
-      ].filter(Boolean).join(' ')}>
+      <div 
+        className={[
+          styles.thumbnailGrid,
+          runtimeAR === '2:3' ? styles.ar23 : '',
+          runtimeAR === '3:2' ? styles.ar32 : '',
+          runtimeAR === '1:1' ? styles.ar11 : ''
+        ].filter(Boolean).join(' ')}
+        style={delayedBackgroundImage ? {
+          backgroundImage: `url(${getStyleImages([delayedBackgroundImage])})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        } : undefined}
+      >
         {isVisible ? (
           activeJob.thumbnails.map((thumbnail, index) => (
             <InferenceThumbnailComponent
@@ -581,7 +605,6 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
               thumbnail={thumbnail}
               jobStatus={activeJob.status as any}
               onClick={() => handleThumbnailClick(index)}
-              backgroundImage={styleBackgroundImage}
             />
           ))
         ) : (
