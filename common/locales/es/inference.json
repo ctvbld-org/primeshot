@@ -15,6 +15,28 @@
     "loadingMore": "Cargando más shootings",
     "endOfList": "Has llegado al final de tus shootings",
     "howItWorksAria": "Cómo funciona",
+    "quotes": [
+      "Cada detalle toma forma",
+      "Tus retratos cobran vida",
+      "Pueden aparecer algunas sorpresas, felices casualidades",
+      "Juega con asombro",
+      "Y descubre los que son fieles a ti",
+      "Observa tu transformación",
+      "La magia está en marcha",
+      "Tu historia se despliega",
+      "Abraza lo inesperado",
+      "El arte te encuentra",
+      "Cada imagen una revelación",
+      "Belleza en progreso",
+      "Tu esencia capturada",
+      "Momentos volviéndose recuerdos",
+      "Encontrando tu luz",
+      "La perfección toma tiempo",
+      "Casi ahí, casi tú",
+      "Creando algo hermoso",
+      "Tu visión única emerge",
+      "Confía en el proceso"
+    ],
     "steps": {
       "choose": {
         "title": "Elige un estilo",

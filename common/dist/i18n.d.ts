@@ -460,6 +460,7 @@ export declare const resources: {
                 loadingMore: string;
                 endOfList: string;
                 howItWorksAria: string;
+                quotes: string[];
                 steps: {
                     choose: {
                         title: string;
@@ -1578,6 +1579,7 @@ export declare const resources: {
                 loadingMore: string;
                 endOfList: string;
                 howItWorksAria: string;
+                quotes: string[];
                 steps: {
                     choose: {
                         title: string;
@@ -2680,6 +2682,7 @@ export declare const resources: {
                 loadingMore: string;
                 endOfList: string;
                 howItWorksAria: string;
+                quotes: string[];
                 steps: {
                     choose: {
                         title: string;
@@ -3769,6 +3772,7 @@ export declare const resources: {
                 loadingMore: string;
                 endOfList: string;
                 howItWorksAria: string;
+                quotes: string[];
                 steps: {
                     choose: {
                         title: string;
@@ -4858,6 +4862,7 @@ export declare const resources: {
                 loadingMore: string;
                 endOfList: string;
                 howItWorksAria: string;
+                quotes: string[];
                 steps: {
                     choose: {
                         title: string;
@@ -5947,6 +5952,7 @@ export declare const resources: {
                 loadingMore: string;
                 endOfList: string;
                 howItWorksAria: string;
+                quotes: string[];
                 steps: {
                     choose: {
                         title: string;
@@ -7036,6 +7042,7 @@ export declare const resources: {
                 loadingMore: string;
                 endOfList: string;
                 howItWorksAria: string;
+                quotes: string[];
                 steps: {
                     choose: {
                         title: string;
@@ -8125,6 +8132,7 @@ export declare const resources: {
                 loadingMore: string;
                 endOfList: string;
                 howItWorksAria: string;
+                quotes: string[];
                 steps: {
                     choose: {
                         title: string;
@@ -9215,6 +9223,7 @@ export declare const resources: {
                 loadingMore: string;
                 endOfList: string;
                 howItWorksAria: string;
+                quotes: string[];
                 steps: {
                     choose: {
                         title: string;
@@ -10304,6 +10313,7 @@ export declare const resources: {
                 loadingMore: string;
                 endOfList: string;
                 howItWorksAria: string;
+                quotes: string[];
                 steps: {
                     choose: {
                         title: string;

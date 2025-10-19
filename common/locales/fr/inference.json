@@ -15,6 +15,28 @@
     "loadingMore": "Chargement de plus de shootings",
     "endOfList": "Vous avez atteint la fin de vos shootings",
     "howItWorksAria": "Comment ça marche",
+    "quotes": [
+      "Chaque détail prend forme",
+      "Vos portraits prennent vie",
+      "Quelques surprises peuvent surgir, heureux hasards",
+      "Jouez avec émerveillement",
+      "Et découvrez ceux qui vous ressemblent",
+      "Observez votre transformation",
+      "La magie s'opère",
+      "Votre histoire se dévoile",
+      "Accueillez l'inattendu",
+      "L'art vous rencontre",
+      "Chaque image une révélation",
+      "La beauté en devenir",
+      "Votre essence capturée",
+      "Des instants devenant souvenirs",
+      "Trouver votre lumière",
+      "La perfection prend du temps",
+      "Bientôt là, bientôt vous",
+      "Créer quelque chose de beau",
+      "Votre vision unique émerge",
+      "Faites confiance au processus"
+    ],
     "steps": {
       "choose": {
         "title": "Choisissez un style",

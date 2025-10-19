@@ -605,6 +605,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
               thumbnail={thumbnail}
               jobStatus={activeJob.status as any}
               onClick={() => handleThumbnailClick(index)}
+              showQuotes={index === activeJob.thumbnails.length - 1}
             />
           ))
         ) : (

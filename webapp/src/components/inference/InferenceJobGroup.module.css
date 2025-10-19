@@ -131,6 +131,7 @@
   grid-template-columns: repeat(5, 1fr);
   border-radius: 28px;
   overflow: hidden;
+  position: relative;
 }
 
 .shootTitle {

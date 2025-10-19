@@ -1,13 +1,10 @@
 .thumbnail {
   border-right: 1px solid #000000;
+  border-bottom: 1px solid #000;
   position: relative;
   aspect-ratio: 1 / 1;
   overflow: hidden;
   cursor: pointer;
-}
-
-.thumbnail:last-child {
-  border-right: none;
 }
 
 .thumbnail:before {
@@ -388,7 +385,7 @@
 .statusGenerating .imageContainer,
 .statusInitializing .imageContainer {
   animation: simpleOpacityPulse 4s ease-in-out infinite;
-  animation-delay: calc((var(--stagger, 0)) * 200ms);
+  animation-delay: calc((var(--stagger, 0)) * 500ms);
 }
 
 .statusQueued .gradientLoader {
@@ -429,6 +426,74 @@
 
   .actionBtnGroup {
     gap: 2px;
+  }
+}
+
+/* Quote overlay for last thumbnail during generation */
+.quoteOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+
+.quoteOverlayIcon {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  opacity: 0.5;
+}
+
+.quoteOverlayIconTopLeft {
+  top: 16px;
+  left: 16px;
+}
+
+.quoteOverlayIconTopRight {
+  top: 16px;
+  right: 16px;
+}
+
+.quoteOverlayIconBottomLeft {
+  bottom: 16px;
+  left: 16px;
+}
+
+.quoteOverlayIconBottomRight {
+  bottom: 16px;
+  right: 16px;
+}
+
+.quoteContent {
+  font-family: var(--font-carb);
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1;
+  color: #99EFEC;
+  text-align: center;
+  padding: 24px;
+  letter-spacing: -0.01em;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.quoteVisible {
+  opacity: 1;
+}
+
+.quoteHidden {
+  opacity: 0;
+}
+
+/* Hide quote overlay on mobile */
+@media (max-width: 768px) {
+  .quoteOverlay {
+    display: none;
   }
 }
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, useState, useCallback, useEffect, useRef } from 'react';
+import { FC, useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import Image from 'next/image';
 import styles from './InferenceThumbnail.module.css';
 import { getInferenceImageThumbnail, getInferenceImageCard } from '@/lib/utils/get-inference-image';
@@ -40,13 +40,18 @@ interface InferenceThumbnailProps {
    * - 'hero': single large mobile hero (should request up to 1024w)
    */
   variant?: 'grid' | 'hero';
+  /**
+   * If true, this is the last thumbnail and should show rotating quotes during generation
+   */
+  showQuotes?: boolean;
 }
 
 export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
   thumbnail,
   jobStatus,
   onClick,
-  variant = 'grid'
+  variant = 'grid',
+  showQuotes = false
 }) => {
   const { t } = useTranslation('inference');
   // Track layered transition state between preview and final image
@@ -57,6 +62,10 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
   const [imageError, setImageError] = useState(false);
   const hasMountedRef = useRef(false);
   const zoomTriggeredRef = useRef(false);
+  
+  // Quote rotation state (only used if showQuotes is true)
+  const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
+  const [quoteVisible, setQuoteVisible] = useState(true);
   
   // Check if we're using a base64 preview
   const isBase64Preview = (thumbnail.webImageUrl || thumbnail.imageUrl)?.startsWith('data:image/');
@@ -160,6 +169,60 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
   const hasAnyImage = Boolean(currentUrl || prevUrl);
   const showDualLayer = Boolean(prevUrl && currentUrl && currentUrl !== prevUrl && !finalLoaded);
   const objectFit = variant === 'hero' ? 'cover' : 'contain';
+
+  // Get quotes from translation
+  const quotes = useMemo(() => {
+    if (!showQuotes) return [];
+    const quotesArray = t('gallery.quotes', { returnObjects: true });
+    return Array.isArray(quotesArray) ? quotesArray : [];
+  }, [t, showQuotes]);
+
+  // Quote rotation animation: fade out, switch quote, fade in
+  // Only show during generation (running/starting/initializing states)
+  useEffect(() => {
+    if (!showQuotes || quotes.length === 0) return;
+    
+    const isGenerating = jobStatus === 'running' || 
+                        jobStatus === 'starting' || 
+                        jobStatus === 'initializing' ||
+                        jobStatus === 'generating';
+    
+    if (!isGenerating) return;
+
+    const getRandomQuoteIndex = (currentIndex: number): number => {
+      if (quotes.length <= 1) return 0;
+      
+      // Get a random index that's different from current
+      let newIndex;
+      do {
+        newIndex = Math.floor(Math.random() * quotes.length);
+      } while (newIndex === currentIndex);
+      
+      return newIndex;
+    };
+
+    const cycleQuote = () => {
+      // Fade out
+      setQuoteVisible(false);
+      
+      // Wait for fade out, then change quote to a random one
+      setTimeout(() => {
+        setCurrentQuoteIndex((prev) => getRandomQuoteIndex(prev));
+        // Fade back in
+        setQuoteVisible(true);
+      }, 500); // Duration of fade out
+    };
+
+    // Show first quote for full duration, then start cycling
+    const interval = setInterval(cycleQuote, 7000); // 7 seconds per quote
+
+    return () => clearInterval(interval);
+  }, [showQuotes, jobStatus, quotes.length]);
+
+  // Check if we should show the quote overlay
+  const shouldShowQuoteOverlay = showQuotes && 
+    quotes.length > 0 && 
+    (jobStatus === 'running' || jobStatus === 'starting' || jobStatus === 'initializing' || jobStatus === 'generating');
 
   // Inline action state
   const queue = useOptionalInferenceQueue();
@@ -335,6 +398,28 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
           </>
         ) : (
           <div className={styles.placeholder}></div>
+        )}
+
+        {/* Quote overlay (only on last thumbnail during generation) */}
+        {shouldShowQuoteOverlay && (
+          <div className={styles.quoteOverlay}>
+            <svg className={styles.quoteOverlayIcon + ' ' + styles.quoteOverlayIconTopLeft} width="29" height="29" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M28.3965 1.7002H16.3984C8.39031 1.7002 1.89844 8.19207 1.89844 16.2002V28.2002H0.398438V16.2002C0.398438 7.36364 7.56188 0.200196 16.3984 0.200195H28.3965V1.7002Z" fill="#99EFEC"/>
+            </svg>
+            <svg className={styles.quoteOverlayIcon + ' ' + styles.quoteOverlayIconTopRight} width="29" height="29" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M0.400391 1.7002H12.3984C20.4066 1.7002 26.8984 8.19207 26.8984 16.2002V28.2002H28.3984V16.2002C28.3984 7.36364 21.235 0.200196 12.3984 0.200195H0.400391V1.7002Z" fill="#99EFEC"/>
+            </svg>
+            <svg className={styles.quoteOverlayIcon + ' ' + styles.quoteOverlayIconBottomRight} width="29" height="29" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M0.400391 26.7002H12.3984C20.4066 26.7002 26.8984 20.2083 26.8984 12.2002V0.200195H28.3984V12.2002C28.3984 21.0368 21.235 28.2002 12.3984 28.2002H0.400391V26.7002Z" fill="#99EFEC"/>
+            </svg>
+            <svg className={styles.quoteOverlayIcon + ' ' + styles.quoteOverlayIconBottomLeft} width="29" height="29" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M28.3965 26.7002H16.3984C8.39031 26.7002 1.89844 20.2083 1.89844 12.2002V0.200195H0.398438V12.2002C0.398438 21.0368 7.56188 28.2002 16.3984 28.2002H28.3965V26.7002Z" fill="#99EFEC"/>
+            </svg>
+
+            <div className={`${styles.quoteContent} ${quoteVisible ? styles.quoteVisible : styles.quoteHidden}`}>
+              {quotes[currentQuoteIndex]}
+            </div>
+          </div>
         )}
 
         {/* Hover actions */}
