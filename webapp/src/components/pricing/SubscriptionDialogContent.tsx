@@ -15,6 +15,7 @@ import { useInferenceSettings } from '@/hooks/useInferenceSettings'
 import { useDialogService } from '@/contexts/DialogServiceContext'
 import { useTranslation } from 'react-i18next'
 import { useRewardful } from '@/hooks/useRewardful'
+import { useOpenCreditPackDialog } from '@/hooks/useOpenCreditPackDialog'
 
 // Context types for different upgrade scenarios
 export type SubscriptionDialogContext = 
@@ -66,6 +67,7 @@ export function SubscriptionDialogContent({
   const { data: currentSubscription } = useCurrentSubscription()
   const { data: inferenceSettings } = useInferenceSettings()
   const { referralId } = useRewardful()
+  const openCreditPackDialog = useOpenCreditPackDialog()
   const isSpecialOffer = true // TODO: Remove this when special offer is over
   const { t } = useTranslation('pricing')
   const tp = (k: string, o?: any) => String((t as any)(k, o))
@@ -456,10 +458,24 @@ export function SubscriptionDialogContent({
 
       {/* Full price notice for upgrades */}
       {showOnlyUpgrades && (
-        <p className="text-xs text-muted-foreground text-center">
-          {tp('subscription.footer.upgradeNotice')}
-        </p>
+        <div className={styles.creditPackFooter}>
+          <p className="text-xs text-muted-foreground text-center">
+            {tp('subscription.footer.upgradeNotice')}
+          </p>
+        
+          <Button
+            variant="secondary"
+            onClick={() => {
+              closeDialog()
+              openCreditPackDialog()
+            }}
+            className={styles.creditPackBtn}
+          >
+            {tp('subscription.footer.buyCreditPack', { defaultValue: 'Buy a credit pack' })}
+          </Button>
+        </div>
       )}
+
     </div>
 
   </>

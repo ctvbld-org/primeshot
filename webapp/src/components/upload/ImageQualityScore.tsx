@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from 'react'
 import { ImageQualityResult } from '@/lib/image-quality'
 import Image from 'next/image'
-import { FileIcon } from 'lucide-react'
+import { FileIcon, Info } from 'lucide-react'
 import { Icon } from '@primeshot/common/web/Icon'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@primeshot/common/web/ui/tooltip'
 import styles from './ImageQualityScore.module.css'
 import type { FileWithScore } from '@/lib/types'
 import { useTranslation } from 'react-i18next'
@@ -53,9 +54,23 @@ export function ImageQualityScore({
     return styles.progressLow
   }
 
+  // Get all quality scores for tooltip
+  const getQualityScores = (result: ImageQualityResult) => {
+    return [
+      { name: 'Brightness', value: result.brightnessScore, key: 'quality.scores.brightness' },
+      { name: 'Contrast', value: result.contrastScore, key: 'quality.scores.contrast' },
+      { name: 'Saturation', value: result.saturationScore ?? 100, key: 'quality.scores.saturation' },
+      { name: 'Sharpness', value: result.blurScore, key: 'quality.scores.sharpness' }
+    ]
+  }
+
+  // Check if image is still being analyzed (placeholder state)
+  const isAnalyzing = result.faceDetectionSkipped || result.score === 0
+  const qualityScores = !isAnalyzing ? getQualityScores(result) : null
+
   return (
     <div className={styles.container}>
-      <div className={styles.imageContainer}>
+      <div className={`${styles.imageContainer} ${isAnalyzing ? styles.imageAnalyzing : ''}`}>
         <div className={styles.contentContainer}>
           <div className={styles.headerContainer}>
             <div className={styles.image}>
@@ -72,7 +87,30 @@ export function ImageQualityScore({
             </div>
             <div className={styles.fileInfo}>
               <p className={styles.fileName}>{file.name}</p>
-              <span className={styles.qualityScore}>{Math.round(result.score)}%</span>
+              {!isAnalyzing && (
+                <div className={styles.scoreContainer}>
+                  <span className={styles.qualityScore}>{Math.round(result.score)}%</span>
+                  {qualityScores && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className={styles.infoIcon} size={16} />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            {qualityScores.map((score, index) => (
+                              <div key={index} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
+                                <span>{t(score.key)}:</span>
+                                <span style={{ fontWeight: 500 }}>{Math.round(score.value)}%</span>
+                              </div>
+                            ))}
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

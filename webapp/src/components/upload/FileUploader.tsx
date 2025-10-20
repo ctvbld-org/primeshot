@@ -117,7 +117,11 @@ export const FileUploader = React.forwardRef<FileUploaderHandle, FileUploaderPro
   const handleDrop = useCallback(async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     e.stopPropagation()
-    if (disabled) return
+    const acceptedCount = acceptedFiles?.length ?? 0
+    const isMaxReached = acceptedCount >= maxImages
+    const shouldBlock = disabled || isMaxReached || isAnalyzing
+    
+    if (shouldBlock) return
     setIsDragging(false)
 
     const droppedFiles = Array.from(e.dataTransfer.files)
@@ -135,10 +139,14 @@ export const FileUploader = React.forwardRef<FileUploaderHandle, FileUploaderPro
         })
       }
     }
-  }, [handleNewFiles, addFiles, disabled])
+  }, [handleNewFiles, addFiles, disabled, acceptedFiles, maxImages, isAnalyzing])
 
   const handleFileInputChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (disabled) return
+    const acceptedCount = acceptedFiles?.length ?? 0
+    const isMaxReached = acceptedCount >= maxImages
+    const shouldBlock = disabled || isMaxReached || isAnalyzing
+    
+    if (shouldBlock) return
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files)
       const filesToAdd = handleNewFiles(selectedFiles)
@@ -158,15 +166,19 @@ export const FileUploader = React.forwardRef<FileUploaderHandle, FileUploaderPro
     }
     // Reset input value to allow selecting the same file again
     e.target.value = ''
-  }, [handleNewFiles, addFiles, disabled])
+  }, [handleNewFiles, addFiles, disabled, acceptedFiles, maxImages, isAnalyzing])
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     e.stopPropagation()
-    if (!disabled) {
+    const acceptedCount = acceptedFiles?.length ?? 0
+    const isMaxReached = acceptedCount >= maxImages
+    const shouldBlock = disabled || isMaxReached || isAnalyzing
+    
+    if (!shouldBlock) {
       setIsDragging(true)
     }
-  }, [disabled])
+  }, [disabled, acceptedFiles, maxImages, isAnalyzing])
 
   const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
@@ -175,22 +187,34 @@ export const FileUploader = React.forwardRef<FileUploaderHandle, FileUploaderPro
   }, [])
 
   const handleBrowseClick = useCallback(() => {
-    if (!disabled) {
+    const acceptedCount = acceptedFiles?.length ?? 0
+    const isMaxReached = acceptedCount >= maxImages
+    const shouldBlock = disabled || isMaxReached || isAnalyzing
+    
+    if (!shouldBlock) {
       fileInputRef.current?.click()
     }
-  }, [disabled])
+  }, [disabled, acceptedFiles, maxImages, isAnalyzing])
 
   // Expose imperative API to open file picker from parent components
   React.useImperativeHandle(ref, () => ({
     openFileDialog: () => {
-      if (!disabled) {
+      const acceptedCount = acceptedFiles?.length ?? 0
+      const isMaxReached = acceptedCount >= maxImages
+      const shouldBlock = disabled || isMaxReached || isAnalyzing
+      
+      if (!shouldBlock) {
         fileInputRef.current?.click()
       }
     }
-  }), [disabled])
+  }), [disabled, acceptedFiles, maxImages, isAnalyzing])
 
   // Derived state for center overlay messages
   const acceptedCount = acceptedFiles?.length ?? 0
+  const isMaxImagesReached = acceptedCount >= maxImages
+  const hasMinImages = acceptedCount >= minImages
+  const isFullyDisabled = disabled || isMaxImagesReached || hasMinImages || isAnalyzing
+  
   const showBodyShotError = !isAnalyzing && acceptedCount >= minImages && !!bodyShotValidation && !bodyShotValidation.isValid
   const bodyErrorMessage = showBodyShotError
     ? (bodyShotValidation!.i18nErrors && bodyShotValidation!.i18nErrors[0]
@@ -215,18 +239,20 @@ export const FileUploader = React.forwardRef<FileUploaderHandle, FileUploaderPro
       )}
       <div className={clsx(
         styles.card,
-        disabled && styles.cardDisabled,
+        isFullyDisabled && styles.cardDisabled,
         isAnalyzing && styles.cardAnalyzing,
         isDragging || isAnalyzing ? styles.cardDragging : isReady ? styles.cardReady : undefined
       )}>
         <div
           className={clsx(
-            styles.dropArea
+            styles.dropArea,
+            isFullyDisabled && styles.dropAreaDisabled
           )}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
-          onClick={handleBrowseClick}
+          onClick={isFullyDisabled ? undefined : handleBrowseClick}
+          style={{ cursor: isFullyDisabled ? 'default' : 'pointer' }}
         >
           <div className={styles.iconContainer}>
             {isDragging ? (
@@ -266,7 +292,7 @@ export const FileUploader = React.forwardRef<FileUploaderHandle, FileUploaderPro
                 t('status.analyzing', { count: analyzingCount })
               ) : showBodyShotError ? (
                 t('uploadStep.bodyShotRequirementsNotMet')
-              ) : (disabled || ((acceptedFiles?.length ?? 0) >= UPLOAD_CONSTANTS.MAX_IMAGES)) ? (
+              ) : isMaxImagesReached || acceptedCount >= minImages ? (
                 t('uploader.maxImagesReached')
               ) : (
                 <>
@@ -305,6 +331,7 @@ export const FileUploader = React.forwardRef<FileUploaderHandle, FileUploaderPro
         multiple
         className={styles.hiddenInput}
         onChange={handleFileInputChange}
+        disabled={isFullyDisabled}
       />
     </div>
   )

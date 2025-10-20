@@ -80,7 +80,8 @@
       }
     },
       "footer": {
-    "upgradeNotice": "Your current subscription will be canceled and replaced with the new plan. Existing credits will be kept."
+    "upgradeNotice": "Your current subscription will be canceled and replaced with the new plan. Existing credits will be kept.",
+    "buyCreditPack": "Buy a credit pack"
   },
     "toasts": {
       "loginRequired": "Please log in",

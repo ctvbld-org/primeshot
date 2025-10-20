@@ -215,6 +215,8 @@ export interface ImageQualityResult {
   blurScore: number;
   blockinessScore: number; // Quality score (JPEG compression, pixelation detection)
   resolutionScore: number;
+  bokehScore?: number; // Background blur score (0-100), from Claude analysis
+  saturationScore?: number; // Color saturation score (0-100), from Claude analysis
   
   // Status flags
   hasSingleFace: boolean;
@@ -235,6 +237,43 @@ export interface ImageQualityResult {
   // Eye detection
   eyesVisible: boolean;
   eyeDetectionSkipped: boolean;
+}
+
+// Quick body shot detection for pre-Claude filtering
+export async function analyzeForBodyShot(file: File): Promise<{
+  hasBody: boolean;
+  width: number;
+  height: number;
+}> {
+  if (isServer) {
+    return { hasBody: false, width: 0, height: 0 };
+  }
+  
+  try {
+    
+    const modelsReady = await loadModels();
+    if (!modelsReady) {
+      return { hasBody: false, width: 0, height: 0 };
+    }
+    
+    const img = await createImageElement(file);
+    const width = img.width;
+    const height = img.height;
+    
+    // Use MediaPipe helper for face detection
+    const { detectFaces } = await import('./mediapipe-face-detection');
+    const faceResult = await detectFaces(img, faceLandmarker);
+    
+    URL.revokeObjectURL(img.src);
+    
+    return {
+      hasBody: faceResult.hasBody,
+      width,
+      height
+    };
+  } catch (error) {
+    return { hasBody: false, width: 0, height: 0 };
+  }
 }
 
 // Analyze image quality using face-api.js and browser canvas

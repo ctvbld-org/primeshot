@@ -252,6 +252,7 @@ export declare const resources: {
                 };
                 footer: {
                     upgradeNotice: string;
+                    buyCreditPack: string;
                 };
                 toasts: {
                     loginRequired: string;
@@ -752,6 +753,13 @@ export declare const resources: {
                 };
             };
             quality: {
+                scores: {
+                    bokeh: string;
+                    brightness: string;
+                    contrast: string;
+                    saturation: string;
+                    sharpness: string;
+                };
                 issues: {
                     image: {
                         lowResolution: string;
@@ -787,7 +795,23 @@ export declare const resources: {
                     sharpness: {
                         tooBlurry: string;
                         pixelated: string;
+                        tooBlurryOrPixelated: string;
                         suboptimal: string;
+                    };
+                    bokeh: {
+                        lowScore: string;
+                        batchRejection: string;
+                        veryPoor: string;
+                    };
+                    filter: {
+                        strong: string;
+                    };
+                    duplicate: {
+                        tooSimilar: string;
+                        highSimilarity: string;
+                        tooManySimilar: string;
+                        burstShot: string;
+                        sameSession: string;
                     };
                     background: {
                         notBlurred: string;
@@ -813,6 +837,11 @@ export declare const resources: {
                     };
                     reject: {
                         genericHint: string;
+                    };
+                    variety: {
+                        sameLocation: string;
+                        sameOutfit: string;
+                        samePose: string;
                     };
                 };
             };
@@ -1012,6 +1041,14 @@ export declare const resources: {
                 uploadFailedCount_other: string;
                 analysisTimeout: string;
                 analysisTimeoutDescription: string;
+                someImagesSkipped: string;
+                skippedMessage: string;
+                deleteFailed: string;
+                genericError: string;
+                qualityIssues: string;
+                qualityIssuesMessage: string;
+                qualityAndLimitIssues: string;
+                qualityAndLimitMessage: string;
             };
             progress: {
                 uploading: string;
@@ -1371,6 +1408,7 @@ export declare const resources: {
                 };
                 footer: {
                     upgradeNotice: string;
+                    buyCreditPack: string;
                 };
                 toasts: {
                     loginRequired: string;
@@ -1871,6 +1909,13 @@ export declare const resources: {
                 };
             };
             quality: {
+                scores: {
+                    bokeh: string;
+                    brightness: string;
+                    contrast: string;
+                    saturation: string;
+                    sharpness: string;
+                };
                 issues: {
                     image: {
                         lowResolution: string;
@@ -1905,6 +1950,7 @@ export declare const resources: {
                         tooBlurry: string;
                         pixelated: string;
                         suboptimal: string;
+                        tooBlurryOrPixelated: string;
                     };
                     background: {
                         notBlurred: string;
@@ -1924,6 +1970,18 @@ export declare const resources: {
                     };
                     reject: {
                         genericHint: string;
+                    };
+                    bokeh: {
+                        lowScore: string;
+                        batchRejection: string;
+                        veryPoor: string;
+                    };
+                    filter: {
+                        strong: string;
+                    };
+                    duplicate: {
+                        tooSimilar: string;
+                        sameSession: string;
                     };
                 };
             };
@@ -2121,6 +2179,10 @@ export declare const resources: {
                 duplicateFile: string;
                 uploadFailedCount_one: string;
                 uploadFailedCount_other: string;
+                someImagesSkipped: string;
+                skippedMessage: string;
+                deleteFailed: string;
+                genericError: string;
             };
             progress: {
                 uploading: string;
@@ -2480,6 +2542,7 @@ export declare const resources: {
                 };
                 footer: {
                     upgradeNotice: string;
+                    buyCreditPack: string;
                 };
                 toasts: {
                     loginRequired: string;
@@ -2974,6 +3037,13 @@ export declare const resources: {
                 };
             };
             quality: {
+                scores: {
+                    bokeh: string;
+                    brightness: string;
+                    contrast: string;
+                    saturation: string;
+                    sharpness: string;
+                };
                 issues: {
                     image: {
                         lowResolution: string;
@@ -3008,6 +3078,7 @@ export declare const resources: {
                         tooBlurry: string;
                         pixelated: string;
                         suboptimal: string;
+                        tooBlurryOrPixelated: string;
                     };
                     background: {
                         notBlurred: string;
@@ -3027,6 +3098,18 @@ export declare const resources: {
                     };
                     reject: {
                         genericHint: string;
+                    };
+                    bokeh: {
+                        lowScore: string;
+                        batchRejection: string;
+                        veryPoor: string;
+                    };
+                    filter: {
+                        strong: string;
+                    };
+                    duplicate: {
+                        tooSimilar: string;
+                        sameSession: string;
                     };
                 };
             };
@@ -3224,6 +3307,10 @@ export declare const resources: {
                 duplicateFile: string;
                 uploadFailedCount_one: string;
                 uploadFailedCount_other: string;
+                someImagesSkipped: string;
+                skippedMessage: string;
+                deleteFailed: string;
+                genericError: string;
             };
             progress: {
                 uploading: string;
@@ -3570,6 +3657,7 @@ export declare const resources: {
                 };
                 footer: {
                     upgradeNotice: string;
+                    buyCreditPack: string;
                 };
                 toasts: {
                     loginRequired: string;
@@ -4064,6 +4152,13 @@ export declare const resources: {
                 };
             };
             quality: {
+                scores: {
+                    bokeh: string;
+                    brightness: string;
+                    contrast: string;
+                    saturation: string;
+                    sharpness: string;
+                };
                 issues: {
                     image: {
                         lowResolution: string;
@@ -4098,6 +4193,7 @@ export declare const resources: {
                         tooBlurry: string;
                         pixelated: string;
                         suboptimal: string;
+                        tooBlurryOrPixelated: string;
                     };
                     background: {
                         notBlurred: string;
@@ -4117,6 +4213,18 @@ export declare const resources: {
                     };
                     reject: {
                         genericHint: string;
+                    };
+                    bokeh: {
+                        lowScore: string;
+                        batchRejection: string;
+                        veryPoor: string;
+                    };
+                    filter: {
+                        strong: string;
+                    };
+                    duplicate: {
+                        tooSimilar: string;
+                        sameSession: string;
                     };
                 };
             };
@@ -4314,6 +4422,10 @@ export declare const resources: {
                 duplicateFile: string;
                 uploadFailedCount_one: string;
                 uploadFailedCount_other: string;
+                someImagesSkipped: string;
+                skippedMessage: string;
+                deleteFailed: string;
+                genericError: string;
             };
             progress: {
                 uploading: string;
@@ -4660,6 +4772,7 @@ export declare const resources: {
                 };
                 footer: {
                     upgradeNotice: string;
+                    buyCreditPack: string;
                 };
                 toasts: {
                     loginRequired: string;
@@ -5154,6 +5267,13 @@ export declare const resources: {
                 };
             };
             quality: {
+                scores: {
+                    bokeh: string;
+                    brightness: string;
+                    contrast: string;
+                    saturation: string;
+                    sharpness: string;
+                };
                 issues: {
                     image: {
                         lowResolution: string;
@@ -5188,6 +5308,7 @@ export declare const resources: {
                         tooBlurry: string;
                         pixelated: string;
                         suboptimal: string;
+                        tooBlurryOrPixelated: string;
                     };
                     background: {
                         notBlurred: string;
@@ -5207,6 +5328,18 @@ export declare const resources: {
                     };
                     reject: {
                         genericHint: string;
+                    };
+                    bokeh: {
+                        lowScore: string;
+                        batchRejection: string;
+                        veryPoor: string;
+                    };
+                    filter: {
+                        strong: string;
+                    };
+                    duplicate: {
+                        tooSimilar: string;
+                        sameSession: string;
                     };
                 };
             };
@@ -5404,6 +5537,10 @@ export declare const resources: {
                 duplicateFile: string;
                 uploadFailedCount_one: string;
                 uploadFailedCount_other: string;
+                someImagesSkipped: string;
+                skippedMessage: string;
+                deleteFailed: string;
+                genericError: string;
             };
             progress: {
                 uploading: string;
@@ -5750,6 +5887,7 @@ export declare const resources: {
                 };
                 footer: {
                     upgradeNotice: string;
+                    buyCreditPack: string;
                 };
                 toasts: {
                     loginRequired: string;
@@ -6244,6 +6382,13 @@ export declare const resources: {
                 };
             };
             quality: {
+                scores: {
+                    bokeh: string;
+                    brightness: string;
+                    contrast: string;
+                    saturation: string;
+                    sharpness: string;
+                };
                 issues: {
                     image: {
                         lowResolution: string;
@@ -6278,6 +6423,7 @@ export declare const resources: {
                         tooBlurry: string;
                         pixelated: string;
                         suboptimal: string;
+                        tooBlurryOrPixelated: string;
                     };
                     background: {
                         notBlurred: string;
@@ -6297,6 +6443,18 @@ export declare const resources: {
                     };
                     reject: {
                         genericHint: string;
+                    };
+                    bokeh: {
+                        lowScore: string;
+                        batchRejection: string;
+                        veryPoor: string;
+                    };
+                    filter: {
+                        strong: string;
+                    };
+                    duplicate: {
+                        tooSimilar: string;
+                        sameSession: string;
                     };
                 };
             };
@@ -6494,6 +6652,10 @@ export declare const resources: {
                 duplicateFile: string;
                 uploadFailedCount_one: string;
                 uploadFailedCount_other: string;
+                someImagesSkipped: string;
+                skippedMessage: string;
+                deleteFailed: string;
+                genericError: string;
             };
             progress: {
                 uploading: string;
@@ -6840,6 +7002,7 @@ export declare const resources: {
                 };
                 footer: {
                     upgradeNotice: string;
+                    buyCreditPack: string;
                 };
                 toasts: {
                     loginRequired: string;
@@ -7334,6 +7497,13 @@ export declare const resources: {
                 };
             };
             quality: {
+                scores: {
+                    bokeh: string;
+                    brightness: string;
+                    contrast: string;
+                    saturation: string;
+                    sharpness: string;
+                };
                 issues: {
                     image: {
                         lowResolution: string;
@@ -7368,6 +7538,7 @@ export declare const resources: {
                         tooBlurry: string;
                         pixelated: string;
                         suboptimal: string;
+                        tooBlurryOrPixelated: string;
                     };
                     background: {
                         notBlurred: string;
@@ -7387,6 +7558,18 @@ export declare const resources: {
                     };
                     reject: {
                         genericHint: string;
+                    };
+                    bokeh: {
+                        lowScore: string;
+                        batchRejection: string;
+                        veryPoor: string;
+                    };
+                    filter: {
+                        strong: string;
+                    };
+                    duplicate: {
+                        tooSimilar: string;
+                        sameSession: string;
                     };
                 };
             };
@@ -7584,6 +7767,10 @@ export declare const resources: {
                 duplicateFile: string;
                 uploadFailedCount_one: string;
                 uploadFailedCount_other: string;
+                someImagesSkipped: string;
+                skippedMessage: string;
+                deleteFailed: string;
+                genericError: string;
             };
             progress: {
                 uploading: string;
@@ -7930,6 +8117,7 @@ export declare const resources: {
                 };
                 footer: {
                     upgradeNotice: string;
+                    buyCreditPack: string;
                 };
                 toasts: {
                     loginRequired: string;
@@ -8424,6 +8612,13 @@ export declare const resources: {
                 };
             };
             quality: {
+                scores: {
+                    bokeh: string;
+                    brightness: string;
+                    contrast: string;
+                    saturation: string;
+                    sharpness: string;
+                };
                 issues: {
                     image: {
                         lowResolution: string;
@@ -8458,6 +8653,7 @@ export declare const resources: {
                         tooBlurry: string;
                         pixelated: string;
                         suboptimal: string;
+                        tooBlurryOrPixelated: string;
                     };
                     background: {
                         notBlurred: string;
@@ -8477,6 +8673,18 @@ export declare const resources: {
                     };
                     reject: {
                         genericHint: string;
+                    };
+                    bokeh: {
+                        lowScore: string;
+                        batchRejection: string;
+                        veryPoor: string;
+                    };
+                    filter: {
+                        strong: string;
+                    };
+                    duplicate: {
+                        tooSimilar: string;
+                        sameSession: string;
                     };
                 };
             };
@@ -8674,6 +8882,10 @@ export declare const resources: {
                 duplicateFile: string;
                 uploadFailedCount_one: string;
                 uploadFailedCount_other: string;
+                someImagesSkipped: string;
+                skippedMessage: string;
+                deleteFailed: string;
+                genericError: string;
             };
             progress: {
                 uploading: string;
@@ -9021,6 +9233,7 @@ export declare const resources: {
                 };
                 footer: {
                     upgradeNotice: string;
+                    buyCreditPack: string;
                 };
                 toasts: {
                     loginRequired: string;
@@ -9515,6 +9728,13 @@ export declare const resources: {
                 };
             };
             quality: {
+                scores: {
+                    bokeh: string;
+                    brightness: string;
+                    contrast: string;
+                    saturation: string;
+                    sharpness: string;
+                };
                 issues: {
                     image: {
                         lowResolution: string;
@@ -9549,6 +9769,7 @@ export declare const resources: {
                         tooBlurry: string;
                         pixelated: string;
                         suboptimal: string;
+                        tooBlurryOrPixelated: string;
                     };
                     background: {
                         notBlurred: string;
@@ -9568,6 +9789,18 @@ export declare const resources: {
                     };
                     reject: {
                         genericHint: string;
+                    };
+                    bokeh: {
+                        lowScore: string;
+                        batchRejection: string;
+                        veryPoor: string;
+                    };
+                    filter: {
+                        strong: string;
+                    };
+                    duplicate: {
+                        tooSimilar: string;
+                        sameSession: string;
                     };
                 };
             };
@@ -9764,6 +9997,10 @@ export declare const resources: {
                 fileSizeExceeded: string;
                 duplicateFile: string;
                 uploadFailedCount_other: string;
+                someImagesSkipped: string;
+                skippedMessage: string;
+                deleteFailed: string;
+                genericError: string;
             };
             progress: {
                 uploading: string;
@@ -10111,6 +10348,7 @@ export declare const resources: {
                 };
                 footer: {
                     upgradeNotice: string;
+                    buyCreditPack: string;
                 };
                 toasts: {
                     loginRequired: string;
@@ -10605,6 +10843,13 @@ export declare const resources: {
                 };
             };
             quality: {
+                scores: {
+                    bokeh: string;
+                    brightness: string;
+                    contrast: string;
+                    saturation: string;
+                    sharpness: string;
+                };
                 issues: {
                     image: {
                         lowResolution: string;
@@ -10639,6 +10884,7 @@ export declare const resources: {
                         tooBlurry: string;
                         pixelated: string;
                         suboptimal: string;
+                        tooBlurryOrPixelated: string;
                     };
                     background: {
                         notBlurred: string;
@@ -10658,6 +10904,18 @@ export declare const resources: {
                     };
                     reject: {
                         genericHint: string;
+                    };
+                    bokeh: {
+                        lowScore: string;
+                        batchRejection: string;
+                        veryPoor: string;
+                    };
+                    filter: {
+                        strong: string;
+                    };
+                    duplicate: {
+                        tooSimilar: string;
+                        sameSession: string;
                     };
                 };
             };
@@ -10854,6 +11112,10 @@ export declare const resources: {
                 fileSizeExceeded: string;
                 duplicateFile: string;
                 uploadFailedCount_other: string;
+                someImagesSkipped: string;
+                skippedMessage: string;
+                deleteFailed: string;
+                genericError: string;
             };
             progress: {
                 uploading: string;

@@ -72,6 +72,7 @@
   opacity: 0;
   filter: blur(10px);
   transition: opacity 0.3s ease, transform 0.3s ease-out, filter 0.3s ease-out;
+  z-index: 2;
 }
 
 .imageLayer:hover {

@@ -2369,6 +2369,14 @@ Detected changes in:
 - website/src/app/layout.tsx
 - website/src/app/site.webmanifest/route.ts
 - website/src/lib/utils/cdn.ts
+
+
+**Auto-update 2025-10-19**:
+Detected changes in:
+- webapp/src/components/inference/InferenceJobGroup.module.css
+- webapp/src/components/inference/InferenceJobGroup.tsx
+- webapp/src/components/inference/InferenceThumbnail.module.css
+- webapp/src/components/inference/InferenceThumbnail.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

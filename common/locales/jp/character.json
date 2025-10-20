@@ -17,7 +17,6 @@
   "trainingError": "エラー：",
   "trainingFailed": "キャラクターのトレーニング中に問題が発生しました",
   "trainingFailedDescription": "難しすぎるか、キャラクターがモデルには美しすぎました。再度お試しいただくか、問題が続く場合はサポートにお問い合わせください。",
-
   "confirmClose": {
     "title": "キャラクター作成を閉じますか？",
     "description": "本当に閉じますか？すべての進行状況が失われ、最初からやり直す必要があります。",
@@ -31,17 +30,14 @@
       "confirm": "それでも閉じる"
     }
   },
-
   "errors": {
     "trainingRetryFailed": "{{attempts}}回の試行後にトレーニングが失敗しました。後でもう一度お試しください。",
     "retryError": "エラー：{{message}}"
   },
-
   "upload": {
     "uploadingFiles": "最高のルックをアップロード中 {{current}} / {{total}}",
     "uploadingInfo": "アップロードが完了するまでこのページを開いたままにしてください。"
   },
-
   "dialogTitles": {
     "onboardingIntro": "キャラクター作成ガイド",
     "onboardingGuidelines": "写真撮影のコツ",
@@ -58,7 +54,6 @@
     "default": "キャラクター作成ダイアログ"
   },
   "beforeUnloadWarning": "キャラクターを現在処理中です。本当に離れますか？これによりアップロードがキャンセルされます。",
-
   "onboarding": {
     "intro": {
       "title": "キャラクターと出会う",
@@ -106,22 +101,18 @@
     },
     "floatingAlt": "フローティング例{{id}}"
   },
-
   "uploadStep": {
     "petMode": "ペットモード",
     "bodyShotRequirementsNotMet": "全身ショット要件が満たされていません"
   },
-
   "nameStep": {
     "noPreview": "プレビューなし",
     "create": "作成",
     "altPreview": "顔モデルプレビュー"
   },
-
   "countdown": {
     "fallback": "計算中..."
   },
-
   "requirements": {
     "header": {
       "title": "キャラクターを作成",
@@ -152,8 +143,14 @@
       "badExample": "悪い例"
     }
   },
-
   "quality": {
+    "scores": {
+      "bokeh": "背景ぼかし",
+      "brightness": "明るさ",
+      "contrast": "コントラスト",
+      "saturation": "彩度",
+      "sharpness": "シャープネス"
+    },
     "issues": {
       "image": {
         "lowResolution": "低解像度の画像。最小サイズ：{{minWidth}}x{{minHeight}}ピクセル。",
@@ -172,7 +169,7 @@
         "sunglasses.critical": "サングラスが検出されました - サングラスを外してください。",
         "eyesClosed": "目が閉じているか、見えません。",
         "tooSmall": "フレーム内で顔が小さすぎます。",
-      "tooSmallToDetect": "顔が小さすぎて検出が困難です。",
+        "tooSmallToDetect": "顔が小さすぎて検出が困難です。",
         "tooLarge": "顔が大きすぎる/近すぎます。",
         "sizeNotOptimal": "顔のサイズが最適ではありません。"
       },
@@ -187,7 +184,8 @@
       "sharpness": {
         "tooBlurry": "画像がぼやけているか、十分な詳細が不足しています。",
         "pixelated": "画像がピクセル化されているか、圧縮アーティファクトがあります。",
-        "suboptimal": "画像の鮮明度を向上させることができます。"
+        "suboptimal": "画像の鮮明度を向上させることができます。",
+        "tooBlurryOrPixelated": "Image is too blurry or pixelated - use higher quality camera."
       },
       "background": {
         "notBlurred": "背景がぼかされていません。ポートレートモードまたはぼかした背景を使用してください。"
@@ -207,10 +205,21 @@
       },
       "reject": {
         "genericHint": "この写真は品質要件を満たしていませんでした。よく照らされた正面写真を試してください。"
+      },
+      "bokeh": {
+        "lowScore": "Background not blurred enough.",
+        "batchRejection": "Most images lack background blur - use portrait mode or stand further from background.",
+        "veryPoor": "Background not blurred enough."
+      },
+      "filter": {
+        "strong": "Strong beauty or color filter detected - please use natural photo."
+      },
+      "duplicate": {
+        "tooSimilar": "Too similar to images {{similar}} - add more variety.",
+        "sameSession": "Looks too similar to other images - add more variety"
       }
     }
   },
-
   "uploader": {
     "dragDropMessage": "{{count}}枚のセルフィーをここにドラッグ＆ドロップするか、",
     "dragDropMoreMessage_one": "あと1枚をここにドラッグ＆ドロップ、または",
@@ -220,7 +229,6 @@
     "dropMessage": "写真をここにドロップしてください",
     "maxImagesReached": "すべての写真を追加しました。準備完了です！"
   },
-
   "status": {
     "analyzing": "{{count}}枚の写真を分析中...",
     "checkingQuality": "写真品質をチェック中..."

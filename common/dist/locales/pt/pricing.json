@@ -80,7 +80,8 @@
       }
     },
     "footer": {
-      "upgradeNotice": "A sua subscrição atual será cancelada e substituída pelo novo plano. Os créditos existentes serão preservados."
+      "upgradeNotice": "A sua subscrição atual será cancelada e substituída pelo novo plano. Os créditos existentes serão preservados.",
+      "buyCreditPack": "Comprar um pacote de créditos"
     },
     "toasts": {
       "loginRequired": "Por favor, inicie sessão",

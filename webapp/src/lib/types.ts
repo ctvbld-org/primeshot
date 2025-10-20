@@ -96,6 +96,12 @@ export interface FileWithScore extends Partial<File> {
   faceBox?: { x: number; y: number; width: number; height: number };
   // Marks this file as the first accepted image in the batch for thumbnail creation
   isFirstImage?: boolean;
+  // Quality scores from Claude analysis
+  bokehScore?: number;
+  brightnessScore?: number;
+  contrastScore?: number;
+  saturationScore?: number;
+  blurScore?: number;
 }
 
 export type HeadshotInfo = {

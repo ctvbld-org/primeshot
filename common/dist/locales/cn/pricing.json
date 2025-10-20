@@ -80,7 +80,8 @@
       }
     },
     "footer": {
-      "upgradeNotice": "您当前的订阅将被取消并替换为新套餐。现有积分将保留。"
+      "upgradeNotice": "您当前的订阅将被取消并替换为新套餐。现有积分将保留。",
+      "buyCreditPack": "购买积分包"
     },
     "toasts": {
       "loginRequired": "请登录",

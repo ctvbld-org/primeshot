@@ -17,7 +17,6 @@
   "trainingError": "Error:",
   "trainingFailed": "Hubo un problema entrenando tu personaje",
   "trainingFailedDescription": "O fue demasiado difícil o tu personaje era demasiado guapo para el modelo. Por favor, inténtalo de nuevo o contacta con soporte si el problema persiste.",
-
   "confirmClose": {
     "title": "¿Cerrar la creación de personaje?",
     "description": "¿Estás seguro de que quieres cerrar? Todo tu progreso se perderá y tendrás que empezar de nuevo.",
@@ -31,17 +30,14 @@
       "confirm": "Cerrar de todas formas"
     }
   },
-
   "errors": {
     "trainingRetryFailed": "El entrenamiento falló después de {{attempts}} intentos. Por favor, inténtalo más tarde.",
     "retryError": "Error: {{message}}"
   },
-
   "upload": {
     "uploadingFiles": "Cargando tus mejores looks {{current}} de {{total}}",
     "uploadingInfo": "Por favor, mantén esta página abierta hasta que se complete la subida."
   },
-
   "dialogTitles": {
     "onboardingIntro": "Guía de creación de personaje",
     "onboardingGuidelines": "Consejos de fotografía",
@@ -58,7 +54,6 @@
     "default": "Diálogo de creación de personaje"
   },
   "beforeUnloadWarning": "Tu personaje se está procesando actualmente. ¿Estás seguro de que quieres salir? Esto cancelará la subida.",
-
   "onboarding": {
     "intro": {
       "title": "Conoce a tu personaje",
@@ -106,22 +101,18 @@
     },
     "floatingAlt": "Ejemplo flotante {{id}}"
   },
-
   "uploadStep": {
     "petMode": "Modo mascota",
     "bodyShotRequirementsNotMet": "Requisitos de plano corporal no cumplidos"
   },
-
   "nameStep": {
     "noPreview": "Sin vista previa",
     "create": "Crear",
     "altPreview": "Vista previa del modelo facial"
   },
-
   "countdown": {
     "fallback": "Calculando..."
   },
-
   "requirements": {
     "header": {
       "title": "Crear un Personaje",
@@ -152,8 +143,14 @@
       "badExample": "Mal ejemplo"
     }
   },
-
   "quality": {
+    "scores": {
+      "bokeh": "Desenfoque del fondo",
+      "brightness": "Brillo",
+      "contrast": "Contraste",
+      "saturation": "Saturación",
+      "sharpness": "Nitidez"
+    },
     "issues": {
       "image": {
         "lowResolution": "Imagen de baja resolución. Tamaño mínimo: {{minWidth}}x{{minHeight}}px.",
@@ -172,7 +169,7 @@
         "sunglasses.critical": "Gafas de sol detectadas - por favor quítate las gafas de sol.",
         "eyesClosed": "Los ojos parecen estar cerrados o no visibles.",
         "tooSmall": "El rostro es demasiado pequeño en el encuadre.",
-      "tooSmallToDetect": "El rostro es demasiado pequeño y difícil de detectar.",
+        "tooSmallToDetect": "El rostro es demasiado pequeño y difícil de detectar.",
         "tooLarge": "El rostro es demasiado grande/cerca.",
         "sizeNotOptimal": "El tamaño del rostro no es óptimo."
       },
@@ -187,7 +184,8 @@
       "sharpness": {
         "tooBlurry": "La imagen parece borrosa o carece de suficientes detalles.",
         "pixelated": "La imagen parece pixelada o tiene artefactos de compresión.",
-        "suboptimal": "La nitidez de la imagen podría mejorarse."
+        "suboptimal": "La nitidez de la imagen podría mejorarse.",
+        "tooBlurryOrPixelated": "Image is too blurry or pixelated - use higher quality camera."
       },
       "background": {
         "notBlurred": "El fondo no está desenfocado. Por favor, usa el modo retrato o un fondo desenfocado."
@@ -207,10 +205,21 @@
       },
       "reject": {
         "genericHint": "Esta foto no cumplió con los requisitos de calidad. Prueba una foto bien iluminada de frente."
+      },
+      "bokeh": {
+        "lowScore": "Background not blurred enough.",
+        "batchRejection": "Most images lack background blur - use portrait mode or stand further from background.",
+        "veryPoor": "Background not blurred enough."
+      },
+      "filter": {
+        "strong": "Strong beauty or color filter detected - please use natural photo."
+      },
+      "duplicate": {
+        "tooSimilar": "Too similar to images {{similar}} - add more variety.",
+        "sameSession": "Looks too similar to other images - add more variety"
       }
     }
   },
-
   "uploader": {
     "dragDropMessage": "Arrastra y suelta {{count}} selfies aquí, o",
     "dragDropMoreMessage_one": "Arrastra y suelta 1 más aquí, o",
@@ -220,7 +229,6 @@
     "dropMessage": "Suelta tus fotos aquí",
     "maxImagesReached": "¡Todas las fotos añadidas, todo listo!"
   },
-
   "status": {
     "analyzing": "Analizando {{count}} fotos...",
     "checkingQuality": "Verificando calidad de las fotos..."

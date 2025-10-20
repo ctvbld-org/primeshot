@@ -3,14 +3,14 @@
 export const STRIPE_REFERENCE = {
     dev: {
         subscriptions: {
-            basic: { product: 'prod_T6oQ76DTKteA0v', monthly: 'price_1SAannENpyFv1vJeYLaMW20Z', yearly: 'price_1SAannENpyFv1vJe8EXHTmSz' },
-            standard: { product: 'prod_T6oQI13g8ly1Kn', monthly: 'price_1SAanoENpyFv1vJeePCdDhz6', yearly: 'price_1SAanoENpyFv1vJe4rf86MVP' },
-            pro: { product: 'prod_T6oQp8L3R9DeE3', monthly: 'price_1SAanpENpyFv1vJe9bjPslJm', yearly: 'price_1SAanpENpyFv1vJeRFPE6zRv' }
+            basic: { product: 'prod_TGuWZ2BtijEuxK', monthly: 'price_1SKMh7ENpyFv1vJecgYJUOpY', yearly: 'price_1SKMh8ENpyFv1vJefjAFNWKL' },
+            standard: { product: 'prod_TGuWMdKLe87qEH', monthly: 'price_1SKMh8ENpyFv1vJec1m5HpO0', yearly: 'price_1SKMh9ENpyFv1vJe84M5sPMN' },
+            pro: { product: 'prod_TGuWouGVfQDOyK', monthly: 'price_1SKMh9ENpyFv1vJeEsjxqJX1', yearly: 'price_1SKMhAENpyFv1vJeDSicBSfj' }
         },
         creditPacks: {
-            credits_138: { product: 'prod_T6oQiWTNj17A8K', price: 'price_1SAanqENpyFv1vJeioXXDaqO' },
-            credits_276: { product: 'prod_T6oQKDT2aQDkxr', price: 'price_1SAanrENpyFv1vJemQtPTA8G' },
-            credits_588: { product: 'prod_T6oQQ4Jv76EI4N', price: 'price_1SAanrENpyFv1vJebyuTmMvM' }
+            credits_138: { product: 'prod_TGuWLiHXkgy0i1', price: 'price_1SKMhAENpyFv1vJe6vfmII9w' },
+            credits_276: { product: 'prod_TGuWgaiM1saHfJ', price: 'price_1SKMhBENpyFv1vJeWwQ44l5v' },
+            credits_588: { product: 'prod_TGuWt46MTMiER4', price: 'price_1SKMhBENpyFv1vJeELkQ77NB' }
         }
     },
     staging: {

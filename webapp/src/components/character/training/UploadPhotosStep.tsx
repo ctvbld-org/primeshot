@@ -64,9 +64,17 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
   const acceptedFiles = useMemo(() => {
     return selectedFiles
       .filter(file => qualityResults[file.name]?.isAcceptable)
-      .map(file => Object.assign(file, {
-        score: Math.round(qualityResults[file.name]?.score || 0)
-      }));
+      .map(file => {
+        const result = qualityResults[file.name];
+        return Object.assign(file, {
+          score: Math.round(result?.score || 0),
+          bokehScore: result?.bokehScore,
+          brightnessScore: result?.brightnessScore,
+          contrastScore: result?.contrastScore,
+          saturationScore: result?.saturationScore,
+          blurScore: result?.blurScore
+        });
+      });
   }, [selectedFiles, qualityResults])
 
   const rejectedFiles = useMemo(() => 

@@ -93,9 +93,10 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 0;
   overflow: visible;
+  justify-content: center;
 }
 
 .card {
@@ -503,4 +504,22 @@
   .originalPrice {
     font-size: 36px;
   }
+}
+
+/* Credit pack footer button */
+.creditPackFooter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;  
+}
+
+.creditPackDivider {
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.creditPackBtn {
+  min-width: 200px;
 }

@@ -17,7 +17,6 @@
   "trainingError": "Fout:",
   "trainingFailed": "Er was een probleem bij het trainen van je karakter",
   "trainingFailedDescription": "Het was ofwel te moeilijk of je karakter was te mooi voor het model. Probeer opnieuw of neem contact op met support als het probleem aanhoudt.",
-
   "confirmClose": {
     "title": "Karakter maken sluiten?",
     "description": "Weet je zeker dat je wilt sluiten? Al je voortgang gaat verloren en je moet opnieuw beginnen.",
@@ -31,17 +30,14 @@
       "confirm": "Toch sluiten"
     }
   },
-
   "errors": {
     "trainingRetryFailed": "Training mislukt na {{attempts}} pogingen. Probeer later opnieuw.",
     "retryError": "Fout: {{message}}"
   },
-
   "upload": {
     "uploadingFiles": "Je beste looks laden {{current}} van {{total}}",
     "uploadingInfo": "Houd deze pagina open tot de upload voltooid is."
   },
-
   "dialogTitles": {
     "onboardingIntro": "Karakter maken gids",
     "onboardingGuidelines": "Fotografie tips",
@@ -58,7 +54,6 @@
     "default": "Karakter maken dialoog"
   },
   "beforeUnloadWarning": "Je karakter wordt momenteel verwerkt. Weet je zeker dat je weg wilt? Dit annuleert de upload.",
-
   "onboarding": {
     "intro": {
       "title": "Ontmoet je karakter",
@@ -106,22 +101,18 @@
     },
     "floatingAlt": "Zwevend voorbeeld {{id}}"
   },
-
   "uploadStep": {
     "petMode": "Huisdier modus",
     "bodyShotRequirementsNotMet": "Lichaam shot vereisten niet voldaan"
   },
-
   "nameStep": {
     "noPreview": "Geen voorvertoning",
     "create": "Maken",
     "altPreview": "Gezichtsmodel voorvertoning"
   },
-
   "countdown": {
     "fallback": "Berekenen..."
   },
-
   "requirements": {
     "header": {
       "title": "Een Personage maken",
@@ -152,8 +143,14 @@
       "badExample": "Slecht voorbeeld"
     }
   },
-
   "quality": {
+    "scores": {
+      "bokeh": "Achtergrondvervaging",
+      "brightness": "Helderheid",
+      "contrast": "Contrast",
+      "saturation": "Verzadiging",
+      "sharpness": "Scherpte"
+    },
     "issues": {
       "image": {
         "lowResolution": "Afbeelding met lage resolutie. Minimale grootte: {{minWidth}}x{{minHeight}}px.",
@@ -172,7 +169,7 @@
         "sunglasses.critical": "Zonnebril gedetecteerd - verwijder de zonnebril alstublieft.",
         "eyesClosed": "De ogen lijken gesloten of niet zichtbaar te zijn.",
         "tooSmall": "Het gezicht is te klein in het beeld.",
-      "tooSmallToDetect": "Het gezicht is te klein en moeilijk te detecteren.",
+        "tooSmallToDetect": "Het gezicht is te klein en moeilijk te detecteren.",
         "tooLarge": "Het gezicht is te groot/dichtbij.",
         "sizeNotOptimal": "De gezichtsgrootte is niet optimaal."
       },
@@ -187,7 +184,8 @@
       "sharpness": {
         "tooBlurry": "De afbeelding lijkt wazig of mist voldoende detail.",
         "pixelated": "De afbeelding lijkt gepixeld of heeft compressie-artefacten.",
-        "suboptimal": "De scherpte van de afbeelding kan worden verbeterd."
+        "suboptimal": "De scherpte van de afbeelding kan worden verbeterd.",
+        "tooBlurryOrPixelated": "Image is too blurry or pixelated - use higher quality camera."
       },
       "background": {
         "notBlurred": "De achtergrond is niet wazig. Gebruik de portretmodus of een wazige achtergrond."
@@ -207,10 +205,21 @@
       },
       "reject": {
         "genericHint": "Deze foto voldeed niet aan de kwaliteitseisen. Probeer een goed verlichte foto van voren."
+      },
+      "bokeh": {
+        "lowScore": "Background not blurred enough.",
+        "batchRejection": "Most images lack background blur - use portrait mode or stand further from background.",
+        "veryPoor": "Background not blurred enough."
+      },
+      "filter": {
+        "strong": "Strong beauty or color filter detected - please use natural photo."
+      },
+      "duplicate": {
+        "tooSimilar": "Too similar to images {{similar}} - add more variety.",
+        "sameSession": "Looks too similar to other images - add more variety"
       }
     }
   },
-
   "uploader": {
     "dragDropMessage": "Sleep {{count}} selfies hierheen, of",
     "dragDropMoreMessage_one": "Sleep er nog 1 hierheen, of",
@@ -220,7 +229,6 @@
     "dropMessage": "Laat je foto's hier vallen",
     "maxImagesReached": "Alle foto's toegevoegd, je bent klaar!"
   },
-
   "status": {
     "analyzing": "{{count}} foto's analyseren...",
     "checkingQuality": "Fotokwaliteit controleren..."

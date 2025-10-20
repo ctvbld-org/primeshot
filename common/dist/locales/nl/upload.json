@@ -18,7 +18,11 @@
     "fileSizeExceeded": "Bestand te groot (max. {{size}})",
     "duplicateFile": "Dubbel bestand",
     "uploadFailedCount_one": "1 bestand kon niet worden toegevoegd",
-    "uploadFailedCount_other": "{{count}} bestanden konden niet worden toegevoegd"
+    "uploadFailedCount_other": "{{count}} bestanden konden niet worden toegevoegd",
+    "someImagesSkipped": "Some Images Skipped",
+    "skippedMessage": "Only {{count}} more photos could be added. The following files were skipped: {{files}}",
+    "deleteFailed": "Delete Failed",
+    "genericError": "An error occurred"
   },
   "progress": {
     "uploading": "Uploaden...",

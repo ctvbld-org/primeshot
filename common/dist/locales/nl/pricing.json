@@ -80,7 +80,8 @@
       }
     },
     "footer": {
-      "upgradeNotice": "Je huidige abonnement wordt geannuleerd en vervangen door het nieuwe plan. Bestaande credits blijven behouden."
+      "upgradeNotice": "Je huidige abonnement wordt geannuleerd en vervangen door het nieuwe plan. Bestaande credits blijven behouden.",
+      "buyCreditPack": "Koop een creditpakket"
     },
     "toasts": {
       "loginRequired": "Log in",

@@ -17,7 +17,6 @@
   "trainingError": "错误：",
   "trainingFailed": "训练您的角色时出现问题",
   "trainingFailedDescription": "要么太困难，要么您的角色对模型来说太美了。请重试或联系支持，如果问题持续存在。",
-
   "confirmClose": {
     "title": "关闭角色创建？",
     "description": "您确定要关闭吗？您的所有进度都将丢失，您需要重新开始。",
@@ -31,17 +30,14 @@
       "confirm": "仍然关闭"
     }
   },
-
   "errors": {
     "trainingRetryFailed": "训练在{{attempts}}次尝试后失败。请稍后重试。",
     "retryError": "错误：{{message}}"
   },
-
   "upload": {
     "uploadingFiles": "正在上传您的最佳造型 {{current}} / {{total}}",
     "uploadingInfo": "请保持此页面打开，直到上传完成。"
   },
-
   "dialogTitles": {
     "onboardingIntro": "角色创建指南",
     "onboardingGuidelines": "摄影技巧",
@@ -58,7 +54,6 @@
     "default": "角色创建对话框"
   },
   "beforeUnloadWarning": "您的角色正在处理中。您确定要离开吗？这将取消上传。",
-
   "onboarding": {
     "intro": {
       "title": "认识您的角色",
@@ -106,22 +101,18 @@
     },
     "floatingAlt": "浮动示例{{id}}"
   },
-
   "uploadStep": {
     "petMode": "宠物模式",
     "bodyShotRequirementsNotMet": "全身拍摄要求未满足"
   },
-
   "nameStep": {
     "noPreview": "无预览",
     "create": "创建",
     "altPreview": "面部模型预览"
   },
-
   "countdown": {
     "fallback": "计算中..."
   },
-
   "requirements": {
     "header": {
       "title": "创建角色",
@@ -152,8 +143,14 @@
       "badExample": "不好的示例"
     }
   },
-
   "quality": {
+    "scores": {
+      "bokeh": "背景虚化",
+      "brightness": "亮度",
+      "contrast": "对比度",
+      "saturation": "饱和度",
+      "sharpness": "清晰度"
+    },
     "issues": {
       "image": {
         "lowResolution": "图像分辨率过低。最小尺寸：{{minWidth}}x{{minHeight}}像素。",
@@ -172,7 +169,7 @@
         "sunglasses.critical": "检测到太阳镜 - 请摘下太阳镜。",
         "eyesClosed": "眼睛似乎闭上了或看不见。",
         "tooSmall": "画面中面部太小。",
-      "tooSmallToDetect": "面部太小，难以检测。",
+        "tooSmallToDetect": "面部太小，难以检测。",
         "tooLarge": "面部太大/太近。",
         "sizeNotOptimal": "面部大小不理想。"
       },
@@ -187,7 +184,8 @@
       "sharpness": {
         "tooBlurry": "图像显得模糊或缺乏足够的细节。",
         "pixelated": "图像显得像素化或有压缩伪影。",
-        "suboptimal": "图像清晰度可以改善。"
+        "suboptimal": "图像清晰度可以改善。",
+        "tooBlurryOrPixelated": "Image is too blurry or pixelated - use higher quality camera."
       },
       "background": {
         "notBlurred": "背景未模糊。请使用人像模式或模糊背景。"
@@ -207,10 +205,21 @@
       },
       "reject": {
         "genericHint": "此照片不符合质量要求。请尝试光线充足的正面照片。"
+      },
+      "bokeh": {
+        "lowScore": "Background not blurred enough.",
+        "batchRejection": "Most images lack background blur - use portrait mode or stand further from background.",
+        "veryPoor": "Background not blurred enough."
+      },
+      "filter": {
+        "strong": "Strong beauty or color filter detected - please use natural photo."
+      },
+      "duplicate": {
+        "tooSimilar": "Too similar to images {{similar}} - add more variety.",
+        "sameSession": "Looks too similar to other images - add more variety"
       }
     }
   },
-
   "uploader": {
     "dragDropMessage": "拖拽{{count}}张自拍到这里，或",
     "dragDropMoreMessage_one": "再拖拽1张到这里，或",
@@ -220,7 +229,6 @@
     "dropMessage": "将照片拖拽到这里",
     "maxImagesReached": "所有照片已添加，准备就绪！"
   },
-
   "status": {
     "analyzing": "正在分析{{count}}张照片...",
     "checkingQuality": "正在检查照片质量..."

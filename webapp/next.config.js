@@ -6,7 +6,19 @@ const nextConfig = {
   basePath: isProd ? '/create' : '',
   assetPrefix: isProd ? '/create' : '',
   transpilePackages: ['@primeshot/common'],
-  experimental: { externalDir: true },
+  experimental: { 
+    externalDir: true,
+    serverActions: {
+      bodySizeLimit: '50mb'
+    }
+  },
+  // Increase API route body size limit for image uploads
+  api: {
+    bodyParser: {
+      sizeLimit: '50mb'
+    },
+    responseLimit: '50mb'
+  },
   webpack: (config, { isServer }) => {
     // Ignore Node.js specific modules in face-api.js
     config.resolve.fallback = {
@@ -54,6 +66,7 @@ const nextConfig = {
         hostname: 'lh3.googleusercontent.com',
       },
     ],
+    qualities: [75, 80, 85, 90, 100],
   },
   // compiler: {
   //   removeConsole: {

@@ -17,7 +17,11 @@
     "invalidFileType": "未対応のファイル形式（{{types}}）",
     "fileSizeExceeded": "ファイルが大きすぎます（最大 {{size}}）",
     "duplicateFile": "重複したファイル",
-    "uploadFailedCount_other": "{{count}} 件のファイルを追加できませんでした"
+    "uploadFailedCount_other": "{{count}} 件のファイルを追加できませんでした",
+    "someImagesSkipped": "Some Images Skipped",
+    "skippedMessage": "Only {{count}} more photos could be added. The following files were skipped: {{files}}",
+    "deleteFailed": "Delete Failed",
+    "genericError": "An error occurred"
   },
   "progress": {
     "uploading": "アップロード中...",

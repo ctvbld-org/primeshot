@@ -80,7 +80,8 @@
       }
     },
     "footer": {
-      "upgradeNotice": "Dein aktuelles Abonnement wird gekündigt und durch den neuen Plan ersetzt. Vorhandenes Guthaben bleibt erhalten."
+      "upgradeNotice": "Dein aktuelles Abonnement wird gekündigt und durch den neuen Plan ersetzt. Vorhandenes Guthaben bleibt erhalten.",
+      "buyCreditPack": "Kaufe ein Kreditpaket"
     },
     "toasts": {
       "loginRequired": "Bitte melde dich an",

@@ -20,7 +20,15 @@
     "uploadFailedCount_one": "1 file couldn't be added",
     "uploadFailedCount_other": "{{count}} files couldn't be added",
     "analysisTimeout": "Analysis Timeout",
-    "analysisTimeoutDescription": "Image analysis took too long. Please try again or use a different photo."
+    "analysisTimeoutDescription": "Image analysis took too long. Please try again or use a different photo.",
+    "someImagesSkipped": "Some Images Skipped",
+    "skippedMessage": "Only {{count}} more photos could be added. The following files were skipped: {{files}}",
+    "deleteFailed": "Delete Failed",
+    "genericError": "An error occurred",
+    "qualityIssues": "Quality Issues",
+    "qualityIssuesMessage": "{{count}} photo(s) didnt meet quality requirements. See rejected images below for details.",
+    "qualityAndLimitIssues": "Quality Issues & Limit Reached",
+    "qualityAndLimitMessage": "{{rejected}} photo(s) rejected for quality issues. {{skipped}} good photo(s) couldnt be added due to 9 image limit."
   },
   "progress": {
     "uploading": "Uploading...",
@@ -33,4 +41,3 @@
     }
   }
 }
-

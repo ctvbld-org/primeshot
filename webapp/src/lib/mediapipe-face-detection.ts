@@ -234,14 +234,17 @@ export async function detectFaces(
     // FIRST: Detect if this is a body shot (before applying size thresholds)
     const faceBottomY = faceBox.y + faceBox.height;
     const spaceBelow = (height - faceBottomY) / height;
+    const faceTopRatio = faceBox.y / height;
     
-    // Body shot indicators:
-    // 1. Small face (< 10% of image)
-    // 2. Significant space below face (> 50%)
-    // 3. Face in upper portion of image (< 35%)
-    const isBodyShot = faceRelativeSize < 0.10 && 
-                      spaceBelow > 0.50 && 
-                      faceBox.y < height * 0.35;
+    // Body shot detection - VERY STRICT (only full-body/half-body shots)
+    // MUST have BOTH:
+    // 1. Majority of image is body (> 50% = half+ of image below face)
+    // 2. Very small face (< 15% = clear full/half body shot)
+    const hasSignificantSpaceBelow = spaceBelow > 0.50;
+    const faceNotTooLarge = faceRelativeSize < 0.15;
+    
+    const isBodyShot = hasSignificantSpaceBelow && faceNotTooLarge;
+    
     
     result.hasBody = isBodyShot;
     result.bodyScore = isBodyShot ? 1 : 0;
@@ -250,15 +253,15 @@ export async function detectFaces(
     let sizeScore = 1.0;
     
     if (isBodyShot) {
-      // FULL-BODY SHOT: Very lenient - faces can be tiny (1-10%)
+      // BODY SHOT (full-body, half-body, 3/4): Lenient - faces can be 1-30%
       if (faceRelativeSize < 0.01) {
         // Face < 1% is TOO small even for body shots
         sizeScore = Math.max(0.3, faceRelativeSize / 0.01);
-        result.issues.push('Face is extremely small, even for a full-body shot.');
+        result.issues.push('Face is extremely small, even for a body shot.');
         result.i18nIssues.push({ key: 'quality.issues.face.tooSmall' });
       } else {
-        // Faces 1-10% are perfect for full-body shots
-        sizeScore = 0.98; // Excellent score for body shots
+        // Faces 1-30% are perfect for body shots (full, half, or 3/4)
+        sizeScore = 0.98;
       }
     } else {
       // PORTRAIT/HEADSHOT: Stricter requirements - face should be prominent

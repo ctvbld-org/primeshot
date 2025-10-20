@@ -17,7 +17,6 @@
   "trainingError": "Error:",
   "trainingFailed": "There was an issue training your character",
   "trainingFailedDescription": "It was either too hard or your character was too pretty for the model. Please try again or contact support if the problem persists.",
-
   "confirmClose": {
     "title": "Close Character Creation?",
     "description": "Are you sure you want to close? All your progress will be lost and you'll need to start over.",
@@ -31,17 +30,14 @@
       "confirm": "Close Anyway"
     }
   },
-
   "errors": {
     "trainingRetryFailed": "Training failed after {{attempts}} attempts. Please try again later.",
     "retryError": "Error: {{message}}"
   },
-
   "upload": {
     "uploadingFiles": "Loading your best looks {{current}} of {{total}}",
     "uploadingInfo": "Please keep this page open until upload completes."
   },
-
   "dialogTitles": {
     "onboardingIntro": "Character Creation Guide",
     "onboardingGuidelines": "Photography Tips",
@@ -58,7 +54,6 @@
     "default": "Character creation dialog"
   },
   "beforeUnloadWarning": "Your character is currently being processed. Are you sure you want to leave? This will cancel the upload.",
-
   "onboarding": {
     "intro": {
       "title": "Meet your Character",
@@ -106,22 +101,18 @@
     },
     "floatingAlt": "Floating example {{id}}"
   },
-
   "uploadStep": {
     "petMode": "Pet mode",
     "bodyShotRequirementsNotMet": "Body shot requirements not met"
   },
-
   "nameStep": {
     "noPreview": "No preview",
     "create": "Create",
     "altPreview": "Face Model Preview"
   },
-
   "countdown": {
     "fallback": "Calculating..."
   },
-
   "requirements": {
     "header": {
       "title": "Create a Character",
@@ -152,8 +143,14 @@
       "badExample": "Bad example"
     }
   },
-
   "quality": {
+    "scores": {
+      "bokeh": "Background blur",
+      "brightness": "Brightness",
+      "contrast": "Contrast",
+      "saturation": "Saturation",
+      "sharpness": "Sharpness"
+    },
     "issues": {
       "image": {
         "lowResolution": "Low resolution image. Minimum size is {{minWidth}}x{{minHeight}}px.",
@@ -172,7 +169,7 @@
         "sunglasses.critical": "Sunglasses detected - please remove sunglasses.",
         "eyesClosed": "Eyes appear to be closed or not visible.",
         "tooSmall": "Face is too small in the frame.",
-      "tooSmallToDetect": "Face is too small and hard to detect.",
+        "tooSmallToDetect": "Face is too small and hard to detect.",
         "tooLarge": "Face is too large/close.",
         "sizeNotOptimal": "Face size is not optimal."
       },
@@ -187,7 +184,8 @@
       "sharpness": {
         "tooBlurry": "Image appears to be blurry or lacks sufficient detail.",
         "pixelated": "Image appears pixelated or has compression artefacts.",
-        "suboptimal": "Image sharpness could be improved."
+        "suboptimal": "Image sharpness could be improved.",
+        "tooBlurryOrPixelated": "Image is too blurry or pixelated - use higher quality camera."
       },
       "background": {
         "notBlurred": "Background is not blurred. Please use portrait mode or a blurred background."
@@ -207,10 +205,21 @@
       },
       "reject": {
         "genericHint": "This photo didn't meet the quality requirements. Try a front-facing, well-lit photo."
+      },
+      "bokeh": {
+        "lowScore": "Background not blurred enough.",
+        "batchRejection": "Most images lack background blur - use portrait mode or stand further from background.",
+        "veryPoor": "Background not blurred enough."
+      },
+      "filter": {
+        "strong": "Strong beauty or color filter detected - please use natural photo."
+      },
+      "duplicate": {
+        "tooSimilar": "Too similar to images {{similar}} - add more variety.",
+        "sameSession": "Looks too similar to other images - add more variety"
       }
     }
   },
-
   "uploader": {
     "dragDropMessage": "Drag and drop {{count}} selfies here, or",
     "dragDropMoreMessage_one": "Drag and drop 1 more here, or",
@@ -220,7 +229,6 @@
     "dropMessage": "Drop your photos here",
     "maxImagesReached": "All photos added, you're all set!"
   },
-
   "status": {
     "analyzing": "Analyzing {{count}} photos...",
     "checkingQuality": "Checking photo quality..."

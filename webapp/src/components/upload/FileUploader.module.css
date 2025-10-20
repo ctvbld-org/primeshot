@@ -25,7 +25,6 @@
   transform: scale(1.02);
 }
 .cardDisabled {
-  opacity: 0.4;
   cursor: not-allowed;
 }
 .cardAnalyzing {

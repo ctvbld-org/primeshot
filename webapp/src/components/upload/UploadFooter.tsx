@@ -221,26 +221,31 @@ export function UploadFooter({
     
     let qualityClass = ''
     let qualityLabel = ''
-    if (file?.score && file.score > 79) {
+    const hasQualityScore = file?.score && file.score > 0
+    if (hasQualityScore && file.score && file.score >= 75) {
       qualityClass = styles.qualityIndicatorHigh
       qualityLabel = t('quality.high')
-    } else {
+    } else if (hasQualityScore && file.score && file.score >= 60) {
       qualityClass = styles.qualityIndicatorMedium
       qualityLabel = t('quality.medium')
+    } else if (hasQualityScore && file.score && file.score < 60) {
+      qualityClass = styles.qualityIndicatorLow
+      qualityLabel = t('quality.low')
     }
 
     const imageUrl = file ? getImageUrl(file) : null
     
-    // Disable tooltip interaction when uploading
-    const popoverTriggerProps = isUploading
-      ? { tabIndex: -1, style: { pointerEvents: 'none' as React.CSSProperties['pointerEvents'], cursor: 'not-allowed' as React.CSSProperties['cursor'] } }
+    // Disable tooltip interaction when uploading or analyzing
+    const isInteractionDisabled = isUploading || isAnalyzing
+    const popoverTriggerProps = isInteractionDisabled
+      ? { tabIndex: -1, style: { pointerEvents: 'none' as React.CSSProperties['pointerEvents'], cursor: 'default' as React.CSSProperties['cursor'] } }
       : {}
-    const handlePopoverOpenChange = isUploading ? () => {} : (open: boolean) => handleTooltipOpenChange(open, index)
+    const handlePopoverOpenChange = isInteractionDisabled ? () => {} : (open: boolean) => handleTooltipOpenChange(open, index)
 
     return (
       <Popover 
         key={index}
-        open={openTooltipIndex === index && !isUploading}
+        open={openTooltipIndex === index && !isInteractionDisabled}
         onOpenChange={handlePopoverOpenChange}
       >
         <PopoverTrigger asChild>
@@ -273,6 +278,7 @@ export function UploadFooter({
                   alt={t('accessibility.photoPreview', { number: index + 1 })}
                   className={cn(
                     "w-full h-full object-cover transition-all duration-300",
+                    isCurrentlyAnalyzing && "opacity-60",
                     isUploading && !isUploaded && !isCurrentlyUploading && "opacity-60",
                     isCurrentlyUploading && "opacity-70"
                   )}
@@ -282,7 +288,7 @@ export function UploadFooter({
                     // and cleaning up on unmount
                   }}
                 />
-                {!isUploading && (
+                {!isUploading && hasQualityScore && (
                   <div 
                     className={cn(styles.qualityIndicator, qualityClass)}
                     aria-hidden="true"
@@ -304,7 +310,7 @@ export function UploadFooter({
             )}
           </div>
         </PopoverTrigger>
-        {file && !isCurrentlyAnalyzing && !isCurrentlyUploading && !isUploading && (
+        {file && !isCurrentlyAnalyzing && !isCurrentlyUploading && !isInteractionDisabled && (
           <PopoverContent 
             className={styles.popoverContent}
             align="center"

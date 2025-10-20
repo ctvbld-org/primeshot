@@ -80,7 +80,8 @@
       }
     },
     "footer": {
-      "upgradeNotice": "Votre abonnement actuel sera annulé et remplacé par le nouveau forfait. Les crédits existants seront préservés."
+      "upgradeNotice": "Votre abonnement actuel sera annulé et remplacé par le nouveau forfait. Les crédits existants seront préservés.",
+      "buyCreditPack": "Acheter un pack de crédits"
     },
     "toasts": {
       "loginRequired": "Veuillez vous connecter",

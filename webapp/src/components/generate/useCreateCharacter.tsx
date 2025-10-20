@@ -173,7 +173,12 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
         break;
       
       case 'upgrade_or_credit_pack':
-        openCreditPackDialog(createCharacterAction.credits);
+        // User is not on highest tier, show upgrade dialog
+        openSubscriptionDialog({
+          context: 'credit-upgrade',
+          currentPlan: subscription?.plan_name,
+          showOnlyUpgrades: true
+        });
         break;
       
       case 'limit_reached':

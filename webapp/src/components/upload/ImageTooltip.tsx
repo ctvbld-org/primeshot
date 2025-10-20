@@ -3,6 +3,9 @@ import { Button } from '@primeshot/common/web/ui/button'
 import { formatFileSize } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import { Icon } from '@primeshot/common/web/Icon'
+import { Info } from 'lucide-react'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@primeshot/common/web/ui/tooltip'
+import { useTranslation } from 'react-i18next'
 import styles from './ImageTooltip.module.css'
 import type { FileWithScore } from '@/lib/types'
 
@@ -19,19 +22,32 @@ export function ImageTooltip({
   onClose,
   onDelete
 }: ImageTooltipProps) {
+  const { t } = useTranslation('character')
+  
   // 1. State
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   // 2. Memoized values
   const score = useMemo(() => Math.round(file.score || 0), [file.score])
-  const isHighScore = useMemo(() => score >= 80, [score])
+
+  // Get all quality scores for tooltip
+  const qualityScores = useMemo(() => {
+    if (!file || score === 0) return null
+    
+    return [
+      { name: 'Brightness', value: file.brightnessScore ?? 100, key: 'quality.scores.brightness' },
+      { name: 'Contrast', value: file.contrastScore ?? 100, key: 'quality.scores.contrast' },
+      { name: 'Saturation', value: file.saturationScore ?? 100, key: 'quality.scores.saturation' },
+      { name: 'Sharpness', value: file.blurScore ?? 100, key: 'quality.scores.sharpness' }
+    ]
+  }, [score, file])
 
   const scoreContainerClasses = useMemo(() => 
     cn(
       styles.scoreContainer,
-      isHighScore ? styles.scoreContainerHigh : styles.scoreContainerLow
+      score >= 75 ? styles.scoreContainerHigh : score >= 60 ? styles.scoreContainerMedium : styles.scoreContainerLow
     ),
-    [isHighScore]
+    [score]
   )
 
   const deleteButtonClasses = useMemo(() => 
@@ -80,6 +96,25 @@ export function ImageTooltip({
           <span className={styles.scoreText}>
             {score}%
           </span>
+          {qualityScores && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className={styles.infoIcon} size={16} />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {qualityScores.map((scoreItem, index) => (
+                      <div key={index} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
+                        <span>{t(scoreItem.key)}:</span>
+                        <span style={{ fontWeight: 500 }}>{Math.round(scoreItem.value)}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </div>
       </div>
 

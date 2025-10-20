@@ -80,7 +80,8 @@
       }
     },
     "footer": {
-      "upgradeNotice": "Il tuo abbonamento attuale sarà cancellato e sostituito con il nuovo piano. I crediti esistenti saranno preservati."
+      "upgradeNotice": "Il tuo abbonamento attuale sarà cancellato e sostituito con il nuovo piano. I crediti esistenti saranno preservati.",
+      "buyCreditPack": "Acquista un pacchetto di crediti"
     },
     "toasts": {
       "loginRequired": "Per favore accedi",

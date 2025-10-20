@@ -1221,7 +1221,7 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                 <div className={styles.itemLabel}>
                   {createCharacterAction.type === 'upgrade_subscription' && t('labels.upgradePlanAddMore', { ns: 'styles' })}
                   {createCharacterAction.type === 'credit_pack' && t('labels.buyCredits', { ns: 'styles' })}
-                  {createCharacterAction.type === 'upgrade_or_credit_pack' && t('labels.upgradeOrBuyCredits', { ns: 'styles' })}
+                  {createCharacterAction.type === 'upgrade_or_credit_pack' && t('labels.upgradePlanAddMore', { ns: 'styles' })}
                   {createCharacterAction.type === 'limit_reached' && !authUser?.admin && t('labels.limitReached', { ns: 'styles' })}
                   {(createCharacterAction.type === 'create' || (createCharacterAction.type === 'limit_reached' && authUser?.admin)) && t('buttons.create', { ns: 'generate' })}
                   {createCharacterAction.type === 'subscription' && t('buttons.create', { ns: 'generate' })}
@@ -1248,6 +1248,11 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
                   </div>
                 )}
                 {createCharacterAction.type === 'credit_pack' && (
+                  <div className={styles.itemSubLabel}>
+                    {t('labels.credits', { ns: 'styles', count: createCharacterAction.credits || trainingCost })}
+                  </div>
+                )}
+                {createCharacterAction.type === 'upgrade_or_credit_pack' && (
                   <div className={styles.itemSubLabel}>
                     {t('labels.credits', { ns: 'styles', count: createCharacterAction.credits || trainingCost })}
                   </div>

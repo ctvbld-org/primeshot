@@ -97,8 +97,23 @@
   color: #44E3C9;
 }
 
+.scoreContainerMedium .scoreIcon {
+  color: #ffde3c;
+}
+
 .scoreContainerLow .scoreIcon {
-  color: #FF973C;
+  color: #ff7d3c;
+}
+
+.infoIcon {
+  color: rgba(0, 0, 0, 0.6);
+  cursor: help;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.infoIcon:hover {
+  color: #000000;
 }
 
 .infoContainer {

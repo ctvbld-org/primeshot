@@ -18,7 +18,11 @@
     "fileSizeExceeded": "File is too large (max {{size}})",
     "duplicateFile": "Duplicate file",
     "uploadFailedCount_one": "1 file couldn't be added",
-    "uploadFailedCount_other": "{{count}} files couldn't be added"
+    "uploadFailedCount_other": "{{count}} files couldn't be added",
+    "someImagesSkipped": "Some Images Skipped",
+    "skippedMessage": "Only {{count}} more photos could be added. The following files were skipped: {{files}}",
+    "deleteFailed": "Delete Failed",
+    "genericError": "An error occurred"
   },
   "progress": {
     "uploading": "Uploading...",
@@ -31,4 +35,3 @@
     }
   }
 }
-

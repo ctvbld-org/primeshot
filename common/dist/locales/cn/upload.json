@@ -17,7 +17,11 @@
     "invalidFileType": "不支持的文件类型（{{types}}）",
     "fileSizeExceeded": "文件过大（最大 {{size}}）",
     "duplicateFile": "重复的文件",
-    "uploadFailedCount_other": "有 {{count}} 个文件无法添加"
+    "uploadFailedCount_other": "有 {{count}} 个文件无法添加",
+    "someImagesSkipped": "Some Images Skipped",
+    "skippedMessage": "Only {{count}} more photos could be added. The following files were skipped: {{files}}",
+    "deleteFailed": "Delete Failed",
+    "genericError": "An error occurred"
   },
   "progress": {
     "uploading": "上传中...",
