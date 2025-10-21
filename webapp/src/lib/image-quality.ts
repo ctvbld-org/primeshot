@@ -39,6 +39,7 @@ const SERVER_STUB_RESULT = {
 // MediaPipe instances
 let faceDetector: any = null;
 let faceLandmarker: any = null;
+let poseLandmarker: any = null;
 
 // Define types for facial landmarks based on face-api.js structure
 interface FaceDetection {
@@ -67,7 +68,7 @@ const MAX_BLUR = 0.15; // Reduced from 0.5 - more realistic threshold
 
 // Constants for body detection
 const MIN_BODY_COUNT = 1; // Minimum 1 image with body shot
-const MAX_BODY_PERCENTAGE = 0.60; // 50% maximum for body shots
+const MAX_BODY_PERCENTAGE = 0.70; // 70% maximum for body shots
 
 // Add after other constants
 const MIN_EYE_CONFIDENCE = 0.3;
@@ -134,7 +135,7 @@ export async function loadModels(forceReload = false) {
   
   try {
     // Dynamically import MediaPipe
-    const { FaceDetector, FaceLandmarker, FilesetResolver } = await import('@mediapipe/tasks-vision');
+    const { FaceDetector, FaceLandmarker, PoseLandmarker, FilesetResolver } = await import('@mediapipe/tasks-vision');
     
     // Get CDN base URL from environment variable
     const cdnBase = process.env.NEXT_PUBLIC_AWS_DISTRIBUTION || '';
@@ -152,6 +153,10 @@ export async function loadModels(forceReload = false) {
     const faceLandmarkerPath = cdnBase
       ? `${cdnBase}/mediapipe/face_landmarker.task`
       : 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task';
+    
+    const poseLandmarkerPath = cdnBase
+      ? `${cdnBase}/mediapipe/pose_landmarker_lite.task`
+      : 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
     
     // Initialize the vision tasks
     const vision = await FilesetResolver.forVisionTasks(wasmPath);
@@ -182,6 +187,21 @@ export async function loadModels(forceReload = false) {
         minTrackingConfidence: 0.05,      // Low for tracking (not critical for still images)
         outputFaceBlendshapes: true, // Get eye/mouth open status
         outputFacialTransformationMatrixes: true // Get face orientation
+      });
+    }
+    
+    // Create Pose Landmarker (for body detection - shoulders, hips, knees, etc.)
+    if (!poseLandmarker) {
+      poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: poseLandmarkerPath,
+          delegate: 'GPU'
+        },
+        runningMode: 'IMAGE',
+        numPoses: 1, // Only detect the primary person
+        minPoseDetectionConfidence: 0.30,
+        minPosePresenceConfidence: 0.30,
+        minTrackingConfidence: 0.30
       });
     }
     
@@ -262,7 +282,7 @@ export async function analyzeForBodyShot(file: File): Promise<{
     
     // Use MediaPipe helper for face detection
     const { detectFaces } = await import('./mediapipe-face-detection');
-    const faceResult = await detectFaces(img, faceLandmarker);
+    const faceResult = await detectFaces(img, faceLandmarker, poseLandmarker);
     
     URL.revokeObjectURL(img.src);
     
@@ -342,7 +362,7 @@ export async function analyzeImageQuality(file: File, options?: { petMode?: bool
     try {
       // Use MediaPipe helper for face detection
       const { detectFaces } = await import('./mediapipe-face-detection');
-      const faceResult = await detectFaces(img, faceLandmarker);
+      const faceResult = await detectFaces(img, faceLandmarker, poseLandmarker);
       
       faceDetectionPerformed = true;
       

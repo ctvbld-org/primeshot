@@ -27,9 +27,10 @@ interface OnboardingStepProps {
   onBack: () => void
   onSkip: () => void
   onFinish: () => void
+  showSkipButton?: boolean
 }
 
-export function OnboardingStep({ step, guidelineIndex, guidelines, onNext, onBack, onSkip, onFinish }: OnboardingStepProps) {
+export function OnboardingStep({ step, guidelineIndex, guidelines, onNext, onBack, onSkip, onFinish, showSkipButton = true }: OnboardingStepProps) {
   const { t } = useTranslation('character')
   const introDescription = useHtmlTranslation('onboarding.intro.description1', 'character')
   const confirmationTitle = useHtmlTranslation('onboarding.confirmation.title', 'character')
@@ -119,7 +120,9 @@ export function OnboardingStep({ step, guidelineIndex, guidelines, onNext, onBac
                   <Button variant="outline" onClick={handleIntroNext} className={styles.primaryButton}>
                     <span className="relative z-10">{t('onboarding.intro.buttonGetStarted')}</span>
                   </Button>
-                  <Button variant="ghost" onClick={onSkip} className={styles.ghostButton}>{t('onboarding.intro.buttonSkip')}</Button>
+                  {showSkipButton && (
+                    <Button variant="ghost" onClick={onSkip} className={styles.ghostButton}>{t('onboarding.intro.buttonSkip')}</Button>
+                  )}
                 </div>
               </div>
             )}

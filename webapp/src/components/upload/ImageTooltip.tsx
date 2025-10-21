@@ -30,15 +30,18 @@ export function ImageTooltip({
   // 2. Memoized values
   const score = useMemo(() => Math.round(file.score || 0), [file.score])
 
-  // Get all quality scores for tooltip
+  // Get all quality scores for tooltip (only show after analysis is complete)
   const qualityScores = useMemo(() => {
+    // Don't show scores if analysis hasn't completed yet
     if (!file || score === 0) return null
+    if (file.brightnessScore === undefined || file.contrastScore === undefined) return null
     
     return [
       { name: 'Brightness', value: file.brightnessScore ?? 100, key: 'quality.scores.brightness' },
       { name: 'Contrast', value: file.contrastScore ?? 100, key: 'quality.scores.contrast' },
       { name: 'Saturation', value: file.saturationScore ?? 100, key: 'quality.scores.saturation' },
-      { name: 'Sharpness', value: file.blurScore ?? 100, key: 'quality.scores.sharpness' }
+      { name: 'Sharpness', value: file.blurScore ?? 100, key: 'quality.scores.sharpness' },
+      { name: 'Bokeh', value: file.bokehScore ?? 100, key: 'quality.scores.bokeh' }
     ]
   }, [score, file])
 
@@ -91,31 +94,33 @@ export function ImageTooltip({
         >
           <Icon variant="cross" size={16} className={styles.closeIcon} />
         </button>
-        <div className={scoreContainerClasses}>
-          <Icon variant="check" size={20} className={styles.scoreIcon} />
-          <span className={styles.scoreText}>
-            {score}%
-          </span>
-          {qualityScores && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Info className={styles.infoIcon} size={16} />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    {qualityScores.map((scoreItem, index) => (
-                      <div key={index} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
-                        <span>{t(scoreItem.key)}:</span>
-                        <span style={{ fontWeight: 500 }}>{Math.round(scoreItem.value)}%</span>
-                      </div>
-                    ))}
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-        </div>
+        {score > 0 && (
+          <div className={scoreContainerClasses}>
+            <Icon variant="check" size={20} className={styles.scoreIcon} />
+            <span className={styles.scoreText}>
+              {score}%
+            </span>
+            {qualityScores && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className={styles.infoIcon} size={16} />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      {qualityScores.map((scoreItem, index) => (
+                        <div key={index} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
+                          <span>{t(scoreItem.key)}:</span>
+                          <span style={{ fontWeight: 500 }}>{Math.round(scoreItem.value)}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
+        )}
       </div>
 
       <div className={styles.infoContainer}>

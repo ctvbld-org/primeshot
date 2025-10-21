@@ -55,6 +55,9 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
     isAnalyzing,
     analyzingCount,
     currentFileIndex,
+    canBypassQuality,
+    rejectedCount,
+    bypassQualityChecks
   } = useFileUpload({
     existingImages: existingImagesWithScore,
     onRemoveExistingImage: () => {},
@@ -229,6 +232,9 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
           qualityResults={qualityResults}
           onRemoveFile={(index) => removeFileByFileRef(rejectedFiles[index])}
           onContinue={handleDialogClose}
+          canBypassQuality={canBypassQuality}
+          rejectedCount={rejectedCount}
+          onBypassQuality={bypassQualityChecks}
         />
         
         {/* Requirements Section */}

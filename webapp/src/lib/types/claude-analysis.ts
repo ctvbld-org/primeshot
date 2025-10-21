@@ -41,6 +41,8 @@ export interface ClaudeImageResult {
   brightnessScore: number;
   contrastScore: number;
   saturationScore: number;
+  sharpnessScore: number;
+  bokehScore: number;
   overallScore: number;
   similarityAnalysis?: SimilarityAnalysis;
   isAcceptable: boolean;

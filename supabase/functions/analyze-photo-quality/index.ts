@@ -12,82 +12,75 @@ const CLAUDE_PROMPT = `Analyze 9 portrait photos for AI training. Check quality 
 **PER-IMAGE QUALITY CHECKS:**
 
 1. **Face Count:** Must be exactly 1. Reject if 0 or 2+. To count an extra face, we have to see at least one eye.
-2. **Sharpness:** Must be clear and sharp. Reject if blurry or pixelated.
+
+2. **Sharpness - BE VERY STRICT:** Look at face details closely:
+   - **Sharp (isSharp: true, 80-100):** Individual hair strands visible, skin texture clear, eyes crisp, no motion blur
+   - **Slightly soft (isSharp: true, 60-79):** Face clear but hair slightly soft, minor motion blur
+   - **Blurry/Out of focus (isSharp: false, 0-59):** Hair blurred/mushy, face soft, eyes not crisp, motion blur, low resolution
+   - **REJECT if isSharp: false** - Training needs crisp, clear images
+
 3. **Filters:** Subtle OK. Reject strong beauty/color/distortion filters.
-4. **Quality Scores (0-100):** Rate brightness, contrast, saturation
+4. **Quality Scores (0-100):** Rate these and calculate overallScore:
+   - **Brightness:** Overall image brightness (0=too dark, 100=perfect)
+   - **Contrast:** Difference between light and dark areas (0=flat, 100=good contrast)
+   - **Saturation:** Color vibrancy (0=washed out, 100=vibrant)
+   - **Sharpness Score:** How sharp/crisp the image is (0=very blurry, 60=acceptable, 80-100=sharp)
+     - Look at hair, eyes, skin texture - if they're soft/blurry → score 0-40
+   - **Bokeh (Background Blur):** How blurred the BACKGROUND is, NOT the subject (0=sharp background, 100=very blurred background)
 
-**SIMILARITY DETECTION - TWO-STEP APPROACH:**
+5. **Overall Quality Score:** Calculate average of all quality scores. **REJECT if overallScore ≤ 55** with reason "Overall image quality is too low"
 
-**STEP 1: Is this the EXACT same photo session?**
+**SIMILARITY DETECTION - BE VERY STRICT:**
 
-**CRITICAL: IGNORE the person's face/identity! The same person can take photos in MANY different sessions!**
-**Focus ONLY on: Background/Location, Clothing, Lighting**
+**Your job: Find groups of images from the SAME photo shoot and limit each group.**
 
-A "photo session" means ALL 3 of these are TRUE:
-
-1. **EXACT Same Location - Look at BACKGROUND, not face:**
+**SAME photo shoot = ALL 3 factors match:**
+1. **Same background** - Walls, furniture, room structure match
+   - Example: All photos in kitchen → SAME session (score 98)
+   - Example: Office vs bedroom → DIFFERENT (score 30)
    
-   **MANDATORY LOCATION CHECKS (look at background ONLY):**
-   - Is background indoor or outdoor? If different → Score < 20
-   - Indoor types: office, home, restaurant, gym, car, etc.
-   - Outdoor types: beach, ocean, street, park, nature, etc.
-   - **Ocean/beach background vs any indoor = Score < 20 (NOT similar at all)**
-   - **Different indoor rooms = Score < 50 (different locations)**
-   - **Same room with same furniture/walls = Score 90+**
+2. **Same clothing** - Same shirt/top visible in photos
+   - Example: All white t-shirt → SAME session (score 98)
+   - Example: White shirt vs black shirt → DIFFERENT (score 30)
    
-   **Step-by-step location scoring:**
-   1. First: Indoor or outdoor? If different → < 20
-   2. If both indoor: Same room? If no → < 50
-   3. If same room: Same furniture/background visible? If yes → 90+
-   
-2. **EXACT Same Outfit:**
-   - SAME clothing item (e.g., same white Adidas shirt)
-   - NOT "both wearing white" - must be IDENTICAL garment
-   - Different shirt = DIFFERENT session
-   
-3. **EXACT Same Lighting:**
-   - SAME light sources and conditions
-   - Indoor vs outdoor = DIFFERENT
-   - Different time of day = DIFFERENT
+3. **Same lighting setup** - Light direction, shadows, brightness match
+   - Example: All window light from left → SAME session (score 98)
+   - Example: Daytime vs evening light → DIFFERENT (score 30)
 
-**Session similarity score (0-100):**
-- **90-100:** ALL 3 factors IDENTICAL (same exact spot, same exact clothes, same exact light)
-- **50-89:** Same location type, but different room OR different outfit OR different lighting
-- **20-49:** Different location types (e.g., office vs home) OR multiple factors differ
-- **0-19:** Completely different (e.g., indoor vs outdoor, ocean vs office)
+**CRITICAL: If all 3 match → sessionSimilarity 95-100 (SAME group)**
+**If ANY factor differs → sessionSimilarity < 70 (DIFFERENT groups)**
 
-**HARD RULES (MUST FOLLOW):**
-- **Indoor vs outdoor background = Score < 20** (not similar at all)
-- **Ocean/beach vs any indoor = Score < 20** (completely different)
-- **Different rooms (even if both indoor) = Score < 50** (different locations)
-- **Same room + different outfit = Score < 70** (different session)
-- **Only score 90+ if: SAME room + SAME outfit + SAME lighting**
+**DIFFERENT photo shoots = ANY of these differ:**
+- ✅ Different rooms (bedroom vs living room, even same house)
+- ✅ Different locations (home vs office vs restaurant vs outdoor vs different homes)
+- ✅ Different outfits (white shirt vs black shirt, t-shirt vs button-up)
+- ✅ Different lighting (window light vs ceiling light, day vs night, front vs side)
+- ✅ Different events (Event A vs Event B, even if similar style)
 
-**STEP 2: Within each session group, measure VARIETY**
+**Examples of SAME session (MUST limit quantity):**
+- ❌ 9 photos: SAME walls/furniture visible, SAME garment, SAME light on face → Score 95+ (keep best 4, reject 5)
+- ❌ 4 photos: SAME background visible, SAME clothing, SAME shadows → Score 95+ (keep best 3, reject 1)
 
-If multiple images from same session, compare their:
-- **Pose variety** (standing vs sitting, facing direction, body position)
-- **Expression variety** (smiling vs serious, eyes closed vs open)
-- **Angle variety** (straight-on vs side angle, close-up vs further)
-- **Framing variety** (cropping, composition)
+**Examples of DIFFERENT sessions (accept all):**
+- ✅ 9 photos with DIFFERENT backgrounds visible → Score < 50 (different shoots)
+- ✅ Photos with SAME background but DIFFERENT clothing → Score < 70 (different shoots)
+- ✅ Photos with SAME background but DIFFERENT lighting on face → Score < 70 (different shoots)
 
-**Variety score (0-100):**
-- **80-100:** Very different (different pose + expression + angle)
-- **50-79:** Somewhat different (1-2 factors differ)
-- **0-49:** Nearly identical (burst shots, minimal variation)
+**Scoring (sessionSimilarity 0-100):**
+- **95-100:** Definitely same photo shoot (identical background + clothes + light)
+- **70-94:** Possibly same day, but different setup (1-2 factors differ)
+- **0-69:** Clearly different sessions (accept all, no similarity concern)
 
-**REJECTION LOGIC:**
+**REJECTION LOGIC (group-based):**
+1. **Group images:** Find all images with sessionSimilarity ≥ 95 to each other (same session group)
+2. **Within EACH group, apply limits:**
+   - Group of 2: Accept both
+   - Group of 3: Keep best 2 (highest varietyScore), reject 1
+   - Group of 4: Keep best 2 (highest varietyScore), reject 2
+   - Group of 5+: Keep best 3 (highest varietyScore), reject rest
+3. **Images not in any large group:** Accept all
 
-1. Group all images by session similarity (≥90 = same session, be strict!)
-2. For each session group with 5+ images:
-   - Identify the 4 images with HIGHEST VARIETY from each other
-   - Keep those 4, reject the rest
-3. For session groups with 3-4 images:
-   - Keep the 3 most diverse, reject rest
-4. For session groups with 2 images or from different sessions:
-   - Accept all
-
-**Goal:** Only reject when images are TRULY from the same photo sitting (same room + same outfit + same lighting)
+**Goal:** Only reject TRUE duplicates (same shoot), NOT just "same category" photos
 
 **JSON Response Fields:**
 - **sessionSimilarity:** How similar location+outfit+lighting is to other images (0-100)
@@ -95,22 +88,56 @@ If multiple images from same session, compare their:
 - **varietyRank:** Ranking within session group (1=most diverse, higher=less diverse)
 - **sameSessionIndices:** Which other images are from the same session
 
-**EXAMPLE SCENARIO:**
-Batch: 4 office indoor + 3 home indoor + 2 ocean outdoor (same person in ALL)
+**EXAMPLE 1 - ALL SAME SESSION (strict rejection):**
+Input: 9 photos, all in apartment/home with same walls/furniture, all white t-shirt, all similar lighting
 
-**Correct scoring:**
-- Office image #1 vs Office image #2: sessionSimilarity = 92 (same room)
-- Office image #1 vs Home image #5: sessionSimilarity = 35 (both indoor, but different rooms)
-- Office image #1 vs Ocean image #8: sessionSimilarity = 12 (indoor vs outdoor - MUST be < 20)
-- Ocean image #8 vs Ocean image #9: sessionSimilarity = 88 (same beach location)
+**Step 1: Check each image against others**
+- Image 0: Same background, same white shirt, same light → sessionSimilarity = 98
+- Image 1: Same background, same white shirt, same light → sessionSimilarity = 98
+- ... (all 9 images score 95+ similarity)
 
-**Result:** Three SEPARATE groups:
-- Group 1: Office images (similar to each other, 90+)
-- Group 2: Home images (similar to each other, 90+)
-- Group 3: Ocean images (similar to each other, 90+)
-- Between groups: < 50 (different locations, NOT similar)
+**Step 2: Form groups**
+- Group 1: ALL 9 images [0,1,2,3,4,5,6,7,8]
+- sameSessionIndices for each image: [other 8 indices]
 
-Return ONLY valid JSON, no other text:
+**Step 3: Apply limits**
+- Group size: 9 (≥5) → Keep ONLY best 4
+- Rank by varietyScore (pose/expression differences)
+- Keep ranks 1-4 (most variety) → isAcceptable: true
+- Reject ranks 5-9 (less variety) → isAcceptable: false
+
+**Output:** 4 accepted, 5 rejected with varietyIssue: "duplicate"
+
+**EXAMPLE 2 - MULTIPLE GROUPS:**
+Batch: 6 office images, 3 outdoor images
+
+**Grouping:**
+- Group 1: Images [0,1,2,3,4,5] (office: same desk, same shirt, same lamp) sessionSimilarity=98
+- Group 2: Images [6,7,8] (outdoor: same park, same jacket, same sunlight) sessionSimilarity=97
+- Group 1 size: 6 (≥5) → Keep best 4, reject 2
+- Group 2 size: 3 → Keep best 2, reject 1
+
+**Result:** From Group 1 keep ranks 1-4, reject ranks 5-6. From Group 2 keep ranks 1-2, reject rank 3.
+
+**EXAMPLE 3 - ALL DIFFERENT SESSIONS:**
+Batch: 9 photos, all in black tuxedos but different venues
+
+**Visual comparison:**
+- Different backgrounds/venues (red carpet vs gala vs premiere) → sessionSimilarity < 50
+
+**Grouping:**
+- No groups (all images have sessionSimilarity < 95)
+
+**Result:** Accept ALL 9 (all from different photo shoots)
+
+**IMPORTANT REMINDERS:**
+1. Same background + same clothing + same lighting = sessionSimilarity 95+ (SAME group)
+2. Group of 5+ images → Keep ONLY best 4, reject rest (varietyIssue: "duplicate", isAcceptable: false)
+3. Group of 3-4 images → Keep ONLY best 2-3, reject rest
+4. Always populate sameSessionIndices for grouped images
+5. Rank grouped images by varietyScore (1=most diverse=keep, higher rank=reject)
+
+Return ONLY valid JSON, no markdown, no comments, no other text:
 
 {
   "images": [
@@ -124,7 +151,9 @@ Return ONLY valid JSON, no other text:
       "brightnessScore": 80,
       "contrastScore": 75,
       "saturationScore": 80,
-      "overallScore": 68,
+      "sharpnessScore": 85,
+      "bokehScore": 45,
+      "overallScore": 73,
       "similarityAnalysis": {
         "sessionSimilarity": 92,
         "varietyScore": 45,
@@ -155,7 +184,9 @@ Return ONLY valid JSON, no other text:
       "brightnessScore": 82,
       "contrastScore": 78,
       "saturationScore": 82,
-      "overallScore": 72,
+      "sharpnessScore": 90,
+      "bokehScore": 65,
+      "overallScore": 79,
       "similarityAnalysis": {
         "sessionSimilarity": 92,
         "varietyScore": 82,
@@ -324,12 +355,21 @@ serve(async (req) => {
     const result = await response.json();
     let analysisText = result.content[0].text;
     
-    // Extract JSON if Claude added extra text
-    const jsonStart = analysisText.indexOf('{');
-    const jsonEnd = analysisText.lastIndexOf('}');
-    if (jsonStart !== -1 && jsonEnd !== -1) {
-      analysisText = analysisText.substring(jsonStart, jsonEnd + 1);
+    // Extract JSON if Claude added extra text (be more aggressive)
+    const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      analysisText = jsonMatch[0];
+    } else {
+      // Fallback to old method
+      const jsonStart = analysisText.indexOf('{');
+      const jsonEnd = analysisText.lastIndexOf('}');
+      if (jsonStart !== -1 && jsonEnd !== -1) {
+        analysisText = analysisText.substring(jsonStart, jsonEnd + 1);
+      }
     }
+    
+    // Remove any trailing commas (common JSON mistake)
+    analysisText = analysisText.replace(/,(\s*[}\]])/g, '$1');
     
     // Parse JSON response from Claude
     let analysis;
@@ -337,7 +377,7 @@ serve(async (req) => {
       analysis = JSON.parse(analysisText);
     } catch (parseError) {
       console.error('JSON parse error:', parseError);
-      console.error('Raw text (first 500 chars):', analysisText.substring(0, 500));
+      console.error('Failed to parse text (full):', analysisText);
       throw new Error(`Failed to parse response: ${parseError}`);
     }
     

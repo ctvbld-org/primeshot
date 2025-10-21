@@ -18,7 +18,8 @@ export interface MediaPipeFaceResult {
 
 export async function detectFaces(
   img: HTMLImageElement,
-  faceLandmarker: any
+  faceLandmarker: any,
+  poseLandmarker?: any
 ): Promise<MediaPipeFaceResult> {
   const width = img.width;
   const height = img.height;
@@ -231,20 +232,98 @@ export async function detectFaces(
     const imageArea = width * height;
     const faceRelativeSize = faceArea / imageArea;
     
-    // FIRST: Detect if this is a body shot (before applying size thresholds)
-    const faceBottomY = faceBox.y + faceBox.height;
-    const spaceBelow = (height - faceBottomY) / height;
-    const faceTopRatio = faceBox.y / height;
+    // Body shot detection using MediaPipe Pose Landmarker
+    // This directly detects body keypoints instead of guessing from face size
+    let isBodyShot = false;
+    let bodyDetectionMethod = 'none';
     
-    // Body shot detection - VERY STRICT (only full-body/half-body shots)
-    // MUST have BOTH:
-    // 1. Majority of image is body (> 50% = half+ of image below face)
-    // 2. Very small face (< 15% = clear full/half body shot)
-    const hasSignificantSpaceBelow = spaceBelow > 0.50;
-    const faceNotTooLarge = faceRelativeSize < 0.15;
-    
-    const isBodyShot = hasSignificantSpaceBelow && faceNotTooLarge;
-    
+    if (poseLandmarker) {
+      try {
+        // Detect pose landmarks (33 keypoints including shoulders, hips, knees, etc.)
+        const poseResult = poseLandmarker.detect(img);
+        
+        if (poseResult.landmarks && poseResult.landmarks.length > 0) {
+          const landmarks = poseResult.landmarks[0]; // First person's landmarks
+          
+          // MediaPipe Pose Landmark indices:
+          // 13, 14: Left/Right Elbow
+          // 23, 24: Left/Right Hip  
+          // 25, 26: Left/Right Knee
+          const leftElbow = landmarks[13];
+          const rightElbow = landmarks[14];
+          const leftHip = landmarks[23];
+          const rightHip = landmarks[24];
+          const leftKnee = landmarks[25];
+          const rightKnee = landmarks[26];
+          
+          // Check visibility with STRICT threshold (> 0.7 = actually visible, not just inferred)
+          // MediaPipe often assigns high scores to inferred positions even when occluded
+          const STRICT_VISIBILITY_THRESHOLD = 0.7;
+          
+          const elbowsVisible = (leftElbow?.visibility > STRICT_VISIBILITY_THRESHOLD || rightElbow?.visibility > STRICT_VISIBILITY_THRESHOLD);
+          const hipsVisible = (leftHip?.visibility > STRICT_VISIBILITY_THRESHOLD || rightHip?.visibility > STRICT_VISIBILITY_THRESHOLD);
+          const kneesVisible = (leftKnee?.visibility > STRICT_VISIBILITY_THRESHOLD || rightKnee?.visibility > STRICT_VISIBILITY_THRESHOLD);
+          
+          // Body shot detection hierarchy:
+          // - Knees visible = full body shot
+          // - Hips visible = half body shot (torso down to waist)
+          // - Elbows visible = upper body shot (arms/torso visible)
+          // - Only face/shoulders = portrait (NOT a body shot)
+          if (kneesVisible) {
+            isBodyShot = true;
+            bodyDetectionMethod = 'pose-full-body';
+          } else if (hipsVisible) {
+            isBodyShot = true;
+            bodyDetectionMethod = 'pose-half-body';
+          } else if (elbowsVisible) {
+            isBodyShot = true;
+            bodyDetectionMethod = 'pose-upper-body';
+          } else {
+            // Only face/shoulders visible = portrait/headshot
+            isBodyShot = false;
+            bodyDetectionMethod = 'pose-portrait';
+          }
+          
+          console.log('[Bodyshot Detection - Pose]', {
+            method: bodyDetectionMethod,
+            elbowsVisible,
+            hipsVisible,
+            kneesVisible,
+            isBodyShot,
+            visibilityScores: {
+              leftElbow: leftElbow?.visibility?.toFixed(2),
+              rightElbow: rightElbow?.visibility?.toFixed(2),
+              leftHip: leftHip?.visibility?.toFixed(2),
+              rightHip: rightHip?.visibility?.toFixed(2),
+              leftKnee: leftKnee?.visibility?.toFixed(2),
+              rightKnee: rightKnee?.visibility?.toFixed(2)
+            }
+          });
+        } else {
+          // No pose detected, fallback to face size method
+          bodyDetectionMethod = 'fallback-face-size';
+          isBodyShot = faceRelativeSize < 0.20;
+          console.log('[Bodyshot Detection - Fallback]', {
+            method: 'face-size (no pose detected)',
+            faceRelativeSize: (faceRelativeSize * 100).toFixed(1) + '%',
+            isBodyShot
+          });
+        }
+      } catch (error) {
+        console.warn('[Bodyshot Detection] Pose detection failed, using face size fallback:', error);
+        bodyDetectionMethod = 'fallback-face-size';
+        isBodyShot = faceRelativeSize < 0.20;
+      }
+    } else {
+      // Pose landmarker not available, use face size fallback
+      bodyDetectionMethod = 'fallback-face-size';
+      isBodyShot = faceRelativeSize < 0.20;
+      console.log('[Bodyshot Detection - Fallback]', {
+        method: 'face-size (pose landmarker not loaded)',
+        faceRelativeSize: (faceRelativeSize * 100).toFixed(1) + '%',
+        isBodyShot
+      });
+    }
     
     result.hasBody = isBodyShot;
     result.bodyScore = isBodyShot ? 1 : 0;
@@ -253,28 +332,21 @@ export async function detectFaces(
     let sizeScore = 1.0;
     
     if (isBodyShot) {
-      // BODY SHOT (full-body, half-body, 3/4): Lenient - faces can be 1-30%
+      // BODY SHOT (face < 20%): Very lenient - face naturally small when body is visible
       if (faceRelativeSize < 0.01) {
-        // Face < 1% is TOO small even for body shots
+        // Face < 1% is TOO small even for body shots (maybe full body from very far)
         sizeScore = Math.max(0.3, faceRelativeSize / 0.01);
         result.issues.push('Face is extremely small, even for a body shot.');
         result.i18nIssues.push({ key: 'quality.issues.face.tooSmall' });
       } else {
-        // Faces 1-30% are perfect for body shots (full, half, or 3/4)
+        // Faces 1-20% are perfect for body shots (full, half, or 3/4 body)
         sizeScore = 0.98;
       }
     } else {
-      // PORTRAIT/HEADSHOT: Stricter requirements - face should be prominent
-      if (faceRelativeSize < 0.10) {
-        // Face < 10% in a portrait is TOO small
-        sizeScore = Math.max(0.2, faceRelativeSize / 0.10);
-        result.issues.push('Face is too small for a portrait. Consider cropping closer or using a full-body shot.');
-        result.i18nIssues.push({ key: 'quality.issues.face.tooSmall' });
-      } else if (faceRelativeSize < 0.20) {
-        // Face 10-20% is acceptable but not ideal for portraits
-        sizeScore = 0.85;
-        result.issues.push('Face could be larger in the frame for better quality.');
-        result.i18nIssues.push({ key: 'quality.issues.face.sizeNotOptimal' });
+      // PORTRAIT/HEADSHOT (face >= 20%): Face should be prominent
+      if (faceRelativeSize < 0.25) {
+        // Face 20-25% is borderline - acceptable but could be closer
+        sizeScore = 0.90;
       } else if (faceRelativeSize > 0.80) {
         // Face > 80% is too close
         sizeScore = Math.max(0.5, 1 - (faceRelativeSize - 0.80) / 0.20);

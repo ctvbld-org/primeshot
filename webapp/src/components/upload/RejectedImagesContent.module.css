@@ -28,6 +28,12 @@
   color: #e8a1a5;
 }
 
+.headerDescription {
+  font-weight: 400;
+  font-size: 14px;
+  color: #FFFFFF;
+  opacity: 0.8;
+}
 
 .rejectedFilesList {
   display: flex;
@@ -77,4 +83,47 @@
 .continueButton {
   background: #C0CED8 !important;
   color: #000 !important;
+}
+
+.bypassWarning {
+  padding: 16px;
+}
+
+.bypassWarningTitle {
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 14px;
+  color: #FFFFFF;
+  opacity: 0.4;
+}
+
+.bypassWarningList {
+  list-style: none;
+  padding:16px 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bypassWarningList li {
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 14px;
+  color: #FFFFFF;
+  opacity: 0.4;
+  line-height: 1.5;
+  padding-left: 20px;
+  position: relative;
+}
+
+.bypassWarningList li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #FFA500;
+}
+
+.bypassButton {
+  width: 100%;
 } 

@@ -35,15 +35,15 @@ export function useInfiniteInferenceJobsWithProgress() {
 
   const setHoldDone = (jobId: string) => {
     if (typeof window === 'undefined') return;
-    try { window.localStorage.setItem(holdDoneKey(jobId), '1'); } catch {}
+    try { window.sessionStorage.setItem(holdDoneKey(jobId), '1'); } catch {}
   };
   const clearHoldDone = (jobId: string) => {
     if (typeof window === 'undefined') return;
-    try { window.localStorage.removeItem(holdDoneKey(jobId)); } catch {}
+    try { window.sessionStorage.removeItem(holdDoneKey(jobId)); } catch {}
   };
   const hasHoldDone = (jobId: string) => {
     if (typeof window === 'undefined') return false;
-    try { return !!window.localStorage.getItem(holdDoneKey(jobId)); } catch { return false; }
+    try { return !!window.sessionStorage.getItem(holdDoneKey(jobId)); } catch { return false; }
   };
 
   const cleanupHold = useCallback((jobId: string) => {
@@ -55,7 +55,7 @@ export function useInfiniteInferenceJobsWithProgress() {
     }
     messageHold.current.delete(jobId);
     if (typeof window !== 'undefined') {
-      try { window.localStorage.removeItem(holdKey(jobId)); } catch {}
+      try { window.sessionStorage.removeItem(holdKey(jobId)); } catch {}
     }
   }, []);
 
@@ -71,7 +71,7 @@ export function useInfiniteInferenceJobsWithProgress() {
 
     const holdUntil = Date.now() + Math.max(0, holdMs);
     if (typeof window !== 'undefined') {
-      try { window.localStorage.setItem(holdKey(jobId), String(holdUntil)); } catch {}
+      try { window.sessionStorage.setItem(holdKey(jobId), String(holdUntil)); } catch {}
     }
 
     const supabase = createSupabaseBrowserClient();
@@ -90,7 +90,7 @@ export function useInfiniteInferenceJobsWithProgress() {
           infiniteJobs.updateJobStatus(jobId, 'generating');
           infiniteJobs.updateJobMessage(jobId, 'Generating');
           if (typeof window !== 'undefined') {
-            try { window.localStorage.removeItem(holdKey(jobId)); } catch {}
+            try { window.sessionStorage.removeItem(holdKey(jobId)); } catch {}
           }
           clearHoldDone(jobId);
           return; // No watcher needed
@@ -141,7 +141,7 @@ export function useInfiniteInferenceJobsWithProgress() {
           messageHold.current.delete(jobId);
           try { if (watcher) clearTimeout(watcher.timerId); } catch {}
           if (typeof window !== 'undefined') {
-            try { window.localStorage.removeItem(holdKey(jobId)); } catch {}
+            try { window.sessionStorage.removeItem(holdKey(jobId)); } catch {}
           }
           try { channel?.unsubscribe?.(); } catch {}
           dbWatchers.current.delete(jobId);
@@ -195,7 +195,7 @@ export function useInfiniteInferenceJobsWithProgress() {
     if (hasHoldDone(jobId)) return;
     let stored: number | null = null;
     try {
-      const raw = window.localStorage.getItem(holdKey(jobId));
+      const raw = window.sessionStorage.getItem(holdKey(jobId));
       if (raw) stored = parseInt(raw, 10);
     } catch {}
     if (!stored || Number.isNaN(stored)) return;
@@ -203,7 +203,7 @@ export function useInfiniteInferenceJobsWithProgress() {
     if (remaining > 50) {
       startHoldAndWatchDb(jobId, remaining);
     } else {
-      try { window.localStorage.removeItem(holdKey(jobId)); } catch {}
+      try { window.sessionStorage.removeItem(holdKey(jobId)); } catch {}
     }
   }, [startHoldAndWatchDb]);
 
@@ -391,7 +391,7 @@ export function useInfiniteInferenceJobsWithProgress() {
           if (watcher) clearTimeout(watcher.timerId);
         } catch {}
         if (typeof window !== 'undefined') {
-          try { window.localStorage.removeItem(holdKey(jobId)); } catch {}
+          try { window.sessionStorage.removeItem(holdKey(jobId)); } catch {}
         }
         const existing = dbWatchers.current.get(jobId);
         try { existing?.channel?.unsubscribe?.(); } catch {}
@@ -605,8 +605,8 @@ export function useInfiniteInferenceJobsWithProgress() {
           let hasStored = false;
           let hasDone = false;
           if (typeof window !== 'undefined') {
-            try { hasStored = !!window.localStorage.getItem(holdKey(job.id)); } catch {}
-            try { hasDone = !!window.localStorage.getItem(holdDoneKey(job.id)); } catch {}
+            try { hasStored = !!window.sessionStorage.getItem(holdKey(job.id)); } catch {}
+            try { hasDone = !!window.sessionStorage.getItem(holdDoneKey(job.id)); } catch {}
           }
           if (!hasStored && !hasDone) {
             startHoldAndWatchDb(job.id);
@@ -658,7 +658,7 @@ export function useInfiniteInferenceJobsWithProgress() {
                 if (watcher) clearTimeout(watcher.timerId);
               } catch {}
               if (typeof window !== 'undefined') {
-                try { window.localStorage.removeItem(holdKey(job.id)); } catch {}
+                try { window.sessionStorage.removeItem(holdKey(job.id)); } catch {}
               }
               const existing = dbWatchers.current.get(job.id);
               try { existing?.channel?.unsubscribe?.(); } catch {}

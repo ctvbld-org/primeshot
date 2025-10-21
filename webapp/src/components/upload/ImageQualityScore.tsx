@@ -56,11 +56,14 @@ export function ImageQualityScore({
 
   // Get all quality scores for tooltip
   const getQualityScores = (result: ImageQualityResult) => {
+    // Only return scores if analysis has completed (scores are defined)
+    if (result.brightnessScore === undefined || result.contrastScore === undefined) return null
+    
     return [
       { name: 'Brightness', value: result.brightnessScore, key: 'quality.scores.brightness' },
       { name: 'Contrast', value: result.contrastScore, key: 'quality.scores.contrast' },
-      { name: 'Saturation', value: result.saturationScore ?? 100, key: 'quality.scores.saturation' },
-      { name: 'Sharpness', value: result.blurScore, key: 'quality.scores.sharpness' }
+      { name: 'Saturation', value: result.saturationScore ?? 0, key: 'quality.scores.saturation' },
+      { name: 'Sharpness', value: result.blurScore ?? 0, key: 'quality.scores.sharpness' }
     ]
   }
 
