@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@primeshot/common/web/u
 import { Loader } from '@primeshot/common/web/ui/loader'
 import { Icon } from '@primeshot/common/web/Icon'
 import type { FileWithScore } from '@/lib/types'
-import { getApiUrl } from '@/lib/api/client'
+import { getApiUrl } from '@primeshot/common'
 
 interface UploadFooterProps {
   acceptedFiles?: FileWithScore[]

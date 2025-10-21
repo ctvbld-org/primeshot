@@ -11,6 +11,7 @@ import type {
   InferenceJobResult 
 } from '@/types/inference';
 import { getInferenceImageUrl } from '@/lib/utils/get-inference-image';
+import { getApiUrl } from '@primeshot/common';
 
 /**
  * Fetch inference job results including generated images
@@ -137,7 +138,7 @@ export async function getImageFavourite(imageId: string): Promise<boolean | null
 
 /** Delete a generated image: S3 variants + DB row. Returns remaining count on the job. */
 export async function deleteGeneratedImage(imageId: string): Promise<{ success: boolean; remaining: number; jobId: string }> {
-  const res = await fetch('/api/inference/delete-generated-image', {
+  const res = await fetch(getApiUrl('/api/inference/delete-generated-image'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ imageId })

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { MinusSquare, PlusSquare, Folder as FolderIcon } from 'lucide-react'
 import styles from './tree.module.css'
-import { getApiUrl } from '@/lib/api/client'
+import { getApiUrl } from '@primeshot/common'
 
 type ListResponse = { folders: string[] }
 

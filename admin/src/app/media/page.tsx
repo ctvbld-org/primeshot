@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@primeshot/common/web/ui/button'
-import { getApiUrl } from '@/lib/api/client'
+import { getApiUrl } from '@primeshot/common'
 import { Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@primeshot/common/web/ui/dialog'
 import { Copy, FolderPlus, Upload as UploadIcon, Download as DownloadIcon, Trash as TrashIcon, LayoutList, LayoutGrid, Folder } from 'lucide-react'
 import { toast } from 'sonner'

@@ -1,3 +1,19 @@
+/**
+ * Admin API utilities
+ * 
+ * NOTE: This file re-exports from @primeshot/common for consistency.
+ * The common package handles basePath and language prefixes automatically.
+ */
+
+// Re-export from common for all admin components
+export { getApiUrl, apiRequest } from '@primeshot/common'
+
+/**
+ * @deprecated Use getApiUrl from @primeshot/common instead
+ * 
+ * Legacy getBasePath function - kept for backwards compatibility
+ * but prefer using getApiUrl directly which handles basePath internally
+ */
 export function getBasePath(): string {
   // Prefer deriving from NEXT_PUBLIC_APP_URL if provided
   if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_APP_URL) {
@@ -28,28 +44,4 @@ export function getBasePath(): string {
 
   return ''
 }
-
-export function getApiUrl(path: string): string {
-  const base = getBasePath()
-  
-  // Handle language prefixes: API routes should never have language prefixes
-  if (typeof window !== 'undefined') {
-    const currentPath = window.location.pathname
-    
-    // Check if current path has a language prefix pattern (e.g., /en/, /fr/, /de/)
-    const langPrefixMatch = currentPath.match(/^\/(\w{2})\//)
-    
-    if (langPrefixMatch) {
-      // Language prefix detected - construct absolute URL to bypass language routing
-      const origin = window.location.origin
-      if (!path.startsWith('/')) path = '/' + path
-      return `${origin}${base}${path}`
-    }
-  }
-  
-  // Ensure single slash between base and path
-  if (!path.startsWith('/')) path = '/' + path
-  return `${base}${path}`
-}
-
 

@@ -7,7 +7,7 @@ import { uploadFileInChunks } from '@/lib/upload-utils'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 import { analyzeImageQuality, loadModels, analyzeForBodyShot } from '@/lib/image-quality'
 import type { FileWithScore } from '@/lib/types'
-import { apiRequest } from '@/lib/api/client'
+import { apiRequest } from '@primeshot/common'
 import type { ClaudeAnalysisResponse, ClaudeImageInput } from '@/lib/types/claude-analysis'
 
 interface UseFileUploadOptions {

@@ -21,7 +21,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/auth-context';
 import { useTranslation } from 'react-i18next';
 import { useGenerationConfig } from '@/hooks/useGenerationConfig';
-import { getApiUrl } from '@/lib/api/client';
+import { getApiUrl } from '@primeshot/common';
 import { useOptionalInferenceQueue } from '@/contexts/inference-queue-context';
 import { Loader } from '@primeshot/common/web/ui/loader';
 

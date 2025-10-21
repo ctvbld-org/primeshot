@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogBody, DialogFooter, DialogHeader, DialogTi
 import { Button } from '@primeshot/common/web/ui/button'
 import { Input } from '@primeshot/common/web/ui/input'
 import { Label } from '@primeshot/common/web/ui/label'
-import { getApiUrl } from '@/lib/api/client'
+import { getApiUrl } from '@primeshot/common'
 
 // JSON validation helper
 const validateJson = (jsonString: string): { isValid: boolean; error?: string; parsed?: any } => {

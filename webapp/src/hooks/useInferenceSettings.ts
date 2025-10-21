@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getApiUrl } from '@/lib/api/client'
+import { getApiUrl } from '@primeshot/common'
 
 export interface InferenceSettings {
   qualities: string[]

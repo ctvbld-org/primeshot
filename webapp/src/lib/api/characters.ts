@@ -115,7 +115,7 @@ class CharactersApiClient {
 
   async deleteCharacter(characterId: string, userId: string): Promise<void> {
     // Use server-side cleanup route to delete S3 folder and related records, then soft delete character
-    const { getApiUrl } = await import('../api/client');
+    const { getApiUrl } = await import('@primeshot/common');
     const response = await fetch(getApiUrl('api/cleanup-character'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

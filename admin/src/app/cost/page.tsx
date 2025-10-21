@@ -8,7 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@primeshot/common/web/
 import { Progress } from '@primeshot/common/web/ui/progress'
 import { Skeleton } from '@primeshot/common/web/ui/skeleton'
 import { AlertCircle, TrendingUp, TrendingDown, DollarSign, Database, Upload, Download, Activity } from 'lucide-react'
-import { apiRequest, type CostMetrics, type S3Metrics } from '@/lib/api/client'
+import { apiRequest } from '@primeshot/common'
+import type { CostMetrics, S3Metrics } from '@/types/aws'
 import { Alert, AlertDescription, AlertTitle } from '@primeshot/common/web/ui/alert'
 
 // Simple Line Chart component

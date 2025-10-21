@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
+import { getApiUrl } from '@primeshot/common';
 
 // Create schema factory to use translations
 const createFormSchema = (t: (key: string) => string) => z.object({
@@ -68,7 +69,7 @@ export default function WaitlistForm({ className }: WaitlistFormProps) {
     setSubmitStatus({ type: null, message: '' });
 
     try {
-      const response = await fetch('/api/waitlist', {
+      const response = await fetch(getApiUrl('/api/waitlist'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...data, language: i18n.language }),

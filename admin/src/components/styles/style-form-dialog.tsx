@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
+import { getApiUrl } from '@primeshot/common'
 import {
   Sheet,
   SheetContent,
@@ -398,7 +399,7 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
 
       if (style) {
         // Update (retain S3 images even if removed from this style)
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/api/admin/styles`, {
+        const res = await fetch(getApiUrl('/api/admin/styles'), {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: style.id, ...processedData }),
@@ -409,7 +410,7 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
         }
       } else {
         // Create
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/api/admin/styles`, {
+        const res = await fetch(getApiUrl('/api/admin/styles'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(processedData),

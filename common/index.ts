@@ -26,3 +26,6 @@ export { getStripeEnv } from './lib/stripe/env'
 
 // Pricing utilities
 export * from './lib/pricing'
+
+// API client utilities
+export { getApiUrl, apiRequest } from './lib/api/client'

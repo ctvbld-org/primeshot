@@ -24,7 +24,7 @@ import {
 import Footer from "@primeshot/common/web/Footer";
 import ContentPageHeader from "@/components/ContentPageHeader";
 import { getWebsiteCdnUrl } from "@/lib/utils/cdn";
-import { SubscriptionTier, PricingCategory, transformPricingData } from "@primeshot/common";
+import { SubscriptionTier, PricingCategory, transformPricingData, getApiUrl } from "@primeshot/common";
 
 // Fallback pricing data for error states or loading
 const fallbackPricingData: PricingCategory[] = [
@@ -225,7 +225,7 @@ export default function PricingPage() {
   useEffect(() => {
     async function fetchPricingData() {
       try {
-        const response = await fetch('/api/subscriptions');
+        const response = await fetch(getApiUrl('/api/subscriptions'));
         if (!response.ok) {
           throw new Error('Failed to fetch pricing data');
         }

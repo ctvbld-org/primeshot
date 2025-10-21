@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { InferenceThumbnail } from '@/components/inference/InferenceThumbnail';
 import { useAuth } from '@/contexts/auth-context';
 import { InferenceJob } from '@/hooks/useInferenceQueue';
-import { getApiUrl } from '@/lib/api/client';
+import { getApiUrl } from '@primeshot/common';
 
 interface UseInfiniteInferenceJobsReturn {
   jobs: InferenceJob[];

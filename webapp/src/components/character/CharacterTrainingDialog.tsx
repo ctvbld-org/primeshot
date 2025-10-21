@@ -21,7 +21,7 @@ import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 import { ImageQualityResult } from '@/lib/image-quality'
 import { useCreditCosts, getCharacterTrainingCost, useSubscriptionTiers } from '@/hooks/usePricingConfig'
 import { useCreditBalance } from '@/hooks/useCreditBalance'
-import { getApiUrl } from '@/lib/api/client'
+import { getApiUrl } from '@primeshot/common'
 import styles from './CharacterTrainingDialog.module.css'
 
 // Import step components
