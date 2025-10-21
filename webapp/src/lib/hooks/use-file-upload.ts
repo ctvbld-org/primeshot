@@ -7,7 +7,7 @@ import { uploadFileInChunks } from '@/lib/upload-utils'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 import { analyzeImageQuality, loadModels, analyzeForBodyShot } from '@/lib/image-quality'
 import type { FileWithScore } from '@/lib/types'
-import { getApiUrl } from '@/lib/api/client'
+import { apiRequest } from '@/lib/api/client'
 import type { ClaudeAnalysisResponse, ClaudeImageInput } from '@/lib/types/claude-analysis'
 
 interface UseFileUploadOptions {
@@ -265,17 +265,13 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
         }))
       );
       
-      const response = await fetch('/api/analyze-photo-quality', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ images })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Claude API failed: ${response.status}`);
-      }
-      
-      const analysis: ClaudeAnalysisResponse = await response.json();
+      const analysis = await apiRequest<ClaudeAnalysisResponse>(
+        '/api/analyze-photo-quality',
+        {
+          method: 'POST',
+          body: JSON.stringify({ images })
+        }
+      );
       
       // Validate response has at least as many results as files
       if (analysis.images.length < files.length) {
@@ -383,7 +379,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
       return results;
       
     } catch (error) {
-      console.error('Claude analysis failed, falling back to MediaPipe:', error);
+      console.error('API analysis failed, falling back to MediaPipe:', error);
       
       // Fallback to MediaPipe analysis
       const results: Record<string, ImageQualityResult> = {};
@@ -708,19 +704,9 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     if (existingFile?.id) {
       // This is an existing file, delete it from S3 and database
       try {
-        const response = await fetch(getApiUrl(`/api/user-images?imageId=${existingFile.id}`), {
+        await apiRequest(`/api/user-images?imageId=${existingFile.id}`, {
           method: 'DELETE',
         })
-        
-        if (!response.ok) {
-          const error = await response.json()
-          toast({
-            title: t('errors.deleteFailed'),
-            description: error.error || t('errors.genericError'),
-            variant: 'destructive',
-          })
-          return
-        }
 
         // Call the callback to update existingImages in the parent
         if (existingFile.id) {
