@@ -2,10 +2,10 @@
 
 import React, { useMemo, useCallback, Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import ExploreThumb from '../components/ExploreThumb';
-import { Button } from "@/components/ui/button";
-import Footer from "@/app/components/sections/Footer";
-import ContentPageHeader from '../components/ContentPageHeader';
+import ExploreThumb from '@/components/ExploreThumb';
+import { Button } from "@primeshot/common/web/ui/button";
+import Footer from "@primeshot/common/web/Footer";
+import ContentPageHeader from '@/components/ContentPageHeader';
 import { exploreData, ExploreItem, styleFilters as styleFilterData } from '../data/exploreData';
 
 // Dynamic filter generation from data
