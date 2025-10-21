@@ -1,8 +1,10 @@
 // Types
+export type AspectRatio = '1:1' | '2:3' | '3:2' | '9:16';
+
 export interface ExploreItem {
   id: string;
   image: string;
-  aspectRatio: string;
+  aspectRatio: AspectRatio;
   resolution: string;
   model: string;
   prompt: string;
@@ -55,7 +57,7 @@ export const exploreData: ExploreItem[] = [
   {
     id: "1",
     image: "/images/explore/Golden-Noir-01.png",
-    aspectRatio: "3:4",
+    aspectRatio: "2:3",
     resolution: "1024x1365",
     model: "Professional",
     prompt: "Professional corporate headshot with modern office background",
@@ -64,7 +66,7 @@ export const exploreData: ExploreItem[] = [
   {
     id: "2",
     image: "/images/explore/Golden-Noir-01.png",
-    aspectRatio: "3:4",
+    aspectRatio: "2:3",
     resolution: "1024x1365",
     model: "Creative",
     prompt: "Artistic portrait with dramatic lighting and creative composition",
@@ -73,7 +75,7 @@ export const exploreData: ExploreItem[] = [
   {
     id: "3",
     image: "/images/explore/Golden-Noir-01.png",
-    aspectRatio: "3:4",
+    aspectRatio: "2:3",
     resolution: "1024x1365",
     model: "Casual",
     prompt: "Relaxed outdoor portrait with natural lighting",
@@ -82,7 +84,7 @@ export const exploreData: ExploreItem[] = [
   {
     id: "4",
     image: "/images/explore/Golden-Noir-01.png",
-    aspectRatio: "3:4",
+    aspectRatio: "9:16",
     resolution: "1024x1365",
     model: "Cinematic",
     prompt: "Cinematic portrait with moody atmosphere and film-inspired color grading",
@@ -91,7 +93,7 @@ export const exploreData: ExploreItem[] = [
   {
     id: "5",
     image: "/images/explore/Golden-Noir-01.png",
-    aspectRatio: "3:4",
+    aspectRatio: "2:3",
     resolution: "1024x1365",
     model: "Fashion",
     prompt: "High-fashion editorial portrait with striking pose and elegant styling",
@@ -100,7 +102,7 @@ export const exploreData: ExploreItem[] = [
   {
     id: "6",
     image: "/images/explore/Golden-Noir-01.png",
-    aspectRatio: "3:4",
+    aspectRatio: "2:3",
     resolution: "1024x1365",
     model: "Vintage",
     prompt: "Classic vintage portrait with timeless photography aesthetics",
@@ -109,7 +111,7 @@ export const exploreData: ExploreItem[] = [
   {
     id: "7",
     image: "/images/explore/Golden-Noir-01.png",
-    aspectRatio: "3:4",
+    aspectRatio: "2:3",
     resolution: "1024x1365",
     model: "Professional",
     prompt: "Corporate headshot with minimalist background and professional attire",
@@ -127,7 +129,7 @@ export const exploreData: ExploreItem[] = [
   {
     id: "9",
     image: "/images/explore/Golden-Noir-01.png",
-    aspectRatio: "3:4",
+    aspectRatio: "3:2",
     resolution: "1024x1365",
     model: "Casual",
     prompt: "Approachable lifestyle portrait with warm, natural tones",
@@ -136,7 +138,7 @@ export const exploreData: ExploreItem[] = [
   {
     id: "10",
     image: "/images/explore/Golden-Noir-01.png",
-    aspectRatio: "3:4",
+    aspectRatio: "9:16",
     resolution: "1024x1365",
     model: "Cinematic",
     prompt: "Film noir inspired portrait with dramatic shadows and contrast",
@@ -145,7 +147,7 @@ export const exploreData: ExploreItem[] = [
   {
     id: "11",
     image: "/images/explore/Golden-Noir-01.png",
-    aspectRatio: "3:4",
+    aspectRatio: "2:3",
     resolution: "1024x1365",
     model: "Fashion",
     prompt: "Contemporary fashion portrait with bold styling and modern aesthetics",
@@ -154,7 +156,7 @@ export const exploreData: ExploreItem[] = [
   {
     id: "12",
     image: "/images/explore/Golden-Noir-01.png",
-    aspectRatio: "3:4",
+    aspectRatio: "2:3",
     resolution: "1024x1365",
     model: "Vintage",
     prompt: "Retro-inspired portrait with period-appropriate styling and color treatment",
