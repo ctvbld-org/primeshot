@@ -6,7 +6,7 @@ export function createConfigApi(supabase) {
         const { data, error } = await supabase
             .from('styles')
             .select('*')
-            .order('name');
+            .order('created_at', { ascending: false });
         if (error)
             throw error;
         return data;

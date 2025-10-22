@@ -9,7 +9,7 @@ export function createConfigApi(supabase: SupabaseClient<any>) {
     const { data, error } = await supabase
       .from('styles')
       .select('*')
-      .order('name');
+      .order('created_at', { ascending: false });
     if (error) throw error;
     return data as Style[];
   }
