@@ -57,8 +57,8 @@ interface WithFaceLandmarks<T> {
 }
 
 // Constants for quality checks
-const MIN_WIDTH = 600;  // Reduced from 1000 to 600 for hard rejection
-const MIN_HEIGHT = 600; // Reduced from 1000 to 600 for hard rejection
+const MIN_WIDTH = 768;  // Minimum resolution for acceptance
+const MIN_HEIGHT = 768; // Minimum resolution for acceptance
 const IDEAL_WIDTH = 1000;  // Keep 1000 as the ideal resolution for scoring
 const IDEAL_HEIGHT = 1000; // Keep 1000 as the ideal resolution for scoring
 const MIN_BRIGHTNESS = 0.3;
@@ -259,26 +259,53 @@ export interface ImageQualityResult {
   eyeDetectionSkipped: boolean;
 }
 
-// Quick body shot detection for pre-Claude filtering
+// Quick body shot detection and basic validation for pre-Claude filtering
 export async function analyzeForBodyShot(file: File): Promise<{
   hasBody: boolean;
   width: number;
   height: number;
+  faceCount: number;
+  isAcceptable: boolean;
+  rejectionReason?: string;
+  i18nRejectionKey?: string;
+  i18nRejectionParams?: Record<string, any>;
 }> {
   if (isServer) {
-    return { hasBody: false, width: 0, height: 0 };
+    return { hasBody: false, width: 0, height: 0, faceCount: 0, isAcceptable: true };
   }
   
   try {
-    
     const modelsReady = await loadModels();
     if (!modelsReady) {
-      return { hasBody: false, width: 0, height: 0 };
+      return { 
+        hasBody: false, 
+        width: 0, 
+        height: 0, 
+        faceCount: 0, 
+        isAcceptable: false,
+        rejectionReason: 'Failed to load face detection models',
+        i18nRejectionKey: 'quality.issues.system.modelsNotLoaded'
+      };
     }
     
     const img = await createImageElement(file);
     const width = img.width;
     const height = img.height;
+    
+    // Check 1: Minimum resolution (768px)
+    if (width < MIN_WIDTH || height < MIN_HEIGHT) {
+      URL.revokeObjectURL(img.src);
+      return {
+        hasBody: false,
+        width,
+        height,
+        faceCount: 0,
+        isAcceptable: false,
+        rejectionReason: `Image resolution too low (${width}x${height}px). Minimum required: ${MIN_WIDTH}x${MIN_HEIGHT}px`,
+        i18nRejectionKey: 'quality.issues.image.lowResolution',
+        i18nRejectionParams: { minWidth: MIN_WIDTH, minHeight: MIN_HEIGHT, currentWidth: width, currentHeight: height }
+      };
+    }
     
     // Use MediaPipe helper for face detection
     const { detectFaces } = await import('./mediapipe-face-detection');
@@ -286,13 +313,51 @@ export async function analyzeForBodyShot(file: File): Promise<{
     
     URL.revokeObjectURL(img.src);
     
+    // Check 2: Face count (must be exactly 1)
+    if (faceResult.faceCount === 0) {
+      return {
+        hasBody: faceResult.hasBody,
+        width,
+        height,
+        faceCount: faceResult.faceCount,
+        isAcceptable: false,
+        rejectionReason: 'No face detected in the image',
+        i18nRejectionKey: 'quality.issues.face.none'
+      };
+    }
+    
+    if (faceResult.faceCount > 1) {
+      return {
+        hasBody: faceResult.hasBody,
+        width,
+        height,
+        faceCount: faceResult.faceCount,
+        isAcceptable: false,
+        rejectionReason: `Multiple faces detected (${faceResult.faceCount}). Only one face per image is allowed`,
+        i18nRejectionKey: 'quality.issues.face.multiple',
+        i18nRejectionParams: { count: faceResult.faceCount }
+      };
+    }
+    
+    // All checks passed
     return {
       hasBody: faceResult.hasBody,
       width,
-      height
+      height,
+      faceCount: faceResult.faceCount,
+      isAcceptable: true
     };
   } catch (error) {
-    return { hasBody: false, width: 0, height: 0 };
+    console.error('Error in analyzeForBodyShot:', error);
+    return { 
+      hasBody: false, 
+      width: 0, 
+      height: 0, 
+      faceCount: 0, 
+      isAcceptable: false,
+      rejectionReason: error instanceof Error ? error.message : 'Unknown error during analysis',
+      i18nRejectionKey: 'quality.issues.system.analysisFailed'
+    };
   }
 }
 

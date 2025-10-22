@@ -27,6 +27,7 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
   const { t } = useTranslation('character')
   const { user: authUser } = useAuth()
   const [petMode, setPetMode] = useState(false)
+  const [bodyRequirementBypassed, setBodyRequirementBypassed] = useState(false)
   
   // Admin users have different limits
   const isAdmin = authUser?.admin
@@ -57,7 +58,8 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
     currentFileIndex,
     canBypassQuality,
     rejectedCount,
-    bypassQualityChecks
+    bypassQualityChecks,
+    triggerAnalysis
   } = useFileUpload({
     existingImages: existingImagesWithScore,
     onRemoveExistingImage: () => {},
@@ -103,9 +105,16 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
     if (fsIndex !== -1) removeFile(fsIndex)
   }, [selectedFiles, removeFile])
 
+  // Handler for bypassing body shot requirement
+  const handleBypassBodyShotRequirement = useCallback(async () => {
+    setBodyRequirementBypassed(true)
+    // Trigger Claude analysis now that body shot requirement is bypassed
+    await triggerAnalysis()
+  }, [triggerAnalysis])
+
   // Body shot validation
   const bodyShotValidation = useMemo(() => {
-    if (petMode) {
+    if (petMode || bodyRequirementBypassed) {
       return { isValid: true, errors: [] as string[] };
     }
     // Use only current quality results since component state is preserved
@@ -117,7 +126,7 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
       isValid: validation.isValid,
       errors: validation.errors
     };
-  }, [acceptedFiles, qualityResults, petMode])
+  }, [acceptedFiles, qualityResults, petMode, bodyRequirementBypassed])
 
   // Update parent component when files change (trigger on selectedFiles too)
   React.useEffect(() => {
@@ -192,7 +201,7 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
                 isValid: bodyShotValidation.isValid,
                 errors: bodyShotValidation.errors,
                 // Build i18nErrors again so FileUploader can localize
-                i18nErrors: (!bodyShotValidation.isValid ? ((): any[] => {
+                i18nErrors: (!bodyShotValidation.isValid && !bodyRequirementBypassed ? ((): any[] => {
                   const acceptedQualityResults = Object.fromEntries(
                     acceptedFiles.map(file => [file.name, qualityResults[file.name]])
                   )
@@ -200,6 +209,8 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
                   return validation.i18nErrors as any
                 })() : [])
               }}
+              onBypassBodyShotRequirement={handleBypassBodyShotRequirement}
+              bodyRequirementBypassed={bodyRequirementBypassed}
             />
           </div>
 

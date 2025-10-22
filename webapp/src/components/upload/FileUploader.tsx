@@ -10,6 +10,7 @@ import { Loader } from '@primeshot/common/web/ui/loader'
 import { toast } from '@primeshot/common/web/ui/use-toast'
 import type { FileWithScore } from '@/lib/types'
 import { Icon } from '@primeshot/common/web/Icon'
+import { Button } from '@primeshot/common/web/ui/button'
 
 export interface FileUploaderProps {
   handleNewFiles: (files: File[]) => File[]
@@ -29,6 +30,8 @@ export interface FileUploaderProps {
   uploadedFiles?: string[]
   isTransitioningToReview?: boolean
   bodyShotValidation?: { isValid: boolean; errors: string[]; i18nErrors?: { key: string; params?: Record<string, any> }[] }
+  onBypassBodyShotRequirement?: () => void
+  bodyRequirementBypassed?: boolean
 }
 
 interface FileState {
@@ -59,7 +62,9 @@ export const FileUploader = React.forwardRef<FileUploaderHandle, FileUploaderPro
   currentUploadingIndex = null,
   uploadedFiles = [],
   isTransitioningToReview = false,
-  bodyShotValidation
+  bodyShotValidation,
+  onBypassBodyShotRequirement,
+  bodyRequirementBypassed = false
 }: FileUploaderProps, ref) {
   const { t } = useTranslation('character')
   const [isDragging, setIsDragging] = useState(false)
@@ -320,6 +325,26 @@ export const FileUploader = React.forwardRef<FileUploaderHandle, FileUploaderPro
                   : t('uploader.supportedFormats')
               }
             </p>
+            {showBodyShotError && !bodyRequirementBypassed && onBypassBodyShotRequirement && (
+              <div className={styles.bypassSection}>
+                <p className={styles.bypassExplanation}>
+                  {t('uploadStep.bodyShotBypassExplanation')}
+                </p>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={async (e) => {
+                    e.stopPropagation()
+                    await onBypassBodyShotRequirement()
+                  }}
+                  disabled={isAnalyzing}
+                  loading={isAnalyzing}
+                >
+                  {t('uploadStep.bodyShotBypassButton')}
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
