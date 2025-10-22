@@ -31,7 +31,13 @@
   },
   "quality": {
     "rejected": {
-      "title": "{{rejected}} van de {{total}} foto's voldoen niet aan de eisen"
+      "oops": "Oeps!",
+      "title": "{{rejected}} van de {{total}} foto's zijn afgekeurd",
+      "description": "Je kunt andere afbeeldingen uploaden voor de perfecte dataset, of doorgaan met deze foto's. Dit kan echter leiden tot:",
+      "lessVariety": "Minder variatie in de gegenereerde foto's",
+      "lowerQuality": "Portretten van lagere kwaliteit",
+      "notLookLike": "Foto's die mogelijk niet op je lijken in alle stijlen",
+      "button": "Toch doorgaan"
     }
   }
 }

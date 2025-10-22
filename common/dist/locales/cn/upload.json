@@ -30,7 +30,13 @@
     },
     "quality": {
         "rejected": {
-            "title": "{{total}}张照片中有{{rejected}}张未达标准"
+            "oops": "哎呀！",
+            "title": "{{total}}张照片中有{{rejected}}张被拒绝",
+            "description": "您可以尝试上传其他图片以获得完美的数据集，或者继续使用这些照片，但这可能导致：",
+            "lessVariety": "生成照片的多样性减少",
+            "lowerQuality": "肖像质量较低",
+            "notLookLike": "某些风格的照片可能不像您",
+            "button": "仍然继续"
         }
     }
 }

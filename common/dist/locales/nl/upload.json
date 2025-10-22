@@ -1,37 +1,43 @@
 {
-  "title": "Foto's uploaden",
-  "description": "Upload je foto's om te beginnen",
-  "requirements": {
-    "title": "Foto-eisen",
-    "description": "Zorg ervoor dat je foto's aan deze eisen voldoen"
-  },
-  "buttons": {
-    "upload": "Uploaden",
-    "continue": "Doorgaan",
-    "retry": "Opnieuw proberen"
-  },
-  "errors": {
-    "invalidFile": "Ongeldig bestandstype",
-    "fileTooLarge": "Bestand te groot",
-    "uploadFailed": "Upload mislukt",
-    "invalidFileType": "Niet-ondersteund type ({{types}})",
-    "fileSizeExceeded": "Bestand te groot (max. {{size}})",
-    "duplicateFile": "Dubbel bestand",
-    "uploadFailedCount_one": "1 bestand kon niet worden toegevoegd",
-    "uploadFailedCount_other": "{{count}} bestanden konden niet worden toegevoegd",
-    "someImagesSkipped": "Some Images Skipped",
-    "skippedMessage": "Only {{count}} more photos could be added. The following files were skipped: {{files}}",
-    "deleteFailed": "Delete Failed",
-    "genericError": "An error occurred"
-  },
-  "progress": {
-    "uploading": "Uploaden...",
-    "processing": "Verwerken...",
-    "complete": "Voltooid"
-  },
-  "quality": {
-    "rejected": {
-      "title": "{{rejected}} van de {{total}} foto's voldoen niet aan de eisen"
+    "title": "Foto's uploaden",
+    "description": "Upload je foto's om te beginnen",
+    "requirements": {
+        "title": "Foto-eisen",
+        "description": "Zorg ervoor dat je foto's aan deze eisen voldoen"
+    },
+    "buttons": {
+        "upload": "Uploaden",
+        "continue": "Doorgaan",
+        "retry": "Opnieuw proberen"
+    },
+    "errors": {
+        "invalidFile": "Ongeldig bestandstype",
+        "fileTooLarge": "Bestand te groot",
+        "uploadFailed": "Upload mislukt",
+        "invalidFileType": "Niet-ondersteund type ({{types}})",
+        "fileSizeExceeded": "Bestand te groot (max. {{size}})",
+        "duplicateFile": "Dubbel bestand",
+        "uploadFailedCount_one": "1 bestand kon niet worden toegevoegd",
+        "uploadFailedCount_other": "{{count}} bestanden konden niet worden toegevoegd",
+        "someImagesSkipped": "Some Images Skipped",
+        "skippedMessage": "Only {{count}} more photos could be added. The following files were skipped: {{files}}",
+        "deleteFailed": "Delete Failed",
+        "genericError": "An error occurred"
+    },
+    "progress": {
+        "uploading": "Uploaden...",
+        "processing": "Verwerken...",
+        "complete": "Voltooid"
+    },
+    "quality": {
+        "rejected": {
+            "oops": "Oeps!",
+            "title": "{{rejected}} van de {{total}} foto's zijn afgekeurd",
+            "description": "Je kunt andere afbeeldingen uploaden voor de perfecte dataset, of doorgaan met deze foto's. Dit kan echter leiden tot:",
+            "lessVariety": "Minder variatie in de gegenereerde foto's",
+            "lowerQuality": "Portretten van lagere kwaliteit",
+            "notLookLike": "Foto's die mogelijk niet op je lijken in alle stijlen",
+            "button": "Toch doorgaan"
+        }
     }
-  }
 }

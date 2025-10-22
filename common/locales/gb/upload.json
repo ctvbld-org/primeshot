@@ -31,7 +31,13 @@
   },
   "quality": {
     "rejected": {
-      "title": "{{rejected}} of {{total}} photos didn't make the cut"
+      "oops": "Oops!",
+      "title": "{{rejected}} of {{total}} photos were rejected",
+      "description": "You can try to upload other images to get the perfect dataset or you can continue with those images but this may result in:",
+      "lessVariety": "Less variety in generated shots",
+      "lowerQuality": "Lower quality portraits",
+      "notLookLike": "Photos may not look like you in all styles",
+      "button": "Continue anyway"
     }
   }
 }

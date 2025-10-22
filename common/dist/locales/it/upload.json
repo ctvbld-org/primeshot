@@ -1,37 +1,43 @@
 {
-  "title": "Carica foto",
-  "description": "Carica le tue foto per iniziare",
-  "requirements": {
-    "title": "Requisiti delle foto",
-    "description": "Assicurati che le tue foto soddisfino questi requisiti"
-  },
-  "buttons": {
-    "upload": "Carica",
-    "continue": "Continua",
-    "retry": "Riprova"
-  },
-  "errors": {
-    "invalidFile": "Tipo di file non valido",
-    "fileTooLarge": "File troppo grande",
-    "uploadFailed": "Caricamento fallito",
-    "invalidFileType": "Tipo non supportato ({{types}})",
-    "fileSizeExceeded": "File troppo grande (max {{size}})",
-    "duplicateFile": "File duplicato",
-    "uploadFailedCount_one": "Impossibile aggiungere 1 file",
-    "uploadFailedCount_other": "Impossibile aggiungere {{count}} file",
-    "someImagesSkipped": "Some Images Skipped",
-    "skippedMessage": "Only {{count}} more photos could be added. The following files were skipped: {{files}}",
-    "deleteFailed": "Delete Failed",
-    "genericError": "An error occurred"
-  },
-  "progress": {
-    "uploading": "Caricamento...",
-    "processing": "Elaborazione...",
-    "complete": "Completato"
-  },
-  "quality": {
-    "rejected": {
-      "title": "{{rejected}} foto su {{total}} non soddisfano i requisiti"
+    "title": "Carica foto",
+    "description": "Carica le tue foto per iniziare",
+    "requirements": {
+        "title": "Requisiti delle foto",
+        "description": "Assicurati che le tue foto soddisfino questi requisiti"
+    },
+    "buttons": {
+        "upload": "Carica",
+        "continue": "Continua",
+        "retry": "Riprova"
+    },
+    "errors": {
+        "invalidFile": "Tipo di file non valido",
+        "fileTooLarge": "File troppo grande",
+        "uploadFailed": "Caricamento fallito",
+        "invalidFileType": "Tipo non supportato ({{types}})",
+        "fileSizeExceeded": "File troppo grande (max {{size}})",
+        "duplicateFile": "File duplicato",
+        "uploadFailedCount_one": "Impossibile aggiungere 1 file",
+        "uploadFailedCount_other": "Impossibile aggiungere {{count}} file",
+        "someImagesSkipped": "Some Images Skipped",
+        "skippedMessage": "Only {{count}} more photos could be added. The following files were skipped: {{files}}",
+        "deleteFailed": "Delete Failed",
+        "genericError": "An error occurred"
+    },
+    "progress": {
+        "uploading": "Caricamento...",
+        "processing": "Elaborazione...",
+        "complete": "Completato"
+    },
+    "quality": {
+        "rejected": {
+            "oops": "Ops!",
+            "title": "{{rejected}} foto su {{total}} sono state rifiutate",
+            "description": "Puoi provare a caricare altre immagini per ottenere un set perfetto, oppure continuare con queste foto, ma questo potrebbe comportare:",
+            "lessVariety": "Meno varietà nelle foto generate",
+            "lowerQuality": "Ritratti di qualità inferiore",
+            "notLookLike": "Foto che potrebbero non assomigliarti in tutti gli stili",
+            "button": "Continua comunque"
+        }
     }
-  }
 }

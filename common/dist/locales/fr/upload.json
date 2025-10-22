@@ -1,37 +1,43 @@
 {
-  "title": "Télécharger des photos",
-  "description": "Téléchargez vos photos pour commencer",
-  "requirements": {
-    "title": "Exigences des photos",
-    "description": "Veuillez vous assurer que vos photos répondent à ces exigences"
-  },
-  "buttons": {
-    "upload": "Télécharger",
-    "continue": "Continuer",
-    "retry": "Réessayer"
-  },
-  "errors": {
-    "invalidFile": "Type de fichier invalide",
-    "fileTooLarge": "Fichier trop volumineux",
-    "uploadFailed": "Échec du téléchargement",
-    "invalidFileType": "Type non pris en charge ({{types}})",
-    "fileSizeExceeded": "Fichier trop lourd (max {{size}})",
-    "duplicateFile": "Fichier en double",
-    "uploadFailedCount_one": "1 fichier n'a pas pu être ajouté",
-    "uploadFailedCount_other": "{{count}} fichiers n'ont pas pu être ajoutés",
-    "someImagesSkipped": "Some Images Skipped",
-    "skippedMessage": "Only {{count}} more photos could be added. The following files were skipped: {{files}}",
-    "deleteFailed": "Delete Failed",
-    "genericError": "An error occurred"
-  },
-  "progress": {
-    "uploading": "Téléchargement en cours...",
-    "processing": "Traitement en cours...",
-    "complete": "Terminé"
-  },
-  "quality": {
-    "rejected": {
-      "title": "{{rejected}} photos sur {{total}} ne répondent pas aux critères"
+    "title": "Télécharger des photos",
+    "description": "Téléchargez vos photos pour commencer",
+    "requirements": {
+        "title": "Exigences des photos",
+        "description": "Veuillez vous assurer que vos photos répondent à ces exigences"
+    },
+    "buttons": {
+        "upload": "Télécharger",
+        "continue": "Continuer",
+        "retry": "Réessayer"
+    },
+    "errors": {
+        "invalidFile": "Type de fichier invalide",
+        "fileTooLarge": "Fichier trop volumineux",
+        "uploadFailed": "Échec du téléchargement",
+        "invalidFileType": "Type non pris en charge ({{types}})",
+        "fileSizeExceeded": "Fichier trop lourd (max {{size}})",
+        "duplicateFile": "Fichier en double",
+        "uploadFailedCount_one": "1 fichier n'a pas pu être ajouté",
+        "uploadFailedCount_other": "{{count}} fichiers n'ont pas pu être ajoutés",
+        "someImagesSkipped": "Some Images Skipped",
+        "skippedMessage": "Only {{count}} more photos could be added. The following files were skipped: {{files}}",
+        "deleteFailed": "Delete Failed",
+        "genericError": "An error occurred"
+    },
+    "progress": {
+        "uploading": "Téléchargement en cours...",
+        "processing": "Traitement en cours...",
+        "complete": "Terminé"
+    },
+    "quality": {
+        "rejected": {
+            "oops": "Oups !",
+            "title": "{{rejected}} photos sur {{total}} ont été refusées",
+            "description": "Vous pouvez essayer d'importer d'autres images pour obtenir un ensemble parfait, ou continuer avec ces photos, mais cela peut entraîner :",
+            "lessVariety": "Moins de variété dans les résultats générés",
+            "lowerQuality": "Des portraits de qualité inférieure",
+            "notLookLike": "Des photos qui ne vous ressemblent pas dans tous les styles",
+            "button": "Continuer quand même"
+        }
     }
-  }
 }

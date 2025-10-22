@@ -31,7 +31,13 @@
   },
   "quality": {
     "rejected": {
-      "title": "{{rejected}} de {{total}} fotos no pasaron el corte"
+      "oops": "¡Ups!",
+      "title": "{{rejected}} de {{total}} fotos fueron rechazadas",
+      "description": "Puedes intentar subir otras imágenes para conseguir el conjunto perfecto, o continuar con estas fotos, pero esto puede resultar en:",
+      "lessVariety": "Menos variedad en las fotos generadas",
+      "lowerQuality": "Retratos de menor calidad",
+      "notLookLike": "Fotos que pueden no parecerse a ti en todos los estilos",
+      "button": "Continuar de todos modos"
     }
   }
 }

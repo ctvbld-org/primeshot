@@ -1,36 +1,42 @@
 {
-  "title": "写真をアップロード",
-  "description": "写真をアップロードして開始",
-  "requirements": {
-    "title": "写真の要件",
-    "description": "写真がこれらの要件を満たしていることを確認してください"
-  },
-  "buttons": {
-    "upload": "アップロード",
-    "continue": "続行",
-    "retry": "再試行"
-  },
-  "errors": {
-    "invalidFile": "無効なファイル形式",
-    "fileTooLarge": "ファイルが大きすぎます",
-    "uploadFailed": "アップロードに失敗しました",
-    "invalidFileType": "未対応のファイル形式（{{types}}）",
-    "fileSizeExceeded": "ファイルが大きすぎます（最大 {{size}}）",
-    "duplicateFile": "重複したファイル",
-    "uploadFailedCount_other": "{{count}} 件のファイルを追加できませんでした",
-    "someImagesSkipped": "Some Images Skipped",
-    "skippedMessage": "Only {{count}} more photos could be added. The following files were skipped: {{files}}",
-    "deleteFailed": "Delete Failed",
-    "genericError": "An error occurred"
-  },
-  "progress": {
-    "uploading": "アップロード中...",
-    "processing": "処理中...",
-    "complete": "完了"
-  },
-  "quality": {
-    "rejected": {
-      "title": "{{total}}枚中{{rejected}}枚の写真が基準を満たしていません"
+    "title": "写真をアップロード",
+    "description": "写真をアップロードして開始",
+    "requirements": {
+        "title": "写真の要件",
+        "description": "写真がこれらの要件を満たしていることを確認してください"
+    },
+    "buttons": {
+        "upload": "アップロード",
+        "continue": "続行",
+        "retry": "再試行"
+    },
+    "errors": {
+        "invalidFile": "無効なファイル形式",
+        "fileTooLarge": "ファイルが大きすぎます",
+        "uploadFailed": "アップロードに失敗しました",
+        "invalidFileType": "未対応のファイル形式（{{types}}）",
+        "fileSizeExceeded": "ファイルが大きすぎます（最大 {{size}}）",
+        "duplicateFile": "重複したファイル",
+        "uploadFailedCount_other": "{{count}} 件のファイルを追加できませんでした",
+        "someImagesSkipped": "Some Images Skipped",
+        "skippedMessage": "Only {{count}} more photos could be added. The following files were skipped: {{files}}",
+        "deleteFailed": "Delete Failed",
+        "genericError": "An error occurred"
+    },
+    "progress": {
+        "uploading": "アップロード中...",
+        "processing": "処理中...",
+        "complete": "完了"
+    },
+    "quality": {
+        "rejected": {
+            "oops": "あらら！",
+            "title": "{{total}}枚中{{rejected}}枚の写真が却下されました",
+            "description": "完璧なデータセットを得るために他の画像をアップロードするか、これらの写真で続行できますが、以下の可能性があります：",
+            "lessVariety": "生成される写真のバリエーションが少なくなる",
+            "lowerQuality": "ポートレートの品質が低下する",
+            "notLookLike": "一部のスタイルで似ていない写真になる可能性がある",
+            "button": "このまま続ける"
+        }
     }
-  }
 }
