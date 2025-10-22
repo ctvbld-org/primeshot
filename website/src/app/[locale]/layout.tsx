@@ -7,6 +7,7 @@ import { GoogleAnalytics } from '@next/third-parties/google'
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { getWebsiteCdnUrl } from '@/lib/utils/cdn'
+import { StyleProviders } from '@/contexts/StyleProviders'
 
 const SUPPORTED_LOCALES = ['en','cn','es','fr','pt','de','jp','it','nl'] as const;
 
@@ -192,7 +193,9 @@ export default async function LocaleLayout({ children, params }: { children: Rea
       <I18nProvider>
         <AuthProvider>
           <LanguageProvider>
-            {children}
+            <StyleProviders>
+              {children}
+            </StyleProviders>
           </LanguageProvider>
         </AuthProvider>
       </I18nProvider>

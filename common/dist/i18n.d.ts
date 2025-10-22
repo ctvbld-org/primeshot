@@ -1057,7 +1057,13 @@ export declare const resources: {
             };
             quality: {
                 rejected: {
+                    oops: string;
                     title: string;
+                    description: string;
+                    lessVariety: string;
+                    lowerQuality: string;
+                    notLookLike: string;
+                    button: string;
                 };
             };
         };
@@ -2191,7 +2197,13 @@ export declare const resources: {
             };
             quality: {
                 rejected: {
+                    oops: string;
                     title: string;
+                    description: string;
+                    lessVariety: string;
+                    lowerQuality: string;
+                    notLookLike: string;
+                    button: string;
                 };
             };
         };
@@ -3319,7 +3331,13 @@ export declare const resources: {
             };
             quality: {
                 rejected: {
+                    oops: string;
                     title: string;
+                    description: string;
+                    lessVariety: string;
+                    lowerQuality: string;
+                    notLookLike: string;
+                    button: string;
                 };
             };
         };
@@ -4434,7 +4452,13 @@ export declare const resources: {
             };
             quality: {
                 rejected: {
+                    oops: string;
                     title: string;
+                    description: string;
+                    lessVariety: string;
+                    lowerQuality: string;
+                    notLookLike: string;
+                    button: string;
                 };
             };
         };
@@ -5549,7 +5573,13 @@ export declare const resources: {
             };
             quality: {
                 rejected: {
+                    oops: string;
                     title: string;
+                    description: string;
+                    lessVariety: string;
+                    lowerQuality: string;
+                    notLookLike: string;
+                    button: string;
                 };
             };
         };
@@ -6664,7 +6694,13 @@ export declare const resources: {
             };
             quality: {
                 rejected: {
+                    oops: string;
                     title: string;
+                    description: string;
+                    lessVariety: string;
+                    lowerQuality: string;
+                    notLookLike: string;
+                    button: string;
                 };
             };
         };
@@ -7779,7 +7815,13 @@ export declare const resources: {
             };
             quality: {
                 rejected: {
+                    oops: string;
                     title: string;
+                    description: string;
+                    lessVariety: string;
+                    lowerQuality: string;
+                    notLookLike: string;
+                    button: string;
                 };
             };
         };
@@ -8894,7 +8936,13 @@ export declare const resources: {
             };
             quality: {
                 rejected: {
+                    oops: string;
                     title: string;
+                    description: string;
+                    lessVariety: string;
+                    lowerQuality: string;
+                    notLookLike: string;
+                    button: string;
                 };
             };
         };
@@ -10009,7 +10057,13 @@ export declare const resources: {
             };
             quality: {
                 rejected: {
+                    oops: string;
                     title: string;
+                    description: string;
+                    lessVariety: string;
+                    lowerQuality: string;
+                    notLookLike: string;
+                    button: string;
                 };
             };
         };
@@ -11124,7 +11178,13 @@ export declare const resources: {
             };
             quality: {
                 rejected: {
+                    oops: string;
                     title: string;
+                    description: string;
+                    lessVariety: string;
+                    lowerQuality: string;
+                    notLookLike: string;
+                    button: string;
                 };
             };
         };

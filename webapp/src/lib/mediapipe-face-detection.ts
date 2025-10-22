@@ -283,22 +283,6 @@ export async function detectFaces(
             isBodyShot = false;
             bodyDetectionMethod = 'pose-portrait';
           }
-          
-          console.log('[Bodyshot Detection - Pose]', {
-            method: bodyDetectionMethod,
-            elbowsVisible,
-            hipsVisible,
-            kneesVisible,
-            isBodyShot,
-            visibilityScores: {
-              leftElbow: leftElbow?.visibility?.toFixed(2),
-              rightElbow: rightElbow?.visibility?.toFixed(2),
-              leftHip: leftHip?.visibility?.toFixed(2),
-              rightHip: rightHip?.visibility?.toFixed(2),
-              leftKnee: leftKnee?.visibility?.toFixed(2),
-              rightKnee: rightKnee?.visibility?.toFixed(2)
-            }
-          });
         } else {
           // No pose detected, fallback to face size method
           bodyDetectionMethod = 'fallback-face-size';

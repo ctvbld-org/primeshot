@@ -2377,6 +2377,59 @@ Detected changes in:
 - webapp/src/components/inference/InferenceJobGroup.tsx
 - webapp/src/components/inference/InferenceThumbnail.module.css
 - webapp/src/components/inference/InferenceThumbnail.tsx
+
+
+**Auto-update 2025-10-21**:
+Detected changes in:
+- webapp/src/app/api/analyze-photo-quality/route.ts
+- webapp/src/components/character/training/UploadPhotosStep.tsx
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/generate/useCreateCharacter.tsx
+- webapp/src/components/inference/InferenceThumbnail.module.css
+- webapp/src/components/pricing/SubscriptionDialogContent.module.css
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/upload/FileUploader.module.css
+- webapp/src/components/upload/FileUploader.tsx
+- webapp/src/components/upload/ImageQualityScore.module.css
+- webapp/src/components/upload/ImageQualityScore.tsx
+- webapp/src/components/upload/ImageTooltip.module.css
+- webapp/src/components/upload/ImageTooltip.tsx
+- webapp/src/components/upload/UploadFooter.module.css
+- webapp/src/components/upload/UploadFooter.tsx
+- webapp/src/lib/hooks/use-file-upload.ts
+- webapp/src/lib/image-quality.ts
+- webapp/src/lib/mediapipe-face-detection.ts
+- webapp/src/lib/types.ts
+- webapp/src/lib/types/claude-analysis.ts
+- website/src/app/[locale]/data/exploreData.ts
+- website/src/app/[locale]/explore/page.tsx
+
+
+**Auto-update 2025-10-21**:
+Detected changes in:
+- admin/src/app/cost/page.tsx
+- admin/src/app/media/page.tsx
+- admin/src/components/media/TreeNav.tsx
+- admin/src/components/styles/style-form-dialog.tsx
+- admin/src/components/styles/wardrobe-form-dialog.tsx
+- admin/src/lib/api.ts
+- admin/src/lib/api/client.ts
+- admin/src/lib/upload.ts
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/TrainingProgressStep.tsx
+- webapp/src/components/generate/AdminInferenceOptionsDialog.tsx
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/inference/InferenceImageViewerDialog.tsx
+- webapp/src/components/pricing/CreditPackDialogContent.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/upload/UploadFooter.tsx
+- webapp/src/contexts/credit-balance-context.tsx
+- webapp/src/lib/api/characters.ts
+- webapp/src/lib/api/inference-images.ts
+- webapp/src/lib/hooks/use-file-upload.ts
+- webapp/src/lib/services/creditService.ts
+- website/src/app/[locale]/pricing/page.tsx
+- website/src/components/WaitlistForm.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:
