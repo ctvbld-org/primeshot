@@ -56,9 +56,27 @@ interface GenerateBarProps {
   onActivePanelChange?: (panel: PanelKey) => void
   mode?: 'full' | 'demo'
   className?: string
+  // Custom click handlers for demo mode
+  onStyleClick?: (styleId: string) => void
+  onSceneClick?: (sceneValue: string) => void
+  onWardrobeClick?: (wardrobeValue: string) => void
+  onColorClick?: (colorValue: string) => void
+  onCharacterClick?: () => void
 }
 
-export function GenerateBar({ emblaApi, onPanelToggle, activePanel: controlledPanel, onActivePanelChange, mode = 'full', className: customClassName }: GenerateBarProps) {
+export function GenerateBar({ 
+  emblaApi, 
+  onPanelToggle, 
+  activePanel: controlledPanel, 
+  onActivePanelChange, 
+  mode = 'full', 
+  className: customClassName,
+  onStyleClick,
+  onSceneClick,
+  onWardrobeClick,
+  onColorClick,
+  onCharacterClick
+}: GenerateBarProps) {
   const { t } = useTranslation(['styles', 'common', 'generate'])
   const scenesLoader = makeCloudfrontLoader('app-images/placeholders/options/scenes')
   const wardrobesLoader = makeCloudfrontLoader('app-images/placeholders/options/wardrobes')
@@ -286,11 +304,18 @@ export function GenerateBar({ emblaApi, onPanelToggle, activePanel: controlledPa
 
   const onSelectStyle = useCallback((index: number) => {
     if (!stylesWithPreview[index]) return
+    const style = stylesWithPreview[index]
+    
+    // Call custom handler if provided (for demo mode)
+    if (onStyleClick) {
+      onStyleClick(style.id)
+    }
+    
     setSelectedStyleIndex(index)
     storeSelectedStyleIndex(index)
     emblaApi?.scrollTo(index)
     close()
-  }, [emblaApi, setSelectedStyleIndex, stylesWithPreview])
+  }, [emblaApi, setSelectedStyleIndex, stylesWithPreview, onStyleClick, close])
 
   
 
@@ -720,6 +745,11 @@ export function GenerateBar({ emblaApi, onPanelToggle, activePanel: controlledPa
 
   // Wrap create character click to handle demo mode
   const handleCreateCharacterClick = useCallback(() => {
+    // Call custom handler if provided
+    if (onCharacterClick) {
+      onCharacterClick()
+    }
+    
     if (mode === 'demo') {
       if (typeof window !== 'undefined') {
         window.location.href = '/auth/signup'
@@ -727,7 +757,7 @@ export function GenerateBar({ emblaApi, onPanelToggle, activePanel: controlledPa
       return
     }
     originalHandleCreateCharacterClick()
-  }, [mode, originalHandleCreateCharacterClick])
+  }, [mode, originalHandleCreateCharacterClick, onCharacterClick])
 
   // Selected-character active job/progress for the small selector thumbnail
   const selectedJob: ActiveTrainingJob | null = selectedCharacterId ? (activeJobs[selectedCharacterId] || null) : null
@@ -1045,7 +1075,10 @@ export function GenerateBar({ emblaApi, onPanelToggle, activePanel: controlledPa
                 const sel = currentStyle ? getStoredStyleSelections(currentStyle.id).scene : null
                 const isSelected = sel?.toLowerCase() === opt.value.toLowerCase()
                 return (
-                <button key={opt.value} data-value={opt.value} className={`${styles.itemCard} ${isSelected ? styles.itemSelected : ''}`} onClick={() => { storeStyleSelections(currentStyle.id, { scene: opt.value }); setSelectionVersion(v=>v+1); clearError('scene'); close() }}>
+                <button key={opt.value} data-value={opt.value} className={`${styles.itemCard} ${isSelected ? styles.itemSelected : ''}`} onClick={() => { 
+                  if (onSceneClick) onSceneClick(opt.value);
+                  storeStyleSelections(currentStyle.id, { scene: opt.value }); setSelectionVersion(v=>v+1); clearError('scene'); close() 
+                }}>
                   {opt.image && (
                     <Image loader={scenesLoader} src={opt.image} alt={opt.label} width={80} height={80} className={styles.itemThumb} />
                   )}
@@ -1205,6 +1238,7 @@ export function GenerateBar({ emblaApi, onPanelToggle, activePanel: controlledPa
                   const isSelected = sel?.toLowerCase() === opt.value.toLowerCase()
                   return (
                   <button key={opt.value} data-value={opt.value} className={`${styles.itemCard} ${isSelected ? styles.itemSelected : ''}`} onClick={() => {
+                    if (onWardrobeClick) onWardrobeClick(opt.value);
                     setSelectedWardrobeValue(opt.value)
                     const g = (opt as any).gender as ('man'|'woman'|'unisex'|undefined)
                     if (g === 'man' || g === 'woman') { if (g !== selectedGender) setSelectedGender(g); save(STORAGE_KEYS.WARDROBE_GENDER, g) }
@@ -1224,6 +1258,7 @@ export function GenerateBar({ emblaApi, onPanelToggle, activePanel: controlledPa
                   <div ref={colorsContainerRef} className={styles.colorsRow}>
                     {filteredColors.map(col => (
                       <button key={col.value} className={styles.colorSwatch} style={{ backgroundColor: col.color || '#fff' }} onClick={() => {
+                        if (onColorClick) onColorClick(col.value);
                         storeStyleSelections(currentStyle.id, { wardrobe: selectedWardrobeValue!, color: col.value });
                         setSelectionVersion(v=>v+1);
                         clearError('color');
@@ -1236,6 +1271,7 @@ export function GenerateBar({ emblaApi, onPanelToggle, activePanel: controlledPa
                     <div className={styles.colorItemsRow} style={{ width: 'max-content' }}>
                       {filteredColors.map(col => (
                         <button key={col.value} className={`${styles.colorSwatch} ${styles.colorSwatchFixed}`} style={{ backgroundColor: col.color || '#fff' }} onClick={() => {
+                          if (onColorClick) onColorClick(col.value);
                           storeStyleSelections(currentStyle.id, { wardrobe: selectedWardrobeValue!, color: col.value });
                           setSelectionVersion(v=>v+1);
                           clearError('color');
@@ -1442,6 +1478,7 @@ export function GenerateBar({ emblaApi, onPanelToggle, activePanel: controlledPa
   // Determine CSS classes for loading states
   const barClasses = [
     styles.bar,
+    mode === 'demo' ? styles.barDemo : '',
     isSticky ? styles.barSticky : '',
     openPanel ? styles.panelOpen : '',
     isDataLoading ? styles.barLoading : styles.barReady,

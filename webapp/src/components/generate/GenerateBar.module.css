@@ -649,6 +649,23 @@
 .circleProgress { border-radius: 14px; }
 .tinyTrainingDot { position: absolute; right: 2px; bottom: 2px; width: 8px; height: 8px; border-radius: 9999; background: #2ADED8; box-shadow: 0 0 0 1px rgba(0,0,0,0.6); }
 
+
+/* Demo mode styles */
+.barDemo .barButton {
+  flex: 0 1;
+  padding: 2px;
+}
+
+.barDemo .barButton .text,
+.barDemo .barButton .icon,
+.barDemo .credits {
+  display: none;
+}
+
+.barDemo .generate span:last-child {
+  display: none;
+}
+
 @media (max-width: 1024px) {
   .barButton {
     flex: 0 1;
