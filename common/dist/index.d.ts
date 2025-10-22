@@ -22,3 +22,5 @@ export { getStripeEnv } from './lib/stripe/env';
 export * from './lib/pricing';
 export { getApiUrl, apiRequest } from './lib/api/client';
 export * from './contexts';
+export { getStoredSelectedStyleIndex, storeSelectedStyleIndex, getStoredStyleSelections, storeStyleSelections, type StyleSelections, type LegacyStyleSelections } from './lib/utils/style-storage';
+export { StyleSchema, StylesSchema, StyleConfigSchema, StyleConfigsSchema, type Style, type Styles, type Scene, type Wardrobe, type Color, type StyleId, type StyleWithImages, type StyleWithSettings, type Option, type OptionItem, type OptionCategory } from './types/styles';

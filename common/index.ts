@@ -44,3 +44,32 @@ export { getApiUrl, apiRequest } from './lib/api/client'
 
 // Contexts
 export * from './contexts'
+
+// Style storage utilities
+export {
+  getStoredSelectedStyleIndex,
+  storeSelectedStyleIndex,
+  getStoredStyleSelections,
+  storeStyleSelections,
+  type StyleSelections,
+  type LegacyStyleSelections
+} from './lib/utils/style-storage'
+
+// Style types and schemas
+export {
+  StyleSchema,
+  StylesSchema,
+  StyleConfigSchema,
+  StyleConfigsSchema,
+  type Style,
+  type Styles,
+  type Scene,
+  type Wardrobe,
+  type Color,
+  type StyleId,
+  type StyleWithImages,
+  type StyleWithSettings,
+  type Option,
+  type OptionItem,
+  type OptionCategory
+} from './types/styles'

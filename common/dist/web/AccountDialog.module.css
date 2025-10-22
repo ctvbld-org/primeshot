@@ -134,7 +134,7 @@
 
 .kvRow { display: grid; grid-template-columns: 100px 1fr; gap: 12px; padding: 14px 0; border-bottom: 1px solid rgba(129,214,206,0.08); }
 .kvLabel { color: rgba(180, 236, 229, 0.6); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
-.kvValue { color: #e6fffb; font-size: 14px; }
+.kvValue { background-color: transparent; color: #e6fffb; font-size: 14px; }
 
 .providerBadge {
   display: inline-flex; align-items: center; justify-content: center;

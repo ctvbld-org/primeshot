@@ -29,3 +29,7 @@ export * from './lib/pricing';
 export { getApiUrl, apiRequest } from './lib/api/client';
 // Contexts
 export * from './contexts';
+// Style storage utilities
+export { getStoredSelectedStyleIndex, storeSelectedStyleIndex, getStoredStyleSelections, storeStyleSelections } from './lib/utils/style-storage';
+// Style types and schemas
+export { StyleSchema, StylesSchema, StyleConfigSchema, StyleConfigsSchema } from './types/styles';
