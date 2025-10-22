@@ -49,9 +49,16 @@ const AdminInferenceOptionsDialog = dynamic(() => import('./AdminInferenceOption
 
 type PanelKey = 'styles' | 'scenes' | 'wardrobe' | 'characters' | 'settings' | null
 
-interface GenerateBarProps { emblaApi: any | null; onPanelToggle?: (open: boolean) => void }
+interface GenerateBarProps {
+  emblaApi: any | null
+  onPanelToggle?: (open: boolean) => void
+  activePanel?: PanelKey
+  onActivePanelChange?: (panel: PanelKey) => void
+  mode?: 'full' | 'demo'
+  className?: string
+}
 
-export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
+export function GenerateBar({ emblaApi, onPanelToggle, activePanel: controlledPanel, onActivePanelChange, mode = 'full', className: customClassName }: GenerateBarProps) {
   const { t } = useTranslation(['styles', 'common', 'generate'])
   const scenesLoader = makeCloudfrontLoader('app-images/placeholders/options/scenes')
   const wardrobesLoader = makeCloudfrontLoader('app-images/placeholders/options/wardrobes')
@@ -72,7 +79,15 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   const wardrobes = useTranslatedWardrobes(rawWardrobes) || []
   const colors = useTranslatedColors(rawColors) || []
 
-  const [openPanel, setOpenPanel] = useState<PanelKey>(null)
+  const [internalPanel, setInternalPanel] = useState<PanelKey>(null)
+  const openPanel = controlledPanel !== undefined ? controlledPanel : internalPanel
+  const setOpenPanel = (panel: PanelKey) => {
+    if (onActivePanelChange) {
+      onActivePanelChange(panel)
+    } else {
+      setInternalPanel(panel)
+    }
+  }
   // Wardrobe panel local UI state
   const [selectedWardrobeValue, setSelectedWardrobeValue] = useState<string | null>(null)
   const [selectedGender, setSelectedGender] = useState<'man' | 'woman'>(() => {
@@ -484,12 +499,18 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   }, [isSubmitting, authUser?.id, currentStyle?.id, selectedCharacterId, nbTakes, quality, aspectRatio, inferenceSettings, runWithGates, createQueuedThumbnails, updateJobWithRealId])
 
   const onGenerate = useCallback(async () => {
+    if (mode === 'demo') {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/auth/signup'
+      }
+      return
+    }
     if (authUser?.admin) {
       setShowAdminInfer(true)
       return
     }
     await runGenerate(null)
-  }, [authUser?.admin, runGenerate])
+  }, [mode, authUser?.admin, runGenerate])
 
   // Introduce TTL for character list refresh when panel opens
   const CHARACTER_LIST_TTL_MS = 60_000
@@ -691,11 +712,22 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
   }
 
   // Character creation hook
-  const { createCharacterAction, handleCreateCharacterClick, requiresCreditsForTraining, trainingCost, remainingIncludedTrainings, isOnHighestTier } = useCreateCharacter({
+  const { createCharacterAction, handleCreateCharacterClick: originalHandleCreateCharacterClick, requiresCreditsForTraining, trainingCost, remainingIncludedTrainings, isOnHighestTier } = useCreateCharacter({
     characters,
     onSelectCharacter,
     refreshCharacters
   })
+
+  // Wrap create character click to handle demo mode
+  const handleCreateCharacterClick = useCallback(() => {
+    if (mode === 'demo') {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/auth/signup'
+      }
+      return
+    }
+    originalHandleCreateCharacterClick()
+  }, [mode, originalHandleCreateCharacterClick])
 
   // Selected-character active job/progress for the small selector thumbnail
   const selectedJob: ActiveTrainingJob | null = selectedCharacterId ? (activeJobs[selectedCharacterId] || null) : null
@@ -943,6 +975,13 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
       setTimeout(() => scrollToSelectedItem('wardrobe'), 300)
     }
   }, [selectedWardrobeValue, openPanel, currentStyle, scrollToSelectedItem])
+
+  // Effect to trigger scrollToSelectedItem when panel opens (especially for controlled mode)
+  useEffect(() => {
+    if (openPanel && (openPanel === 'styles' || openPanel === 'scenes' || openPanel === 'wardrobe')) {
+      setTimeout(() => scrollToSelectedItem(openPanel), 300)
+    }
+  }, [openPanel, scrollToSelectedItem])
 
   React.useEffect(() => {
     // Observe only when wardrobe panel is open and a wardrobe is selected (colors shown)
@@ -1406,7 +1445,8 @@ export function GenerateBar({ emblaApi, onPanelToggle }: GenerateBarProps) {
     isSticky ? styles.barSticky : '',
     openPanel ? styles.panelOpen : '',
     isDataLoading ? styles.barLoading : styles.barReady,
-    !isDataLoading && authReady ? styles.barFadeIn : ''
+    !isDataLoading && authReady ? styles.barFadeIn : '',
+    customClassName || ''
   ].filter(Boolean).join(' ')
 
   return (

@@ -1,8 +1,12 @@
 export * as hooks from './hooks';
 export * as web from './web';
+export * as contexts from './contexts';
 // Convenience re-exports
 export { LanguageProvider, useLanguage } from './hooks/LanguageContext';
 export { AuthProvider, useAuth } from './hooks/AuthContext';
+// Style contexts
+export { StyleDataProvider, useStyleData, useStylesFromContext, useScenesFromContext, useWardrobesFromContext, useColorsFromContext } from './contexts/StyleDataContext';
+export { StyleSelectionProvider, useStyleSelection } from './contexts/StyleSelectionContext';
 export { Header } from './web/Header';
 export { Icon } from './web/Icon';
 export { Footer } from './web/Footer';
