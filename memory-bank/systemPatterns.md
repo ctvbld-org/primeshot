@@ -2459,6 +2459,58 @@ Detected changes in:
 - webapp/src/lib/api/config.ts
 - webapp/src/lib/utils/localStorage.ts
 - webapp/src/lib/utils/style-storage.ts
+
+
+**Auto-update 2025-10-23**:
+Detected changes in:
+- webapp/src/components/character/training/UploadPhotosStep.tsx
+- webapp/src/components/generate/GenerateBar.module.css
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/generate/useCreateCharacter.tsx
+- webapp/src/components/upload/FileUploader.module.css
+- webapp/src/components/upload/FileUploader.tsx
+- webapp/src/lib/api/characters.ts
+- webapp/src/lib/api/jobs.ts
+- webapp/src/lib/hooks/use-file-upload.ts
+- webapp/src/lib/image-quality.ts
+- website/src/app/[locale]/layout.tsx
+- website/src/app/[locale]/page.module.css
+- website/src/app/[locale]/page.tsx
+- website/src/app/api/styles/route.ts
+- website/src/app/layout.tsx
+- website/src/components/CTASection.module.css
+- website/src/components/CTASection.tsx
+- website/src/components/InteractiveGenerateBar/HeroGrid.module.css
+- website/src/components/InteractiveGenerateBar/HeroGrid.tsx
+- website/src/components/InteractiveGenerateBar/InteractiveGenerateBar.module.css
+- website/src/components/InteractiveGenerateBar/InteractiveGenerateBar.tsx
+- website/src/components/InteractiveGenerateBar/ScrollSectionManager.tsx
+- website/src/components/InteractiveGenerateBar/ShowcaseSection.module.css
+- website/src/components/InteractiveGenerateBar/ShowcaseSections/CharactersShowcase.tsx
+- website/src/components/InteractiveGenerateBar/ShowcaseSections/ScenesShowcase.tsx
+- website/src/components/InteractiveGenerateBar/ShowcaseSections/StylesShowcase.tsx
+- website/src/components/InteractiveGenerateBar/ShowcaseSections/WardrobeShowcase.tsx
+- website/src/components/InteractiveGenerateBar/ShowcaseSections/index.ts
+- website/src/components/InteractiveGenerateBar/StickyShowcaseSection.tsx
+- website/src/components/InteractiveGenerateBar/index.ts
+- website/src/components/InteractiveGenerateBar/types.ts
+- website/src/components/Providers.tsx
+- website/src/components/character/CharacterTrainingDialog.tsx
+- website/src/components/character/Countdown.tsx
+- website/src/contexts/DialogServiceContext.tsx
+- website/src/contexts/StyleProviders.tsx
+- website/src/contexts/auth-context.tsx
+- website/src/contexts/inference-queue-context.tsx
+- website/src/contexts/style-data-context.tsx
+- website/src/contexts/style-selection-context.tsx
+- website/src/lib/api/characters.ts
+- website/src/lib/api/jobs.ts
+- website/src/lib/data/mockCharacters.ts
+- website/src/lib/services/confirmationService.ts
+- website/src/lib/utils/cloudfrontLoader.ts
+- website/src/lib/utils/colorSort.ts
+- website/src/lib/utils/get-styles-images.ts
+- website/src/lib/utils/style-storage.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

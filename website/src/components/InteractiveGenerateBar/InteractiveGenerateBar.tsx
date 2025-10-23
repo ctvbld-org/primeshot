@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef, ReactNode, useMemo } from 'react'
-// @ts-expect-error - Cross-package import causes type inference issues in Vercel builds
-import { GenerateBar } from '@/../../webapp/src/components/generate/GenerateBar'
+import { GenerateBar } from 'webapp/src/components/generate/GenerateBar'
 import { ScrollSectionProvider } from './ScrollSectionManager'
 import { useStyleData } from '@primeshot/common'
 import { useAuth } from '@primeshot/common'

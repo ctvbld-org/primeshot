@@ -1,65 +1,65 @@
 {
-  "dialog": {
-    "title": "Conta",
-    "selectSection": "Selecionar secção"
-  },
-  "navigation": {
-    "profile": "Perfil",
-    "subscription": "Subscrição",
-    "settings": "Definições",
-    "support": "Suporte"
-  },
-  "buttons": {
-    "cancel": "Cancelar",
-    "save": "Guardar",
-    "saving": "A guardar…",
-    "signOut": "Terminar sessão",
-    "subscribe": "Subscrever",
-    "opening": "A abrir…",
-    "manage": "Gerir",
-    "renew": "Renovar",
-    "buyCredits": "Comprar créditos",
-    "deleteAccount": "Eliminar conta (em breve)"
-  },
-  "profile": {
-    "title": "Perfil",
-    "firstName": "Nome próprio",
-    "lastName": "Apelido",
-    "email": "Email"
-  },
-  "subscription": {
-    "title": "Subscrição",
-    "loading": "A carregar...",
-    "noPlan": "Sem plano",
-    "planSuffix": "",
-    "cancelled": "Cancelada",
-    "expires": "Expira a {{date}}",
-    "renews": "Renova a {{date}}",
-    "creditBalance": "Saldo de créditos",
-    "resets": "Reinicia a {{date}}"
-  },
-  "settings": {
-    "title": "Definições",
-    "language": "Idioma",
-    "deleteAccount": {
-      "title": "Eliminar conta?",
-      "description": "Isto irá apagar todos os seus dados, definições e histórico. Esta ação não pode ser desfeita."
+    "dialog": {
+        "title": "Conta",
+        "selectSection": "Selecionar secção"
+    },
+    "navigation": {
+        "profile": "Perfil",
+        "subscription": "Subscrição",
+        "settings": "Definições",
+        "support": "Suporte"
+    },
+    "buttons": {
+        "cancel": "Cancelar",
+        "save": "Guardar",
+        "saving": "A guardar…",
+        "signOut": "Terminar sessão",
+        "subscribe": "Subscrever",
+        "opening": "A abrir…",
+        "manage": "Gerir",
+        "renew": "Renovar",
+        "buyCredits": "Comprar créditos",
+        "deleteAccount": "Eliminar conta (em breve)"
+    },
+    "profile": {
+        "title": "Perfil",
+        "firstName": "Nome próprio",
+        "lastName": "Apelido",
+        "email": "Email"
+    },
+    "subscription": {
+        "title": "Subscrição",
+        "loading": "A carregar...",
+        "noPlan": "Sem plano",
+        "planSuffix": "",
+        "cancelled": "Cancelada",
+        "expires": "Expira a {{date}}",
+        "renews": "Renova a {{date}}",
+        "creditBalance": "Saldo de créditos",
+        "resets": "Reinicia a {{date}}"
+    },
+    "settings": {
+        "title": "Definições",
+        "language": "Idioma",
+        "deleteAccount": {
+            "title": "Eliminar conta?",
+            "description": "Isto irá apagar todos os seus dados, definições e histórico. Esta ação não pode ser desfeita."
+        }
+    },
+    "support": {
+        "title": "Estamos aqui para ajudar",
+        "description": "Tem questões ou precisa de assistência? Estamos prontos para o apoiar em cada passo. Respondemos normalmente em 24 horas.",
+        "faq": "Perguntas frequentes",
+        "faqDescription": "Consulte o nosso {{helpCenter}} para respostas rápidas a questões comuns.",
+        "helpCenter": "Centro de ajuda",
+        "dmUs": "ENVIE-NOS MENSAGEM",
+        "emailUs": "Envie-nos um email"
+    },
+    "errors": {
+        "failedToSave": "Falha ao guardar alterações"
+    },
+    "accessibility": {
+        "avatar": "avatar",
+        "plan": "plano"
     }
-  },
-  "support": {
-    "title": "Estamos aqui para ajudar",
-    "description": "Tem questões ou precisa de assistência? Estamos prontos para o apoiar em cada passo. Respondemos normalmente em 24 horas.",
-    "faq": "Perguntas frequentes",
-    "faqDescription": "Consulte o nosso {{helpCenter}} para respostas rápidas a questões comuns.",
-    "helpCenter": "Centro de ajuda",
-    "dmUs": "ENVIE-NOS MENSAGEM",
-    "emailUs": "Envie-nos um email"
-  },
-  "errors": {
-    "failedToSave": "Falha ao guardar alterações"
-  },
-  "accessibility": {
-    "avatar": "avatar",
-    "plan": "plano"
-  }
 }
