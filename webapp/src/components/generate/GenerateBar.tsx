@@ -66,6 +66,8 @@ interface GenerateBarProps {
   hideSelections?: boolean
   // Controlled wardrobe selection for demo mode
   selectedWardrobeId?: string | null
+  // Demo characters for preview mode
+  demoCharacters?: any[]
 }
 
 export function GenerateBar({ 
@@ -81,7 +83,8 @@ export function GenerateBar({
   onColorClick,
   onCharacterClick,
   hideSelections = false,
-  selectedWardrobeId
+  selectedWardrobeId,
+  demoCharacters
 }: GenerateBarProps) {
   const { t } = useTranslation(['styles', 'common', 'generate'])
   const scenesLoader = makeCloudfrontLoader('app-images/placeholders/options/scenes')
@@ -410,6 +413,7 @@ export function GenerateBar({
   const [adminOverride, setAdminOverride] = useState<{ prompt_override: { enabled: boolean; prompt: string } | null; settings_override: { character?: { strength_model?: number; strength_clip?: number }; style?: { strength_model?: number; strength_clip?: number } } | null } | null>(null)
   const { toast } = useToast()
   const hasClearedFailedSelectionRef = useRef<boolean>(false)
+  const demoCharactersLoadedRef = useRef<boolean>(false)
   
   // Inference queue integration (only for job creation, not thumbnail management)
   const { createQueuedThumbnails, updateJobWithRealId, updateJobStatus, updateJobMessage, isGenerating } = useInferenceQueue()
@@ -609,6 +613,23 @@ export function GenerateBar({
 
   const refreshCharacters = React.useCallback(async () => {
     if (isRefreshingRef.current) return
+    
+    // In demo mode, use provided demo characters (only once)
+    if (mode === 'demo' && demoCharacters && demoCharacters.length > 0 && !demoCharactersLoadedRef.current) {
+      demoCharactersLoadedRef.current = true
+      setCharacters(demoCharacters)
+      // Set demo character thumbnails using the CDN loader
+      const map: Record<string, string> = {}
+      for (const char of demoCharacters) {
+        if (char.thumbnail_url) {
+          // Demo thumbnails are website images, use direct path
+          map[char.id] = char.thumbnail_url
+        }
+      }
+      setCharacterThumbs(map)
+      return
+    }
+    
     if (!authUser?.id) { setCharacters([]); return }
     try {
       isRefreshingRef.current = true
@@ -657,17 +678,24 @@ export function GenerateBar({
       try { lastCharactersRefreshRef.current = Date.now() } catch {}
     } catch { setCharacters([]) }
     finally { isRefreshingRef.current = false }
-  }, [authUser?.id, getUserCharacters, fetchBatchedCharacterData])
+  }, [authUser?.id, getUserCharacters, fetchBatchedCharacterData, mode, demoCharacters])
 
   // Ensure characters are fetched once auth is ready (fixes empty chip after hard refresh)
   React.useEffect(() => {
+    // In demo mode, load demo characters only once
+    if (mode === 'demo' && demoCharacters && demoCharacters.length > 0) {
+      try { refreshCharacters() } catch {}
+      return
+    }
+    
     if (!authUser?.id) return
     const isNeverFetched = !lastCharactersRefreshRef.current
     const isStale = (Date.now() - (lastCharactersRefreshRef.current || 0)) > CHARACTER_LIST_TTL_MS
     if ((isNeverFetched || isStale) && !isRefreshingRef.current) {
       try { refreshCharacters() } catch {}
     }
-  }, [authUser?.id, refreshCharacters])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authUser?.id, mode])
 
   // If a selected character exists but its thumbnail isn't loaded yet, refresh in background
   React.useEffect(() => {
@@ -752,6 +780,11 @@ export function GenerateBar({
   }, [authUser?.id])
 
   const onSelectCharacter = (modelId: string, gender?: string, metaGender?: string) => {
+    // In demo mode, clicking characters does nothing
+    if (mode === 'demo') {
+      return
+    }
+    
     try { localStorage.setItem('character-selection', JSON.stringify({ modelId })) } catch {}
     setSelectedCharacterId(modelId)
     // Apply gender immediately based on selected character metadata

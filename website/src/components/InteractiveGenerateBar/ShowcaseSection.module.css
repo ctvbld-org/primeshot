@@ -80,6 +80,7 @@
   justify-content: space-between;
   min-height: 500px;
   pointer-events: none;
+  z-index: 11;
 }
 
 .titleContainer {
@@ -306,11 +307,11 @@
 
 .wardrobeImage1 {
   top: -42%;
-  left: calc(50% - 360px);
+  left:  22%;
 }
 .wardrobeImage2 {
   top: 0%;
-  left: calc(50% - 500px);
+  left: 11%;
 }
 .wardrobeImage3 {
   top: 42%;
@@ -318,11 +319,11 @@
 }
 .wardrobeImage4 {
   top: 84%;
-  left: -146px;
+  left: -11%;
 }
 .wardrobeImage5 {
   top: 125%;
-  left: -286px;
+  left: -22%;
 }
 .wardrobeImage6 {
   right: 0;

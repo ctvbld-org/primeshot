@@ -1,11 +1,13 @@
 'use client'
 
-import { useState, useCallback, useEffect, useRef, ReactNode } from 'react'
+import { useState, useCallback, useEffect, useRef, ReactNode, useMemo } from 'react'
 import { GenerateBar } from '@/../../webapp/src/components/generate/GenerateBar'
 import { ScrollSectionProvider } from './ScrollSectionManager'
 import { useStyleData } from '@primeshot/common'
+import { useAuth } from '@primeshot/common'
 import type { PanelKey } from './types'
 import cssStyles from './InteractiveGenerateBar.module.css'
+import { MOCK_CHARACTERS } from '@/lib/data/mockCharacters'
 
 interface InteractiveGenerateBarProps {
   children: ReactNode
@@ -25,6 +27,12 @@ export function InteractiveGenerateBar({ children, className }: InteractiveGener
   // Check if data is loaded to show the GenerateBar
   const { styles, scenes, wardrobes, colors, isLoading } = useStyleData()
   const isDataReady = !isLoading && styles.length > 0 && scenes.length > 0 && wardrobes.length > 0 && colors.length > 0
+
+  // Check auth state for create button behavior
+  const { isAuthenticated } = useAuth()
+  
+  // Memoize mock characters to prevent infinite loops from new array references
+  const memoizedMockCharacters = useMemo(() => MOCK_CHARACTERS, [])
 
   // Reset wardrobe selection when leaving wardrobe panel
   useEffect(() => {
@@ -153,12 +161,18 @@ export function InteractiveGenerateBar({ children, className }: InteractiveGener
   }, [])
 
   const handleCharacterClick = useCallback(() => {
-    console.log('Character/Create clicked - redirecting to signup')
-    // Redirect to signup for character creation
-    if (typeof window !== 'undefined') {
-      window.location.href = '/auth/signup'
+    console.log('Character/Create clicked')
+    
+    // Check if user is authenticated
+    if (isAuthenticated) {
+      // Redirect to app's create page
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.primeshot.ai'
+      window.location.href = `${appUrl}/app/upload`
+    } else {
+      // Redirect to sign-in page
+      window.location.href = '/auth/signin'
     }
-  }, [])
+  }, [isAuthenticated])
 
   // Scroll to section when panel button is clicked in GenerateBar
   const handleActivePanelChange = useCallback((panel: PanelKey) => {
@@ -217,6 +231,7 @@ export function InteractiveGenerateBar({ children, className }: InteractiveGener
             onCharacterClick={handleCharacterClick}
             hideSelections={activePanel !== 'cta' && !selectedWardrobeId}
             selectedWardrobeId={selectedWardrobeId}
+            demoCharacters={memoizedMockCharacters}
           />
         </div>
 
