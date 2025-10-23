@@ -136,7 +136,7 @@ export function InteractiveGenerateBar({ children, className }: InteractiveGener
         cancelAnimationFrame(rafRef.current)
       }
     }
-  }, [activePanel])
+  }, [activePanel, isDataReady])
 
   // Handle panel changes from scroll or GenerateBar clicks
   const handlePanelChange = useCallback((panel: PanelKey) => {
@@ -237,28 +237,30 @@ export function InteractiveGenerateBar({ children, className }: InteractiveGener
       onSelectedCharacterChange={setSelectedCharacterId}
     >
       <div className={className}>
-        {/* Scroll-animated GenerateBar */}
-        <div 
-          ref={barRef}
-          className={`fixed left-1/2 z-50 w-[600px] px-2 max-w-full ${cssStyles.generateBarWrapper} ${isDataReady ? cssStyles.visible : ''}`}
-        >
-          <GenerateBar
-            emblaApi={null}
-            activePanel={activePanel}
-            onActivePanelChange={handleActivePanelChange}
-            onPanelToggle={handlePanelToggle}
-            mode="demo"
-            className={cssStyles.interactiveBar}
-            onStyleClick={handleStyleClick}
-            onSceneClick={handleSceneClick}
-            onWardrobeClick={handleWardrobeClick}
-            onColorClick={handleColorClick}
-            onCharacterClick={handleCharacterClick}
-            hideSelections={!selectedStyleId && !selectedSceneId && !selectedWardrobeId && !selectedCharacterId}
-            selectedWardrobeId={selectedWardrobeId}
-            demoCharacters={memoizedMockCharacters}
-          />
-        </div>
+        {/* Scroll-animated GenerateBar - only render when data is ready */}
+        {isDataReady && (
+          <div 
+            ref={barRef}
+            className={`fixed left-1/2 z-50 w-[600px] px-2 max-w-full ${cssStyles.generateBarWrapper} ${cssStyles.visible}`}
+          >
+            <GenerateBar
+              emblaApi={null}
+              activePanel={activePanel}
+              onActivePanelChange={handleActivePanelChange}
+              onPanelToggle={handlePanelToggle}
+              mode="demo"
+              className={cssStyles.interactiveBar}
+              onStyleClick={handleStyleClick}
+              onSceneClick={handleSceneClick}
+              onWardrobeClick={handleWardrobeClick}
+              onColorClick={handleColorClick}
+              onCharacterClick={handleCharacterClick}
+              hideSelections={!selectedStyleId && !selectedSceneId && !selectedWardrobeId && !selectedCharacterId}
+              selectedWardrobeId={selectedWardrobeId}
+              demoCharacters={memoizedMockCharacters}
+            />
+          </div>
+        )}
 
         {/* Scroll sections */}
         {children}
