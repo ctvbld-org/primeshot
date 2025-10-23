@@ -132,8 +132,19 @@ class CharactersApiClient {
 // Export singleton instance
 export const charactersApi = new CharactersApiClient();
 
+// Hook return type for explicit typing across package boundaries
+export interface UseCharactersApiReturn {
+  createCharacter: (request: CreateCharacterRequest) => Promise<CreateCharacterResponse>;
+  getUserCharacters: (userId: string) => Promise<Character[]>;
+  getActiveCharacterCount: (userId: string) => Promise<number>;
+  getCharacter: (characterId: string, userId: string) => Promise<Character | null>;
+  updateCharacterStatus: (characterId: string, status: Character['status']) => Promise<void>;
+  deleteCharacter: (characterId: string, userId: string) => Promise<void>;
+  getCharactersByIds: (ids: string[]) => Promise<Pick<Character, 'id' | 'name' | 'thumbnail_url'>[]>;
+}
+
 // Hook for React components
-export function useCharactersApi() {
+export function useCharactersApi(): UseCharactersApiReturn {
   const createCharacter = useCallback(async (request: CreateCharacterRequest): Promise<CreateCharacterResponse> => {
     try {
       return await charactersApi.createCharacter(request);

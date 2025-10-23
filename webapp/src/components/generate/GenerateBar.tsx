@@ -289,7 +289,7 @@ export function GenerateBar({
             if (!mapped && authUser?.id) {
               ;(async () => {
                 try {
-                  const c = await getCharacter(selectedCharacterId, authUser.id)
+                  const c = await (getCharacter as (id: string, userId: string) => Promise<any>)(selectedCharacterId, authUser.id)
                   const rawFetched = (c as any)?.gender ?? (c as any)?.metadata?.gender
                   const fetched = mapGenderToWardrobe(rawFetched as any)
                   if (fetched && fetched !== selectedGender) {
@@ -307,7 +307,7 @@ export function GenerateBar({
           } else if (authUser?.id) {
             ;(async () => {
               try {
-                const c = await getCharacter(selectedCharacterId, authUser.id)
+                const c = await (getCharacter as (id: string, userId: string) => Promise<any>)(selectedCharacterId, authUser.id)
                 const mapped = mapGenderToWardrobe((c as any)?.gender)
                 if (mapped && mapped !== selectedGender) {
                   setSelectedGender(mapped)
@@ -403,7 +403,9 @@ export function GenerateBar({
   // Panel contents
   // Characters panel hooks and logic (top-level to respect rules of hooks)
   // Use authUser from above
-  const { getUserCharacters, getCharacter } = useCharactersApi()
+  const charactersApi = useCharactersApi()
+  const getUserCharacters = charactersApi.getUserCharacters as (userId: string) => Promise<any[]>
+  const getCharacter = charactersApi.getCharacter as (characterId: string, userId: string) => Promise<any>
   const [characters, setCharacters] = React.useState<any[]>([])
   const [characterThumbs, setCharacterThumbs] = React.useState<Record<string, string>>({})
   const { runWithGates } = useActionGate(requiredCredits, 'inference')
@@ -413,10 +415,14 @@ export function GenerateBar({
   const [adminOverride, setAdminOverride] = useState<{ prompt_override: { enabled: boolean; prompt: string } | null; settings_override: { character?: { strength_model?: number; strength_clip?: number }; style?: { strength_model?: number; strength_clip?: number } } | null } | null>(null)
   const { toast } = useToast()
   const hasClearedFailedSelectionRef = useRef<boolean>(false)
-  const demoCharactersLoadedRef = useRef<boolean>(false)
   
   // Inference queue integration (only for job creation, not thumbnail management)
-  const { createQueuedThumbnails, updateJobWithRealId, updateJobStatus, updateJobMessage, isGenerating } = useInferenceQueue()
+  const inferenceQueue = useInferenceQueue()
+  const createQueuedThumbnails = inferenceQueue.createQueuedThumbnails as (nbTakes: number, meta?: any) => string
+  const updateJobWithRealId = inferenceQueue.updateJobWithRealId as (placeholderId: string, realJobId: string) => void
+  const updateJobStatus = inferenceQueue.updateJobStatus as (jobId: string, status: any) => void
+  const updateJobMessage = inferenceQueue.updateJobMessage as (jobId: string, message?: string) => void
+  const isGenerating = inferenceQueue.isGenerating
   
   const lastClickTimeRef = useRef<number>(0)
 
@@ -496,7 +502,7 @@ export function GenerateBar({
 
         setIsSubmitting(true)
         try {
-          return await startInference({ ...(payload as any), ...(override?.prompt_override ? { prompt_override: override.prompt_override } : {}), ...(override?.settings_override ? { settings_override: override.settings_override } : {}) })
+          return await (startInference as (req: any, onRetry?: any) => Promise<any>)({ ...(payload as any), ...(override?.prompt_override ? { prompt_override: override.prompt_override } : {}), ...(override?.settings_override ? { settings_override: override.settings_override } : {}) })
         } catch (err) {
           // Mark placeholder as failed on API error
           if (placeholderId) {
@@ -614,23 +620,45 @@ export function GenerateBar({
   const refreshCharacters = React.useCallback(async () => {
     if (isRefreshingRef.current) return
     
-    // In demo mode, use provided demo characters (only once)
-    if (mode === 'demo' && demoCharacters && demoCharacters.length > 0 && !demoCharactersLoadedRef.current) {
-      demoCharactersLoadedRef.current = true
+    // In demo mode, use provided demo characters
+    if (mode === 'demo' && demoCharacters && demoCharacters.length > 0) {
       setCharacters(demoCharacters)
-      // Set demo character thumbnails using the CDN loader
-      const map: Record<string, string> = {}
+      
+      // Set demo character thumbnails
+      const thumbMap: Record<string, string> = {}
+      const countsMap: Record<string, number> = {}
+      const jobsMap: Record<string, ActiveTrainingJob | null> = {}
+      
       for (const char of demoCharacters) {
         if (char.thumbnail_url) {
-          // Demo thumbnails are website images, use direct path
-          map[char.id] = char.thumbnail_url
+          thumbMap[char.id] = char.thumbnail_url
+        }
+        // Set uploaded counts from image_count
+        if (char.image_count) {
+          countsMap[char.id] = char.image_count
+        }
+        // Create mock job for training characters
+        if (char.status === 'training') {
+          jobsMap[char.id] = {
+            id: `demo-job-${char.id}`,
+            character_id: char.id,
+            status: 'running',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          } as ActiveTrainingJob
         }
       }
-      setCharacterThumbs(map)
+      
+      setCharacterThumbs(thumbMap)
+      setUploadedCounts(countsMap)
+      setActiveJobs(jobsMap)
       return
     }
     
-    if (!authUser?.id) { setCharacters([]); return }
+    if (!authUser?.id) { 
+      setCharacters([]); 
+      return 
+    }
     try {
       isRefreshingRef.current = true
       const list = await getUserCharacters(authUser.id)
@@ -828,7 +856,7 @@ export function GenerateBar({
   // Always call hook; provide empty jobId when no job to keep order stable
   const selectedTraining = useTrainingProgress({
     jobId: selectedJob?.id || '',
-    onComplete: (success) => {
+    onComplete: (success: boolean) => {
       if (!success && selectedCharacterId) {
         try { localStorage.removeItem('character-selection') } catch {}
         setSelectedCharacterId(null)
@@ -1695,7 +1723,8 @@ function CharacterCard({ character, thumbUrl, uploadedCount = 0, job, onSelect, 
   const { t } = useTranslation(['styles'])
   let waitingLabel = ''
   const isActive = !!job
-  const { deleteCharacter } = useCharactersApi()
+  const charactersApiInternal = useCharactersApi()
+  const deleteCharacter = charactersApiInternal.deleteCharacter as (characterId: string, userId: string) => Promise<void>
   const { user } = useAuth()
   const [showOverlay, setShowOverlay] = React.useState(false)
   const [isDeleting, setIsDeleting] = React.useState(false)

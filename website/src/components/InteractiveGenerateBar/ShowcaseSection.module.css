@@ -38,7 +38,6 @@
 
 .scrollingContent.visible {
   opacity: 1;
-  pointer-events: auto;
   transition: opacity 0.3s ease-in 0.2s;
 }
 

@@ -16,6 +16,8 @@ interface ScrollSectionContextType {
   setSelectedWardrobeId: (wardrobeId: string | null) => void
   selectedColorId: string | null
   setSelectedColorId: (colorId: string | null) => void
+  selectedCharacterId: string | null
+  setSelectedCharacterId: (characterId: string | null) => void
 }
 
 const ScrollSectionContext = createContext<ScrollSectionContextType | null>(null)
@@ -41,6 +43,8 @@ interface ScrollSectionProviderProps {
   onSelectedWardrobeChange: (wardrobeId: string | null) => void
   selectedColorId: string | null
   onSelectedColorChange: (colorId: string | null) => void
+  selectedCharacterId: string | null
+  onSelectedCharacterChange: (characterId: string | null) => void
 }
 
 export function ScrollSectionProvider({ 
@@ -55,7 +59,9 @@ export function ScrollSectionProvider({
   selectedWardrobeId,
   onSelectedWardrobeChange,
   selectedColorId,
-  onSelectedColorChange
+  onSelectedColorChange,
+  selectedCharacterId,
+  onSelectedCharacterChange
 }: ScrollSectionProviderProps) {
   const sectionsRef = useRef<Map<string, { element: HTMLElement; panel: PanelKey }>>(new Map())
 
@@ -112,7 +118,9 @@ export function ScrollSectionProvider({
       selectedWardrobeId,
       setSelectedWardrobeId: onSelectedWardrobeChange,
       selectedColorId,
-      setSelectedColorId: onSelectedColorChange
+      setSelectedColorId: onSelectedColorChange,
+      selectedCharacterId,
+      setSelectedCharacterId: onSelectedCharacterChange
     }}>
       {children}
     </ScrollSectionContext.Provider>

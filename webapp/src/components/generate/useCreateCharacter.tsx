@@ -28,13 +28,14 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
   const queryClient = useQueryClient()
   const characterTrainingCost = getCharacterTrainingCost(creditCosts)
   const creditGuard = useCreditGuard(characterTrainingCost)
-  const { getActiveCharacterCount } = useCharactersApi()
+  const charactersApiLocal = useCharactersApi() as any
+  const getActiveCharacterCount = charactersApiLocal.getActiveCharacterCount as (userId: string) => Promise<number>
   const { user, isAuthenticated } = useAuth()
   const isAdmin = !!user?.admin
 
   const remainingCharacterTrainings = React.useMemo(() => {
     if (!subscription) return 0
-    return Math.max(0, subscription.character_training_included - subscription.character_training_used)
+    return Math.max(0, (subscription as any).character_training_included - (subscription as any).character_training_used)
   }, [subscription])
 
   const needsCreditsForTraining = React.useMemo(() => {
@@ -45,7 +46,7 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
   const hasSufficientCredits = React.useMemo(() => {
     if (!needsCreditsForTraining) return true
     if (creditBalance === undefined) return false
-    return creditBalance >= characterTrainingCost
+    return (creditBalance as any) >= characterTrainingCost
   }, [needsCreditsForTraining, creditBalance, characterTrainingCost])
 
   const maxCharacters = React.useMemo(() => {

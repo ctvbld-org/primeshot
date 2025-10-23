@@ -105,8 +105,14 @@ class JobsApiClient implements JobApiClient {
 // Export singleton instance
 export const jobsApi = new JobsApiClient();
 
+// Hook return type for explicit typing across package boundaries
+export interface UseJobsApiReturn {
+  startTraining: (request: TrainingStartRequest, onRetry?: (attempt: number, maxRetries: number, error: Error) => void) => Promise<TrainingStartResponse>;
+  startInference: (request: InferenceStartRequest, onRetry?: (attempt: number, maxRetries: number, error: Error) => void) => Promise<InferenceStartResponse>;
+}
+
 // Hook for React components to use with error handling and retry support
-export function useJobsApi() {
+export function useJobsApi(): UseJobsApiReturn {
   const startTraining = async (
     request: TrainingStartRequest,
     onRetry?: (attempt: number, maxRetries: number, error: Error) => void

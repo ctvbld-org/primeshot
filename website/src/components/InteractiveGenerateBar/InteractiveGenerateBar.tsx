@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef, ReactNode, useMemo } from 'react'
+// @ts-expect-error - Cross-package import causes type inference issues in Vercel builds
 import { GenerateBar } from '@/../../webapp/src/components/generate/GenerateBar'
 import { ScrollSectionProvider } from './ScrollSectionManager'
 import { useStyleData } from '@primeshot/common'
@@ -21,6 +22,7 @@ export function InteractiveGenerateBar({ children, className }: InteractiveGener
   const [selectedSceneId, setSelectedSceneId] = useState<string | null>(null)
   const [selectedWardrobeId, setSelectedWardrobeId] = useState<string | null>(null)
   const [selectedColorId, setSelectedColorId] = useState<string | null>(null)
+  const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null)
   const barRef = useRef<HTMLDivElement>(null)
   const rafRef = useRef<number | null>(null)
   
@@ -31,15 +33,37 @@ export function InteractiveGenerateBar({ children, className }: InteractiveGener
   // Check auth state for create button behavior
   const { isAuthenticated } = useAuth()
   
-  // Memoize mock characters to prevent infinite loops from new array references
-  const memoizedMockCharacters = useMemo(() => MOCK_CHARACTERS, [])
-
-  // Reset wardrobe selection when leaving wardrobe panel
-  useEffect(() => {
-    if (activePanel !== 'wardrobe' && selectedWardrobeId) {
-      setSelectedWardrobeId(null)
+  // Memoize mock characters - reorder based on CTA selection
+  const memoizedMockCharacters = useMemo(() => {
+    if (activePanel === 'cta' && selectedCharacterId) {
+      // When in CTA, put the selected character first
+      const laura = MOCK_CHARACTERS.find(c => c.id === selectedCharacterId)
+      const others = MOCK_CHARACTERS.filter(c => c.id !== selectedCharacterId)
+      return laura ? [laura, ...others] : MOCK_CHARACTERS
     }
-  }, [activePanel, selectedWardrobeId])
+    return MOCK_CHARACTERS
+  }, [activePanel, selectedCharacterId])
+
+  // Auto-populate selections when reaching CTA, clear when leaving
+  useEffect(() => {
+    if (activePanel === 'cta') {
+      // Auto-populate selections for CTA demo
+      setSelectedStyleId('Blindlight')
+      setSelectedSceneId('muted-olive-green')
+      setSelectedWardrobeId('layr_f_04')
+      setSelectedColorId('Black')
+      setSelectedCharacterId('demo-laura')
+    } else if (activePanel !== null) {
+      // Clear selections when leaving CTA (but keep them on their respective panels)
+      if (activePanel !== 'styles') setSelectedStyleId(null)
+      if (activePanel !== 'scenes') setSelectedSceneId(null)
+      if (activePanel !== 'wardrobe') {
+        setSelectedWardrobeId(null)
+        setSelectedColorId(null)
+      }
+      if (activePanel !== 'characters') setSelectedCharacterId(null)
+    }
+  }, [activePanel])
 
   // Handle scroll-based positioning with RAF for smooth performance
   useEffect(() => {
@@ -210,6 +234,8 @@ export function InteractiveGenerateBar({ children, className }: InteractiveGener
       onSelectedWardrobeChange={setSelectedWardrobeId}
       selectedColorId={selectedColorId}
       onSelectedColorChange={setSelectedColorId}
+      selectedCharacterId={selectedCharacterId}
+      onSelectedCharacterChange={setSelectedCharacterId}
     >
       <div className={className}>
         {/* Scroll-animated GenerateBar */}
@@ -229,7 +255,7 @@ export function InteractiveGenerateBar({ children, className }: InteractiveGener
             onWardrobeClick={handleWardrobeClick}
             onColorClick={handleColorClick}
             onCharacterClick={handleCharacterClick}
-            hideSelections={activePanel !== 'cta' && !selectedWardrobeId}
+            hideSelections={!selectedStyleId && !selectedSceneId && !selectedWardrobeId && !selectedCharacterId}
             selectedWardrobeId={selectedWardrobeId}
             demoCharacters={memoizedMockCharacters}
           />
