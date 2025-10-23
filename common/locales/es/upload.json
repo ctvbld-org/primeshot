@@ -19,10 +19,16 @@
     "duplicateFile": "Archivo duplicado",
     "uploadFailedCount_one": "No se pudo añadir 1 archivo",
     "uploadFailedCount_other": "No se pudieron añadir {{count}} archivos",
-    "someImagesSkipped": "Some Images Skipped",
-    "skippedMessage": "Only {{count}} more photos could be added. The following files were skipped: {{files}}",
-    "deleteFailed": "Delete Failed",
-    "genericError": "An error occurred"
+    "someImagesSkipped": "Imágenes omitidas",
+    "skippedMessage": "Solo se pudieron añadir {{count}} fotos más. Los siguientes archivos fueron omitidos: {{files}}",
+    "deleteFailed": "Error al eliminar",
+    "genericError": "Ha ocurrido un error",
+    "analysisTimeout": "Tiempo de análisis agotado",
+    "analysisTimeoutDescription": "El análisis de la imagen tardó demasiado. Por favor, inténtalo de nuevo o usa una foto diferente.",
+    "qualityIssues": "Problemas de calidad",
+    "qualityIssuesMessage": "{{count}} foto(s) no cumplieron los requisitos de calidad. Consulta las imágenes rechazadas a continuación para más detalles.",
+    "qualityAndLimitIssues": "Problemas de calidad y límite alcanzado",
+    "qualityAndLimitMessage": "{{rejected}} foto(s) rechazadas por problemas de calidad. {{skipped}} foto(s) no se pudieron añadir debido al límite de 9 imágenes."
   },
   "progress": {
     "uploading": "Subiendo...",

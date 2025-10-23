@@ -103,7 +103,9 @@
   },
   "uploadStep": {
     "petMode": "宠物模式",
-    "bodyShotRequirementsNotMet": "全身拍摄要求未满足"
+    "bodyShotRequirementsNotMet": "全身拍摄要求未满足",
+    "bodyShotBypassExplanation": "您可以在没有全身照片的情况下继续，但它不会是您本人的真实呈现",
+    "bodyShotBypassButton": "我明白，仍然继续"
   },
   "nameStep": {
     "noPreview": "无预览",

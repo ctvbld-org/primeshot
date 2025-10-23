@@ -103,7 +103,9 @@
   },
   "uploadStep": {
     "petMode": "Modalità animale",
-    "bodyShotRequirementsNotMet": "Requisiti per inquadratura corpo non soddisfatti"
+    "bodyShotRequirementsNotMet": "Requisiti per inquadratura corpo non soddisfatti",
+    "bodyShotBypassExplanation": "Puoi continuare senza foto a figura intera, ma non sarà una vera rappresentazione di te stesso",
+    "bodyShotBypassButton": "Ho capito, continua comunque"
   },
   "nameStep": {
     "noPreview": "Nessuna anteprima",

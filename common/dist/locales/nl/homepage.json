@@ -1,29 +1,29 @@
 {
-    "hero": {
-        "headline": "portretten die deuren openen",
-        "tagline": "De meest geavanceerde <ai>AI</ai>-portretten. <period>Punt uit.</period>",
-        "subtitle": "Zorg dat je eerste indruk telt. Transformeer alledaagse selfies in opvallende portretten, gepersonaliseerd en klaar binnen enkele minuten."
+  "hero": {
+    "headline": "portretten die deuren openen",
+    "tagline": "De meest geavanceerde <ai>AI</ai>-portretten. <period>Punt uit.</period>",
+    "subtitle": "Zorg dat je eerste indruk telt. Transformeer alledaagse selfies in opvallende portretten, gepersonaliseerd en klaar binnen enkele minuten."
+  },
+  "story": {
+    "paragraph1": "We zijn de kunst vergeten om onszelf op ons best te laten zien. We maken een selfie, passen de hoek aan, en hopen dat het genoeg is om indruk te maken. In een wereld die snel scrolt en nog sneller oordeelt, heb je een foto nodig die spreekt—helder, zelfverzekerd en met een doel.",
+    "paragraph2": "Primeshot transformeert je alledaagse foto's in premium portretten vol stijl en persoonlijkheid. Geen stijve poses. Geen ongemakkelijke fotoshoots. Gewoon authentieke, aandachttrekkende portretten, geleverd binnen enkele minuten.",
+    "callToAction": "Straal zoals je bent—met gedurfde ambitie."
+  },
+  "aria": {
+    "photoMetadata": "Foto-metadata visualisatie"
+  },
+  "waitlist": {
+    "placeholder": "Voer email in voor vroege toegang",
+    "ariaLabel": "E-mailadres voor wachtlijst",
+    "submitLabel": "Email versturen",
+    "submittingLabel": "Aan het versturen...",
+    "validation": {
+      "invalidEmail": "Voer een geldig e-mailadres in"
     },
-    "story": {
-        "paragraph1": "We zijn de kunst vergeten om onszelf op ons best te laten zien. We maken een selfie, passen de hoek aan, en hopen dat het genoeg is om indruk te maken. In een wereld die snel scrolt en nog sneller oordeelt, heb je een foto nodig die spreekt—helder, zelfverzekerd en met een doel.",
-        "paragraph2": "Primeshot transformeert je alledaagse foto's in premium portretten vol stijl en persoonlijkheid. Geen stijve poses. Geen ongemakkelijke fotoshoots. Gewoon authentieke, aandachttrekkende portretten, geleverd binnen enkele minuten.",
-        "callToAction": "Straal zoals je bent—met gedurfde ambitie."
-    },
-    "aria": {
-        "photoMetadata": "Foto-metadata visualisatie"
-    },
-    "waitlist": {
-        "placeholder": "Voer email in voor vroege toegang",
-        "ariaLabel": "E-mailadres voor wachtlijst",
-        "submitLabel": "Email versturen",
-        "submittingLabel": "Aan het versturen...",
-        "validation": {
-            "invalidEmail": "Voer een geldig e-mailadres in"
-        },
-        "messages": {
-            "alreadyOnWaitlist": "Je staat al op de wachtlijst!",
-            "success": "Bedankt! Je ontvangt een email voor je vroege toegang.",
-            "defaultError": "Er ging iets mis"
-        }
+    "messages": {
+      "alreadyOnWaitlist": "Je staat al op de wachtlijst!",
+      "success": "Bedankt! Je ontvangt een email voor je vroege toegang.",
+      "defaultError": "Er ging iets mis"
     }
+  }
 }

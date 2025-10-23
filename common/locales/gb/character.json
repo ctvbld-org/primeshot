@@ -103,7 +103,9 @@
   },
   "uploadStep": {
     "petMode": "Pet mode",
-    "bodyShotRequirementsNotMet": "Body shot requirements not met"
+    "bodyShotRequirementsNotMet": "Body shot requirements not met",
+    "bodyShotBypassExplanation": "You can continue without body shots, but it won't be a true representation of yourself",
+    "bodyShotBypassButton": "I understand, continue anyway"
   },
   "nameStep": {
     "noPreview": "No preview",

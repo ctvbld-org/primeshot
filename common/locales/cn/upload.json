@@ -17,11 +17,18 @@
     "invalidFileType": "不支持的文件类型（{{types}}）",
     "fileSizeExceeded": "文件过大（最大 {{size}}）",
     "duplicateFile": "重复的文件",
+    "uploadFailedCount_one": "1个文件无法添加",
     "uploadFailedCount_other": "有 {{count}} 个文件无法添加",
-    "someImagesSkipped": "Some Images Skipped",
-    "skippedMessage": "Only {{count}} more photos could be added. The following files were skipped: {{files}}",
-    "deleteFailed": "Delete Failed",
-    "genericError": "An error occurred"
+    "someImagesSkipped": "部分图片已跳过",
+    "skippedMessage": "只能再添加 {{count}} 张照片。以下文件已被跳过：{{files}}",
+    "deleteFailed": "删除失败",
+    "genericError": "发生错误",
+    "analysisTimeout": "分析超时",
+    "analysisTimeoutDescription": "图片分析时间过长。请重试或使用其他照片。",
+    "qualityIssues": "质量问题",
+    "qualityIssuesMessage": "{{count}} 张照片未达到质量要求。请查看下方被拒绝的图片了解详情。",
+    "qualityAndLimitIssues": "质量问题且已达限制",
+    "qualityAndLimitMessage": "{{rejected}} 张照片因质量问题被拒绝。{{skipped}} 张照片因达到9张图片限制无法添加。"
   },
   "progress": {
     "uploading": "上传中...",

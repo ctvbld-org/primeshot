@@ -111,8 +111,8 @@ export default async function RootLayout({
   const locale = await detectLocale()
   
   return (
-    <html lang={locale} className={`${carb.variable} bg-[#0c1013]`}>
-      <body className={`${inter.variable} font-sans antialiased bg-[#0c1013] min-h-screen text-[#FFFFFF70]`}>
+    <html lang={locale} className={`${carb.variable} bg-[#000000]`}>
+      <body className={`${inter.variable} font-sans antialiased bg-[#000000] min-h-screen text-[#FFFFFF70]`}>
         {children}
       </body>
     </html>

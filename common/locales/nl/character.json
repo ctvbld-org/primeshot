@@ -103,7 +103,9 @@
   },
   "uploadStep": {
     "petMode": "Huisdier modus",
-    "bodyShotRequirementsNotMet": "Lichaam shot vereisten niet voldaan"
+    "bodyShotRequirementsNotMet": "Lichaam shot vereisten niet voldaan",
+    "bodyShotBypassExplanation": "Je kunt doorgaan zonder volledige lichaamsfoto's, maar het zal geen echte weergave van jezelf zijn",
+    "bodyShotBypassButton": "Ik begrijp het, toch doorgaan"
   },
   "nameStep": {
     "noPreview": "Geen voorvertoning",

@@ -103,7 +103,9 @@
   },
   "uploadStep": {
     "petMode": "Haustiermodus",
-    "bodyShotRequirementsNotMet": "Ganzkörperaufnahme-Anforderungen nicht erfüllt"
+    "bodyShotRequirementsNotMet": "Ganzkörperaufnahme-Anforderungen nicht erfüllt",
+    "bodyShotBypassExplanation": "Sie können ohne Ganzkörperaufnahmen fortfahren, aber es wird keine genaue Darstellung von Ihnen sein",
+    "bodyShotBypassButton": "Ich verstehe, trotzdem fortfahren"
   },
   "nameStep": {
     "noPreview": "Keine Vorschau",

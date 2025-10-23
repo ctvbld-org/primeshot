@@ -22,7 +22,13 @@
     "someImagesSkipped": "Some Images Skipped",
     "skippedMessage": "Only {{count}} more photos could be added. The following files were skipped: {{files}}",
     "deleteFailed": "Delete Failed",
-    "genericError": "An error occurred"
+    "genericError": "An error occurred",
+    "analysisTimeout": "Analysis Timeout",
+    "analysisTimeoutDescription": "Image analysis took too long. Please try again or use a different photo.",
+    "qualityIssues": "Quality Issues",
+    "qualityIssuesMessage": "{{count}} photo(s) didn't meet quality requirements. See rejected images below for details.",
+    "qualityAndLimitIssues": "Quality Issues & Limit Reached",
+    "qualityAndLimitMessage": "{{rejected}} photo(s) rejected for quality issues. {{skipped}} photo(s) couldn't be added due to 9 image limit."
   },
   "progress": {
     "uploading": "Uploading...",

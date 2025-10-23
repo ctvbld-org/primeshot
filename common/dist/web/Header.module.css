@@ -151,7 +151,8 @@
   }
 
   .exploreNavLink,
-  .createNavLink {
+  .createNavLink,
+  .pricingNavLink {
     display: block;
   }
 }

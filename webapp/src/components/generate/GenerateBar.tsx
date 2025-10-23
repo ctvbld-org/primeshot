@@ -47,7 +47,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { confirmationService } from '@/lib/services/confirmationService'
 const AdminInferenceOptionsDialog = dynamic(() => import('./AdminInferenceOptionsDialog'), { ssr: false })
 
-type PanelKey = 'styles' | 'scenes' | 'wardrobe' | 'characters' | 'settings' | null
+type PanelKey = 'styles' | 'scenes' | 'wardrobe' | 'characters' | 'settings' | 'cta' | null
 
 interface GenerateBarProps {
   emblaApi: any | null
@@ -62,6 +62,10 @@ interface GenerateBarProps {
   onWardrobeClick?: (wardrobeValue: string) => void
   onColorClick?: (colorValue: string) => void
   onCharacterClick?: () => void
+  // Force hide selections in demo mode (shows only icons)
+  hideSelections?: boolean
+  // Controlled wardrobe selection for demo mode
+  selectedWardrobeId?: string | null
 }
 
 export function GenerateBar({ 
@@ -75,7 +79,9 @@ export function GenerateBar({
   onSceneClick,
   onWardrobeClick,
   onColorClick,
-  onCharacterClick
+  onCharacterClick,
+  hideSelections = false,
+  selectedWardrobeId
 }: GenerateBarProps) {
   const { t } = useTranslation(['styles', 'common', 'generate'])
   const scenesLoader = makeCloudfrontLoader('app-images/placeholders/options/scenes')
@@ -107,7 +113,22 @@ export function GenerateBar({
     }
   }
   // Wardrobe panel local UI state
-  const [selectedWardrobeValue, setSelectedWardrobeValue] = useState<string | null>(null)
+  // In demo mode with controlled wardrobe, use external state
+  const [internalWardrobeValue, setInternalWardrobeValue] = useState<string | null>(null)
+  const selectedWardrobeValue = mode === 'demo' && selectedWardrobeId !== undefined 
+    ? selectedWardrobeId 
+    : internalWardrobeValue
+  const setSelectedWardrobeValue = useCallback((value: string | null) => {
+    if (mode === 'demo' && selectedWardrobeId !== undefined) {
+      // In controlled mode, call the external handler
+      if (onWardrobeClick) {
+        // Calling with empty string signals "back to wardrobe selection"
+        onWardrobeClick(value || '')
+      }
+    } else {
+      setInternalWardrobeValue(value)
+    }
+  }, [mode, selectedWardrobeId, onWardrobeClick])
   const [selectedGender, setSelectedGender] = useState<'man' | 'woman'>(() => {
     try {
       const raw = localStorage.getItem('generation-wardrobe-gender')
@@ -174,6 +195,11 @@ export function GenerateBar({
     } catch { return null }
   })
 
+  // Override selections visually when hideSelections is true (demo mode)
+  const displayStyleIndex = hideSelections ? -1 : selectedStyleIndex
+  const displayWardrobeValue = hideSelections ? null : selectedWardrobeValue
+  const displayCharacterId = hideSelections ? '' : selectedCharacterId
+
   // Auth-dependent data loading - only fetch when authenticated
   const { data: subscription, isLoading: isLoadingSubscription } = useCurrentSubscription()
   const { data: creditCosts, isLoading: isLoadingCreditCosts } = useCreditCosts() 
@@ -200,22 +226,27 @@ export function GenerateBar({
   const queryClient = useQueryClient()
 
   const stylesWithPreview = useMemo(() => {
-    return stylesData.map((s) => ({
+    const result = stylesData.map((s) => ({
       ...s,
       preview: getStyleImages([s.preview_images?.[0]]).at(0) || ''
     }))
+    // Debug logging
+    console.log('[GenerateBar] stylesWithPreview order:', result.map((s, i) => `${i}: ${s.name}`))
+    return result
   }, [stylesData])
 
   const currentStyle = stylesWithPreview[selectedStyleIndex]
+  // For display purposes, show null when hideSelections is true
+  const displayCurrentStyle = hideSelections ? null : currentStyle
 
   const selectedLabels = useMemo(() => {
-    if (!currentStyle) return { scene: '', wardrobe: '', color: '' }
-    const sel = getStoredStyleSelections(currentStyle.id)
+    if (!displayCurrentStyle) return { scene: '', wardrobe: '', color: '' }
+    const sel = getStoredStyleSelections(displayCurrentStyle.id)
     const sceneLabel = scenes.find(sc => sc.value.toLowerCase() === sel.scene?.toLowerCase())?.label || ''
     const wardrobeLabel = wardrobes.find(w => w.value.toLowerCase() === sel.wardrobe?.toLowerCase())?.label || ''
     const colorLabel = colors.find(c => c.value.toLowerCase() === sel.color?.toLowerCase())?.label || ''
     return { scene: sceneLabel, wardrobe: wardrobeLabel, color: colorLabel }
-  }, [currentStyle?.id, scenes, wardrobes, colors, selectedStyleIndex, selectionVersion])
+  }, [displayCurrentStyle?.id, scenes, wardrobes, colors, selectedStyleIndex, selectionVersion, hideSelections])
 
   // Refresh labels/UI when selections change externally (e.g., via URL init)
   useEffect(() => {
@@ -1043,7 +1074,7 @@ export function GenerateBar({
             <div ref={viewportRef} className={styles.carouselViewport} onScroll={updateNavButtons}>
               <div className={styles.itemsRow} style={{ width: 'max-content' }}>
               {stylesWithPreview.filter(s => !panelQuery || s.name.toLowerCase().includes(panelQuery.toLowerCase())).map((s, idx) => (
-                <button key={s.id} data-value={s.id} className={`${styles.itemCard} ${idx === selectedStyleIndex ? styles.itemSelected : ''}`} onClick={() => onSelectStyle(idx)}>
+                <button key={s.id} data-value={s.id} className={`${styles.itemCard} ${idx === displayStyleIndex ? styles.itemSelected : ''}`} onClick={() => onSelectStyle(idx)}>
                   {s.preview_images?.[0] && (
                     <Image loader={stylesLoader} src={s.preview_images[0]} alt={s.name} width={80} height={80} className={styles.itemThumb} />
                   )}
@@ -1072,7 +1103,7 @@ export function GenerateBar({
             <div ref={viewportRef} className={styles.carouselViewport} onScroll={updateNavButtons}>
               <div className={styles.itemsRow} style={{ width: 'max-content' }}>
               {items.map(opt => {
-                const sel = currentStyle ? getStoredStyleSelections(currentStyle.id).scene : null
+                const sel = displayCurrentStyle ? getStoredStyleSelections(displayCurrentStyle.id).scene : null
                 const isSelected = sel?.toLowerCase() === opt.value.toLowerCase()
                 return (
                 <button key={opt.value} data-value={opt.value} className={`${styles.itemCard} ${isSelected ? styles.itemSelected : ''}`} onClick={() => { 
@@ -1159,7 +1190,7 @@ export function GenerateBar({
         const filteredWardrobes = orderedWardrobes
         const availableColorsLower = availableColors.map(v => v.toLowerCase())
         const filteredColors = sortColorsByPalette(colors.filter(c => availableColorsLower.includes(c.value.toLowerCase())))
-        const showingColors = !!selectedWardrobeValue
+        const showingColors = !!displayWardrobeValue
 
         return (
             <OptionsPanel
@@ -1234,7 +1265,7 @@ export function GenerateBar({
               <div ref={viewportRef} className={`${styles.carouselViewport} ${styles.fadeSwitch} ${isSwitchingGender ? styles.fadeSwitchHidden : ''}`} onScroll={updateNavButtons}>
                 <div className={styles.itemsRow} style={{ width: 'max-content' }}>
                 {filteredWardrobes.map(opt => {
-                  const sel = currentStyle ? getStoredStyleSelections(currentStyle.id).wardrobe : null
+                  const sel = displayCurrentStyle ? getStoredStyleSelections(displayCurrentStyle.id).wardrobe : null
                   const isSelected = sel?.toLowerCase() === opt.value.toLowerCase()
                   return (
                   <button key={opt.value} data-value={opt.value} className={`${styles.itemCard} ${isSelected ? styles.itemSelected : ''}`} onClick={() => {
@@ -1348,7 +1379,7 @@ export function GenerateBar({
                   thumbUrl={characterThumbs[m.id]}
                   uploadedCount={uploadedCounts[m.id] || 0}
                   job={activeJobs[m.id] || null}
-                  selectedId={selectedCharacterId || ''}
+                  selectedId={displayCharacterId || ''}
                   onSelect={() => onSelectCharacter(m.id, (m as any)?.gender, (m as any)?.metadata?.gender)}
                   onDeleted={(id) => {
                     // Optimistically remove from UI
@@ -1495,12 +1526,12 @@ export function GenerateBar({
                 onClick={() => open('styles')}
                 ariaLabel={t('aria.selectStyle', { ns: 'generate' })}
                 variant="labeled"
-                thumbnail={currentStyle?.preview_images?.[0] ? (
-                <Image loader={stylesLoader} src={currentStyle.preview_images[0]} alt={currentStyle?.name || 'style'} width={32} height={32} className={styles.thumbImg} />
+                thumbnail={displayCurrentStyle?.preview_images?.[0] ? (
+                <Image loader={stylesLoader} src={displayCurrentStyle.preview_images[0]} alt={displayCurrentStyle?.name || 'style'} width={32} height={32} className={styles.thumbImg} />
                 ) : (
-                <Icon variant="scene" size={24} />
+                <Icon variant="styles" size={20} />
                 )}
-                label={currentStyle?.name || t('titles.styleLabel', { ns: 'styles' })}
+                label={displayCurrentStyle?.name || t('titles.styleLabel', { ns: 'styles' })}
             />
 
             {/* Scene */}
@@ -1510,7 +1541,7 @@ export function GenerateBar({
                 variant="labeled"
                 className={`${errors.scene ? styles.selectorError : ''} ${!selectedLabels.scene ? styles.selectorEmpty : ''}`}
                 thumbnail={(() => {
-                  const sel = currentStyle ? getStoredStyleSelections(currentStyle.id).scene : null
+                  const sel = displayCurrentStyle ? getStoredStyleSelections(displayCurrentStyle.id).scene : null
                   const scene = scenes.find(s => s.value.toLowerCase() === sel?.toLowerCase())
                 
                   if (scene?.image) return <Image loader={scenesLoader} src={scene.image} alt={scene.label} width={32} height={32} className={styles.thumbImg} />
@@ -1526,7 +1557,7 @@ export function GenerateBar({
                 variant="labeled"
                 className={`${errors.wardrobe ? styles.selectorError : ''} ${!selectedLabels.wardrobe ? styles.selectorEmpty : ''}`}
                 thumbnail={(() => {
-                const sel = currentStyle ? getStoredStyleSelections(currentStyle.id) : null
+                const sel = displayCurrentStyle ? getStoredStyleSelections(displayCurrentStyle.id) : null
                 const wrb = wardrobes.find(w => w.value.toLowerCase() === (sel?.wardrobe?.toLowerCase() || ''))
                 if (wrb?.image) {
                     return (
@@ -1536,7 +1567,7 @@ export function GenerateBar({
                 return <Icon variant="wardrobe" size={20} />
                 })()}
                 overlay={(() => {
-                const sel = currentStyle ? getStoredStyleSelections(currentStyle.id) : null
+                const sel = displayCurrentStyle ? getStoredStyleSelections(displayCurrentStyle.id) : null
                 if (!sel?.color) return null
                 return (
                     <span className={styles.colorSelected} style={{ background: colors.find(c=>c.value.toLowerCase()===sel.color?.toLowerCase())?.color || '#fff' }} />
@@ -1559,7 +1590,7 @@ export function GenerateBar({
                       thumbnail={(() => {
                       const url = selectedCharacterId ? characterThumbs[selectedCharacterId] : ''
                         if (url) return <Image src={url} alt="Character" width={44} height={44} className={styles.thumbImg} unoptimized />
-                      return <span className={styles.characterIcon}><Image src={(process.env.NEXT_PUBLIC_AWS_DISTRIBUTION ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/assets/logo-primeshot.svg` : '/app-images/assets/logo-primeshot.svg')} alt="Primeshot" width={32} height={32} /></span>
+                      return <span className={styles.characterIcon}><Icon variant="primeshotSymbol" size={20} /></span>
                       })()}
                       overlay={(
                       <>

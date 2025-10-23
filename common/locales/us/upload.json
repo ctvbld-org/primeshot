@@ -28,7 +28,7 @@
     "qualityIssues": "Quality Issues",
     "qualityIssuesMessage": "{{count}} photo(s) didnt meet quality requirements. See rejected images below for details.",
     "qualityAndLimitIssues": "Quality Issues & Limit Reached",
-    "qualityAndLimitMessage": "{{rejected}} photo(s) rejected for quality issues. {{skipped}} good photo(s) couldnt be added due to 9 image limit."
+    "qualityAndLimitMessage": "{{rejected}} photo(s) rejected for quality issues. {{skipped}} photo(s) couldnt be added due to 9 image limit."
   },
   "progress": {
     "uploading": "Uploading...",

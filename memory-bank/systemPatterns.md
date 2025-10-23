@@ -2430,6 +2430,35 @@ Detected changes in:
 - webapp/src/lib/services/creditService.ts
 - website/src/app/[locale]/pricing/page.tsx
 - website/src/components/WaitlistForm.tsx
+
+
+**Auto-update 2025-10-22**:
+Detected changes in:
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/OnboardingStep.tsx
+- webapp/src/components/character/training/UploadPhotosStep.tsx
+- webapp/src/components/upload/ImageQualityScore.module.css
+- webapp/src/components/upload/ImageQualityScore.tsx
+- webapp/src/components/upload/ImageTooltip.tsx
+- webapp/src/components/upload/RejectedImagesContent.module.css
+- webapp/src/components/upload/RejectedImagesContent.tsx
+- webapp/src/lib/hooks/use-file-upload.ts
+- webapp/src/lib/image-quality.ts
+- webapp/src/lib/mediapipe-face-detection.ts
+- webapp/src/lib/types/claude-analysis.ts
+- website/src/app/[locale]/layout.tsx
+
+
+**Auto-update 2025-10-22**:
+Detected changes in:
+- webapp/src/components/generate/GenerateBar.module.css
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/contexts/style-data-context.tsx
+- webapp/src/contexts/style-selection-context.tsx
+- webapp/src/lib/api/client.ts
+- webapp/src/lib/api/config.ts
+- webapp/src/lib/utils/localStorage.ts
+- webapp/src/lib/utils/style-storage.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

@@ -713,6 +713,8 @@ export declare const resources: {
             uploadStep: {
                 petMode: string;
                 bodyShotRequirementsNotMet: string;
+                bodyShotBypassExplanation: string;
+                bodyShotBypassButton: string;
             };
             nameStep: {
                 noPreview: string;
@@ -1875,6 +1877,8 @@ export declare const resources: {
             uploadStep: {
                 petMode: string;
                 bodyShotRequirementsNotMet: string;
+                bodyShotBypassExplanation: string;
+                bodyShotBypassButton: string;
             };
             nameStep: {
                 noPreview: string;
@@ -2189,6 +2193,12 @@ export declare const resources: {
                 skippedMessage: string;
                 deleteFailed: string;
                 genericError: string;
+                analysisTimeout: string;
+                analysisTimeoutDescription: string;
+                qualityIssues: string;
+                qualityIssuesMessage: string;
+                qualityAndLimitIssues: string;
+                qualityAndLimitMessage: string;
             };
             progress: {
                 uploading: string;
@@ -3009,6 +3019,8 @@ export declare const resources: {
             uploadStep: {
                 petMode: string;
                 bodyShotRequirementsNotMet: string;
+                bodyShotBypassExplanation: string;
+                bodyShotBypassButton: string;
             };
             nameStep: {
                 noPreview: string;
@@ -3323,6 +3335,12 @@ export declare const resources: {
                 skippedMessage: string;
                 deleteFailed: string;
                 genericError: string;
+                analysisTimeout: string;
+                analysisTimeoutDescription: string;
+                qualityIssues: string;
+                qualityIssuesMessage: string;
+                qualityAndLimitIssues: string;
+                qualityAndLimitMessage: string;
             };
             progress: {
                 uploading: string;
@@ -4130,6 +4148,8 @@ export declare const resources: {
             uploadStep: {
                 petMode: string;
                 bodyShotRequirementsNotMet: string;
+                bodyShotBypassExplanation: string;
+                bodyShotBypassButton: string;
             };
             nameStep: {
                 noPreview: string;
@@ -4444,6 +4464,12 @@ export declare const resources: {
                 skippedMessage: string;
                 deleteFailed: string;
                 genericError: string;
+                analysisTimeout: string;
+                analysisTimeoutDescription: string;
+                qualityIssues: string;
+                qualityIssuesMessage: string;
+                qualityAndLimitIssues: string;
+                qualityAndLimitMessage: string;
             };
             progress: {
                 uploading: string;
@@ -5251,6 +5277,8 @@ export declare const resources: {
             uploadStep: {
                 petMode: string;
                 bodyShotRequirementsNotMet: string;
+                bodyShotBypassExplanation: string;
+                bodyShotBypassButton: string;
             };
             nameStep: {
                 noPreview: string;
@@ -5565,6 +5593,12 @@ export declare const resources: {
                 skippedMessage: string;
                 deleteFailed: string;
                 genericError: string;
+                analysisTimeout: string;
+                analysisTimeoutDescription: string;
+                qualityIssues: string;
+                qualityIssuesMessage: string;
+                qualityAndLimitIssues: string;
+                qualityAndLimitMessage: string;
             };
             progress: {
                 uploading: string;
@@ -6372,6 +6406,8 @@ export declare const resources: {
             uploadStep: {
                 petMode: string;
                 bodyShotRequirementsNotMet: string;
+                bodyShotBypassExplanation: string;
+                bodyShotBypassButton: string;
             };
             nameStep: {
                 noPreview: string;
@@ -6686,6 +6722,12 @@ export declare const resources: {
                 skippedMessage: string;
                 deleteFailed: string;
                 genericError: string;
+                analysisTimeout: string;
+                analysisTimeoutDescription: string;
+                qualityIssues: string;
+                qualityIssuesMessage: string;
+                qualityAndLimitIssues: string;
+                qualityAndLimitMessage: string;
             };
             progress: {
                 uploading: string;
@@ -7493,6 +7535,8 @@ export declare const resources: {
             uploadStep: {
                 petMode: string;
                 bodyShotRequirementsNotMet: string;
+                bodyShotBypassExplanation: string;
+                bodyShotBypassButton: string;
             };
             nameStep: {
                 noPreview: string;
@@ -7807,6 +7851,12 @@ export declare const resources: {
                 skippedMessage: string;
                 deleteFailed: string;
                 genericError: string;
+                analysisTimeout: string;
+                analysisTimeoutDescription: string;
+                qualityIssues: string;
+                qualityIssuesMessage: string;
+                qualityAndLimitIssues: string;
+                qualityAndLimitMessage: string;
             };
             progress: {
                 uploading: string;
@@ -8614,6 +8664,8 @@ export declare const resources: {
             uploadStep: {
                 petMode: string;
                 bodyShotRequirementsNotMet: string;
+                bodyShotBypassExplanation: string;
+                bodyShotBypassButton: string;
             };
             nameStep: {
                 noPreview: string;
@@ -8928,6 +8980,12 @@ export declare const resources: {
                 skippedMessage: string;
                 deleteFailed: string;
                 genericError: string;
+                analysisTimeout: string;
+                analysisTimeoutDescription: string;
+                qualityIssues: string;
+                qualityIssuesMessage: string;
+                qualityAndLimitIssues: string;
+                qualityAndLimitMessage: string;
             };
             progress: {
                 uploading: string;
@@ -9736,6 +9794,8 @@ export declare const resources: {
             uploadStep: {
                 petMode: string;
                 bodyShotRequirementsNotMet: string;
+                bodyShotBypassExplanation: string;
+                bodyShotBypassButton: string;
             };
             nameStep: {
                 noPreview: string;
@@ -10044,11 +10104,18 @@ export declare const resources: {
                 invalidFileType: string;
                 fileSizeExceeded: string;
                 duplicateFile: string;
+                uploadFailedCount_one: string;
                 uploadFailedCount_other: string;
                 someImagesSkipped: string;
                 skippedMessage: string;
                 deleteFailed: string;
                 genericError: string;
+                analysisTimeout: string;
+                analysisTimeoutDescription: string;
+                qualityIssues: string;
+                qualityIssuesMessage: string;
+                qualityAndLimitIssues: string;
+                qualityAndLimitMessage: string;
             };
             progress: {
                 uploading: string;
@@ -10857,6 +10924,8 @@ export declare const resources: {
             uploadStep: {
                 petMode: string;
                 bodyShotRequirementsNotMet: string;
+                bodyShotBypassExplanation: string;
+                bodyShotBypassButton: string;
             };
             nameStep: {
                 noPreview: string;
@@ -11165,11 +11234,18 @@ export declare const resources: {
                 invalidFileType: string;
                 fileSizeExceeded: string;
                 duplicateFile: string;
+                uploadFailedCount_one: string;
                 uploadFailedCount_other: string;
                 someImagesSkipped: string;
                 skippedMessage: string;
                 deleteFailed: string;
                 genericError: string;
+                analysisTimeout: string;
+                analysisTimeoutDescription: string;
+                qualityIssues: string;
+                qualityIssuesMessage: string;
+                qualityAndLimitIssues: string;
+                qualityAndLimitMessage: string;
             };
             progress: {
                 uploading: string;

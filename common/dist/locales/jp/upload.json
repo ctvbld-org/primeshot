@@ -1,42 +1,49 @@
 {
-    "title": "写真をアップロード",
-    "description": "写真をアップロードして開始",
-    "requirements": {
-        "title": "写真の要件",
-        "description": "写真がこれらの要件を満たしていることを確認してください"
-    },
-    "buttons": {
-        "upload": "アップロード",
-        "continue": "続行",
-        "retry": "再試行"
-    },
-    "errors": {
-        "invalidFile": "無効なファイル形式",
-        "fileTooLarge": "ファイルが大きすぎます",
-        "uploadFailed": "アップロードに失敗しました",
-        "invalidFileType": "未対応のファイル形式（{{types}}）",
-        "fileSizeExceeded": "ファイルが大きすぎます（最大 {{size}}）",
-        "duplicateFile": "重複したファイル",
-        "uploadFailedCount_other": "{{count}} 件のファイルを追加できませんでした",
-        "someImagesSkipped": "Some Images Skipped",
-        "skippedMessage": "Only {{count}} more photos could be added. The following files were skipped: {{files}}",
-        "deleteFailed": "Delete Failed",
-        "genericError": "An error occurred"
-    },
-    "progress": {
-        "uploading": "アップロード中...",
-        "processing": "処理中...",
-        "complete": "完了"
-    },
-    "quality": {
-        "rejected": {
-            "oops": "あらら！",
-            "title": "{{total}}枚中{{rejected}}枚の写真が却下されました",
-            "description": "完璧なデータセットを得るために他の画像をアップロードするか、これらの写真で続行できますが、以下の可能性があります：",
-            "lessVariety": "生成される写真のバリエーションが少なくなる",
-            "lowerQuality": "ポートレートの品質が低下する",
-            "notLookLike": "一部のスタイルで似ていない写真になる可能性がある",
-            "button": "このまま続ける"
-        }
+  "title": "写真をアップロード",
+  "description": "写真をアップロードして開始",
+  "requirements": {
+    "title": "写真の要件",
+    "description": "写真がこれらの要件を満たしていることを確認してください"
+  },
+  "buttons": {
+    "upload": "アップロード",
+    "continue": "続行",
+    "retry": "再試行"
+  },
+  "errors": {
+    "invalidFile": "無効なファイル形式",
+    "fileTooLarge": "ファイルが大きすぎます",
+    "uploadFailed": "アップロードに失敗しました",
+    "invalidFileType": "未対応のファイル形式（{{types}}）",
+    "fileSizeExceeded": "ファイルが大きすぎます（最大 {{size}}）",
+    "duplicateFile": "重複したファイル",
+    "uploadFailedCount_one": "1件のファイルを追加できませんでした",
+    "uploadFailedCount_other": "{{count}} 件のファイルを追加できませんでした",
+    "someImagesSkipped": "一部の画像がスキップされました",
+    "skippedMessage": "あと {{count}} 枚の写真のみ追加できました。次のファイルはスキップされました：{{files}}",
+    "deleteFailed": "削除に失敗しました",
+    "genericError": "エラーが発生しました",
+    "analysisTimeout": "分析タイムアウト",
+    "analysisTimeoutDescription": "画像の分析に時間がかかりすぎました。もう一度お試しいただくか、別の写真をご使用ください。",
+    "qualityIssues": "品質の問題",
+    "qualityIssuesMessage": "{{count}} 枚の写真が品質要件を満たしていません。詳細については下記の却下された画像をご確認ください。",
+    "qualityAndLimitIssues": "品質の問題と上限到達",
+    "qualityAndLimitMessage": "品質の問題により {{rejected}} 枚の写真が却下されました。9枚の画像制限により {{skipped}} 枚の写真を追加できませんでした。"
+  },
+  "progress": {
+    "uploading": "アップロード中...",
+    "processing": "処理中...",
+    "complete": "完了"
+  },
+  "quality": {
+    "rejected": {
+      "oops": "あらら！",
+      "title": "{{total}}枚中{{rejected}}枚の写真が却下されました",
+      "description": "完璧なデータセットを得るために他の画像をアップロードするか、これらの写真で続行できますが、以下の可能性があります：",
+      "lessVariety": "生成される写真のバリエーションが少なくなる",
+      "lowerQuality": "ポートレートの品質が低下する",
+      "notLookLike": "一部のスタイルで似ていない写真になる可能性がある",
+      "button": "このまま続ける"
     }
+  }
 }

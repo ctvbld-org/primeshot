@@ -103,7 +103,9 @@
   },
   "uploadStep": {
     "petMode": "Modo mascota",
-    "bodyShotRequirementsNotMet": "Requisitos de plano corporal no cumplidos"
+    "bodyShotRequirementsNotMet": "Requisitos de plano corporal no cumplidos",
+    "bodyShotBypassExplanation": "Puedes continuar sin fotos de cuerpo completo, pero no será una representación fiel de ti mismo",
+    "bodyShotBypassButton": "Entiendo, continuar de todos modos"
   },
   "nameStep": {
     "noPreview": "Sin vista previa",

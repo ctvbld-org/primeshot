@@ -103,7 +103,9 @@
   },
   "uploadStep": {
     "petMode": "ペットモード",
-    "bodyShotRequirementsNotMet": "全身ショット要件が満たされていません"
+    "bodyShotRequirementsNotMet": "全身ショット要件が満たされていません",
+    "bodyShotBypassExplanation": "全身写真なしで続行できますが、ご自身の真の表現にはなりません",
+    "bodyShotBypassButton": "理解しました、このまま続ける"
   },
   "nameStep": {
     "noPreview": "プレビューなし",

@@ -50,7 +50,7 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
               </>
             ) : (
               <>
-                {/* <a
+                <a
                   href="/explore"
                   aria-current={isActive('/explore') ? 'page' : undefined}
                   className={
@@ -71,9 +71,9 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
                   }
                 >
                   {t('navigation.create')}
-                </Link> */}
+                </Link>
                 {/* <a href="/use-cases" className={styles.navLink + ' ' + styles.useCasesNavLink}>Use Cases</a> */}
-                {/* <a href="/pricing" className={styles.navLink + ' ' + styles.pricingNavLink}>Pricing</a> */}
+                <a href="/pricing" className={styles.navLink + ' ' + styles.pricingNavLink}>Pricing</a>
                 {isAuthenticated && user?.admin && (
                   <a
                     href="/admin"

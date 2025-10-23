@@ -1,0 +1,379 @@
+/* Shared styles for all showcase sections */
+
+.container {
+  position: relative;
+  min-height: 820px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.charactersContainer {
+  min-height: 600px;
+}
+
+.stylesContainer,
+.stylesContainer .scrollingElements  {
+  min-height: 1200px;
+}
+
+.wardrobeContainer .floatingImagesContainer,
+.wardrobeContainer .fixedContent {
+  z-index: 10;
+}
+
+/* Scrolling content (before becoming fixed) */
+.scrollingContent {
+  position: relative;
+  max-width: 1280px;
+  width: 100%; 
+  margin: 0 auto;
+  padding: 64px 32px;
+  pointer-events: none;
+  z-index: 50;
+
+}
+
+.scrollingContent.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.3s ease-in 0.2s;
+}
+
+/* Elements that scroll with the document flow */
+.scrollingElements {
+  position: relative;
+  width: 100%;
+  min-height: 820px;
+  pointer-events: none;
+}
+
+/* Fixed content wrapper (after first section reaches middle) */
+.fixedContent {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 64px 32px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-out;
+  z-index: 50;
+}
+
+.fixedContent.visible {
+  opacity: 1;
+  transition: opacity 0.3s ease-in 0.2s;
+}
+
+.content {
+  position: relative;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 500px;
+  pointer-events: none;
+}
+
+.titleContainer {
+  display: flex;
+  flex-direction: column; 
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+}
+
+.iconWrapper {
+  background-color: #E5FBFA;
+  border-radius: 1rem;
+  width: 62px;
+  height: 62px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  filter: blur(20px);
+  transform: translateY(200px);
+  transition: filter 0.4s ease-in-out, transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
+}
+
+.iconWrapper svg {
+  width: 30px;
+  height: 30px;
+  color: #0C1013;
+}
+
+.title {
+    font-weight: 500;
+    font-size: 36px;
+    line-height: 44px;
+    letter-spacing: -0.04em;
+    color: #E5FBFA;
+    mix-blend-mode: lighten;
+    opacity: 0;
+    filter: blur(20px);
+    transform: translateY(140px);
+    transition: filter 0.4s ease-in-out, transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
+}
+
+.subtitle {
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 24px;
+    text-align: center;
+    letter-spacing: -0.02em;
+    color: #E5FBFA;
+    opacity: 0.5;
+    max-width: 540px;
+    padding: 0 32px;
+    opacity: 0;
+    filter: blur(20px);
+    transform: translateY(-120px);
+    transition: filter 0.4s ease-in-out, transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
+}
+
+.headerSubtitle {
+  transform: translateY(-80px);
+  transition: filter 0.4s ease-in-out, transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
+}
+
+.headerTitle {
+  transform: translateY(80px);
+  transition: filter 0.4s ease-in-out, transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
+}
+
+.visible .iconWrapper,
+.visible .title,
+.visible .subtitle,
+.iconWrapper.visible,
+.title.visible,
+.subtitle.visible {
+  filter: blur(0);
+  transform: translateY(0);
+  opacity: 1;
+  transition: filter 0.6s 0.4s ease-in-out, transform 0.6s 0.4s ease-in-out, opacity 0.6s 0.4s ease-in-out;
+}
+
+.visible .subtitle,
+.subtitle.visible {
+  opacity: 0.5;
+}
+
+.floatingImagesContainer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.heroImage {
+  object-fit: cover;
+  border-radius: 4px;
+  height: 156px !important;
+  width: 103px !important;
+  max-width: none !important;
+}
+
+.floatingImage {
+  position: absolute;
+  opacity: 0;
+  transition: transform 0.83 ease-out, opacity 0.3s ease-in-out;
+}
+.floatingImage1 {
+  top: 240px;
+  left: calc(50% - 530px);
+  z-index: 1;
+  transform: rotate(-6deg) translate3d(0, 0, 0);  
+}
+.floatingImage2 {
+  top: 320px;
+  left: calc(50% - 420px);
+  transform: rotate(6deg) translate3d(0, 0, 0);  
+}
+.floatingImage3 {
+  top: 430px;
+  left: calc(50% - 530px);
+  transform: rotate(-20deg) translate3d(0, 0, 0);  
+}
+.visible .floatingImage {
+  opacity: 1;
+}
+
+.visible .floatingImage1 {
+  transform: rotate(-6deg) translate3d(-10px, -10px, 0);
+  transition: transform 0.8s 0.4s ease-out, opacity 0.6s 0.4s ease-in-out;
+}
+.visible .floatingImage2 {
+  transform: rotate(6deg) translate3d(10px, 10px, 0);
+  transition: transform 0.8s 0.5s ease-out, opacity 0.6s 0.5s ease-in-out;
+}
+.visible .floatingImage3 {
+  transform: rotate(-20deg) translate3d(10px, -10px, 0);
+  transition: transform 0.8s 0.6s ease-out, opacity 0.6s 0.6s ease-in-out;
+}
+
+.handDrawnArrow {
+  position: absolute;
+  top: 280px;
+  left: calc(50% - 330px);
+  overflow: hidden;
+  transform: rotate(-55deg);
+  max-width: 0;
+  opacity: 0;
+  transition: max-width 0.3s ease-in-out, transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+.visible .handDrawnArrow {
+  transform: rotate(0deg);
+  max-width: 80px;
+  opacity: 1;
+  transition: max-width 0.3s 0.6s ease-in-out, transform 0.3s 0.6s ease-in-out, opacity 0.3s 0.6s ease-in-out;
+}
+
+.sceneImage1 {
+  top: 12%;
+  left: 1%;
+  z-index: 1;
+  transform: rotate(0) translate3d(20px, 20px, 0);  
+  transition: transform 0.8s ease-out, opacity 0.6s ease-in-out;
+}
+.visible .sceneImage1 {
+  transform: rotate(0) translate3d(-10px, -10px, 0);
+  transition: transform 0.8s 0.6s ease-out, opacity 0.6s 0.6s ease-in-out;
+}
+.sceneImage2 {
+  top: 18%;
+  right: 8%;
+  z-index: 1;
+  transform: rotate(0) translate3d(-20px, -20px, 0);  
+  transition: transform 0.8s ease-out, opacity 0.6s ease-in-out;
+}
+.visible .sceneImage2 {
+  transform: rotate(0) translate3d(10px, 10px, 0);
+  transition: transform 0.8s 0.6s ease-out, opacity 0.6s 0.6s ease-in-out;
+}
+.sceneImage3 {
+  top: 34%;
+  left: 11%;
+  z-index: 1;
+  transform: rotate(0) translate3d(-20px, -20px, 0);  
+  transition: transform 0.8s ease-out, opacity 0.6s ease-in-out;
+}
+.visible .sceneImage3 {
+  transform: rotate(0) translate3d(10px, 10px, 0);
+  transition: transform 0.8s 0.6s ease-out, opacity 0.6s 0.6s ease-in-out;
+}
+.sceneImage4 {
+  top: 52%;
+  right: -1%;
+  z-index: 1;
+  transform: rotate(0) translate3d(20px, 20px, 0);  
+  transition: transform 0.8s ease-out, opacity 0.6s ease-in-out;
+}
+.visible .sceneImage4 {
+  transform: rotate(0) translate3d(-10px, -10px, 0);
+  transition: transform 0.8s 0.6s ease-out, opacity 0.6s 0.6s ease-in-out;
+}
+.sceneImage5 {
+  bottom: 2%;
+  left: -6%;
+  z-index: 1;
+  transform: rotate(0) translate3d(20px, 20px, 0);  
+  transition: transform 0.8s ease-out, opacity 0.6s ease-in-out;
+}
+.visible .sceneImage5 {
+  transform: rotate(0) translate3d(-10px, -10px, 0);
+  transition: transform 0.8s 0.6s ease-out, opacity 0.6s 0.6s ease-in-out;
+}
+.sceneImage6 {
+  bottom: 9%;
+  right: 8%;
+  z-index: 1;
+  transform: rotate(0) translate3d(-20px, -20px, 0);  
+  transition: transform 0.8s ease-out, opacity 0.6s ease-in-out;
+}
+.visible .sceneImage6 {
+  transform: rotate(0) translate3d(10px, 10px, 0);
+  transition: transform 0.8s 0.6s ease-out, opacity 0.6s 0.6s ease-in-out;
+}
+
+.wardrobeImage1 {
+  top: -42%;
+  left: calc(50% - 360px);
+}
+.wardrobeImage2 {
+  top: 0%;
+  left: calc(50% - 500px);
+}
+.wardrobeImage3 {
+  top: 42%;
+  left: 0;
+}
+.wardrobeImage4 {
+  top: 84%;
+  left: -146px;
+}
+.wardrobeImage5 {
+  top: 125%;
+  left: -286px;
+}
+.wardrobeImage6 {
+  right: 0;
+  top: 7%;
+}
+.wardrobeImage7 {
+  right: 0;
+  top: 44%;
+}
+.wardrobeImage8 {
+  right: 0;
+  top: 81%;
+}
+
+.imageWrapper {
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.imageWrapperRing20 {
+  composes: imageWrapper;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25),
+              0 0 0 2px rgba(0, 229, 204, 0.2);
+}
+
+.stylesImage1 {
+  top: 120px;
+  left: calc(50% - 490px);
+  z-index: 1;
+  transform: rotate(0) translate3d(20px, 20px, 0);  
+}
+.visible .stylesImage1 {
+  transform: rotate(-6deg) translate3d(-10px, -10px, 0);
+  transition: transform 0.8s 0.4s ease-out, opacity 0.6s 0.4s ease-in-out;
+}
+.stylesImage2 {
+  top: 260px;
+  left: calc(50% + 380px);
+  z-index: 1;
+  transform: rotate(6deg) translate3d(-20px, -20px, 0);  
+}
+.visible .stylesImage2 {
+  transform: rotate(6deg) translate3d(10px, 10px, 0);
+  transition: transform 0.8s 0.4s ease-out, opacity 0.6s 0.4s ease-in-out;
+}
+
+
+@media (max-width: 560px) {
+  .title {
+    font-size: 28px;
+    line-height: 34px;
+  }
+}
