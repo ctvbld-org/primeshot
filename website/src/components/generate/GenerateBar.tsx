@@ -2,37 +2,47 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import dynamic from 'next/dynamic'
-// Embla type import replaced with any to avoid cross-package type issues
 import Image from 'next/image'
 import { Icon } from '@primeshot/common/web/Icon'
 import { useTranslation } from 'react-i18next'
-import { useStyleSelection } from '@/contexts/style-selection-context'
-import { useScenesFromContext, useWardrobesFromContext, useColorsFromContext } from '@/contexts/style-data-context'
-import { useTranslatedScenes, useTranslatedWardrobes, useTranslatedColors } from '@/hooks/useTranslatedStyles'
+import { useStyleSelection, useStyleData } from '@primeshot/common'
+import { useScenesFromContext, useWardrobesFromContext, useColorsFromContext } from '@primeshot/common'
 
-import { getStyleImages } from '@/lib/utils/get-styles-images'
-// For options we will use a custom CloudFront loader that selects the nearest variant
-import { makeCloudfrontLoader } from '@/lib/utils/cloudfrontLoader'
-import { storeSelectedStyleIndex, getStoredStyleSelections, storeStyleSelections } from '@/lib/utils/style-storage'
-import { sortColorsByPalette, isLightColor } from '@/lib/utils/colorSort'
-import { useCurrentSubscription } from '@/hooks/useCurrentSubscription'
-import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus'
-import { useCreditCosts, calculateImageCredits } from '@/hooks/usePricingConfig'
-import { useGenerationConfig } from '@/hooks/useGenerationConfig'
 import styles from './GenerateBar.module.css'
-import { useAuth } from '@/contexts/auth-context'
-import { useCharactersApi } from '@/lib/api/characters'
-import { useCreditGuard } from '@/hooks/useCreditGuard'
+import { useAuth } from '@primeshot/common'
 import { getApiUrl } from '@primeshot/common'
-import { useJobsApi } from '@/lib/api/jobs'
-import { useActionGate } from '@/hooks/useActionGate'
-import type { ActiveTrainingJob } from '@/hooks/useActiveTrainingJob'
-import { useTrainingProgress, useInferenceProgress } from '@/hooks/useJobProgress'
-import { CircleProgress } from '@primeshot/common/web/ui/circle-progress'
-import { Countdown } from '@/components/character/Countdown'
-import { useInferenceQueue } from '@/contexts/inference-queue-context'
-import { useCallback as useCallbackReact, useRef } from 'react'
-// Batched counts replace per-card image fetch
+import { useRef } from 'react'
+
+// Stub implementations for demo-only website
+import {
+  makeCloudfrontLoader,
+  sortColorsByPalette,
+  isLightColor,
+  useTranslatedScenes,
+  useTranslatedWardrobes,
+  useTranslatedColors,
+  calculateImageCredits,
+  useGenerationConfig,
+  useCurrentSubscription,
+  useCreditCosts,
+  useSubscriptionStatus,
+  useCreditGuard,
+  useJobsApi,
+  useOpenCreditPackDialog,
+  useQueryClient,
+  getStyleImages,
+  getStoredStyleSelections,
+  storeStyleSelections,
+  storeSelectedStyleIndex,
+  useCharactersApi,
+  useActionGate,
+  useInferenceQueue,
+  useTrainingProgress,
+  useInferenceProgress,
+  confirmationService,
+  Countdown,
+  type ActiveTrainingJob
+} from './stubs'
 
 import { OptionsPanel } from './OptionsPanel/OptionsPanel'
 import { Loader } from '@primeshot/common/web/ui/loader'
@@ -42,9 +52,8 @@ import { Button } from '@primeshot/common/web/ui/button'
 import { SegmentedControl } from '@primeshot/common/web/ui/segmented-control'
 import { useToast } from '@primeshot/common/web/ui/use-toast'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@primeshot/common/web/ui/tooltip'
-import { useOpenCreditPackDialog } from '@/hooks/useOpenCreditPackDialog'
-import { useQueryClient } from '@tanstack/react-query'
-import { confirmationService } from '@/lib/services/confirmationService'
+import { CircleProgress } from '@primeshot/common/web/ui/circle-progress'
+
 
 type PanelKey = 'styles' | 'scenes' | 'wardrobe' | 'characters' | 'settings' | 'cta' | null
 
@@ -417,7 +426,6 @@ export function GenerateBar({
   const updateJobWithRealId = inferenceQueue.updateJobWithRealId as (placeholderId: string, realJobId: string) => void
   const updateJobStatus = inferenceQueue.updateJobStatus as (jobId: string, status: any) => void
   const updateJobMessage = inferenceQueue.updateJobMessage as (jobId: string, message?: string) => void
-  const isGenerating = inferenceQueue.isGenerating
   
   const lastClickTimeRef = useRef<number>(0)
 

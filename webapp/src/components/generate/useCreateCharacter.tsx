@@ -2,6 +2,7 @@ import React, { useCallback, useMemo } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCurrentSubscription } from '@/hooks/useCurrentSubscription'
 import { useSubscriptionTiers, useCreditCosts, getCharacterTrainingCost, getCharacterLimit } from '@/hooks/usePricingConfig'
+import type { SubscriptionTier } from '@primeshot/common/lib/pricing/types'
 import { useCreditBalance } from '@/hooks/useCreditBalance'
 import { useDialogService } from '@/contexts/DialogServiceContext'
 import { useOpenSubscriptionDialog } from '@/hooks/useOpenSubscriptionDialog'
@@ -71,7 +72,7 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
   // Check if user is on the highest tier (Pro/Tier 3)
   const isOnHighestTier = useMemo(() => {
     // Determine highest based on max_characters across tiers
-    const maxAcrossTiers = subscriptionTiers?.reduce((m, t) => Math.max(m, t.max_characters || 0), 0) || 0
+    const maxAcrossTiers = (subscriptionTiers as SubscriptionTier[] | undefined)?.reduce((m, t) => Math.max(m, t.max_characters || 0), 0) || 0
     return maxCharacters >= maxAcrossTiers && maxAcrossTiers > 0
   }, [subscriptionTiers, maxCharacters]);
 

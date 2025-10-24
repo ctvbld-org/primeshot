@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef, ReactNode, useMemo } from 'react'
-import { GenerateBar } from 'webapp/src/components/generate/GenerateBar'
+import { GenerateBar } from '@/components/generate/GenerateBar'
 import { ScrollSectionProvider } from './ScrollSectionManager'
 import { useStyleData } from '@primeshot/common'
 import { useAuth } from '@primeshot/common'
