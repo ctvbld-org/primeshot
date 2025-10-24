@@ -138,7 +138,7 @@ export function InteractiveGenerateBar({ children, className }: InteractiveGener
         cancelAnimationFrame(rafRef.current)
       }
     }
-  }, [activePanel, isDataReady])
+  }, [isDataReady])
 
   // Handle panel changes from scroll or GenerateBar clicks
   const handlePanelChange = useCallback((panel: PanelKey) => {
