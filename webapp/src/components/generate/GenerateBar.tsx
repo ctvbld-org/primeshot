@@ -1165,7 +1165,7 @@ export function GenerateBar({
                 const sel = displayCurrentStyle ? getStoredStyleSelections(displayCurrentStyle.id).scene : null
                 const isSelected = sel?.toLowerCase() === opt.value.toLowerCase()
                 return (
-                <button key={opt.value} data-value={opt.value} className={`${styles.itemCard} ${styles.itemCardLoaded} ${isSelected ? styles.itemSelected : ''}`} onClick={() => { 
+                <button key={opt.value} data-value={opt.value} className={`${styles.itemCard} ${isSelected ? styles.itemSelected : ''}`} onClick={() => { 
                   if (onSceneClick) onSceneClick(opt.value);
                   storeStyleSelections(currentStyle.id, { scene: opt.value }); setSelectionVersion(v=>v+1); clearError('scene'); close() 
                 }}>

@@ -52,6 +52,8 @@ export function InteractiveGenerateBar({ children, className }: InteractiveGener
       setSelectedWardrobeId('layr_f_04')
       setSelectedColorId('Black')
       setSelectedCharacterId('demo-laura')
+      // Close any open panels when reaching CTA
+      setIsPanelOpen(false)
     } else if (activePanel !== null) {
       // Clear selections when leaving CTA (but keep them on their respective panels)
       if (activePanel !== 'styles') setSelectedStyleId(null)

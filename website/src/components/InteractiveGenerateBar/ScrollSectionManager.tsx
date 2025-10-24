@@ -98,11 +98,15 @@ export function ScrollSectionProvider({
       }
     }
 
-    // Initial check
-    handleScroll()
-
+    // Don't call handleScroll immediately - let the bar render first
+    // Initial check will happen on first scroll or after a short delay
+    const initialTimeout = setTimeout(handleScroll, 500)
+    
     window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+    return () => {
+      clearTimeout(initialTimeout)
+      window.removeEventListener('scroll', handleScroll)
+    }
   }, [onPanelChange])
 
   return (
