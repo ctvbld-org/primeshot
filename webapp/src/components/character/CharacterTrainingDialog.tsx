@@ -81,7 +81,7 @@ interface StepData {
   }>
 }
 
-export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogProps) {
+export function CharacterTrainingDialog({ onComplete, wrapWithDialog = true }: CharacterTrainingDialogProps) {
   const { t } = useTranslation(['character', 'common'])
   const { toast } = useToast()
   const dialogService = useDialogService()
