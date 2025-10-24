@@ -914,11 +914,7 @@ export function GenerateBar({
     const itemsContainer = viewport.firstElementChild as HTMLElement
     if (!itemsContainer) return
 
-    // Hide all items initially by removing the loaded class
     const allButtons = Array.from(itemsContainer.children) as HTMLElement[]
-    allButtons.forEach(button => {
-      button.classList.remove(styles.itemCardLoaded)
-    })
 
     let selectedIndex = -1
     let itemWidth = 0
@@ -1273,37 +1269,11 @@ export function GenerateBar({
                     if (selectedGender === v) return
                     setIsSwitchingGender(true)
                     
-                    // Reset all cards to initial state (including unisex ones)
-                    const viewport = viewportRef.current
-                    if (viewport) {
-                      const itemsContainer = viewport.firstElementChild as HTMLElement
-                      if (itemsContainer) {
-                        const allButtons = Array.from(itemsContainer.children) as HTMLElement[]
-                        allButtons.forEach((button) => {
-                          button.classList.remove(styles.itemCardLoaded)
-                          // Remove any existing transition delays
-                          button.style.transitionDelay = ''
-                        })
-                      }
-                    }
-                    
                     setTimeout(() => {
                       setSelectedGender(v)
                       save(STORAGE_KEYS.WARDROBE_GENDER, v)
                       
-                      // Add 100ms delay then animate all cards back in without staggered timing
                       setTimeout(() => {
-                        if (viewport) {
-                          const itemsContainer = viewport.firstElementChild as HTMLElement
-                          if (itemsContainer) {
-                            const allButtons = Array.from(itemsContainer.children) as HTMLElement[]
-                            allButtons.forEach((button) => {
-                              // Remove any transition delays for consistent animation
-                              button.style.transitionDelay = ''
-                              button.classList.add(styles.itemCardLoaded)
-                            })
-                          }
-                        }
                         setIsSwitchingGender(false)
                       }, 100)
                     }, 120)
