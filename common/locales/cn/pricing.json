@@ -147,13 +147,86 @@
       "concurrentShoots": "并发拍摄",
       "commercialUse": "商业使用",
       "priorityFeatures": "优先使用新功能",
+      "premiumStyles": "高级风格",
       "betaAccess": "测试版访问权限",
       "emailSupport": "邮件支持",
       "chatSupport": "在线客服",
       "dedicatedSupport": "专属支持"
     },
     "values": {
-      "upTo": "最多{{value}}"
+      "upTo": "最多{{value}}",
+      "basicQuality": "基础质量",
+      "highQuality": "高质量"
+    }
+  },
+  "page": {
+    "title": "定价",
+    "header": {
+      "title": "简单套餐，无限造型。",
+      "subtitle": "随时取消或更换。",
+      "savingsText": "最高可省",
+      "savingsHighlight": "40%",
+      "savingsOn": "选择年度套餐"
+    },
+    "tabs": {
+      "monthly": "月付",
+      "annual": "年付"
+    },
+    "buttons": {
+      "getStarted": "开始使用",
+      "selectPlan": "选择套餐",
+      "currentPlan": "当前套餐",
+      "processing": "处理中..."
+    },
+    "loading": "加载定价中...",
+    "comparison": {
+      "title": "对比套餐",
+      "description": "升级解锁更高分辨率人像、更多积分、可重复使用的角色和优先处理。"
+    },
+    "faq": {
+      "title": "有疑问？",
+      "subtitle": "关于定价和功能您需要了解的一切",
+      "items": {
+        "character": {
+          "question": "什么是角色，如何使用？",
+          "answer": "角色是您专属的AI模型，通过9张自拍训练而成。它能学习您的精确面部特征—结构、肤色、发型—让每张人像都真实呈现您的样貌。根据您的套餐，可获得1-3个角色。额外角色每个需30积分，创建后可随时重复使用，拍摄不同服装、场景和风格的照片。"
+        },
+        "credits": {
+          "question": "积分如何使用？",
+          "answer": "积分是您训练角色和生成图像的余额。训练一个角色需30积分。生成图像：基础质量（1K）需1积分，中等质量（2K）需2积分，高质量（4K）需3积分。您的套餐包含每月积分配额，每个计费周期更新。"
+        },
+        "commercial": {
+          "question": "我可以商用生成的图像吗？",
+          "answer": "可以。您生成的所有图像都属于您，可不受限制地使用—无论是LinkedIn、网站、营销还是印刷。"
+        },
+        "privacy": {
+          "question": "如何保护我的隐私和数据？",
+          "answer": "您的照片和角色安全存储，绝不会被分享、出售或用于我们自己的训练。您可以随时删除单个角色或整个账户。未经您同意，不会发生第三方访问。"
+        },
+        "changePlan": {
+          "question": "我可以更改或取消套餐吗？",
+          "answer": "可以。您可以随时在账户设置中升级或降级。升级立即生效并按比例计费；降级将在下个周期生效。如果取消，您将保留访问权限直到当前周期结束。我们保留您的数据60天，以便您重新订阅而不丢失任何内容—之后将永久删除。"
+        },
+        "rollover": {
+          "question": "未使用的积分会累积吗？",
+          "answer": "不会。积分在每个计费周期结束时过期，您的配额将更新。"
+        },
+        "moreCredits": {
+          "question": "如何获得更多积分？",
+          "answer": "您可以升级订阅以提高每月限额，或从您的账户购买一次性积分包。"
+        },
+        "refund": {
+          "question": "退款政策是什么？",
+          "answer": "订阅和积分包不可退款。如果出现技术问题—例如生成失败—请联系支持团队进行审核和可能的积分调整。"
+        },
+        "deleteAccount": {
+          "question": "如何删除我的账户？",
+          "answer": "在账户设置中，选择\"删除账户\"以永久删除所有照片、角色和图像。此操作不可逆，请先下载您想保留的所有内容。"
+        }
+      }
+    },
+    "signIn": {
+      "modalTitle": "登录以继续"
     }
   }
 }

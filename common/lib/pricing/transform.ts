@@ -13,9 +13,9 @@ const HARDCODED_FEATURES = {
     pro: { email: true, chat: true, dedicated: true }
   },
   feature_flags: {
-    basic: { commercial_use: true, priority_features: false, beta_access: false },
-    standard: { commercial_use: true, priority_features: true, beta_access: false },
-    pro: { commercial_use: true, priority_features: true, beta_access: true }
+    basic: { commercial_use: true, priority_features: false, premium_styles: false, beta_access: false },
+    standard: { commercial_use: true, priority_features: true, premium_styles: true, beta_access: false },
+    pro: { commercial_use: true, priority_features: true, premium_styles: true, beta_access: true }
   }
 }
 
@@ -40,7 +40,7 @@ export function transformPricingData(subscriptions: SubscriptionTier[]): Pricing
   // Helper to format price per credit
   const pricePerCredit = (price: number, credits: number, characterTrainingIncluded: number) => {
     // Adjust credits to account for character training included (30 credits per character)
-    const adjustedCredits = credits - (characterTrainingIncluded * 30)
+    const adjustedCredits = credits
     return `$${(price / adjustedCredits).toFixed(2)}`
   }
 
@@ -49,7 +49,9 @@ export function transformPricingData(subscriptions: SubscriptionTier[]): Pricing
 
   // Helper for resolution display
   const formatResolution = (quality: string) => {
-    return quality === '1K' ? '1K' : `Upto ${quality}`
+    return quality === '1K'
+      ? "comparisonTable.values.basicQuality"
+      : "comparisonTable.values.highQuality"
   }
 
   return [
@@ -58,7 +60,7 @@ export function transformPricingData(subscriptions: SubscriptionTier[]): Pricing
       features: [
         {
           name: "comparisonTable.features.creditsPerMonth",
-          basic: "0",
+          basic: String(basic.credits),
           standard: String(standard.credits),
           pro: String(pro.credits)
         },
@@ -136,6 +138,12 @@ export function transformPricingData(subscriptions: SubscriptionTier[]): Pricing
           basic: check(HARDCODED_FEATURES.feature_flags.basic.priority_features),
           standard: check(HARDCODED_FEATURES.feature_flags.standard.priority_features),
           pro: check(HARDCODED_FEATURES.feature_flags.pro.priority_features)
+        },
+        {
+          name: "comparisonTable.features.premiumStyles",
+          basic: check(HARDCODED_FEATURES.feature_flags.basic.premium_styles),
+          standard: check(HARDCODED_FEATURES.feature_flags.standard.premium_styles),
+          pro: check(HARDCODED_FEATURES.feature_flags.pro.premium_styles)
         },
         {
           name: "comparisonTable.features.betaAccess",

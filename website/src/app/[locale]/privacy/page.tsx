@@ -1,4 +1,3 @@
-import Footer from '@primeshot/common/web/Footer';
 import ContentPageHeader from '@/components/ContentPageHeader';
 import { initServerI18n } from '@primeshot/common';
 
@@ -130,7 +129,6 @@ export default async function Privacy({ params }: PrivacyProps) {
           <div className='w-full pt-16 text-right'><h1 className="font-carb-bold text-white/20 text-7xl">{t('common.endMarker')}</h1></div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }

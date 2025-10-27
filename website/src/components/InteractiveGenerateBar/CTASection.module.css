@@ -15,15 +15,12 @@
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.1);
+  pointer-events: none;
 }
 
 .contentContainer {
-  position: relative;
-  z-index: 12;
-  max-width: 56rem;
-  padding-left: 2rem;
-  padding-right: 2rem;
-  text-align: center;
+  min-height: 372px !important;
+  pointer-events: auto !important;
 }
 
 .heading {
@@ -32,6 +29,15 @@
   font-family: var(--font-carb), sans-serif;
   color: var(--mist);
   margin-bottom: 1.5rem;
+}
+
+.description {
+  margin-top: -20px;
+}
+
+.subtitle {
+  opacity: 1 !important;
+  height: 60px;
 }
 
 @media (min-width: 768px) {

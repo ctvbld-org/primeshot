@@ -112,7 +112,7 @@ export default async function RootLayout({
   
   return (
     <html lang={locale} className={`${carb.variable} bg-[#000000]`}>
-      <body className={`${inter.variable} font-sans antialiased bg-[#000000] min-h-screen text-[#FFFFFF70]`}>
+      <body className={`${inter.variable} font-sans antialiased bg-[#000000] min-h-screen text-[#FFFFFF70] pt-[56px]`}>
         {children}
       </body>
     </html>

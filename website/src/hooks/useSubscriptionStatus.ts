@@ -1,8 +1,19 @@
-// Stub for website
+'use client'
+
+import { useCurrentSubscription } from './useCurrentSubscription'
+
 export function useSubscriptionStatus() {
+  const {
+    data: subscription,
+    isLoading,
+    error,
+  } = useCurrentSubscription()
+
   return {
-    hasActiveSubscription: false,
-    isLoading: false
+    subscription,
+    hasActiveSubscription: !!subscription && subscription.status === 'active',
+    isLoading,
+    error
   }
 }
 

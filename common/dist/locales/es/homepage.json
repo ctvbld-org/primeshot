@@ -1,29 +1,66 @@
 {
-    "hero": {
-        "headline": "retratos que abren puertas",
-        "tagline": "Los retratos con <ai>IA</ai> más avanzados. <period>Punto.</period>",
-        "subtitle": "Haz que tu primera impresión cuente. Transforma tus selfies cotidianos en retratos destacados, personalizados y listos en minutos."
+  "hero": {
+    "headline": "retratos que abren puertas",
+    "tagline": "Los retratos con <ai>IA</ai> más avanzados. <period>Punto.</period>",
+    "subtitle": "Haz que tu primera impresión cuente. Transforma tus selfies cotidianos en retratos destacados, personalizados y listos en minutos."
+  },
+  "story": {
+    "paragraph1": "Hemos olvidado el arte de mostrarnos en nuestro mejor momento. Nos hacemos un selfie, ajustamos el ángulo, y esperamos que sea suficiente para dejar huella. En un mundo que se desplaza rápido y juzga aún más rápido, necesitas una foto que hable—clara, confiada y con propósito.",
+    "paragraph2": "Primeshot transforma tus fotos cotidianas en retratos premium, rebosantes de estilo y personalidad. Sin poses rígidas. Sin sesiones fotográficas incómodas. Solo retratos auténticos que llaman la atención, entregados en minutos.",
+    "callToAction": "Brilla como eres—con ambición audaz."
+  },
+  "aria": {
+    "photoMetadata": "Visualización de metadatos de foto"
+  },
+  "waitlist": {
+    "placeholder": "Ingresa tu email para acceso anticipado",
+    "ariaLabel": "Dirección de email para lista de espera",
+    "submitLabel": "Enviar email",
+    "submittingLabel": "Enviando...",
+    "validation": {
+      "invalidEmail": "Por favor ingresa una dirección de email válida"
     },
-    "story": {
-        "paragraph1": "Hemos olvidado el arte de mostrarnos en nuestro mejor momento. Nos hacemos un selfie, ajustamos el ángulo, y esperamos que sea suficiente para dejar huella. En un mundo que se desplaza rápido y juzga aún más rápido, necesitas una foto que hable—clara, confiada y con propósito.",
-        "paragraph2": "Primeshot transforma tus fotos cotidianas en retratos premium, rebosantes de estilo y personalidad. Sin poses rígidas. Sin sesiones fotográficas incómodas. Solo retratos auténticos que llaman la atención, entregados en minutos.",
-        "callToAction": "Brilla como eres—con ambición audaz."
-    },
-    "aria": {
-        "photoMetadata": "Visualización de metadatos de foto"
-    },
-    "waitlist": {
-        "placeholder": "Ingresa tu email para acceso anticipado",
-        "ariaLabel": "Dirección de email para lista de espera",
-        "submitLabel": "Enviar email",
-        "submittingLabel": "Enviando...",
-        "validation": {
-            "invalidEmail": "Por favor ingresa una dirección de email válida"
-        },
-        "messages": {
-            "alreadyOnWaitlist": "¡Ya estás en la lista de espera!",
-            "success": "¡Gracias! Recibirás un correo para tu acceso anticipado.",
-            "defaultError": "Algo salió mal"
-        }
+    "messages": {
+      "alreadyOnWaitlist": "¡Ya estás en la lista de espera!",
+      "success": "¡Gracias! Recibirás un correo para tu acceso anticipado.",
+      "defaultError": "Algo salió mal"
     }
+  },
+  "sections": {
+    "characters": {
+      "title": "Personajes",
+      "subtitle": "Créate a partir de solo 9 fotos tuyas. Crea para ti y para otros. Tu versión digital lista en menos de 8 minutos."
+    },
+    "scenes": {
+      "title": "Prepara la escena",
+      "subtitle": "Elige entre una colección diversa de fondos y ambientes que complementan perfectamente tu visión y estilo."
+    },
+    "styles": {
+      "title": "Estilos fotográficos",
+      "subtitle": "Desde retratos profesionales hasta interpretaciones artísticas, selecciona entre docenas de estilos cuidados que capturan tu esencia única."
+    },
+    "wardrobe": {
+      "title": "Vístete para impresionar",
+      "titleColors": "En cualquier color",
+      "subtitle": "Selecciona de una amplia colección de vestuario. De casual a formal, encuentra el atuendo perfecto para cada ocasión.",
+      "subtitleColors": "Personaliza cada detalle con nuestra extensa paleta de colores. Combina con tu estilo o explora nuevas combinaciones audaces."
+    }
+  },
+  "grid": {
+    "tagline": "El Estudio de IA para Fotografía de Retrato Impresionante",
+    "title": "Tu mejor versión, capturada.",
+    "badge": "4K"
+  },
+  "cta": {
+    "title": "¿Listo para conocer tu mejor versión?",
+    "subtitle": "Únete a miles creando retratos IA profesionales con Primeshot",
+    "pricing": "Desde 9 € al mes."
+  },
+  "ctaHero": {
+    "heading": "Retratos profesionales accesibles para todos.",
+    "subheading": "Listos en minutos.",
+    "googleButton": "Únete con Google",
+    "createButton": "Crea tu sesión",
+    "signInTitle": "Iniciar sesión"
+  }
 }

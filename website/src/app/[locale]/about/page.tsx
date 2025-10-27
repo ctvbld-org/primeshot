@@ -1,4 +1,3 @@
-import Footer from '@primeshot/common/web/Footer';
 import SocialIcons from '@/components/SocialIcons';
 import ContentPageHeader from '@/components/ContentPageHeader';
 import { initServerI18n } from '@primeshot/common';
@@ -71,7 +70,6 @@ export default async function About({ params }: AboutProps) {
           
         </div>
       </div>
-      <Footer />
     </div>
   );
 }

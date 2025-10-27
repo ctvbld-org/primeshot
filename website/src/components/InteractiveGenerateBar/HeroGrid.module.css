@@ -157,6 +157,9 @@
 
 /* Medium screens: 3 square images top row, 2 stretched images bottom row */
 @media (max-width: 930px) and (min-width: 769px) {
+  .container {
+    gap: 42px;
+  }
   .desktopGrid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);

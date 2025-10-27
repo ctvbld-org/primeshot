@@ -1,4 +1,3 @@
-import Footer from '@primeshot/common/web/Footer';
 import { initServerI18n } from '@primeshot/common';
 import ContentPageHeader from '@/components/ContentPageHeader';
 
@@ -159,7 +158,6 @@ export default async function Terms({ params }: TermsProps) {
           <div className='w-full pt-16 text-right'><h1 className="font-carb-bold text-white/20 text-7xl">{t('common.endMarker')}</h1></div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }

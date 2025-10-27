@@ -40,9 +40,25 @@
     "accountSettings": "Configuración de cuenta"
   },
   "footer": {
-    "about": "Acerca de",
-    "terms": "Términos",
-    "privacy": "Privacidad",
+    "hero": "Tu imagen te pertenece.",
+    "sections": {
+      "overview": "Resumen",
+      "latestStyles": "Últimos Estilos",
+      "legal": "Legal",
+      "support": "Soporte"
+    },
+    "links": {
+      "explore": "Explorar",
+      "create": "Crear",
+      "pricing": "Precios y FAQ",
+      "studioPro": "Studio Pro",
+      "business": "Business",
+      "editorial": "Editorial",
+      "terms": "Términos y Condiciones",
+      "privacy": "Política de Privacidad",
+      "contact": "Contáctanos",
+      "about": "Sobre nosotros"
+    },
     "copyright": "© {{year}} Primeshot. Todos los derechos reservados"
   },
   "duration": {

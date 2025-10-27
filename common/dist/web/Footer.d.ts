@@ -1,11 +1,4 @@
-import React from 'react';
-export interface FooterProps {
-    aboutHref?: string;
-    termsHref?: string;
-    privacyHref?: string;
-    xHref?: string;
-    linkedinHref?: string;
-    instagramHref?: string;
-}
-export declare const Footer: React.FC<FooterProps>;
+export declare const Footer: ({ variant }: {
+    variant?: "full" | "compact";
+}) => import("react/jsx-runtime").JSX.Element;
 export default Footer;

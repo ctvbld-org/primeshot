@@ -12,6 +12,12 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
+# API Proxy Configuration
+# URL of the webapp to proxy account-related API calls
+# Local: http://localhost:3000
+# Production: https://primeshot.ai (or your domain)
+NEXT_PUBLIC_WEBAPP_URL=http://localhost:3000
+
 # Resend Configuration
 RESEND_API_KEY=re_xxxxxxxxxxxxx
 RESEND_AUDIENCE_ID=aud_xxxxxxxxxxxxx  # Optional - see RESEND_SETUP.md

@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image';
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/AuthContext';
 import { SignInModal } from './SignInModal';
@@ -12,6 +12,8 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import Link from 'next/link';
 import { Skeleton } from './ui/skeleton';
 import { usePathname } from 'next/navigation';
+import { Dialog, DialogContent, DialogHeader, DialogTrigger } from './ui/dialog';
+import { Button } from './ui/button';
 
 interface HeaderProps {
   /** Optional element rendered on the right side (e.g. login button). */
@@ -22,11 +24,16 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
   const { isAuthenticated, user, isLoading } = useAuth();
   const { t } = useTranslation('common');
   const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isActive = (href: string) => {
     if (!pathname) return false;
     if (href === '/') return pathname === '/';
     return pathname === href || pathname.startsWith(href + '/');
+  };
+
+  const handleMobileNavClick = () => {
+    setMobileMenuOpen(false);
   };
 
   return (
@@ -102,6 +109,63 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
               <>
                 {!isAuthenticated && <LanguageSwitcher variant="modal" display="flag" />}
                 {rightSlot ?? (isAuthenticated ? <AccountDialog /> : <SignInModal />)}
+                
+                {/* Mobile Menu */}
+                <Dialog open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={styles.hamburgerButton}
+                      aria-label={t('navigation.menu')}
+                    >
+                      <Icon variant="menu" size={20} />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className={styles.mobileNavDialog} noContainer fullscreen>
+                    <DialogHeader />
+                    <div className={styles.mobileNavList}>
+                      <a
+                        href="/explore"
+                        aria-current={isActive('/explore') ? 'page' : undefined}
+                        className={styles.mobileNavItem + (isActive('/explore') ? ' ' + styles.mobileNavItemActive : '')}
+                        onClick={handleMobileNavClick}
+                      >
+                        <span className={styles.mobileNavLabel}>{t('navigation.explore')}</span>
+                        {isActive('/explore') && <Icon variant="checkmark" className={styles.mobileNavCheck} />}
+                      </a>
+                      <Link
+                        href="/"
+                        aria-current={isActive("/create") ? 'page' : undefined}
+                        className={styles.mobileNavItem + (isActive("/create") ? ' ' + styles.mobileNavItemActive : '')}
+                        onClick={handleMobileNavClick}
+                      >
+                        <span className={styles.mobileNavLabel}>{t('navigation.create')}</span>
+                        {isActive("/create") && <Icon variant="checkmark" className={styles.mobileNavCheck} />}
+                      </Link>
+                      <a
+                        href="/pricing"
+                        aria-current={isActive('/pricing') ? 'page' : undefined}
+                        className={styles.mobileNavItem + (isActive('/pricing') ? ' ' + styles.mobileNavItemActive : '')}
+                        onClick={handleMobileNavClick}
+                      >
+                        <span className={styles.mobileNavLabel}>Pricing</span>
+                        {isActive('/pricing') && <Icon variant="checkmark" className={styles.mobileNavCheck} />}
+                      </a>
+                      {isAuthenticated && user?.admin && (
+                        <a
+                          href="/admin"
+                          aria-current={isActive('/admin') ? 'page' : undefined}
+                          className={styles.mobileNavItem + (isActive('/admin') ? ' ' + styles.mobileNavItemActive : '')}
+                          onClick={handleMobileNavClick}
+                        >
+                          <span className={styles.mobileNavLabel}>{t('navigation.admin')}</span>
+                          {isActive('/admin') && <Icon variant="checkmark" className={styles.mobileNavCheck} />}
+                        </a>
+                      )}
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </>
             )}
         </div>

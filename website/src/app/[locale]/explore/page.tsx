@@ -4,9 +4,9 @@ import React, { useMemo, useCallback, Suspense, useState, useEffect } from 'reac
 import { useRouter, useSearchParams } from 'next/navigation';
 import ExploreThumb from '@/components/ExploreThumb';
 import { Button } from "@primeshot/common/web/ui/button";
-import Footer from "@primeshot/common/web/Footer";
 import ContentPageHeader from '@/components/ContentPageHeader';
 import { exploreData, ExploreItem, styleFilters as styleFilterData } from '../data/exploreData';
+import { getWebsiteCdnUrl } from '@/lib/utils/cdn';
 
 // Dynamic filter generation from data
 const getDynamicFilters = (data: ExploreItem[]): string[] => {
@@ -59,7 +59,7 @@ function ExploreContent() {
     <div className="min-h-screen text-white px-3">
       <ContentPageHeader 
         title="Showcase" 
-        backgroundImage="/images/explore/Golden-Noir-01.png" 
+        backgroundImage={getWebsiteCdnUrl('/Golden-Noir-01.png')} 
       />
       <div className="w-full max-w-screen-xl mx-auto">  
         
@@ -153,9 +153,6 @@ function ExploreContent() {
           </div>
         )}
       </div>
-
-     
-      <Footer />
     </div>
   );
 }

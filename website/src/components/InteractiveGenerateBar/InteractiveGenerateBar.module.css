@@ -13,10 +13,12 @@
   pointer-events: none;
   
   /* CSS variables for dynamic positioning */
+  --bar-position: fixed;
   --bar-top: auto;
   --bar-bottom: auto;
   --bar-transform: translateX(-50%);
   
+  position: var(--bar-position);
   top: var(--bar-top);
   bottom: var(--bar-bottom);
   transform: var(--bar-transform);

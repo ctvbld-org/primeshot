@@ -25,5 +25,42 @@
       "success": "Obrigado! Receberá um email para o seu acesso antecipado.",
       "defaultError": "Algo correu mal"
     }
+  },
+  "sections": {
+    "characters": {
+      "title": "Personagens",
+      "subtitle": "Crie-se a partir de apenas 9 fotos suas. Crie para si e para outros. O seu eu digital pronto em menos de 8 minutos."
+    },
+    "scenes": {
+      "title": "Defina o cenário",
+      "subtitle": "Escolha entre uma coleção diversificada de fundos e ambientes que complementam perfeitamente a sua visão e estilo."
+    },
+    "styles": {
+      "title": "Estilos fotográficos",
+      "subtitle": "De retratos profissionais a interpretações artísticas, selecione entre dezenas de estilos cuidados que capturam a sua essência única."
+    },
+    "wardrobe": {
+      "title": "Vista-se para impressionar",
+      "titleColors": "Em qualquer cor",
+      "subtitle": "Selecione de uma extensa coleção de guarda-roupa. Do casual ao formal, encontre o traje perfeito para cada ocasião.",
+      "subtitleColors": "Personalize cada detalhe com a nossa vasta paleta de cores. Combine com o seu estilo ou explore novas combinações audaciosas."
+    }
+  },
+  "grid": {
+    "tagline": "O Estúdio IA para Fotografia de Retrato Deslumbrante",
+    "title": "O seu melhor, capturado.",
+    "badge": "4K"
+  },
+  "cta": {
+    "title": "Pronto para conhecer a sua melhor versão?",
+    "subtitle": "Junte-se a milhares a criar retratos IA profissionais com a Primeshot",
+    "pricing": "A partir de 9 € por mês."
+  },
+  "ctaHero": {
+    "heading": "Retratos profissionais acessíveis a todos.",
+    "subheading": "Prontos em minutos.",
+    "googleButton": "Junte-se com o Google",
+    "createButton": "Crie a sua sessão",
+    "signInTitle": "Iniciar sessão"
   }
 }

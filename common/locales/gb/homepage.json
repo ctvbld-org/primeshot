@@ -10,7 +10,7 @@
     "callToAction": "Shine as you are—with bold ambition."
   },
   "aria": {
-    "photoMetadata": "Photo metadata visualization"
+    "photoMetadata": "Photo metadata visualisation"
   },
   "waitlist": {
     "placeholder": "Enter email for early access",
@@ -25,5 +25,42 @@
       "success": "Thanks! You will receive an email for your early access.",
       "defaultError": "Something went wrong"
     }
+  },
+  "sections": {
+    "characters": {
+      "title": "Characters",
+      "subtitle": "Capture you from just 9 images of yourself. Create for you and others. Your digital you ready in less than 8 mins."
+    },
+    "scenes": {
+      "title": "Set the scene",
+      "subtitle": "Choose from a diverse collection of backgrounds and environments that perfectly complement your vision and style."
+    },
+    "styles": {
+      "title": "Photo styles",
+      "subtitle": "From professional portraits to artistic interpretations, select from dozens of curated styles that capture your unique essence."
+    },
+    "wardrobe": {
+      "title": "Dress to impress",
+      "titleColors": "In any colour",
+      "subtitle": "Select from an extensive wardrobe collection. From casual to formal, find the perfect outfit for every occasion.",
+      "subtitleColors": "Customise every detail with our extensive colour palette. Match your style or explore bold new combinations."
+    }
+  },
+  "grid": {
+    "tagline": "The AI Studio for Stunning Portrait Photography",
+    "title": "Your best self, captured.",
+    "badge": "4K"
+  },
+  "cta": {
+    "title": "Ready to meet your best self?",
+    "subtitle": "Join thousands creating professional AI portraits with Primeshot",
+    "pricing": "Start from £9 a month."
+  },
+  "ctaHero": {
+    "heading": "Professional headshots made accessible to everyone.",
+    "subheading": "Ready in minutes.",
+    "googleButton": "Join with Google",
+    "createButton": "Create your shoot",
+    "signInTitle": "Sign In"
   }
 }

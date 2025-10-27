@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { getWebsiteCdnUrl } from '@/lib/utils/cdn';
 
 export type AspectRatio = '1:1' | '2:3' | '3:2' | '9:16';
 
@@ -95,7 +96,7 @@ const ExploreThumb: React.FC<ExploreThumbProps> = ({
       <div className="w-full h-full relative overflow-hidden rounded-2xl">
         {isInView ? (
           <Image
-            src={image}
+            src={getWebsiteCdnUrl(image)}
             alt={category}
             fill
             quality={95}

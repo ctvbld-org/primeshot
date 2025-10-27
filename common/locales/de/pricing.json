@@ -147,13 +147,86 @@
       "concurrentShoots": "Gleichzeitige Shootings",
       "commercialUse": "Kommerzielle Nutzung",
       "priorityFeatures": "Prioritätszugang zu neuen Funktionen",
+      "premiumStyles": "Premium-Stile",
       "betaAccess": "Beta-Test-Zugang",
       "emailSupport": "E-Mail-Support",
       "chatSupport": "Chat-Support",
       "dedicatedSupport": "Dedizierter Support"
     },
     "values": {
-      "upTo": "Bis zu {{value}}"
+      "upTo": "Bis zu {{value}}",
+      "basicQuality": "Basisqualität",
+      "highQuality": "Hohe Qualität"
+    }
+  },
+  "page": {
+    "title": "Preise",
+    "header": {
+      "title": "Einfache Pläne, endlose Looks.",
+      "subtitle": "Jederzeit kündigen oder wechseln.",
+      "savingsText": "Spare bis zu",
+      "savingsHighlight": "40%",
+      "savingsOn": "bei Jahresplänen"
+    },
+    "tabs": {
+      "monthly": "Monatlich",
+      "annual": "Jährlich"
+    },
+    "buttons": {
+      "getStarted": "Loslegen",
+      "selectPlan": "Plan wählen",
+      "currentPlan": "Aktueller Plan",
+      "processing": "Wird bearbeitet..."
+    },
+    "loading": "Preise werden geladen...",
+    "comparison": {
+      "title": "Pläne vergleichen",
+      "description": "Upgrade für hochauflösende Porträts, mehr Guthaben, wiederverwendbare Charaktere und prioritäre Verarbeitung."
+    },
+    "faq": {
+      "title": "Fragen?",
+      "subtitle": "Alles, was du über unsere Preise und Funktionen wissen musst",
+      "items": {
+        "character": {
+          "question": "Was ist ein Charakter und wie funktioniert er?",
+          "answer": "Ein Charakter ist dein eigenes KI-Modell, trainiert mit 9 Selfies. Es lernt deine exakten Gesichtszüge—Struktur, Hautton, Haar—damit jedes Porträt authentisch nach dir aussieht. Je nach Plan erhältst du 1–3 Charaktere inklusive. Zusätzliche Charaktere kosten 30 Guthaben, und einmal erstellt, kannst du sie jederzeit für neue Shootings mit verschiedenen Outfits, Szenen und Stilen verwenden."
+        },
+        "credits": {
+          "question": "Wie funktioniert das Guthaben?",
+          "answer": "Guthaben ist dein Saldo für das Training von Charakteren und die Generierung von Bildern. Ein Charakter-Training kostet 30 Guthaben. Bildgenerierung kostet 1 Guthaben für Basisqualität (1K), 2 für Mittel (2K) und 3 für Hoch (4K). Dein Plan beinhaltet ein monatliches Guthaben-Kontingent, das sich mit jedem Abrechnungszyklus erneuert."
+        },
+        "commercial": {
+          "question": "Kann ich meine Bilder kommerziell nutzen?",
+          "answer": "Ja. Alle Bilder, die du generierst, gehören dir zur uneingeschränkten Nutzung—sei es für LinkedIn, Websites, Marketing oder Druck."
+        },
+        "privacy": {
+          "question": "Wie schützt ihr meine Privatsphäre und Daten?",
+          "answer": "Deine Fotos und Charaktere werden sicher gespeichert und niemals geteilt, verkauft oder für unser eigenes Training verwendet. Du kannst einzelne Charaktere oder dein gesamtes Konto jederzeit löschen. Zugriff durch Dritte erfolgt nicht ohne deine Zustimmung."
+        },
+        "changePlan": {
+          "question": "Kann ich meinen Plan ändern oder kündigen?",
+          "answer": "Ja. Du kannst deinen Plan jederzeit in deinen Kontoeinstellungen upgraden oder downgraden. Upgrades erfolgen sofort mit anteiliger Abrechnung; Downgrades treten im nächsten Zyklus in Kraft. Bei Kündigung behältst du Zugriff bis zum Ende deines aktuellen Zyklus. Wir speichern deine Daten für 60 Tage, damit du ohne Verlust erneut abonnieren kannst—danach werden sie dauerhaft gelöscht."
+        },
+        "rollover": {
+          "question": "Werden nicht genutzte Guthaben übertragen?",
+          "answer": "Nein. Guthaben verfallen am Ende jedes Abrechnungszyklus, und dein Kontingent wird erneuert."
+        },
+        "moreCredits": {
+          "question": "Wie kann ich mehr Guthaben erhalten?",
+          "answer": "Du kannst dein Abonnement für ein höheres monatliches Limit upgraden oder einmalige Guthaben-Pakete über dein Konto kaufen."
+        },
+        "refund": {
+          "question": "Was ist eure Rückerstattungsrichtlinie?",
+          "answer": "Abonnements und Guthaben-Pakete sind nicht erstattungsfähig. Bei technischen Problemen—wie einer fehlgeschlagenen Generierung—kontaktiere den Support für eine Prüfung und mögliche Guthaben-Anpassung."
+        },
+        "deleteAccount": {
+          "question": "Wie lösche ich mein Konto?",
+          "answer": "Wähle in deinen Kontoeinstellungen \"Konto löschen\", um alle Fotos, Charaktere und Bilder dauerhaft zu entfernen. Dies ist unwiderruflich, also lade zuerst alles herunter, was du behalten möchtest."
+        }
+      }
+    },
+    "signIn": {
+      "modalTitle": "Anmelden um fortzufahren"
     }
   }
 }

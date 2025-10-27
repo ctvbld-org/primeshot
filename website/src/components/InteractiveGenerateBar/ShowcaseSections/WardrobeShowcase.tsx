@@ -7,6 +7,7 @@ import { StickyShowcaseSection } from '../StickyShowcaseSection'
 import { useScrollSection } from '../ScrollSectionManager'
 import cssStyles from '../ShowcaseSection.module.css'
 import { makeCloudfrontLoader } from '@/lib/utils/cloudfrontLoader'
+import { useTranslation } from 'react-i18next'
 
 const cloudfrontLoader = makeCloudfrontLoader('app-images')
 
@@ -27,6 +28,7 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 export function WardrobeShowcase() {
+  const { t } = useTranslation('homepage')
   const [styles, setStyles] = useState<Style[]>([])
   const [randomImages, setRandomImages] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -186,13 +188,13 @@ export function WardrobeShowcase() {
                 />
               </div>
               <h2 className={`${cssStyles.title} transition-all duration-300`}>
-                {showColors ? 'In any color' : 'Dress to impress'}
+                {showColors ? t('sections.wardrobe.titleColors') : t('sections.wardrobe.title')}
               </h2>
             </div>
             <p className={cssStyles.subtitle}>
               {showColors
-                ? 'Customize every detail with our extensive color palette. Match your style or explore bold new combinations.'
-                : 'Select from an extensive wardrobe collection. From casual to formal, find the perfect outfit for every occasion.'}
+                ? t('sections.wardrobe.subtitleColors')
+                : t('sections.wardrobe.subtitle')}
             </p>
           </div>
 

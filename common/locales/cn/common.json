@@ -40,9 +40,25 @@
     "accountSettings": "账户设置"
   },
   "footer": {
-    "about": "关于我们",
-    "terms": "条款",
-    "privacy": "隐私",
+    "hero": "您的形象，属于您自己。",
+    "sections": {
+      "overview": "概览",
+      "latestStyles": "最新风格",
+      "legal": "法律信息",
+      "support": "支持"
+    },
+    "links": {
+      "explore": "探索",
+      "create": "创建",
+      "pricing": "价格与常见问题",
+      "studioPro": "Studio Pro",
+      "business": "Business",
+      "editorial": "Editorial",
+      "terms": "服务条款",
+      "privacy": "隐私政策",
+      "contact": "联系我们",
+      "about": "关于我们"
+    },
     "copyright": "© {{year}} Primeshot. 保留所有权利"
   },
   "duration": {

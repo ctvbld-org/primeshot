@@ -22,3 +22,8 @@
   }
 }
 
+@media (max-width: 930px) {
+  .heroSection {
+    padding-top: 0;
+  }
+}

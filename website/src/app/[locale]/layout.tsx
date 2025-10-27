@@ -8,7 +8,8 @@ import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { getWebsiteCdnUrl } from '@/lib/utils/cdn'
 import { StyleProviders } from '@/contexts/StyleProviders'
-import { Header } from '@primeshot/common'
+import { Header, Footer } from '@primeshot/common'
+import { IntentHandler } from '@/components/IntentHandler'
 
 const SUPPORTED_LOCALES = ['en','cn','es','fr','pt','de','jp','it','nl'] as const;
 
@@ -195,8 +196,10 @@ export default async function LocaleLayout({ children, params }: { children: Rea
         <AuthProvider>
           <LanguageProvider>
             <StyleProviders>
+              <IntentHandler />
               <Header />
               {children}
+              <Footer />
             </StyleProviders>
           </LanguageProvider>
         </AuthProvider>

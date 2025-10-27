@@ -5,6 +5,8 @@ import { GenerateBar } from '@/components/generate/GenerateBar'
 import { ScrollSectionProvider } from './ScrollSectionManager'
 import { useStyleData } from '@primeshot/common'
 import { useAuth } from '@primeshot/common'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, VisuallyHidden } from '@primeshot/common/web/ui/dialog'
+import { SignInForm } from '@primeshot/common/web'
 import type { PanelKey } from './types'
 import cssStyles from './InteractiveGenerateBar.module.css'
 import { MOCK_CHARACTERS } from '@/lib/data/mockCharacters'
@@ -22,12 +24,16 @@ export function InteractiveGenerateBar({ children, className }: InteractiveGener
   const [selectedWardrobeId, setSelectedWardrobeId] = useState<string | null>(null)
   const [selectedColorId, setSelectedColorId] = useState<string | null>(null)
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null)
+  const [isSignInOpen, setIsSignInOpen] = useState(false)
   const barRef = useRef<HTMLDivElement>(null)
   const rafRef = useRef<number | null>(null)
   
   // Check if data is loaded to show the GenerateBar
   const { styles, scenes, wardrobes, colors, isLoading } = useStyleData()
   const isDataReady = !isLoading && styles.length > 0 && scenes.length > 0 && wardrobes.length > 0 && colors.length > 0
+  
+  // Compute style index from ID
+  const selectedStyleIndex = selectedStyleId ? styles.findIndex(s => s.id === selectedStyleId) : null
 
   // Check auth state for create button behavior
   const { isAuthenticated } = useAuth()
@@ -43,28 +49,39 @@ export function InteractiveGenerateBar({ children, className }: InteractiveGener
     return MOCK_CHARACTERS
   }, [activePanel, selectedCharacterId])
 
-  // Auto-populate selections when reaching CTA, clear when leaving
+  // Handle selections based on active section
   useEffect(() => {
     if (activePanel === 'cta') {
-      // Auto-populate selections for CTA demo
-      setSelectedStyleId('Blindlight')
-      setSelectedSceneId('muted-olive-green')
-      setSelectedWardrobeId('layr_f_04')
-      setSelectedColorId('Black')
-      setSelectedCharacterId('demo-laura')
+      // Find the style index
+      const targetStyleId = 'a133c31e-4ff7-4bcd-906a-2f44dfaab53f'
+      const styleIndex = styles.findIndex(s => s.id === targetStyleId)
+      
+      if (styleIndex !== -1) {
+        // Set controlled state - no localStorage pollution!
+        setSelectedStyleId(targetStyleId)
+        setSelectedSceneId('muted-olive-green')
+        setSelectedWardrobeId('stat_f_02')
+        setSelectedColorId('black')
+        setSelectedCharacterId('demo-laura')
+      }
+      
       // Close any open panels when reaching CTA
       setIsPanelOpen(false)
-    } else if (activePanel !== null) {
-      // Clear selections when leaving CTA (but keep them on their respective panels)
-      if (activePanel !== 'styles') setSelectedStyleId(null)
-      if (activePanel !== 'scenes') setSelectedSceneId(null)
-      if (activePanel !== 'wardrobe') {
-        setSelectedWardrobeId(null)
-        setSelectedColorId(null)
-      }
-      if (activePanel !== 'characters') setSelectedCharacterId(null)
+    } else if (activePanel === 'wardrobe') {
+      // When entering wardrobe section, clear wardrobe/color to show clothes first
+      setSelectedWardrobeId(null)
+      setSelectedColorId(null)
+      // Keep style and scene selections for context
+    } else if (activePanel === null) {
+      // Clear all selections when in hero section
+      setSelectedStyleId(null)
+      setSelectedSceneId(null)
+      setSelectedWardrobeId(null)
+      setSelectedColorId(null)
+      setSelectedCharacterId(null)
     }
-  }, [activePanel])
+    // Otherwise (showcase sections), do nothing - selections persist
+  }, [activePanel, styles])
 
   // Handle scroll-based positioning with RAF for smooth performance
   useEffect(() => {
@@ -73,14 +90,20 @@ export function InteractiveGenerateBar({ children, className }: InteractiveGener
       
       const heroSection = document.getElementById('section-hero')
       const charactersSection = document.getElementById('section-characters')
+      const ctaSection = document.getElementById('section-cta')
       
-      if (!heroSection || !charactersSection) return
+      if (!heroSection || !charactersSection || !ctaSection) return
       
       const scrollY = window.scrollY
       const windowHeight = window.innerHeight
       const charactersTop = charactersSection.offsetTop
       const charactersHeight = charactersSection.offsetHeight
       const charactersMiddle = charactersTop + (charactersHeight / 2)
+      
+      // CTA section calculations
+      const ctaTop = ctaSection.offsetTop
+      const ctaHeight = ctaSection.offsetHeight
+      const ctaMiddle = ctaTop + (ctaHeight / 2)
       
       // Calculate transition range
       // Start: when MIDDLE of characters section reaches BOTTOM of viewport
@@ -93,9 +116,10 @@ export function InteractiveGenerateBar({ children, className }: InteractiveGener
       const bottomOffset = 44 // 2rem
       const startTop = windowHeight - bottomOffset
       const endTop = windowHeight * 0.5 + 47 // Stop 90px before middle
-      
+          
       if (scrollY < transitionStart) {
         // In hero section - bar at bottom
+        barRef.current.style.setProperty('--bar-position', 'fixed')
         barRef.current.style.setProperty('--bar-top', 'auto')
         barRef.current.style.setProperty('--bar-bottom', '0.5rem')
         barRef.current.style.setProperty('--bar-transform', 'translateX(-50%)')
@@ -105,13 +129,25 @@ export function InteractiveGenerateBar({ children, className }: InteractiveGener
         const clampedProgress = Math.min(progress, 1)
         const currentTop = startTop - (startTop - endTop) * clampedProgress
         
+        barRef.current.style.setProperty('--bar-position', 'fixed')
         barRef.current.style.setProperty('--bar-top', `${currentTop}px`)
         barRef.current.style.setProperty('--bar-bottom', 'auto')
         barRef.current.style.setProperty('--bar-transform', 'translateX(-50%) translateY(-50%)')
         
-      } else {
-        // Past characters middle - bar fixed at 50% + 90px
+      } else if (scrollY >= transitionEnd && scrollY < ctaMiddle - (windowHeight / 2)) {
+        // Past characters middle but before CTA middle reaches viewport middle - bar fixed at 50% + 47px
+        barRef.current.style.setProperty('--bar-position', 'fixed')
         barRef.current.style.setProperty('--bar-top', 'calc(50% + 47px)')
+        barRef.current.style.setProperty('--bar-bottom', 'auto')
+        barRef.current.style.setProperty('--bar-transform', 'translateX(-50%) translateY(-50%)')
+      } else {
+        // Past CTA middle reaching viewport middle - bar scrolls with page (absolute positioning)
+        // Calculate the absolute position to maintain visual continuity
+        // At transition point: scrollY = ctaMiddle - (windowHeight/2)
+        // Bar visual position: scrollY + (windowHeight/2) + 47 = ctaMiddle + 47
+        const absoluteTop = ctaMiddle + 47
+        barRef.current.style.setProperty('--bar-position', 'absolute')
+        barRef.current.style.setProperty('--bar-top', `${absoluteTop}px`)
         barRef.current.style.setProperty('--bar-bottom', 'auto')
         barRef.current.style.setProperty('--bar-transform', 'translateX(-50%) translateY(-50%)')
       }
@@ -194,8 +230,8 @@ export function InteractiveGenerateBar({ children, className }: InteractiveGener
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.primeshot.ai'
       window.location.href = `${appUrl}/app/upload`
     } else {
-      // Redirect to sign-in page
-      window.location.href = '/auth/signin'
+      // Open sign-in dialog (intent will be saved by useCreateCharacter)
+      setIsSignInOpen(true)
     }
   }, [isAuthenticated])
 
@@ -257,9 +293,15 @@ export function InteractiveGenerateBar({ children, className }: InteractiveGener
               onWardrobeClick={handleWardrobeClick}
               onColorClick={handleColorClick}
               onCharacterClick={handleCharacterClick}
+              onOpenSignInDialog={() => setIsSignInOpen(true)}
               hideSelections={!selectedStyleId && !selectedSceneId && !selectedWardrobeId && !selectedCharacterId}
               selectedWardrobeId={selectedWardrobeId}
               demoCharacters={memoizedMockCharacters}
+              demoSelectedStyleIndex={selectedStyleIndex}
+              demoSelectedScene={selectedSceneId}
+              demoSelectedWardrobe={selectedWardrobeId}
+              demoSelectedColor={selectedColorId}
+              demoSelectedCharacter={selectedCharacterId}
             />
           </div>
         )}
@@ -267,6 +309,18 @@ export function InteractiveGenerateBar({ children, className }: InteractiveGener
         {/* Scroll sections */}
         {children}
       </div>
+
+      {/* Sign In Dialog */}
+      <Dialog open={isSignInOpen} onOpenChange={setIsSignInOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <VisuallyHidden>
+              <DialogTitle>Sign In</DialogTitle>
+            </VisuallyHidden>
+          </DialogHeader>
+          <SignInForm />
+        </DialogContent>
+      </Dialog>
     </ScrollSectionProvider>
   )
 }

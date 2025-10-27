@@ -7,6 +7,7 @@ import { StickyShowcaseSection } from '../StickyShowcaseSection'
 import { useScrollSection } from '../ScrollSectionManager'
 import cssStyles from '../ShowcaseSection.module.css'
 import { makeCloudfrontLoader } from '@/lib/utils/cloudfrontLoader'
+import { useTranslation } from 'react-i18next'
 
 const cloudfrontLoader = makeCloudfrontLoader('app-images')
 
@@ -27,6 +28,7 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 export function ScenesShowcase() {
+  const { t } = useTranslation('homepage')
   const [styles, setStyles] = useState<Style[]>([])
   const [randomImages, setRandomImages] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -189,11 +191,10 @@ export function ScenesShowcase() {
             <div className={cssStyles.iconWrapper}>
               <Icon variant="scene" size={48} className="text-glacier" />
             </div>
-            <h2 className={cssStyles.title}>Set the scene</h2>
+            <h2 className={cssStyles.title}>{t('sections.scenes.title')}</h2>
           </div>
           <p className={cssStyles.subtitle}>
-            Choose from a diverse collection of backgrounds and environments that perfectly
-            complement your vision and style.
+            {t('sections.scenes.subtitle')}
           </p>
         </div>
 

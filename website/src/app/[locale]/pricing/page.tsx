@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import Link from 'next/link';
 import {
   Accordion,
   AccordionContent,
@@ -21,10 +22,17 @@ import {
   TabsList,
   TabsTrigger,
 } from "@primeshot/common/web/ui/tabs";
-import Footer from "@primeshot/common/web/Footer";
+import { Button } from "@primeshot/common/web/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@primeshot/common/web/ui/dialog";
 import ContentPageHeader from "@/components/ContentPageHeader";
 import { getWebsiteCdnUrl } from "@/lib/utils/cdn";
-import { SubscriptionTier, PricingCategory, transformPricingData, getApiUrl } from "@primeshot/common";
+import { PricingCategory, transformPricingData, getApiUrl, SubscriptionTier } from "@primeshot/common";
+import { PricingCards, SpecialOfferBanner, SignInForm } from "@primeshot/common/web";
+import { STRIPE_REFERENCE } from "@primeshot/common/lib/stripe/stripe-reference";
+import { getStripeEnv } from "@primeshot/common/lib/stripe/env";
+import { toast } from "sonner";
+import { useAuth } from "@primeshot/common/hooks/AuthContext";
+import styles from './page.module.css';
 
 // Fallback pricing data for error states or loading
 const fallbackPricingData: PricingCategory[] = [
@@ -33,15 +41,15 @@ const fallbackPricingData: PricingCategory[] = [
     features: [
       {
         name: "Credits per month",
-        basic: "40",
-        standard: "180",
-        pro: "450"
+        basic: "-",
+        standard: "-",
+        pro: "-"
       },
       {
         name: "Price per credit",
-        basic: "$0.22",
-        standard: "$0.16",
-        pro: "$0.13"
+        basic: "-",
+        standard: "-",
+        pro: "-"
       }
     ]
   },
@@ -50,9 +58,9 @@ const fallbackPricingData: PricingCategory[] = [
     features: [
       {
         name: "Resolution",
-        basic: "1K",
-        standard: "Upto 4K",
-        pro: "Upto 4K"
+        basic: "Basic quality",
+        standard: "High quality",
+        pro: "High quality"
       },
       {
         name: "Takes per shoot",
@@ -120,6 +128,12 @@ const fallbackPricingData: PricingCategory[] = [
         pro: "✓"
       },
       {
+        name: "Premium styles",
+        basic: "",
+        standard: "✓",
+        pro: "✓"
+      },
+      {
         name: "Beta testing access",
         basic: "",
         standard: "",
@@ -160,67 +174,79 @@ const CheckIcon = () => (
 );
 
 // Helper function to render cell content
-const renderCellContent = (content: string) => {
+const renderCellContent = (content: string, t: any) => {
   if (content === "✓") {
     return <CheckIcon />;
+  }
+  // Check if content is a translation key
+  if (content.startsWith('comparisonTable.')) {
+    return t(content);
   }
   return content;
 };
 
-const faqs = [
-  {
-    id: "item-1",
-    question: "What is a Character and how does it work?",
-    answer: "A Character is your own custom AI model, trained from 9 selfies. It learns your exact facial features—structure, skin tone, hair—so every headshot looks authentically you. Depending on your plan, you get 1–3 Characters included. Additional Characters cost 30 credits each, and once created, you can reuse them anytime for new shoots in different outfits, scenes, and styles."
-  },
-  {
-    id: "item-2",
-    question: "How do credits work?",
-    answer: "Credits are your balance for training Characters and generating images. Training a Character costs 30 credits. Image generation costs 1 credit for Basic (1K), 2 for Medium (2K), and 3 for High (4K) resolution. Your plan includes a monthly credit allowance that resets each billing cycle."
-  },
-  {
-    id: "item-3",
-    question: "Can I use my images commercially?",
-    answer: "Yes. All images you generate are yours to use without restrictions—whether that's for LinkedIn, websites, marketing, or print."
-  },
-  {
-    id: "item-4",
-    question: "How do you protect my privacy and data?",
-    answer: "Your photos and Characters are stored securely and never shared, sold, or used for our own training. You can delete individual Characters or your entire account anytime. No third-party access occurs without your consent."
-  },
-  {
-    id: "item-5",
-    question: "Can I change or cancel my plan?",
-    answer: "Yes. You can upgrade or downgrade anytime in your account settings. Upgrades happen immediately with prorated billing; downgrades take effect at the next cycle. If you cancel, you'll keep access until the end of your current cycle. We store your data for 60 days so you can resubscribe without losing anything—after that, it's permanently deleted."
-  },
-  {
-    id: "item-6",
-    question: "Do unused credits roll over?",
-    answer: "No. Credits expire at the end of each billing cycle, and your allowance resets."
-  },
-  {
-    id: "item-7",
-    question: "How can I get more credits?",
-    answer: "You can upgrade your subscription for a higher monthly limit or purchase one-time credit packs from your account."
-  },
-  {
-    id: "item-8",
-    question: "What is your refund policy?",
-    answer: "Subscriptions and credit packs are non-refundable. If there's a technical issue—like a failed generation—contact support for a review and possible credit adjustment."
-  },
-  {
-    id: "item-9",
-    question: "How do I delete my account?",
-    answer: "In your account settings, select \"Delete Account\" to permanently remove all photos, Characters, and images. This is irreversible, so download anything you want to keep first."
-  }
-];
-
 export default function PricingPage() {
   const { t } = useTranslation('pricing');
-  const [activeTab, setActiveTab] = useState("monthly");
+  const [activeTab, setActiveTab] = useState<"monthly" | "yearly">("monthly");
   const [pricingData, setPricingData] = useState<PricingCategory[]>(fallbackPricingData);
+  const [subscriptionTiers, setSubscriptionTiers] = useState<SubscriptionTier[]>([]);
+  const [currentSubscription, setCurrentSubscription] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [purchaseLoading, setPurchaseLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showSignInModal, setShowSignInModal] = useState(false);
+  const [pendingTier, setPendingTier] = useState<SubscriptionTier | null>(null);
+  const isSpecialOffer = true; // TODO: Remove when special offer ends
+  const { user } = useAuth();
+
+  // Define FAQs with translations
+  const faqs = [
+    {
+      id: "item-1",
+      question: t('page.faq.items.character.question'),
+      answer: t('page.faq.items.character.answer')
+    },
+    {
+      id: "item-2",
+      question: t('page.faq.items.credits.question'),
+      answer: t('page.faq.items.credits.answer')
+    },
+    {
+      id: "item-3",
+      question: t('page.faq.items.commercial.question'),
+      answer: t('page.faq.items.commercial.answer')
+    },
+    {
+      id: "item-4",
+      question: t('page.faq.items.privacy.question'),
+      answer: t('page.faq.items.privacy.answer')
+    },
+    {
+      id: "item-5",
+      question: t('page.faq.items.changePlan.question'),
+      answer: t('page.faq.items.changePlan.answer')
+    },
+    {
+      id: "item-6",
+      question: t('page.faq.items.rollover.question'),
+      answer: t('page.faq.items.rollover.answer')
+    },
+    {
+      id: "item-7",
+      question: t('page.faq.items.moreCredits.question'),
+      answer: t('page.faq.items.moreCredits.answer')
+    },
+    {
+      id: "item-8",
+      question: t('page.faq.items.refund.question'),
+      answer: t('page.faq.items.refund.answer')
+    },
+    {
+      id: "item-9",
+      question: t('page.faq.items.deleteAccount.question'),
+      answer: t('page.faq.items.deleteAccount.answer')
+    }
+  ];
 
   useEffect(() => {
     async function fetchPricingData() {
@@ -230,6 +256,7 @@ export default function PricingPage() {
           throw new Error('Failed to fetch pricing data');
         }
         const subscriptions: SubscriptionTier[] = await response.json();
+        setSubscriptionTiers(subscriptions);
         const transformedData = transformPricingData(subscriptions);
         
         if (transformedData.length > 0) {
@@ -247,74 +274,254 @@ export default function PricingPage() {
     fetchPricingData();
   }, []);
 
+  // Fetch current subscription if user is logged in
+  useEffect(() => {
+    async function fetchCurrentSubscription() {
+      if (!user) {
+        setCurrentSubscription(null);
+        return;
+      }
+
+      try {
+        const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL || 'http://localhost:3000';
+        const res = await fetch(`${webappUrl}/api/subscription/current`, {
+          credentials: 'include',
+        });
+
+        if (res.ok) {
+          const subscription = await res.json();
+          setCurrentSubscription(subscription);
+        }
+      } catch (err) {
+        console.error('Error fetching current subscription:', err);
+      }
+    }
+
+    fetchCurrentSubscription();
+  }, [user]);
+
+  // Get Stripe price ID for a subscription tier
+  const getStripePriceId = (tierName: string, billingCycle: 'monthly' | 'yearly'): string | null => {
+    const env = getStripeEnv()
+    const stripeConfig = STRIPE_REFERENCE[env]
+    
+    const tierConfig = stripeConfig.subscriptions[tierName as keyof typeof stripeConfig.subscriptions]
+    if (!tierConfig) return null
+    
+    return billingCycle === 'yearly' ? tierConfig.yearly || tierConfig.monthly : tierConfig.monthly
+  }
+
+  const handleSelectPlan = async (tier: SubscriptionTier) => {
+    // If user is not logged in, show sign in modal
+    if (!user) {
+      setPendingTier(tier);
+      setShowSignInModal(true);
+      return;
+    }
+
+    // Proceed with checkout
+    await createCheckoutSession(tier);
+  }
+
+  const createCheckoutSession = async (tier: SubscriptionTier) => {
+    setPurchaseLoading(true)
+    
+    try {
+      // Get Stripe price ID based on tier name and billing cycle
+      const priceId = getStripePriceId(tier.name, activeTab)
+      
+      if (!priceId) {
+        toast.error('Invalid plan selected. Please try again.')
+        return
+      }
+
+      // Get webapp URL for API call (website needs to call webapp's API in development)
+      const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL || 'http://localhost:3000'
+      
+      // Create checkout session on webapp
+      const res = await fetch(`${webappUrl}/api/payment/subscription-checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Important for CORS with credentials
+        body: JSON.stringify({
+          priceId,
+          successUrl: `${window.location.origin}/pricing?subscription=success`,
+          cancelUrl: `${window.location.origin}/pricing`,
+        })
+      })
+      
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.error || 'Failed to create checkout session')
+      }
+      
+      const result = await res.json()
+      
+      if (result.url) {
+        // Redirect to Stripe checkout
+        window.location.href = result.url
+      } else {
+        throw new Error('No checkout URL received')
+      }
+    } catch (error) {
+      console.error('Checkout error:', error)
+      toast.error(error instanceof Error ? error.message : 'Failed to start checkout. Please try again.')
+    } finally {
+      setPurchaseLoading(false)
+    }
+  }
+
+  // Handle successful sign in - proceed with pending checkout
+  useEffect(() => {
+    if (user && pendingTier && showSignInModal) {
+      setShowSignInModal(false);
+      // Wait a bit for auth state to fully update
+      setTimeout(async () => {
+        await createCheckoutSession(pendingTier);
+        setPendingTier(null);
+      }, 500);
+    }
+  }, [user, pendingTier, showSignInModal]);
+
+  // Determine current plan name
+  const currentPlanName = currentSubscription?.status === 'active' 
+    ? currentSubscription.plan_name 
+    : null;
+
   return (
-    <div className="min-h-screen text-white px-3">
+    <>
+    <div className={styles.container}>
        
       <ContentPageHeader 
-        title="Pricing" 
-        backgroundImage={getWebsiteCdnUrl('explore/blindlight-01.webp')} 
+        title={t('page.title')}
+        backgroundImage={getWebsiteCdnUrl('/blindlight-01.webp')} 
       />
 
+      {/* Special Offer Banner */}
+      {isSpecialOffer && !isLoading && <SpecialOfferBanner className={styles.specialOfferBanner} />}
+
       {/* Pricing Plans */}
-      <div className="w-full">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-screen-xl mx-auto">
-          <div className="flex flex-col lg:flex-row lg:items-center gap-12 lg:gap-6 px-6 py-8 lg:py-12 w-full">
-            <div className="flex flex-col w-full md:w-1/2">
-              <h2 className="text-xl font-semibold tracking-tight mb-2">Simple plans, endless looks.</h2>
-              <p className="text-white/60 font-medium text-sm leading-tight">Cancel or switch anytime.</p>
+      <div className={styles.tabsWrapper}>
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "monthly" | "yearly")} className={styles.tabsWrapper}>
+          <div className={styles.header}>
+            <div className={styles.headerLeft}>
+              <h2 className={styles.headerTitle}>{t('page.header.title')}</h2>
+              <p className={styles.headerSubtitle}>{t('page.header.subtitle')}</p>
             </div>
-            <div className="flex w-full lg:w-1/2 flex-col sm:flex-row items-start sm:items-center justify-between lg:justify-end gap-6">
-              <p className="text-sm text-white">Save up to <span className="text-ignite">40%</span> on annual plans</p>
-              <TabsList className="flex w-full sm:w-auto gap-1 bg-transparent">
-                <TabsTrigger value="monthly" className="relative px-6 h-12 w-full rounded-2xl text-sm font-medium transition-all duration-200 data-[state=active]:bg-mist data-[state=active]:text-black data-[state=active]:border-white hover:bg-mist hover:text-black data-[state=inactive]:bg-mist/10 data-[state=inactive]:text-mist hover:bg-mist hover:text-black active:bg-white active:text-black">Monthly</TabsTrigger>
-                <TabsTrigger value="annual" className="relative px-6 h-12 w-full rounded-2xl text-sm font-medium transition-all duration-200 data-[state=active]:bg-mist data-[state=active]:text-black data-[state=active]:border-white hover:bg-mist hover:text-black data-[state=inactive]:bg-mist/10 data-[state=inactive]:text-mist hover:bg-mist hover:text-black active:bg-white active:text-black">Annual</TabsTrigger>
+            <div className={styles.headerRight}>
+              <p className={styles.savingsText}>{t('page.header.savingsText')} <span className={styles.savingsHighlight}>{t('page.header.savingsHighlight')}</span> {t('page.header.savingsOn')}</p>
+              <TabsList className={styles.tabsList}>
+                <TabsTrigger value="monthly" className={styles.tabTrigger}>{t('page.tabs.monthly')}</TabsTrigger>
+                <TabsTrigger value="annual" className={styles.tabTrigger}>{t('page.tabs.annual')}</TabsTrigger>
               </TabsList>
             </div>
           </div>
 
           <TabsContent value="monthly" className="mt-0">
-            <div className="bg-mist h-[500px] w-full rounded-2xl sm:rounded-3xl flex items-center justify-center">
-              <p className="text-black text-xl font-medium">Monthly pricing content will go here</p>
-            </div>
+            {isLoading ? (
+              <div className={styles.loadingContainer}>
+                <p className={styles.loadingText}>{t('page.loading')}</p>
+              </div>
+            ) : (
+              <div className={styles.contentWrapper}>
+                <PricingCards
+                  billingCycle="monthly"
+                  tiers={subscriptionTiers}
+                  currentPlan={currentPlanName}
+                  loading={purchaseLoading}
+                  onSelectPlan={handleSelectPlan}
+                  renderButton={(tier, isCurrentPlan) => (
+                    <Button
+                      variant="primary"
+                      size="md"
+                      onClick={() => handleSelectPlan(tier)}
+                      disabled={purchaseLoading || isCurrentPlan}
+                      className={styles.selectPlanButton}
+                    >
+                      {purchaseLoading 
+                        ? t('page.buttons.processing')
+                        : isCurrentPlan 
+                        ? t('page.buttons.currentPlan')
+                        : !user 
+                        ? t('page.buttons.getStarted')
+                        : t('page.buttons.selectPlan')}
+                    </Button>
+                  )}
+                />
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="annual" className="mt-0">
-            <div className="bg-mist h-[500px] w-full rounded-2xl sm:rounded-3xl flex items-center justify-center">
-              <p className="text-black text-xl font-medium">Annual pricing content will go here</p>
-            </div>
+            {isLoading ? (
+              <div className={styles.loadingContainer}>
+                <p className={styles.loadingText}>{t('page.loading')}</p>
+              </div>
+            ) : (
+              <div className={styles.contentWrapper}>
+                <PricingCards
+                  billingCycle="yearly"
+                  tiers={subscriptionTiers}
+                  currentPlan={currentPlanName}
+                  loading={purchaseLoading}
+                  onSelectPlan={handleSelectPlan}
+                  renderButton={(tier, isCurrentPlan) => (
+                    <Button
+                      variant="primary"
+                      size="md"
+                      onClick={() => handleSelectPlan(tier)}
+                      disabled={purchaseLoading || isCurrentPlan}
+                      className={styles.selectPlanButton}
+                    >
+                      {purchaseLoading 
+                        ? t('page.buttons.processing')
+                        : isCurrentPlan 
+                        ? t('page.buttons.currentPlan')
+                        : !user 
+                        ? t('page.buttons.getStarted')
+                        : t('page.buttons.selectPlan')}
+                    </Button>
+                  )}
+                />
+              </div>
+            )}
           </TabsContent>
         </Tabs>
         {/* Feature Comparison Table */}
-          <div className="my-16 w-full max-w-screen-xl px-6 mx-auto">
-            <div className="w-full border-b border-white/10"><div className="flex flex-col w-full sm:w-1/2 md:w-1/3">
-              <h2 className="font-carb-bold text-4xl text-glacier mb-4">
-                Compare plans
-              </h2>
-              <p className="text-white text-md leading-tight max-w-[400px]">
-                Upgrade to unlock higher-resolution headshots, more credits, reusable Characters, and priority processing.
-              </p>
+          <div className={styles.featureComparison}>
+            <div className={styles.comparisonHeader}>
+              <div className={styles.comparisonHeaderContent}>
+                <h2 className={styles.comparisonTitle}>
+                  {t('page.comparison.title')}
+                </h2>
+                <p className={styles.comparisonDescription}>
+                  {t('page.comparison.description')}
+                </p>
+              </div>
             </div>
-          </div>
-            <Table className="w-full mt-12 border-collapse">
+            <Table className={styles.table}>
             <TableBody>
               {pricingData.map((category) => (
                 <React.Fragment key={category.category}>
                   {/* Category Header */}
-                  <TableRow className="h-16 border-none hover:bg-transparent">
-                    <TableHead className="p-0 border-b border-[#102B34]/30 text-lg font-bold md:text-xl text-glacier w-1/4 md:w-1/2 leading-tight">{t(category.category)}</TableHead>
-                    <TableHead className="p-3 text-sm font-bold w-1/4 md:w-1/6 text-white/40">Basic</TableHead>
-                    <TableHead className="p-3 text-sm font-bold w-1/4 md:w-1/6 text-white/40"><span className="hidden sm:inline">Standard</span><span className="sm:hidden">Std</span></TableHead>
-                    <TableHead className="p-3 text-small font-bold w-1/4 md:w-1/6 text-white/40">Pro</TableHead>
+                  <TableRow className={styles.categoryRow}>
+                    <TableHead className={styles.categoryHeader}>{t(category.category)}</TableHead>
+                    <TableHead className={styles.tierHeader}>Basic</TableHead>
+                    <TableHead className={styles.tierHeader}>
+                      <span className={styles.tierHeaderStandardHidden}>Standard</span>
+                      <span className={styles.tierHeaderStandardVisible}>Std</span>
+                    </TableHead>
+                    <TableHead className={styles.tierHeader}>Pro</TableHead>
                   </TableRow>
                   
 
                   {/* Category Features */}
                   {category.features.map((feature, featureIndex) => (
-                    <TableRow key={`${category.category}-${featureIndex}`} className="h-12 md:h-16 hover:bg-transparent border-none">
-                      <TableCell className="p-0 border-b border-[#102B34]/30 text-sm md:text-lg text-white/60 w-1/4 md:w-1/2 pr-6 min-w-32">{t(feature.name)}</TableCell>
-                      <TableCell className="p-3 text-sm md:text-lg text-mist bg-[#102B34]/30 w-1/4 md:w-1/6 border-none">{renderCellContent(feature.basic)}</TableCell>
-                      <TableCell className="p-3 text-sm md:text-lg text-mist bg-[#102B34]/50 w-1/4 md:w-1/6 border-none">{renderCellContent(feature.standard)}</TableCell>
-                      <TableCell className="p-3 text-sm md:text-lg text-mist bg-[#102B34]/70 w-1/4 md:w-1/6 border-none">{renderCellContent(feature.pro)}</TableCell>
+                    <TableRow key={`${category.category}-${featureIndex}`} className={styles.featureRow}>
+                      <TableCell className={styles.featureName}>{t(feature.name)}</TableCell>
+                      <TableCell className={styles.featureValueBasic}>{renderCellContent(feature.basic, t)}</TableCell>
+                      <TableCell className={styles.featureValueStandard}>{renderCellContent(feature.standard, t)}</TableCell>
+                      <TableCell className={styles.featureValuePro}>{renderCellContent(feature.pro, t)}</TableCell>
                     </TableRow>
                   ))}
                 </React.Fragment>
@@ -326,35 +533,35 @@ export default function PricingPage() {
 
 
       {/* FAQ Section */}
-      <div className="w-full">
-        <div className="w-full max-w-screen-xl mx-auto py-12 px-6 flex flex-col xl:flex-row gap-12">
+      <div className={styles.faqSection}>
+        <div className={styles.faqContainer}>
           {/* Left side - Title and subtitle */}
-          <div className="w-full xl:w-1/2 md:sticky xl:top-8 xl:self-start">
-            <h2 className="font-carb-bold text-4xl text-glacier mb-4">
-              Questions?
+          <div className={styles.faqLeft}>
+            <h2 className={styles.faqTitle}>
+              {t('page.faq.title')}
             </h2>
-            <p className="text-white text-md leading-tight max-w-[300px]">
-              Everything you need to know about our pricing and features
+            <p className={styles.faqSubtitle}>
+              {t('page.faq.subtitle')}
             </p>
           </div>
 
           {/* Right side - Accordion */}
-          <div className="w-full xl:w-1/2">
+          <div className={styles.faqRight}>
             <Accordion
               type="single"
               collapsible
-              className="w-full"
+              className={styles.faqAccordion}
             >
               {faqs.map((faq) => (
                 <AccordionItem
                   key={faq.id}
                   value={faq.id}
-                  className="border-white/10"
+                  className={styles.faqItem}
                 >
-                  <AccordionTrigger className="text-left text-white/70 hover:text-white data-[state=open]:text-glacier hover:no-underline py-3 md:py-6 text-sm md:text-lg font-medium transition-colors [&>svg]:ml-4">
+                  <AccordionTrigger className={styles.faqTrigger}>
                     {faq.question}
                   </AccordionTrigger>
-                  <AccordionContent className="text-white text-sm md:text-lg pb-6 leading-relaxed">
+                  <AccordionContent className={styles.faqContent}>
                     {faq.answer}
                   </AccordionContent>
                 </AccordionItem>
@@ -363,10 +570,20 @@ export default function PricingPage() {
           </div>
         </div>
       </div>
-
-      {/* Section 8 - Footer */}
-      <Footer />
     </div>
 
+    {/* Sign In Modal */}
+    <Dialog open={showSignInModal} onOpenChange={(open) => {
+      setShowSignInModal(open);
+      if (!open) setPendingTier(null);
+    }}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t('page.signIn.modalTitle')}</DialogTitle>
+        </DialogHeader>
+        <SignInForm />
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }

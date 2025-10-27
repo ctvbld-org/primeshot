@@ -25,5 +25,42 @@
       "success": "Grazie! Riceverai un'email per il tuo accesso anticipato.",
       "defaultError": "Qualcosa è andato storto"
     }
+  },
+  "sections": {
+    "characters": {
+      "title": "Personaggi",
+      "subtitle": "Creati da solo 9 tue foto. Crea per te e per gli altri. Il tuo te digitale pronto in meno di 8 minuti."
+    },
+    "scenes": {
+      "title": "Prepara la scena",
+      "subtitle": "Scegli da una collezione diversificata di sfondi e ambienti che completano perfettamente la tua visione e il tuo stile."
+    },
+    "styles": {
+      "title": "Stili fotografici",
+      "subtitle": "Dai ritratti professionali alle interpretazioni artistiche, seleziona tra dozzine di stili curati che catturano la tua essenza unica."
+    },
+    "wardrobe": {
+      "title": "Vestiti per impressionare",
+      "titleColors": "In qualsiasi colore",
+      "subtitle": "Scegli da un'ampia collezione di guardaroba. Dal casual al formale, trova l'outfit perfetto per ogni occasione.",
+      "subtitleColors": "Personalizza ogni dettaglio con la nostra vasta tavolozza di colori. Abbina il tuo stile o esplora nuove combinazioni audaci."
+    }
+  },
+  "grid": {
+    "tagline": "Lo Studio IA per Fotografia di Ritratto Straordinaria",
+    "title": "Il tuo meglio, catturato.",
+    "badge": "4K"
+  },
+  "cta": {
+    "title": "Pronto a incontrare la tua versione migliore?",
+    "subtitle": "Unisciti a migliaia di persone che creano ritratti IA professionali con Primeshot",
+    "pricing": "A partire da 9 € al mese."
+  },
+  "ctaHero": {
+    "heading": "Ritratti professionali accessibili a tutti.",
+    "subheading": "Pronti in pochi minuti.",
+    "googleButton": "Unisciti con Google",
+    "createButton": "Crea il tuo servizio",
+    "signInTitle": "Accedi"
   }
 }

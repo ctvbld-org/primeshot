@@ -61,6 +61,7 @@
 .statusGenerating .imageContainer {
   mix-blend-mode: normal;
   backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
 }
 
 .imageLayer {
@@ -71,7 +72,8 @@
   object-fit: cover;
   opacity: 0;
   filter: blur(10px);
-  transition: opacity 0.3s ease, transform 0.3s ease-out, filter 0.3s ease-out;
+  -webkit-filter: blur(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease-out, filter 0.3s ease-out, -webkit-filter 0.3s ease-out;
   z-index: 2;
 }
 
@@ -82,6 +84,7 @@
 .visible {
   opacity: 1;
   filter: blur(0);
+  -webkit-filter: blur(0);
 }
 
 .zoomOnMount {
@@ -92,13 +95,15 @@
   object-fit: cover;
   opacity: 0;
   filter: blur(10px);
-  transition: opacity 0.6s ease, transform 0.6s ease, filter 0.6s ease-out;
+  -webkit-filter: blur(10px);
+  transition: opacity 0.6s ease, transform 0.6s ease, filter 0.6s ease-out, -webkit-filter 0.6s ease-out;
   transform: scale(1.05);
 }
 
 .image.loaded {
   opacity: 1;
   filter: blur(0);
+  -webkit-filter: blur(0);
   transform: scale(1);
 }
 
@@ -111,11 +116,13 @@
     opacity: 0;
     transform: scale(1.1);
     filter: blur(10px);
+    -webkit-filter: blur(10px);
   }
   100% {
     opacity: 1;
     transform: scale(1);
     filter: blur(0);
+    -webkit-filter: blur(0);
   }
 }
 
@@ -124,11 +131,13 @@
     opacity: 1;
     transform: scale(1);
     filter: blur(0);
+    -webkit-filter: blur(0);
   }
   100% {
     opacity: 1;
     transform: scale(1.06);
     filter: blur(0);
+    -webkit-filter: blur(0);
   }
 }
 
@@ -166,6 +175,7 @@
   font-size: 12px;
   font-weight: 500;
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .statusText {
@@ -235,6 +245,7 @@
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(1px);
 }
 
 /* Live preview badge */
@@ -320,13 +331,15 @@
   overflow: hidden;
   opacity: 1;
   filter: blur(0);
-  transition: opacity 0.4s ease-out, filter 0.4s ease-out;
+  -webkit-filter: blur(0);
+  transition: opacity 0.4s ease-out, filter 0.4s ease-out, -webkit-filter 0.4s ease-out;
 }
 
 .gradientLoader.fadeOut {
   opacity: 0;
   pointer-events: none;
   filter: blur(10px);
+  -webkit-filter: blur(10px);
 }
 
 .gradientLoader {
@@ -353,13 +366,15 @@
   opacity: 0;
   transform: translateY(6px);
   filter: blur(10px);
-  transition: opacity 0.2s ease-out, transform 0.2s ease-out, filter 0.2s ease-out;
+  -webkit-filter: blur(10px);
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out, filter 0.2s ease-out, -webkit-filter 0.2s ease-out;
 }
 
 .imageContainer:hover .actionBtn {
   opacity: 1;
   transform: translateY(0);
   filter: blur(0);
+  -webkit-filter: blur(0);
 }
 
 .actionBtnGroup {
@@ -380,6 +395,7 @@
   opacity: 1; 
   transform: translateY(0);
   filter: blur(0);
+  -webkit-filter: blur(0);
 }
 
 /* Generating state gradient loader */
@@ -401,11 +417,11 @@
 }
 
 @keyframes simpleOpacityPulse {
-  0% { backdrop-filter: blur(80px); }
-  25% { backdrop-filter: blur(40px); }
-  50% { backdrop-filter: blur(160px); }
-  75% { backdrop-filter: blur(40px); }
-  100% { backdrop-filter: blur(80px); }
+  0% { backdrop-filter: blur(80px); -webkit-backdrop-filter: blur(80px); }
+  25% { backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); }
+  50% { backdrop-filter: blur(160px); -webkit-backdrop-filter: blur(160px); }
+  75% { backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); }
+  100% { backdrop-filter: blur(80px); -webkit-backdrop-filter: blur(80px); }
 }
 
 /* Responsive grid adjustments */

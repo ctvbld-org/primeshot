@@ -130,6 +130,73 @@
 
 .avatarWrapper { position: relative; width: 40px; height: 40px; }
 
+/* Mobile Navigation */
+.hamburgerButton {
+  display: none;
+}
+
+.mobileNavDialog {
+  width: 200px;
+  padding: 8px;
+}
+
+.mobileNavDialog > div {    
+  padding: 0 0 0 40px !important;
+}
+
+.mobileNavList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mobileNavItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  padding: 8px 20px;
+  font-size: 0.875rem;
+  height: 48px;
+  box-sizing: border-box;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.6);
+  position: relative;
+}
+
+.mobileNavItem:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.mobileNavItemActive {
+  color: #FFFFFF;
+}
+
+.mobileNavLabel {
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  letter-spacing: -0.01em;
+  text-align: center;
+}
+
+.mobileNavCheck {
+  width: 16px !important;
+  height: 16px !important;
+  position: absolute;
+  right: 20px;
+}
+
 @media (max-width: 920px) {
   .creditsText { display: none; }
 } 
@@ -146,13 +213,11 @@
     flex: 0 0 auto;
   }
 
-  .navLink {
+  .nav {
     display: none;
   }
 
-  .exploreNavLink,
-  .createNavLink,
-  .pricingNavLink {
-    display: block;
+  .hamburgerButton {
+    display: flex;
   }
 }

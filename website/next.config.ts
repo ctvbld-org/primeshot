@@ -43,6 +43,21 @@ const nextConfig: NextConfig = {
           source: '/:locale(us|gb|cn|es|fr|pt|de|jp|it|nl)/create', 
           destination: `${webapp}/create`
         },
+        // Proxy API routes for user account features (subscription, credits, etc.)
+        // This allows the marketing website to display user info via AccountDialog
+        { 
+          source: '/api/credits/:path*', 
+          destination: `${webapp}/api/credits/:path*` 
+        },
+        { 
+          source: '/api/subscription/:path*', 
+          destination: `${webapp}/api/subscription/:path*` 
+        },
+        // Proxy account-related API routes
+        { 
+          source: '/api/account/:path*', 
+          destination: `${webapp}/api/account/:path*` 
+        },
       );
     }
 

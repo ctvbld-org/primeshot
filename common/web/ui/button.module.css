@@ -85,21 +85,10 @@
 }
 
 .secondary {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  padding: 16px;
-  gap: 8px;
-  min-height: 40px;
   background: rgba(255, 255, 255, 0.08);
   background-blend-mode: plus-lighter;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-radius: 16px;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 16px;
   color: #FFFFFF;
   transition: background 0.2s ease;
 }
@@ -121,13 +110,13 @@
 }
 
 .tertiary {
-  background-color: #000000;
-  background-image: linear-gradient(92deg, #000 4.48%, rgba(68, 227, 201, 0.90) 35.03%, #000 70.43%);
+  background-color: #FF491C;
   color: #FFFFFF;
 }
 
-.tertiary:after {
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.90) 100%);
+.tertiary:not(:disabled):hover {
+  background: #E92E00;
+  transition: background 0.2s ease; 
 }
 
 .outline {

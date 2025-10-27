@@ -147,13 +147,86 @@
       "concurrentShoots": "Sesiones simultáneas",
       "commercialUse": "Uso comercial",
       "priorityFeatures": "Acceso prioritario a nuevas funciones",
+      "premiumStyles": "Estilos premium",
       "betaAccess": "Acceso a pruebas beta",
       "emailSupport": "Soporte por correo",
       "chatSupport": "Soporte por chat",
       "dedicatedSupport": "Soporte dedicado"
     },
     "values": {
-      "upTo": "Hasta {{value}}"
+      "upTo": "Hasta {{value}}",
+      "basicQuality": "Calidad básica",
+      "highQuality": "Alta calidad"
+    }
+  },
+  "page": {
+    "title": "Precios",
+    "header": {
+      "title": "Planes simples, looks infinitos.",
+      "subtitle": "Cancela o cambia cuando quieras.",
+      "savingsText": "Ahorra hasta",
+      "savingsHighlight": "40%",
+      "savingsOn": "en planes anuales"
+    },
+    "tabs": {
+      "monthly": "Mensual",
+      "annual": "Anual"
+    },
+    "buttons": {
+      "getStarted": "Empezar",
+      "selectPlan": "Seleccionar plan",
+      "currentPlan": "Plan actual",
+      "processing": "Procesando..."
+    },
+    "loading": "Cargando precios...",
+    "comparison": {
+      "title": "Compara planes",
+      "description": "Mejora para desbloquear retratos de mayor resolución, más créditos, personajes reutilizables y procesamiento prioritario."
+    },
+    "faq": {
+      "title": "¿Preguntas?",
+      "subtitle": "Todo lo que necesitas saber sobre nuestros precios y funciones",
+      "items": {
+        "character": {
+          "question": "¿Qué es un personaje y cómo funciona?",
+          "answer": "Un personaje es tu propio modelo de IA personalizado, entrenado con 9 selfies. Aprende tus rasgos faciales exactos—estructura, tono de piel, cabello—para que cada retrato se vea auténticamente como tú. Según tu plan, obtienes de 1 a 3 personajes incluidos. Los personajes adicionales cuestan 30 créditos cada uno, y una vez creados, puedes reutilizarlos en cualquier momento para nuevas sesiones con diferentes atuendos, escenas y estilos."
+        },
+        "credits": {
+          "question": "¿Cómo funcionan los créditos?",
+          "answer": "Los créditos son tu saldo para entrenar personajes y generar imágenes. Entrenar un personaje cuesta 30 créditos. La generación de imágenes cuesta 1 crédito para calidad básica (1K), 2 para media (2K) y 3 para alta (4K). Tu plan incluye una asignación mensual de créditos que se renueva cada ciclo de facturación."
+        },
+        "commercial": {
+          "question": "¿Puedo usar mis imágenes comercialmente?",
+          "answer": "Sí. Todas las imágenes que generes son tuyas para usar sin restricciones—ya sea para LinkedIn, sitios web, marketing o impresión."
+        },
+        "privacy": {
+          "question": "¿Cómo protegen mi privacidad y mis datos?",
+          "answer": "Tus fotos y personajes se almacenan de forma segura y nunca se comparten, venden o usan para nuestro propio entrenamiento. Puedes eliminar personajes individuales o tu cuenta completa en cualquier momento. No hay acceso de terceros sin tu consentimiento."
+        },
+        "changePlan": {
+          "question": "¿Puedo cambiar o cancelar mi plan?",
+          "answer": "Sí. Puedes mejorar o reducir tu plan en cualquier momento desde la configuración de tu cuenta. Las mejoras ocurren inmediatamente con facturación prorrateada; las reducciones entran en vigor en el siguiente ciclo. Si cancelas, mantendrás el acceso hasta el final de tu ciclo actual. Guardamos tus datos durante 60 días para que puedas volver a suscribirte sin perder nada—después de eso, se eliminan permanentemente."
+        },
+        "rollover": {
+          "question": "¿Se acumulan los créditos no usados?",
+          "answer": "No. Los créditos caducan al final de cada ciclo de facturación, y tu asignación se renueva."
+        },
+        "moreCredits": {
+          "question": "¿Cómo puedo obtener más créditos?",
+          "answer": "Puedes mejorar tu suscripción para un límite mensual más alto o comprar paquetes de créditos únicos desde tu cuenta."
+        },
+        "refund": {
+          "question": "¿Cuál es su política de reembolso?",
+          "answer": "Las suscripciones y paquetes de créditos no son reembolsables. Si hay un problema técnico—como una generación fallida—contacta con soporte para una revisión y posible ajuste de créditos."
+        },
+        "deleteAccount": {
+          "question": "¿Cómo elimino mi cuenta?",
+          "answer": "En la configuración de tu cuenta, selecciona \"Eliminar cuenta\" para eliminar permanentemente todas las fotos, personajes e imágenes. Esto es irreversible, así que descarga primero todo lo que quieras conservar."
+        }
+      }
+    },
+    "signIn": {
+      "modalTitle": "Inicia sesión para continuar"
     }
   }
 }

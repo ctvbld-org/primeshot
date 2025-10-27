@@ -58,6 +58,8 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
     currentFileIndex,
     canBypassQuality,
     rejectedCount,
+    batchFilteredCount,
+    totalBatchImages,
     bypassQualityChecks,
     triggerAnalysis
   } = useFileUpload({
@@ -211,6 +213,8 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
               }}
               onBypassBodyShotRequirement={handleBypassBodyShotRequirement}
               bodyRequirementBypassed={bodyRequirementBypassed}
+              batchFilteredCount={batchFilteredCount}
+              totalBatchImages={totalBatchImages}
             />
           </div>
 

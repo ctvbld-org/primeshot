@@ -40,9 +40,25 @@
     "accountSettings": "Accountinstellingen"
   },
   "footer": {
-    "about": "Over ons",
-    "terms": "Voorwaarden",
-    "privacy": "Privacy",
+    "hero": "Jouw beeld, jouw eigendom.",
+    "sections": {
+      "overview": "Overzicht",
+      "latestStyles": "Nieuwste Stijlen",
+      "legal": "Juridisch",
+      "support": "Ondersteuning"
+    },
+    "links": {
+      "explore": "Verkennen",
+      "create": "Maken",
+      "pricing": "Prijzen & FAQ",
+      "studioPro": "Studio Pro",
+      "business": "Business",
+      "editorial": "Editorial",
+      "terms": "Algemene Voorwaarden",
+      "privacy": "Privacybeleid",
+      "contact": "Contact",
+      "about": "Over ons"
+    },
     "copyright": "© {{year}} Primeshot. Alle rechten voorbehouden"
   },
   "duration": {

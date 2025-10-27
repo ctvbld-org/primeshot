@@ -6,10 +6,13 @@ import { makeCloudfrontLoader } from '@/lib/utils/cloudfrontLoader'
 import { StickyShowcaseSection } from '../StickyShowcaseSection'
 import styles from '../ShowcaseSection.module.css'
 import { getWebsiteCdnUrl } from '@/lib/utils/cdn'
+import { useTranslation } from 'react-i18next'
 
 const cloudfrontLoader = makeCloudfrontLoader('website-images')
 
 export function CharactersShowcase() {
+  const { t } = useTranslation('homepage')
+  
   return (
     <StickyShowcaseSection 
       className={`${styles.container} ${styles.charactersContainer}`}
@@ -22,11 +25,10 @@ export function CharactersShowcase() {
             <div className={styles.iconWrapper}>
               <Icon variant="primeshotSymbol" size={48} className="text-glacier" />
             </div>
-            <h2 className={styles.title}>Characters</h2>
+            <h2 className={styles.title}>{t('sections.characters.title')}</h2>
           </div>
           <p className={styles.subtitle}>
-            Capture you from just 9 images of yourself. Create for you and others. 
-            Your digital you ready in less than 8 mins.
+            {t('sections.characters.subtitle')}
           </p>
         </div>
 

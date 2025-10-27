@@ -136,7 +136,7 @@ export default async function RootLayout({
                           <QueryParamCleaner />
                           <Header rightSlot={<CreditsHeaderRight />} />
                           {children}
-                          <Footer />
+                          <Footer variant="compact" />
                           <Toaster />
                         </DialogServiceProvider>
                       </InferenceQueueProvider>

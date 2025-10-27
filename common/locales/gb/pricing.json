@@ -147,13 +147,86 @@
       "concurrentShoots": "Concurrent shoots",
       "commercialUse": "Commercial use",
       "priorityFeatures": "Priority access to new features",
+      "premiumStyles": "Premium styles",
       "betaAccess": "Beta testing access",
       "emailSupport": "Email support",
       "chatSupport": "Chat support",
       "dedicatedSupport": "Dedicated support"
     },
     "values": {
-      "upTo": "Up to {{value}}"
+      "upTo": "Up to {{value}}",
+      "basicQuality": "Basic quality",
+      "highQuality": "High quality"
+    }
+  },
+  "page": {
+    "title": "Pricing",
+    "header": {
+      "title": "Simple plans, endless looks.",
+      "subtitle": "Cancel or switch anytime.",
+      "savingsText": "Save up to",
+      "savingsHighlight": "40%",
+      "savingsOn": "on annual plans"
+    },
+    "tabs": {
+      "monthly": "Monthly",
+      "annual": "Annual"
+    },
+    "buttons": {
+      "getStarted": "Get Started",
+      "selectPlan": "Select Plan",
+      "currentPlan": "Current Plan",
+      "processing": "Processing..."
+    },
+    "loading": "Loading pricing...",
+    "comparison": {
+      "title": "Compare plans",
+      "description": "Upgrade to unlock higher-resolution headshots, more credits, reusable Characters, and priority processing."
+    },
+    "faq": {
+      "title": "Questions?",
+      "subtitle": "Everything you need to know about our pricing and features",
+      "items": {
+        "character": {
+          "question": "What is a Character and how does it work?",
+          "answer": "A Character is your own custom AI model, trained from 9 selfies. It learns your exact facial features—structure, skin tone, hair—so every headshot looks authentically you. Depending on your plan, you get 1–3 Characters included. Additional Characters cost 30 credits each, and once created, you can reuse them anytime for new shoots in different outfits, scenes, and styles."
+        },
+        "credits": {
+          "question": "How do credits work?",
+          "answer": "Credits are your balance for training Characters and generating images. Training a Character costs 30 credits. Image generation costs 1 credit for Basic (1K), 2 for Medium (2K), and 3 for High (4K) resolution. Your plan includes a monthly credit allowance that resets each billing cycle."
+        },
+        "commercial": {
+          "question": "Can I use my images commercially?",
+          "answer": "Yes. All images you generate are yours to use without restrictions—whether that's for LinkedIn, websites, marketing, or print."
+        },
+        "privacy": {
+          "question": "How do you protect my privacy and data?",
+          "answer": "Your photos and Characters are stored securely and never shared, sold, or used for our own training. You can delete individual Characters or your entire account anytime. No third-party access occurs without your consent."
+        },
+        "changePlan": {
+          "question": "Can I change or cancel my plan?",
+          "answer": "Yes. You can upgrade or downgrade anytime in your account settings. Upgrades happen immediately with prorated billing; downgrades take effect at the next cycle. If you cancel, you'll keep access until the end of your current cycle. We store your data for 60 days so you can resubscribe without losing anything—after that, it's permanently deleted."
+        },
+        "rollover": {
+          "question": "Do unused credits roll over?",
+          "answer": "No. Credits expire at the end of each billing cycle, and your allowance resets."
+        },
+        "moreCredits": {
+          "question": "How can I get more credits?",
+          "answer": "You can upgrade your subscription for a higher monthly limit or purchase one-time credit packs from your account."
+        },
+        "refund": {
+          "question": "What is your refund policy?",
+          "answer": "Subscriptions and credit packs are non-refundable. If there's a technical issue—like a failed generation—contact support for a review and possible credit adjustment."
+        },
+        "deleteAccount": {
+          "question": "How do I delete my account?",
+          "answer": "In your account settings, select \"Delete Account\" to permanently remove all photos, Characters, and images. This is irreversible, so download anything you want to keep first."
+        }
+      }
+    },
+    "signIn": {
+      "modalTitle": "Sign in to continue"
     }
   }
 }

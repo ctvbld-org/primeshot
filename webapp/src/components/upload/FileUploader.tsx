@@ -32,6 +32,8 @@ export interface FileUploaderProps {
   bodyShotValidation?: { isValid: boolean; errors: string[]; i18nErrors?: { key: string; params?: Record<string, any> }[] }
   onBypassBodyShotRequirement?: () => void
   bodyRequirementBypassed?: boolean
+  batchFilteredCount?: number  // Images filtered by batch duplicate analysis
+  totalBatchImages?: number    // Total images in batch analysis
 }
 
 interface FileState {
@@ -64,7 +66,9 @@ export const FileUploader = React.forwardRef<FileUploaderHandle, FileUploaderPro
   isTransitioningToReview = false,
   bodyShotValidation,
   onBypassBodyShotRequirement,
-  bodyRequirementBypassed = false
+  bodyRequirementBypassed = false,
+  batchFilteredCount = 0,
+  totalBatchImages = 0
 }: FileUploaderProps, ref) {
   const { t } = useTranslation('character')
   const [isDragging, setIsDragging] = useState(false)

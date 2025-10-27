@@ -25,5 +25,42 @@
       "success": "Merci ! Vous recevrez un email pour votre accès anticipé.",
       "defaultError": "Une erreur s'est produite"
     }
+  },
+  "sections": {
+    "characters": {
+      "title": "Personnages",
+      "subtitle": "Créez votre portrait à partir de seulement 9 photos. Pour vous et vos proches. Votre double numérique prêt en moins de 8 minutes."
+    },
+    "scenes": {
+      "title": "Choisissez le décor",
+      "subtitle": "Découvrez une collection variée d'arrière-plans et d'environnements qui complètent parfaitement votre vision et votre style."
+    },
+    "styles": {
+      "title": "Styles photo",
+      "subtitle": "Des portraits professionnels aux interprétations artistiques, sélectionnez parmi des dizaines de styles soignés qui capturent votre essence unique."
+    },
+    "wardrobe": {
+      "title": "Habillez-vous pour impressionner",
+      "titleColors": "En toutes les couleurs",
+      "subtitle": "Choisissez parmi une garde-robe complète. Du décontracté au formel, trouvez la tenue parfaite pour chaque occasion.",
+      "subtitleColors": "Personnalisez chaque détail avec notre vaste palette de couleurs. Harmonisez votre style ou explorez de nouvelles combinaisons audacieuses."
+    }
+  },
+  "grid": {
+    "tagline": "Le Studio IA pour une Photographie de Portrait Exceptionnelle",
+    "title": "Vous sous votre meilleur jour.",
+    "badge": "4K"
+  },
+  "cta": {
+    "title": "Prêt à rencontrer votre meilleure version ?",
+    "subtitle": "Rejoignez des milliers de personnes qui créent des portraits IA professionnels avec Primeshot",
+    "pricing": "À partir de 9 € par mois."
+  },
+  "ctaHero": {
+    "heading": "Des portraits professionnels accessibles à tous.",
+    "subheading": "Prêts en quelques minutes.",
+    "googleButton": "Rejoindre avec Google",
+    "createButton": "Créer votre séance",
+    "signInTitle": "Se connecter"
   }
 }

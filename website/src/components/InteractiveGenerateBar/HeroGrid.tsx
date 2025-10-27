@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { makeCloudfrontLoader } from '@/lib/utils/cloudfrontLoader'
+import { useTranslation } from 'react-i18next'
 import showcaseStyles from './ShowcaseSection.module.css'
 import styles from './HeroGrid.module.css'
 
@@ -100,6 +101,7 @@ function CompareSlider({
 }
 
 export function HeroGrid() {
+  const { t } = useTranslation('homepage')
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const [desktopSliderPosition, setDesktopSliderPosition] = useState<number>(50)
   const [entryEdge, setEntryEdge] = useState<'left' | 'right' | 'top' | 'bottom' | null>(null)
@@ -122,7 +124,7 @@ export function HeroGrid() {
     { 
       id: 1, 
       hasComparison: true,
-      afterImage: 'explore/studiopro/primeshot-shoot-217-img-02-w960.webp',
+      afterImage: 'explore/studiopro/20-w960.webp',
       beforeImage: 'homepage/hero-compare-2-w960.webp'
     },
     { 
@@ -133,20 +135,20 @@ export function HeroGrid() {
     { 
       id: 3, 
       hasComparison: true,
-      afterImage: 'explore/blindlight/primeshot-shoot-170-img-02-w960.webp',
-      beforeImage: 'homepage/hero-compare-2-w960.webp'
+      afterImage: 'homepage/primeshot-shoot-025-img-01-w960.webp',
+      beforeImage: 'homepage/selfie_13-w960.webp'
     },
     { 
       id: 4, 
       hasComparison: true,
-      afterImage: 'explore/goldennoir/primeshot-0b887aa7-img-04-w960.webp',
-      beforeImage: 'homepage/hero-compare-2-w960.webp'
+      afterImage: 'homepage/primeshot-shoot-019-img-01-w960.webp',
+      beforeImage: 'homepage/selfie_7-w960.webp'
     },
     { 
       id: 5, 
       hasComparison: true,
-      afterImage: 'explore/powerseats/primeshot-shoot-165-img-01-w960.webp',
-      beforeImage: 'homepage/hero-compare-2-w960.webp'
+      afterImage: 'homepage/primeshot-c11d626a-img-01-w960.webp',
+      beforeImage: 'homepage/img_1188-w960.webp'
     },
   ]
 
@@ -323,10 +325,10 @@ export function HeroGrid() {
     <div className={styles.container} ref={containerRef}>
       <div className={styles.header}>
         <p className={`${showcaseStyles.subtitle} ${showcaseStyles.headerSubtitle} ${headerVisible ? showcaseStyles.visible : ''}`}>
-          The AI Studio for Stunning Portrait Photography
+          {t('grid.tagline')}
         </p>
         <h2 className={`${showcaseStyles.title} ${showcaseStyles.headerTitle} ${headerVisible ? showcaseStyles.visible : ''}`}>
-          Your best self, captured.
+          {t('grid.title')}
         </h2>
       </div>
       {/* Desktop Grid - 1 row × 5 columns */}
@@ -341,14 +343,14 @@ export function HeroGrid() {
             {img.featured ? (
               <div className={styles.imageContainer}>
                 <Image
-                  src="explore/blindlight/primeshot-975e0f71-img-05.webp"
+                  src="homepage/8.webp"
                   alt="Featured 4K quality"
                   fill
                   className={styles.featuredImage}
                   loader={cloudfrontLoader}
                 />
                 <div className={styles.badge}>
-                  4K
+                  {t('grid.badge')}
                 </div>
               </div>
             ) : (
@@ -408,14 +410,14 @@ export function HeroGrid() {
               {img.featured ? (
                 <div className={styles.imageContainer}>
                   <Image
-                    src="explore/blindlight/primeshot-975e0f71-img-05.webp"
+                    src="homepage/8.webp"
                     alt="Featured 4K quality"
                     fill
                     className={styles.featuredImage}
                     loader={cloudfrontLoader}
                   />
                   <div className={styles.badge}>
-                    4K
+                    {t('grid.badge')}
                   </div>
                 </div>
               ) : (

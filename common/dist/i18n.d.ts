@@ -43,9 +43,25 @@ export declare const resources: {
                 accountSettings: string;
             };
             footer: {
-                about: string;
-                terms: string;
-                privacy: string;
+                hero: string;
+                sections: {
+                    overview: string;
+                    latestStyles: string;
+                    legal: string;
+                    support: string;
+                };
+                links: {
+                    explore: string;
+                    create: string;
+                    pricing: string;
+                    studioPro: string;
+                    business: string;
+                    editorial: string;
+                    terms: string;
+                    privacy: string;
+                    contact: string;
+                    about: string;
+                };
                 copyright: string;
             };
             duration: {
@@ -318,6 +334,7 @@ export declare const resources: {
                     concurrentShoots: string;
                     commercialUse: string;
                     priorityFeatures: string;
+                    premiumStyles: string;
                     betaAccess: string;
                     emailSupport: string;
                     chatSupport: string;
@@ -325,6 +342,78 @@ export declare const resources: {
                 };
                 values: {
                     upTo: string;
+                    basicQuality: string;
+                    highQuality: string;
+                };
+            };
+            page: {
+                title: string;
+                header: {
+                    title: string;
+                    subtitle: string;
+                    savingsText: string;
+                    savingsHighlight: string;
+                    savingsOn: string;
+                };
+                tabs: {
+                    monthly: string;
+                    annual: string;
+                };
+                buttons: {
+                    getStarted: string;
+                    selectPlan: string;
+                    currentPlan: string;
+                    processing: string;
+                };
+                loading: string;
+                comparison: {
+                    title: string;
+                    description: string;
+                };
+                faq: {
+                    title: string;
+                    subtitle: string;
+                    items: {
+                        character: {
+                            question: string;
+                            answer: string;
+                        };
+                        credits: {
+                            question: string;
+                            answer: string;
+                        };
+                        commercial: {
+                            question: string;
+                            answer: string;
+                        };
+                        privacy: {
+                            question: string;
+                            answer: string;
+                        };
+                        changePlan: {
+                            question: string;
+                            answer: string;
+                        };
+                        rollover: {
+                            question: string;
+                            answer: string;
+                        };
+                        moreCredits: {
+                            question: string;
+                            answer: string;
+                        };
+                        refund: {
+                            question: string;
+                            answer: string;
+                        };
+                        deleteAccount: {
+                            question: string;
+                            answer: string;
+                        };
+                    };
+                };
+                signIn: {
+                    modalTitle: string;
                 };
             };
         };
@@ -1097,6 +1186,43 @@ export declare const resources: {
                     defaultError: string;
                 };
             };
+            sections: {
+                characters: {
+                    title: string;
+                    subtitle: string;
+                };
+                scenes: {
+                    title: string;
+                    subtitle: string;
+                };
+                styles: {
+                    title: string;
+                    subtitle: string;
+                };
+                wardrobe: {
+                    title: string;
+                    titleColors: string;
+                    subtitle: string;
+                    subtitleColors: string;
+                };
+            };
+            grid: {
+                tagline: string;
+                title: string;
+                badge: string;
+            };
+            cta: {
+                title: string;
+                subtitle: string;
+                pricing: string;
+            };
+            ctaHero: {
+                heading: string;
+                subheading: string;
+                googleButton: string;
+                createButton: string;
+                signInTitle: string;
+            };
         };
         account: {
             dialog: {
@@ -1207,9 +1333,25 @@ export declare const resources: {
                 accountSettings: string;
             };
             footer: {
-                about: string;
-                terms: string;
-                privacy: string;
+                hero: string;
+                sections: {
+                    overview: string;
+                    latestStyles: string;
+                    legal: string;
+                    support: string;
+                };
+                links: {
+                    explore: string;
+                    create: string;
+                    pricing: string;
+                    studioPro: string;
+                    business: string;
+                    editorial: string;
+                    terms: string;
+                    privacy: string;
+                    contact: string;
+                    about: string;
+                };
                 copyright: string;
             };
             duration: {
@@ -1482,6 +1624,7 @@ export declare const resources: {
                     concurrentShoots: string;
                     commercialUse: string;
                     priorityFeatures: string;
+                    premiumStyles: string;
                     betaAccess: string;
                     emailSupport: string;
                     chatSupport: string;
@@ -1489,6 +1632,78 @@ export declare const resources: {
                 };
                 values: {
                     upTo: string;
+                    basicQuality: string;
+                    highQuality: string;
+                };
+            };
+            page: {
+                title: string;
+                header: {
+                    title: string;
+                    subtitle: string;
+                    savingsText: string;
+                    savingsHighlight: string;
+                    savingsOn: string;
+                };
+                tabs: {
+                    monthly: string;
+                    annual: string;
+                };
+                buttons: {
+                    getStarted: string;
+                    selectPlan: string;
+                    currentPlan: string;
+                    processing: string;
+                };
+                loading: string;
+                comparison: {
+                    title: string;
+                    description: string;
+                };
+                faq: {
+                    title: string;
+                    subtitle: string;
+                    items: {
+                        character: {
+                            question: string;
+                            answer: string;
+                        };
+                        credits: {
+                            question: string;
+                            answer: string;
+                        };
+                        commercial: {
+                            question: string;
+                            answer: string;
+                        };
+                        privacy: {
+                            question: string;
+                            answer: string;
+                        };
+                        changePlan: {
+                            question: string;
+                            answer: string;
+                        };
+                        rollover: {
+                            question: string;
+                            answer: string;
+                        };
+                        moreCredits: {
+                            question: string;
+                            answer: string;
+                        };
+                        refund: {
+                            question: string;
+                            answer: string;
+                        };
+                        deleteAccount: {
+                            question: string;
+                            answer: string;
+                        };
+                    };
+                };
+                signIn: {
+                    modalTitle: string;
                 };
             };
         };
@@ -2245,6 +2460,43 @@ export declare const resources: {
                     defaultError: string;
                 };
             };
+            sections: {
+                characters: {
+                    title: string;
+                    subtitle: string;
+                };
+                scenes: {
+                    title: string;
+                    subtitle: string;
+                };
+                styles: {
+                    title: string;
+                    subtitle: string;
+                };
+                wardrobe: {
+                    title: string;
+                    titleColors: string;
+                    subtitle: string;
+                    subtitleColors: string;
+                };
+            };
+            grid: {
+                tagline: string;
+                title: string;
+                badge: string;
+            };
+            cta: {
+                title: string;
+                subtitle: string;
+                pricing: string;
+            };
+            ctaHero: {
+                heading: string;
+                subheading: string;
+                googleButton: string;
+                createButton: string;
+                signInTitle: string;
+            };
         };
         account: {
             dialog: {
@@ -2355,9 +2607,25 @@ export declare const resources: {
                 accountSettings: string;
             };
             footer: {
-                about: string;
-                terms: string;
-                privacy: string;
+                hero: string;
+                sections: {
+                    overview: string;
+                    latestStyles: string;
+                    legal: string;
+                    support: string;
+                };
+                links: {
+                    explore: string;
+                    create: string;
+                    pricing: string;
+                    studioPro: string;
+                    business: string;
+                    editorial: string;
+                    terms: string;
+                    privacy: string;
+                    contact: string;
+                    about: string;
+                };
                 copyright: string;
             };
             duration: {
@@ -2630,6 +2898,7 @@ export declare const resources: {
                     concurrentShoots: string;
                     commercialUse: string;
                     priorityFeatures: string;
+                    premiumStyles: string;
                     betaAccess: string;
                     emailSupport: string;
                     chatSupport: string;
@@ -2637,6 +2906,78 @@ export declare const resources: {
                 };
                 values: {
                     upTo: string;
+                    basicQuality: string;
+                    highQuality: string;
+                };
+            };
+            page: {
+                title: string;
+                header: {
+                    title: string;
+                    subtitle: string;
+                    savingsText: string;
+                    savingsHighlight: string;
+                    savingsOn: string;
+                };
+                tabs: {
+                    monthly: string;
+                    annual: string;
+                };
+                buttons: {
+                    getStarted: string;
+                    selectPlan: string;
+                    currentPlan: string;
+                    processing: string;
+                };
+                loading: string;
+                comparison: {
+                    title: string;
+                    description: string;
+                };
+                faq: {
+                    title: string;
+                    subtitle: string;
+                    items: {
+                        character: {
+                            question: string;
+                            answer: string;
+                        };
+                        credits: {
+                            question: string;
+                            answer: string;
+                        };
+                        commercial: {
+                            question: string;
+                            answer: string;
+                        };
+                        privacy: {
+                            question: string;
+                            answer: string;
+                        };
+                        changePlan: {
+                            question: string;
+                            answer: string;
+                        };
+                        rollover: {
+                            question: string;
+                            answer: string;
+                        };
+                        moreCredits: {
+                            question: string;
+                            answer: string;
+                        };
+                        refund: {
+                            question: string;
+                            answer: string;
+                        };
+                        deleteAccount: {
+                            question: string;
+                            answer: string;
+                        };
+                    };
+                };
+                signIn: {
+                    modalTitle: string;
                 };
             };
         };
@@ -3386,6 +3727,43 @@ export declare const resources: {
                     success: string;
                     defaultError: string;
                 };
+            };
+            sections: {
+                characters: {
+                    title: string;
+                    subtitle: string;
+                };
+                scenes: {
+                    title: string;
+                    subtitle: string;
+                };
+                styles: {
+                    title: string;
+                    subtitle: string;
+                };
+                wardrobe: {
+                    title: string;
+                    titleColors: string;
+                    subtitle: string;
+                    subtitleColors: string;
+                };
+            };
+            grid: {
+                tagline: string;
+                title: string;
+                badge: string;
+            };
+            cta: {
+                title: string;
+                subtitle: string;
+                pricing: string;
+            };
+            ctaHero: {
+                heading: string;
+                subheading: string;
+                googleButton: string;
+                createButton: string;
+                signInTitle: string;
             };
         };
         account: {
@@ -3497,9 +3875,25 @@ export declare const resources: {
                 accountSettings: string;
             };
             footer: {
-                about: string;
-                terms: string;
-                privacy: string;
+                hero: string;
+                sections: {
+                    overview: string;
+                    latestStyles: string;
+                    legal: string;
+                    support: string;
+                };
+                links: {
+                    explore: string;
+                    create: string;
+                    pricing: string;
+                    studioPro: string;
+                    business: string;
+                    editorial: string;
+                    terms: string;
+                    privacy: string;
+                    contact: string;
+                    about: string;
+                };
                 copyright: string;
             };
             duration: {
@@ -3759,6 +4153,7 @@ export declare const resources: {
                     concurrentShoots: string;
                     commercialUse: string;
                     priorityFeatures: string;
+                    premiumStyles: string;
                     betaAccess: string;
                     emailSupport: string;
                     chatSupport: string;
@@ -3766,6 +4161,78 @@ export declare const resources: {
                 };
                 values: {
                     upTo: string;
+                    basicQuality: string;
+                    highQuality: string;
+                };
+            };
+            page: {
+                title: string;
+                header: {
+                    title: string;
+                    subtitle: string;
+                    savingsText: string;
+                    savingsHighlight: string;
+                    savingsOn: string;
+                };
+                tabs: {
+                    monthly: string;
+                    annual: string;
+                };
+                buttons: {
+                    getStarted: string;
+                    selectPlan: string;
+                    currentPlan: string;
+                    processing: string;
+                };
+                loading: string;
+                comparison: {
+                    title: string;
+                    description: string;
+                };
+                faq: {
+                    title: string;
+                    subtitle: string;
+                    items: {
+                        character: {
+                            question: string;
+                            answer: string;
+                        };
+                        credits: {
+                            question: string;
+                            answer: string;
+                        };
+                        commercial: {
+                            question: string;
+                            answer: string;
+                        };
+                        privacy: {
+                            question: string;
+                            answer: string;
+                        };
+                        changePlan: {
+                            question: string;
+                            answer: string;
+                        };
+                        rollover: {
+                            question: string;
+                            answer: string;
+                        };
+                        moreCredits: {
+                            question: string;
+                            answer: string;
+                        };
+                        refund: {
+                            question: string;
+                            answer: string;
+                        };
+                        deleteAccount: {
+                            question: string;
+                            answer: string;
+                        };
+                    };
+                };
+                signIn: {
+                    modalTitle: string;
                 };
             };
         };
@@ -4515,6 +4982,43 @@ export declare const resources: {
                     success: string;
                     defaultError: string;
                 };
+            };
+            sections: {
+                characters: {
+                    title: string;
+                    subtitle: string;
+                };
+                scenes: {
+                    title: string;
+                    subtitle: string;
+                };
+                styles: {
+                    title: string;
+                    subtitle: string;
+                };
+                wardrobe: {
+                    title: string;
+                    titleColors: string;
+                    subtitle: string;
+                    subtitleColors: string;
+                };
+            };
+            grid: {
+                tagline: string;
+                title: string;
+                badge: string;
+            };
+            cta: {
+                title: string;
+                subtitle: string;
+                pricing: string;
+            };
+            ctaHero: {
+                heading: string;
+                subheading: string;
+                googleButton: string;
+                createButton: string;
+                signInTitle: string;
             };
         };
         account: {
@@ -4626,9 +5130,25 @@ export declare const resources: {
                 accountSettings: string;
             };
             footer: {
-                about: string;
-                terms: string;
-                privacy: string;
+                hero: string;
+                sections: {
+                    overview: string;
+                    latestStyles: string;
+                    legal: string;
+                    support: string;
+                };
+                links: {
+                    explore: string;
+                    create: string;
+                    pricing: string;
+                    studioPro: string;
+                    business: string;
+                    editorial: string;
+                    terms: string;
+                    privacy: string;
+                    contact: string;
+                    about: string;
+                };
                 copyright: string;
             };
             duration: {
@@ -4888,6 +5408,7 @@ export declare const resources: {
                     concurrentShoots: string;
                     commercialUse: string;
                     priorityFeatures: string;
+                    premiumStyles: string;
                     betaAccess: string;
                     emailSupport: string;
                     chatSupport: string;
@@ -4895,6 +5416,78 @@ export declare const resources: {
                 };
                 values: {
                     upTo: string;
+                    basicQuality: string;
+                    highQuality: string;
+                };
+            };
+            page: {
+                title: string;
+                header: {
+                    title: string;
+                    subtitle: string;
+                    savingsText: string;
+                    savingsHighlight: string;
+                    savingsOn: string;
+                };
+                tabs: {
+                    monthly: string;
+                    annual: string;
+                };
+                buttons: {
+                    getStarted: string;
+                    selectPlan: string;
+                    currentPlan: string;
+                    processing: string;
+                };
+                loading: string;
+                comparison: {
+                    title: string;
+                    description: string;
+                };
+                faq: {
+                    title: string;
+                    subtitle: string;
+                    items: {
+                        character: {
+                            question: string;
+                            answer: string;
+                        };
+                        credits: {
+                            question: string;
+                            answer: string;
+                        };
+                        commercial: {
+                            question: string;
+                            answer: string;
+                        };
+                        privacy: {
+                            question: string;
+                            answer: string;
+                        };
+                        changePlan: {
+                            question: string;
+                            answer: string;
+                        };
+                        rollover: {
+                            question: string;
+                            answer: string;
+                        };
+                        moreCredits: {
+                            question: string;
+                            answer: string;
+                        };
+                        refund: {
+                            question: string;
+                            answer: string;
+                        };
+                        deleteAccount: {
+                            question: string;
+                            answer: string;
+                        };
+                    };
+                };
+                signIn: {
+                    modalTitle: string;
                 };
             };
         };
@@ -5644,6 +6237,43 @@ export declare const resources: {
                     success: string;
                     defaultError: string;
                 };
+            };
+            sections: {
+                characters: {
+                    title: string;
+                    subtitle: string;
+                };
+                scenes: {
+                    title: string;
+                    subtitle: string;
+                };
+                styles: {
+                    title: string;
+                    subtitle: string;
+                };
+                wardrobe: {
+                    title: string;
+                    titleColors: string;
+                    subtitle: string;
+                    subtitleColors: string;
+                };
+            };
+            grid: {
+                tagline: string;
+                title: string;
+                badge: string;
+            };
+            cta: {
+                title: string;
+                subtitle: string;
+                pricing: string;
+            };
+            ctaHero: {
+                heading: string;
+                subheading: string;
+                googleButton: string;
+                createButton: string;
+                signInTitle: string;
             };
         };
         account: {
@@ -5755,9 +6385,25 @@ export declare const resources: {
                 accountSettings: string;
             };
             footer: {
-                about: string;
-                terms: string;
-                privacy: string;
+                hero: string;
+                sections: {
+                    overview: string;
+                    latestStyles: string;
+                    legal: string;
+                    support: string;
+                };
+                links: {
+                    explore: string;
+                    create: string;
+                    pricing: string;
+                    studioPro: string;
+                    business: string;
+                    editorial: string;
+                    terms: string;
+                    privacy: string;
+                    contact: string;
+                    about: string;
+                };
                 copyright: string;
             };
             duration: {
@@ -6017,6 +6663,7 @@ export declare const resources: {
                     concurrentShoots: string;
                     commercialUse: string;
                     priorityFeatures: string;
+                    premiumStyles: string;
                     betaAccess: string;
                     emailSupport: string;
                     chatSupport: string;
@@ -6024,6 +6671,78 @@ export declare const resources: {
                 };
                 values: {
                     upTo: string;
+                    basicQuality: string;
+                    highQuality: string;
+                };
+            };
+            page: {
+                title: string;
+                header: {
+                    title: string;
+                    subtitle: string;
+                    savingsText: string;
+                    savingsHighlight: string;
+                    savingsOn: string;
+                };
+                tabs: {
+                    monthly: string;
+                    annual: string;
+                };
+                buttons: {
+                    getStarted: string;
+                    selectPlan: string;
+                    currentPlan: string;
+                    processing: string;
+                };
+                loading: string;
+                comparison: {
+                    title: string;
+                    description: string;
+                };
+                faq: {
+                    title: string;
+                    subtitle: string;
+                    items: {
+                        character: {
+                            question: string;
+                            answer: string;
+                        };
+                        credits: {
+                            question: string;
+                            answer: string;
+                        };
+                        commercial: {
+                            question: string;
+                            answer: string;
+                        };
+                        privacy: {
+                            question: string;
+                            answer: string;
+                        };
+                        changePlan: {
+                            question: string;
+                            answer: string;
+                        };
+                        rollover: {
+                            question: string;
+                            answer: string;
+                        };
+                        moreCredits: {
+                            question: string;
+                            answer: string;
+                        };
+                        refund: {
+                            question: string;
+                            answer: string;
+                        };
+                        deleteAccount: {
+                            question: string;
+                            answer: string;
+                        };
+                    };
+                };
+                signIn: {
+                    modalTitle: string;
                 };
             };
         };
@@ -6773,6 +7492,43 @@ export declare const resources: {
                     success: string;
                     defaultError: string;
                 };
+            };
+            sections: {
+                characters: {
+                    title: string;
+                    subtitle: string;
+                };
+                scenes: {
+                    title: string;
+                    subtitle: string;
+                };
+                styles: {
+                    title: string;
+                    subtitle: string;
+                };
+                wardrobe: {
+                    title: string;
+                    titleColors: string;
+                    subtitle: string;
+                    subtitleColors: string;
+                };
+            };
+            grid: {
+                tagline: string;
+                title: string;
+                badge: string;
+            };
+            cta: {
+                title: string;
+                subtitle: string;
+                pricing: string;
+            };
+            ctaHero: {
+                heading: string;
+                subheading: string;
+                googleButton: string;
+                createButton: string;
+                signInTitle: string;
             };
         };
         account: {
@@ -6884,9 +7640,25 @@ export declare const resources: {
                 accountSettings: string;
             };
             footer: {
-                about: string;
-                terms: string;
-                privacy: string;
+                hero: string;
+                sections: {
+                    overview: string;
+                    latestStyles: string;
+                    legal: string;
+                    support: string;
+                };
+                links: {
+                    explore: string;
+                    create: string;
+                    pricing: string;
+                    studioPro: string;
+                    business: string;
+                    editorial: string;
+                    terms: string;
+                    privacy: string;
+                    contact: string;
+                    about: string;
+                };
                 copyright: string;
             };
             duration: {
@@ -7146,6 +7918,7 @@ export declare const resources: {
                     concurrentShoots: string;
                     commercialUse: string;
                     priorityFeatures: string;
+                    premiumStyles: string;
                     betaAccess: string;
                     emailSupport: string;
                     chatSupport: string;
@@ -7153,6 +7926,78 @@ export declare const resources: {
                 };
                 values: {
                     upTo: string;
+                    basicQuality: string;
+                    highQuality: string;
+                };
+            };
+            page: {
+                title: string;
+                header: {
+                    title: string;
+                    subtitle: string;
+                    savingsText: string;
+                    savingsHighlight: string;
+                    savingsOn: string;
+                };
+                tabs: {
+                    monthly: string;
+                    annual: string;
+                };
+                buttons: {
+                    getStarted: string;
+                    selectPlan: string;
+                    currentPlan: string;
+                    processing: string;
+                };
+                loading: string;
+                comparison: {
+                    title: string;
+                    description: string;
+                };
+                faq: {
+                    title: string;
+                    subtitle: string;
+                    items: {
+                        character: {
+                            question: string;
+                            answer: string;
+                        };
+                        credits: {
+                            question: string;
+                            answer: string;
+                        };
+                        commercial: {
+                            question: string;
+                            answer: string;
+                        };
+                        privacy: {
+                            question: string;
+                            answer: string;
+                        };
+                        changePlan: {
+                            question: string;
+                            answer: string;
+                        };
+                        rollover: {
+                            question: string;
+                            answer: string;
+                        };
+                        moreCredits: {
+                            question: string;
+                            answer: string;
+                        };
+                        refund: {
+                            question: string;
+                            answer: string;
+                        };
+                        deleteAccount: {
+                            question: string;
+                            answer: string;
+                        };
+                    };
+                };
+                signIn: {
+                    modalTitle: string;
                 };
             };
         };
@@ -7902,6 +8747,43 @@ export declare const resources: {
                     success: string;
                     defaultError: string;
                 };
+            };
+            sections: {
+                characters: {
+                    title: string;
+                    subtitle: string;
+                };
+                scenes: {
+                    title: string;
+                    subtitle: string;
+                };
+                styles: {
+                    title: string;
+                    subtitle: string;
+                };
+                wardrobe: {
+                    title: string;
+                    titleColors: string;
+                    subtitle: string;
+                    subtitleColors: string;
+                };
+            };
+            grid: {
+                tagline: string;
+                title: string;
+                badge: string;
+            };
+            cta: {
+                title: string;
+                subtitle: string;
+                pricing: string;
+            };
+            ctaHero: {
+                heading: string;
+                subheading: string;
+                googleButton: string;
+                createButton: string;
+                signInTitle: string;
             };
         };
         account: {
@@ -8013,9 +8895,25 @@ export declare const resources: {
                 accountSettings: string;
             };
             footer: {
-                about: string;
-                terms: string;
-                privacy: string;
+                hero: string;
+                sections: {
+                    overview: string;
+                    latestStyles: string;
+                    legal: string;
+                    support: string;
+                };
+                links: {
+                    explore: string;
+                    create: string;
+                    pricing: string;
+                    studioPro: string;
+                    business: string;
+                    editorial: string;
+                    terms: string;
+                    privacy: string;
+                    contact: string;
+                    about: string;
+                };
                 copyright: string;
             };
             duration: {
@@ -8275,6 +9173,7 @@ export declare const resources: {
                     concurrentShoots: string;
                     commercialUse: string;
                     priorityFeatures: string;
+                    premiumStyles: string;
                     betaAccess: string;
                     emailSupport: string;
                     chatSupport: string;
@@ -8282,6 +9181,78 @@ export declare const resources: {
                 };
                 values: {
                     upTo: string;
+                    basicQuality: string;
+                    highQuality: string;
+                };
+            };
+            page: {
+                title: string;
+                header: {
+                    title: string;
+                    subtitle: string;
+                    savingsText: string;
+                    savingsHighlight: string;
+                    savingsOn: string;
+                };
+                tabs: {
+                    monthly: string;
+                    annual: string;
+                };
+                buttons: {
+                    getStarted: string;
+                    selectPlan: string;
+                    currentPlan: string;
+                    processing: string;
+                };
+                loading: string;
+                comparison: {
+                    title: string;
+                    description: string;
+                };
+                faq: {
+                    title: string;
+                    subtitle: string;
+                    items: {
+                        character: {
+                            question: string;
+                            answer: string;
+                        };
+                        credits: {
+                            question: string;
+                            answer: string;
+                        };
+                        commercial: {
+                            question: string;
+                            answer: string;
+                        };
+                        privacy: {
+                            question: string;
+                            answer: string;
+                        };
+                        changePlan: {
+                            question: string;
+                            answer: string;
+                        };
+                        rollover: {
+                            question: string;
+                            answer: string;
+                        };
+                        moreCredits: {
+                            question: string;
+                            answer: string;
+                        };
+                        refund: {
+                            question: string;
+                            answer: string;
+                        };
+                        deleteAccount: {
+                            question: string;
+                            answer: string;
+                        };
+                    };
+                };
+                signIn: {
+                    modalTitle: string;
                 };
             };
         };
@@ -9031,6 +10002,43 @@ export declare const resources: {
                     success: string;
                     defaultError: string;
                 };
+            };
+            sections: {
+                characters: {
+                    title: string;
+                    subtitle: string;
+                };
+                scenes: {
+                    title: string;
+                    subtitle: string;
+                };
+                styles: {
+                    title: string;
+                    subtitle: string;
+                };
+                wardrobe: {
+                    title: string;
+                    titleColors: string;
+                    subtitle: string;
+                    subtitleColors: string;
+                };
+            };
+            grid: {
+                tagline: string;
+                title: string;
+                badge: string;
+            };
+            cta: {
+                title: string;
+                subtitle: string;
+                pricing: string;
+            };
+            ctaHero: {
+                heading: string;
+                subheading: string;
+                googleButton: string;
+                createButton: string;
+                signInTitle: string;
             };
         };
         account: {
@@ -9142,9 +10150,25 @@ export declare const resources: {
                 accountSettings: string;
             };
             footer: {
-                about: string;
-                terms: string;
-                privacy: string;
+                hero: string;
+                sections: {
+                    overview: string;
+                    latestStyles: string;
+                    legal: string;
+                    support: string;
+                };
+                links: {
+                    explore: string;
+                    create: string;
+                    pricing: string;
+                    studioPro: string;
+                    business: string;
+                    editorial: string;
+                    terms: string;
+                    privacy: string;
+                    contact: string;
+                    about: string;
+                };
                 copyright: string;
             };
             duration: {
@@ -9405,6 +10429,7 @@ export declare const resources: {
                     concurrentShoots: string;
                     commercialUse: string;
                     priorityFeatures: string;
+                    premiumStyles: string;
                     betaAccess: string;
                     emailSupport: string;
                     chatSupport: string;
@@ -9412,6 +10437,78 @@ export declare const resources: {
                 };
                 values: {
                     upTo: string;
+                    basicQuality: string;
+                    highQuality: string;
+                };
+            };
+            page: {
+                title: string;
+                header: {
+                    title: string;
+                    subtitle: string;
+                    savingsText: string;
+                    savingsHighlight: string;
+                    savingsOn: string;
+                };
+                tabs: {
+                    monthly: string;
+                    annual: string;
+                };
+                buttons: {
+                    getStarted: string;
+                    selectPlan: string;
+                    currentPlan: string;
+                    processing: string;
+                };
+                loading: string;
+                comparison: {
+                    title: string;
+                    description: string;
+                };
+                faq: {
+                    title: string;
+                    subtitle: string;
+                    items: {
+                        character: {
+                            question: string;
+                            answer: string;
+                        };
+                        credits: {
+                            question: string;
+                            answer: string;
+                        };
+                        commercial: {
+                            question: string;
+                            answer: string;
+                        };
+                        privacy: {
+                            question: string;
+                            answer: string;
+                        };
+                        changePlan: {
+                            question: string;
+                            answer: string;
+                        };
+                        rollover: {
+                            question: string;
+                            answer: string;
+                        };
+                        moreCredits: {
+                            question: string;
+                            answer: string;
+                        };
+                        refund: {
+                            question: string;
+                            answer: string;
+                        };
+                        deleteAccount: {
+                            question: string;
+                            answer: string;
+                        };
+                    };
+                };
+                signIn: {
+                    modalTitle: string;
                 };
             };
         };
@@ -10161,6 +11258,43 @@ export declare const resources: {
                     success: string;
                     defaultError: string;
                 };
+            };
+            sections: {
+                characters: {
+                    title: string;
+                    subtitle: string;
+                };
+                scenes: {
+                    title: string;
+                    subtitle: string;
+                };
+                styles: {
+                    title: string;
+                    subtitle: string;
+                };
+                wardrobe: {
+                    title: string;
+                    titleColors: string;
+                    subtitle: string;
+                    subtitleColors: string;
+                };
+            };
+            grid: {
+                tagline: string;
+                title: string;
+                badge: string;
+            };
+            cta: {
+                title: string;
+                subtitle: string;
+                pricing: string;
+            };
+            ctaHero: {
+                heading: string;
+                subheading: string;
+                googleButton: string;
+                createButton: string;
+                signInTitle: string;
             };
         };
         account: {
@@ -10272,9 +11406,25 @@ export declare const resources: {
                 accountSettings: string;
             };
             footer: {
-                about: string;
-                terms: string;
-                privacy: string;
+                hero: string;
+                sections: {
+                    overview: string;
+                    latestStyles: string;
+                    legal: string;
+                    support: string;
+                };
+                links: {
+                    explore: string;
+                    create: string;
+                    pricing: string;
+                    studioPro: string;
+                    business: string;
+                    editorial: string;
+                    terms: string;
+                    privacy: string;
+                    contact: string;
+                    about: string;
+                };
                 copyright: string;
             };
             duration: {
@@ -10535,6 +11685,7 @@ export declare const resources: {
                     concurrentShoots: string;
                     commercialUse: string;
                     priorityFeatures: string;
+                    premiumStyles: string;
                     betaAccess: string;
                     emailSupport: string;
                     chatSupport: string;
@@ -10542,6 +11693,78 @@ export declare const resources: {
                 };
                 values: {
                     upTo: string;
+                    basicQuality: string;
+                    highQuality: string;
+                };
+            };
+            page: {
+                title: string;
+                header: {
+                    title: string;
+                    subtitle: string;
+                    savingsText: string;
+                    savingsHighlight: string;
+                    savingsOn: string;
+                };
+                tabs: {
+                    monthly: string;
+                    annual: string;
+                };
+                buttons: {
+                    getStarted: string;
+                    selectPlan: string;
+                    currentPlan: string;
+                    processing: string;
+                };
+                loading: string;
+                comparison: {
+                    title: string;
+                    description: string;
+                };
+                faq: {
+                    title: string;
+                    subtitle: string;
+                    items: {
+                        character: {
+                            question: string;
+                            answer: string;
+                        };
+                        credits: {
+                            question: string;
+                            answer: string;
+                        };
+                        commercial: {
+                            question: string;
+                            answer: string;
+                        };
+                        privacy: {
+                            question: string;
+                            answer: string;
+                        };
+                        changePlan: {
+                            question: string;
+                            answer: string;
+                        };
+                        rollover: {
+                            question: string;
+                            answer: string;
+                        };
+                        moreCredits: {
+                            question: string;
+                            answer: string;
+                        };
+                        refund: {
+                            question: string;
+                            answer: string;
+                        };
+                        deleteAccount: {
+                            question: string;
+                            answer: string;
+                        };
+                    };
+                };
+                signIn: {
+                    modalTitle: string;
                 };
             };
         };
@@ -11291,6 +12514,43 @@ export declare const resources: {
                     success: string;
                     defaultError: string;
                 };
+            };
+            sections: {
+                characters: {
+                    title: string;
+                    subtitle: string;
+                };
+                scenes: {
+                    title: string;
+                    subtitle: string;
+                };
+                styles: {
+                    title: string;
+                    subtitle: string;
+                };
+                wardrobe: {
+                    title: string;
+                    titleColors: string;
+                    subtitle: string;
+                    subtitleColors: string;
+                };
+            };
+            grid: {
+                tagline: string;
+                title: string;
+                badge: string;
+            };
+            cta: {
+                title: string;
+                subtitle: string;
+                pricing: string;
+            };
+            ctaHero: {
+                heading: string;
+                subheading: string;
+                googleButton: string;
+                createButton: string;
+                signInTitle: string;
             };
         };
         account: {

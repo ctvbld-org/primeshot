@@ -147,13 +147,86 @@
       "concurrentShoots": "Séances simultanées",
       "commercialUse": "Usage commercial",
       "priorityFeatures": "Accès prioritaire aux nouvelles fonctionnalités",
+      "premiumStyles": "Styles premium",
       "betaAccess": "Accès aux tests bêta",
       "emailSupport": "Assistance par e-mail",
       "chatSupport": "Assistance par chat",
       "dedicatedSupport": "Assistance dédiée"
     },
     "values": {
-      "upTo": "Jusqu'à {{value}}"
+      "upTo": "Jusqu'à {{value}}",
+      "basicQuality": "Qualité basique",
+      "highQuality": "Haute qualité"
+    }
+  },
+  "page": {
+    "title": "Tarifs",
+    "header": {
+      "title": "Des forfaits simples, des styles infinis.",
+      "subtitle": "Annulez ou changez à tout moment.",
+      "savingsText": "Économisez jusqu'à",
+      "savingsHighlight": "40%",
+      "savingsOn": "sur les forfaits annuels"
+    },
+    "tabs": {
+      "monthly": "Mensuel",
+      "annual": "Annuel"
+    },
+    "buttons": {
+      "getStarted": "Commencer",
+      "selectPlan": "Sélectionner le forfait",
+      "currentPlan": "Forfait actuel",
+      "processing": "Traitement..."
+    },
+    "loading": "Chargement des tarifs...",
+    "comparison": {
+      "title": "Comparer les forfaits",
+      "description": "Améliorez votre forfait pour débloquer des portraits haute résolution, plus de crédits, des persos réutilisables et un traitement prioritaire."
+    },
+    "faq": {
+      "title": "Des questions ?",
+      "subtitle": "Tout ce que vous devez savoir sur nos tarifs et fonctionnalités",
+      "items": {
+        "character": {
+          "question": "Qu'est-ce qu'un perso et comment fonctionne-t-il ?",
+          "answer": "Un perso est votre propre modèle IA personnalisé, entraîné à partir de 9 selfies. Il apprend vos traits faciaux exacts—structure, teint, cheveux—pour que chaque portrait vous ressemble authentiquement. Selon votre forfait, vous obtenez 1 à 3 persos inclus. Les persos supplémentaires coûtent 30 crédits chacun, et une fois créés, vous pouvez les réutiliser à tout moment pour de nouvelles séances avec différentes tenues, scènes et styles."
+        },
+        "credits": {
+          "question": "Comment fonctionnent les crédits ?",
+          "answer": "Les crédits sont votre solde pour entraîner des persos et générer des images. L'entraînement d'un perso coûte 30 crédits. La génération d'images coûte 1 crédit pour la qualité basique (1K), 2 pour moyenne (2K) et 3 pour haute (4K). Votre forfait inclut une allocation mensuelle de crédits qui se renouvelle à chaque cycle de facturation."
+        },
+        "commercial": {
+          "question": "Puis-je utiliser mes images commercialement ?",
+          "answer": "Oui. Toutes les images que vous générez sont les vôtres, sans restrictions—que ce soit pour LinkedIn, des sites web, du marketing ou de l'impression."
+        },
+        "privacy": {
+          "question": "Comment protégez-vous ma vie privée et mes données ?",
+          "answer": "Vos photos et persos sont stockés en toute sécurité et ne sont jamais partagés, vendus ou utilisés pour nos propres entraînements. Vous pouvez supprimer des persos individuels ou votre compte entier à tout moment. Aucun accès tiers ne se produit sans votre consentement."
+        },
+        "changePlan": {
+          "question": "Puis-je changer ou annuler mon forfait ?",
+          "answer": "Oui. Vous pouvez améliorer ou réduire votre forfait à tout moment dans les paramètres de votre compte. Les améliorations prennent effet immédiatement avec facturation au prorata ; les réductions prennent effet au cycle suivant. Si vous annulez, vous conservez l'accès jusqu'à la fin de votre cycle actuel. Nous conservons vos données pendant 60 jours pour que vous puissiez vous réabonner sans rien perdre—après cela, elles sont définitivement supprimées."
+        },
+        "rollover": {
+          "question": "Les crédits non utilisés sont-ils reportés ?",
+          "answer": "Non. Les crédits expirent à la fin de chaque cycle de facturation, et votre allocation se renouvelle."
+        },
+        "moreCredits": {
+          "question": "Comment puis-je obtenir plus de crédits ?",
+          "answer": "Vous pouvez améliorer votre abonnement pour une limite mensuelle plus élevée ou acheter des packs de crédits uniques depuis votre compte."
+        },
+        "refund": {
+          "question": "Quelle est votre politique de remboursement ?",
+          "answer": "Les abonnements et packs de crédits ne sont pas remboursables. S'il y a un problème technique—comme une génération échouée—contactez l'assistance pour une évaluation et un éventuel ajustement de crédits."
+        },
+        "deleteAccount": {
+          "question": "Comment supprimer mon compte ?",
+          "answer": "Dans les paramètres de votre compte, sélectionnez \"Supprimer le compte\" pour retirer définitivement toutes les photos, persos et images. C'est irréversible, alors téléchargez d'abord tout ce que vous voulez conserver."
+        }
+      }
+    },
+    "signIn": {
+      "modalTitle": "Connectez-vous pour continuer"
     }
   }
 }

@@ -40,9 +40,25 @@
     "accountSettings": "アカウント設定"
   },
   "footer": {
-    "about": "私たちについて",
-    "terms": "利用規約",
-    "privacy": "プライバシー",
+    "hero": "あなたのイメージは、あなたのもの。",
+    "sections": {
+      "overview": "概要",
+      "latestStyles": "最新スタイル",
+      "legal": "法的情報",
+      "support": "サポート"
+    },
+    "links": {
+      "explore": "探索",
+      "create": "作成",
+      "pricing": "料金とFAQ",
+      "studioPro": "Studio Pro",
+      "business": "Business",
+      "editorial": "Editorial",
+      "terms": "利用規約",
+      "privacy": "プライバシーポリシー",
+      "contact": "お問い合わせ",
+      "about": "私たちについて"
+    },
     "copyright": "© {{year}} Primeshot. All rights reserved"
   },
   "duration": {

@@ -7,6 +7,7 @@ import { StickyShowcaseSection } from '../StickyShowcaseSection'
 import { useScrollSection } from '../ScrollSectionManager'
 import cssStyles from '../ShowcaseSection.module.css'
 import { makeCloudfrontLoader } from '@/lib/utils/cloudfrontLoader'
+import { useTranslation } from 'react-i18next'
 
 const cloudfrontLoader = makeCloudfrontLoader('app-images')
 
@@ -27,6 +28,7 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 export function StylesShowcase() {
+  const { t } = useTranslation('homepage')
   const [styles, setStyles] = useState<Style[]>([])
   const [randomImages, setRandomImages] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -177,52 +179,52 @@ export function StylesShowcase() {
   const scrollingImages = !isLoading && randomImages.length >= 4 ? (
     <div className={cssStyles.fixedImagesContainer}>
       {/* Image 0 - Bottom Left */}
-      <div className="absolute left-[2%] bottom-0" style={getParallaxStyle(0)}>
-        <div className={`relative w-[300px] h-[450px] md:w-[300px] md:h-[450px]`}>
+      <div className={`${cssStyles.stylesImage} ${cssStyles.stylesImage0}`} style={getParallaxStyle(0)}>
+        <div className={cssStyles.stylesImageWrapperLarge}>
           <Image
             src={randomImages[0]}
             alt="Style preview"
             fill
-            className="object-cover"
+            className={cssStyles.stylesImageCover}
             loader={cloudfrontLoader}
           />
         </div>
       </div>
 
       {/* Image 1 - Top Left */}
-      <div className="absolute left-[15%] bottom-[400px]" style={getParallaxStyle(1)}>
-        <div className={`relative w-[200px] h-[300px] md:w-[200px] md:h-[300px]`}>
+      <div className={`${cssStyles.stylesImage} ${cssStyles.stylesImage1}`} style={getParallaxStyle(1)}>
+        <div className={cssStyles.stylesImageWrapperSmall}>
           <Image
             src={randomImages[1]}
             alt="Style preview"
             fill
-            className="object-cover"
+            className={cssStyles.stylesImageCover}
             loader={cloudfrontLoader}
           />
         </div>
       </div>
 
       {/* Image 2 - Top Right */}
-      <div className="absolute right-[2%] top-[200px]" style={getParallaxStyle(2)}>
-        <div className={`relative w-[300px] h-[450px] md:w-[300px] md:h-[450px]`}>
+      <div className={`${cssStyles.stylesImage} ${cssStyles.stylesImage2}`} style={getParallaxStyle(2)}>
+        <div className={cssStyles.stylesImageWrapperLarge}>
           <Image
             src={randomImages[2]}
             alt="Style preview"
             fill
-            className="object-cover"
+            className={cssStyles.stylesImageCover}
             loader={cloudfrontLoader}
           />
         </div>
       </div>
 
       {/* Image 3 - Bottom Right */}
-      <div className="absolute right-[15%] top-[600px]" style={getParallaxStyle(3)}>
-        <div className={`relative w-[200px] h-[300px] md:w-[200px] md:h-[300px]`}>
+      <div className={`${cssStyles.stylesImage} ${cssStyles.stylesImage3}`} style={getParallaxStyle(3)}>
+        <div className={cssStyles.stylesImageWrapperSmall}>
           <Image
             src={randomImages[3]}
             alt="Style preview"
             fill
-            className="object-cover"
+            className={cssStyles.stylesImageCover}
             loader={cloudfrontLoader}
           />
         </div>
@@ -243,11 +245,10 @@ export function StylesShowcase() {
             <div className={cssStyles.iconWrapper}>
               <Icon variant="styles" size={48} className="text-glacier" />
             </div>
-            <h2 className={cssStyles.title}>Photo styles</h2>
+            <h2 className={cssStyles.title}>{t('sections.styles.title')}</h2>
           </div>
           <p className={cssStyles.subtitle}>
-            From professional portraits to artistic interpretations, select from dozens of
-            curated styles that capture your unique essence.
+            {t('sections.styles.subtitle')}
           </p>
         </div>
       </StickyShowcaseSection>

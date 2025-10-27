@@ -2511,6 +2511,23 @@ Detected changes in:
 - website/src/lib/utils/colorSort.ts
 - website/src/lib/utils/get-styles-images.ts
 - website/src/lib/utils/style-storage.ts
+
+
+**Auto-update 2025-10-24**:
+Detected changes in:
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/generate/useCreateCharacter.tsx
+- website/src/components/InteractiveGenerateBar/InteractiveGenerateBar.tsx
+- website/src/components/InteractiveGenerateBar/ScrollSectionManager.tsx
+- website/src/components/generate/Countdown.tsx
+- website/src/components/generate/GenerateBar.module.css
+- website/src/components/generate/GenerateBar.tsx
+- website/src/components/generate/GenerateBarSelect.tsx
+- website/src/components/generate/OptionsPanel/OptionsPanel.module.css
+- website/src/components/generate/OptionsPanel/OptionsPanel.tsx
+- website/src/components/generate/stubs.ts
+- website/src/components/generate/useCreateCharacter.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:
