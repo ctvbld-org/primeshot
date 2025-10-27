@@ -33,7 +33,9 @@
     "generate": "Generieren",
     "explore": "Entdecken",
     "create": "Erstellen",
-    "admin": "Admin"
+    "pricing": "Preise",
+    "admin": "Admin",
+    "menu": "Menü"
   },
   "userNav": {
     "signOut": "Abmelden",
@@ -73,6 +75,9 @@
     "favourites": "Favoriten",
     "avatar": "Benutzer-Avatar",
     "brandLogo": "Primeshot"
+  },
+  "explore": {
+    "generateTooltip": "Dieses Bild generieren"
   },
   "credits": {
     "remaining_one": "{{value}} Guthaben verbleibt",

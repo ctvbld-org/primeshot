@@ -220,7 +220,7 @@
       },
       "body": {
         "minRequired": "Need at least {{min}} body shots (currently have {{current}})",
-        "tooMany": "Too many body shots ({{currentPercent}}%). Maximum {{maxPercent}}% allowed"
+        "tooMany": "Too many body shots ({{current}} out of {{total}}). Maximum {{max}} allowed"
       },
       "score": {
         "tooLow": "Image quality score is too low"

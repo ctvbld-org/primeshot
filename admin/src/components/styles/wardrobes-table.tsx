@@ -185,6 +185,15 @@ export function WardrobesTable() {
       },
     },
     {
+      accessorKey: 'value',
+      header: 'Value',
+      cell: ({ row }: any) => (
+        <code className="text-sm bg-muted px-2 py-1 rounded">
+          {row.getValue('value')}
+        </code>
+      ),
+    },
+    {
       accessorKey: 'prompt',
       header: 'Prompt',
       cell: ({ row }: any) => {

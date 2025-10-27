@@ -33,7 +33,9 @@
     "generate": "Gerar",
     "explore": "Explorar",
     "create": "Criar",
-    "admin": "Admin"
+    "pricing": "Preços",
+    "admin": "Admin",
+    "menu": "Menu"
   },
   "userNav": {
     "signOut": "Terminar sessão",
@@ -73,6 +75,9 @@
     "favourites": "Favoritos",
     "avatar": "Avatar do utilizador",
     "brandLogo": "Primeshot"
+  },
+  "explore": {
+    "generateTooltip": "Gerar esta imagem"
   },
   "credits": {
     "remaining_one": "{{value}} crédito restante",

@@ -33,7 +33,9 @@
     "generate": "Genereren",
     "explore": "Verkennen",
     "create": "Maken",
-    "admin": "Admin"
+    "pricing": "Prijzen",
+    "admin": "Admin",
+    "menu": "Menu"
   },
   "userNav": {
     "signOut": "Uitloggen",
@@ -73,6 +75,9 @@
     "favourites": "Favorieten",
     "avatar": "Gebruikersavatar",
     "brandLogo": "Primeshot"
+  },
+  "explore": {
+    "generateTooltip": "Genereer deze afbeelding"
   },
   "credits": {
     "remaining_one": "{{value}} credit over",

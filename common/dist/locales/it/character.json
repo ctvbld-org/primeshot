@@ -197,7 +197,7 @@
       },
       "body": {
         "minRequired": "Servono almeno {{min}} foto a figura intera (attualmente ne hai {{current}})",
-        "tooMany": "Troppe foto a figura intera ({{currentPercent}}%). Massimo {{maxPercent}}% consentito"
+        "tooMany": "Troppe foto a figura intera ({{current}} su {{total}}). Massimo {{max}} consentito"
       },
       "score": {
         "tooLow": "Il punteggio di qualità dell'immagine è troppo basso"

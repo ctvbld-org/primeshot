@@ -197,7 +197,7 @@
       },
       "body": {
         "minRequired": "São necessárias pelo menos {{min}} fotos de corpo inteiro (actualmente tem {{current}})",
-        "tooMany": "Demasiadas fotos de corpo inteiro ({{currentPercent}}%). Máximo {{maxPercent}}% permitido"
+        "tooMany": "Demasiadas fotos de corpo inteiro ({{current}} de {{total}}). Máximo {{max}} permitido"
       },
       "score": {
         "tooLow": "A pontuação de qualidade da imagem é demasiado baixa"

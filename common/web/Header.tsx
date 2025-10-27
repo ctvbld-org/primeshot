@@ -80,7 +80,7 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
                   {t('navigation.create')}
                 </Link>
                 {/* <a href="/use-cases" className={styles.navLink + ' ' + styles.useCasesNavLink}>Use Cases</a> */}
-                <a href="/pricing" className={styles.navLink + ' ' + styles.pricingNavLink}>Pricing</a>
+                <a href="/pricing" className={styles.navLink + ' ' + styles.pricingNavLink}>{t('navigation.pricing')}</a>
                 {isAuthenticated && user?.admin && (
                   <a
                     href="/admin"
@@ -149,7 +149,7 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
                         className={styles.mobileNavItem + (isActive('/pricing') ? ' ' + styles.mobileNavItemActive : '')}
                         onClick={handleMobileNavClick}
                       >
-                        <span className={styles.mobileNavLabel}>Pricing</span>
+                        <span className={styles.mobileNavLabel}>{t('navigation.pricing')}</span>
                         {isActive('/pricing') && <Icon variant="checkmark" className={styles.mobileNavCheck} />}
                       </a>
                       {isAuthenticated && user?.admin && (

@@ -116,6 +116,7 @@
     letter-spacing: -0.04em;
     color: #E5FBFA;
     mix-blend-mode: lighten;
+    text-align: center;
     opacity: 0;
     filter: blur(20px);
     transform: translateY(140px);
@@ -439,6 +440,10 @@
 }
 
 @media (max-width: 768px) {
+  .subtitle {
+    padding: 0;
+  }
+
   .floatingImagesContainer,
   .scrollingElements {
     opacity: 0.4 !important;

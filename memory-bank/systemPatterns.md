@@ -2528,6 +2528,50 @@ Detected changes in:
 - website/src/components/generate/OptionsPanel/OptionsPanel.tsx
 - website/src/components/generate/stubs.ts
 - website/src/components/generate/useCreateCharacter.tsx
+
+
+**Auto-update 2025-10-27**:
+Detected changes in:
+- webapp/src/app/api/payment/subscription-checkout/route.ts
+- webapp/src/app/layout.tsx
+- webapp/src/components/character/training/UploadPhotosStep.tsx
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/inference/InferenceThumbnail.module.css
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- webapp/src/components/upload/FileUploader.tsx
+- webapp/src/lib/hooks/use-file-upload.ts
+- website/src/app/[locale]/about/page.tsx
+- website/src/app/[locale]/data/exploreData.ts
+- website/src/app/[locale]/data/exploreData.tsx
+- website/src/app/[locale]/explore/page.tsx
+- website/src/app/[locale]/layout.tsx
+- website/src/app/[locale]/page.module.css
+- website/src/app/[locale]/page.tsx
+- website/src/app/[locale]/pricing/page.module.css
+- website/src/app/[locale]/pricing/page.tsx
+- website/src/app/[locale]/privacy/page.tsx
+- website/src/app/[locale]/terms/page.tsx
+- website/src/app/api/subscription/current/route.ts
+- website/src/app/layout.tsx
+- website/src/components/CTAHero/CTAHero.module.css
+- website/src/components/CTAHero/CTAHero.tsx
+- website/src/components/CTASection.tsx
+- website/src/components/ExploreThumb.tsx
+- website/src/components/IntentHandler.tsx
+- website/src/components/InteractiveGenerateBar/CTASection.module.css
+- website/src/components/InteractiveGenerateBar/CTASection.tsx
+- website/src/components/InteractiveGenerateBar/HeroGrid.module.css
+- website/src/components/InteractiveGenerateBar/HeroGrid.tsx
+- website/src/components/InteractiveGenerateBar/InteractiveGenerateBar.module.css
+- website/src/components/InteractiveGenerateBar/InteractiveGenerateBar.tsx
+- website/src/components/InteractiveGenerateBar/ShowcaseSection.module.css
+- website/src/components/InteractiveGenerateBar/ShowcaseSections/CharactersShowcase.tsx
+- website/src/components/InteractiveGenerateBar/ShowcaseSections/ScenesShowcase.tsx
+- website/src/components/InteractiveGenerateBar/ShowcaseSections/StylesShowcase.tsx
+- website/src/components/InteractiveGenerateBar/ShowcaseSections/WardrobeShowcase.tsx
+- website/src/components/generate/GenerateBar.tsx
+- website/src/components/generate/useCreateCharacter.tsx
+- website/src/lib/supabase/server.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

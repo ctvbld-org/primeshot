@@ -98,10 +98,10 @@ export function CTASection() {
         className={`${showcaseStyles.content} ${isVisible ? showcaseStyles.visible : ''} ${styles.contentContainer}`}
       >
         <div className={showcaseStyles.titleContainer}>
-          <div className={showcaseStyles.iconWrapper}>
+          <div className={showcaseStyles.iconWrapper + ' ' + styles.iconWrapper}>
             <Icon variant="generate" size={48} className="text-glacier" />
           </div>
-          <h2 className={showcaseStyles.title}>
+          <h2 className={showcaseStyles.title + ' ' + styles.title}>
             {t('cta.title')}
           </h2>
           <p className={showcaseStyles.subtitle + ' ' + styles.description}>

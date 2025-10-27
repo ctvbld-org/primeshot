@@ -198,7 +198,7 @@
     .mobileGrid {
         display: grid;
         height: 100%;
-        max-height: calc(100vh - 61%);
+        max-height: calc(100dvh - 61%);
     }
 
     .gridItem {
@@ -212,10 +212,11 @@
 
 @media (max-width: 441px) {
     .container {
-      height: calc(100vh - 300px); /* More space for larger demo bar */
+      height: calc(100dvh - 340px); /* More space for larger demo bar */
       gap: 9%;
       padding-top: 1rem;
       padding-bottom: 1rem;
+      justify-content: start;
     }
   
     .desktopGrid {

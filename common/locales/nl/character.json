@@ -197,7 +197,7 @@
       },
       "body": {
         "minRequired": "Minstens {{min}} volledige lichaamsfoto's vereist (momenteel heb je {{current}})",
-        "tooMany": "Te veel volledige lichaamsfoto's ({{currentPercent}}%). Maximum {{maxPercent}}% toegestaan"
+        "tooMany": "Te veel volledige lichaamsfoto's ({{current}} van {{total}}). Maximum {{max}} toegestaan"
       },
       "score": {
         "tooLow": "De beeldkwaliteitsscore is te laag"

@@ -14,6 +14,7 @@ import legalUs from './locales/us/legal.json';
 import uploadUs from './locales/us/upload.json';
 import homepageUs from './locales/us/homepage.json';
 import accountUs from './locales/us/account.json';
+import exploreUs from './locales/us/explore.json';
 
 // UK English
 import commonGb from './locales/gb/common.json';
@@ -28,6 +29,7 @@ import legalGb from './locales/gb/legal.json';
 import uploadGb from './locales/gb/upload.json';
 import homepageGb from './locales/gb/homepage.json';
 import accountGb from './locales/gb/account.json';
+import exploreGb from './locales/gb/explore.json';
 
 // French
 import commonFr from './locales/fr/common.json';
@@ -42,6 +44,7 @@ import legalFr from './locales/fr/legal.json';
 import uploadFr from './locales/fr/upload.json';
 import homepageFr from './locales/fr/homepage.json';
 import accountFr from './locales/fr/account.json';
+import exploreFr from './locales/fr/explore.json';
 
 // Spanish
 import commonEs from './locales/es/common.json';
@@ -56,6 +59,7 @@ import legalEs from './locales/es/legal.json';
 import uploadEs from './locales/es/upload.json';
 import homepageEs from './locales/es/homepage.json';
 import accountEs from './locales/es/account.json';
+import exploreEs from './locales/es/explore.json';
 
 // Italian
 import commonIt from './locales/it/common.json';
@@ -70,6 +74,7 @@ import legalIt from './locales/it/legal.json';
 import uploadIt from './locales/it/upload.json';
 import homepageIt from './locales/it/homepage.json';
 import accountIt from './locales/it/account.json';
+import exploreIt from './locales/it/explore.json';
 
 // Portuguese
 import commonPt from './locales/pt/common.json';
@@ -84,6 +89,7 @@ import legalPt from './locales/pt/legal.json';
 import uploadPt from './locales/pt/upload.json';
 import homepagePt from './locales/pt/homepage.json';
 import accountPt from './locales/pt/account.json';
+import explorePt from './locales/pt/explore.json';
 
 // German
 import commonDe from './locales/de/common.json';
@@ -98,6 +104,7 @@ import legalDe from './locales/de/legal.json';
 import uploadDe from './locales/de/upload.json';
 import homepageDe from './locales/de/homepage.json';
 import accountDe from './locales/de/account.json';
+import exploreDe from './locales/de/explore.json';
 
 // Dutch
 import commonNl from './locales/nl/common.json';
@@ -112,6 +119,7 @@ import legalNl from './locales/nl/legal.json';
 import uploadNl from './locales/nl/upload.json';
 import homepageNl from './locales/nl/homepage.json';
 import accountNl from './locales/nl/account.json';
+import exploreNl from './locales/nl/explore.json';
 
 // Chinese
 import commonCn from './locales/cn/common.json';
@@ -126,6 +134,7 @@ import legalCn from './locales/cn/legal.json';
 import uploadCn from './locales/cn/upload.json';
 import homepageCn from './locales/cn/homepage.json';
 import accountCn from './locales/cn/account.json';
+import exploreCn from './locales/cn/explore.json';
 
 // Japanese
 import commonJp from './locales/jp/common.json';
@@ -140,6 +149,7 @@ import legalJp from './locales/jp/legal.json';
 import uploadJp from './locales/jp/upload.json';
 import homepageJp from './locales/jp/homepage.json';
 import accountJp from './locales/jp/account.json';
+import exploreJp from './locales/jp/explore.json';
 
 // Global resources with all namespaces
 export const resources = {
@@ -156,6 +166,7 @@ export const resources = {
     upload: uploadUs,
     homepage: homepageUs,
     account: accountUs,
+    explore: exploreUs,
   },
   gb: {
     common: commonGb,
@@ -170,6 +181,7 @@ export const resources = {
     upload: uploadGb,
     homepage: homepageGb,
     account: accountGb,
+    explore: exploreGb,
   },
   fr: {
     common: commonFr,
@@ -184,6 +196,7 @@ export const resources = {
     upload: uploadFr,
     homepage: homepageFr,
     account: accountFr,
+    explore: exploreFr,
   },
   es: {
     common: commonEs,
@@ -198,6 +211,7 @@ export const resources = {
     upload: uploadEs,
     homepage: homepageEs,
     account: accountEs,
+    explore: exploreEs,
   },
   it: {
     common: commonIt,
@@ -212,6 +226,7 @@ export const resources = {
     upload: uploadIt,
     homepage: homepageIt,
     account: accountIt,
+    explore: exploreIt,
   },
   pt: {
     common: commonPt,
@@ -226,6 +241,7 @@ export const resources = {
     upload: uploadPt,
     homepage: homepagePt,
     account: accountPt,
+    explore: explorePt,
   },
   de: {
     common: commonDe,
@@ -240,6 +256,7 @@ export const resources = {
     upload: uploadDe,
     homepage: homepageDe,
     account: accountDe,
+    explore: exploreDe,
   },
   nl: {
     common: commonNl,
@@ -254,6 +271,7 @@ export const resources = {
     upload: uploadNl,
     homepage: homepageNl,
     account: accountNl,
+    explore: exploreNl,
   },
   cn: {
     common: commonCn,
@@ -268,6 +286,7 @@ export const resources = {
     upload: uploadCn,
     homepage: homepageCn,
     account: accountCn,
+    explore: exploreCn,
   },
   jp: {
     common: commonJp,
@@ -282,6 +301,7 @@ export const resources = {
     upload: uploadJp,
     homepage: homepageJp,
     account: accountJp,
+    explore: exploreJp,
   },
 };
 
@@ -301,7 +321,7 @@ if (!i18n.isInitialized) {
       escapeValue: false,
     },
     defaultNS: 'common',
-    ns: ['common', 'auth', 'pricing', 'styles', 'generate', 'inference', 'character', 'about', 'legal', 'upload', 'homepage', 'account'],
+    ns: ['common', 'auth', 'pricing', 'styles', 'generate', 'inference', 'character', 'about', 'legal', 'upload', 'homepage', 'account', 'explore'],
     resources,
   });
 }

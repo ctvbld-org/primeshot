@@ -33,7 +33,9 @@
     "generate": "生成",
     "explore": "探索",
     "create": "作成",
-    "admin": "管理者"
+    "pricing": "料金",
+    "admin": "管理者",
+    "menu": "メニュー"
   },
   "userNav": {
     "signOut": "サインアウト",
@@ -73,6 +75,9 @@
     "favourites": "お気に入り",
     "avatar": "ユーザーアバター",
     "brandLogo": "Primeshot"
+  },
+  "explore": {
+    "generateTooltip": "この画像を生成"
   },
   "credits": {
     "remaining_one": "残り{{value}}クレジット",

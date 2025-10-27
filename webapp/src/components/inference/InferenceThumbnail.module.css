@@ -27,7 +27,7 @@
 }
 
 .imageContainer {
-  mix-blend-mode: color-dodge;
+  mix-blend-mode: normal;
   backdrop-filter: blur(80px);
   position: relative;
   width: 100%;

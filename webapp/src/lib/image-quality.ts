@@ -1333,10 +1333,11 @@ export function checkBodyShotRequirements(results: Record<string, ImageQualityRe
     i18nErrors.push({ key: 'quality.issues.body.minRequired', params: { min: MIN_BODY_COUNT, current: bodyCount } });
   }
   
-  // Check maximum percentage
-  if (bodyPercentage > MAX_BODY_PERCENTAGE) {
-    errors.push(`Too many body shots (${Math.round(bodyPercentage * 100)}%). Maximum ${Math.round(MAX_BODY_PERCENTAGE * 100)}% allowed`);
-    i18nErrors.push({ key: 'quality.issues.body.tooMany', params: { currentPercent: Math.round(bodyPercentage * 100), maxPercent: Math.round(MAX_BODY_PERCENTAGE * 100) } });
+  // Check maximum body count - calculate max allowed based on total images
+  const maxBodyCount = Math.floor(totalImages * MAX_BODY_PERCENTAGE);
+  if (bodyCount > maxBodyCount) {
+    errors.push(`Too many body shots (${bodyCount} out of ${totalImages}). Maximum ${maxBodyCount} allowed`);
+    i18nErrors.push({ key: 'quality.issues.body.tooMany', params: { current: bodyCount, total: totalImages, max: maxBodyCount } });
   }
   
   return {

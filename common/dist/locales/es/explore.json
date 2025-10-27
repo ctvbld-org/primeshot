@@ -1,0 +1,27 @@
+{
+  "title": "Galería",
+  "loading": "Cargando...",
+  "buttons": {
+    "customiseStyle": "Personalizar estilo",
+    "showAllStyles": "Mostrar todos los estilos"
+  },
+  "noResults": "No se encontraron resultados para \"{{filter}}\"",
+  "styleFilters": {
+    "Corporate": {
+      "name": "Corporate",
+      "description": "Profesional y cercano con un toque moderno. Ideal para LinkedIn, fotos corporativas, páginas de equipo y presentaciones."
+    },
+    "Blindlight": {
+      "name": "Blindlight",
+      "description": "Impactante y cinematográfico con sombras y luces audaces. Perfecto para retratos expresivos, perfiles y marca personal creativa."
+    },
+    "Golden Noir": {
+      "name": "Golden Noir",
+      "description": "Atmosférico y dramático con tonos ricos y contraste. Un estilo de retrato cinematográfico para marca personal audaz y uso editorial."
+    },
+    "Studio Pro": {
+      "name": "Studio Pro",
+      "description": "Limpio y pulido con iluminación de estudio atemporal. Una opción versátil para fotos profesionales, marca personal y portfolios de actores."
+    }
+  }
+}

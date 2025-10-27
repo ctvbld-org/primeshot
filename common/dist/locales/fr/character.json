@@ -197,7 +197,7 @@
       },
       "body": {
         "minRequired": "Au moins {{min}} photos en pied nécessaires (actuellement {{current}})",
-        "tooMany": "Trop de photos en pied ({{currentPercent}}%). Maximum {{maxPercent}}% autorisé"
+        "tooMany": "Trop de photos en pied ({{current}} sur {{total}}). Maximum {{max}} autorisé"
       },
       "score": {
         "tooLow": "Le score de qualité de l'image est trop faible"

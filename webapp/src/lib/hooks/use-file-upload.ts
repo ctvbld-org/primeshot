@@ -550,13 +550,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
           .filter(state => state.qualityResult?.score && state.qualityResult.score > 0 && state.qualityResult.isAcceptable)
           .map(state => state.file.name)
       );
-      
-      console.log('[Previously Accepted - Captured Early]', {
-        count: previouslyAcceptedFileNames.size,
-        files: Array.from(previouslyAcceptedFileNames),
-        originalStateLength: originalFileStates.length
-      });
-      
+            
       // Set analyzing count to actual number of files that will be analyzed
       const actualAnalyzingCount = totalFiles >= 9 ? 9 : files.length;
       
@@ -626,13 +620,6 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
           ...files
         ];
         const filesToAnalyze = allFiles.slice(0, 9);
-        
-        console.log('[Bodyshot Check]', {
-          existingFiles: existingFiles.length,
-          newFiles: files.length,
-          totalToAnalyze: filesToAnalyze.length,
-          fileNames: filesToAnalyze.map(f => f.name)
-        });
         
         // Check bodyshots and early validation (runs on ALL files, including previously accepted)
         // This is CRITICAL - we must validate ALL files, not trust placeholder results
@@ -939,10 +926,8 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     const hasDiscardedFiles = filesToDiscard.length > 0
     const hasNotAnalyzedFiles = notAnalyzedFiles.length > 0
     
-    // Clear rejected files if all files passed quality checks
-    if (!hasRejectedFiles) {
-      clearRejectedFiles();
-    }
+    // Don't automatically clear rejected files - let user manually remove them
+    // (Removed auto-clear logic to keep all files visible per user request)
     
     // Show appropriate toasts
     // Only show toasts for actual quality/limit issues, not bodyshot check failures
@@ -1158,12 +1143,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
           .filter(state => state.qualityResult?.score && state.qualityResult.score > 0 && state.qualityResult.isAcceptable)
           .map(state => state.file.name)
       );
-      
-      console.log('[Previously Accepted - triggerAnalysis]', {
-        count: previouslyAcceptedFileNames.size,
-        files: Array.from(previouslyAcceptedFileNames)
-      });
-
+    
       // Step 4: Run Claude analysis on valid images only
       const { results: claudeResults, batchInfo } = await analyzeImagesWithClaude(validImages, validBodyResults, previouslyAcceptedFileNames);
 

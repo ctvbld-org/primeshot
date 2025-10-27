@@ -33,7 +33,9 @@
     "generate": "生成",
     "explore": "探索",
     "create": "创建",
-    "admin": "管理员"
+    "pricing": "价格",
+    "admin": "管理员",
+    "menu": "菜单"
   },
   "userNav": {
     "signOut": "退出登录",
@@ -73,6 +75,9 @@
     "favourites": "收藏",
     "avatar": "用户头像",
     "brandLogo": "Primeshot"
+  },
+  "explore": {
+    "generateTooltip": "生成这张图片"
   },
   "credits": {
     "remaining_one": "剩余{{value}}个积分",

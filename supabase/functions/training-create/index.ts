@@ -18,6 +18,7 @@ interface TrainingRequest {
     learning_rate?: number;
     optimizer?: 'adamw' | 'adamw8bit';
     resolution?: number[];
+    model_type?: 'wan2.1-14b' | 'qwen-image';
   };
 }
 
@@ -429,6 +430,12 @@ serve(async (req) => {
         const valid = ['adamw', 'adamw8bit']
         if (valid.includes(training_params.optimizer)) {
           approvedParams.optimizer = training_params.optimizer
+        }
+      }
+      if (typeof training_params.model_type === 'string') {
+        const validModels = ['wan2.1-14b', 'wan2.2-14b', 'wan2.2-5b', 'qwen-image']
+        if (validModels.includes(training_params.model_type)) {
+          approvedParams.model_type = training_params.model_type
         }
       }
       // Coerce resolution into number[] if provided as string/number

@@ -36,7 +36,9 @@ export declare const resources: {
                 generate: string;
                 explore: string;
                 create: string;
+                pricing: string;
                 admin: string;
+                menu: string;
             };
             userNav: {
                 signOut: string;
@@ -76,6 +78,9 @@ export declare const resources: {
                 favorites: string;
                 avatar: string;
                 brandLogo: string;
+            };
+            explore: {
+                generateTooltip: string;
             };
             credits: {
                 remaining_one: string;
@@ -1289,6 +1294,33 @@ export declare const resources: {
                 plan: string;
             };
         };
+        explore: {
+            title: string;
+            loading: string;
+            buttons: {
+                customiseStyle: string;
+                showAllStyles: string;
+            };
+            noResults: string;
+            styleFilters: {
+                Corporate: {
+                    name: string;
+                    description: string;
+                };
+                Blindlight: {
+                    name: string;
+                    description: string;
+                };
+                "Golden Noir": {
+                    name: string;
+                    description: string;
+                };
+                "Studio Pro": {
+                    name: string;
+                    description: string;
+                };
+            };
+        };
     };
     gb: {
         common: {
@@ -1326,7 +1358,9 @@ export declare const resources: {
                 generate: string;
                 explore: string;
                 create: string;
+                pricing: string;
                 admin: string;
+                menu: string;
             };
             userNav: {
                 signOut: string;
@@ -1366,6 +1400,9 @@ export declare const resources: {
                 favourites: string;
                 avatar: string;
                 brandLogo: string;
+            };
+            explore: {
+                generateTooltip: string;
             };
             credits: {
                 remaining_one: string;
@@ -2563,6 +2600,33 @@ export declare const resources: {
                 plan: string;
             };
         };
+        explore: {
+            title: string;
+            loading: string;
+            buttons: {
+                customiseStyle: string;
+                showAllStyles: string;
+            };
+            noResults: string;
+            styleFilters: {
+                Corporate: {
+                    name: string;
+                    description: string;
+                };
+                Blindlight: {
+                    name: string;
+                    description: string;
+                };
+                "Golden Noir": {
+                    name: string;
+                    description: string;
+                };
+                "Studio Pro": {
+                    name: string;
+                    description: string;
+                };
+            };
+        };
     };
     fr: {
         common: {
@@ -2600,7 +2664,9 @@ export declare const resources: {
                 generate: string;
                 explore: string;
                 create: string;
+                pricing: string;
                 admin: string;
+                menu: string;
             };
             userNav: {
                 signOut: string;
@@ -2640,6 +2706,9 @@ export declare const resources: {
                 favourites: string;
                 avatar: string;
                 brandLogo: string;
+            };
+            explore: {
+                generateTooltip: string;
             };
             credits: {
                 remaining_one: string;
@@ -3831,6 +3900,33 @@ export declare const resources: {
                 plan: string;
             };
         };
+        explore: {
+            title: string;
+            loading: string;
+            buttons: {
+                customiseStyle: string;
+                showAllStyles: string;
+            };
+            noResults: string;
+            styleFilters: {
+                Corporate: {
+                    name: string;
+                    description: string;
+                };
+                Blindlight: {
+                    name: string;
+                    description: string;
+                };
+                "Golden Noir": {
+                    name: string;
+                    description: string;
+                };
+                "Studio Pro": {
+                    name: string;
+                    description: string;
+                };
+            };
+        };
     };
     es: {
         common: {
@@ -3868,7 +3964,9 @@ export declare const resources: {
                 generate: string;
                 explore: string;
                 create: string;
+                pricing: string;
                 admin: string;
+                menu: string;
             };
             userNav: {
                 signOut: string;
@@ -3908,6 +4006,9 @@ export declare const resources: {
                 favourites: string;
                 avatar: string;
                 brandLogo: string;
+            };
+            explore: {
+                generateTooltip: string;
             };
             credits: {
                 remaining_one: string;
@@ -5084,6 +5185,33 @@ export declare const resources: {
             accessibility: {
                 avatar: string;
                 plan: string;
+            };
+        };
+        explore: {
+            title: string;
+            loading: string;
+            buttons: {
+                customiseStyle: string;
+                showAllStyles: string;
+            };
+            noResults: string;
+            styleFilters: {
+                Corporate: {
+                    name: string;
+                    description: string;
+                };
+                Blindlight: {
+                    name: string;
+                    description: string;
+                };
+                "Golden Noir": {
+                    name: string;
+                    description: string;
+                };
+                "Studio Pro": {
+                    name: string;
+                    description: string;
+                };
             };
         };
     };
@@ -5123,7 +5251,9 @@ export declare const resources: {
                 generate: string;
                 explore: string;
                 create: string;
+                pricing: string;
                 admin: string;
+                menu: string;
             };
             userNav: {
                 signOut: string;
@@ -5163,6 +5293,9 @@ export declare const resources: {
                 favourites: string;
                 avatar: string;
                 brandLogo: string;
+            };
+            explore: {
+                generateTooltip: string;
             };
             credits: {
                 remaining_one: string;
@@ -6339,6 +6472,33 @@ export declare const resources: {
             accessibility: {
                 avatar: string;
                 plan: string;
+            };
+        };
+        explore: {
+            title: string;
+            loading: string;
+            buttons: {
+                customiseStyle: string;
+                showAllStyles: string;
+            };
+            noResults: string;
+            styleFilters: {
+                Corporate: {
+                    name: string;
+                    description: string;
+                };
+                Blindlight: {
+                    name: string;
+                    description: string;
+                };
+                "Golden Noir": {
+                    name: string;
+                    description: string;
+                };
+                "Studio Pro": {
+                    name: string;
+                    description: string;
+                };
             };
         };
     };
@@ -6378,7 +6538,9 @@ export declare const resources: {
                 generate: string;
                 explore: string;
                 create: string;
+                pricing: string;
                 admin: string;
+                menu: string;
             };
             userNav: {
                 signOut: string;
@@ -6418,6 +6580,9 @@ export declare const resources: {
                 favourites: string;
                 avatar: string;
                 brandLogo: string;
+            };
+            explore: {
+                generateTooltip: string;
             };
             credits: {
                 remaining_one: string;
@@ -7594,6 +7759,33 @@ export declare const resources: {
             accessibility: {
                 avatar: string;
                 plan: string;
+            };
+        };
+        explore: {
+            title: string;
+            loading: string;
+            buttons: {
+                customiseStyle: string;
+                showAllStyles: string;
+            };
+            noResults: string;
+            styleFilters: {
+                Corporate: {
+                    name: string;
+                    description: string;
+                };
+                Blindlight: {
+                    name: string;
+                    description: string;
+                };
+                "Golden Noir": {
+                    name: string;
+                    description: string;
+                };
+                "Studio Pro": {
+                    name: string;
+                    description: string;
+                };
             };
         };
     };
@@ -7633,7 +7825,9 @@ export declare const resources: {
                 generate: string;
                 explore: string;
                 create: string;
+                pricing: string;
                 admin: string;
+                menu: string;
             };
             userNav: {
                 signOut: string;
@@ -7673,6 +7867,9 @@ export declare const resources: {
                 favourites: string;
                 avatar: string;
                 brandLogo: string;
+            };
+            explore: {
+                generateTooltip: string;
             };
             credits: {
                 remaining_one: string;
@@ -8849,6 +9046,33 @@ export declare const resources: {
             accessibility: {
                 avatar: string;
                 plan: string;
+            };
+        };
+        explore: {
+            title: string;
+            loading: string;
+            buttons: {
+                customiseStyle: string;
+                showAllStyles: string;
+            };
+            noResults: string;
+            styleFilters: {
+                Corporate: {
+                    name: string;
+                    description: string;
+                };
+                Blindlight: {
+                    name: string;
+                    description: string;
+                };
+                "Golden Noir": {
+                    name: string;
+                    description: string;
+                };
+                "Studio Pro": {
+                    name: string;
+                    description: string;
+                };
             };
         };
     };
@@ -8888,7 +9112,9 @@ export declare const resources: {
                 generate: string;
                 explore: string;
                 create: string;
+                pricing: string;
                 admin: string;
+                menu: string;
             };
             userNav: {
                 signOut: string;
@@ -8928,6 +9154,9 @@ export declare const resources: {
                 favourites: string;
                 avatar: string;
                 brandLogo: string;
+            };
+            explore: {
+                generateTooltip: string;
             };
             credits: {
                 remaining_one: string;
@@ -10104,6 +10333,33 @@ export declare const resources: {
             accessibility: {
                 avatar: string;
                 plan: string;
+            };
+        };
+        explore: {
+            title: string;
+            loading: string;
+            buttons: {
+                customiseStyle: string;
+                showAllStyles: string;
+            };
+            noResults: string;
+            styleFilters: {
+                Corporate: {
+                    name: string;
+                    description: string;
+                };
+                Blindlight: {
+                    name: string;
+                    description: string;
+                };
+                "Golden Noir": {
+                    name: string;
+                    description: string;
+                };
+                "Studio Pro": {
+                    name: string;
+                    description: string;
+                };
             };
         };
     };
@@ -10143,7 +10399,9 @@ export declare const resources: {
                 generate: string;
                 explore: string;
                 create: string;
+                pricing: string;
                 admin: string;
+                menu: string;
             };
             userNav: {
                 signOut: string;
@@ -10183,6 +10441,9 @@ export declare const resources: {
                 favourites: string;
                 avatar: string;
                 brandLogo: string;
+            };
+            explore: {
+                generateTooltip: string;
             };
             credits: {
                 remaining_one: string;
@@ -11360,6 +11621,33 @@ export declare const resources: {
             accessibility: {
                 avatar: string;
                 plan: string;
+            };
+        };
+        explore: {
+            title: string;
+            loading: string;
+            buttons: {
+                customiseStyle: string;
+                showAllStyles: string;
+            };
+            noResults: string;
+            styleFilters: {
+                Corporate: {
+                    name: string;
+                    description: string;
+                };
+                Blindlight: {
+                    name: string;
+                    description: string;
+                };
+                "Golden Noir": {
+                    name: string;
+                    description: string;
+                };
+                "Studio Pro": {
+                    name: string;
+                    description: string;
+                };
             };
         };
     };
@@ -11399,7 +11687,9 @@ export declare const resources: {
                 generate: string;
                 explore: string;
                 create: string;
+                pricing: string;
                 admin: string;
+                menu: string;
             };
             userNav: {
                 signOut: string;
@@ -11439,6 +11729,9 @@ export declare const resources: {
                 favourites: string;
                 avatar: string;
                 brandLogo: string;
+            };
+            explore: {
+                generateTooltip: string;
             };
             credits: {
                 remaining_one: string;
@@ -12616,6 +12909,33 @@ export declare const resources: {
             accessibility: {
                 avatar: string;
                 plan: string;
+            };
+        };
+        explore: {
+            title: string;
+            loading: string;
+            buttons: {
+                customiseStyle: string;
+                showAllStyles: string;
+            };
+            noResults: string;
+            styleFilters: {
+                Corporate: {
+                    name: string;
+                    description: string;
+                };
+                Blindlight: {
+                    name: string;
+                    description: string;
+                };
+                "Golden Noir": {
+                    name: string;
+                    description: string;
+                };
+                "Studio Pro": {
+                    name: string;
+                    description: string;
+                };
             };
         };
     };

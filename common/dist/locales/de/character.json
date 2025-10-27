@@ -197,7 +197,7 @@
       },
       "body": {
         "minRequired": "Mindestens {{min}} Ganzkörperfotos erforderlich (derzeit haben Sie {{current}})",
-        "tooMany": "Zu viele Ganzkörperfotos ({{currentPercent}}%). Maximum {{maxPercent}}% erlaubt"
+        "tooMany": "Zu viele Ganzkörperfotos ({{current}} von {{total}}). Maximum {{max}} erlaubt"
       },
       "score": {
         "tooLow": "Die Bildqualitätsbewertung ist zu niedrig"

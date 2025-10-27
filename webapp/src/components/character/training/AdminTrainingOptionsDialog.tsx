@@ -16,6 +16,7 @@ export interface AdminTrainingParams {
   resolution: number[]
   rank: number
   optimizer: 'adamw' | 'adamw8bit'
+  model_type: 'wan2.1-14b' | 'qwen-image'
 }
 
 interface AdminTrainingOptionsDialogProps {
@@ -36,6 +37,7 @@ export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm
   )
   const [rank, setRank] = useState<number>(defaults?.rank ?? 32)
   const [optimizer, setOptimizer] = useState<string>(defaults?.optimizer ?? 'adamw')
+  const [modelType, setModelType] = useState<string>(defaults?.model_type ?? 'wan2.1-14b')
 
   const parseResolutionInput = (input: string): number[] => {
     try {
@@ -68,7 +70,8 @@ export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm
       learning_rate: Number(learningRate),
       resolution: parsedResolution,
       rank: Number(rank),
-      optimizer: String(optimizer) as 'adamw' | 'adamw8bit'
+      optimizer: String(optimizer) as 'adamw' | 'adamw8bit',
+      model_type: String(modelType) as 'wan2.1-14b' | 'qwen-image'
     }
     onConfirm(payload)
   }, [
@@ -80,6 +83,7 @@ export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm
     resolution,
     rank,
     optimizer,
+    modelType,
     onConfirm
   ])
 
@@ -90,6 +94,19 @@ export function AdminTrainingOptionsDialog({ open, defaults, onCancel, onConfirm
           <DialogTitle>Admin Training Overrides</DialogTitle>
         </DialogHeader>
         <DialogBody className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="model_type">Model</Label>
+            <p className="text-[12px] text-muted-foreground">Choose between Wan2.1 (default) or Qwen Image model</p>
+            <Select value={modelType} onValueChange={(v) => setModelType(v)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select model" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="wan2.1-14b">Wan 2.1 (14B)</SelectItem>
+                <SelectItem value="qwen-image">Qwen Image</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <div className="space-y-2">
             <Label htmlFor="steps">Steps</Label>
             <p className="text-[12px] text-muted-foreground">Between 2600 and 2700 seems to drive the best results but need to compare properly</p>

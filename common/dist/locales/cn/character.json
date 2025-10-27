@@ -197,7 +197,7 @@
       },
       "body": {
         "minRequired": "需要至少{{min}}张全身照（目前有{{current}}张）",
-        "tooMany": "全身照太多（{{currentPercent}}%）。最多允许{{maxPercent}}%"
+        "tooMany": "全身照太多（{{current}}/{{total}}）。最多允许{{max}}张"
       },
       "score": {
         "tooLow": "图像质量评分太低"

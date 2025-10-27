@@ -197,7 +197,7 @@
       },
       "body": {
         "minRequired": "少なくとも{{min}}枚の全身写真が必要です（現在{{current}}枚）",
-        "tooMany": "全身写真が多すぎます（{{currentPercent}}%）。最大{{maxPercent}}%まで許可"
+        "tooMany": "全身写真が多すぎます（{{current}}/{{total}}）。最大{{max}}枚まで許可"
       },
       "score": {
         "tooLow": "画像品質スコアが低すぎます"

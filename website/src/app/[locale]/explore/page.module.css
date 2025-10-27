@@ -1,0 +1,244 @@
+.pageContainer {
+  min-height: 100vh;
+  color: white;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+.contentWrapper {
+  width: 100%;
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.filtersSection {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 10;
+}
+
+.filtersContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  justify-content: flex-start;
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+@media (min-width: 640px) {
+  .filtersContainer {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .filtersContainer {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+}
+
+.filterButton {
+  position: relative;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  height: 3rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.filterButtonInactive {
+  background-color: rgb(153 239 236/.1);
+  color: #99efec;
+}
+
+.filterButtonActive,
+.filterButtonActive:not(:disabled):hover,
+.filterButtonInactive:not(:disabled):hover {
+  background-color: #99efec;
+  color: black;
+}
+
+.styleDetailsSection {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  padding-left: 0;
+  padding-right: 0;
+  border-top: 1px solid rgb(255 255 255 / 0.1);
+}
+
+@media (min-width: 640px) {
+  .styleDetailsSection {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+.styleDetailsContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  transition: all 0.5s;
+}
+
+@media (min-width: 640px) {
+  .styleDetailsContent {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+.styleDetailsContentVisible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.styleDetailsContentHidden {
+  opacity: 0;
+  transform: translateY(1rem);
+}
+
+.styleInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.styleTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  margin-bottom: 1rem;
+}
+
+.styleDescription {
+  color: rgb(255 255 255 / 0.6);
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.25;
+}
+
+.styleActions {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .styleActions {
+    justify-content: flex-end;
+  }
+}
+
+.styleIcons {
+  display: flex;
+  margin-right: 1rem;
+  color: rgb(255 255 255 / 0.8);
+}
+
+.iconWrapper {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon {
+  color: currentColor;
+}
+
+.customiseButton {
+  background-color: rgb(246 87 70);
+  color: white;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  height: 3rem;
+  border-radius: 1rem;
+  font-weight: 500;
+}
+
+.customiseButton:hover {
+  background-color: white;
+  color: black;
+}
+
+.gridContainer {
+  width: 100%;
+  position: relative;
+  z-index: 0;
+}
+
+.masonryGrid {
+  columns: 2;
+  column-gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .masonryGrid {
+    columns: 2;
+  }
+}
+
+@media (min-width: 1024px) {
+  .masonryGrid {
+    columns: 3;
+  }
+}
+
+@media (min-width: 1280px) {
+  .masonryGrid {
+    columns: 4;
+  }
+}
+
+.gridItem {
+  display: inline-block;
+  vertical-align: top;
+  break-inside: avoid;
+  margin-bottom: 0.5rem;
+  width: 100%;
+  overflow: hidden;
+}
+
+.noResults {
+  text-align: center;
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+  color: rgb(255 255 255 / 0.5);
+}
+
+.showAllButton {
+  margin-top: 1rem;
+  display: block;
+}
+
+.loadingContainer {
+  min-height: 100vh;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loadingContent {
+  text-align: center;
+}
+
+.loadingText {
+  font-size: 1.125rem;
+}
+
