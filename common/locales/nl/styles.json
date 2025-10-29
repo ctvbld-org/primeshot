@@ -1,0 +1,63 @@
+{
+  "titles": {
+    "styleLabel": "Stijl",
+    "photoStyle": "Foto stijl",
+    "sceneLabel": "Scène",
+    "wardrobeLabel": "Kleding",
+    "characterLabel": "Karakter",
+    "settingsLabel": "Instellingen"
+  },
+  "shoot": {
+    "subtitle": "{{style}} met {{scene}} setting, dragend {{wardrobe}} in {{color}}"
+  },
+  "character": {
+    "trainingQueued": "In wachtrij",
+    "trainingPending": "Wachtend",
+    "trainingInitializing": "Initialiseren",
+    "remaining": "resterend",
+    "photos": "foto's",
+    "trainingFailedTitle": "Training mislukt",
+    "trainingFailedDesc": "Dit karakter kan niet gebruikt worden voor generatie. Verwijder het en probeer opnieuw."
+  },
+  "qualities": {
+    "basic": "Basis",
+    "medium": "Gemiddeld",
+    "high": "Hoog"
+  },
+  "labels": {
+    "credits": "{{count}} credits",
+    "includedInPlan": "{{count}} inbegrepen in plan",
+    "limitReached": "Limiet bereikt",
+    "upgradePlanAddMore": "Plan upgraden om meer toe te voegen",
+    "upgradeOrBuyCredits": "Plan upgraden of creditpakket kopen",
+    "buyCredits": "Creditpakket kopen",
+    "newStylesDropWeekly": "Elke week nieuwe stijlen"
+  },
+  "settings": {
+    "numberOfTakes": "Aantal opnames",
+    "quality": "Kwaliteit",
+    "aspectRatio": "Beeldverhouding"
+  },
+  "status": {
+    "badge": {
+      "pending": "Wachtend",
+      "queued": "In wachtrij",
+      "initializing": "Initialiseren",
+      "starting": "Opstarten",
+      "running": "Genereren",
+      "generating": "Genereren",
+      "completed": "Voltooid",
+      "failed": "Mislukt",
+      "connecting": "Verbinden"
+    },
+    "tooltip": {
+      "pending": "Wacht op server beschikbaarheid - zou snel moeten doorgaan",
+      "queued": "Limiet bereikt, wacht tot generatie voltooid is",
+      "queueReasons": {
+        "character_not_ready": "Karakter traint nog — start automatisch",
+        "concurrent_limit": "Limiet bereikt ({{current}}/{{limit}}). Start automatisch",
+        "provider_temporary_issue": "Tijdelijk probleem bij versturen naar provider. We proberen automatisch opnieuw."
+      }
+    }
+  }
+}

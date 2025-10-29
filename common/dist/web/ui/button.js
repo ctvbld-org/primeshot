@@ -3,10 +3,10 @@ import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import styles from './button.module.css';
 import { cn } from "../../lib/utils";
-const buttonVariants = ({ variant = 'primary', size = 'md', className, loading, iconSide = 'left', } = {}) => {
-    return cn(styles.base, variant && styles[variant], size && styles[`size-${size}`], loading && styles.loading, iconSide && styles[`icon-${iconSide}`], className);
+const buttonVariants = ({ variant = 'primary', size = 'md', className, loading, iconSide = 'left', iconOnly = false, } = {}) => {
+    return cn(styles.base, variant && styles[variant], size && styles[`size-${size}`], loading && styles.loading, iconSide && styles[`icon-${iconSide}`], iconOnly && styles.iconOnly, className);
 };
-const Button = React.forwardRef(({ className, variant = 'primary', size = 'md', asChild = false, loading = false, children, disabled, icon, iconSide = 'left', ...props }, ref) => {
+const Button = React.forwardRef(({ className, variant = 'primary', size = 'md', asChild = false, loading = false, children, disabled, icon, iconSide = 'left', iconOnly = false, ...props }, ref) => {
     const buttonRef = React.useRef(null);
     const labelRef = React.useRef(null);
     const iconRef = React.useRef(null);
@@ -148,7 +148,7 @@ const Button = React.forwardRef(({ className, variant = 'primary', size = 'md', 
         }
     };
     const Comp = asChild ? Slot : "button";
-    return (_jsxs(Comp, { "data-slot": "button", className: cn(buttonVariants({ variant, size, className, loading, iconSide }), styles.btn), ref: combinedRef, disabled: disabled || loading, ...props, children: [loading && (_jsx("svg", { className: styles.spinner, viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg", role: "img", "aria-label": "Loading", "aria-hidden": "true", children: _jsx("circle", { className: styles.spinnerCircle, cx: "12", cy: "12", r: "10", fill: "none", strokeWidth: "3" }) })), icon && (_jsx("span", { ref: iconRef, className: styles.btnIcon, children: icon })), children && (_jsx("span", { ref: labelRef, className: styles.btnLabel, children: children }))] }));
+    return (_jsxs(Comp, { "data-slot": "button", className: cn(buttonVariants({ variant, size, className, loading, iconSide, iconOnly }), styles.btn), ref: combinedRef, disabled: disabled || loading, ...props, children: [loading && (_jsx("svg", { className: styles.spinner, viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg", role: "img", "aria-label": "Loading", "aria-hidden": "true", children: _jsx("circle", { className: styles.spinnerCircle, cx: "12", cy: "12", r: "10", fill: "none", strokeWidth: "3" }) })), icon && (_jsx("span", { ref: iconRef, className: styles.btnIcon, children: icon })), children && (_jsx("span", { ref: labelRef, className: styles.btnLabel, children: children }))] }));
 });
 Button.displayName = "Button";
 export { Button, buttonVariants };

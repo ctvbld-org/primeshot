@@ -154,7 +154,7 @@ const WebGLImageTransition = forwardRef<WebGLImageTransitionRef, WebGLImageTrans
   // Initialize displayedIndexRef when component mounts
   useEffect(() => {
     displayedIndexRef.current = currentIndex;
-  }, [currentIndex, images, isInitialized]);
+  }, [currentIndex]);
 
   // Expose transition method via ref
   useImperativeHandle(ref, () => ({
@@ -419,7 +419,7 @@ const WebGLImageTransition = forwardRef<WebGLImageTransitionRef, WebGLImageTrans
     return () => {
       clearTimeout(initTimeout);
     };
-  }, []);
+  }, [currentIndex, images, isInitialized]);
 
   return (
     <div 

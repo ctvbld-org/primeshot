@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+- **2025-09-22 14:49:26** (ctvbld): Resend update + Vercelanalytics
+- **2025-09-22 09:00:28** (ctvbld): Website: Added randomness to image load
+- **2025-09-22 08:57:54** (ctvbld): Website: Added gradient overlay
+- **2025-09-22 01:09:40** (ctvbld): landing page image update
 - **2025-08-12 16:15:41** (David): webapp: remove deprecated pricing constants usage; migrate to DB-backed hooks for credit packs and costs; update GenerateBar, CreditPackPricing, CreditPackDialogContent; refactor creditService to fetch costs from API
 - **2025-08-09 23:20:01** (David): - Replace stripe api call for subscription details to DB call
 - **2025-07-05 01:20:47** (David): feat: add calculate_user_credit_balance RPC and RLS policies; regenerate Supabase types

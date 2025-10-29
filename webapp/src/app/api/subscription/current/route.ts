@@ -1,7 +1,8 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createSecuredHandler, SECURITY_PRESETS } from '@/lib/security-middleware'
 
-export async function GET() {
+async function handleGET() {
   try {
     const supabase = await createClient()
     
@@ -14,25 +15,41 @@ export async function GET() {
       )
     }
 
-    // Get current active subscription
-    const { data: subscription, error: subError } = await supabase
+    // First try to get an active subscription
+    let { data: subscription, error: subError } = await supabase
       .from('user_subscriptions')
       .select('*')
       .eq('user_id', user.id)
       .eq('status', 'active')
       .order('created_at', { ascending: false })
       .limit(1)
-      .single()
+      .maybeSingle()
+
+    // If no active subscription, fall back to most recent cancelled subscription
+    // (useful for showing grace period or "cancelled" status in UI)
+    if (!subscription && !subError) {
+      const { data: cancelledSub, error: cancelledError } = await supabase
+        .from('user_subscriptions')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('status', 'canceled')
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      
+      subscription = cancelledSub
+      subError = cancelledError
+    }
 
     if (subError || !subscription) {
-      // User doesn't have an active subscription
+      // No subscription rows; return null so UI shows "no plan"
       return NextResponse.json(null)
     }
 
     // Get plan details from DB-backed pricing (remove live Stripe dependency)
     const { data: tier, error: tierError } = await supabase
       .from('subscriptions')
-      .select('credits,max_quality,character_training_included,name')
+      .select('credits,max_quality,character_training_included,name,display_name,image_url,max_characters,concurrent_jobs')
       .eq('name', subscription.plan_name)
       .single()
 
@@ -41,8 +58,8 @@ export async function GET() {
     }
 
     // Calculate credits used in current billing period
-    const periodStart = new Date(subscription.current_period_start)
-    const periodEnd = new Date(subscription.current_period_end)
+    const periodStart = subscription.current_period_start ? new Date(subscription.current_period_start) : new Date(0)
+    const periodEnd = subscription.current_period_end ? new Date(subscription.current_period_end) : new Date()
 
     const { data: creditsUsed, error: usageError } = await supabase
       .from('user_credits')
@@ -82,7 +99,11 @@ export async function GET() {
 
     // Build subscription info response (DB-backed)
     const subscriptionInfo = {
+      // Canonical plan key for lookups and comparisons
       plan_name: subscription.plan_name,
+      // Human-friendly display name for UI
+      plan_display_name: tier?.display_name || subscription.plan_name,
+      plan_image_url: tier?.image_url || null,
       status: subscription.status,
       current_period_end: subscription.current_period_end,
       credits_included: tier?.credits ?? 0,
@@ -90,6 +111,9 @@ export async function GET() {
       max_quality: tier?.max_quality,
       character_training_included: tier?.character_training_included ?? 0,
       character_training_used: characterTrainingUsed,
+      // Limits surfaced directly to clients for reliability
+      max_characters: tier?.max_characters ?? 1,
+      concurrent_jobs: tier?.concurrent_jobs ?? 1,
       cancel_at_period_end: subscription.cancel_at_period_end || false,
       // Additional useful fields
       current_period_start: subscription.current_period_start,
@@ -108,3 +132,13 @@ export async function GET() {
     )
   }
 } 
+
+// Secured handler with authentication and rate limiting
+const securedGET = createSecuredHandler(
+  handleGET,
+  SECURITY_PRESETS.PAYMENT_OPERATION
+);
+
+export async function GET(request: NextRequest) {
+  return await securedGET(request);
+}

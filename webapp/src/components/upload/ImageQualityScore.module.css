@@ -20,12 +20,18 @@
 .imageContainer {
   display: flex;
   align-items: flex-start;
-  gap: 24px;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.imageAnalyzing {
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
 }
 
 .imageWrapper {
   position: relative;
-  flex: 0 0 88px;
+  flex: 0 0 auto;
 }
 
 .image {
@@ -33,8 +39,8 @@
 }
 
 .image img {
-    width: 88px !important;
-    height: 88px !important;
+    width: 55px !important;
+    height: 55px !important;
     border-radius: 12px;
     border: 1px solid rgba(192, 206, 216, 0.20);
     position: static !important;
@@ -43,7 +49,8 @@
 }
 
 .contentContainer {
-  flex: 1 0 59%;
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -51,13 +58,17 @@
 
 .headerContainer {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: start;
+  min-width: 0;
+  gap: 8px;
 }
 
 .fileInfo {
   display: flex;
+  flex-direction: column;
   gap: 8px;
+  flex: 1;
+  min-width: 0;
 }
 
 .fileName {
@@ -65,10 +76,12 @@
     font-size: 16px;
     font-weight: 500;
     line-height: 20px; /* 125% */
-    max-width: 275px;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    hyphens: auto;
+    max-width: 100%;
+    min-width: 0;
 }
 
 .fileSize {
@@ -78,18 +91,32 @@
     line-height: 20px; /* 125% */
 }
 
+.scoreContainer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
 .qualityScore {
     display: flex;
-    padding: 4px 9px;
     justify-content: center;
     align-items: center;
     gap: 8px;
-    border-radius: 32px;
-    background: #FF4242;
-    color: #FFF;
+    color: #FF7575;
     font-size: 14px;
     font-weight: 500;
     line-height: 18px; /* 128.571% */
+}
+
+.infoIcon {
+    color: rgba(192, 206, 216, 0.60);
+    cursor: help;
+    flex-shrink: 0;
+    transition: color 0.2s ease;
+}
+
+.infoIcon:hover {
+    color: #C0CED8;
 }
 
 .issuesContainer {
@@ -101,7 +128,7 @@
 
 .issueItem {
     display: flex;
-    align-items: center;
+    align-items: start;
     gap: 8px;
     color: rgba(192, 206, 216, 0.80);
     font-size: 12px;
@@ -113,4 +140,5 @@
   height: 16px;
   width: 16px;
   flex-shrink: 0;
+  color: #FF7575;
 }

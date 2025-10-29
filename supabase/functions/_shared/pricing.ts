@@ -121,7 +121,7 @@ export async function getInferenceSettings(supabase: any): Promise<{
     // Provide safe defaults if DB temporarily unavailable
     return {
       qualities: ['1K','2K','4K'],
-      quality_labels: { '1K': 'Basic', '2K': 'Standard', '4K': 'High' },
+      quality_labels: { '1K': 'Basic', '2K': 'Medium', '4K': 'High' },
       nb_takes_options: [5,15,20],
       aspect_ratios: ['4:5','16:9','1:1','3:4'],
       defaults: { quality: '1K', nb_takes: 5, aspect_ratio: '4:5' }
@@ -132,10 +132,10 @@ export async function getInferenceSettings(supabase: any): Promise<{
   for (const row of (data || [])) map[row.key] = row.value;
   const settings = {
     qualities: map['qualities'] || ['1K','2K','4K'],
-    quality_labels: map['quality_labels'] || { '1K': 'Basic', '2K': 'Standard', '4K': 'High' },
+    quality_labels: map['quality_labels'] || { '1K': 'Basic', '2K': 'Medium', '4K': 'High' },
     nb_takes_options: map['nb_takes_options'] || [5,15,20],
-    aspect_ratios: map['aspect_ratios'] || ['4:5','16:9','1:1','3:4'],
-    defaults: map['defaults'] || { quality: '1K', nb_takes: 5, aspect_ratio: '4:5' },
+    aspect_ratios: map['aspect_ratios'] || ['2:3','1:1','3:2'],
+    defaults: map['defaults'] || { quality: '1K', nb_takes: 5, aspect_ratio: '1:1' },
   } as const;
 
   cachedInferenceSettings = settings as any;

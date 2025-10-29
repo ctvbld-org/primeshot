@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useInfiniteInferenceJobs } from './useInfiniteInferenceJobs';
 import { useAuth } from '@/contexts/auth-context';
-import { InferenceThumbnail } from '@/components/home/InferenceThumbnail';
+import { InferenceThumbnail } from '@/components/inference/InferenceThumbnail';
 import { webSocketManager } from '@/lib/websocket/connection-manager';
 import { getInferenceImage } from '@/lib/utils/get-inference-image';
 import { getInferenceImageUrl } from '@/lib/utils/get-inference-image';
@@ -35,15 +35,15 @@ export function useInfiniteInferenceJobsWithProgress() {
 
   const setHoldDone = (jobId: string) => {
     if (typeof window === 'undefined') return;
-    try { window.localStorage.setItem(holdDoneKey(jobId), '1'); } catch {}
+    try { window.sessionStorage.setItem(holdDoneKey(jobId), '1'); } catch {}
   };
   const clearHoldDone = (jobId: string) => {
     if (typeof window === 'undefined') return;
-    try { window.localStorage.removeItem(holdDoneKey(jobId)); } catch {}
+    try { window.sessionStorage.removeItem(holdDoneKey(jobId)); } catch {}
   };
   const hasHoldDone = (jobId: string) => {
     if (typeof window === 'undefined') return false;
-    try { return !!window.localStorage.getItem(holdDoneKey(jobId)); } catch { return false; }
+    try { return !!window.sessionStorage.getItem(holdDoneKey(jobId)); } catch { return false; }
   };
 
   const cleanupHold = useCallback((jobId: string) => {
@@ -55,7 +55,7 @@ export function useInfiniteInferenceJobsWithProgress() {
     }
     messageHold.current.delete(jobId);
     if (typeof window !== 'undefined') {
-      try { window.localStorage.removeItem(holdKey(jobId)); } catch {}
+      try { window.sessionStorage.removeItem(holdKey(jobId)); } catch {}
     }
   }, []);
 
@@ -71,7 +71,7 @@ export function useInfiniteInferenceJobsWithProgress() {
 
     const holdUntil = Date.now() + Math.max(0, holdMs);
     if (typeof window !== 'undefined') {
-      try { window.localStorage.setItem(holdKey(jobId), String(holdUntil)); } catch {}
+      try { window.sessionStorage.setItem(holdKey(jobId), String(holdUntil)); } catch {}
     }
 
     const supabase = createSupabaseBrowserClient();
@@ -90,7 +90,7 @@ export function useInfiniteInferenceJobsWithProgress() {
           infiniteJobs.updateJobStatus(jobId, 'generating');
           infiniteJobs.updateJobMessage(jobId, 'Generating');
           if (typeof window !== 'undefined') {
-            try { window.localStorage.removeItem(holdKey(jobId)); } catch {}
+            try { window.sessionStorage.removeItem(holdKey(jobId)); } catch {}
           }
           clearHoldDone(jobId);
           return; // No watcher needed
@@ -141,7 +141,7 @@ export function useInfiniteInferenceJobsWithProgress() {
           messageHold.current.delete(jobId);
           try { if (watcher) clearTimeout(watcher.timerId); } catch {}
           if (typeof window !== 'undefined') {
-            try { window.localStorage.removeItem(holdKey(jobId)); } catch {}
+            try { window.sessionStorage.removeItem(holdKey(jobId)); } catch {}
           }
           try { channel?.unsubscribe?.(); } catch {}
           dbWatchers.current.delete(jobId);
@@ -195,7 +195,7 @@ export function useInfiniteInferenceJobsWithProgress() {
     if (hasHoldDone(jobId)) return;
     let stored: number | null = null;
     try {
-      const raw = window.localStorage.getItem(holdKey(jobId));
+      const raw = window.sessionStorage.getItem(holdKey(jobId));
       if (raw) stored = parseInt(raw, 10);
     } catch {}
     if (!stored || Number.isNaN(stored)) return;
@@ -203,7 +203,7 @@ export function useInfiniteInferenceJobsWithProgress() {
     if (remaining > 50) {
       startHoldAndWatchDb(jobId, remaining);
     } else {
-      try { window.localStorage.removeItem(holdKey(jobId)); } catch {}
+      try { window.sessionStorage.removeItem(holdKey(jobId)); } catch {}
     }
   }, [startHoldAndWatchDb]);
 
@@ -276,13 +276,22 @@ export function useInfiniteInferenceJobsWithProgress() {
         status: 'completed',
         progress: 100,
         webImageUrl: webUrl,
-        imageUrl: originalUrl
+        imageUrl: originalUrl,
+        imageId: img.id,
+        favourite: (img as any).favourite === true
       });
     });
   };
 
   // Apply a single completed image using provided web/original paths from WS
-  const applyFinalImageUrl = (jobId: string, index: number, webPath: string, originalPath?: string) => {
+  const applyFinalImageUrl = (
+    jobId: string,
+    index: number,
+    webPath: string,
+    originalPath?: string,
+    imageId?: string,
+    favourite?: boolean
+  ) => {
     if (!webPath || typeof index !== 'number' || index < 0) return;
     const origPath = originalPath || webPath.replace('/web/', '/orig/').replace(/\.webp$/i, '.png');
     const webUrl = getInferenceImageUrl(webPath, true);
@@ -291,7 +300,9 @@ export function useInfiniteInferenceJobsWithProgress() {
       status: 'completed',
       progress: 100,
       webImageUrl: webUrl,
-      imageUrl: originalUrl
+      imageUrl: originalUrl,
+      ...(imageId ? { imageId } : {}),
+      ...(typeof favourite === 'boolean' ? { favourite } : {})
     });
   };
 
@@ -319,7 +330,9 @@ export function useInfiniteInferenceJobsWithProgress() {
               status: 'completed',
               imageUrl: originalImageUrl,
               webImageUrl: webImageUrl,
-              progress: 100
+              progress: 100,
+              imageId: image.id,
+              favourite: (image as any).favourite === true
             });
           });
         }
@@ -378,7 +391,7 @@ export function useInfiniteInferenceJobsWithProgress() {
           if (watcher) clearTimeout(watcher.timerId);
         } catch {}
         if (typeof window !== 'undefined') {
-          try { window.localStorage.removeItem(holdKey(jobId)); } catch {}
+          try { window.sessionStorage.removeItem(holdKey(jobId)); } catch {}
         }
         const existing = dbWatchers.current.get(jobId);
         try { existing?.channel?.unsubscribe?.(); } catch {}
@@ -401,7 +414,7 @@ export function useInfiniteInferenceJobsWithProgress() {
       const web = data.final_image_url || data.webImageUrl;
       const orig = data.imageUrl as string | undefined;
       if (idx !== undefined && (typeof web === 'string' && web.length > 0)) {
-        applyFinalImageUrl(jobId, idx, web, orig);
+        applyFinalImageUrl(jobId, idx, web, orig, (data as any)?.id, (data as any)?.favourite === true);
         return;
       }
     }
@@ -449,8 +462,8 @@ export function useInfiniteInferenceJobsWithProgress() {
               infiniteJobs.updateJobStatus(jobId, 'completed');
               await fetchAndApplyResults(jobId, '🔍');
             } else {
+              // Failure: still try to fetch any images that were produced
               infiniteJobs.updateJobStatus(jobId, 'failed');
-              // Mark all thumbnails as failed
               const job = infiniteJobs.jobs.find(j => j.id === jobId);
               if (job) {
                 job.thumbnails.forEach((_, index) => {
@@ -460,12 +473,13 @@ export function useInfiniteInferenceJobsWithProgress() {
                   });
                 });
               }
+              await fetchAndApplyResults(jobId, '🔍 Failed-job fetch');
             }
             
             // Clean up connection
             activeConnections.current.delete(jobId);
           },
-          onError: (error) => {
+          onError: async (error) => {
             console.error(`❌ WebSocket error for job ${jobId}:`, error);
             infiniteJobs.updateJobStatus(jobId, 'failed');
             
@@ -479,6 +493,8 @@ export function useInfiniteInferenceJobsWithProgress() {
                 });
               });
             }
+            // Try to recover any images despite the error
+            await fetchAndApplyResults(jobId, '🔍 WS error fetch');
             
             // Clean up connection
             activeConnections.current.delete(jobId);
@@ -589,8 +605,8 @@ export function useInfiniteInferenceJobsWithProgress() {
           let hasStored = false;
           let hasDone = false;
           if (typeof window !== 'undefined') {
-            try { hasStored = !!window.localStorage.getItem(holdKey(job.id)); } catch {}
-            try { hasDone = !!window.localStorage.getItem(holdDoneKey(job.id)); } catch {}
+            try { hasStored = !!window.sessionStorage.getItem(holdKey(job.id)); } catch {}
+            try { hasDone = !!window.sessionStorage.getItem(holdDoneKey(job.id)); } catch {}
           }
           if (!hasStored && !hasDone) {
             startHoldAndWatchDb(job.id);
@@ -609,7 +625,6 @@ export function useInfiniteInferenceJobsWithProgress() {
         return;
       }
 
-      console.log(`🔌 Auto-connecting to job ${job.id} for thumbnail updates`);
       // Normalize any preloaded DB status 'running' -> UI 'generating' before WS messages arrive
       if (job.status === 'running') {
         infiniteJobs.updateJobStatus(job.id, 'generating');
@@ -624,19 +639,6 @@ export function useInfiniteInferenceJobsWithProgress() {
             return;
           }
           const status = data.status;
-          const progress = data.progress || 0;
-          
-          console.log(`📊 Auto-connection progress update for job ${job.id}: ${status} - ${progress}%`);
-          
-          // Debug: Check if preview_images exists in the auto-connection data
-          if (data.preview_images) {
-            console.log(`🎨 Auto-connection received preview_images for job ${job.id}:`, {
-              preview_images_type: typeof data.preview_images,
-              preview_images_length: data.preview_images?.length,
-              image_index: data.image_index,
-              first_preview_sample: data.preview_images[0]?.substring(0, 50) + '...'
-            });
-          }
           
           // Global progress and previews with guards
           updateGlobalProgressIfNeeded(job.id, data);
@@ -656,7 +658,7 @@ export function useInfiniteInferenceJobsWithProgress() {
                 if (watcher) clearTimeout(watcher.timerId);
               } catch {}
               if (typeof window !== 'undefined') {
-                try { window.localStorage.removeItem(holdKey(job.id)); } catch {}
+                try { window.sessionStorage.removeItem(holdKey(job.id)); } catch {}
               }
               const existing = dbWatchers.current.get(job.id);
               try { existing?.channel?.unsubscribe?.(); } catch {}
@@ -687,7 +689,7 @@ export function useInfiniteInferenceJobsWithProgress() {
             const web = data.final_image_url || data.webImageUrl;
             const orig = data.imageUrl as string | undefined;
             if (idx !== undefined && (typeof web === 'string' && web.length > 0)) {
-              applyFinalImageUrl(job.id, idx, web, orig);
+              applyFinalImageUrl(job.id, idx, web, orig, (data as any)?.id, (data as any)?.favourite === true);
               return;
             }
           }
@@ -725,7 +727,6 @@ export function useInfiniteInferenceJobsWithProgress() {
       const job = infiniteJobs.jobs.find(j => j.id === jobId);
       const isTerminal = job && (job.status === 'completed' || job.status === 'failed');
       if (isTerminal) {
-        console.log(`🔌 Cleaning up WebSocket subscription for job ${jobId} (terminal status: ${job!.status})`);
         webSocketManager.unsubscribe(subscriptionId);
         activeConnections.current.delete(jobId);
       }
@@ -810,14 +811,13 @@ export function useInfiniteInferenceJobsWithProgress() {
   }, [user?.id, infiniteJobs, resumeHoldIfAny, fetchAndApplyResults]);
 
   // Create queued thumbnails (optimistic UI)
-  const createQueuedThumbnails = useCallback((nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string }) => {
+  const createQueuedThumbnails = useCallback((nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string; aspectRatio?: string; quality?: string; characterId?: string }) => {
     // Create a placeholder ID for the thumbnails (no WebSocket connection yet)
     const placeholderId = `placeholder_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
     // Use the addJob function from infiniteJobs to create the placeholder
     infiniteJobs.addJob(placeholderId, nbTakes, meta);
     
-    console.log(`📋 Created initializing thumbnails with placeholder ${placeholderId} (${nbTakes} takes)`);
     return placeholderId;
   }, [infiniteJobs]);
 

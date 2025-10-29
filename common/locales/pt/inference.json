@@ -1,0 +1,260 @@
+{
+  "common": {
+    "pleaseTryAgain": "Por favor, tente novamente",
+    "cancel": "Cancelar"
+  },
+  "time": {
+    "justNow": "Agora mesmo",
+    "minutesAgo": "há {{count}}min",
+    "hoursAgo": "há {{count}}h",
+    "daysAgo": "há {{count}}d"
+  },
+  "gallery": {
+    "error": "Falha ao carregar trabalhos de inferência: {{error}}",
+    "retry": "Tentar novamente",
+    "loadingMore": "A carregar mais ensaios",
+    "endOfList": "Chegou ao fim dos seus ensaios",
+    "howItWorksAria": "Como funciona",
+    "quotes": [
+      "Cada detalhe está a tomar forma",
+      "Os seus retratos ganham vida",
+      "Algumas surpresas podem surgir, felizes acasos",
+      "Brinque com admiração",
+      "E descubra aqueles fiéis a si",
+      "Observe a sua transformação",
+      "A magia está a acontecer",
+      "A sua história revela-se",
+      "Abrace o inesperado",
+      "A arte encontra-o",
+      "Cada imagem uma revelação",
+      "Beleza em progresso",
+      "A sua essência capturada",
+      "Momentos tornando-se memórias",
+      "Encontrar a sua luz",
+      "A perfeição leva tempo",
+      "Quase lá, quase você",
+      "Criar algo belo",
+      "A sua visão única emerge",
+      "Confie no processo",
+      "Algo especial aguarda",
+      "O seu momento está a chegar",
+      "Deixe a arte respirar",
+      "A paciência faz a perfeição",
+      "Sonhos tomando forma",
+      "A sua tela está viva",
+      "Observe a magia acontecer",
+      "Tornando-se extraordinário",
+      "Os detalhes fazem a diferença",
+      "A sua história em pixels",
+      "A arte é paciente",
+      "Criar o seu momento",
+      "Cada segundo conta",
+      "A sua visão materializando-se",
+      "A espera vale a pena",
+      "A beleza precisa de tempo",
+      "Quase pronto para brilhar",
+      "A sua obra-prima carregando",
+      "Dar-lhe vida",
+      "Um momento mais perto",
+      "Criar o você perfeito",
+      "A sua visão desperta",
+      "As peças encaixam-se",
+      "Vê-lo emergir",
+      "O melhor ainda está para vir",
+      "A sua jornada desenrola-se aqui",
+      "Criar pura magia",
+      "Momentos de brilho",
+      "A sua verdade revelada",
+      "Capturar a sua alma",
+      "Sonhos tornando-se reais",
+      "A arte de se tornar",
+      "A sua beleza desdobrando-se",
+      "Paciência em breve recompensada",
+      "Magia em movimento",
+      "A sua identidade formando-se",
+      "Arte em progresso",
+      "A revelação aproxima-se",
+      "A sua essência transparecer",
+      "Algo belo a preparar-se",
+      "A sua imagem aperfeiçoando-se",
+      "Tempo bem gasto",
+      "Criar o seu legado",
+      "A sua faísca acendendo",
+      "A linha de chegada aproxima-se",
+      "Pintar o seu retrato",
+      "A sua maravilha aguarda",
+      "Brilho em criação",
+      "O seu momento de brilhar",
+      "Criar arte de si",
+      "O toque mágico aplicado",
+      "A sua história toma forma",
+      "Tecer a sua magia",
+      "O seu brilho emergindo",
+      "Os toques finais",
+      "A sua transformação em breve completa",
+      "Criar algo intemporal",
+      "O seu eu autêntico",
+      "A jornada é linda",
+      "A sua radiância crescendo",
+      "Aperfeiçoar cada detalhe",
+      "A sua singularidade capturada",
+      "A arte de si",
+      "A sua beleza multiplicada",
+      "Criar o seu momento",
+      "A magia revela-se",
+      "A sua alma na tela",
+      "Quase perfeitamente você",
+      "Criar pura beleza",
+      "A sua luz brilha em breve",
+      "A arte ganha vida",
+      "O seu sonho realizado",
+      "Criar excelência",
+      "A sua obra-prima carregando",
+      "O momento perfeito",
+      "A sua história lindamente contada"
+    ],
+    "steps": {
+      "choose": {
+        "title": "Escolha um estilo",
+        "desc": "Selecione o ambiente, cenário e roupa que se adequam ao seu visual."
+      },
+      "character": {
+        "title": "Crie um personagem",
+        "desc": "Carregue algumas fotos para que a nossa IA aprenda exatamente o que o torna único."
+      },
+      "generate": {
+        "title": "Gere o seu ensaio",
+        "desc": "Obtenha os seus retratos em minutos — autênticos, polidos e prontos a usar."
+      }
+    }
+  },
+  "viewer": {
+    "confirmDelete": {
+      "title": "Eliminar imagem?",
+      "description": "Isto eliminará permanentemente a imagem e não pode ser desfeito.",
+      "confirm": "Eliminar",
+      "cancel": "Cancelar"
+    },
+    "closeAria": "Fechar visualizador",
+    "carousel": {
+      "aria": "Navegação do carrossel",
+      "prevAria": "Imagem anterior",
+      "nextAria": "Imagem seguinte"
+    },
+    "overlay": {
+      "displayOriginal": "Mostrar original",
+      "displayOriginalAria": "Mostrar imagem original",
+      "originalUnavailableTitle": "Original indisponível",
+      "originalUnavailableDesc": "Não foi possível carregar a variante da imagem original."
+    },
+    "viewOriginal": {
+      "label": "Mudar para original",
+      "viewing": "A ver original",
+      "aria": "Mudar para imagem em qualidade original",
+      "viewingAria": "A visualizar imagem em qualidade original"
+    },
+    "title": "Ensaio {{shootNumber}}",
+    "imageIndex": "IMG {{index}}",
+    "favourite": {
+      "ariaButton": "Favorito",
+      "add": "Adicionar aos favoritos",
+      "remove": "Remover dos favoritos",
+      "updateErrorTitle": "Falha ao atualizar favorito"
+    },
+    "metadata": {
+      "labels": {
+        "aspectRatio": "Proporção",
+        "quality": "Qualidade",
+        "model": "Modelo",
+        "character": "Personagem"
+      },
+      "aspectLabels": {
+        "square": "Quadrado",
+        "landscape": "Horizontal",
+        "portrait": "Vertical"
+      }
+    },
+    "actions": {
+      "delete": {
+        "label": "Eliminar",
+        "aria": "Eliminar imagem"
+      },
+      "download": {
+        "label": "Descarregar",
+        "aria": "Descarregar imagem"
+      }
+    },
+    "alt": {
+      "generated": "Imagem gerada {{index}}",
+      "thumbnail": "Miniatura {{index}}"
+    }
+  },
+  "group": {
+    "status": {
+      "failed": "Geração falhada"
+    },
+    "error": {
+      "generic": "Algo correu mal, os seus créditos foram reembolsados",
+      "timeout": "A criação demorou mais do que o esperado, os seus créditos foram reembolsados",
+      "serverBusy": "Os nossos servidores estavam temporariamente ocupados, os seus créditos foram reembolsados",
+      "memory": "Capacidade do servidor excedida, os seus créditos foram reembolsados",
+      "connection": "Problema de ligação temporário, os seus créditos foram reembolsados",
+      "imageGeneration": "A criação não foi concluída, os seus créditos foram reembolsados"
+    },
+    "confirmDelete": {
+      "title": "Eliminar ensaio?",
+      "description": "Isto removerá o ensaio da sua galeria. Esta ação não pode ser desfeita.",
+      "confirm": "Eliminar"
+    },
+    "deleteFailedTitle": "Eliminação falhada",
+    "rerun": {
+      "cannot": "Não é possível executar novamente",
+      "missingInfo": "Informações de trabalho necessárias em falta.",
+      "failed": "Nova execução falhada"
+    },
+    "header": {
+      "shootTitle": "ENSAIO #{{number}}"
+    },
+    "tooltips": {
+      "deleteShoot": "Eliminar ensaio",
+      "rerunShoot": "Executar ensaio novamente"
+    },
+    "aria": {
+      "thumbnailsPreview": "Pré-visualização de miniaturas",
+      "viewAllImages": "Ver todas as imagens"
+    },
+    "alt": {
+      "preview": "Pré-visualização {{index}}"
+    },
+    "buttons": {
+      "viewAll": "Ver tudo"
+    }
+  },
+  "thumbnail": {
+    "alt": {
+      "generatingPreview": "A gerar pré-visualização {{index}}",
+      "generated": "Imagem gerada {{index}}"
+    },
+    "favourite": {
+      "add": "Adicionar aos favoritos",
+      "remove": "Remover dos favoritos"
+    },
+    "loadingTitle": "A carregar…",
+    "loadingDesc": "Os detalhes da imagem ainda estão a carregar. Por favor, tente novamente num momento.",
+    "actions": {
+      "delete": {
+        "label": "Eliminar",
+        "aria": "Eliminar imagem"
+      },
+      "download": {
+        "label": "Descarregar",
+        "aria": "Descarregar imagem"
+      }
+    },
+    "confirmDelete": {
+      "title": "Eliminar imagem?",
+      "description": "Isto removerá a imagem da sua galeria. Esta ação não pode ser desfeita.",
+      "confirm": "Eliminar"
+    }
+  }
+}

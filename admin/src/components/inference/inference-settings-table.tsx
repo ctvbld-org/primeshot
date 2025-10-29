@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { getApiUrl } from '@/lib/api'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { DataTable } from '@/components/ui/data-table'
 import { InferenceSettingsFormDialog } from './inference-settings-form-dialog'
@@ -19,7 +20,7 @@ export function InferenceSettingsTable() {
   const { data: rows = [], isLoading } = useQuery<Row[]>({
     queryKey: ['inference-settings'],
     queryFn: async () => {
-      const res = await fetch('/api/inference/settings')
+      const res = await fetch(getApiUrl('/api/inference/settings'))
       if (!res.ok) throw new Error('Failed to fetch inference settings')
       const settings = await res.json()
       // Convert map to rows for the table
@@ -29,7 +30,7 @@ export function InferenceSettingsTable() {
 
   const deleteMutation = useMutation({
     mutationFn: async (key: string) => {
-      const res = await fetch(`/api/admin/inference-settings/${encodeURIComponent(key)}`, { method: 'DELETE' })
+      const res = await fetch(getApiUrl(`/api/admin/inference-settings/${encodeURIComponent(key)}`), { method: 'DELETE' })
       if (!res.ok) throw new Error('Failed to delete setting')
     },
     onSuccess: () => {

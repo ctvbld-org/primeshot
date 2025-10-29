@@ -36,6 +36,9 @@ import { Input } from '@primeshot/common/web/ui/input'
 import { Button } from '@primeshot/common/web/ui/button'
 import { toast } from 'sonner'
 import type { Database } from '@/types/supabase'
+import { getApiUrl } from '@/lib/api'
+import { getTranslatableColumns, shouldTranslateRow, translateRow } from '@/lib/translation'
+import { processValue } from '@/lib/utils'
 
 type Color = Database['public']['Tables']['style_colors']['Row']
 
@@ -63,6 +66,7 @@ export function ColorFormDialog({
   const queryClient = useQueryClient()
   const supabase = createClient()
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
   const originalValuesRef = useRef<FormData | null>(null)
 
   const form = useForm<FormData>({
@@ -134,47 +138,87 @@ export function ColorFormDialog({
     }
   }, [open])
 
-  const mutation = useMutation({
-    mutationFn: async (data: FormData) => {
-      if (color) {
-        // Update
-        const res = await fetch('/api/admin/style-colors', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: color.id, ...data }),
-        })
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}))
-          throw new Error(err.error || 'Failed to update color')
-        }
-      } else {
-        // Create
-        const res = await fetch('/api/admin/style-colors', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        })
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}))
-          throw new Error(err.error || 'Failed to create color')
-        }
+  const createMutation = useMutation({
+    mutationFn: async (data: FormData & { translations?: any }) => {
+      const res = await fetch(getApiUrl('/api/admin/style-colors'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || 'Failed to create color')
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['style-colors'] })
-      toast.success(color ? 'Color updated successfully' : 'Color created successfully')
+      toast.success('Color created successfully')
       // Reset original values to current values to prevent confirmation dialog
       originalValuesRef.current = form.getValues()
       onSuccess()
       onOpenChange(false)
     },
     onError: (error) => {
-      toast.error('Failed to save color: ' + error.message)
+      toast.error('Failed to create color: ' + error.message)
     },
   })
 
-  const onSubmit = (data: FormData) => {
-    mutation.mutate(data)
+  const updateMutation = useMutation({
+    mutationFn: async (data: FormData & { translations?: any }) => {
+      const res = await fetch(getApiUrl('/api/admin/style-colors'), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: color!.id, ...data }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || 'Failed to update color')
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['style-colors'] })
+      toast.success('Color updated successfully')
+      // Reset original values to current values to prevent confirmation dialog
+      originalValuesRef.current = form.getValues()
+      onSuccess()
+      onOpenChange(false)
+    },
+    onError: (error) => {
+      toast.error('Failed to update color: ' + error.message)
+    },
+  })
+
+  const onSubmit = async (data: FormData) => {
+    setIsSaving(true)
+    try {
+      // Process the value field to be URL-friendly
+      const processedData = {
+        ...data,
+        value: processValue(data.value)
+      }
+      
+      const columns = getTranslatableColumns('color')
+      const needsTranslation = shouldTranslateRow(originalValuesRef.current ?? undefined, processedData, columns)
+      let translations = ((color as any)?.translations as Record<string, any>) || {}
+      
+      if (needsTranslation) {
+        try {
+          translations = await translateRow('color', processedData)
+        } catch (err: any) {
+          toast.error('Translation failed: ' + (err?.message || 'Unknown error'))
+          setIsSaving(false)
+          return
+        }
+      }
+
+      if (color) {
+        updateMutation.mutate({ ...processedData, translations })
+      } else {
+        createMutation.mutate({ ...processedData, translations })
+      }
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -232,14 +276,26 @@ export function ColorFormDialog({
                     <FormLabel>Color</FormLabel>
                     <FormControl>
                       <div className="flex items-center gap-3">
-                        <Input 
-                          {...field} 
+                        <Input
                           type="color"
-                          className="w-16 h-10 p-1 border rounded cursor-pointer"
-                        />
-                        <Input 
+                          name={field.name}
                           value={field.value}
-                          onChange={field.onChange}
+                          onChange={(e) => field.onChange(e.target.value)}
+                          onBlur={field.onBlur}
+                          ref={field.ref}
+                          className="!w-[48px] !h-[48px] !p-0 bg-transparent cursor-pointer"
+                        />
+                        <Input
+                          name={field.name}
+                          value={field.value}
+                          onChange={(e) => {
+                            let v = e.target.value.trim()
+                            if (v && v[0] !== '#') v = `#${v}`
+                            if (v.length === 7) v = v.toUpperCase()
+                            field.onChange(v)
+                          }}
+                          onBlur={field.onBlur}
+                          ref={field.ref}
                           placeholder="#000000"
                           className="flex-1"
                         />
@@ -254,8 +310,8 @@ export function ColorFormDialog({
                 <Button variant="outline" onClick={handleClose} type="button">
                   Cancel
                 </Button>
-                <Button type="submit" disabled={mutation.isPending}>
-                  {mutation.isPending ? 'Saving...' : 'Save'}
+                <Button type="submit" disabled={isSaving || createMutation.isPending || updateMutation.isPending}>
+                  {(isSaving || createMutation.isPending || updateMutation.isPending) ? 'Saving...' : 'Save'}
                 </Button>
               </div>
             </form>

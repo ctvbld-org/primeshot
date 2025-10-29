@@ -1,10 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders } from "../_shared/cors.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
 import { getCharacterTrainingCost, getSubscriptionLimits } from "../_shared/pricing.ts";
 
 // S3 Client for cleanup operations
-import { S3Client, DeleteObjectsCommand, ListObjectsV2Command } from "https://esm.sh/@aws-sdk/client-s3@3";
+import { S3Client, DeleteObjectsCommand, ListObjectsV2Command } from "npm:@aws-sdk/client-s3@3";
 
 interface TrainingRequest {
   user_id: string;
@@ -14,6 +14,11 @@ interface TrainingRequest {
     batch_size?: number;
     resize_size?: number;
     rank?: number;
+    gradient_accumulation_steps?: number;
+    learning_rate?: number;
+    optimizer?: 'adamw' | 'adamw8bit';
+    resolution?: number[];
+    model_type?: 'wan2.1-14b' | 'qwen-image';
   };
 }
 
@@ -307,10 +312,26 @@ async function checkTrainingLimits(
 }
 
 serve(async (req) => {
+  // Get dynamic CORS headers based on request origin
+  const dynamicCorsHeaders = getCorsHeaders(req);
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    console.log('🔍 OPTIONS Request - CORS Debug Info:', {
+      origin: req.headers.get('Origin'),
+      dynamicCorsHeaders: dynamicCorsHeaders,
+      method: req.method
+    });
+    return new Response('ok', { headers: dynamicCorsHeaders });
   }
+
+  // Debug CORS configuration for POST requests
+  console.log('🔍 POST Request - CORS Debug Info:', {
+    origin: req.headers.get('Origin'),
+    dynamicCorsHeaders: dynamicCorsHeaders,
+    method: req.method,
+    referer: req.headers.get('Referer')
+  });
 
   const env = Deno.env.get('ENV') ?? 'prod';
 
@@ -330,7 +351,7 @@ serve(async (req) => {
     if (req.method !== 'POST') {
       return new Response(
         JSON.stringify({ error: 'Method not allowed' }),
-        { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 405, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -342,7 +363,7 @@ serve(async (req) => {
     if (!user_id || !character_id) {
       return new Response(
         JSON.stringify({ error: 'Missing required fields: user_id, character_id' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -352,19 +373,19 @@ serve(async (req) => {
       if (authError || !authData?.user) {
         return new Response(
           JSON.stringify({ error: 'Unauthorized' }),
-          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 401, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       if (authData.user.id !== user_id) {
         return new Response(
           JSON.stringify({ error: 'Forbidden' }),
-          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 403, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
         );
       }
     } catch (_e) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -382,21 +403,73 @@ serve(async (req) => {
     }
 
     // Sanitize optional admin-only params
-    console.log('🔧 training_params (raw):', training_params)
-    const approvedParams: Record<string, number> = {}
+    const approvedParams: Record<string, number | string | number[]> = {}
     if (isAdmin && training_params) {
       const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v))
       if (typeof training_params.steps === 'number') {
         approvedParams.steps = clamp(Math.floor(training_params.steps), 100, 10000)
       }
       if (typeof training_params.batch_size === 'number') {
-        approvedParams.batch_size = clamp(Math.floor(training_params.batch_size), 1, 8)
+        approvedParams.batch_size = clamp(Math.floor(training_params.batch_size), 1, 12)
       }
       if (typeof training_params.resize_size === 'number') {
         approvedParams.resize_size = clamp(Math.floor(training_params.resize_size), 512, 2048)
       }
       if (typeof training_params.rank === 'number') {
         approvedParams.rank = clamp(Math.floor(training_params.rank), 1, 256)
+      }
+      if (typeof training_params.gradient_accumulation_steps === 'number') {
+        approvedParams.gradient_accumulation_steps = clamp(Math.floor(training_params.gradient_accumulation_steps), 1, 32)
+      }
+      if (typeof training_params.learning_rate === 'number') {
+        // No floor for floats; clamp range directly
+        const lr = Math.min(0.01, Math.max(0.00001, training_params.learning_rate))
+        approvedParams.learning_rate = lr
+      }
+      if (typeof training_params.optimizer === 'string') {
+        const valid = ['adamw', 'adamw8bit']
+        if (valid.includes(training_params.optimizer)) {
+          approvedParams.optimizer = training_params.optimizer
+        }
+      }
+      if (typeof training_params.model_type === 'string') {
+        const validModels = ['wan2.1-14b', 'wan2.2-14b', 'wan2.2-5b', 'qwen-image']
+        if (validModels.includes(training_params.model_type)) {
+          approvedParams.model_type = training_params.model_type
+        }
+      }
+      // Coerce resolution into number[] if provided as string/number
+      if (training_params.resolution !== undefined) {
+        let resArr: number[] | null = null
+        const raw: unknown = training_params.resolution as unknown
+        try {
+          if (Array.isArray(raw)) {
+            resArr = raw as number[]
+          } else if (typeof raw === 'string') {
+            const s = raw.trim()
+            if (s.startsWith('[')) {
+              const parsed = JSON.parse(s)
+              if (Array.isArray(parsed)) resArr = parsed.map((v: any) => Number(v))
+            } else if (s.length > 0) {
+              resArr = s.split(',').map((v) => Number(v.trim()))
+            }
+          } else if (typeof raw === 'number') {
+            resArr = [raw]
+          }
+        } catch (_e) {
+          resArr = null
+        }
+
+        if (resArr) {
+          // Validate each resolution entry as integer within 512..2048 and divisible by 64
+          const safe = resArr
+            .filter((v) => Number.isFinite(v))
+            .map((v) => Math.floor(v))
+            .filter((v) => v >= 512 && v <= 2048 && v % 64 === 0)
+          if (safe.length > 0) {
+            approvedParams.resolution = safe
+          }
+        }
       }
     }
     console.log('✅ approvedParams:', approvedParams, 'isAdmin:', isAdmin)
@@ -418,7 +491,7 @@ serve(async (req) => {
               current_running_jobs: trainingLimitsCheck.currentRunningJobs
             }
           }),
-          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 403, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       if (trainingLimitsCheck.concurrentLimitReached) {
@@ -460,7 +533,7 @@ serve(async (req) => {
           JSON.stringify({ error: 'Failed to check credit balance' }),
           {
             status: 500,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' },
           }
         );
       }
@@ -477,7 +550,7 @@ serve(async (req) => {
           }),
           {
             status: 402,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' },
           }
         );
       }
@@ -500,7 +573,7 @@ serve(async (req) => {
       console.error(`❌ Character not found:`, { characterError, character });
       return new Response(
         JSON.stringify({ error: 'Character not found or access denied' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 404, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -528,7 +601,7 @@ serve(async (req) => {
           gpu_type: (existingJob as any).gpu_type ?? null,
           message: 'Existing training job found, resuming'
         }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -537,14 +610,14 @@ serve(async (req) => {
       console.log('⚠️ Character status is training but no active job was found - returning 409');
       return new Response(
         JSON.stringify({ error: 'Character is already training' }),
-        { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 409, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
     if (character.status === 'ready') {
       console.log('⚠️ Character already ready');
       return new Response(
         JSON.stringify({ error: 'Character is already ready' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -573,7 +646,7 @@ serve(async (req) => {
           JSON.stringify({ error: 'Failed to spend credits' }),
           {
             status: 500,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' },
           }
         );
       }
@@ -629,7 +702,7 @@ serve(async (req) => {
           code: insertError.code,
           cleanup_performed: true
         }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -653,7 +726,7 @@ serve(async (req) => {
             concurrent_limit: trainingLimitsCheck.concurrentJobs ?? 2,
           }
         }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -685,7 +758,7 @@ serve(async (req) => {
               concurrent_limit: userLimit,
             }
           }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
         );
       }
     } catch (e) {
@@ -702,8 +775,9 @@ serve(async (req) => {
       ...approvedParams
     };
     console.log('📤 Submitting Modal payload keys:', Object.keys(modalPayload));
+    console.log('📤 Submitting Modal payload (full):', modalPayload);
 
-    console.log('🚀 Starting real Modal training job:', modalPayload);
+    console.log('🚀 Starting real Modal training job');
 
     let controller: AbortController | null = null;
     let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -764,7 +838,7 @@ serve(async (req) => {
         }),
         {
           status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' }
         }
       );
 
@@ -801,7 +875,7 @@ serve(async (req) => {
           message: 'Temporary issue submitting to provider. We will retry automatically.',
           retry_after: retryAfter,
         }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     } finally {
       try {
@@ -815,7 +889,7 @@ serve(async (req) => {
     console.error('Training start error:', error);
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 }); 

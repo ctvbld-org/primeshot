@@ -1,11 +1,14 @@
 import { useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { getApiUrl } from '@/lib/api/client'
+import { getApiUrl } from '@primeshot/common'
 import { useAuth } from '@/contexts/auth-context'
 import { createClient } from '@/lib/supabase/client'
 
 export interface SubscriptionInfo {
+  // Canonical key used to join with pricing tiers
   plan_name: string
+  // Human-friendly label for UI
+  plan_display_name?: string
   status: string
   current_period_start: string
   current_period_end: string
@@ -14,6 +17,9 @@ export interface SubscriptionInfo {
   max_quality: string
   character_training_included: number
   character_training_used: number
+  // Limits exposed directly by API for reliability
+  max_characters?: number
+  concurrent_jobs?: number
 }
 
 export function useCurrentSubscription() {

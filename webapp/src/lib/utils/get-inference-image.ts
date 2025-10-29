@@ -142,7 +142,30 @@ export default getInferenceImage;
  */
 export function getInferenceImageUrl(imagePath: string, useWebVariant: boolean = true): string {
   const cleanPath = imagePath.replace(/^s3:\/\/[^\/]+\//, '');
-  return `/api/app-images?path=${encodeURIComponent(cleanPath)}`;
+  
+  // Use dynamic import to avoid circular dependencies
+  // Handle both basePath (/create) and language prefixes
+  const getApiUrl = (typeof window !== 'undefined') ? (() => {
+    const currentPath = window.location.pathname;
+    
+    // Check for language prefixes first
+    const langPrefixMatch = currentPath.match(/^\/(\w{2})\//);
+    if (langPrefixMatch) {
+      // Language prefix detected - construct absolute URL to bypass language routing
+      const origin = window.location.origin;
+      const basePath = process.env.NEXT_PUBLIC_BASE_PATH === '/' ? '' : process.env.NEXT_PUBLIC_BASE_PATH;
+      return (path: string) => `${origin}${basePath || ''}${path}`;
+    }
+    
+    // Check for /create basePath (no language prefix)
+    if (currentPath.startsWith('/create')) {
+      return (path: string) => `/create${path}`;
+    }
+    
+    return (path: string) => path;
+  })() : (path: string) => path;
+  
+  return getApiUrl(`/api/app-images?path=${encodeURIComponent(cleanPath)}`);
 }
 
 /** Extract the base filename from an S3 path */

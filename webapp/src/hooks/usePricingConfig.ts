@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getApiUrl } from '@/lib/api/client'
+import { getApiUrl } from '@primeshot/common'
 
 export interface SubscriptionTier {
   id: number
@@ -16,6 +16,8 @@ export interface SubscriptionTier {
   max_characters: number
   features: string[]
   popular: boolean
+  disabled?: boolean
+  image_url?: string
   created_at: string
   updated_at: string
 }
@@ -26,6 +28,7 @@ export interface CreditPack {
   credits: number
   price: number
   validity_days: number
+  image_url?: string
   created_at: string
   updated_at: string
 }

@@ -1,0 +1,65 @@
+{
+    "dialog": {
+        "title": "Compte",
+        "selectSection": "Sélectionner une section"
+    },
+    "navigation": {
+        "profile": "Profil",
+        "subscription": "Abonnement",
+        "settings": "Paramètres",
+        "support": "Assistance"
+    },
+    "buttons": {
+        "cancel": "Annuler",
+        "save": "Enregistrer",
+        "saving": "Enregistrement…",
+        "signOut": "Se déconnecter",
+        "subscribe": "S'abonner",
+        "opening": "Ouverture…",
+        "manage": "Gérer",
+        "renew": "Renouveler",
+        "buyCredits": "Acheter des crédits",
+        "deleteAccount": "Supprimer le compte (bientôt disponible)"
+    },
+    "profile": {
+        "title": "Profil",
+        "firstName": "Prénom",
+        "lastName": "Nom de famille",
+        "email": "E-mail"
+    },
+    "subscription": {
+        "title": "Abonnement",
+        "loading": "Chargement...",
+        "noPlan": "Aucun forfait",
+        "planSuffix": "",
+        "cancelled": "Annulé",
+        "expires": "Expire le {{date}}",
+        "renews": "Se renouvelle le {{date}}",
+        "creditBalance": "Solde de crédits",
+        "resets": "Remise à zéro le {{date}}"
+    },
+    "settings": {
+        "title": "Paramètres",
+        "language": "Langue",
+        "deleteAccount": {
+            "title": "Supprimer le compte ?",
+            "description": "Cette action effacera toutes vos données, paramètres et historique. Cette action ne peut pas être annulée."
+        }
+    },
+    "support": {
+        "title": "Nous sommes là pour vous aider",
+        "description": "Des questions ou besoin d'assistance ? Nous sommes prêts à vous accompagner à chaque étape. Nous répondons généralement sous 24 heures.",
+        "faq": "FAQ",
+        "faqDescription": "Consultez notre {{helpCenter}} pour des réponses rapides aux questions courantes.",
+        "helpCenter": "Centre d'aide",
+        "dmUs": "NOUS ÉCRIRE",
+        "emailUs": "Nous contacter par e-mail"
+    },
+    "errors": {
+        "failedToSave": "Échec de l'enregistrement des modifications"
+    },
+    "accessibility": {
+        "avatar": "avatar",
+        "plan": "forfait"
+    }
+}

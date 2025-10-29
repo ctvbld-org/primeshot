@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
       await s3Client.send(cmd)
     }
 
-    // If requested, process server-side WebP variants using sharp
+    // If requested, process server-side image variants using sharp
     if (processVariants) {
       const bytes = await file.arrayBuffer()
       const inputBuffer = Buffer.from(bytes)
@@ -97,16 +97,28 @@ export async function POST(request: NextRequest) {
       } catch {
         // ignore, fall back to defaults
       }
+      // For Stripe product images, output a single PNG (no variants)
+      if (uploadPath.includes('website-images/stripes')) {
+        const baseFileName = `${baseName || 'img'}-${nextNumRaw || '1'}.png`
+        const pngBuffer = await sharp(inputBuffer)
+          .rotate()
+          .resize({ width: 1024, withoutEnlargement: true, fit: 'inside', kernel: sharp.kernel.lanczos3 })
+          .png()
+          .toBuffer()
+        await putToS3(`${uploadPath}/${baseFileName}`, pngBuffer, 'image/png')
+        console.log('Uploaded Stripe PNG image to S3 at', `${uploadPath}/${baseFileName}`)
+        return NextResponse.json({ fileName: baseFileName })
+      }
+
+      // Default: WebP variants workflow
       if (!Array.isArray(variantWidths) || variantWidths.length === 0) {
         variantWidths = [320, 640, 960, 1280, 1920, 2560]
       }
       const maxWidth = Math.max(...variantWidths)
       const baseFileName = `${baseName || 'img'}-${nextNumRaw || '1'}.webp`
 
-      // Function to build a resized webp buffer with high-quality settings
       async function buildWebp(width: number, quality: number) {
         return await sharp(inputBuffer)
-          // Auto-rotate based on EXIF so phone photos display correctly
           .rotate()
           .resize({ width, height: width, fit: 'inside', withoutEnlargement: true, kernel: sharp.kernel.lanczos3 })
           .sharpen()
@@ -114,11 +126,9 @@ export async function POST(request: NextRequest) {
           .toBuffer()
       }
 
-      // Upload base (max width) without suffix
       const baseBuffer = await buildWebp(maxWidth, maxWidth >= 1280 ? 92 : 90)
       await putToS3(`${uploadPath}/${baseFileName}`, baseBuffer, 'image/webp')
 
-      // Upload smaller variants with -w{w}
       const smaller = variantWidths.filter((w) => w < maxWidth).sort((a, b) => a - b)
       for (const w of smaller) {
         const q = w >= 1280 ? 92 : 88

@@ -1,0 +1,173 @@
+{
+    "common": {
+        "effectiveDate": "Data di entrata in vigore: {{date}}",
+        "endMarker": "/fine",
+        "contact": "Contatto:",
+        "email": "team@primeshot.ai"
+    },
+    "terms": {
+        "title": "Termini e condizioni",
+        "intro": "Utilizzando il nostro servizio, accetti questi termini e condizioni. Per favore leggili attentamente.",
+        "sections": {
+            "definitions": {
+                "title": "1. Definizioni",
+                "items": {
+                    "service": "Primeshot / Servizio: La piattaforma alimentata dall'IA che genera ritratti da selfie caricati dall'utente.",
+                    "user": "Utente / Tu: Chiunque acceda o utilizzi Primeshot.",
+                    "userContent": "Contenuto utente: Qualsiasi immagine, selfie o altro contenuto che carichi su Primeshot.",
+                    "aiGenerated": "Contenuto generato dall'IA / Ritratti: Immagini prodotte dai modelli IA di Primeshot basate sul tuo contenuto utente.",
+                    "credits": "Crediti: Unità utilizzate per pagare l'allenamento di modelli IA o la generazione di immagini."
+                }
+            },
+            "eligibility": {
+                "title": "2. Idoneità",
+                "content": "Devi avere almeno 16 anni per utilizzare Primeshot. Utilizzando il servizio, confermi di soddisfare questo requisito di età."
+            },
+            "userAccounts": {
+                "title": "3. Account utente",
+                "items": [
+                    "Devi creare un account per utilizzare Primeshot.",
+                    "Sei responsabile di mantenere sicure le tue credenziali di accesso e per tutta l'attività sotto il tuo account.",
+                    "Notificaci immediatamente qualsiasi accesso non autorizzato."
+                ]
+            },
+            "payments": {
+                "title": "4. Pagamenti e abbonamenti",
+                "content": "Tutti i pagamenti vengono elaborati online tramite fornitori di pagamento sicuri. Le tariffe di abbonamento vengono addebitate in anticipo; i crediti scadono secondo i termini del piano e non vengono trasferiti. I pagamenti falliti possono comportare la sospensione fino alla risoluzione.",
+                "refundsTitle": "4.1 Rimborsi",
+                "refunds": "Nessun rimborso per crediti inutilizzati o modifiche a metà ciclo, eccetto per fallimenti tecnici nella generazione di immagini.",
+                "priceChangesTitle": "4.2 Modifiche dei prezzi",
+                "priceChanges": "Primeshot può modificare le tariffe o i prezzi dei crediti in qualsiasi momento; gli abbonamenti esistenti non sono interessati fino al rinnovo."
+            },
+            "ownership": {
+                "title": "5. Contenuto utente e proprietà",
+                "content": "Mantieni tutti i diritti di proprietà sulle tue immagini caricate e ritratti generati dall'IA. Concedi a Primeshot una licenza limitata, non esclusiva e royalty-free per utilizzare il tuo contenuto utente esclusivamente per fornire il servizio. Sei l'unico responsabile del contenuto che carichi e di qualsiasi conseguenza derivante."
+            },
+            "prohibitedContent": {
+                "title": "6. Contenuto proibito",
+                "intro": "Non puoi caricare contenuto che:",
+                "items": [
+                    "È illegale, abusivo, molesto, diffamatorio o minaccioso",
+                    "Contiene nudità, materiale sessualmente esplicito o pornografico",
+                    "Promuove discorsi di odio, violenza o discriminazione",
+                    "Viola la proprietà intellettuale o i diritti di terzi",
+                    "Contiene malware o codice dannoso"
+                ],
+                "note": "Primeshot può rimuovere qualsiasi contenuto che violi queste regole senza preavviso."
+            },
+            "aiGenerated": {
+                "title": "7. Contenuto generato dall'IA",
+                "content": "I ritratti IA vengono generati basandosi sul tuo contenuto utente. Mentre miriamo a risultati di alta qualità, Primeshot non garantisce l'accuratezza della somiglianza o la fedeltà dello stile. Accetti che gli output dell'IA possano variare, includere imperfezioni o riflettere pregiudizi inerenti nei modelli IA. Primeshot non è responsabile per qualsiasi uso personale, professionale o commerciale dei risultati del contenuto generato dall'IA."
+            },
+            "privacy": {
+                "title": "8. Privacy e gestione dei dati",
+                "content": "Le immagini caricate e i modelli generati dall'IA sono privati e non vengono condivisi o venduti. I dati vengono archiviati in modo sicuro e cancellati dopo 60 giorni dalla chiusura dell'account, a meno che la legge non richieda di mantenerli più a lungo. Utilizzando il servizio, acconsenti alla nostra politica sulla privacy riguardo la raccolta e l'elaborazione dei dati."
+            },
+            "ip": {
+                "title": "9. Proprietà intellettuale",
+                "content": "Primeshot mantiene la proprietà di tutti i modelli IA, software e tecnologia utilizzati per fornire il servizio. Non puoi fare reverse engineering, copiare o riprodurre alcuna tecnologia Primeshot."
+            },
+            "liability": {
+                "title": "10. Limitazione di responsabilità",
+                "content": "Nella massima misura consentita dalla legge, Primeshot e i suoi affiliati non sono responsabili per qualsiasi danno indiretto, incidentale o consequenziale derivante dall'uso del servizio, errori, inesattezze o imperfezioni nel contenuto generato dall'IA, o perdita di dati, profitti o opportunità commerciali."
+            },
+            "indemnity": {
+                "title": "11. Indennizzo",
+                "content": "Accetti di indennizzare, difendere e tenere indenne Primeshot e i suoi funzionari, direttori, dipendenti e agenti da qualsiasi reclamo, responsabilità, danno o spesa derivante dal tuo uso del servizio, dal tuo contenuto utente o dalla violazione di questi termini."
+            },
+            "termination": {
+                "title": "12. Risoluzione",
+                "content": "Primeshot può sospendere o terminare account per violazioni di questi termini. Gli utenti possono terminare il loro account in qualsiasi momento; i dati vengono cancellati dopo 60 giorni. La risoluzione non ti libera da alcun obbligo di pagamento sostenuto in precedenza."
+            },
+            "law": {
+                "title": "13. Legge applicabile e risoluzione delle controversie",
+                "content": "Questi termini sono regolati dalla legge del Regno Unito. Qualsiasi controversia sarà risolta sotto la giurisdizione del Regno Unito. Le parti accettano di tentare una risoluzione informale prima di intraprendere azioni legali."
+            },
+            "changes": {
+                "title": "14. Modifiche ai termini",
+                "content": "Primeshot può aggiornare questi termini in qualsiasi momento. L'uso continuato del servizio costituisce accettazione dei termini aggiornati."
+            },
+            "misc": {
+                "title": "15. Varie",
+                "items": {
+                    "severability": "Separabilità: Se qualsiasi parte di questi termini viene ritenuta non valida, il resto rimane in vigore.",
+                    "entireAgreement": "Accordo completo: Questi termini, insieme alla politica sulla privacy, costituiscono l'accordo completo tra te e Primeshot.",
+                    "contact": "Contatto:"
+                }
+            }
+        }
+    },
+    "privacy": {
+        "title": "Politica sulla privacy",
+        "intro": "In Primeshot, la tua privacy è importante per noi. Questa politica sulla privacy spiega come raccogliamo, utilizziamo, archiviamo e proteggiamo i tuoi dati personali quando utilizzi il nostro servizio. Utilizzando Primeshot, acconsenti alle pratiche descritte qui.",
+        "sections": {
+            "collect": {
+                "title": "1. Informazioni che raccogliamo",
+                "items": {
+                    "account": "Informazioni account: Nome, indirizzo email e dettagli di accesso social se ti registri tramite Google o servizi simili.",
+                    "userContent": "Contenuto utente: Selfie e ritratti generati dall'IA.",
+                    "device": "Dati dispositivo e utilizzo: Tipo di browser, tipo di dispositivo, indirizzo IP e statistiche di utilizzo dell'app."
+                },
+                "note": "Nota: Non raccogliamo né archiviamo informazioni di pagamento. I pagamenti sono gestiti in modo sicuro da Stripe."
+            },
+            "use": {
+                "title": "2. Come utilizziamo le tue informazioni",
+                "intro": "Utilizziamo le informazioni che fornisci esclusivamente per:",
+                "items": [
+                    "Fornire e migliorare il nostro servizio di ritratti IA.",
+                    "Gestire il tuo account e le preferenze.",
+                    "Monitorare le prestazioni tecniche e risolvere i problemi.",
+                    "Facilitare la funzionalità di accesso social."
+                ],
+                "note": "Non utilizziamo i tuoi dati per scopi di marketing né li condividiamo con terzi per pubblicità."
+            },
+            "thirdParty": {
+                "title": "3. Servizi di terzi",
+                "items": {
+                    "aws": "AWS: Per l'archiviazione e l'elaborazione sicura dei tuoi selfie caricati e ritratti generati dall'IA.",
+                    "stripe": "Stripe: Per pagamenti di abbonamento sicuri e acquisti di crediti."
+                },
+                "note": "Ci assicuriamo che i fornitori di terzi rispettino i requisiti di privacy e sicurezza."
+            },
+            "cookies": {
+                "title": "4. Cookie e tracciamento",
+                "content": "Utilizziamo i cookie solo per la funzionalità di accesso social. Non vengono utilizzati cookie di tracciamento o pubblicitari."
+            },
+            "retention": {
+                "title": "5. Conservazione dei dati",
+                "content": "I selfie caricati e i ritratti generati dall'IA vengono archiviati mentre il tuo account è attivo. Dopo la cancellazione dell'account, i dati vengono conservati per 60 giorni per scopi di recupero e 30 giorni aggiuntivi nei backup. Dopo questo periodo, tutti i dati vengono cancellati permanentemente."
+            },
+            "security": {
+                "title": "6. Sicurezza dei dati",
+                "intro": "Implementiamo misure tecniche e organizzative appropriate per proteggere i tuoi dati contro accesso non autorizzato, perdita o uso improprio, incluso:",
+                "items": [
+                    "Archiviazione crittografata dei file su AWS.",
+                    "Trasmissione sicura dei dati utilizzando HTTPS.",
+                    "Accesso limitato al personale autorizzato."
+                ]
+            },
+            "rights": {
+                "title": "7. I tuoi diritti",
+                "intro": "Sotto le leggi sulla protezione dei dati del Regno Unito e dell'UE, hai il diritto di:",
+                "items": [
+                    "Accedere ai dati personali che abbiamo su di te.",
+                    "Richiedere la correzione o cancellazione dei tuoi dati personali.",
+                    "Opporti o limitare certo trattamento dei tuoi dati."
+                ],
+                "contact": "Per esercitare qualsiasi di questi diritti, contattaci a {{email}}."
+            },
+            "children": {
+                "title": "8. Bambini",
+                "content": "Primeshot non è destinato a persone sotto i 16 anni. Non raccogliamo consapevolmente dati da bambini."
+            },
+            "changes": {
+                "title": "9. Modifiche a questa politica sulla privacy",
+                "content": "Potremmo aggiornare questa politica sulla privacy di tanto in tanto. L'uso continuato del servizio costituisce accettazione di qualsiasi aggiornamento."
+            },
+            "contact": {
+                "title": "10. Contattaci",
+                "content": "Per domande o preoccupazioni riguardo la tua privacy o questa politica, contattaci a: {{email}}."
+            }
+        }
+    }
+}

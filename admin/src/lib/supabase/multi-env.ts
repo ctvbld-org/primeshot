@@ -40,7 +40,7 @@ export function createMultiEnvClient(env: Environment) {
 }
 
 export function getCurrentEnvironment(): Environment {
-  const vercelEnv = process.env.VERCEL_TARGET_ENV
+  const vercelEnv = process.env.NEXT_PUBLIC_VERCEL_TARGET_ENV
   
   if (vercelEnv === 'staging') return 'staging'
   if (vercelEnv === 'production') return 'production'

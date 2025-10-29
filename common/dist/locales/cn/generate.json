@@ -1,0 +1,47 @@
+{
+    "buttons": {
+        "generate": "生成",
+        "create": "创建",
+        "done": "完成",
+        "cancel": "取消",
+        "confirm": "确认"
+    },
+    "labels": {
+        "woman": "女性",
+        "man": "男性",
+        "scene": "场景",
+        "wardrobe": "服装",
+        "creditsSuffix": "积分",
+        "requiresActiveSubscription": "需要有效订阅",
+        "calculating": "计算中"
+    },
+    "aria": {
+        "selectStyle": "选择风格",
+        "selectScene": "选择场景",
+        "selectWardrobe": "选择服装",
+        "selectCharacter": "选择角色",
+        "openSettings": "打开设置",
+        "trainingProgress": "训练进度",
+        "characterActions": "角色操作",
+        "closeOverlay": "关闭覆盖层",
+        "carouselNavigation": "轮播导航",
+        "previous": "上一个",
+        "next": "下一个",
+        "search": "搜索{{title}}"
+    },
+    "placeholders": {
+        "find": "查找{{title}}"
+    },
+    "admin": {
+        "title": "管理员推理覆盖",
+        "enableNodeOverrides": "启用节点覆盖（按节点标题的JSON）",
+        "overridesJson": "覆盖JSON",
+        "enablePromptOverride": "启用提示覆盖",
+        "prompt": "提示",
+        "characterMetadata": "角色元数据（只读）"
+    },
+    "errors": {
+        "failedToStartGeneration": "启动生成失败。请重试。",
+        "selectCharacterToGenerate": "选择角色以生成"
+    }
+}

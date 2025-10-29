@@ -41,6 +41,8 @@ import { getSceneOptionImage } from '@/lib/get-options-image'
 import { toast } from 'sonner'
 import type { Database } from '@/types/supabase'
 import { getTranslatableColumns, shouldTranslateRow, translateRow } from '@/lib/translation'
+import { getApiUrl } from '@/lib/api'
+import { processValue } from '@/lib/utils'
 
 type Scene = Database['public']['Tables']['style_scenes']['Row']
 
@@ -49,6 +51,7 @@ const formSchema = z.object({
   value: z.string().min(1, 'Value is required'),
   image: z.string().optional(),
   prompt: z.string().optional(),
+  atmosphere: z.string().optional(),
 })
 
 type FormData = z.infer<typeof formSchema>
@@ -79,6 +82,7 @@ export function SceneFormDialog({
       value: '',
       image: '',
       prompt: '',
+      atmosphere: '',
     },
   })
 
@@ -90,6 +94,7 @@ export function SceneFormDialog({
         value: scene.value || '',
         image: scene.image || '',
         prompt: ((scene as any).prompt ?? '') as string,
+        atmosphere: ((scene as any).atmosphere ?? '') as string,
       }
       form.reset(values)
       originalValues.current = values
@@ -99,6 +104,7 @@ export function SceneFormDialog({
         value: '',
         image: '',
         prompt: '',
+        atmosphere: '',
       }
       form.reset(values)
       originalValues.current = values
@@ -113,7 +119,8 @@ export function SceneFormDialog({
       currentValues.label !== originalValues.current.label ||
       currentValues.value !== originalValues.current.value ||
       currentValues.image !== originalValues.current.image ||
-      (currentValues.prompt ?? '') !== (originalValues.current as any).prompt
+      (currentValues.prompt ?? '') !== (originalValues.current as any).prompt ||
+      (currentValues.atmosphere ?? '') !== (originalValues.current as any).atmosphere
     )
   }
 
@@ -139,7 +146,7 @@ export function SceneFormDialog({
 
   const createMutation = useMutation({
     mutationFn: async (data: FormData & { translations?: any }) => {
-      const res = await fetch('/api/admin/style-scenes', {
+      const res = await fetch(getApiUrl('/api/admin/style-scenes'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -167,7 +174,7 @@ export function SceneFormDialog({
   const updateMutation = useMutation({
     mutationFn: async (data: FormData & { translations?: any }) => {
       if (!scene) throw new Error('No scene to update')
-      const res = await fetch('/api/admin/style-scenes', {
+      const res = await fetch(getApiUrl('/api/admin/style-scenes'), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: scene.id, ...data }),
@@ -201,12 +208,22 @@ export function SceneFormDialog({
     try {
       // perform deferred uploads if any
       for (const up of uploaders.current) { await up() }
+      
+      // Get fresh form data after uploads complete (includes uploaded image URLs)
+      const freshData = form.getValues()
+      
+      // Process the value field to be URL-friendly
+      const processedData = {
+        ...freshData,
+        value: processValue(freshData.value)
+      }
+      
       const columns = getTranslatableColumns('scene')
-      const needsTranslation = shouldTranslateRow(originalValues.current ?? undefined, data as any, columns)
+      const needsTranslation = shouldTranslateRow(originalValues.current ?? undefined, processedData as any, columns)
       let translations = ((scene as any)?.translations as Record<string, any>) || {}
       if (needsTranslation) {
         try {
-          translations = await translateRow('scene', data as any)
+          translations = await translateRow('scene', processedData as any)
         } catch (err: any) {
           toast.error('Translation failed: ' + (err?.message || 'Unknown error'))
           setIsSaving(false)
@@ -215,9 +232,9 @@ export function SceneFormDialog({
       }
 
       if (scene) {
-        updateMutation.mutate({ ...(data as any), translations })
+        updateMutation.mutate({ ...(processedData as any), translations })
       } else {
-        createMutation.mutate({ ...(data as any), translations })
+        createMutation.mutate({ ...(processedData as any), translations })
       }
     } finally {
       setIsSaving(false)
@@ -292,6 +309,27 @@ export function SceneFormDialog({
                     </FormControl>
                     <FormDescription>
                       Optional. Internal text prompt for this scene option.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="atmosphere"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Atmosphere</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Optional atmosphere description (e.g., 'warm golden hour', 'moody cinematic')"
+                        rows={3}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Optional. Atmosphere description that can be used in style prompts via [atmosphere] placeholder.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

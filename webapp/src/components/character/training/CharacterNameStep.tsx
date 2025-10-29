@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Input } from '@primeshot/common/web/ui/input'
 import { Label } from '@primeshot/common/web/ui/label'
 import { Button } from '@primeshot/common/web/ui/button'
-import styles from './ThumbnailStyles.module.css'
+import styles from '../CharacterTrainingDialog.module.css'
 
 interface CharacterNameStepProps {
   thumbnail: File | null
@@ -33,7 +33,7 @@ export function CharacterNameStep({
   totalTrainings,
   usedTrainings
 }: CharacterNameStepProps) {
-  const { t } = useTranslation('upload')
+  const { t } = useTranslation(['character', 'styles'])
   const [thumbnailUrl, setThumbnailUrl] = useState<string>('')
 
   useEffect(() => {
@@ -52,11 +52,11 @@ export function CharacterNameStep({
           {thumbnailUrl ? (
             <img 
               src={thumbnailUrl} 
-              alt="Face Model Preview" 
+              alt={t('nameStep.altPreview')}
               className={styles.thumbnailImage}
             />
           ) : (
-            <div className={styles.thumbnailPlaceholder}>No preview</div>
+            <div className={styles.thumbnailPlaceholder}>{t('nameStep.noPreview')}</div>
           )}
         </div>
         {/* Cyan glow effect */}
@@ -68,7 +68,7 @@ export function CharacterNameStep({
         <Input
           id="characterName"
           type="text"
-          placeholder={t('character.nameLabel')}
+          placeholder={t('nameLabel')}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className="bg-background/50 border-border text-foreground placeholder:text-muted-foreground"
@@ -81,17 +81,24 @@ export function CharacterNameStep({
           variant="primary"
           className="w-full"
         >
-          Create
+          {t('nameStep.create')}
         </Button>
       </div>
 
       {/* Credit Information */}
       <div className="text-center space-y-1">
         <p className="text-sm text-[#44E3C9]">
-          {needsCredits 
-            ? t('character.creditsRequired', { credits })
-            : `Included in plan (${usedTrainings !== undefined ? usedTrainings + 1 : 1} of ${totalTrainings || 1})`
-          }
+          {(() => {
+            // Align with tile logic in GenerateBar: show remaining included trainings
+            if (needsCredits) {
+              return t('labels.credits', { ns: 'styles', count: credits })
+            }
+            const remaining =
+              typeof remainingTrainings === 'number'
+                ? Math.max(0, remainingTrainings)
+                : Math.max(0, (totalTrainings ?? 0) - (usedTrainings ?? 0))
+            return t('labels.includedInPlan', { ns: 'styles', count: remaining })
+          })()}
         </p>
       </div>
     </div>

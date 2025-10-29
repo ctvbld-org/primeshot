@@ -1,8 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { headers } from 'next/headers';
 import Stripe from 'stripe';
 import { type SupabaseClient } from '@supabase/supabase-js';
 import { createServiceClient } from '@/lib/supabase/server';
+import { createSecuredHandler, SECURITY_CONFIGS } from '@/lib/security-middleware';
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
@@ -18,7 +19,16 @@ function devLog(...args: any[]) {
   }
 }
 
-export async function POST(request: Request) {
+// Secured webhook handler with rate limiting for external services
+const securedPOST = createSecuredHandler(
+  async (req: any) => {
+    return await handleWebhookRequest(req);
+  },
+  SECURITY_CONFIGS.WEBHOOK
+);
+
+// Extract webhook logic into a separate function
+async function handleWebhookRequest(request: NextRequest): Promise<NextResponse> {
   try {
     // Ensure webhook secret is configured
     if (!webhookSecret) {
@@ -104,6 +114,13 @@ export async function POST(request: Request) {
           break;
         }
 
+        case 'checkout.session.completed': {
+          const session = event.data.object as Stripe.Checkout.Session;
+          await handleCheckoutSessionCompleted(session, supabase);
+          devLog(`Processed checkout.session.completed: ${session.id}`);
+          break;
+        }
+
         case 'product.updated':
         case 'price.updated': {
           // Clear cache when Stripe data changes
@@ -147,6 +164,10 @@ export async function POST(request: Request) {
   }
 }
 
+export async function POST(request: NextRequest) {
+  return await securedPOST(request);
+}
+
 // Configure POST route to not verify the request body
 // This is important because we need the raw body to verify the webhook signature
 export const config = {
@@ -156,6 +177,74 @@ export const config = {
 };
 
 
+
+/**
+ * Ensure a user exists in public.users table
+ * This is a defensive measure in case the signup trigger failed
+ */
+async function ensureUserExists(
+  userId: string,
+  supabase: SupabaseClient
+): Promise<boolean> {
+  try {
+    // Check if user exists in public.users
+    const { data: existingUser, error: checkError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('id', userId)
+      .single();
+
+    if (existingUser) {
+      return true; // User already exists
+    }
+
+    // User doesn't exist - fetch from auth.users and create
+    console.warn(`User ${userId} missing from public.users - attempting to create`);
+    
+    const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(userId);
+    
+    if (authError || !authUser) {
+      console.error(`Failed to fetch auth user ${userId}:`, authError);
+      return false;
+    }
+
+    // Extract metadata same way as handle_new_user trigger
+    const fullName = authUser.user.user_metadata?.full_name
+      || authUser.user.user_metadata?.name
+      || (authUser.user.user_metadata?.given_name && authUser.user.user_metadata?.family_name
+        ? `${authUser.user.user_metadata.given_name} ${authUser.user.user_metadata.family_name}`.trim()
+        : null)
+      || authUser.user.user_metadata?.user_name
+      || null;
+
+    const avatarUrl = authUser.user.user_metadata?.avatar_url
+      || authUser.user.user_metadata?.picture
+      || null;
+
+    // Insert into public.users
+    const { error: insertError } = await supabase
+      .from('users')
+      .insert({
+        id: userId,
+        email: authUser.user.email || '',
+        full_name: fullName,
+        avatar_url: avatarUrl,
+        created_at: authUser.user.created_at,
+        updated_at: new Date().toISOString()
+      });
+
+    if (insertError) {
+      console.error(`Failed to create user ${userId} in public.users:`, insertError);
+      return false;
+    }
+
+    console.log(`Successfully created missing user ${userId} in public.users`);
+    return true;
+  } catch (error) {
+    console.error(`Error ensuring user exists for ${userId}:`, error);
+    return false;
+  }
+}
 
 /**
  * Ensures subscription record exists by creating or updating it
@@ -170,7 +259,7 @@ async function ensureSubscriptionRecord(
     // First, try to find existing subscription record
     const { data: existingSubscription } = await supabase
       .from('user_subscriptions')
-      .select('user_id, stripe_price_id, plan_name')
+      .select('user_id, stripe_price_id, plan_name, cancel_at_period_end, current_period_start, current_period_end')
       .eq('stripe_subscription_id', subscriptionId)
       .single();
 
@@ -187,37 +276,44 @@ async function ensureSubscriptionRecord(
       const product = firstItem?.price?.product as Stripe.Product;
       const latestPlanName = product?.metadata?.plan_name || '';
 
-      // Update if price ID or plan name has changed
-      if (latestPriceId !== existingSubscription.stripe_price_id || latestPlanName !== existingSubscription.plan_name) {
+      // Check if subscription details have changed (price, plan, or cancellation status)
+      const cancelAtPeriodEndChanged = subscription.cancel_at_period_end !== (existingSubscription as any).cancel_at_period_end;
+
+      // Update if price ID, plan name, or cancellation status has changed
+      if (latestPriceId !== existingSubscription.stripe_price_id || 
+          latestPlanName !== existingSubscription.plan_name ||
+          cancelAtPeriodEndChanged) {
         const isUpgrade = latestPlanName !== existingSubscription.plan_name;
         devLog(`Updating subscription record: ${subscriptionId} from ${existingSubscription.plan_name} to ${latestPlanName}`);
         
         // Use type-safe access to subscription period properties
-        const subscriptionWithPeriods = subscription as Stripe.Subscription & {
-          current_period_start?: number;
-          current_period_end?: number;
-        };
-
-        const currentPeriodStart = subscriptionWithPeriods.current_period_start 
-          ? new Date(subscriptionWithPeriods.current_period_start * 1000).toISOString() 
+        const currentPeriodStart = (subscription as any).current_period_start 
+          ? new Date((subscription as any).current_period_start * 1000).toISOString() 
           : null;
 
-        const currentPeriodEnd = subscriptionWithPeriods.current_period_end 
-          ? new Date(subscriptionWithPeriods.current_period_end * 1000).toISOString() 
+        const currentPeriodEnd = (subscription as any).current_period_end 
+          ? new Date((subscription as any).current_period_end * 1000).toISOString() 
           : null;
+
+
+        // Preserve existing period dates if new ones are null (common during cancellation)
+        const preservedPeriodStart = currentPeriodStart || (existingSubscription as any).current_period_start;
+        const preservedPeriodEnd = currentPeriodEnd || (existingSubscription as any).current_period_end;
 
         // Update subscription record with new details
-        const { error: updateError } = await supabase.rpc('upsert_subscription', {
+        const rpcParams = {
           p_user_id: existingSubscription.user_id,
           p_stripe_subscription_id: subscription.id,
           p_stripe_customer_id: customerId,
           p_stripe_price_id: latestPriceId,
           p_plan_name: latestPlanName,
           p_status: subscription.status,
-          p_current_period_start: currentPeriodStart,
-          p_current_period_end: currentPeriodEnd,
-          p_cancel_at_period_end: subscription.cancel_at_period_end || false
-        });
+          p_current_period_start: preservedPeriodStart,
+          p_current_period_end: preservedPeriodEnd,
+          p_cancel_at_period_end: Boolean(subscription.cancel_at_period_end)
+        };
+        
+        const { error: updateError } = await supabase.rpc('upsert_subscription', rpcParams);
 
         if (updateError) {
           console.error('Error updating subscription record:', updateError.message);
@@ -250,6 +346,14 @@ async function ensureSubscriptionRecord(
       return null;
     }
 
+    // CRITICAL: Ensure user exists in public.users before creating subscription
+    // This prevents foreign key constraint violations if the signup trigger failed
+    const userExists = await ensureUserExists(userId, supabase);
+    if (!userExists) {
+      console.error(`Failed to ensure user ${userId} exists in public.users - cannot create subscription`);
+      return null;
+    }
+
     // Get subscription details from Stripe
     const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
       expand: ['items.data.price.product']
@@ -267,17 +371,12 @@ async function ensureSubscriptionRecord(
     const planName = product?.metadata?.plan_name || '';
 
     // Use type-safe access to subscription period properties
-    const subscriptionWithPeriods = subscription as Stripe.Subscription & {
-      current_period_start?: number;
-      current_period_end?: number;
-    };
-
-    const currentPeriodStart = subscriptionWithPeriods.current_period_start 
-      ? new Date(subscriptionWithPeriods.current_period_start * 1000).toISOString() 
+    const currentPeriodStart = (subscription as any).current_period_start 
+      ? new Date((subscription as any).current_period_start * 1000).toISOString() 
       : null;
 
-    const currentPeriodEnd = subscriptionWithPeriods.current_period_end 
-      ? new Date(subscriptionWithPeriods.current_period_end * 1000).toISOString() 
+    const currentPeriodEnd = (subscription as any).current_period_end 
+      ? new Date((subscription as any).current_period_end * 1000).toISOString() 
       : null;
 
     // Create subscription record using atomic RPC function
@@ -290,7 +389,7 @@ async function ensureSubscriptionRecord(
       p_status: subscription.status,
       p_current_period_start: currentPeriodStart,
       p_current_period_end: currentPeriodEnd,
-      p_cancel_at_period_end: subscription.cancel_at_period_end || false
+      p_cancel_at_period_end: Boolean(subscription.cancel_at_period_end)
     });
 
     if (error) {
@@ -613,7 +712,80 @@ async function handleSubscriptionDeleted(
 }
 
 /**
+ * Handle checkout session completed (for 100% coupon credit packs ONLY)
+ * This fires for ALL checkout completions, but we only process 100% coupon purchases here.
+ * Regular paid purchases are handled by payment_intent.succeeded to avoid race conditions.
+ */
+async function handleCheckoutSessionCompleted(
+  session: Stripe.Checkout.Session,
+  supabase: SupabaseClient
+) {
+  // Only process credit pack purchases (mode: 'payment')
+  if (session.mode !== 'payment' || session.metadata?.pack_type !== 'credit_pack') {
+    devLog(`Skipping checkout session ${session.id} - not a credit pack purchase`);
+    return;
+  }
+
+  // Skip if payment_intent exists - let payment_intent.succeeded handle regular payments
+  // This event should ONLY process 100% coupon purchases (no payment_intent)
+  if (session.payment_intent) {
+    devLog(`Skipping checkout session ${session.id} - has payment_intent, will be handled by payment_intent.succeeded`);
+    return;
+  }
+
+  const userId = session.metadata?.user_id;
+  const credits = parseInt(session.metadata?.credits || '0');
+  const validityDays = parseInt(session.metadata?.validity_days || '60');
+
+  if (!userId || !credits) {
+    console.error('Missing user_id or credits in checkout session metadata', session.id);
+    return;
+  }
+
+  // For 100% coupon purchases, use session ID as the unique identifier
+  const sourceId = session.id;
+
+  // Amount is 0 for 100% coupon
+  const amountPaid = session.amount_total || 0;
+
+  // Calculate expiry date
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + validityDays);
+
+  const description = `Credits from credit pack purchase (100% coupon) - ${credits} credits`;
+  const metadata = {
+    checkout_session_id: session.id,
+    amount_paid: amountPaid,
+    validity_days: validityDays,
+    coupon_applied: true,
+    payment_method: '100% coupon'
+  };
+
+  devLog(`Processing 100% coupon checkout session for credit pack: ${credits} credits for user ${userId}`);
+
+  // Use atomic RPC function to record purchase and award credits
+  const { error: atomicError } = await supabase.rpc('process_credit_pack_purchase', {
+    p_user_id: userId,
+    p_payment_intent_id: sourceId,
+    p_price_id: session.metadata?.price_id || '',
+    p_credits: credits,
+    p_amount_paid: amountPaid,
+    p_expires_at: expiresAt.toISOString(),
+    p_description: description,
+    p_metadata: metadata
+  });
+
+  if (atomicError) {
+    console.error('Error in atomic credit pack purchase operation (100% coupon):', atomicError.message);
+    throw new Error(`Failed to process credit pack purchase atomically: ${atomicError.message}`);
+  }
+
+  devLog(`Successfully processed 100% coupon credit pack: ${credits} credits awarded to user ${userId}`);
+}
+
+/**
  * Handle credit pack purchase (payment_intent.succeeded)
+ * This fires for regular PAID purchases. For 100% coupon purchases, only checkout.session.completed fires.
  */
 async function handleCreditPackPurchase(
   paymentIntent: Stripe.PaymentIntent,
@@ -634,7 +806,9 @@ async function handleCreditPackPurchase(
     return;
   }
 
-  // Calculate expiry date (60 days from purchase)
+  devLog(`Processing paid credit pack purchase: ${credits} credits for user ${userId}, amount: $${paymentIntent.amount / 100}`);
+
+  // Calculate expiry date
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + validityDays);
 
@@ -642,7 +816,9 @@ async function handleCreditPackPurchase(
   const metadata = {
     payment_intent_id: paymentIntent.id,
     amount_paid: paymentIntent.amount,
-    validity_days: validityDays
+    validity_days: validityDays,
+    coupon_applied: false,
+    payment_method: 'card'
   };
 
   // Use atomic RPC function to record purchase and award credits
@@ -658,9 +834,9 @@ async function handleCreditPackPurchase(
   });
 
   if (atomicError) {
-    console.error('Error in atomic credit pack purchase operation:', atomicError.message);
+    console.error('Error in atomic credit pack purchase operation (paid):', atomicError.message);
     throw new Error(`Failed to process credit pack purchase atomically: ${atomicError.message}`);
   }
 
-  devLog(`Atomically processed credit pack purchase: ${credits} credits awarded to user ${userId}`);
+  devLog(`Successfully processed paid credit pack purchase: ${credits} credits awarded to user ${userId}`);
 } 

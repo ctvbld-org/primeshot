@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { DataTable } from '@/components/ui/data-table'
 import { SubscriptionFormDialog } from './subscription-form-dialog'
 import { createClient } from '@/lib/supabase/client'
+import { getApiUrl } from '@/lib/api'
 import { Button } from '@primeshot/common/web/ui/button'
 import { Badge } from '@primeshot/common/web/ui/badge'
 import {
@@ -34,10 +35,10 @@ export function SubscriptionsTable() {
   const supabase = createClient()
 
   // Fetch subscriptions
-  const { data: subscriptions = [], isLoading } = useQuery({
+  const { data: subscriptions = [], isLoading, refetch } = useQuery({
     queryKey: ['subscriptions'],
     queryFn: async () => {
-      const response = await fetch('/api/subscriptions')
+      const response = await fetch(getApiUrl('/api/subscriptions'))
       
       if (!response.ok) {
         throw new Error('Failed to fetch subscriptions')
@@ -50,7 +51,7 @@ export function SubscriptionsTable() {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await fetch(`/api/subscriptions/${id}`, {
+      const response = await fetch(getApiUrl(`/api/subscriptions/${id}`), {
         method: 'DELETE',
       })
       
@@ -160,6 +161,22 @@ export function SubscriptionsTable() {
       },
     },
     {
+      accessorKey: 'disabled',
+      header: 'Status',
+      cell: ({ row }: any) => {
+        const disabled = row.getValue('disabled')
+        return disabled ? (
+          <Badge variant="destructive" className="font-normal">
+            Disabled
+          </Badge>
+        ) : (
+          <Badge variant="default" className="font-normal bg-green-100 text-green-800 border-green-200 hover:bg-green-200">
+            Active
+          </Badge>
+        )
+      },
+    },
+    {
       id: 'actions',
       header: () => <div className="text-right">Actions</div>,
       cell: ({ row }: any) => {
@@ -245,6 +262,14 @@ export function SubscriptionsTable() {
           open={isTranslationOpen}
           onOpenChange={setIsTranslationOpen}
           currentTranslations={(selectedSubscription.translations as Record<string, any>) || {}}
+          table="subscriptions"
+          rowData={selectedSubscription}
+          onTranslationsUpdated={(newTranslations) => {
+            // Update the selected subscription with new translations
+            setSelectedSubscription(prev => prev ? { ...prev, translations: newTranslations } : null)
+            // Optionally trigger a refetch of the data
+            refetch()
+          }}
         />
       )}
     </>

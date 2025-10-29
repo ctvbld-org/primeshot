@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders } from "../_shared/cors.ts";
-import { buildPronoun, buildSubjectPrompt, buildGlassesPrompt, buildFinalPrompt } from "../_shared/prompt.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
+import { fillStylePrompt, addArticleToColor } from "../_shared/prompt.ts";
 
 interface PreviewRequest {
   character_id: string;
@@ -12,16 +12,19 @@ interface PreviewRequest {
 }
 
 serve(async (req) => {
+  // Get dynamic CORS headers based on request origin
+  const dynamicCorsHeaders = getCorsHeaders(req);
+  
   // CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response('ok', { headers: dynamicCorsHeaders });
   }
 
   try {
     if (req.method !== 'POST') {
       return new Response(
         JSON.stringify({ error: 'Method not allowed' }),
-        { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 405, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -29,7 +32,7 @@ serve(async (req) => {
     if (!character_id || !style_id) {
       return new Response(
         JSON.stringify({ error: 'Missing required fields: character_id, style_id' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -47,14 +50,14 @@ serve(async (req) => {
     if (styleError || !style) {
       return new Response(JSON.stringify({ error: 'Style not found' }), {
         status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
     if (characterError || !character) {
       return new Response(JSON.stringify({ error: 'Character not found' }), {
         status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
@@ -70,40 +73,33 @@ serve(async (req) => {
       const { data: c } = await supabase.from('style_colors').select('value').eq('value', color_id).maybeSingle();
       if (c) colorValue = (c.value || '').toString();
     }
-    const gender = character?.metadata?.gender as string | undefined;
-    const pronoun = buildPronoun(gender);
-    if (wardrobePrompt && colorValue) wardrobePrompt = wardrobePrompt.replace(/\[color\]/g, colorValue);
-    const wearLine = wardrobePrompt ? `${pronoun} is wearing ${wardrobePrompt}.` : '';
+    if (wardrobePrompt && colorValue) wardrobePrompt = wardrobePrompt.replace(/\[color\]/g, addArticleToColor(colorValue));
 
     // Scene by value
     let scenePrompt = '';
+    let atmosphereText = '';
     if (scene_id) {
       const { data: s } = await supabase.from('style_scenes').select('*').eq('value', scene_id).maybeSingle();
-      if (s) scenePrompt = (s.prompt || s.name || s.title || '').toString();
+      if (s) {
+        scenePrompt = (s.prompt || s.name || s.title || '').toString();
+        atmosphereText = (s.atmosphere || '').toString();
+      }
     }
 
-    const { subject: subjectPrompt } = buildSubjectPrompt(character?.metadata || {});
-    // Glasses are merged into subject by shared builder; avoid duplicate line
-    const wardrobeClean = wearLine.replace(/\.+$/, '.');
-    const finalPrompt = buildFinalPrompt({
-      style: stylePrompt,
-      subject: subjectPrompt,
-      wardrobe: wardrobeClean,
-      scene: scenePrompt,
-    });
+    const finalPrompt = fillStylePrompt(stylePrompt, { meta: character?.metadata || {}, wardrobe: wardrobePrompt, scene: scenePrompt, atmosphere: atmosphereText });
 
     return new Response(
       JSON.stringify({ 
         prompt: finalPrompt, 
         metadata: character?.metadata || null
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
     console.error('inference-prompt-preview error:', error);
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });

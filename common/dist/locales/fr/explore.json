@@ -1,0 +1,27 @@
+{
+    "title": "Galerie",
+    "loading": "Chargement...",
+    "buttons": {
+        "customiseStyle": "Personnaliser le style",
+        "showAllStyles": "Afficher tous les styles"
+    },
+    "noResults": "Aucun résultat pour \"{{filter}}\"",
+    "styleFilters": {
+        "Corporate": {
+            "name": "Corporate",
+            "description": "Professionnel et accessible avec une touche moderne. Idéal pour LinkedIn, photos d'entreprise, pages d'équipe et présentations."
+        },
+        "Blindlight": {
+            "name": "Blindlight",
+            "description": "Saisissant et cinématographique avec des ombres et des lumières audacieuses. Parfait pour les portraits expressifs, profils et image de marque créative."
+        },
+        "Golden Noir": {
+            "name": "Golden Noir",
+            "description": "Ambiance intense et dramatique avec des tons riches et contrastés. Un style de portrait cinématographique pour une image de marque audacieuse et un usage éditorial."
+        },
+        "Studio Pro": {
+            "name": "Studio Pro",
+            "description": "Net et soigné avec un éclairage de studio intemporel. Un choix polyvalent pour les photos professionnelles, l'image de marque personnelle et les portfolios d'acteurs."
+        }
+    }
+}

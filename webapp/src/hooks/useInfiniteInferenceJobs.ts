@@ -2,10 +2,10 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { InferenceThumbnail } from '@/components/home/InferenceThumbnail';
+import { InferenceThumbnail } from '@/components/inference/InferenceThumbnail';
 import { useAuth } from '@/contexts/auth-context';
 import { InferenceJob } from '@/hooks/useInferenceQueue';
-import { getApiUrl } from '@/lib/api/client';
+import { getApiUrl } from '@primeshot/common';
 
 interface UseInfiniteInferenceJobsReturn {
   jobs: InferenceJob[];
@@ -16,7 +16,7 @@ interface UseInfiniteInferenceJobsReturn {
   error: string | null;
   loadMore: () => Promise<void>;
   refresh: () => Promise<void>;
-  addJob: (jobId: string, nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string }) => void;
+  addJob: (jobId: string, nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string; aspectRatio?: string; quality?: string; characterId?: string }) => void;
   updateJobWithRealId: (placeholderId: string, realJobId: string) => void;
   updateJobStatus: (jobId: string, status: string) => void;
   updateJobProgress: (jobId: string, progress: number) => void;
@@ -46,6 +46,8 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
       return;
     }
 
+    // Ensure loading state is true while fetching initial data for an authenticated user
+    setIsLoading(true);
     try {
       setError(null);
       const { 
@@ -126,24 +128,51 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
             characterId: (dbJob as any).character_id || undefined,
             characterName: (dbJob as any).character_id ? initialCharMap[(dbJob as any).character_id]?.name : undefined,
             characterThumbnailUrl: (dbJob as any).character_id ? initialCharMap[(dbJob as any).character_id]?.thumbnail_url as any : undefined,
+            ...(typeof (dbJob as any).prompt_override !== 'undefined' ? { prompt_override: (dbJob as any).prompt_override } : {}),
           });
 
           activeJobIds.current.add(dbJob.id);
         } else if (dbJob.status === 'failed') {
-          // Failed job - create thumbnails marked as failed and surface error message
-          const failedThumbnails: InferenceThumbnail[] = Array.from({ length: nbTakes }, (_, index) => ({
-            id: uuidv4(),
-            jobId: dbJob.id,
-            status: 'failed',
-            index,
-            progress: 0,
-            errorMessage: (dbJob as any).error_message || 'Generation failed'
-          }));
+          // Failed job - but try to surface any images that were actually generated
+          const nbTakes = dbJob.nb_takes || ((dbJob as any).generated_images?.length ?? 0) || 1;
+          const thumbnailsTemp: (InferenceThumbnail | undefined)[] = new Array(nbTakes).fill(undefined);
+          const imgs: any[] = (dbJob as any).generated_images || [];
+          imgs.forEach((image: any, _i: number) => {
+            const derivedIndex = ((): number => {
+              const m = (image.web_path || '').match(/IMG-(\d+)/i) || (image.original_path || '').match(/IMG-(\d+)/i);
+              if (m) { const n = parseInt(m[1], 10); if (!isNaN(n)) return Math.max(0, n - 1); }
+              return _i;
+            })();
+            if (derivedIndex < 0 || derivedIndex >= nbTakes) return;
+            thumbnailsTemp[derivedIndex] = {
+              id: uuidv4(),
+              jobId: dbJob.id,
+              status: 'completed',
+              index: derivedIndex,
+              progress: 100,
+              imageUrl: getInferenceImageUrl(image.original_path),
+              webImageUrl: getInferenceImageUrl(image.web_path),
+              imageId: image.id,
+            } as InferenceThumbnail;
+          });
+          for (let i = 0; i < nbTakes; i++) {
+            if (!thumbnailsTemp[i]) {
+              thumbnailsTemp[i] = {
+                id: uuidv4(),
+                jobId: dbJob.id,
+                status: 'failed',
+                index: i,
+                progress: 0,
+                errorMessage: (dbJob as any).error_message || 'Generation failed'
+              } as InferenceThumbnail;
+            }
+          }
+          const thumbnails = thumbnailsTemp as InferenceThumbnail[];
 
           allJobs.push({
             id: dbJob.id,
             status: 'failed',
-            thumbnails: failedThumbnails,
+            thumbnails,
             createdAt: new Date(dbJob.created_at),
             nbTakes,
             message: (dbJob as any).error_message || 'Generation failed',
@@ -156,6 +185,7 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
             characterId: (dbJob as any).character_id || undefined,
             characterName: (dbJob as any).character_id ? initialCharMap[(dbJob as any).character_id]?.name : undefined,
             characterThumbnailUrl: (dbJob as any).character_id ? initialCharMap[(dbJob as any).character_id]?.thumbnail_url as any : undefined,
+            ...(typeof (dbJob as any).prompt_override !== 'undefined' ? { prompt_override: (dbJob as any).prompt_override } : {}),
           });
         } else {
           // Completed job - create thumbnails with images
@@ -171,7 +201,9 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
               index: derivedIndex,
               progress: 100,
               imageUrl: getInferenceImageUrl(image.original_path),
-              webImageUrl: getInferenceImageUrl(image.web_path)
+              webImageUrl: getInferenceImageUrl(image.web_path),
+              imageId: image.id,
+              favourite: (image as any).favourite === true
             } as InferenceThumbnail;
           });
 
@@ -204,6 +236,7 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
             characterId: (dbJob as any).character_id || undefined,
             characterName: (dbJob as any).character_id ? initialCharMap[(dbJob as any).character_id]?.name : undefined,
             characterThumbnailUrl: (dbJob as any).character_id ? initialCharMap[(dbJob as any).character_id]?.thumbnail_url as any : undefined,
+            ...(typeof (dbJob as any).prompt_override !== 'undefined' ? { prompt_override: (dbJob as any).prompt_override } : {}),
           });
         }
       });
@@ -219,6 +252,48 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
       const hasMoreJobs = allJobs.length < totalCountResult;
       setHasMore(hasMoreJobs);
       
+      // Hydrate any already-generated images for ACTIVE jobs on initial load
+      // This fixes the refresh case where some images are done but WS hasn't replayed yet
+      try {
+        const { fetchInferenceJob, getInferenceImageUrl: giu } = await import('@/lib/api/inference-job-management');
+        const activeDbJobs = initialJobs.filter((j: any) => ['queued', 'pending', 'running'].includes(j.status));
+        await Promise.all(activeDbJobs.map(async (j: any) => {
+          try {
+            const full = await fetchInferenceJob(j.id);
+            const images = full?.generated_images || [];
+            if (!images || images.length === 0) return;
+            setJobs(prev => prev.map(job => {
+              if (job.id !== j.id) return job;
+              const updated = [...job.thumbnails];
+              images.forEach((img: any, _i: number) => {
+                const derivedIndex = ((): number => {
+                  const m = (img.web_path || '').match(/IMG-(\d+)/i) || (img.original_path || '').match(/IMG-(\d+)/i);
+                  if (m) {
+                    const n = parseInt(m[1], 10);
+                    if (!isNaN(n)) return Math.max(0, n - 1);
+                  }
+                  return _i;
+                })();
+                if (derivedIndex < 0 || derivedIndex >= updated.length) return;
+                updated[derivedIndex] = {
+                  ...updated[derivedIndex],
+                  status: 'completed',
+                  progress: 100,
+                  webImageUrl: giu(img.web_path),
+                  imageUrl: giu(img.original_path),
+                  imageId: img.id,
+                  favourite: (img as any).favourite === true
+                } as any;
+              });
+              return { ...job, thumbnails: updated };
+            }));
+          } catch (e) {
+            console.warn('Initial hydration failed for job', j.id, e);
+          }
+        }));
+      } catch (e) {
+        console.warn('Initial hydration step failed:', e);
+      }
 
 
     } catch (err) {
@@ -283,11 +358,18 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
             createdAt: new Date(dbJob.created_at),
             nbTakes,
             message: (dbJob as any).error_message || 'Generation failed',
+            // Include metadata for subtitle rendering
+            styleId: (dbJob as any).style_id,
+            sceneId: (dbJob as any).scene_id,
+            wardrobeId: (dbJob as any).wardrobe_id,
+            colorId: (dbJob as any).color_id,
             quality: (dbJob as any).quality || undefined,
             aspectRatio: (dbJob as any).aspect_ratio || undefined,
             characterId: (dbJob as any).character_id || undefined,
             characterName: (dbJob as any).character_id ? pageCharMap[(dbJob as any).character_id]?.name : undefined,
             characterThumbnailUrl: (dbJob as any).character_id ? pageCharMap[(dbJob as any).character_id]?.thumbnail_url as any : undefined,
+            // Carry prompt override through to UI
+            ...(typeof (dbJob as any).prompt_override !== 'undefined' ? { prompt_override: (dbJob as any).prompt_override } : {}),
           });
         } else {
           const nbTakes = dbJob.nb_takes || (dbJob.generated_images?.length ?? 0) || 1;
@@ -309,7 +391,9 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
               index: derivedIndex,
               progress: 100,
               imageUrl: getInferenceImageUrl(image.original_path),
-              webImageUrl: getInferenceImageUrl(image.web_path)
+              webImageUrl: getInferenceImageUrl(image.web_path),
+              imageId: image.id,
+              favourite: (image as any)?.favourite === true
             } as InferenceThumbnail;
           });
           for (let i = 0; i < nbTakes; i++) {
@@ -331,11 +415,18 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
             thumbnails,
             createdAt: new Date(dbJob.created_at),
             nbTakes,
+            // Include metadata for subtitle rendering
+            styleId: (dbJob as any).style_id,
+            sceneId: (dbJob as any).scene_id,
+            wardrobeId: (dbJob as any).wardrobe_id,
+            colorId: (dbJob as any).color_id,
             quality: (dbJob as any).quality || undefined,
             aspectRatio: (dbJob as any).aspect_ratio || undefined,
             characterId: (dbJob as any).character_id || undefined,
             characterName: (dbJob as any).character_id ? pageCharMap[(dbJob as any).character_id]?.name : undefined,
             characterThumbnailUrl: (dbJob as any).character_id ? pageCharMap[(dbJob as any).character_id]?.thumbnail_url as any : undefined,
+            // Carry prompt override through to UI
+            ...(typeof (dbJob as any).prompt_override !== 'undefined' ? { prompt_override: (dbJob as any).prompt_override } : {}),
           });
         }
       });
@@ -349,6 +440,7 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
       setError(err instanceof Error ? err.message : 'Failed to load more jobs');
     } finally {
       setIsLoadingMore(false);
+      setIsLoading(false);
     }
   }, [user?.id, isLoadingMore, hasMore, offset, jobs, totalCount]);
 
@@ -362,7 +454,7 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
   }, [loadInitialJobs]);
 
   // Add new job (for real-time updates)
-  const addJob = useCallback((jobId: string, nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string }) => {
+  const addJob = useCallback((jobId: string, nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string; aspectRatio?: string; quality?: string; characterId?: string }) => {
     const thumbnails: InferenceThumbnail[] = Array.from({ length: nbTakes }, (_, index) => ({
       id: uuidv4(),
       jobId,
@@ -381,13 +473,15 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
       sceneId: meta?.sceneId,
       wardrobeId: meta?.wardrobeId,
       colorId: meta?.colorId,
+      // carry UI settings for sidebar immediately on active jobs
+      aspectRatio: meta?.aspectRatio,
+      quality: meta?.quality,
+      characterId: meta?.characterId,
     };
 
     setJobs(prev => [newJob, ...prev]);
     setTotalCount(prev => prev + 1);
     activeJobIds.current.add(jobId);
-    
-    console.log(`➕ Added job ${jobId} with ${nbTakes} thumbnails`);
   }, []);
 
   // Update job with real ID (replace placeholder)
@@ -405,7 +499,6 @@ export function useInfiniteInferenceJobs(): UseInfiniteInferenceJobsReturn {
           thumbnails: updatedThumbnails
         };
         
-        console.log(`🔄 Updated placeholder ${placeholderId} to real job ID ${realJobId}`);
         activeJobIds.current.add(realJobId);
         
         return updatedJob;

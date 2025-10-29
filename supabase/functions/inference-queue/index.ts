@@ -1,7 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { corsHeaders } from '../_shared/cors.ts'  
-import { buildFinalPrompt, buildGlassesPrompt, buildPronoun, buildSubjectPrompt, safeJoin } from '../_shared/prompt.ts'
+import { getCorsHeaders } from '../_shared/cors.ts'  
+import { fillStylePrompt, addArticleToColor } from '../_shared/prompt.ts'
 
 interface InferenceJobRow {
   id: string
@@ -64,7 +64,7 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
     // Fetch character and style
     const [{ data: character }, { data: style }] = await Promise.all([
       supabase.from('characters').select('id, status, lora_path, metadata').eq('id', job.character_id).single(),
-      supabase.from('styles').select('id, prompt, lora_path').eq('id', job.style_id).single(),
+      supabase.from('styles').select('id, prompt, lora_path, settings').eq('id', job.style_id).single(),
     ])
 
     if (!character || !style) {
@@ -125,20 +125,23 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
       colorValue = (c?.value || c?.name || c?.label || '').toString()
     }
     let scenePrompt = ''
+    let atmosphereText = ''
     if (job.scene_id) {
       const { data: s } = await supabase.from('style_scenes').select('*').eq('id', job.scene_id).maybeSingle()
       scenePrompt = (s?.prompt || s?.name || s?.title || '').toString()
+      atmosphereText = (s?.atmosphere || '').toString()
     }
     const stylePrompt = (style as any)?.prompt || ''
     const negativePrompt = ''
 
-    const { subject: subjectPrompt, pronoun } = buildSubjectPrompt(character?.metadata || {})
-    // glasses merged into subject in shared builder
-    const wearLine = wardrobePrompt || colorValue ? `${pronoun} is wearing ${colorValue ? `a ${colorValue} ` : ''}${wardrobePrompt}` : ''
-    const wardrobeClean = wearLine ? (wearLine.endsWith('.') ? wearLine : `${wearLine}.`) : ''
+    if (wardrobePrompt && colorValue) {
+      wardrobePrompt = wardrobePrompt.replace(/\[color\]/g, addArticleToColor(colorValue))
+    }
+
+    const builtPrompt = fillStylePrompt(stylePrompt, { meta: character?.metadata || {}, wardrobe: wardrobePrompt, scene: scenePrompt, atmosphere: atmosphereText })
     const finalPrompt = job?.prompt_override?.enabled && job?.prompt_override?.prompt
       ? String(job.prompt_override.prompt)
-      : buildFinalPrompt({ style: stylePrompt, subject: subjectPrompt, wardrobe: wardrobeClean, scene: scenePrompt })
+      : builtPrompt
 
     const resolveWorkflow = (s: any, params: any): string => {
       const key = s?.workflow || s?.workflow_key || s?.workflow_s3_key
@@ -160,11 +163,15 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
     const resolvedQuality = (jobRow as any)?.quality ?? (job as any)?.quality ?? job?.settings?.quality ?? '1K'
     const resolvedAspect = (jobRow as any)?.aspect_ratio ?? (job as any)?.aspect_ratio ?? job?.settings?.aspect_ratio ?? '1:1'
 
+    // Determine environment (matches inference-create behavior)
+    const env = Deno.env.get('ENV') ?? 'prod'
+
     const modalRequest = {
       user_id: job.user_id,
       job_id: job.id,
       character_id: job.character_id,
       style_id: job.style_id,
+      env, // Ensure provider targets the correct Supabase project
       wardrobe_id: job.wardrobe_id,
       color_id: job.color_id,
       scene_id: job.scene_id,
@@ -181,7 +188,20 @@ async function startInferenceJob(supabase: any, job: InferenceJobRow): Promise<b
         character_lora: characterLora,
         style_lora: styleLora || '',
       },
-      ...(jobRow?.settings_override ? { settings_override: jobRow.settings_override } : {})
+      ...(jobRow?.settings_override || (style as any)?.settings ? (() => {
+        const jobSettings = jobRow?.settings_override || {};
+        const styleSettings = (style as any)?.settings || {};
+        const mergedSettings = {
+          ...styleSettings,
+          ...jobSettings
+        };
+
+        console.log('🔧 SETTINGS_OVERRIDE DEBUG: Job row settings_override:', JSON.stringify(jobSettings));
+        console.log('🔧 SETTINGS_OVERRIDE DEBUG: Style settings from DB:', JSON.stringify(styleSettings));
+        console.log('🔧 SETTINGS_OVERRIDE DEBUG: Final merged settings_override:', JSON.stringify(mergedSettings));
+
+        return { settings_override: mergedSettings };
+      })() : {})
     }
 
     const headers: Record<string, string> = { 'Content-Type': 'application/json' }
@@ -287,8 +307,11 @@ async function processInferenceQueue(supabase: any): Promise<{ processed: number
 }
 
 serve(async (req) => {
+  // Get dynamic CORS headers based on request origin
+  const dynamicCorsHeaders = getCorsHeaders(req);
+  
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: dynamicCorsHeaders })
   }
 
   try {
@@ -302,13 +325,13 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ success: true, ...result, timestamp: new Date().toISOString() }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
     console.error('Inference queue error:', error)
     return new Response(
       JSON.stringify({ error: 'Internal server error', details: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
     )
   }
 })

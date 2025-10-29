@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
+import { createSecuredHandler, SECURITY_PRESETS } from '@/lib/security-middleware'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-08-27.basil' as any
 })
 
-export async function POST(request: NextRequest) {
+// OPTIONS is handled by the security middleware
+
+async function handlePOST(request: NextRequest) {
   try {
-    const { priceId, successUrl, cancelUrl } = await request.json()
+    const { priceId, successUrl, cancelUrl, referralId } = await request.json()
 
     if (!priceId || !successUrl || !cancelUrl) {
       return NextResponse.json(
@@ -45,19 +48,30 @@ export async function POST(request: NextRequest) {
     // Check if user already has an active subscription
     const { data: existingSubscription } = await supabase
       .from('user_subscriptions')
-      .select('stripe_customer_id, stripe_subscription_id, status')
+      .select('stripe_customer_id, stripe_subscription_id, status, cancel_at_period_end')
       .eq('user_id', user.id)
       .eq('status', 'active')
       .limit(1)
       .single()
+
+    // Determine if this is truly an upgrade (active subscription not scheduled for cancellation)
+    // vs a new subscription (no active subscription, or subscription scheduled for cancellation)
+    const isActiveUpgrade = existingSubscription?.stripe_subscription_id && 
+                           existingSubscription.status === 'active' && 
+                           !existingSubscription.cancel_at_period_end
 
     let customerId: string
 
     if (existingSubscription?.stripe_customer_id) {
       customerId = existingSubscription.stripe_customer_id
       
-      // If user has an active subscription, this is an upgrade - handle it directly
-      if (existingSubscription.stripe_subscription_id) {
+      // Always use Stripe checkout for better UX and to let Stripe handle the upgrade flow
+      // The webhook will handle canceling the old subscription after successful payment
+      console.log(`Customer ${customerId} has existing subscription - proceeding to checkout page`)
+      
+      /* DISABLED: Direct upgrade logic - Always redirect to Stripe instead
+      // If user has an active subscription that's not scheduled for cancellation, this is an upgrade
+      if (isActiveUpgrade) {
         try {
           // Get customer's payment methods to check if we can charge directly
           const paymentMethods = await stripe.paymentMethods.list({
@@ -82,7 +96,9 @@ export async function POST(request: NextRequest) {
                 plan_name: product.metadata.plan_name || '',
                 credits_included: product.metadata.credits_included || '0',
                 source: 'webapp_upgrade',
-                is_upgrade: 'true'
+                is_upgrade: 'true',
+                is_new_subscription: 'false',
+                ...(referralId && { referral: referralId })
               }
             })
 
@@ -91,7 +107,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({
               success: true,
               subscription_id: newSubscription.id,
-              redirect_url: successUrl
+              redirect_url: `${successUrl}${successUrl.includes('?') ? '&' : '?'}subscription=success&upgrade=true`
             })
           }
           
@@ -108,6 +124,7 @@ export async function POST(request: NextRequest) {
           )
         }
       }
+      */
     } else {
       // Create new customer if none exists
       const customer = await stripe.customers.create({
@@ -128,6 +145,7 @@ export async function POST(request: NextRequest) {
         price: priceId,
         quantity: 1,
       }],
+      ...(referralId && { client_reference_id: referralId }),
       metadata: {
         user_id: user.id,
         user_email: user.email || '',
@@ -135,8 +153,10 @@ export async function POST(request: NextRequest) {
         credits_included: product.metadata.credits_included || '0',
         checkout_type: 'subscription',
         created_at: new Date().toISOString(),
-        is_upgrade: existingSubscription?.stripe_subscription_id ? 'true' : 'false',
-        previous_subscription_id: existingSubscription?.stripe_subscription_id || ''
+        is_upgrade: isActiveUpgrade ? 'true' : 'false',
+        is_new_subscription: !isActiveUpgrade ? 'true' : 'false',
+        previous_subscription_id: existingSubscription?.stripe_subscription_id || '',
+        ...(referralId && { referral: referralId })
       },
       subscription_data: {
         metadata: {
@@ -145,12 +165,14 @@ export async function POST(request: NextRequest) {
           plan_name: product.metadata.plan_name || '',
           credits_included: product.metadata.credits_included || '0',
           created_at: new Date().toISOString(),
-          source: existingSubscription?.stripe_subscription_id ? 'webapp_upgrade' : 'webapp_checkout',
-          is_upgrade: existingSubscription?.stripe_subscription_id ? 'true' : 'false',
-          previous_subscription_id: existingSubscription?.stripe_subscription_id || ''
+          source: isActiveUpgrade ? 'webapp_upgrade' : 'webapp_checkout',
+          is_upgrade: isActiveUpgrade ? 'true' : 'false',
+          is_new_subscription: !isActiveUpgrade ? 'true' : 'false',
+          previous_subscription_id: existingSubscription?.stripe_subscription_id || '',
+          ...(referralId && { referral: referralId })
         }
       },
-      success_url: successUrl,
+      success_url: `${successUrl}${successUrl.includes('?') ? '&' : '?'}subscription=success&upgrade=${isActiveUpgrade ? 'true' : 'false'}`,
       cancel_url: cancelUrl,
       allow_promotion_codes: true,
       billing_address_collection: 'auto',
@@ -169,3 +191,27 @@ export async function POST(request: NextRequest) {
     )
   }
 } 
+
+// Secured handler with authentication and rate limiting
+const securedPOST = createSecuredHandler(
+  handlePOST,
+  SECURITY_PRESETS.PAYMENT_OPERATION
+);
+
+export async function POST(request: NextRequest) {
+  return await securedPOST(request);
+}
+
+// Explicit OPTIONS handler for CORS preflight
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': request.headers.get('origin') || '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Credentials': 'true',
+      'Access-Control-Max-Age': '86400',
+    },
+  });
+}

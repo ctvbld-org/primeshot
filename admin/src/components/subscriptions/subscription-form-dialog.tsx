@@ -45,6 +45,8 @@ import {
 } from '@primeshot/common/web/ui/select'
 import { useToast } from '@primeshot/common/web/ui/use-toast'
 import type { Database } from '@/types/supabase'
+import { ImageUpload } from '@/components/ui/image-upload'
+import { getApiUrl } from '@/lib/api'
 
 type Subscription = Database['public']['Tables']['subscriptions']['Row']
 
@@ -62,8 +64,10 @@ interface FormData {
   concurrent_jobs: number
   concurrent_trainings: number
   popular: boolean
+  disabled: boolean
   features?: Record<string, any>
   translations?: Record<string, any>
+  image_url?: string
 }
 
 interface SubscriptionFormDialogProps {
@@ -101,8 +105,10 @@ export function SubscriptionFormDialog({
       concurrent_jobs: 1,
       concurrent_trainings: 2,
       popular: false,
+      disabled: false,
       features: {},
       translations: {},
+      image_url: '',
     },
   })
 
@@ -127,6 +133,7 @@ export function SubscriptionFormDialog({
       currentValues.concurrent_jobs !== originalValues.concurrent_jobs ||
       currentValues.concurrent_trainings !== originalValues.concurrent_trainings ||
       currentValues.popular !== originalValues.popular ||
+      currentValues.disabled !== originalValues.disabled ||
       JSON.stringify(currentValues.features) !== JSON.stringify(originalValues.features)
     )
   }
@@ -170,8 +177,10 @@ export function SubscriptionFormDialog({
       concurrent_jobs: subscription.concurrent_jobs,
       concurrent_trainings: subscription.concurrent_trainings ?? 0,
       popular: subscription.popular || false,
+      disabled: (subscription as any).disabled || false,
       features: (subscription.features as Record<string, any>) || {},
       translations: (subscription.translations as Record<string, any>) || {},
+      image_url: (subscription as any).image_url || '',
     } : {
       name: '',
       display_name: '',
@@ -186,8 +195,10 @@ export function SubscriptionFormDialog({
       concurrent_jobs: 1,
       concurrent_trainings: 2,
       popular: false,
+      disabled: false,
       features: {},
       translations: {},
+      image_url: '',
     }
     
     form.reset(newValues)
@@ -216,7 +227,7 @@ export function SubscriptionFormDialog({
 
       if (subscription) {
         // Update
-        const response = await fetch(`/api/subscriptions/${subscription.id}`, {
+        const response = await fetch(getApiUrl(`/api/subscriptions/${subscription.id}`), {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -230,7 +241,7 @@ export function SubscriptionFormDialog({
         }
       } else {
         // Create
-        const response = await fetch('/api/subscriptions', {
+        const response = await fetch(getApiUrl('/api/subscriptions'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -346,6 +357,37 @@ export function SubscriptionFormDialog({
                     <FormLabel>Description</FormLabel>
                     <FormControl>
                       <Textarea {...field} placeholder="Description of this subscription plan" rows={3} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Image upload for Stripe product image */}
+              <FormField
+                control={form.control}
+                name="image_url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Product Image</FormLabel>
+                    <FormDescription>Shown in Stripe Checkout and Customer Portal</FormDescription>
+                    <FormControl>
+                      <div>
+                        <ImageUpload
+                          value={field.value ? [field.value] : []}
+                          onChange={(names) => {
+                            const first = names[0] || ''
+                            const url = first && !first.startsWith('http')
+                              ? `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION || ''}/website-images/stripes/${first}`
+                              : first
+                            field.onChange(url)
+                          }}
+                          styleName={form.watch('display_name') || form.watch('name')}
+                          maxFiles={1}
+                          maxSizeMB={10}
+                          uploadPath="website-images/stripes"
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -572,6 +614,29 @@ export function SubscriptionFormDialog({
                       <FormLabel className="text-base">Mark as Popular</FormLabel>
                       <FormDescription>
                         Highlight this plan on the pricing page
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <input
+                        type="checkbox"
+                        checked={field.value}
+                        onChange={field.onChange}
+                        className="h-4 w-4"
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="disabled"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">Disabled</FormLabel>
+                      <FormDescription>
+                        Disable this subscription tier - it won't be available for new subscriptions
                       </FormDescription>
                     </div>
                     <FormControl>

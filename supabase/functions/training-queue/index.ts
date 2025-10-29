@@ -1,6 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { corsHeaders } from '../_shared/cors.ts'
+import { getCorsHeaders } from '../_shared/cors.ts'
 
 interface TrainingJob {
   id: string;
@@ -88,11 +88,15 @@ async function startTrainingJob(supabase: any, job: TrainingJob): Promise<boolea
       }
     }
 
+    // Determine environment for provider (align with inference-queue behavior)
+    const env = Deno.env.get('ENV') ?? 'prod'
+
     const trainingData = {
       user_id: job.user_id,
       character_id: job.character_id,
       character_name: character.name,
       training_job_id: job.id,
+      env,
       // Only spread if overrides is a plain object
       ...(overrides && typeof overrides === 'object' ? overrides : {})
     };
@@ -243,9 +247,12 @@ async function processTrainingQueue(supabase: any): Promise<{ processed: number 
 }
 
 serve(async (req) => {
+  // Get dynamic CORS headers based on request origin
+  const dynamicCorsHeaders = getCorsHeaders(req);
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response('ok', { headers: dynamicCorsHeaders })
   }
 
   try {
@@ -273,7 +280,7 @@ serve(async (req) => {
       }),
       { 
         headers: { 
-          ...corsHeaders, 
+          ...dynamicCorsHeaders, 
           'Content-Type': 'application/json' 
         } 
       }
@@ -291,7 +298,7 @@ serve(async (req) => {
       { 
         status: 500, 
         headers: { 
-          ...corsHeaders, 
+          ...dynamicCorsHeaders, 
           'Content-Type': 'application/json' 
         } 
       }

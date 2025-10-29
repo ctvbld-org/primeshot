@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { cn } from "../../lib/utils"
 import style from "./avatar.module.css"
 
@@ -12,6 +12,7 @@ interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function Avatar({ src, fallback, alt, className, ...props }: AvatarProps) {
   const [hasError, setHasError] = React.useState(false)
+  const [resolvedSrc, setResolvedSrc] = useState<string | null>(null)
 
   // Transform social login profile picture URLs to ensure best quality and compatibility
   const transformedSrc = useMemo(() => {
@@ -33,6 +34,29 @@ export function Avatar({ src, fallback, alt, className, ...props }: AvatarProps)
     return src
   }, [src])
 
+  useEffect(() => {
+    let cancelled = false
+    async function resolve() {
+      if (!transformedSrc) { setResolvedSrc(null); return }
+      // If points to our protected S3 bucket, request a signed URL
+      if (/s3\.amazonaws\.com\//.test(transformedSrc) || /user-images\//.test(transformedSrc)) {
+        try {
+          const q = new URLSearchParams()
+          q.set('url', transformedSrc)
+          const res = await fetch(`/api/s3/sign?${q.toString()}`, { cache: 'no-store' })
+          if (res.ok) {
+            const { url } = await res.json()
+            if (!cancelled) setResolvedSrc(url)
+            return
+          }
+        } catch {}
+      }
+      setResolvedSrc(transformedSrc)
+    }
+    resolve()
+    return () => { cancelled = true }
+  }, [transformedSrc])
+
   return (
     <div
       className={cn(
@@ -41,9 +65,9 @@ export function Avatar({ src, fallback, alt, className, ...props }: AvatarProps)
       )}
       {...props}
     >
-      {transformedSrc && !hasError ? (
+      {resolvedSrc && !hasError ? (
         <img
-          src={transformedSrc}
+          src={resolvedSrc}
           alt={alt}
           className={style.image}
           onError={(e) => {

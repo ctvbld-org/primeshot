@@ -1,0 +1,102 @@
+{
+  "welcome": "Bem-vindo",
+  "error": {
+    "title": "Erro",
+    "description": "Ocorreu um erro"
+  },
+  "language": "Idioma",
+  "loading": "A carregar...",
+  "buttons": {
+    "customize": "Personalizar",
+    "confirmChanges": "Confirmar alterações",
+    "addToShoot": "Adicionar ao ensaio",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "back": "Voltar",
+    "close": "Fechar",
+    "next": "Seguinte",
+    "previous": "Ant.",
+    "keep": "Manter",
+    "discard": "Descartar",
+    "confirm": "Confirmar",
+    "remove": "Remover",
+    "add": "Adicionar",
+    "explore": "Explorar",
+    "signIn": "Entrar"
+  },
+  "navigation": {
+    "addStyles": "Adicionar estilos",
+    "payment": "Pagamento",
+    "uploadPhotos": "Carregar fotos",
+    "generate": "Gerar",
+    "explore": "Explorar",
+    "create": "Criar",
+    "pricing": "Preços",
+    "admin": "Admin",
+    "menu": "Menu"
+  },
+  "userNav": {
+    "signOut": "Terminar sessão",
+    "accountSettings": "Definições da conta"
+  },
+  "footer": {
+    "hero": "A sua imagem pertence-lhe.",
+    "sections": {
+      "overview": "Visão Geral",
+      "latestStyles": "Últimos Estilos",
+      "legal": "Legal",
+      "support": "Suporte"
+    },
+    "links": {
+      "explore": "Explorar",
+      "create": "Criar",
+      "pricing": "Preços e FAQ",
+      "studioPro": "Studio Pro",
+      "business": "Business",
+      "editorial": "Editorial",
+      "terms": "Termos e Condições",
+      "privacy": "Política de Privacidade",
+      "contact": "Contacte-nos",
+      "about": "Sobre nós"
+    },
+    "copyright": "© {{year}} Primeshot. Todos os direitos reservados"
+  },
+  "duration": {
+    "year_one": "{{count}} ano",
+    "year_other": "{{count}} anos",
+    "month_one": "{{count}} mês",
+    "month_other": "{{count}} meses",
+    "day_one": "{{count}} dia",
+    "day_other": "{{count}} dias"
+  },
+  "aria": {
+    "favourites": "Favoritos",
+    "avatar": "Avatar do utilizador",
+    "brandLogo": "Primeshot"
+  },
+  "explore": {
+    "generateTooltip": "Gerar esta imagem"
+  },
+  "credits": {
+    "remaining_one": "{{value}} crédito restante",
+    "remaining_other": "{{value}} créditos restantes"
+  },
+  "contexts": {
+    "dialogService": {
+      "defaultTitle": "Diálogo",
+      "defaultDescription": "Conteúdo",
+      "notReadyWarning": "DialogService não está pronto"
+    },
+    "errors": {
+      "missingProvider": {
+        "styleSelection": "useStyleSelection deve ser usado dentro de um StyleSelectionProvider",
+        "dialogService": "useDialogService deve ser usado dentro de um DialogServiceProvider",
+        "inferenceQueue": "useInferenceQueue deve ser usado dentro de um InferenceQueueProvider",
+        "carousel": "useCarouselContext deve ser usado dentro de um CarouselProvider",
+        "realtime": "useRealtime deve ser usado dentro de um RealtimeProvider"
+      }
+    }
+  }
+}

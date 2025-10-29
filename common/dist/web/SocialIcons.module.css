@@ -1,0 +1,39 @@
+/* Container */
+.container {
+  display: flex;
+  gap: 0.25rem;
+}
+
+/* Social Link Base */
+.socialLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  transition: color 200ms, background-color 200ms;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.socialLink:hover {
+  color: #0C1013;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.socialLink:active {
+  background-color: white;
+  color: #0C1013;
+}
+
+/* Size Variants */
+.smallLink {
+  composes: socialLink;
+  width: 2rem;
+  height: 2rem;
+}
+
+.largeLink {
+  composes: socialLink;
+  width: 5rem;
+  height: 5rem;
+}
+

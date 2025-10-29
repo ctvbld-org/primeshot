@@ -21,7 +21,7 @@ export function QueryParamCleaner({ delayMs = 3000, keys = ["credits", "subscrip
 	useEffect(() => {
 		const timeoutId = window.setTimeout(() => {
 			try {
-				const benignValues = new Set(["success", "true", "ok", ""]) // values considered safe to auto-remove
+				const benignValues = new Set(["success", "true", "false", "ok", ""]) // values considered safe to auto-remove
 				const url = new URL(window.location.href)
 				const params = new URLSearchParams(url.search)
 				let changed = false

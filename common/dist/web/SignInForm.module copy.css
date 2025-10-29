@@ -1,0 +1,211 @@
+.container {
+  position: relative;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+}
+
+.card {
+  background-color: rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: stretch;
+  gap: 32px;
+  padding: 40px;
+  border-radius: 22px;
+  max-width: 380px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.heightContainer {
+  position: relative;
+  width: 100%;
+  height: auto;
+  transition: height 220ms ease;
+  overflow: hidden;
+}
+
+.section {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.sectionVisible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.sectionHidden {
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+}
+
+.logoContainer {
+  display: flex;
+  justify-content: center;
+}
+
+.logo {
+  color: var(--primary);
+}
+
+.headingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.headingContainerLeft {
+  align-items: flex-start;
+}
+
+.heading {
+  font-family: var(--font-carb);
+  color: #99EFEC;
+  text-align: center;
+  font-size: 42px;
+  font-weight: 300;
+  text-transform: lowercase;
+}
+
+.subheading {
+    color: rgba(255, 255, 255, 0.50);
+    text-align: center;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 18px;
+    max-width: 200px;
+}
+
+.socialButtons {
+  width: 100%;;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.socialButton {
+    font-size: 14px;;
+    cursor: pointer;
+    width: 100%;
+    height: 3rem;
+    border-radius: 16px;
+    background-color: #E5FBFA;
+    color: #000;
+    display: flex;
+}
+
+.socialButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 16px 0;
+}
+
+.dividerText {
+  text-transform: lowercase;
+  flex: 0 0 auto;
+  color: #99EFEC;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.dividerLine {
+  flex: 1 1 auto;
+  height: 1px;
+  background-color: #99EFEC;
+  opacity: 0.2;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.errorMessage {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--red-500);
+}
+
+.submitButton {
+  width: 100%;
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.emailButton {
+  width: 100%;
+  height: 3rem;
+  border-radius: 16px;
+  background-color: #17D7D0;
+  color: #001111;
+  display: flex;
+}
+
+.returnRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #99EFEC;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.terms {
+  color: #99EFEC;
+  opacity: 0.7;;
+  text-align: center;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.termsLink {
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.termsLink:hover {
+  color: var(--primary);
+}
+
+.arrowRight {
+  margin-left: 0.25rem;
+} 

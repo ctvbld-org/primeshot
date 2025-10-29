@@ -1,8 +1,95 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders } from "../_shared/cors.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
 import { calculateImageCreditCost, getSubscriptionLimits, getInferenceSettings, type Quality } from "../_shared/pricing.ts";
-import { buildPronoun, buildSubjectPrompt, buildGlassesPrompt, buildFinalPrompt, safeJoin } from "../_shared/prompt.ts";
+import { fillStylePrompt, addArticleToColor } from "../_shared/prompt.ts";
+
+// Rate limiting store for Edge Functions
+class EdgeRateLimitStore {
+  private store = new Map<string, { count: number; resetTime: number }>();
+
+  async increment(key: string): Promise<number> {
+    const now = Date.now();
+    const existing = this.store.get(key);
+
+    if (!existing || now > existing.resetTime) {
+      this.store.set(key, { count: 1, resetTime: now + 60000 }); // 1 minute window
+      return 1;
+    }
+
+    existing.count++;
+    return existing.count;
+  }
+
+  async resetKey(key: string): Promise<void> {
+    this.store.delete(key);
+  }
+}
+
+// Bot detection utilities
+function isSuspiciousUserAgent(userAgent: string): boolean {
+  if (!userAgent) return false;
+
+  const lowerUA = userAgent.toLowerCase();
+  const botPatterns = [
+    /bot/i, /spider/i, /crawler/i, /scraper/i, /wget/i, /curl/i,
+    /python/i, /java/i, /selenium/i, /phantom/i, /webdriver/i, /puppeteer/i
+  ];
+
+  return botPatterns.some(pattern => pattern.test(userAgent)) ||
+         lowerUA.length < 10 ||
+         lowerUA === 'unknown';
+}
+
+function getClientIP(request: Request): string {
+  const forwarded = request.headers.get('x-forwarded-for');
+  const realIP = request.headers.get('x-real-ip');
+  const clientIP = request.headers.get('x-client-ip');
+
+  return forwarded?.split(',')[0] || realIP || clientIP || 'unknown';
+}
+
+// Rate limiting middleware for Edge Functions
+async function rateLimitMiddleware(request: Request, next: () => Promise<Response>): Promise<Response> {
+  const store = new EdgeRateLimitStore();
+  const ip = getClientIP(request);
+  const userAgent = request.headers.get('user-agent') || '';
+
+  // Skip rate limiting for legitimate requests from real browsers
+  if (!isSuspiciousUserAgent(userAgent)) {
+    return await next();
+  }
+
+  const key = `edge:${ip}:${userAgent}`;
+  const currentCount = await store.increment(key);
+
+  if (currentCount > 10) { // 10 requests per minute for suspicious clients
+    return new Response(
+      JSON.stringify({
+        error: 'Rate limit exceeded',
+        retryAfter: 60,
+        message: 'Too many requests. Please try again later.'
+      }),
+      {
+        status: 429,
+        headers: {
+          'Content-Type': 'application/json',
+          'Retry-After': '60',
+          'X-RateLimit-Limit': '10',
+          'X-RateLimit-Remaining': '0',
+          'X-RateLimit-Reset': new Date(Date.now() + 60000).toISOString()
+        }
+      }
+    );
+  }
+
+  const response = await next();
+  response.headers.set('X-RateLimit-Limit', '10');
+  response.headers.set('X-RateLimit-Remaining', (10 - currentCount).toString());
+  response.headers.set('X-RateLimit-Reset', new Date(Date.now() + 60000).toISOString());
+
+  return response;
+}
 
 interface InferenceRequest {
   user_id: string;
@@ -14,6 +101,7 @@ interface InferenceRequest {
   params?: Record<string, unknown>; // seed?, quality, nb_takes, aspect_ratio
   queue_type?: 'fast' | 'slow' | 'ultra';
   prompt_override?: { enabled: boolean; prompt: string };
+  settings_override?: Record<string, any>;
 }
 
 interface InferenceJob {
@@ -40,6 +128,7 @@ interface InferenceJob {
   color_id?: string;
   character_id: string;
   credits_spent?: number;
+  settings_override?: Record<string, any>;
 }
 
 // Credit calculation function - now uses shared configuration
@@ -170,14 +259,19 @@ async function findExistingActiveInferenceJob(
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
+  // Apply rate limiting middleware first
+  const rateLimitedResponse = await rateLimitMiddleware(req, async () => {
+    // Get dynamic CORS headers based on request origin
+    const dynamicCorsHeaders = getCorsHeaders(req);
 
-  const env = Deno.env.get('ENV') ?? 'prod';
+    // Handle CORS preflight requests
+    if (req.method === 'OPTIONS') {
+      return new Response('ok', { headers: dynamicCorsHeaders });
+    }
 
-  try {
+    const env = Deno.env.get('ENV') ?? 'prod';
+
+    try {
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -187,7 +281,7 @@ serve(async (req) => {
     if (req.method !== 'POST') {
       return new Response(
         JSON.stringify({ error: 'Method not allowed' }),
-        { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 405, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -200,7 +294,7 @@ serve(async (req) => {
     if (!user_id || !character_id || !style_id) {
       return new Response(
         JSON.stringify({ error: 'Missing required fields: user_id, character_id, and style_id' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -213,7 +307,7 @@ serve(async (req) => {
     if (authErr || !authData?.user) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
     if (authData.user.id !== user_id) {
@@ -225,7 +319,7 @@ serve(async (req) => {
       if (adminErr || !u?.admin) {
         return new Response(
           JSON.stringify({ error: 'Forbidden' }),
-          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 403, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
         );
       }
     }
@@ -246,7 +340,7 @@ serve(async (req) => {
           details: `nb_takes must be one of: ${settings.nb_takes_options.join(', ')}`,
           provided_number_of_takes: nbTakes
         }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -257,7 +351,7 @@ serve(async (req) => {
           details: `quality must be one of: ${settings.qualities.join(', ')}`,
           provided_quality: quality
         }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -274,7 +368,7 @@ serve(async (req) => {
         JSON.stringify({ error: 'Failed to check credit balance' }),
         {
           status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' },
         }
       );
     }
@@ -289,7 +383,7 @@ serve(async (req) => {
           required_credits: creditCost,
           available_credits: currentBalance
         }),
-        { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 402, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -303,7 +397,7 @@ serve(async (req) => {
           max_allowed_quality: qualityCheck.maxQuality,
           user_tier: qualityCheck.userTier
         }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 403, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -318,14 +412,14 @@ serve(async (req) => {
     if (characterError || !character) {
       return new Response(
         JSON.stringify({ error: 'Character not found or access denied' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 404, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     // Get style configuration from the styles table
     const { data: style, error: styleError } = await supabase
       .from('styles')
-      .select('id, prompt, lora_path')
+      .select('id, prompt, lora_path, settings')
       .eq('id', style_id)
       .single();
     console.log('📝 inference-create style row:', style);
@@ -334,7 +428,7 @@ serve(async (req) => {
     if (styleError || !style) {
       return new Response(
         JSON.stringify({ error: 'Style not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 404, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -368,7 +462,7 @@ serve(async (req) => {
           error: 'Failed to spend credits',
           details: 'Insufficient balance or system error'
         }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -422,7 +516,9 @@ serve(async (req) => {
         queue_type: queueType,
         credits_spent: creditCost,
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        ...(body?.prompt_override?.enabled && body?.prompt_override?.prompt ? { prompt_override: { enabled: true, prompt: String(body.prompt_override.prompt) } } : {}),
+        ...(body?.settings_override ? { settings_override: body.settings_override } : {})
       };
 
       const { error: qInsertError } = await supabase
@@ -442,7 +538,7 @@ serve(async (req) => {
         });
         return new Response(
           JSON.stringify({ error: 'Failed to create inference job' }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
@@ -457,7 +553,7 @@ serve(async (req) => {
           remaining_credits: currentBalance - creditCost,
           queue_info: { reason: 'character_not_ready' }
         }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -491,20 +587,19 @@ serve(async (req) => {
     }
 
     // Replace [color] placeholder in wardrobe prompt with actual color value
-    const gender = character?.metadata?.gender as string | undefined;
-    const pronoun = buildPronoun(gender);
     if (wardrobePrompt && colorValue) {
-      wardrobePrompt = wardrobePrompt.replace(/\[color\]/g, colorValue);
+      wardrobePrompt = wardrobePrompt.replace(/\[color\]/g, addArticleToColor(colorValue));
     }
-    wardrobePrompt = wardrobePrompt ? `${pronoun} is wearing ${wardrobePrompt}` : '';
     
     let scenePrompt = '';
+    let atmosphereText = '';
     let sceneUuid: string | null = resolvedSceneUuid;
     if (body.scene_id) {
       const { data: sceneRow } = await supabase.from('style_scenes').select('*').eq('value', body.scene_id).maybeSingle();
       if (sceneRow) {
         sceneUuid = sceneRow.id;
         scenePrompt = (sceneRow.prompt).toString();
+        atmosphereText = (sceneRow.atmosphere || '').toString();
       }
     }
 
@@ -512,15 +607,8 @@ serve(async (req) => {
     const stylePrompt = (style as any)?.prompt || '';
     const negativePrompt = (style as any)?.negative_prompt || '';
 
-    // 5) Build subject prompt from character.metadata
-    const { subject: subjectPrompt } = buildSubjectPrompt(character?.metadata || {});
-    // glasses already merged into subject via shared builder; glassesPrompt kept for compatibility if needed
-    const glassesPrompt = '';
-
-    // 6) Final prompt assembly (admin override supported)
-    // Ensure style prompt appears first; trim duplicate trailing dots in wardrobe
-    const wardrobeClean = wardrobePrompt ? (wardrobePrompt.endsWith('.') ? wardrobePrompt : `${wardrobePrompt}.`) : '';
-    let finalPrompt = buildFinalPrompt({ style: stylePrompt, subject: subjectPrompt, wardrobe: wardrobeClean, scene: scenePrompt });
+    // 5) Final prompt assembly from complete style template
+    let finalPrompt = fillStylePrompt(stylePrompt, { meta: character?.metadata || {}, wardrobe: wardrobePrompt, scene: scenePrompt, atmosphere: atmosphereText });
 
     // Admin-only prompt override: verify caller is admin using JWT
     if (body?.prompt_override?.enabled) {
@@ -584,7 +672,8 @@ serve(async (req) => {
       credits_spent: creditCost,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      ...(body?.prompt_override?.enabled && body?.prompt_override?.prompt ? { prompt_override: { enabled: true, prompt: String(body.prompt_override.prompt) } } : {})
+      ...(body?.prompt_override?.enabled && body?.prompt_override?.prompt ? { prompt_override: { enabled: true, prompt: String(body.prompt_override.prompt) } } : {}),
+      ...(body?.settings_override ? { settings_override: body.settings_override } : {})
     };
 
     const { error: insertError } = await supabase
@@ -614,7 +703,7 @@ serve(async (req) => {
 
       return new Response(
         JSON.stringify({ error: 'Failed to create inference job' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -639,7 +728,7 @@ serve(async (req) => {
           i18n_key: 'status.tooltip.queueReasons.concurrent_limit',
           i18n_params: { current: concurrentLimits.currentRunningJobs, limit: concurrentLimits.concurrentJobs },
         }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -669,7 +758,7 @@ serve(async (req) => {
               concurrent_limit: userLimit,
             }
           }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
         );
       }
     } catch (e) {
@@ -683,8 +772,8 @@ serve(async (req) => {
         throw new Error('INFERENCE_API_URL environment variable not set');
       }
 
-      // Determine environment based on Supabase URL
-      const env = Deno.env.get('SUPABASE_URL')?.includes('localhost') ? 'dev' : 'prod';
+      // Determine environment from ENV variable (same as training)
+      const env = Deno.env.get('ENV') ?? 'prod';
 
       // Prepare Modal API request with quality and nbTakes
       const modalRequest = {
@@ -692,9 +781,6 @@ serve(async (req) => {
         job_id: jobId,
         character_id,
         style_id,
-        wardrobe_id: body.wardrobe_id,
-        color_id: body.color_id,
-        scene_id: body.scene_id,
         env: env, // Add environment flag like training
         params: {
           nb_takes: nbTakes,
@@ -708,7 +794,25 @@ serve(async (req) => {
           negative_prompt: negativePrompt,
           character_lora: characterLora,
           style_lora: styleLora || ''
-        }
+        },
+        // Option identifiers to aid provider-side telemetry/routing
+        wardrobe_id: wardrobeUuid || null,
+        color_id: colorUuid || null,
+        scene_id: sceneUuid || null,
+        settings_override: (() => {
+          const bodySettings = (body as any)?.settings_override || {};
+          const styleSettings = (style as any)?.settings || {};
+          const mergedSettings = {
+            ...styleSettings,
+            ...bodySettings
+          };
+
+          console.log('🔧 SETTINGS_OVERRIDE DEBUG: Body settings_override:', JSON.stringify(bodySettings));
+          console.log('🔧 SETTINGS_OVERRIDE DEBUG: Style settings from DB:', JSON.stringify(styleSettings));
+          console.log('🔧 SETTINGS_OVERRIDE DEBUG: Final merged settings_override:', JSON.stringify(mergedSettings));
+
+          return mergedSettings;
+        })()
       } as Record<string, unknown>;
 
       // Submit to Modal API
@@ -754,7 +858,7 @@ serve(async (req) => {
             i18n_key: 'status.tooltip.queueReasons.provider_temporary_issue',
             i18n_params: {},
           }),
-          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 200, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
@@ -795,7 +899,7 @@ serve(async (req) => {
         }),
         {
           status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' }
         }
       );
 
@@ -815,7 +919,7 @@ serve(async (req) => {
           i18n_key: 'status.tooltip.queueReasons.provider_temporary_issue',
           i18n_params: {},
         }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 200, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
       );
     } finally {
       try {
@@ -826,10 +930,13 @@ serve(async (req) => {
     }
 
   } catch (error) {
-    console.error('Inference start error:', error);
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-  }
-}); 
+      console.error('Inference start error:', error);
+      return new Response(
+        JSON.stringify({ error: 'Internal server error' }),
+        { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+  });
+
+  return rateLimitedResponse;
+});

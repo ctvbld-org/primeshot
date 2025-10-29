@@ -1,8 +1,9 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { deleteCharacterFolder } from '@/lib/s3'
+import { createSecuredHandler, SECURITY_PRESETS } from '@/lib/security-middleware'
 
-export async function POST(request: Request) {
+async function handlePOST(request: NextRequest) {
   try {
     const supabase = await createClient()
     const { data: { user }, error: userError } = await supabase.auth.getUser()
@@ -58,16 +59,7 @@ export async function POST(request: Request) {
       console.log(`Deleted images from database for character: ${characterId}`)
     }
 
-    // Delete upload sessions and chunks
-    const { error: deleteSessionsError } = await supabase
-      .from('upload_sessions')
-      .delete()
-      .eq('character_id', characterId)
-
-    if (deleteSessionsError) {
-      console.error('Failed to delete upload sessions:', deleteSessionsError)
-      // Continue with character deletion
-    }
+    // Note: legacy upload_sessions table has been removed
 
     // Note: We keep training_jobs for analytics and audit trail
     // The soft delete approach maintains referential integrity
@@ -96,3 +88,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 } 
+
+// Secured handler with authentication and rate limiting
+const securedPOST = createSecuredHandler(
+  handlePOST,
+  SECURITY_PRESETS.PUBLIC
+);
+
+export async function POST(request: NextRequest) {
+  return await securedPOST(request);
+}

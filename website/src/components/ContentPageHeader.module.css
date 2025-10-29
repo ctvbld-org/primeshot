@@ -1,0 +1,145 @@
+.wrapper {
+  width: 100%;
+}
+
+.container {
+  width: 100%;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+  border-radius: 1rem;
+  overflow: hidden;
+  height: 240px;
+  margin-top: 1.25rem;
+  position: relative;
+}
+
+@media (min-width: 640px) {
+  .container {
+    border-radius: 1.75rem;
+    height: 340px;
+  }
+}
+
+/* Background layers */
+.backgroundImage {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+}
+
+.blackOverlay {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  background-color: black;
+  transition: opacity 0.5s;
+}
+
+.blackOverlay.loaded {
+  opacity: 0;
+}
+
+.blackOverlay.loading {
+  opacity: 1;
+}
+
+.blurLayer {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  backdrop-filter: blur(40px);
+}
+
+@media (min-width: 640px) {
+  .blurLayer {
+    backdrop-filter: blur(60px);
+  }
+}
+
+@media (min-width: 768px) {
+  .blurLayer {
+    backdrop-filter: blur(80px);
+  }
+}
+
+.colorLayer {
+  position: absolute;
+  inset: 0;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  height: 100%;
+  width: 100%;
+  background-color: #102B34;
+  mix-blend-mode: lighten;
+}
+
+.noiseLayer {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  background-image: url('https://d3el9qajjnmn76.cloudfront.net/website-images/noise.png');
+  background-repeat: repeat;
+  background-size: 130px 130px;
+  mix-blend-mode: color-dodge;
+}
+
+/* Content */
+.contentWrapper {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  height: 100%;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  text-align: left;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-bottom: 1.5rem;
+  mix-blend-mode: lighten;
+}
+
+@media (min-width: 1280px) {
+  .contentWrapper {
+    padding-bottom: 3rem;
+  }
+}
+
+.title {
+    @apply text-mist;
+    font-family: var(--font-carb);
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    font-size: 3rem;
+    transition: opacity 0.7s ease-out;
+}
+
+@media (min-width: 640px) {
+  .title {
+    font-size: 4.25rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .title {
+    font-size: 5.5rem;
+  }
+}
+
+.title.visible {
+  opacity: 1;
+}
+
+.title.hidden {
+  opacity: 0;
+}
+

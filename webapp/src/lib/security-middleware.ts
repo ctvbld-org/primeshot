@@ -1,0 +1,612 @@
+// Comprehensive security middleware for Next.js API routes
+// Combines rate limiting, bot protection, and request validation
+
+import { NextRequest, NextResponse } from 'next/server';
+import { createRateLimit, RATE_LIMITS, type RateLimitConfig } from './rate-limit';
+import { botProtectionMiddleware, verifyTurnstileToken } from './bot-protection';
+import { createClient } from './supabase/server';
+
+// Utility function to dynamically determine allowed origins
+function getAllowedOrigins(request: NextRequest, overrides?: string[]): string[] {
+  // If explicit overrides are provided, use them
+  if (overrides) {
+    return overrides;
+  }
+
+  // Extract the origin from the current request URL
+  const url = new URL(request.url);
+  const currentOrigin = `${url.protocol}//${url.host}`;
+
+  // Handle development environment - allow localhost with any port
+  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+    return [
+      currentOrigin,
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:4000', // Website dev server
+      'http://127.0.0.1:3000',
+      'http://127.0.0.1:3001',
+      'http://127.0.0.1:4000'
+    ];
+  }
+
+  // Production/Staging environment - allow cross-origin requests from frontend domains
+  const allowedOrigins = [currentOrigin];
+
+  // Staging environment
+  if (url.host === 'staging-webapp.primeshot.ai') {
+    allowedOrigins.push('https://staging.primeshot.ai');
+  }
+
+  // Production environment
+  if (url.host === 'primeshot-webapp.vercel.app' || url.host.includes('primeshot-webapp')) {
+    allowedOrigins.push('https://primeshot.ai');
+    allowedOrigins.push('https://www.primeshot.ai');
+  }
+
+  // Also allow if request is FROM the frontend to the API
+  if (url.host === 'staging.primeshot.ai') {
+    allowedOrigins.push('https://staging-webapp.primeshot.ai');
+  }
+  
+  if (url.host === 'primeshot.ai' || url.host === 'www.primeshot.ai') {
+    allowedOrigins.push('https://primeshot-webapp.vercel.app');
+  }
+
+  return allowedOrigins;
+}
+
+export interface SecurityConfig {
+  rateLimit?: RateLimitConfig;
+  botProtection?: boolean;
+  requireAuth?: boolean;
+  requireAdmin?: boolean;
+  validateInput?: boolean;
+  cors?: {
+    origins?: string[] | 'dynamic'; // Allow 'dynamic' for auto-detection
+    methods?: string[];
+    headers?: string[];
+    credentials?: boolean;
+  };
+  maxRequestSize?: number; // in bytes
+  timeout?: number; // in milliseconds
+}
+
+// Default security configurations for different endpoint types
+export const SECURITY_CONFIGS: Record<string, SecurityConfig> = {
+  // Public endpoints with minimal protection
+  PUBLIC: {
+    rateLimit: RATE_LIMITS.PUBLIC,
+    botProtection: true,
+    requireAuth: false,
+    validateInput: true,
+    cors: {
+      origins: 'dynamic',
+      methods: ['GET', 'POST', 'OPTIONS'],
+      headers: ['Content-Type', 'Authorization'],
+      credentials: true
+    }
+  },
+
+  // Authenticated endpoints with moderate protection
+  AUTHENTICATED: {
+    rateLimit: RATE_LIMITS.GENERAL,
+    botProtection: true,
+    requireAuth: true,
+    validateInput: true,
+    cors: {
+      origins: 'dynamic',
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      headers: ['Content-Type', 'Authorization'],
+      credentials: true
+    }
+  },
+
+  // Upload endpoints with strict protection
+  UPLOAD: {
+    rateLimit: RATE_LIMITS.UPLOAD,
+    botProtection: true,
+    requireAuth: true,
+    validateInput: true,
+    maxRequestSize: 10 * 1024 * 1024, // 10MB
+    cors: {
+      origins: 'dynamic',
+      methods: ['POST', 'OPTIONS'],
+      headers: ['Content-Type', 'Authorization'],
+      credentials: true
+    }
+  },
+
+  // Payment endpoints with maximum protection
+  PAYMENT: {
+    rateLimit: RATE_LIMITS.PAYMENT,
+    botProtection: true,
+    requireAuth: true,
+    validateInput: true,
+    cors: {
+      origins: 'dynamic',
+      methods: ['GET', 'POST', 'OPTIONS'],
+      headers: ['Content-Type', 'Authorization', 'Stripe-Signature'],
+      credentials: true
+    }
+  },
+
+  // Generation endpoints with expensive operation protection
+  GENERATION: {
+    rateLimit: RATE_LIMITS.GENERATION,
+    botProtection: true,
+    requireAuth: true,
+    validateInput: true,
+    cors: {
+      origins: 'dynamic',
+      methods: ['POST', 'OPTIONS'],
+      headers: ['Content-Type', 'Authorization'],
+      credentials: true
+    }
+  },
+
+  // Webhook endpoints - minimal protection for external services
+  WEBHOOK: {
+    rateLimit: RATE_LIMITS.WEBHOOK,
+    botProtection: false, // Skip bot protection for legitimate webhook services
+    requireAuth: false, // Webhooks use signature verification instead
+    validateInput: true,
+    cors: {
+      origins: ['*'], // Keep wildcard for webhooks - they need to accept from external services
+      methods: ['POST', 'OPTIONS'],
+      headers: ['Content-Type', 'Stripe-Signature', 'User-Agent'],
+      credentials: false
+    }
+  },
+
+  // Admin endpoints with maximum protection
+  ADMIN: {
+    rateLimit: {
+      windowMs: 60 * 1000, // 1 minute
+      maxRequests: 20, // 10 requests per minute
+      keyGenerator: (req: Request) => `admin:${req.headers.get('x-user-id') || 'unknown'}`
+    },
+    botProtection: true,
+    requireAuth: true,
+    requireAdmin: true,
+    validateInput: true,
+    cors: {
+      origins: 'dynamic',
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      headers: ['Content-Type', 'Authorization'],
+      credentials: true
+    }
+  }
+};
+
+// Request validation utilities
+export function validateRequestBody(body: any, schema: any): { valid: boolean; errors: string[] } {
+  const errors: string[] = [];
+
+  if (!body || typeof body !== 'object') {
+    errors.push('Request body must be a valid JSON object');
+    return { valid: false, errors };
+  }
+
+  // Basic validation - extend with proper schema validation library like Joi or Zod
+  for (const [key, rules] of Object.entries(schema)) {
+    const validationRules = rules as any;
+    const value = body[key];
+
+    if (validationRules.required && (value === undefined || value === null)) {
+      errors.push(`Missing required field: ${key}`);
+      continue;
+    }
+
+    if (value !== undefined && value !== null) {
+      if (validationRules.type && typeof value !== validationRules.type) {
+        errors.push(`Field ${key} must be of type ${validationRules.type}, got ${typeof value}`);
+      }
+
+      if (validationRules.minLength && typeof value === 'string' && value.length < validationRules.minLength) {
+        errors.push(`Field ${key} must be at least ${validationRules.minLength} characters long`);
+      }
+
+      if (validationRules.maxLength && typeof value === 'string' && value.length > validationRules.maxLength) {
+        errors.push(`Field ${key} must be at most ${validationRules.maxLength} characters long`);
+      }
+
+      if (validationRules.pattern && typeof value === 'string' && !validationRules.pattern.test(value)) {
+        errors.push(`Field ${key} format is invalid`);
+      }
+
+      if (validationRules.enum && !validationRules.enum.includes(value)) {
+        errors.push(`Field ${key} must be one of: ${validationRules.enum.join(', ')}`);
+      }
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+// Authentication middleware
+export async function authenticateRequest(request: NextRequest): Promise<{
+  authenticated: boolean;
+  user?: any;
+  admin?: boolean;
+  error?: string;
+}> {
+  try {
+    const supabase = await createClient();
+    const { data: { user }, error } = await supabase.auth.getUser();
+
+    if (error || !user) {
+      return {
+        authenticated: false,
+        error: 'Authentication required'
+      };
+    }
+
+    // Check if admin is required
+    const { data: profile } = await supabase
+      .from('users')
+      .select('admin')
+      .eq('id', user.id)
+      .single();
+
+    return {
+      authenticated: true,
+      user,
+      admin: profile?.admin || false
+    };
+  } catch (error) {
+    return {
+      authenticated: false,
+      error: 'Authentication check failed'
+    };
+  }
+}
+
+// CORS middleware
+export function corsMiddleware(config: SecurityConfig['cors']) {
+  return (request: NextRequest) => {
+    const origin = request.headers.get('origin') || '';
+    
+    // Determine allowed origins
+    let origins: string[];
+    if (config?.origins === 'dynamic') {
+      origins = getAllowedOrigins(request);
+    } else {
+      origins = config?.origins || getAllowedOrigins(request);
+    }
+
+    // Check if origin is allowed
+    const isAllowedOrigin = origins.includes('*') ||
+      origins.includes(origin) ||
+      origins.some(allowed => origin.endsWith(allowed));
+
+    const headers = new Headers();
+
+    if (isAllowedOrigin) {
+      headers.set('Access-Control-Allow-Origin', origin);
+    } else if (origins.includes('*')) {
+      headers.set('Access-Control-Allow-Origin', '*');
+    }
+
+    headers.set('Access-Control-Allow-Methods', (config?.methods || ['GET', 'POST', 'OPTIONS']).join(', '));
+    headers.set('Access-Control-Allow-Headers', (config?.headers || ['Content-Type', 'Authorization']).join(', '));
+
+    if (config?.credentials) {
+      headers.set('Access-Control-Allow-Credentials', 'true');
+    }
+
+    return headers;
+  };
+}
+
+// Main security middleware factory
+export function createSecurityMiddleware(config: SecurityConfig = {}) {
+  return async (request: NextRequest, handler: (req: NextRequest) => Promise<NextResponse>): Promise<NextResponse> => {
+    // Handle preflight OPTIONS requests
+    if (request.method === 'OPTIONS') {
+      const corsHeaders = corsMiddleware(config.cors)(request);
+      return new NextResponse('ok', { status: 200, headers: corsHeaders });
+    }
+
+    // Check request size limits
+    if (config.maxRequestSize) {
+      const contentLength = request.headers.get('content-length');
+      if (contentLength && parseInt(contentLength) > config.maxRequestSize) {
+        const corsHeaders = config.cors ? corsMiddleware(config.cors)(request) : new Headers();
+        const response = NextResponse.json(
+          { error: 'Request too large', maxSize: config.maxRequestSize },
+          { status: 413 }
+        );
+        // Add CORS headers to error response
+        corsHeaders.forEach((value, key) => {
+          response.headers.set(key, value);
+        });
+        return response;
+      }
+    }
+
+    // Apply rate limiting if configured
+    if (config.rateLimit) {
+      try {
+        const rateLimitMiddleware = createRateLimit(config.rateLimit);
+        const rateLimitResponse = await rateLimitMiddleware(request, async () => handler(request));
+
+        if (rateLimitResponse.status === 429) {
+          const corsHeaders = config.cors ? corsMiddleware(config.cors)(request) : new Headers();
+          const headers = new Headers(rateLimitResponse.headers);
+          // Add CORS headers
+          corsHeaders.forEach((value, key) => {
+            headers.set(key, value);
+          });
+          return new NextResponse(rateLimitResponse.body, {
+            status: rateLimitResponse.status,
+            headers
+          });
+        }
+
+        // Add rate limit headers to response
+        const headers = new Headers(rateLimitResponse.headers);
+        if (rateLimitResponse.headers.get('x-ratelimit-limit')) {
+          headers.set('X-RateLimit-Limit', rateLimitResponse.headers.get('x-ratelimit-limit') || '');
+          headers.set('X-RateLimit-Remaining', rateLimitResponse.headers.get('x-ratelimit-remaining') || '');
+          headers.set('X-RateLimit-Reset', rateLimitResponse.headers.get('x-ratelimit-reset') || '');
+        }
+
+        // Add CORS headers to successful response
+        if (config.cors) {
+          const corsHeaders = corsMiddleware(config.cors)(request);
+          corsHeaders.forEach((value, key) => {
+            headers.set(key, value);
+          });
+        }
+
+        // Add security headers
+        headers.set('X-Content-Type-Options', 'nosniff');
+        headers.set('X-Frame-Options', 'DENY');
+        headers.set('X-XSS-Protection', '1; mode=block');
+        headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+        return new NextResponse(rateLimitResponse.body, {
+          status: rateLimitResponse.status,
+          headers
+        });
+      } catch (error) {
+        console.error('Rate limiting error:', error);
+        // Continue without rate limiting on error
+      }
+    }
+
+    // Apply authentication if required
+    if (config.requireAuth || config.requireAdmin) {
+      const authResult = await authenticateRequest(request);
+
+      if (!authResult.authenticated) {
+        const corsHeaders = config.cors ? corsMiddleware(config.cors)(request) : new Headers();
+        const response = NextResponse.json(
+          { error: authResult.error || 'Authentication required' },
+          { status: 401 }
+        );
+        // Add CORS headers to error response
+        corsHeaders.forEach((value, key) => {
+          response.headers.set(key, value);
+        });
+        return response;
+      }
+
+      if (config.requireAdmin && !authResult.admin) {
+        const corsHeaders = config.cors ? corsMiddleware(config.cors)(request) : new Headers();
+        const response = NextResponse.json(
+          { error: 'Admin access required' },
+          { status: 403 }
+        );
+        // Add CORS headers to error response
+        corsHeaders.forEach((value, key) => {
+          response.headers.set(key, value);
+        });
+        return response;
+      }
+
+      // Add user info to request headers for handler use
+      const headers = new Headers(request.headers);
+      headers.set('x-user-id', authResult.user!.id);
+      headers.set('x-user-admin', authResult.admin ? 'true' : 'false');
+      request = new NextRequest(request.url, {
+        method: request.method,
+        headers,
+        body: request.body
+      });
+    }
+
+    // Apply bot protection if enabled
+    if (config.botProtection) {
+      try {
+        // For form data, we need to parse it for honeypot detection
+        let formData: FormData | undefined;
+        const contentType = request.headers.get('content-type') || '';
+
+        if (contentType.includes('multipart/form-data') || contentType.includes('application/x-www-form-urlencoded')) {
+          try {
+            formData = await request.formData();
+          } catch (error) {
+            console.warn('Failed to parse form data for bot detection:', error);
+          }
+        }
+
+        const botResult = await botProtectionMiddleware(request, formData);
+
+        if (!botResult.allowed) {
+          const corsHeaders = config.cors ? corsMiddleware(config.cors)(request) : new Headers();
+          
+          if (botResult.challenge === 'captcha_required') {
+            const response = NextResponse.json(
+              {
+                error: botResult.error,
+                challenge: 'captcha_required',
+                reasons: [] // Don't expose bot detection reasons to client
+              },
+              { status: 403 }
+            );
+            // Add CORS headers to error response
+            corsHeaders.forEach((value, key) => {
+              response.headers.set(key, value);
+            });
+            return response;
+          }
+
+          const response = NextResponse.json(
+            { error: botResult.error || 'Access denied' },
+            { status: 403 }
+          );
+          // Add CORS headers to error response
+          corsHeaders.forEach((value, key) => {
+            response.headers.set(key, value);
+          });
+          return response;
+        }
+      } catch (error) {
+        console.error('Bot protection error:', error);
+        // Continue without bot protection on error
+      }
+    }
+
+    // Validate input if configured
+    if (config.validateInput && request.method !== 'GET') {
+      try {
+        const body = await request.json().catch(() => ({}));
+
+        // Basic validation - extend with specific schemas per endpoint
+        if (Object.keys(body).length > 0) {
+          // Check for suspicious patterns in request body
+          const bodyStr = JSON.stringify(body).toLowerCase();
+          const suspiciousPatterns = [
+            '<script',
+            'javascript:',
+            'eval(',
+            'alert(',
+            'document.cookie',
+            'window.location'
+          ];
+
+          for (const pattern of suspiciousPatterns) {
+            if (bodyStr.includes(pattern)) {
+              const corsHeaders = config.cors ? corsMiddleware(config.cors)(request) : new Headers();
+              const response = NextResponse.json(
+                { error: 'Invalid request content' },
+                { status: 400 }
+              );
+              // Add CORS headers to error response
+              corsHeaders.forEach((value, key) => {
+                response.headers.set(key, value);
+              });
+              return response;
+            }
+          }
+        }
+      } catch (error) {
+        // Invalid JSON is handled as validation error
+        const corsHeaders = config.cors ? corsMiddleware(config.cors)(request) : new Headers();
+        const response = NextResponse.json(
+          { error: 'Invalid request format' },
+          { status: 400 }
+        );
+        // Add CORS headers to error response
+        corsHeaders.forEach((value, key) => {
+          response.headers.set(key, value);
+        });
+        return response;
+      }
+    }
+
+    // Execute the actual handler
+    try {
+      const response = await handler(request);
+
+      // Add security headers to response
+      const headers = new Headers(response.headers);
+      headers.set('X-Content-Type-Options', 'nosniff');
+      headers.set('X-Frame-Options', 'DENY');
+      headers.set('X-XSS-Protection', '1; mode=block');
+      headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+      // Add CORS headers if configured
+      if (config.cors) {
+        const corsHeaders = corsMiddleware(config.cors)(request);
+        corsHeaders.forEach((value, key) => {
+          headers.set(key, value);
+        });
+      }
+
+      return new NextResponse(response.body, {
+        status: response.status,
+        headers
+      });
+    } catch (error) {
+      console.error('Handler execution error:', error);
+      const corsHeaders = config.cors ? corsMiddleware(config.cors)(request) : new Headers();
+      const response = NextResponse.json(
+        { error: 'Internal server error' },
+        { status: 500 }
+      );
+      // Add CORS headers to error response
+      corsHeaders.forEach((value, key) => {
+        response.headers.set(key, value);
+      });
+      return response;
+    }
+  };
+}
+
+// Helper function to create secured API route handlers
+export function createSecuredHandler(
+  handler: (req: NextRequest) => Promise<NextResponse>,
+  config: SecurityConfig = SECURITY_CONFIGS.PUBLIC
+) {
+  const securityMiddleware = createSecurityMiddleware(config);
+
+  return async (request: NextRequest): Promise<NextResponse> => {
+    return await securityMiddleware(request, handler);
+  };
+}
+
+// Specific security configurations for common endpoint patterns
+export const SECURITY_PRESETS: Record<string, SecurityConfig> = {
+  // Public endpoints with minimal protection
+  PUBLIC: {
+    ...SECURITY_CONFIGS.PUBLIC
+  },
+
+  // Image upload with bot protection and strict rate limiting
+  IMAGE_UPLOAD: {
+    ...SECURITY_CONFIGS.UPLOAD,
+    botProtection: true,
+    maxRequestSize: 50 * 1024 * 1024, // 50MB for images
+    validateInput: true
+  },
+
+  // AI generation with expensive operation protection
+  AI_GENERATION: {
+    ...SECURITY_CONFIGS.GENERATION,
+    rateLimit: {
+      windowMs: 60 * 1000,
+      maxRequests: 3, // Very strict for expensive operations
+      keyGenerator: (req: Request) => `generation:${req.headers.get('x-user-id') || 'anonymous'}`
+    }
+  },
+
+  // Credit/payment operations with maximum security
+  PAYMENT_OPERATION: {
+    ...SECURITY_CONFIGS.PAYMENT,
+    botProtection: true,
+    validateInput: true
+  },
+
+  // Admin operations with maximum restrictions
+  ADMIN_OPERATION: {
+    ...SECURITY_CONFIGS.ADMIN,
+    rateLimit: {
+      windowMs: 60 * 1000,
+      maxRequests: 5, // Very strict for admin operations
+      keyGenerator: (req: Request) => `admin:${req.headers.get('x-user-id') || 'unknown'}`
+    }
+  }
+};

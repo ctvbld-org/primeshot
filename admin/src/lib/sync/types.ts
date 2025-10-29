@@ -12,6 +12,8 @@ export type SyncableTable =
 
 export type ChangeType = 'created' | 'updated' | 'deleted'
 
+export type SyncDirection = 'deploy' | 'pull'
+
 export interface FieldDiff {
   field: string
   oldValue: any
@@ -50,6 +52,7 @@ export interface SyncComparison {
 export interface SyncRequest {
   source: Environment
   target: Environment
+  direction: SyncDirection
   selectedChanges: {
     [table: string]: (string | number)[] // IDs of selected changes
   }

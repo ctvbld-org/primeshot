@@ -3,11 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { MinusSquare, PlusSquare, Folder as FolderIcon } from 'lucide-react'
 import styles from './tree.module.css'
+import { getApiUrl } from '@primeshot/common'
 
 type ListResponse = { folders: string[] }
 
 async function listFolders(prefix: string): Promise<string[]> {
-  const res = await fetch(`/api/media/list?prefix=${encodeURIComponent(prefix)}`)
+  const res = await fetch(getApiUrl(`/api/media/list?prefix=${encodeURIComponent(prefix)}`))
   if (!res.ok) throw new Error('Failed to list')
   const data = (await res.json()) as ListResponse
   return data.folders || []
@@ -47,14 +48,25 @@ export function TreeNav({ selectedPrefix, onSelect }: { selectedPrefix: string; 
   // Load root on mount
   useEffect(() => { ensureLoaded(root) }, [ensureLoaded])
 
-  // Auto expand path to selected prefix
+  // Auto-expand the full path to the selected prefix, including each parent segment
   useEffect(() => {
     const segments = getSegments(selectedPrefix)
     ;(async () => {
       const next = new Set(expanded)
+      // Always ensure and expand root
+      await ensureLoaded(root)
+      next.add(root)
+
+      // Walk down the path, ensuring parents are loaded and expanded
+      let parent = root
       for (const seg of segments) {
-        await ensureLoaded(seg === segments[0] ? root : seg.replace(/[^/]+\/$/, ''))
-        next.add(seg === segments[0] ? root : seg)
+        // Ensure the current parent is loaded and expanded
+        await ensureLoaded(parent)
+        next.add(parent)
+        // Advance to the next segment and expand it as well
+        parent = seg
+        await ensureLoaded(parent)
+        next.add(parent)
       }
       setExpanded(next)
     })()

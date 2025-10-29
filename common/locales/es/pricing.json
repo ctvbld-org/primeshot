@@ -1,0 +1,232 @@
+{
+  "buyCredits": {
+    "title": "Comprar créditos",
+    "description": "Elige un paquete de créditos"
+  },
+  "upgradePlan": {
+    "title": "Mejorar plan",
+    "description": "Elige un plan de suscripción"
+  },
+  "purchase": {
+    "success": {
+      "subscriptionTitle": "Has mejorado exitosamente a {{plan}}",
+      "subscriptionTitleNew": "¡Bienvenido a {{plan}}!",
+      "creditsTitle": "¡Créditos añadidos!",
+      "subscriptionDescriptionWithCredits": "Tu nuevo ciclo de facturación de suscripción comienza hoy. ¡Disfruta de {{amount}} créditos y mucho más!",
+      "subscriptionDescriptionWithCreditsNew": "Tu ciclo de facturación comienza hoy. ¡Disfruta de {{amount}} créditos y mucho más!",
+      "subscriptionDescription": "Tu nuevo ciclo de facturación de suscripción comienza hoy. ¡Disfruta de tus nuevos beneficios!",
+      "subscriptionDescriptionNew": "Tu ciclo de facturación comienza hoy. ¡Disfruta de tus nuevos beneficios!",
+      "creditsDescription": "Tu saldo ha sido actualizado. Puedes empezar a generar ahora.",
+      "returnToShoot": "Volver al shooting",
+      "defaultPlan": "tu nuevo plan"
+    }
+  },
+  "subscription": {
+    "context": {
+      "characterLimit": { "title": "Has alcanzado tu límite de personajes.", "description": "Mejora tu plan para obtener personajes adicionales" },
+      "qualityUpgrade": { "title": "¿Quieres mayor calidad?", "description": "Mejora para imágenes más nítidas y beneficios extra" },
+      "creditUpgrade": { "title": "¿Te estás quedando sin créditos?", "description": "Mejora para obtener más créditos mensuales" },
+      "general": { "title": "Mejora tu plan", "description": "Desbloquea más funciones y flexibilidad" },
+      "default": { "title": "Elige tu plan", "description": "Elige lo que te convenga, cambia cuando quieras" }
+    },
+    "loading": "Cargando planes...",
+    "empty": {
+      "title": "No hay mejora disponible",
+      "description": "Ya estás en el plan más alto disponible."
+    },
+    "headers": {
+      "chooseYourPlan": "Elige tu plan"
+    },
+    "banner": {
+      "titleStart": "Únete a los",
+      "titleNumber": "300",
+      "description": {
+        "start": "Ayuda a dar forma a Primeshot, obtén",
+        "lifetime": "de por vida",
+        "annualDiscount": "70% de descuento",
+        "annualWord": "anual",
+        "or": "o",
+        "monthlyDiscount": "50% de descuento",
+        "monthlyWord": "mensual",
+        "end": "y reclama beneficios exclusivos para los 300 fundadores."
+      },
+      "small": "La oferta de por vida continúa hasta que canceles."
+    },
+    "toggle": {
+      "monthly": "Mensual",
+      "yearly": "Anual",
+      "aria": "Ciclo de facturación"
+    },
+    "card": {
+      "recommended": "Recomendado",
+      "save": "Ahorra {{pct}}%",
+      "perMonth": "/ mes",
+      "billed": "Facturado {{cycle}}",
+      "creditsCount": "{{count}} créditos",
+      "perMonthWord": "por mes",
+      "perCredit": "{{price}} por crédito",
+      "button": {
+        "select": "Seleccionar plan",
+        "current": "Plan actual",
+        "processing": "Procesando…",
+        "disabledTooltip": "No disponible durante la oferta especial 🚀"
+      },
+      "features": {
+        "quality": "Imágenes de calidad {{quality}}",
+        "characterIncluded": "{{count}}x Personaje incluido",
+        "maxCharacters": "Hasta {{count}} almacenamiento de personajes",
+        "concurrentShoots": "Hasta {{count}} shootings simultáneos",
+        "commercialUse": "Uso comercial"
+      }
+    },
+    "footer": {
+      "upgradeNotice": "Tu suscripción actual será cancelada y reemplazada con el nuevo plan. Los créditos existentes se conservarán.",
+      "buyCreditPack": "Comprar un paquete de créditos"
+    },
+    "toasts": {
+      "loginRequired": "Por favor, inicia sesión",
+      "selectPlan": "Por favor, selecciona un plan",
+      "invalidPlan": "Plan de suscripción seleccionado inválido",
+      "openingPortal": "Abriendo portal de cliente de Stripe...",
+      "customerPortalFailed": "Error al abrir el portal de cliente",
+      "upgradePreviewFailed": "Error al abrir la vista previa de mejora",
+      "upgraded": "¡Suscripción mejorada exitosamente!",
+      "checkoutFailed": "Pago fallido",
+      "invalidCheckout": "Respuesta inválida del pago"
+    }
+  },
+  "credits": {
+    "dialog": {
+      "headerSub": {
+        "lowBalance": "Saldo de créditos demasiado bajo.",
+        "creativity": "Alimenta tu creatividad 🚀"
+      },
+      "headerTitle": {
+        "lowBalance": "Recarga tus créditos para continuar generando",
+        "fun": "¡Más créditos, más creaciones, más diversión!"
+      }
+    },
+    "card": {
+      "images": "Hasta {{count}} imágenes {{quality}}",
+      "characters": "Hasta {{count}} personajes",
+      "footnote": "*Solo planes Estándar y Pro",
+      "button": {
+        "buy": "Comprar",
+        "processing": "Procesando…"
+      },
+      "validity": "Válido por {{duration}}",
+      "oneTime": "una vez",
+      "perCredit": "{{price}} por crédito",
+      "perCreditWord": "por crédito"
+    },
+    "toasts": {
+      "loginRequired": "Por favor, inicia sesión",
+      "invalidPackConfig": "Configuración de paquete de créditos inválida",
+      "createCheckoutFailed": "Error al crear sesión de pago",
+      "purchaseFailed": "Error al comprar paquete de créditos"
+    }
+  },
+  "comparisonTable": {
+    "categories": {
+      "credits": "Créditos",
+      "image": "Imagen",
+      "characters": "Personajes",
+      "generation": "Generación",
+      "support": "Soporte"
+    },
+    "features": {
+      "creditsPerMonth": "Créditos por mes",
+      "pricePerCredit": "Precio por crédito",
+      "resolution": "Resolución",
+      "takesPerShoot": "Tomas por sesión",
+      "portraitAspectRatio": "Formato vertical",
+      "squareAspectRatio": "Formato cuadrado",
+      "landscapeAspectRatio": "Formato horizontal",
+      "included": "Incluido",
+      "storage": "Almacenamiento",
+      "concurrentShoots": "Sesiones simultáneas",
+      "commercialUse": "Uso comercial",
+      "priorityFeatures": "Acceso prioritario a nuevas funciones",
+      "premiumStyles": "Estilos premium",
+      "betaAccess": "Acceso a pruebas beta",
+      "emailSupport": "Soporte por correo",
+      "chatSupport": "Soporte por chat",
+      "dedicatedSupport": "Soporte dedicado"
+    },
+    "values": {
+      "upTo": "Hasta {{value}}",
+      "basicQuality": "Calidad básica",
+      "highQuality": "Alta calidad"
+    }
+  },
+  "page": {
+    "title": "Precios",
+    "header": {
+      "title": "Planes simples, looks infinitos.",
+      "subtitle": "Cancela o cambia cuando quieras.",
+      "savingsText": "Ahorra hasta",
+      "savingsHighlight": "40%",
+      "savingsOn": "en planes anuales"
+    },
+    "tabs": {
+      "monthly": "Mensual",
+      "annual": "Anual"
+    },
+    "buttons": {
+      "getStarted": "Empezar",
+      "selectPlan": "Seleccionar plan",
+      "currentPlan": "Plan actual",
+      "processing": "Procesando..."
+    },
+    "loading": "Cargando precios...",
+    "comparison": {
+      "title": "Compara planes",
+      "description": "Mejora para desbloquear retratos de mayor resolución, más créditos, personajes reutilizables y procesamiento prioritario."
+    },
+    "faq": {
+      "title": "¿Preguntas?",
+      "subtitle": "Todo lo que necesitas saber sobre nuestros precios y funciones",
+      "items": {
+        "character": {
+          "question": "¿Qué es un personaje y cómo funciona?",
+          "answer": "Un personaje es tu propio modelo de IA personalizado, entrenado con 9 selfies. Aprende tus rasgos faciales exactos—estructura, tono de piel, cabello—para que cada retrato se vea auténticamente como tú. Según tu plan, obtienes de 1 a 3 personajes incluidos. Los personajes adicionales cuestan 30 créditos cada uno, y una vez creados, puedes reutilizarlos en cualquier momento para nuevas sesiones con diferentes atuendos, escenas y estilos."
+        },
+        "credits": {
+          "question": "¿Cómo funcionan los créditos?",
+          "answer": "Los créditos son tu saldo para entrenar personajes y generar imágenes. Entrenar un personaje cuesta 30 créditos. La generación de imágenes cuesta 1 crédito para calidad básica (1K), 2 para media (2K) y 3 para alta (4K). Tu plan incluye una asignación mensual de créditos que se renueva cada ciclo de facturación."
+        },
+        "commercial": {
+          "question": "¿Puedo usar mis imágenes comercialmente?",
+          "answer": "Sí. Todas las imágenes que generes son tuyas para usar sin restricciones—ya sea para LinkedIn, sitios web, marketing o impresión."
+        },
+        "privacy": {
+          "question": "¿Cómo protegen mi privacidad y mis datos?",
+          "answer": "Tus fotos y personajes se almacenan de forma segura y nunca se comparten, venden o usan para nuestro propio entrenamiento. Puedes eliminar personajes individuales o tu cuenta completa en cualquier momento. No hay acceso de terceros sin tu consentimiento."
+        },
+        "changePlan": {
+          "question": "¿Puedo cambiar o cancelar mi plan?",
+          "answer": "Sí. Puedes mejorar o reducir tu plan en cualquier momento desde la configuración de tu cuenta. Las mejoras ocurren inmediatamente con facturación prorrateada; las reducciones entran en vigor en el siguiente ciclo. Si cancelas, mantendrás el acceso hasta el final de tu ciclo actual. Guardamos tus datos durante 60 días para que puedas volver a suscribirte sin perder nada—después de eso, se eliminan permanentemente."
+        },
+        "rollover": {
+          "question": "¿Se acumulan los créditos no usados?",
+          "answer": "No. Los créditos caducan al final de cada ciclo de facturación, y tu asignación se renueva."
+        },
+        "moreCredits": {
+          "question": "¿Cómo puedo obtener más créditos?",
+          "answer": "Puedes mejorar tu suscripción para un límite mensual más alto o comprar paquetes de créditos únicos desde tu cuenta."
+        },
+        "refund": {
+          "question": "¿Cuál es su política de reembolso?",
+          "answer": "Las suscripciones y paquetes de créditos no son reembolsables. Si hay un problema técnico—como una generación fallida—contacta con soporte para una revisión y posible ajuste de créditos."
+        },
+        "deleteAccount": {
+          "question": "¿Cómo elimino mi cuenta?",
+          "answer": "En la configuración de tu cuenta, selecciona \"Eliminar cuenta\" para eliminar permanentemente todas las fotos, personajes e imágenes. Esto es irreversible, así que descarga primero todo lo que quieras conservar."
+        }
+      }
+    },
+    "signIn": {
+      "modalTitle": "Inicia sesión para continuar"
+    }
+  }
+}

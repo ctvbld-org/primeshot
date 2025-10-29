@@ -97,8 +97,23 @@
   color: #44E3C9;
 }
 
+.scoreContainerMedium .scoreIcon {
+  color: #ffde3c;
+}
+
 .scoreContainerLow .scoreIcon {
-  color: #FF973C;
+  color: #ff7d3c;
+}
+
+.infoIcon {
+  color: rgba(0, 0, 0, 0.6);
+  cursor: help;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.infoIcon:hover {
+  color: #000000;
 }
 
 .infoContainer {
@@ -185,13 +200,15 @@
 
 .infoContent .deleteText {
     opacity: 0;
+    filter: blur(10px);
     transform: translateX(10px);
-    transition: opacity 0.3s ease-in-out 0.1s, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.3s ease-in-out 0.1s, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s ease-in-out 0.1s;
     visibility: hidden;
 }
 
 .infoContent .deleteButtonConfirm .deleteText {
     opacity: 1;
+    filter: blur(0);
     transform: translateX(0);
     visibility: visible;
 }

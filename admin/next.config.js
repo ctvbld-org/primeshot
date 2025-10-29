@@ -1,10 +1,14 @@
 /** @type {import('next').NextConfig} */
 const path = require('path')
-const isProd = process.env.VERCEL_TARGET_ENV !== 'local'
+const isProd = process.env.NEXT_PUBLIC_VERCEL_TARGET_ENV !== 'local'
 
 const nextConfig = {
   basePath: isProd ? '/admin' : '',
   assetPrefix: isProd ? '/admin' : '',
+  env: {
+    NEXT_PUBLIC_BASE_PATH: isProd ? '/admin' : ''
+  },
+  transpilePackages: isProd ? [] : ['@primeshot/common'],
   webpack: (config, { isServer }) => {
     // Ignore Node.js specific modules in face-api.js
     config.resolve.fallback = {
@@ -18,6 +22,14 @@ const nextConfig = {
     // Path alias so imports like "@/constants/profile-options" work in monorepo
     config.resolve.alias['@/constants'] = path.join(__dirname, 'src/components/constants')
 
+    if (!isProd) {
+      // Prefer source over dist for local development to enable HMR
+      config.resolve.alias['@primeshot/common/web'] = path.resolve(__dirname, '../common/web')
+      config.resolve.alias['@primeshot/common/locales'] = path.resolve(__dirname, '../common/locales')
+      config.resolve.alias['@primeshot/common/hooks'] = path.resolve(__dirname, '../common/hooks')
+      config.resolve.alias['@primeshot/common/lib'] = path.resolve(__dirname, '../common/lib')
+      config.resolve.alias['@primeshot/common'] = path.resolve(__dirname, '../common/index.ts')
+    }
     return config
   },
   images: {

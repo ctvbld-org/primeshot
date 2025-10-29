@@ -1,0 +1,280 @@
+.jobGroup {
+  overflow: hidden;
+}
+
+.jobHeader {
+  padding: 0 20px;
+  display: flex;
+  width: 100%;
+}
+
+.jobTitle {
+  display: flex;
+  flex: 1 1 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.titleRow {
+  flex: 1 1 100%;
+  display: flex;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  align-items: center;
+  gap: 12px;
+  /* Allow children to shrink so ellipsis can work in flexbox */
+  min-width: 0;
+}
+
+.jobSubtitle {
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: lowercase;
+  opacity: 0.7;
+  /* Take remaining space next to the title and menu, enable truncation */
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.jobSubtitle::first-letter {text-transform: uppercase}
+
+.dotsMenuButton {
+  height: 40px;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.jobMeta {
+  display: flex;
+  flex: 0 1 38%;
+  justify-content: end;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  position: relative;
+}
+
+.jobMetaButtons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+}
+
+.timeAgo {
+  white-space: nowrap;
+}
+
+.status {
+  display: flex;
+  align-items: end;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: #2ADED8;
+}
+
+.statusText {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.separator {
+  color: var(--color-text-tertiary);
+}
+
+.statusQueued {
+  color: #9CA3AF;
+}
+
+.statusCompleted {
+  color: #22C55E;
+}
+
+.statusFailed {
+  color: #EF4444;
+}
+
+.progress {
+  margin-left: -2px;
+}
+
+.jobOptions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.optionItem {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  background: var(--color-surface-primary);
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+}
+
+.thumbnailGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  border-radius: 28px;
+  overflow: hidden;
+  position: relative;
+}
+
+.shootTitle {
+  flex: 0 0 auto;
+}
+
+/* Aspect ratio classes to control children (placeholders and thumbnails) */
+.thumbnailGrid.ar11 .thumbnailPlaceholder { aspect-ratio: 1 / 1; min-height: 0; }
+.thumbnailGrid.ar23 .thumbnailPlaceholder { aspect-ratio: 2 / 3; min-height: 0; }
+.thumbnailGrid.ar32 .thumbnailPlaceholder { aspect-ratio: 3 / 2; min-height: 0; }
+
+/* If InferenceThumbnailComponent uses an img wrapper, scope generic aspect rule */
+.thumbnailGrid.ar11 > * { aspect-ratio: 1 / 1; min-height: 0; }
+.thumbnailGrid.ar23 > * { aspect-ratio: 2 / 3; min-height: 0; }
+.thumbnailGrid.ar32 > * { aspect-ratio: 3 / 2; min-height: 0; }
+
+/* Mobile hero layout */
+.mobileHeroWrap { display: none; }
+.mobileHero {
+  position: relative;
+  border-radius: 28px;
+  overflow: hidden;
+}
+.heroAspect { width: 100%; height: 100%; }
+.mobileHero.ar11 .heroAspect { aspect-ratio: 1 / 1; }
+.mobileHero.ar23 .heroAspect { aspect-ratio: 2 / 3; }
+.mobileHero.ar32 .heroAspect { aspect-ratio: 3 / 2; }
+
+.previewStack {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+}
+.previewCircle {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  overflow: hidden;
+  background: transparent;
+  box-shadow: -6px 0px 7px rgba(0, 0, 0, 0.6);
+}
+.previewCircle + .previewCircle { margin-left: -10px; }
+.moreCircle { display: flex; align-items: center; justify-content: center; font-size: 16px; letter-spacing: -0.02em; color: #000; background-color: #fff; font-weight: 600; }
+
+.viewAllBtn {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+}
+
+@media (max-width: 768px) {
+  .mobileHeroWrap { display: block; }
+  .thumbnailGrid,
+  .jobSubtitle { display: none; }
+}
+
+.thumbnailPlaceholder {
+  aspect-ratio: 1;
+  background: #2ADED810;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  position: relative;
+}
+
+/* Animated dots (fade + scale) used in uploading status */
+@keyframes dotFadePulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+.dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 1px;
+  margin-bottom: 3px;
+}
+
+.dot {
+  width: 2px;
+  height: 2px;
+  border-radius: 9999px;
+  background-color: currentColor;
+  display: inline-block;
+  transform-origin: center;
+  opacity: 0;
+  animation: dotFadePulse 1.2s ease-in-out infinite;
+}
+
+.dots .dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dots .dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.actionBtn {
+  color: #2ADED8;
+}
+
+/* Delete animation */
+.deleting {
+  animation: deleteAnimation 10s ease-out forwards;
+}
+
+/* Disable all other animations and transitions during delete */
+.deleting * {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Disable hover effects during delete */
+.deleting *:hover {
+  transform: none !important;
+  animation: none !important;
+}
+
+@keyframes deleteAnimation {
+  0% {
+    opacity: 1;
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 0;
+    filter: blur(16px);
+  }
+}

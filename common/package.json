@@ -3,21 +3,33 @@
   "version": "0.0.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "tsc -p tsconfig.json && node -e \"const fs=require('fs');const path=require('path');const src=path.resolve('web');const dst=path.resolve('dist','web');(function copy(p,q){fs.mkdirSync(q,{recursive:true});for(const e of fs.readdirSync(p,{withFileTypes:true})){const sp=path.join(p,e.name);const dq=path.join(q,e.name);if(e.isDirectory()){copy(sp,dq)}else if(e.isFile()&&e.name.endsWith('.css')){fs.mkdirSync(path.dirname(dq),{recursive:true});fs.copyFileSync(sp,dq)}}})(src,dst);console.log('[common] Copied CSS to dist/web');\"",
-    "watch": "tsc -w -p tsconfig.json --preserveWatchOutput"
+    "build": "tsc -p tsconfig.json && node -e \"const fs=require('fs');const path=require('path');const copy=(s,d,f)=>{fs.mkdirSync(d,{recursive:true});for(const e of fs.readdirSync(s,{withFileTypes:true})){const sp=path.join(s,e.name);const dp=path.join(d,e.name);if(e.isDirectory())copy(sp,dp,f);else if(e.isFile()&&f(e.name)){fs.mkdirSync(path.dirname(dp),{recursive:true});fs.copyFileSync(sp,dp)}}};copy(path.resolve('web'),path.resolve('dist','web'),n=>n.endsWith('.css'));copy(path.resolve('locales'),path.resolve('dist','locales'),n=>n.endsWith('.json'));console.log('[common] Copied CSS and locales');\"",
+    "watch": "tsc -w -p tsconfig.json --preserveWatchOutput",
+    "watch:assets": "chokidar \"web/**/*.css\" \"locales/**/*.json\" -c \"node -e \\\"const fs=require('fs');const path=require('path');const copy=(s,d,f)=>{fs.mkdirSync(d,{recursive:true});for(const e of fs.readdirSync(s,{withFileTypes:true})){const sp=path.join(s,e.name);const dp=path.join(d,e.name);if(e.isDirectory())copy(sp,dp,f);else if(e.isFile()&&f(e.name)){fs.mkdirSync(path.dirname(dp),{recursive:true});fs.copyFileSync(sp,dp)}}};copy(path.resolve('web'),path.resolve('dist','web'),n=>n.endsWith('.css'));copy(path.resolve('locales'),path.resolve('dist','locales'),n=>n.endsWith('.json'));console.log('[common] Copied CSS and locales');\\\"\"",
+    "dev": "concurrently -k \"npm:watch\" \"npm:watch:assets\""
   },
   "dependencies": {
-    "dotenv": "^17.0.1",
-    "stripe": "^18.3.0",
+    "@radix-ui/react-visually-hidden": "^1.2.3",
     "archiver": "^6.0.2",
-    "embla-carousel-react": "^8.6.0"
+    "dotenv": "^17.0.1",
+    "embla-carousel-react": "^8.6.0",
+    "react-country-flag": "^3.1.0",
+    "stripe": "^18.3.0"
   },
   "peerDependencies": {
+    "i18next": ">=25",
+    "i18next-browser-languagedetector": ">=8",
     "react": ">=18",
     "react-dom": ">=18",
     "react-i18next": ">=15"
+  },
+  "devDependencies": {
+    "chokidar-cli": "3.0.0",
+    "concurrently": "9.2.1"
   },
   "exports": {
     ".": {
@@ -34,6 +46,14 @@
       "types": "./dist/hooks/index.d.ts",
       "default": "./dist/hooks/index.js"
     },
+    "./contexts": {
+      "types": "./dist/contexts/index.d.ts",
+      "default": "./dist/contexts/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/types/index.js"
+    },
     "./lib": {
       "types": "./dist/lib/index.d.ts",
       "default": "./dist/lib/index.js"
@@ -46,9 +66,25 @@
       "types": "./dist/hooks/*.d.ts",
       "default": "./dist/hooks/*.js"
     },
+    "./contexts/*": {
+      "types": "./dist/contexts/*.d.ts",
+      "default": "./dist/contexts/*.js"
+    },
+    "./types/*": {
+      "types": "./dist/types/*.d.ts",
+      "default": "./dist/types/*.js"
+    },
     "./lib/*": {
       "types": "./dist/lib/*.d.ts",
       "default": "./dist/lib/*.js"
+    },
+    "./lib/api/*": {
+      "types": "./dist/lib/api/*.d.ts",
+      "default": "./dist/lib/api/*.js"
+    },
+    "./lib/utils/*": {
+      "types": "./dist/lib/utils/*.d.ts",
+      "default": "./dist/lib/utils/*.js"
     },
     "./lib/stripe/*": {
       "types": "./dist/lib/stripe/*.d.ts",
@@ -59,4 +95,4 @@
       "default": "./dist/web/*.js"
     }
   }
-} 
+}

@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { getApiUrl } from '@/lib/api/client'
+import { getApiUrl } from '@primeshot/common'
 
 interface CheckoutParams {
   priceId: string

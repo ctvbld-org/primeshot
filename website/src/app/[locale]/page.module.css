@@ -1,0 +1,29 @@
+.heroSection {
+  min-height: calc(100dvh - 56px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 3rem;
+  padding-bottom: 5rem;
+}
+
+.ctaSection {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+@media (max-width: 560px) {
+  .heroSection {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 930px) {
+  .heroSection {
+    padding-top: 0;
+  }
+}

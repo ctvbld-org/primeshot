@@ -1,6 +1,8 @@
 import React from 'react'
 import { Coins, Package, Wallet } from 'lucide-react'
-import { STRIPE_REFERENCE } from '@/lib/constants/stripe-reference'
+import { STRIPE_REFERENCE } from '@primeshot/common/lib/stripe/stripe-reference'
+import { getStripeEnv } from '@primeshot/common/lib/stripe/env'
+import { i18n } from '@primeshot/common'
 
 export type CreditCostsMap = Record<string, number>
 
@@ -14,22 +16,25 @@ export function extractQualityCosts(creditCosts: CreditCostsMap = {}, limit: num
 
 export const getTrainingCost = (creditCosts?: CreditCostsMap) => creditCosts?.['CHARACTER_TRAINING']
 
-export function getStripeEnv(): 'test' | 'production' {
-  if (typeof process !== 'undefined' && process.env.VERCEL_TARGET_ENV) {
-    return process.env.VERCEL_TARGET_ENV === 'production' ? 'production' : 'test'
-  }
-  return (typeof process !== 'undefined' && process.env.NODE_ENV === 'production') ? 'production' : 'test'
-}
+export { getStripeEnv }
 
 export function getPriceIdForCredits(credits: number): string | null {
   const env = getStripeEnv()
-  const map: Record<number, keyof typeof STRIPE_REFERENCE[typeof env]['creditPacks']> = {
-    90: 'credits_90',
-    180: 'credits_180',
-    360: 'credits_360',
+  const packs: any = (STRIPE_REFERENCE as any)[env]?.creditPacks ?? {}
+
+  // Fast path: exact key like "credits_276"
+  const exactKey = `credits_${credits}`
+  if (packs[exactKey]?.price) return packs[exactKey].price as string
+
+  // Fallback: scan keys and match numeric part for robustness
+  for (const key of Object.keys(packs)) {
+    if (!key.startsWith('credits_')) continue
+    const n = Number(key.slice('credits_'.length))
+    if (Number.isFinite(n) && n === credits) {
+      return packs[key]?.price ?? null
+    }
   }
-  const key = map[credits]
-  return key ? STRIPE_REFERENCE[env].creditPacks[key].price : null
+  return null
 }
 
 export const getPackIcon = (credits: number, size: 5 | 6 = 5) => {
@@ -45,9 +50,15 @@ export const getPackColor = (credits: number) =>
 export const formatCredits = (n: number) => n.toLocaleString()
 
 export function formatValidity(days: number) {
-  if (days >= 365) return `${Math.floor(days / 365)} year${Math.floor(days / 365) > 1 ? 's' : ''}`
-  if (days >= 30) return `${Math.floor(days / 30)} month${Math.floor(days / 30) > 1 ? 's' : ''}`
-  return `${days} day${days > 1 ? 's' : ''}`
+  if (days >= 365) {
+    const years = Math.floor(days / 365)
+    return i18n.t('duration.year', { count: years })
+  }
+  if (days >= 30) {
+    const months = Math.floor(days / 30)
+    return i18n.t('duration.month', { count: months })
+  }
+  return i18n.t('duration.day', { count: days })
 }
 
 

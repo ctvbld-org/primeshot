@@ -1,7 +1,7 @@
 const DIST = process.env.NEXT_PUBLIC_AWS_DISTRIBUTION || ''
 
-const STYLE_WIDTHS = [320, 640, 960, 1280, 1920, 2560] as const
-const OPTION_WIDTHS = [320, 640, 960] as const
+const STYLE_WIDTHS = [640, 960, 1280, 1920, 2560] as const
+const OPTION_WIDTHS = [640, 960] as const
 
 function pickNearest(widths: readonly number[], requested: number): number {
   return widths.reduce((best, w) =>

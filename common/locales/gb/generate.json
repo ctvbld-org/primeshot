@@ -1,0 +1,48 @@
+{
+  "buttons": {
+    "generate": "Generate",
+    "create": "Create",
+    "done": "Done",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  },
+  "labels": {
+    "woman": "Woman",
+    "man": "Man",
+    "scene": "Scene",
+    "wardrobe": "Clothing",
+    "creditsSuffix": "credits",
+    "requiresActiveSubscription": "Requires active subscription",
+    "calculating": "Calculating"
+  },
+  "aria": {
+    "selectStyle": "Select style",
+    "selectScene": "Select scene",
+    "selectWardrobe": "Select wardrobe",
+    "selectCharacter": "Select character",
+    "openSettings": "Open settings",
+    "trainingProgress": "Training progress",
+    "characterActions": "Character actions",
+    "closeOverlay": "Close overlay",
+    "carouselNavigation": "Carousel navigation",
+    "previous": "Previous",
+    "next": "Next",
+    "search": "Search {{title}}"
+  },
+  "placeholders": {
+    "find": "Find {{title}}"
+  },
+  "admin": {
+    "title": "Admin Inference Overrides",
+    "enableNodeOverrides": "Enable node overrides (JSON by node title)",
+    "overridesJson": "Overrides JSON",
+    "enablePromptOverride": "Enable prompt override",
+    "prompt": "Prompt",
+    "characterMetadata": "Character metadata (read-only)"
+  },
+  "errors": {
+    "failedToStartGeneration": "Failed to start generation. Please try again.",
+    "selectCharacterToGenerate": "Select a character to generate"
+  }
+}
+

@@ -6,7 +6,7 @@ import type { SyncRequest } from '@/lib/sync/types'
 export async function POST(request: NextRequest) {
   try {
     const body: Omit<SyncRequest, 'source'> = await request.json()
-    const { target, selectedChanges } = body
+    const { target, selectedChanges, direction = 'deploy' } = body
     
     if (!target || !selectedChanges) {
       return NextResponse.json(
@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
     const syncRequest: SyncRequest = {
       source,
       target: target as Environment,
+      direction: direction as 'deploy' | 'pull',
       selectedChanges
     }
     

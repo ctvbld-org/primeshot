@@ -1,6 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { corsHeaders } from '../_shared/cors.ts'
+import { getCorsHeaders } from '../_shared/cors.ts'
 
 async function shouldTrigger(supabase: any, type: 'training' | 'inference'): Promise<boolean> {
   const fn = type === 'training' ? 'should_trigger_training_queue' : 'should_trigger_inference_queue'
@@ -43,13 +43,16 @@ async function triggerCleanup() {
 }
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
+  // Get dynamic CORS headers based on request origin
+  const dynamicCorsHeaders = getCorsHeaders(req);
+  
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: dynamicCorsHeaders })
   try {
     const authHeader = req.headers.get('authorization') ?? ''
     const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : ''
     const expectedToken = Deno.env.get('CRON_SECRET') ?? ''
     if (!expectedToken || token !== expectedToken) {
-      return new Response('Unauthorized', { status: 401, headers: corsHeaders })
+      return new Response('Unauthorized', { status: 401, headers: dynamicCorsHeaders })
     }
 
     const intervalMs = Number(Deno.env.get('QUEUE_CRON_INTERVAL_MS') || 300000) // 5m default
@@ -99,12 +102,12 @@ serve(async (req) => {
         intervalMs,
         timestamp: new Date().toISOString(),
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
     return new Response(
       JSON.stringify({ error: 'Internal error', details: (error as Error).message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...dynamicCorsHeaders, 'Content-Type': 'application/json' } }
     )
   }
 })

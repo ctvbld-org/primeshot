@@ -5,5 +5,9 @@
   "imports": {
     "@supabase/supabase-js": "npm:@supabase/supabase-js@2",
     "std/": "jsr:@std/"
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
   }
-} 
+}

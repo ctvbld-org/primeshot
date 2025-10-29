@@ -11,7 +11,7 @@
 .skeletonInner {
   width: 100%;
   height: 100%;
-  background-color: #2ADED810; /* gray-200 */
+  background-color: #2ADED815; /* gray-200 */
   border-radius: 28px; /* rounded-md */
 }
 
@@ -43,14 +43,15 @@
 .panelOpen .carouselButtons,
 .panelOpen .actionButton { 
   opacity: 0; 
-  transition: opacity 180ms ease; 
+  filter: blur(10px);
+  transition: opacity 180ms ease, filter 180ms ease; 
   pointer-events: none;
 }
 
 .textBlock, 
 .fixedThumb,
 .carouselButtons { 
-  transition: opacity 180ms ease; 
+  transition: opacity 180ms ease, filter 180ms ease; 
 }
 
 .stylesOptions {
@@ -114,12 +115,14 @@
   justify-content: center;
   align-items: flex-start;
   opacity: 0;
-  transition: opacity 0.3s ease-out;
+  filter: blur(10px);
+  transition: opacity 0.3s ease-out, filter 0.3s ease-out;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 .overlay.active {
   opacity: 1;
+  filter: blur(0);
 }
 
 .title {
@@ -130,15 +133,42 @@
   color: #ffffff;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25); /* drop-shadow-lg */
   transform: translateX(26px);
+  transition: all 0.7s 0.3s ease-out;
 }
 
-.subtitle { 
+.subtitle {
   font-size: 0.75rem;
-  color: #fff; 
-  font-weight: 500; 
+  color: #fff;
+  font-weight: 500;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25); /* drop-shadow-lg */
   transform: translateX(26px);
   opacity: 0.4;
+  transition: all 0.7s 0.3s ease-out;
+}
+
+/* Slide transition states */
+.slide.prev .textBlock .title,
+.slide.prev .textBlock .subtitle,
+.slide.prev .textBlock .actionButton {
+  transform: translateX(68px);
+  opacity: 0;
+  filter: blur(10px);
+}
+
+.slide.next .textBlock .title,
+.slide.next .textBlock .subtitle,
+.slide.next .textBlock .actionButton {
+  transform: translateX(-16px);
+  opacity: 0;
+  filter: blur(10px);
+}
+
+.slide.active .textBlock .title,
+.slide.active .textBlock .subtitle,
+.slide.active .textBlock .actionButton {
+  transform: translateX(26px);
+  opacity: 1;
+  filter: blur(0);
 }
 
 .textBlock { 
@@ -153,10 +183,12 @@
   font-size: 0.75rem;
   font-weight: 500; 
   color: #44E3C9;
-  padding: 8px 26px;
+  padding: 8px 26px 8px 0;
+  margin-top: -10px;
+  text-align: left;
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.7s 0.3s ease-out;
 }
 
 .actionButton:hover {

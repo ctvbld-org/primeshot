@@ -75,10 +75,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setState(prev => ({ ...prev, isLoading: true, error: null }))
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: getCallbackUrl() }
+        options: { 
+          emailRedirectTo: getCallbackUrl(),
+          shouldCreateUser: true 
+        }
       })
       if (error) throw error
-      window.location.href = `/auth/verify?email=${encodeURIComponent(email)}`
+      // Handle language prefix and basePath for proper redirect
+      let redirectPath = '/auth/verify'
+      
+      // if (typeof window !== 'undefined') {
+      //   const currentPath = window.location.pathname
+        
+      //   // Extract language prefix (e.g., /fr/, /en/, etc.)
+      //   const langMatch = currentPath.match(/^\/([a-z]{2})\//);
+      //   const langPrefix = langMatch ? `/${langMatch[1]}` : ''
+        
+      //   // Extract basePath (e.g., /create)
+      //   const basePath = currentPath.startsWith('/create') || currentPath.includes('/create') ? '/create' : ''
+        
+      //   redirectPath = `${basePath}/auth/verify`
+      // }
+      
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '')
+      window.location.href = `${baseUrl}${redirectPath}?email=${encodeURIComponent(email)}`
     } catch (error) {
       setState(prev => ({ ...prev, error: formatAuthError(error as Error) }))
     } finally {
@@ -88,7 +108,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Helper to build redirect URL respecting optional base path
   const getCallbackUrl = () => {
-    const callbackUrl = process.env.NEXT_PUBLIC_APP_URL + '/auth/callback'
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://primeshot.ai/create'
+    const callbackUrl = baseUrl + '/auth/callback'
     
     return callbackUrl
   }
@@ -129,12 +150,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }
 
+  const signInWithTwitter = async () => {
+    try {
+      setState(prev => ({ ...prev, isLoading: true, error: null }))
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'twitter',
+        options: {
+          redirectTo: getCallbackUrl(),
+        }
+      })
+      if (error) throw error
+    } catch (error) {
+      setState(prev => ({ ...prev, error: formatAuthError(error as Error) }))
+    } finally {
+      setState(prev => ({ ...prev, isLoading: false }))
+    }
+  }
+
   const signOut = async () => {
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }))
       const currentPath = window.location.pathname + window.location.search
       const isRelative = !currentPath.startsWith('http')
-      const DEFAULT_PATH = process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/'
+      const DEFAULT_PATH = process.env.NEXT_PUBLIC_BASE_PATH || '/'
       const safePath = isRelative ? currentPath : DEFAULT_PATH
       const returnUrl = encodeURIComponent(safePath)
       const { error } = await supabase.auth.signOut()
@@ -151,13 +189,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const clearError = () => setState(prev => ({ ...prev, error: null }))
 
+  const refreshUser = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const current = session?.user as User | null
+      if (!current) return
+      const { data: dbUser } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', current.id)
+        .single()
+      const mergedUser = { ...current, ...dbUser }
+      setState(prev => ({ ...prev, user: mergedUser }))
+    } catch (e) {
+      console.error('Failed to refresh user', e)
+    }
+  }
+
   const value: AuthContextType = {
     ...state,
     signIn,
     signInWithGoogle,
     signInWithLinkedIn,
+    signInWithTwitter,
     signOut,
-    clearError
+    clearError,
+    refreshUser
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

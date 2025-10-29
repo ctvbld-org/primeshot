@@ -1,59 +1,47 @@
 'use client'
 
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { useWindowSize } from '@/lib/hooks/use-window-size'
 
-const ReactConfetti = dynamic(() => import('react-confetti'), { ssr: false })
+// Use react-confetti-boom for an explosive start with natural fall
+const ConfettiBoom = dynamic(() => import('react-confetti-boom'), { ssr: false }) as any
 
 interface ConfettiProps {
   show: boolean | 'stopping'
   duration?: number
+  burstMs?: number
+  burstPieces?: number
   onComplete?: () => void
 }
 
-const CONFETTI_CONFIG = {
-  numberOfPieces: 300,
-  recycle: false,
-  gravity: 0.1,
-  initialVelocityY: 10,
-  colors: ['#44E3C9', '#FF973C', '#C0CED8']
-}
-
-export function Confetti({ show, duration = 3000, onComplete }: ConfettiProps) {
-  const { width, height } = useWindowSize()
+export function Confetti({ show, duration = 3000, burstMs = 2000, burstPieces = 120, onComplete }: ConfettiProps) {
   const stopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const removeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [seed, setSeed] = useState(0)
 
   useEffect(() => {
-    if (show === true && duration > 0) {
-      stopTimerRef.current = setTimeout(() => {
-        onComplete?.()
-      }, duration)
-    }
+    if (show !== true) return
+    // Single burst: trigger once by updating key/seed
+    setSeed(s => s + 1)
 
-    return () => {
-      if (stopTimerRef.current !== null) {
-        clearTimeout(stopTimerRef.current)
-        stopTimerRef.current = null
-      }
-      if (removeTimerRef.current !== null) {
-        clearTimeout(removeTimerRef.current)
-        removeTimerRef.current = null
-      }
+    if (duration > 0) {
+      if (stopTimerRef.current !== null) clearTimeout(stopTimerRef.current)
+      stopTimerRef.current = setTimeout(() => onComplete?.(), duration)
     }
   }, [show, duration, onComplete])
 
   if (!show) return null
 
+  // Render a single boom; particles fall naturally; burstMs kept for signature compatibility
   return (
-    <ReactConfetti
-      className='z-52!'
-      width={width}
-      height={height}
-      {...CONFETTI_CONFIG}
-      recycle={show === true}
-      numberOfPieces={show === 'stopping' ? 0 : CONFETTI_CONFIG.numberOfPieces}
+    <ConfettiBoom
+      key={seed}
+      mode="boom"
+      particleCount={burstPieces}
+      spreadDeg={55}
+      launchSpeed={1.5}
+      opacityDeltaMultiplier={1}
+      colors={["#DB66FF", "#FFC966", "#FF66C2", "#E6FF66", "#FFA666", "#A166FF", "#667AFF", "#73FF66", "#A3FF66", "#FF7366", "#FF6696", "#66FFDB"]}
+      style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 52 }}
     />
   )
 }

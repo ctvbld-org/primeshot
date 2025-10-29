@@ -6,10 +6,18 @@ export async function POST(req: Request) {
     const body = await req.json()
     const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/inference-prompt-preview`
 
-    // Attach Authorization header (prefer user session; fallback to anon key) so EF doesn't 401
-    const sb = await createClient()
-    const { data: { session } } = await sb.auth.getSession()
-    const authToken = session?.access_token || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+    // Try to get user session, but fallback to anon key if it fails (prevents 502 errors)
+    let authToken = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+    try {
+      const sb = await createClient()
+      const { data: { session } } = await sb.auth.getSession()
+      if (session?.access_token) {
+        authToken = session.access_token
+      }
+    } catch (sessionError) {
+      // Continue with anon key if session lookup fails
+      console.warn('Session lookup failed in prompt-preview, using anon key:', sessionError)
+    }
 
     const res = await fetch(url, {
       method: 'POST',
@@ -20,9 +28,23 @@ export async function POST(req: Request) {
       },
       body: JSON.stringify(body)
     })
-    const data = await res.json()
+
+    console.log('🔍 prompt-preview response status:', res.status)
+    
+    // Defensive parsing to handle non-JSON responses
+    const responseText = await res.text()
+    
+    let data
+    try {
+      data = JSON.parse(responseText)
+    } catch (parseError) {
+      // If upstream returns non-JSON (like HTML error page), wrap it
+      data = { error: 'Invalid response from upstream', raw: responseText }
+    }
+
     return NextResponse.json(data, { status: res.status })
   } catch (e: any) {
+    console.error('🔍 prompt-preview route error:', e)
     return NextResponse.json({ error: e?.message || 'Error' }, { status: 500 })
   }
 }

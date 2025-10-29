@@ -4,6 +4,9 @@
 # working directory name when running `supabase init`.
 project_id = "primeshot"
 
+[remotes.staging]
+project_id = "npalbinvsvbyddagwvjx"
+
 [api]
 enabled = true
 # Port to use for the API URL.
@@ -114,6 +117,14 @@ additional_redirect_urls = [
   "http://127.0.0.1:3000/auth/callback",
   "http://127.0.0.1:54321/auth/v1/callback"
 ]
+
+[remotes.staging.auth]
+enabled = false
+site_url = "https://staging.primeshot.ai/create"
+additional_redirect_urls = [
+  "https://staging.primeshot.ai/create/auth/callback"
+]
+
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # If disabled, the refresh token will never expire.
@@ -245,6 +256,7 @@ max_frequency = "5s"
 # Use an external OAuth provider. The full list of providers are: `apple`, `azure`, `bitbucket`,
 # `discord`, `facebook`, `github`, `gitlab`, `google`, `keycloak`, `linkedin_oidc`, `notion`, `twitch`,
 # `twitter`, `slack`, `spotify`, `workos`, `zoom`.
+
 [auth.external.google]
 enabled = true
 client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"
@@ -256,7 +268,11 @@ redirect_uri = "http://127.0.0.1:54321/auth/v1/callback"
 # or any other third-party OIDC providers.
 url = ""
 # If enabled, the nonce check will be skipped. Required for local sign in with Google auth.
-skip_nonce_check = true
+skip_nonce_check = false
+
+[remotes.staging.auth.external.google]
+client_id = "1005872098582-urj5ute8692drmsf81e5837vojiah95g.apps.googleusercontent.com"
+redirect_uri = "https://npalbinvsvbyddagwvjx.supabase.co/auth/v1/callback"
 
 [auth.external.apple]
 enabled = true
@@ -271,24 +287,39 @@ url = ""
 # If enabled, the nonce check will be skipped. Required for local sign in with Google auth.
 skip_nonce_check = false
 
-[auth.external.azure]
+[remotes.staging.auth.external.apple]
+client_id = "env(SUPABASE_AUTH_EXTERNAL_APPLE_SECRET)"
+redirect_uri = "https://npalbinvsvbyddagwvjx.supabase.co/auth/v1/callback"
+
+[auth.external.twitter]
 enabled = true
-client_id = "env(SUPABASE_AUTH_EXTERNAL_AZURE_CLIENT_ID)"
+client_id = "env(SUPABASE_AUTH_EXTERNAL_TWITTER_CLIENT_ID)"
 # DO NOT commit your OAuth provider secret to git. Use environment variable substitution instead:
-secret = "env(SUPABASE_AUTH_EXTERNAL_AZURE_SECRET)"
+secret = "env(SUPABASE_AUTH_EXTERNAL_TWITTER_SECRET)"
 # Overrides the default auth redirectUrl.
 redirect_uri = "http://127.0.0.1:54321/auth/v1/callback"
 # Overrides the default auth provider URL. Used to support self-hosted gitlab, single-tenant Azure,
 # or any other third-party OIDC providers.
-url = "env(SUPABASE_AUTH_EXTERNAL_AZURE_URL)"
+url = ""
 # If enabled, the nonce check will be skipped. Required for local sign in with Google auth.
 skip_nonce_check = false
+
+[remotes.staging.auth.external.twitter]
+client_id = "wkUxTExvWVXdW1WRjh5dlYzaTE6M"
+secret = "SEJod4fdp_QgR4rIxkx0INxu4WDzYoq4"
+redirect_uri = "https://npalbinvsvbyddagwvjx.supabase.co/auth/v1/callback"
 
 [auth.external.linkedin_oidc]
 enabled = true
 client_id = "env(SUPABASE_AUTH_EXTERNAL_LINKEDIN_CLIENT_ID)"
 secret = "env(SUPABASE_AUTH_EXTERNAL_LINKEDIN_SECRET)"
 redirect_uri = "http://127.0.0.1:54321/auth/v1/callback"
+
+[remotes.staging.auth.external.linkedin_oidc]
+client_id = "78ttjky3eskamv"
+secret = "WPL_AP1.fdPB5UNIIgTS3QsZ.x5m5pg=="
+redirect_uri = "https://npalbinvsvbyddagwvjx.supabase.co/auth/v1/callback"
+
 
 # Use Firebase Auth as a third-party provider alongside Supabase Auth.
 [auth.third_party.firebase]
@@ -336,6 +367,9 @@ AWS_ACCESS_KEY_ID = "env(AWS_ACCESS_KEY_ID)"
 AWS_SECRET_ACCESS_KEY = "env(AWS_SECRET_ACCESS_KEY)"
 AWS_REGION = "env(AWS_REGION)"
 AWS_S3_BUCKET = "env(AWS_S3_BUCKET)"
+
+[remotes.staging.edge_runtime.secrets]
+ENV = "staging"
 
 [analytics]
 enabled = true

@@ -34,10 +34,38 @@ export function SegmentedControl({
     ? selectedIndex
     : Math.max(0, getFirstEnabled())
   const idx = Math.max(0, selectedIndex >= 0 ? selectedIndex : 0)
-  const width = `${100 / count}%`
-  const transform = `translateX(${idx * 100}%)`
+  const fallbackWidth = `${100 / count}%`
+  const fallbackTransform = `translateX(${idx * 100}%)`
 
   const itemRefs = React.useRef<Array<HTMLButtonElement | null>>([])
+  const containerRef = React.useRef<HTMLDivElement | null>(null)
+  const [thumbStyle, setThumbStyle] = React.useState<{ width: number; x: number } | null>(null)
+
+  // Measure the selected item's width and position so the thumb matches it
+  const measure = React.useCallback(() => {
+    if (!containerRef.current) return
+    const i = Math.max(0, options.findIndex(o => String(o.value) === String(value)))
+    const el = itemRefs.current[i]
+    if (!el) { setThumbStyle(null); return }
+    const w = el.offsetWidth
+    const x = el.offsetLeft - 3 /* account for .segmentThumb { left: 3px } */
+    // Only update when values actually change to avoid jank
+    setThumbStyle(prev => (prev && prev.width === w && prev.x === x) ? prev : { width: w, x })
+  }, [options, value])
+
+  React.useLayoutEffect(() => {
+    measure()
+    if (!containerRef.current) return
+    const ro = new ResizeObserver(() => measure())
+    ro.observe(containerRef.current)
+    itemRefs.current.forEach(el => el && ro.observe(el))
+    const onResize = () => measure()
+    window.addEventListener('resize', onResize)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', onResize)
+    }
+  }, [measure])
 
   const getNextEnabled = (start: number, direction: 1 | -1) => {
     let i = start
@@ -84,9 +112,18 @@ export function SegmentedControl({
       role="radiogroup"
       aria-orientation="horizontal"
       aria-label={ariaLabel}
+      ref={containerRef}
       className={cn(styles.segmented, fullWidth && styles.segmentedFull, size === 'sm' ? styles['size-sm'] : styles['size-md'], className)}
     >
-      {options.length > 0 && <div className={styles.segmentThumb} style={{ width, transform }} />}
+      {options.length > 0 && (
+        <div
+          className={styles.segmentThumb}
+          style={thumbStyle
+            ? { width: thumbStyle.width, transform: `translateX(${thumbStyle.x}px)` }
+            : { width: fallbackWidth, transform: fallbackTransform }
+          }
+        />
+      )}
       {options.map((opt, i) => {
         const isActive = String(value) === String(opt.value)
         return (

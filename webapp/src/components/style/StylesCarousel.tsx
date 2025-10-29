@@ -1,30 +1,36 @@
 'use client'
 
-import { useEffect, useMemo, useState, useCallback } from 'react'
+import { useEffect, useMemo, useState, useCallback, createElement } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
-import { useStyles } from '@/hooks/useConfig'
+import { useStylesFromContext } from '@/contexts/style-data-context'
 import { StyleConfigsSchema, type Style } from '@/types/styles'
 import Image from 'next/image'
 import { makeCloudfrontLoader } from '@/lib/utils/cloudfrontLoader'
 import { useTranslation } from 'react-i18next'
 import { Icon } from '@primeshot/common/web/Icon'
-import { getStyleImages } from '@/lib/utils/get-styles-images'
 import { useStyleSelection } from '@/contexts/style-selection-context'
-import { GenerateBar } from '@/components/style/GenerateBar/GenerateBar'
+import { GenerateBar } from '@/components/generate/GenerateBar'
 import { getStoredSelectedStyleIndex, storeSelectedStyleIndex } from '@/lib/utils/style-storage'
+import { useDialogService } from '@/contexts/DialogServiceContext'
+import { StylePreviewDialog } from './StylePreviewDialog'
 import styles from './StylesCarousel.module.css'
 
 export function StylesCarousel() {
   const { t, i18n } = useTranslation(['styles', 'common'])
   const currentLang = i18n.language
-  const { data: styleConfigs = [], isLoading } = useStyles()
-  const [selectedIndex, setSelectedIndex] = useState(0)
+  const { data: styleConfigs = [], isLoading } = useStylesFromContext()
+  // Initialize from localStorage early to avoid initial flicker at index 0
+  const [initialStartIndex] = useState(() => getStoredSelectedStyleIndex() ?? 0)
+  const [selectedIndex, setSelectedIndex] = useState(initialStartIndex)
   const [canScrollPrev, setCanScrollPrev] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(false)
   const [initialIndexSet, setInitialIndexSet] = useState(false)
   
   // Import and use the style selection context
-  const { setSelectedStyleIndex, setStylesData } = useStyleSelection()
+  const { selectedStyleIndex, setSelectedStyleIndex, setStylesData } = useStyleSelection()
+  
+  // Dialog service for opening preview dialog
+  const { openDialog } = useDialogService()
 
   // Validate style configs and transform to expected format (no gender filtering)
   const photographyStyleOptions = useMemo(() => {
@@ -43,7 +49,10 @@ export function StylesCarousel() {
         available_scenes: config.available_scenes,
         available_wardrobes: config.available_wardrobes,
         available_colors: config.available_colors,
-        translations: config.translations
+        translations: config.translations,
+        // Preserve per-style wardrobe ordering fields for GenerateBar
+        wardrobe_category_order: (config as any).wardrobe_category_order,
+        wardrobe_order: (config as any).wardrobe_order,
       }))
     } catch (error) {
       console.error('Invalid style configuration:', error)
@@ -61,7 +70,7 @@ export function StylesCarousel() {
   }, [photographyStyleOptions.length])
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
-    startIndex: 0, // Will be updated when styles load
+    startIndex: initialStartIndex, // Start at saved index to avoid sliding from 0
     align: 'center',
     containScroll: false,
     duration: 30,
@@ -78,9 +87,13 @@ export function StylesCarousel() {
   useEffect(() => {
     if (photographyStyleOptions.length > 0 && emblaApi && !initialIndexSet) {
       const initialIndex = getInitialIndex()
-      setSelectedIndex(initialIndex)
-      setSelectedStyleIndex(initialIndex)
-      emblaApi.scrollTo(initialIndex, true) // true = instant scroll
+      const clamped = Math.min(Math.max(initialIndex, 0), photographyStyleOptions.length - 1)
+      setSelectedIndex(clamped)
+      setSelectedStyleIndex(clamped)
+      // For looped carousels, reInit with startIndex handles edge cases (e.g., last slide)
+      try {
+        emblaApi.reInit({ startIndex: clamped })
+      } catch {}
       setInitialIndexSet(true)
     }
   }, [photographyStyleOptions.length, emblaApi, getInitialIndex, setSelectedStyleIndex, initialIndexSet])
@@ -98,7 +111,7 @@ export function StylesCarousel() {
       }
 
       emblaApi.on('select', onSelect)
-      emblaApi.reInit()
+      // Do not call onSelect immediately to avoid overwriting the stored index during initialization
 
       // Initial state
       setCanScrollPrev(emblaApi.canScrollPrev())
@@ -117,6 +130,16 @@ export function StylesCarousel() {
     }
   }, [photographyStyleOptions, setStylesData])
 
+  // Reflect context-driven selection changes (e.g., URL params) in the carousel UI
+  useEffect(() => {
+    if (!emblaApi) return
+    if (typeof selectedStyleIndex !== 'number') return
+    if (selectedIndex === selectedStyleIndex) return
+    // Update local state and scroll carousel to match context
+    setSelectedIndex(selectedStyleIndex)
+    emblaApi.scrollTo(selectedStyleIndex, true)
+  }, [selectedStyleIndex, emblaApi, selectedIndex])
+
   const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev()
   }, [emblaApi])
@@ -131,6 +154,18 @@ export function StylesCarousel() {
     }
     return style[field] || ''
   }
+
+  // Function to open the preview dialog
+  const openPreviewDialog = useCallback((style: any) => {
+    openDialog(
+      createElement(StylePreviewDialog, {
+        styleName: style.name,
+        previewImages: style.preview_images || [],
+        fullscreen: true,
+        noContainer: true
+      })
+    )
+  }, [openDialog])
 
   // subtitle translation is constant per request
 
@@ -155,38 +190,54 @@ export function StylesCarousel() {
       {/* Carousel container */}
       <div className={styles.carouselWrapper} ref={emblaRef}>
         <div className={styles.slidesContainer}>
-          {photographyStyleOptions.map((style, index) => (
-            <div 
-              key={style.id} 
-              className={`${styles.slide} ${selectedIndex === index ? styles.active : ''}`}
-            >
-              <div className={styles.slideInner}>
-                {/* Single preview image */}
-                <div className={styles.imageWrapper}>
-                  <Image
-                    loader={makeCloudfrontLoader('app-images/placeholders/styles')}
-                    src={style.preview_images.length > 0 ? style.preview_images[0] : ''}
-                    alt={`${style.name} preview`}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 80vw, 1280px"
-                    quality={80}
-                    loading={isNearSelected(index, selectedIndex, photographyStyleOptions.length) ? 'eager' : 'lazy'}
-                    decoding="async"
-                    className="object-cover"
-                    priority={index === selectedIndex}
-                  />
-                  
-                  <div className={`${styles.overlay} ${selectedIndex === index ? styles.active : ''}`}>
-                    <div className={styles.textBlock}>
-                      <div className={styles.subtitle}>{t('titles.photoStyle', { ns: 'styles' })}</div>
-                      <h3 className={styles.title}>{getTranslatedField(style, 'name')}</h3>
+          {photographyStyleOptions.map((style, index) => {
+            const isActive = selectedIndex === index
+            const isPrev = index === (selectedIndex - 1 + photographyStyleOptions.length) % photographyStyleOptions.length
+            const isNext = index === (selectedIndex + 1) % photographyStyleOptions.length
+
+            return (
+              <div
+                key={style.id}
+                className={`${styles.slide} ${isActive ? styles.active : ''} ${isPrev ? styles.prev : ''} ${isNext ? styles.next : ''}`}
+              >
+                <div className={styles.slideInner}>
+                  {/* Single preview image */}
+                  <div className={styles.imageWrapper}>
+                    <Image
+                      loader={makeCloudfrontLoader('app-images/placeholders/styles')}
+                      src={style.preview_images.length > 0 ? style.preview_images[0] : ''}
+                      alt={`${style.name} preview`}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 80vw, 1280px"
+                      quality={80}
+                      loading={isNearSelected(index, selectedIndex, photographyStyleOptions.length) ? 'eager' : 'lazy'}
+                      decoding="async"
+                      className="object-cover"
+                      priority={index === selectedIndex}
+                    />
+
+                    <div className={`${styles.overlay} ${isActive ? styles.active : ''}`}>
+                      <div className={styles.textBlock}>
+                        <div className={styles.subtitle}>{t('titles.photoStyle', { ns: 'styles' })}</div>
+                        <h3 className={styles.title}>{style.name}</h3>
+                        <button 
+                          className={styles.actionButton}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            openPreviewDialog(style)
+                          }}
+                          aria-label={t('buttons.viewExamples', { ns: 'styles' }) || 'View Examples'}
+                        >
+                          Examples
+                        </button>
+                      </div>
                     </div>
-                    <button className={styles.actionButton}>Examples</button>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
 
@@ -226,7 +277,7 @@ export function StylesCarousel() {
         )}
       </div>
 
-      <GenerateBar emblaApi={emblaApi || null} onPanelToggle={(open) => {
+      <GenerateBar emblaApi={emblaApi || null} onPanelToggle={(open: boolean) => {
         const container = document.querySelector(`.${styles.container}`) as HTMLElement | null
         if (!container) return
         container.classList.toggle(styles.panelOpen, !!open)

@@ -1,0 +1,49 @@
+{
+  "title": "Upload Photos",
+  "description": "Upload your photos to get started",
+  "requirements": {
+    "title": "Photo Requirements",
+    "description": "Please ensure your photos meet these requirements"
+  },
+  "buttons": {
+    "upload": "Upload",
+    "continue": "Continue",
+    "retry": "Retry"
+  },
+  "errors": {
+    "invalidFile": "Invalid file type",
+    "fileTooLarge": "File too large",
+    "uploadFailed": "Upload failed",
+    "invalidFileType": "Unsupported file type ({{types}})",
+    "fileSizeExceeded": "File is too large (max {{size}})",
+    "duplicateFile": "Duplicate file",
+    "uploadFailedCount_one": "1 file couldn't be added",
+    "uploadFailedCount_other": "{{count}} files couldn't be added",
+    "someImagesSkipped": "Some Images Skipped",
+    "skippedMessage": "Only {{count}} more photos could be added. The following files were skipped: {{files}}",
+    "deleteFailed": "Delete Failed",
+    "genericError": "An error occurred",
+    "analysisTimeout": "Analysis Timeout",
+    "analysisTimeoutDescription": "Image analysis took too long. Please try again or use a different photo.",
+    "qualityIssues": "Quality Issues",
+    "qualityIssuesMessage": "{{count}} photo(s) didn't meet quality requirements. See rejected images below for details.",
+    "qualityAndLimitIssues": "Quality Issues & Limit Reached",
+    "qualityAndLimitMessage": "{{rejected}} photo(s) rejected for quality issues. {{skipped}} photo(s) couldn't be added due to 9 image limit."
+  },
+  "progress": {
+    "uploading": "Uploading...",
+    "processing": "Processing...",
+    "complete": "Complete"
+  },
+  "quality": {
+    "rejected": {
+      "oops": "Oops!",
+      "title": "{{rejected}} of {{total}} photos were rejected",
+      "description": "You can try to upload other images to get the perfect dataset or you can continue with those images but this may result in:",
+      "lessVariety": "Less variety in generated shots",
+      "lowerQuality": "Lower quality portraits",
+      "notLookLike": "Photos may not look like you in all styles",
+      "button": "Continue anyway"
+    }
+  }
+}

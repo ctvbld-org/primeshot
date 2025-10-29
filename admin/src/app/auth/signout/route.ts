@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
-const login_path = process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/'
+const login_path = process.env.NEXT_PUBLIC_BASE_PATH || '/'
 
 // We can't use the auth context here because this is a server route
 // Instead, we'll use the server client but with proper error handling

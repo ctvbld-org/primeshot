@@ -148,7 +148,7 @@
 
 
 [data-radix-popper-content-wrapper] {
-  z-index: 50 !important;
+  z-index: 999999999 !important;
 }
 
 /* Hide scrollbar utility */
@@ -224,7 +224,6 @@
   width:var(--size);
   height:var(--size);
   position:absolute;
-  inset:0;
   border-radius:50%;
   pointer-events:none;
   background: conic-gradient(transparent calc(var(--value)*1%), var(--color) 0);

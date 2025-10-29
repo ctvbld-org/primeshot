@@ -1,0 +1,31 @@
+/* Custom styles for the interactive GenerateBar on the experience page */
+
+.interactiveBar {
+  position: relative;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.generateBarWrapper {
+  opacity: 0;
+  transition: opacity 0.6s ease-in-out;
+  pointer-events: none;
+  
+  /* CSS variables for dynamic positioning */
+  --bar-position: fixed;
+  --bar-top: auto;
+  --bar-bottom: auto;
+  --bar-transform: translateX(-50%);
+  
+  position: var(--bar-position);
+  top: var(--bar-top);
+  bottom: var(--bar-bottom);
+  transform: var(--bar-transform);
+}
+
+.generateBarWrapper.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+

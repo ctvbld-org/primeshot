@@ -11,6 +11,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Input } from '@primeshot/common/web/ui/input'
 import { Textarea } from '@primeshot/common/web/ui/textarea'
 import { Button } from '@primeshot/common/web/ui/button'
+import { getApiUrl } from '@/lib/api'
 
 interface Row { key: string; value: any }
 
@@ -57,7 +58,7 @@ export function InferenceSettingsFormDialog({ row, open, onOpenChange, onSuccess
     mutationFn: async (data: FormData) => {
       let parsed: any
       try { parsed = data.value ? JSON.parse(data.value) : null } catch { throw new Error('Value must be valid JSON') }
-      const res = await fetch('/api/admin/inference-settings', {
+      const res = await fetch(getApiUrl('/api/admin/inference-settings'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key: data.key, value: parsed })

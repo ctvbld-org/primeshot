@@ -20,12 +20,13 @@ import {
 } from '@primeshot/common/web/ui/select'
 import { Button } from '@primeshot/common/web/ui/button'
 import { Badge } from '@primeshot/common/web/ui/badge'
-import { Loader2, RefreshCw, Upload, AlertTriangle } from 'lucide-react'
+import { Loader2, RefreshCw, Upload, Download, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import { getEnvironmentLabel, type Environment } from '@/lib/supabase/multi-env'
 import { ChangesSummary } from './changes-summary'
 import { SyncProgress } from './sync-progress'
-import type { SyncComparison, SyncRequest, SyncResult } from '@/lib/sync/types'
+import type { SyncComparison, SyncRequest, SyncResult, SyncDirection } from '@/lib/sync/types'
+import { getApiUrl } from '@/lib/api'
 
 interface SyncDialogProps {
   open: boolean
@@ -34,6 +35,7 @@ interface SyncDialogProps {
 
 export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
   const [selectedTarget, setSelectedTarget] = useState<Environment | null>(null)
+  const [selectedDirection, setSelectedDirection] = useState<SyncDirection>('deploy')
   const [selectedChanges, setSelectedChanges] = useState<{ [table: string]: (string | number)[] }>({})
   const [isSyncing, setIsSyncing] = useState(false)
   const [syncResult, setSyncResult] = useState<SyncResult | null>(null)
@@ -43,7 +45,7 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
   const { data: envInfo } = useQuery({
     queryKey: ['environment-info'],
     queryFn: async () => {
-      const response = await fetch('/api/sync/compare')
+      const response = await fetch(getApiUrl('/api/sync/compare'))
       if (!response.ok) throw new Error('Failed to fetch environment info')
       return response.json()
     },
@@ -52,12 +54,12 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
 
   // Fetch comparison when target is selected
   const { data: comparison, isLoading: isComparing, refetch: refetchComparison } = useQuery({
-    queryKey: ['sync-comparison', selectedTarget],
+    queryKey: ['sync-comparison', selectedTarget, selectedDirection],
     queryFn: async (): Promise<SyncComparison> => {
-      const response = await fetch('/api/sync/compare', {
+      const response = await fetch(getApiUrl('/api/sync/compare'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ target: selectedTarget }),
+        body: JSON.stringify({ target: selectedTarget, direction: selectedDirection }),
       })
       if (!response.ok) throw new Error('Failed to compare databases')
       return response.json()
@@ -65,12 +67,12 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
     enabled: open && !!selectedTarget,
   })
 
-  // Clear selected changes when target environment changes
+  // Clear selected changes when target environment or direction changes
   useEffect(() => {
     if (selectedTarget) {
       setSelectedChanges({})
     }
-  }, [selectedTarget])
+  }, [selectedTarget, selectedDirection])
 
   // Auto-select all changes when comparison data loads
   useEffect(() => {
@@ -90,7 +92,7 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
     mutationFn: async (request: Omit<SyncRequest, 'source'>) => {
       console.log('Starting sync with request:', request)
       
-      const response = await fetch('/api/sync/execute', {
+      const response = await fetch(getApiUrl('/api/sync/execute'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(request),
@@ -130,6 +132,7 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
   useEffect(() => {
     if (!open) {
       setSelectedTarget(null)
+      setSelectedDirection('deploy')
       setSelectedChanges({})
       setIsSyncing(false)
       setSyncResult(null)
@@ -151,6 +154,7 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
     
     syncMutation.mutate({
       target: selectedTarget,
+      direction: selectedDirection,
       selectedChanges,
     })
   }
@@ -167,16 +171,35 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent fullscreen={true} className="max-w-6xl max-h-[90vh] overflow-hidden flex flex-col z-51">
         <DialogHeader>
-          <DialogTitle>Deploy Database Changes</DialogTitle>
+          <DialogTitle>Database Sync</DialogTitle>
         </DialogHeader>
 
         <DialogBody>
+          {/* Direction Selection */}
+          <div className="flex items-center space-y-2 mb-4">
+            <label className="text-sm font-medium flex-1 m-0">Sync Direction</label>
+            <Select value={selectedDirection} onValueChange={(value) => setSelectedDirection(value as SyncDirection)}>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="deploy">Deploy</SelectItem>
+                <SelectItem value="pull">Pull</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Environment Selection */}
           <div className="flex items-center space-y-2 mb-4">
-            <label className="text-sm font-medium flex-1 m-0">Deploy changes from <strong>{getEnvironmentLabel(envInfo.current)}</strong> to another environment</label>
+            <label className="text-sm font-medium flex-1 m-0">
+              {selectedDirection === 'deploy'
+                ? `Deploy changes from ${getEnvironmentLabel(envInfo.current)} to another environment`
+                : `Pull changes from another environment to ${getEnvironmentLabel(envInfo.current)}`
+              }
+            </label>
             <Select value={selectedTarget || ''} onValueChange={(value) => setSelectedTarget(value as Environment)}>
               <SelectTrigger className="w-64">
-                <SelectValue placeholder="Select target environment" />
+                <SelectValue placeholder="Select environment" />
               </SelectTrigger>
               <SelectContent>
                 {envInfo.availableTargets.map((env: Environment) => (
@@ -242,7 +265,12 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
             <div className="flex-1 flex items-center justify-center py-12">
               <div className="text-center">
                 <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Syncing to {getEnvironmentLabel(selectedTarget!)}</h3>
+                <h3 className="text-lg font-semibold mb-2">
+                  {selectedDirection === 'deploy'
+                    ? `Deploying to ${getEnvironmentLabel(selectedTarget!)}`
+                    : `Pulling from ${getEnvironmentLabel(selectedTarget!)}`
+                  }
+                </h3>
                 <p className="text-muted-foreground">Please wait while we sync the selected changes...</p>
               </div>
             </div>
@@ -275,8 +303,12 @@ export function SyncDialog({ open, onOpenChange }: SyncDialogProps) {
                 </>
               ) : (
                 <>
-                  <Upload className="h-4 w-4 mr-2" />
-                  Deploy Changes
+                  {selectedDirection === 'deploy' ? (
+                    <Upload className="h-4 w-4 mr-2" />
+                  ) : (
+                    <Download className="h-4 w-4 mr-2" />
+                  )}
+                  {selectedDirection === 'deploy' ? 'Deploy Changes' : 'Pull Changes'}
                 </>
               )}
             </Button>

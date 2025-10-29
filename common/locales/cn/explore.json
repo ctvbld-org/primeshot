@@ -1,0 +1,27 @@
+{
+  "title": "作品展示",
+  "loading": "加载中...",
+  "buttons": {
+    "customiseStyle": "自定义风格",
+    "showAllStyles": "显示所有风格"
+  },
+  "noResults": "未找到\"{{filter}}\"的相关结果",
+  "styleFilters": {
+    "Corporate": {
+      "name": "商务风格",
+      "description": "专业且平易近人，具有现代感。适用于领英、企业形象照、团队页面和商业演示。"
+    },
+    "Blindlight": {
+      "name": "光影交错",
+      "description": "引人注目的电影感，大胆的阴影和光线。非常适合表现力强的肖像、个人资料和创意品牌。"
+    },
+    "Golden Noir": {
+      "name": "金色暗调",
+      "description": "氛围感十足且富有戏剧性，色调丰富对比强烈。电影级肖像风格，适合大胆的个人品牌和编辑使用。"
+    },
+    "Studio Pro": {
+      "name": "专业棚拍",
+      "description": "简洁精致，配以经典的影棚灯光。适合专业形象照、个人品牌和演员作品集的多功能选择。"
+    }
+  }
+}

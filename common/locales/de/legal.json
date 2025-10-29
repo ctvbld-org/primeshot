@@ -1,0 +1,173 @@
+{
+  "common": {
+    "effectiveDate": "Gültigkeitsdatum: {{date}}",
+    "endMarker": "/ende",
+    "contact": "Kontakt:",
+    "email": "team@primeshot.ai"
+  },
+  "terms": {
+    "title": "Allgemeine Geschäftsbedingungen",
+    "intro": "Durch die Nutzung unseres Dienstes stimmst du diesen Allgemeinen Geschäftsbedingungen zu. Bitte lies sie sorgfältig durch.",
+    "sections": {
+      "definitions": {
+        "title": "1. Definitionen",
+        "items": {
+          "service": "Primeshot / Dienst: Die KI-gestützte Plattform, die Porträts aus von Nutzern hochgeladenen Selfies generiert.",
+          "user": "Nutzer / Du: Jede Person, die auf Primeshot zugreift oder es nutzt.",
+          "userContent": "Nutzer-Inhalte: Alle Bilder, Selfies oder anderen Inhalte, die du auf Primeshot hochlädst.",
+          "aiGenerated": "KI-generierte Inhalte / Porträts: Bilder, die von Primeshots KI-Modellen basierend auf deinen Nutzer-Inhalten produziert werden.",
+          "credits": "Guthaben: Einheiten, die zur Bezahlung von KI-Modell-Training oder Bildgenerierung verwendet werden."
+        }
+      },
+      "eligibility": {
+        "title": "2. Berechtigung",
+        "content": "Du musst mindestens 16 Jahre alt sein, um Primeshot zu nutzen. Durch die Nutzung des Dienstes bestätigst du, dass du diese Altersanforderung erfüllst."
+      },
+      "userAccounts": {
+        "title": "3. Nutzerkonten",
+        "items": [
+          "Du musst ein Konto erstellen, um Primeshot zu nutzen.",
+          "Du bist verantwortlich für die Sicherheit deiner Anmeldedaten und für alle Aktivitäten unter deinem Konto.",
+          "Benachrichtige uns sofort bei unbefugtem Zugriff."
+        ]
+      },
+      "payments": {
+        "title": "4. Zahlungen und Abonnements",
+        "content": "Alle Zahlungen werden online über sichere Zahlungsanbieter abgewickelt. Abonnementgebühren werden im Voraus berechnet; Guthaben läuft gemäß den Planbedingungen ab und wird nicht übertragen. Fehlgeschlagene Zahlungen können zur Aussetzung bis zur Lösung führen.",
+        "refundsTitle": "4.1 Rückerstattungen",
+        "refunds": "Keine Rückerstattungen für ungenutztes Guthaben oder Änderungen zur Zyklusmitte, außer bei technischen Fehlern bei der Bildgenerierung.",
+        "priceChangesTitle": "4.2 Preisänderungen",
+        "priceChanges": "Primeshot kann Gebühren oder Guthaben-Preise jederzeit ändern; bestehende Abonnements sind bis zur Verlängerung nicht betroffen."
+      },
+      "ownership": {
+        "title": "5. Nutzer-Inhalte und Eigentum",
+        "content": "Du behältst alle Eigentumsrechte an deinen hochgeladenen Bildern und KI-generierten Porträts. Du gewährst Primeshot eine begrenzte, nicht-exklusive, lizenzgebührenfreie Lizenz zur Nutzung deiner Nutzer-Inhalte ausschließlich zur Bereitstellung des Dienstes. Du bist allein verantwortlich für die Inhalte, die du hochlädst, und alle daraus resultierenden Konsequenzen."
+      },
+      "prohibitedContent": {
+        "title": "6. Verbotene Inhalte",
+        "intro": "Du darfst keine Inhalte hochladen, die:",
+        "items": [
+          "Illegal, missbräuchlich, belästigend, diffamierend oder bedrohlich sind",
+          "Nacktheit, sexuell explizites oder pornographisches Material enthalten",
+          "Hassrede, Gewalt oder Diskriminierung fördern",
+          "Geistiges Eigentum oder Rechte Dritter verletzen",
+          "Malware oder schädlichen Code enthalten"
+        ],
+        "note": "Primeshot kann Inhalte, die gegen diese Regeln verstoßen, ohne Vorankündigung entfernen."
+      },
+      "aiGenerated": {
+        "title": "7. KI-generierte Inhalte",
+        "content": "KI-Porträts werden basierend auf deinen Nutzer-Inhalten generiert. Obwohl wir hochwertige Ergebnisse anstreben, garantiert Primeshot nicht die Genauigkeit der Ähnlichkeit oder Stil-Treue. Du akzeptierst, dass KI-Ausgaben variieren, Unvollkommenheiten enthalten oder Vorurteile widerspiegeln können, die in KI-Modellen inhärent sind. Primeshot ist nicht verantwortlich für persönliche, berufliche oder kommerzielle Nutzungsergebnisse von KI-generierten Inhalten."
+      },
+      "privacy": {
+        "title": "8. Datenschutz und Datenverarbeitung",
+        "content": "Hochgeladene Bilder und KI-generierte Modelle sind privat und werden nicht geteilt oder verkauft. Daten werden sicher gespeichert und nach 60 Tagen nach Kontokündigung gelöscht, es sei denn, das Gesetz erfordert eine längere Aufbewahrung. Durch die Nutzung des Dienstes stimmst du unserer Datenschutzrichtlinie bezüglich Datensammlung und -verarbeitung zu."
+      },
+      "ip": {
+        "title": "9. Geistiges Eigentum",
+        "content": "Primeshot behält das Eigentum an allen KI-Modellen, Software und Technologie, die zur Bereitstellung des Dienstes verwendet werden. Du darfst keine Primeshot-Technologie zurückentwickeln, kopieren oder reproduzieren."
+      },
+      "liability": {
+        "title": "10. Haftungsbeschränkung",
+        "content": "Im maximal gesetzlich zulässigen Umfang sind Primeshot und seine Tochtergesellschaften nicht haftbar für indirekte, zufällige oder Folgeschäden aus der Nutzung des Dienstes, Fehler, Ungenauigkeiten oder Unvollkommenheiten in KI-generierten Inhalten oder Verlust von Daten, Gewinnen oder Geschäftsmöglichkeiten."
+      },
+      "indemnity": {
+        "title": "11. Schadloshaltung",
+        "content": "Du stimmst zu, Primeshot und seine Führungskräfte, Direktoren, Mitarbeiter und Vertreter von allen Ansprüchen, Verbindlichkeiten, Schäden oder Ausgaben freizustellen, zu verteidigen und schadlos zu halten, die aus deiner Nutzung des Dienstes, deinen Nutzer-Inhalten oder der Verletzung dieser Bedingungen entstehen."
+      },
+      "termination": {
+        "title": "12. Kündigung",
+        "content": "Primeshot kann Konten bei Verstößen gegen diese Bedingungen sperren oder kündigen. Nutzer können ihr Konto jederzeit kündigen; Daten werden nach 60 Tagen gelöscht. Die Kündigung entbindet dich nicht von zuvor eingegangenen Zahlungsverpflichtungen."
+      },
+      "law": {
+        "title": "13. Anwendbares Recht und Streitbeilegung",
+        "content": "Diese Bedingungen unterliegen britischem Recht. Alle Streitigkeiten werden unter britischer Gerichtsbarkeit gelöst. Die Parteien stimmen zu, eine informelle Lösung zu versuchen, bevor sie rechtliche Schritte einleiten."
+      },
+      "changes": {
+        "title": "14. Änderungen der Bedingungen",
+        "content": "Primeshot kann diese Bedingungen jederzeit aktualisieren. Die fortgesetzte Nutzung des Dienstes stellt die Zustimmung zu den aktualisierten Bedingungen dar."
+      },
+      "misc": {
+        "title": "15. Verschiedenes",
+        "items": {
+          "severability": "Teilnichtigkeit: Wenn ein Teil dieser Bedingungen für ungültig befunden wird, bleibt der Rest in Kraft.",
+          "entireAgreement": "Gesamtvereinbarung: Diese Bedingungen bilden zusammen mit der Datenschutzrichtlinie die vollständige Vereinbarung zwischen dir und Primeshot.",
+          "contact": "Kontakt:"
+        }
+      }
+    }
+  },
+  "privacy": {
+    "title": "Datenschutzrichtlinie",
+    "intro": "Bei Primeshot ist deine Privatsphäre wichtig für uns. Diese Datenschutzrichtlinie erklärt, wie wir deine persönlichen Daten sammeln, nutzen, speichern und schützen, wenn du unseren Dienst nutzt. Durch die Nutzung von Primeshot stimmst du den hier beschriebenen Praktiken zu.",
+    "sections": {
+      "collect": {
+        "title": "1. Informationen, die wir sammeln",
+        "items": {
+          "account": "Kontoinformationen: Name, E-Mail-Adresse und Social-Login-Details, wenn du dich über Google oder ähnliche Dienste registrierst.",
+          "userContent": "Nutzer-Inhalte: Selfies und KI-generierte Porträts.",
+          "device": "Geräte- und Nutzungsdaten: Browser-Typ, Geräte-Typ, IP-Adresse und App-Nutzungsstatistiken."
+        },
+        "note": "Hinweis: Wir sammeln oder speichern keine Zahlungsinformationen. Zahlungen werden sicher von Stripe abgewickelt."
+      },
+      "use": {
+        "title": "2. Wie wir deine Informationen nutzen",
+        "intro": "Wir nutzen die von dir bereitgestellten Informationen ausschließlich um:",
+        "items": [
+          "Unseren KI-Porträt-Dienst bereitzustellen und zu verbessern.",
+          "Dein Konto und deine Präferenzen zu verwalten.",
+          "Technische Leistung zu überwachen und Probleme zu beheben.",
+          "Social-Login-Funktionalität zu ermöglichen."
+        ],
+        "note": "Wir nutzen deine Daten nicht für Marketing-Zwecke oder teilen sie mit Dritten für Werbung."
+      },
+      "thirdParty": {
+        "title": "3. Drittanbieter-Dienste",
+        "items": {
+          "aws": "AWS: Für sichere Speicherung und Verarbeitung deiner hochgeladenen Selfies und KI-generierten Porträts.",
+          "stripe": "Stripe: Für sichere Abonnement-Zahlungen und Guthaben-Käufe."
+        },
+        "note": "Wir stellen sicher, dass Drittanbieter die Datenschutz- und Sicherheitsanforderungen erfüllen."
+      },
+      "cookies": {
+        "title": "4. Cookies und Tracking",
+        "content": "Wir verwenden Cookies nur für Social-Login-Funktionalität. Es werden keine Tracking- oder Werbe-Cookies verwendet."
+      },
+      "retention": {
+        "title": "5. Datenspeicherung",
+        "content": "Hochgeladene Selfies und KI-generierte Porträts werden gespeichert, solange dein Konto aktiv ist. Nach Kontolöschung werden Daten 60 Tage für Wiederherstellungszwecke und weitere 30 Tage in Backups aufbewahrt. Nach dieser Zeit werden alle Daten dauerhaft gelöscht."
+      },
+      "security": {
+        "title": "6. Datensicherheit",
+        "intro": "Wir implementieren angemessene technische und organisatorische Maßnahmen zum Schutz deiner Daten vor unbefugtem Zugriff, Verlust oder Missbrauch, einschließlich:",
+        "items": [
+          "Verschlüsselte Dateispeicherung auf AWS.",
+          "Sichere Datenübertragung mit HTTPS.",
+          "Begrenzter Zugang für autorisiertes Personal."
+        ]
+      },
+      "rights": {
+        "title": "7. Deine Rechte",
+        "intro": "Unter britischen und EU-Datenschutzgesetzen hast du das Recht:",
+        "items": [
+          "Auf die persönlichen Daten zuzugreifen, die wir über dich haben.",
+          "Korrektur oder Löschung deiner persönlichen Daten zu beantragen.",
+          "Bestimmte Verarbeitung deiner Daten zu widersprechen oder einzuschränken."
+        ],
+        "contact": "Um eines dieser Rechte auszuüben, kontaktiere uns unter {{email}}."
+      },
+      "children": {
+        "title": "8. Kinder",
+        "content": "Primeshot ist nicht für Personen unter 16 Jahren bestimmt. Wir sammeln wissentlich keine Daten von Kindern."
+      },
+      "changes": {
+        "title": "9. Änderungen dieser Datenschutzrichtlinie",
+        "content": "Wir können diese Datenschutzrichtlinie von Zeit zu Zeit aktualisieren. Die fortgesetzte Nutzung des Dienstes stellt die Zustimmung zu allen Aktualisierungen dar."
+      },
+      "contact": {
+        "title": "10. Kontaktiere uns",
+        "content": "Für Fragen oder Bedenken bezüglich deiner Privatsphäre oder dieser Richtlinie kontaktiere uns unter: {{email}}."
+      }
+    }
+  }
+}

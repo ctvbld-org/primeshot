@@ -1,0 +1,63 @@
+{
+    "titles": {
+        "styleLabel": "Estilo",
+        "photoStyle": "Estilo fotográfico",
+        "sceneLabel": "Cenário",
+        "wardrobeLabel": "Vestuário",
+        "characterLabel": "Personagem",
+        "settingsLabel": "Definições"
+    },
+    "shoot": {
+        "subtitle": "{{style}} com cenário {{scene}}, vestindo {{wardrobe}} em {{color}}"
+    },
+    "character": {
+        "trainingQueued": "Na fila",
+        "trainingPending": "Pendente",
+        "trainingInitializing": "A inicializar",
+        "remaining": "restantes",
+        "photos": "fotos",
+        "trainingFailedTitle": "Treino falhado",
+        "trainingFailedDesc": "Este personagem não pode ser usado para geração. Por favor, elimine-o e tente novamente."
+    },
+    "qualities": {
+        "basic": "Básica",
+        "medium": "Média",
+        "high": "Alta"
+    },
+    "labels": {
+        "credits": "{{count}} créditos",
+        "includedInPlan": "{{count}} incluídos no plano",
+        "limitReached": "Limite atingido",
+        "upgradePlanAddMore": "Atualize o plano para adicionar mais",
+        "upgradeOrBuyCredits": "Atualize o plano ou compre pacote de créditos",
+        "buyCredits": "Comprar pacote de créditos",
+        "newStylesDropWeekly": "Novos estilos todas as semanas"
+    },
+    "settings": {
+        "numberOfTakes": "Número de tomadas",
+        "quality": "Qualidade",
+        "aspectRatio": "Proporção"
+    },
+    "status": {
+        "badge": {
+            "pending": "Pendente",
+            "queued": "Na fila",
+            "initializing": "A inicializar",
+            "starting": "A iniciar",
+            "running": "A gerar",
+            "generating": "A gerar",
+            "completed": "Concluído",
+            "failed": "Falhado",
+            "connecting": "A ligar"
+        },
+        "tooltip": {
+            "pending": "À espera da disponibilidade do servidor - deverá prosseguir em breve",
+            "queued": "Limite atingido, à espera que uma geração termine",
+            "queueReasons": {
+                "character_not_ready": "O personagem está a treinar — começará automaticamente",
+                "concurrent_limit": "Limite atingido ({{current}}/{{limit}}). Começará automaticamente",
+                "provider_temporary_issue": "Problema temporário ao enviar para o fornecedor. Tentaremos novamente automaticamente."
+            }
+        }
+    }
+}

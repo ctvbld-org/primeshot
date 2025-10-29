@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server'
-import { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies'
 import { createServerServiceClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
-  const origin = requestUrl.origin
+  // Use the configured app URL instead of request origin to handle domain rewrites
+  const origin = process.env.NEXT_PUBLIC_APP_URL || requestUrl.origin
 
   if (code) {
     const cookieStore = await cookies()
@@ -21,35 +21,32 @@ export async function GET(request: Request) {
       const { data: { user }, error: userError } = await supabase.auth.getUser()
       if (userError) throw userError
 
+      console.log('OAuth User Data:', {
+        id: user?.id,
+        email: user?.email,
+        user_metadata: user?.user_metadata,
+        app_metadata: user?.app_metadata
+      })
+
       if (user) {
-        // Get user metadata from OAuth provider if available
-        const full_name = user.user_metadata?.name || 
-                         user.user_metadata?.full_name ||
-                         `${user.user_metadata?.given_name || ''} ${user.user_metadata?.family_name || ''}`.trim() ||
-                         user.user_metadata?.user_name ||
-                         null
-
-        const avatar_url = user.user_metadata?.picture || user.user_metadata?.avatar_url || null
-
-        // Create/update user in database using same client (has service role permissions)
-        const { error: dbError } = await supabase
-          .from('users')
-          .upsert({
-            id: user.id,
-            email: user.email,
-            full_name,
-            avatar_url,
-            updated_at: new Date().toISOString()
-          })
-        if (dbError) {
-          console.error('Error creating user in database:', dbError)
-        }
-
-        // Create a new response with the redirect
-        const targetPath = (process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/')
+        // User creation is now handled automatically by the database trigger
+        // No need to manually create/update user in database
+        
+        // Check if user has an active subscription
+        const { data: subscription } = await supabase
+          .from('user_subscriptions')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .limit(1)
+          .maybeSingle()
+        
+        // Redirect to pricing page if no active subscription, otherwise go to app
         const app_url = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+        const website_url = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://primeshot.ai'
+        const redirectUrl = subscription ? app_url : `${website_url}/pricing`
 
-        const response = NextResponse.redirect(new URL(targetPath, app_url))
+        const response = NextResponse.redirect(new URL(redirectUrl))
         
         // Copy over the cookies from the cookie store
         const allCookies = cookieStore.getAll()
@@ -61,12 +58,12 @@ export async function GET(request: Request) {
       }
       
       // If no user, redirect to home
-      return NextResponse.redirect(new URL('/', requestUrl.origin))
+      return NextResponse.redirect(new URL(origin))
     } catch (error) {
       console.error('Auth callback error:', error)
-      return NextResponse.redirect(`${origin}/auth/auth-code-error`)
+      return NextResponse.redirect(`${origin}${'/'}auth/auth-code-error`)
     }
   }
 
-  return NextResponse.redirect(`${origin}/create`)
+  return NextResponse.redirect(new URL(origin))
 } 

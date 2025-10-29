@@ -29,3 +29,9 @@ export function useInferenceQueue() {
   return context;
 }
 
+// Optional accessor that returns null when provider is missing.
+// Useful for components that can function with a fallback (e.g., read-only props)
+export function useOptionalInferenceQueue() {
+  return useContext(InferenceQueueContext);
+}
+

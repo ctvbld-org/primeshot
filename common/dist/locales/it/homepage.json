@@ -1,0 +1,66 @@
+{
+    "hero": {
+        "headline": "ritratti che aprono le porte",
+        "tagline": "I ritratti <ai>IA</ai> più avanzati. <period>Punto.</period>",
+        "subtitle": "Fai contare la tua prima impressione. Trasforma i tuoi selfie quotidiani in ritratti straordinari, personalizzati e pronti in pochi minuti."
+    },
+    "story": {
+        "paragraph1": "Abbiamo dimenticato l'arte di mostrarci al nostro meglio. Scattiamo un selfie, aggiustiamo l'angolazione, e speriamo che basti per lasciare il segno. In un mondo che scorre veloce e giudica ancora più velocemente, hai bisogno di una foto che parli—chiaramente, con sicurezza e determinazione.",
+        "paragraph2": "Primeshot trasforma le tue foto quotidiane in ritratti premium, ricchi di stile e personalità. Niente pose rigide. Niente servizi fotografici imbarazzanti. Solo ritratti autentici che catturano l'attenzione, consegnati in pochi minuti.",
+        "callToAction": "Risplendi per quello che sei—con ambizione audace."
+    },
+    "aria": {
+        "photoMetadata": "Visualizzazione metadati foto"
+    },
+    "waitlist": {
+        "placeholder": "Inserisci la tua email per l'accesso anticipato",
+        "ariaLabel": "Indirizzo email per lista d'attesa",
+        "submitLabel": "Invia email",
+        "submittingLabel": "Invio in corso...",
+        "validation": {
+            "invalidEmail": "Inserisci un indirizzo email valido"
+        },
+        "messages": {
+            "alreadyOnWaitlist": "Sei già nella lista d'attesa!",
+            "success": "Grazie! Riceverai un'email per il tuo accesso anticipato.",
+            "defaultError": "Qualcosa è andato storto"
+        }
+    },
+    "sections": {
+        "characters": {
+            "title": "Personaggi",
+            "subtitle": "Creati da solo 9 tue foto. Crea per te e per gli altri. Il tuo te digitale pronto in meno di 8 minuti."
+        },
+        "scenes": {
+            "title": "Prepara la scena",
+            "subtitle": "Scegli da una collezione diversificata di sfondi e ambienti che completano perfettamente la tua visione e il tuo stile."
+        },
+        "styles": {
+            "title": "Stili fotografici",
+            "subtitle": "Dai ritratti professionali alle interpretazioni artistiche, seleziona tra dozzine di stili curati che catturano la tua essenza unica."
+        },
+        "wardrobe": {
+            "title": "Vestiti per impressionare",
+            "titleColors": "In qualsiasi colore",
+            "subtitle": "Scegli da un'ampia collezione di guardaroba. Dal casual al formale, trova l'outfit perfetto per ogni occasione.",
+            "subtitleColors": "Personalizza ogni dettaglio con la nostra vasta tavolozza di colori. Abbina il tuo stile o esplora nuove combinazioni audaci."
+        }
+    },
+    "grid": {
+        "tagline": "Lo Studio IA per Fotografia di Ritratto Straordinaria",
+        "title": "Il tuo meglio, catturato.",
+        "badge": "4K"
+    },
+    "cta": {
+        "title": "Pronto a incontrare la tua versione migliore?",
+        "subtitle": "Unisciti a migliaia di persone che creano ritratti IA professionali con Primeshot",
+        "pricing": "A partire da 9 € al mese."
+    },
+    "ctaHero": {
+        "heading": "Ritratti professionali accessibili a tutti.",
+        "subheading": "Pronti in pochi minuti.",
+        "googleButton": "Unisciti con Google",
+        "createButton": "Crea il tuo servizio",
+        "signInTitle": "Accedi"
+    }
+}

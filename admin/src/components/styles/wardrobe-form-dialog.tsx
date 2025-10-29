@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
+import { getApiUrl } from '@primeshot/common'
 import {
   Popover,
   PopoverContent,
@@ -54,6 +55,7 @@ import { getWardrobeOptionImage } from '@/lib/get-options-image'
 import { toast } from 'sonner'
 import type { Database } from '@/types/supabase'
 import { getTranslatableColumns, shouldTranslateRow, translateRow } from '@/lib/translation'
+import { processValue } from '@/lib/utils'
 
 type Wardrobe = Database['public']['Tables']['style_wardrobes']['Row']
 
@@ -204,7 +206,7 @@ export function WardrobeFormDialog({
 
   const createMutation = useMutation({
     mutationFn: async (data: WardrobeFormValues & { translations?: any }) => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/api/admin/style-wardrobes`, {
+      const res = await fetch(getApiUrl('/api/admin/style-wardrobes'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -240,7 +242,7 @@ export function WardrobeFormDialog({
   const updateMutation = useMutation({
     mutationFn: async (data: WardrobeFormValues & { translations?: any }) => {
       if (!wardrobe) throw new Error('No wardrobe to update')
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH || ''}/api/admin/style-wardrobes`, {
+      const res = await fetch(getApiUrl('/api/admin/style-wardrobes'), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: wardrobe.id, ...data }),
@@ -292,12 +294,19 @@ export function WardrobeFormDialog({
       }
       // Re-read latest form values after deferred uploads may have updated fields (e.g., image)
       const latest = form.getValues()
+      
+      // Process the value field to be URL-friendly
+      const processedData = {
+        ...latest,
+        value: processValue(latest.value)
+      }
+      
       const columns = getTranslatableColumns('wardrobe')
-      const needsTranslation = shouldTranslateRow(originalValues.current ?? undefined, latest, columns)
+      const needsTranslation = shouldTranslateRow(originalValues.current ?? undefined, processedData, columns)
       let translations = ((wardrobe as any)?.translations as Record<string, any>) || {}
       if (needsTranslation) {
         try {
-          translations = await translateRow('wardrobe', latest)
+          translations = await translateRow('wardrobe', processedData)
         } catch (err: any) {
           toast.error('Translation failed: ' + (err?.message || 'Unknown error'))
           setIsSaving(false)
@@ -306,9 +315,9 @@ export function WardrobeFormDialog({
       }
 
       if (wardrobe) {
-        updateMutation.mutate({ ...latest, translations })
+        updateMutation.mutate({ ...processedData, translations })
       } else {
-        createMutation.mutate({ ...latest, translations })
+        createMutation.mutate({ ...processedData, translations })
       }
     } finally {
       setIsSaving(false)

@@ -6,9 +6,9 @@ export const useCharacterImages = (characterId?: string) => {
   const [images, setImages] = useState<FileWithScore[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
-  const supabase = createClient()
-
   const fetchImages = useCallback(async () => {
+    // Create client within the callback to avoid changing dependencies
+    const supabase = createClient()
     if (!characterId) {
       setImages([])
       setIsLoading(false)
@@ -40,7 +40,7 @@ export const useCharacterImages = (characterId?: string) => {
     } finally {
       setIsLoading(false)
     }
-  }, [characterId, supabase])
+  }, [characterId])
 
   useEffect(() => {
     fetchImages()

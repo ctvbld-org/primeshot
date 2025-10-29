@@ -9,9 +9,9 @@ import { useTrainingJobStatus } from '@/hooks/useTrainingJobStatus'
 import { useCharactersApi } from '@/lib/api/characters'
 import { useAuth } from '@/contexts/auth-context'
 import { useDialogService } from '@/contexts/DialogServiceContext'
-import { getApiUrl } from '@/lib/api/client'
+import { getApiUrl } from '@primeshot/common'
 import type { Character } from '@/types/jobs'
-import styles from './ThumbnailStyles.module.css'
+import styles from '../CharacterTrainingDialog.module.css'
 import { Button } from '@primeshot/common/web/ui/button'
 
 interface TrainingProgressStepProps {
@@ -37,7 +37,7 @@ export function TrainingProgressStep({
   onComplete,
   onError 
 }: TrainingProgressStepProps) {
-  const { t } = useTranslation('upload')
+  const { t } = useTranslation('character')
   const { user } = useAuth()
   const { getCharacter } = useCharactersApi()
   const dialogService = useDialogService()
@@ -113,7 +113,7 @@ export function TrainingProgressStep({
     if (jobStatus?.status === 'completed') {
       onComplete?.()
     } else if (jobStatus?.status === 'failed') {
-      onError?.(jobStatus.error_message || t('character.trainingError'))
+      onError?.(jobStatus.error_message || t('trainingError'))
     }
   }, [jobStatus?.status, jobStatus?.error_message, onComplete, onError, t, pendingSince])
 
@@ -133,7 +133,7 @@ export function TrainingProgressStep({
   const handleTrainingComplete = useCallback((modelId: string, success?: boolean, errorMessage?: string) => {
     if (success === false) {
       // Training failed
-      const error = errorMessage || t('character.trainingError')
+      const error = errorMessage || t('trainingError')
       onError?.(error)
     } else {
       // Training completed successfully
@@ -187,30 +187,30 @@ export function TrainingProgressStep({
 
   // Build mutually exclusive title/description nodes to avoid duplicated messages
   const titleNode = isFailed
-    ? t('character.trainingFailed')
+    ? t('trainingFailed')
     : isInitializing
-    ? t('character.trainingInitializing')
+    ? t('trainingInitializing')
     : isQueued
-    ? t('character.trainingQueued')
+    ? t('trainingQueued')
     : shouldShowPending
-    ? t('character.trainingPending')
+    ? t('trainingPending')
     : isRunning
     ? (seconds !== null
-        ? (<>{t('character.trainingRunning')} <Countdown seconds={seconds} /></>)
-        : t('character.trainingRunningNoCountdown'))
-    : t('character.trainingWarmingUp')
+        ? (<>{t('trainingRunning')} <Countdown seconds={seconds} /></>)
+        : t('trainingRunningNoCountdown'))
+    : t('trainingWarmingUp')
 
   const descriptionNode = isFailed
-    ? t('character.trainingFailedDescription')
+    ? t('trainingFailedDescription')
     : isInitializing
-    ? t('character.trainingInitializingInfo')
+    ? t('trainingInitializingInfo')
     : isQueued
-    ? t('character.trainingQueuedInfo')
+    ? t('trainingQueuedInfo')
     : shouldShowPending
-    ? t('character.trainingPendingInfo')
+    ? t('trainingPendingInfo')
     : isRunning
-    ? t('character.trainingRunningInfo')
-    : t('character.trainingWarmingUpInfo')
+    ? t('trainingRunningInfo')
+    : t('trainingWarmingUpInfo')
 
   return (
     <>
@@ -257,7 +257,7 @@ export function TrainingProgressStep({
         <div className={styles.statusContainer}>
           <h3 className={styles.statusTitle}>
             {isFailed ? (
-              t('character.trainingFailed')
+              t('trainingFailed')
             ) : (
               <>
                 <span>{titleNode}</span>
@@ -277,14 +277,14 @@ export function TrainingProgressStep({
             {/* Error State */}
             {showError && (
               <p className="text-sm text-red-400">
-                {t('character.trainingError')}: {trainingProgress.error}
+                {t('trainingError')}: {trainingProgress.error}
               </p>
             )}
           </p>
 
           {(isRunning || isQueued || shouldShowPending) && (
             <Button variant="ghost" onClick={() => dialogService.closeDialog()}>
-              {t('character.returnToApp')}
+              {t('returnToApp')}
             </Button>
           )}
         </div>

@@ -15,6 +15,7 @@ import {
 import { Pencil, Trash, Languages } from 'lucide-react'
 import { toast } from 'sonner'
 import { TranslationDialog } from '@/components/ui/translation-dialog'
+import { translateRows } from '@/lib/translation'
 import type { Database } from '@/types/supabase'
 import { getWardrobeOptionImage } from '@/lib/get-options-image'
 
@@ -24,11 +25,13 @@ export function WardrobesTable() {
   const [selectedWardrobe, setSelectedWardrobe] = useState<Wardrobe | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isTranslationOpen, setIsTranslationOpen] = useState(false)
+  const [isBulkTranslating, setIsBulkTranslating] = useState(false)
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false)
   const queryClient = useQueryClient()
   const supabase = createClient()
 
   // Fetch wardrobes
-  const { data: wardrobes = [], isLoading } = useQuery({
+  const { data: wardrobes = [], isLoading, refetch } = useQuery({
     queryKey: ['style-wardrobes'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -40,6 +43,74 @@ export function WardrobesTable() {
       return data
     },
   })
+
+  const handleBulkTranslate = async (selectedWardrobes: Wardrobe[], onSuccess?: () => void) => {
+    setIsBulkTranslating(true)
+    try {
+      // Translate all selected wardrobes
+      const translations = await translateRows('wardrobe', selectedWardrobes)
+      
+      // Update each wardrobe with its new translations
+      const updatePromises = selectedWardrobes.map(async (wardrobe, index) => {
+        const { error } = await supabase
+          .from('style_wardrobes')
+          .update({ translations: translations[index] })
+          .eq('id', wardrobe.id)
+        
+        if (error) throw error
+      })
+      
+      await Promise.all(updatePromises)
+      
+      // Refetch data to show updated translations
+      await refetch()
+      
+      toast.success(`Successfully translated ${selectedWardrobes.length} wardrobes`)
+      
+      // Call success callback to clear selection
+      if (onSuccess) onSuccess()
+    } catch (error: any) {
+      toast.error(`Bulk translation failed: ${error.message}`)
+    } finally {
+      setIsBulkTranslating(false)
+    }
+  }
+
+  const handleBulkDelete = async (selectedWardrobes: Wardrobe[], onSuccess?: () => void) => {
+    // Show confirmation dialog
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${selectedWardrobes.length} wardrobe${selectedWardrobes.length > 1 ? 's' : ''}? This action cannot be undone.`
+    )
+    
+    if (!confirmed) return
+
+    setIsBulkDeleting(true)
+    try {
+      // Delete all selected wardrobes
+      const deletePromises = selectedWardrobes.map(async (wardrobe) => {
+        const { error } = await supabase
+          .from('style_wardrobes')
+          .delete()
+          .eq('id', wardrobe.id)
+        
+        if (error) throw error
+      })
+      
+      await Promise.all(deletePromises)
+      
+      // Refetch data to show updated list
+      await refetch()
+      
+      toast.success(`Successfully deleted ${selectedWardrobes.length} wardrobe${selectedWardrobes.length > 1 ? 's' : ''}`)
+      
+      // Call success callback to clear selection
+      if (onSuccess) onSuccess()
+    } catch (error: any) {
+      toast.error(`Bulk deletion failed: ${error.message}`)
+    } finally {
+      setIsBulkDeleting(false)
+    }
+  }
 
   // Delete mutation
   const deleteMutation = useMutation({
@@ -112,6 +183,15 @@ export function WardrobesTable() {
           </div>
         )
       },
+    },
+    {
+      accessorKey: 'value',
+      header: 'Value',
+      cell: ({ row }: any) => (
+        <code className="text-sm bg-muted px-2 py-1 rounded">
+          {row.getValue('value')}
+        </code>
+      ),
     },
     {
       accessorKey: 'prompt',
@@ -212,6 +292,14 @@ export function WardrobesTable() {
           setIsFormOpen(true)
         }}
         addButtonLabel="Add Wardrobe"
+        enableBulkTranslation={true}
+        onBulkTranslate={handleBulkTranslate}
+        bulkTranslateLabel="Bulk Translate"
+        isBulkTranslating={isBulkTranslating}
+        enableBulkDelete={true}
+        onBulkDelete={handleBulkDelete}
+        bulkDeleteLabel="Bulk Delete"
+        isBulkDeleting={isBulkDeleting}
       />
 
       <WardrobeFormDialog
@@ -229,6 +317,14 @@ export function WardrobesTable() {
           open={isTranslationOpen}
           onOpenChange={setIsTranslationOpen}
           currentTranslations={(selectedWardrobe.translations as Record<string, any>) || {}}
+          table="wardrobe"
+          rowData={selectedWardrobe}
+          onTranslationsUpdated={(newTranslations) => {
+            // Update the selected wardrobe with new translations
+            setSelectedWardrobe(prev => prev ? { ...prev, translations: newTranslations } : null)
+            // Optionally trigger a refetch of the data
+            refetch()
+          }}
         />
       )}
     </>

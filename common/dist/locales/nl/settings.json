@@ -1,0 +1,31 @@
+{
+  "page": {
+    "title": "Instellingen",
+    "description": "Beheer je accountinstellingen en voorkeuren."
+  },
+  "form": {
+    "profile": {
+      "title": "Profiel",
+      "description": "Werk je profielinformatie bij.",
+      "fullName": {
+        "label": "Volledige naam",
+        "placeholder": "Voer je volledige naam in"
+      },
+      "submit": {
+        "saving": "Opslaan...",
+        "default": "Wijzigingen opslaan"
+      },
+      "toast": {
+        "success": {
+          "title": "Profiel bijgewerkt",
+          "description": "Je profiel is succesvol bijgewerkt."
+        },
+        "error": {
+          "title": "Fout",
+          "description": "Profiel bijwerken mislukt. Probeer opnieuw.",
+          "notAuthenticated": "Niet geauthenticeerd"
+        }
+      }
+    }
+  }
+}

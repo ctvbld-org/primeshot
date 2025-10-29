@@ -36,6 +36,7 @@ import { Input } from '@primeshot/common/web/ui/input'
 import { Button } from '@primeshot/common/web/ui/button'
 import { toast } from 'sonner'
 import type { Database } from '@/types/supabase'
+import { getApiUrl } from '@/lib/api'
 
 type CreditCost = Database['public']['Tables']['credit_costs']['Row']
 
@@ -133,7 +134,7 @@ export function CreditCostFormDialog({
     mutationFn: async (data: FormData) => {
       if (creditCost) {
         // Update
-        const response = await fetch(`/api/credit-costs/${creditCost.id}`, {
+        const response = await fetch(getApiUrl(`/api/credit-costs/${creditCost.id}`), {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -147,7 +148,7 @@ export function CreditCostFormDialog({
         }
       } else {
         // Create
-        const response = await fetch('/api/credit-costs', {
+        const response = await fetch(getApiUrl('/api/credit-costs'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -1,665 +1,294 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { uploadToS3 } from '@/lib/s3';
-import { v4 as uuidv4 } from 'uuid';
-import { imageSchema } from '@/lib/schemas';
-import { ChunkMetadata } from '@/lib/upload-utils';
-import { promises as fs } from 'fs';
-import path from 'path';
-import os from 'os';
-import { z } from 'zod';
-import sharp from 'sharp';
+import { NextRequest, NextResponse } from 'next/server'
+import { S3Client, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand, AbortMultipartUploadCommand, PutObjectCommand } from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { createSecuredHandler, SECURITY_PRESETS } from '@/lib/security-middleware'
+import { logSecurityEvent } from '@/lib/security-monitoring'
 
-// Security limits
-const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
-const MAX_CHUNKS = 1000;
-const MAX_CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
+// Configuration
+const PART_SIZE = 6 * 1024 * 1024 // 6 MiB minimum safe size
+const PRESIGN_EXPIRES_S = 15 * 60 // 15 minutes
 
-
-
-// UUID v4 validation regex
-const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-// Metadata validation schema
-const normalizedBoxSchema = z.object({
-  x: z.number().min(0).max(1),
-  y: z.number().min(0).max(1),
-  width: z.number().min(0).max(1),
-  height: z.number().min(0).max(1),
-}).partial({});
-
-const chunkMetadataSchema = z.object({
-  uploadId: z.string().uuid(),
-  characterId: z.string().uuid(),
-  chunkIndex: z.number().int().min(0),
-  totalChunks: z.number().int().min(1).max(MAX_CHUNKS)
-    .refine(val => val <= MAX_CHUNKS, {
-      message: `Maximum number of chunks exceeded (limit: ${MAX_CHUNKS})`
-    }),
-  fileName: z.string().min(1).max(255),
-  fileSize: z.number().positive()
-    .max(MAX_FILE_SIZE)
-    .refine(val => val <= MAX_FILE_SIZE, {
-      message: `File size exceeds limit (${MAX_FILE_SIZE / 1024 / 1024}MB)`
-    }),
-  fileType: z.enum(ALLOWED_MIME_TYPES, {
-    errorMap: () => ({ message: `Only ${ALLOWED_MIME_TYPES.join(', ')} files are allowed` })
-  }),
-  qualityScore: z.number().int().min(0).max(100).optional(),
-  faceBox: normalizedBoxSchema.optional(),
-  isFirstImage: z.boolean().optional()
-}).refine(data => data.chunkIndex < data.totalChunks, {
-  message: "chunkIndex must be less than totalChunks"
-});
-
-// Get temp directory for chunks
-const getTempDir = async (uploadId: string) => {
-  // Validate uploadId is a valid UUID v4 to prevent path traversal
-  if (!UUID_V4_REGEX.test(uploadId)) {
-    throw new Error('Invalid uploadId format - must be a valid UUID v4');
-  }
-  const tempDir = path.join(os.tmpdir(), 'primeshot-uploads', uploadId);
-  await fs.mkdir(tempDir, { recursive: true });
-  return tempDir;
-};
-
-
-
-// Save chunk to temp directory
-async function saveChunk(chunk: Buffer, metadata: ChunkMetadata) {
-  const tempDir = await getTempDir(metadata.uploadId);
-  const chunkPath = path.join(tempDir, `chunk-${metadata.chunkIndex}`);
-  await fs.writeFile(chunkPath, chunk);
-  return chunkPath;
+function getEnv(name: string, fallback?: string) {
+  const v = process.env[name]
+  if (v) return v
+  if (fallback !== undefined) return fallback
+  throw new Error(`Missing env: ${name}`)
 }
 
-// Check if all chunks are received and validate integrity
-async function areAllChunksReceived(metadata: ChunkMetadata) {
-  const tempDir = await getTempDir(metadata.uploadId);
-  try {
-    // Get all chunk files
-    const files = await fs.readdir(tempDir);
-    
-    // Create a Set to track unique chunk indices
-    const receivedChunks = new Set<number>();
-    
-    // Validate each chunk file
-    for (const file of files) {
-      // Extract chunk index from filename
-      const match = file.match(/^chunk-(\d+)$/);
-      if (!match) continue;
-      
-      const chunkIndex = parseInt(match[1], 10);
-      
-      // Validate chunk index is within expected range
-      if (chunkIndex < 0 || chunkIndex >= metadata.totalChunks) {
-        console.warn(`Invalid chunk index ${chunkIndex} found for upload ${metadata.uploadId}`);
-        continue;
-      }
-      
-      // Check if chunk file exists and has content
-      try {
-        const stats = await fs.stat(path.join(tempDir, file));
-        if (stats.size === 0) {
-          console.warn(`Empty chunk file found: ${file}`);
-          continue;
-        }
-        receivedChunks.add(chunkIndex);
-      } catch (err) {
-        console.warn(`Error checking chunk file ${file}:`, err);
-        continue;
-      }
-    }
-    
-    // Verify we have all expected chunks (0 to totalChunks-1)
-    for (let i = 0; i < metadata.totalChunks; i++) {
-      if (!receivedChunks.has(i)) {
-        return false;
-      }
-    }
-    
-    return true;
-  } catch (err) {
-    console.error(`Error checking chunks for upload ${metadata.uploadId}:`, err);
-    return false;
+const AWS_REGION = getEnv('AWS_REGION', 'us-east-1')
+const AWS_S3_BUCKET = getEnv('AWS_S3_BUCKET')
+
+const s3 = new S3Client({
+  region: AWS_REGION,
+  credentials: process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY ? {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    sessionToken: process.env.AWS_SESSION_TOKEN
+  } : undefined
+})
+
+function json(body: any, status = 200, headers: Record<string,string> = {}) {
+  return new NextResponse(JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json', ...headers }
+  })
+}
+
+// Secured handlers with comprehensive security middleware
+const securedOPTIONS = createSecuredHandler(
+  async (req: NextRequest) => {
+    return new NextResponse('ok', { status: 200 })
+  },
+  {
+    ...SECURITY_PRESETS.IMAGE_UPLOAD,
+    requireAuth: false, // OPTIONS requests don't need auth
+    botProtection: false // Skip bot protection for preflight
+  }
+);
+
+const securedPOST = createSecuredHandler(
+  async (req: NextRequest) => {
+    return await handleUploadRequest(req);
+  },
+  SECURITY_PRESETS.IMAGE_UPLOAD
+);
+
+// Upload metrics tracking
+interface UploadMetrics {
+  operation: 'init' | 'sign-part' | 'complete' | 'abort' | 'unknown'
+  userId: string
+  characterId?: string
+  fileSize?: number
+  totalChunks?: number
+  partNumber?: number
+  duration: number
+  success: boolean
+  error?: string
+  timestamp: string
+}
+
+const uploadMetrics: UploadMetrics[] = []
+
+function recordMetric(metric: UploadMetrics) {
+  uploadMetrics.push(metric)
+  // Keep only last 1000 metrics in memory
+  if (uploadMetrics.length > 1000) {
+    uploadMetrics.shift()
   }
 }
 
-// Create a lock file for the upload
-async function createLock(uploadId: string): Promise<boolean> {
-  const tempDir = await getTempDir(uploadId);
-  const lockPath = path.join(tempDir, '.lock');
-  try {
-    // Try to create lock file - will fail if it already exists
-    await fs.writeFile(lockPath, '', { flag: 'wx' });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-// Release the lock
-async function releaseLock(uploadId: string) {
-  const tempDir = await getTempDir(uploadId);
-  const lockPath = path.join(tempDir, '.lock');
-  try {
-    await fs.unlink(lockPath);
-  } catch {
-    // Ignore errors during lock release
-  }
-}
-
-// Combine chunks into final file
-async function combineChunks(metadata: ChunkMetadata) {
-  const tempDir = await getTempDir(metadata.uploadId);
-  const chunks: Buffer[] = [];
-
-  // Acquire lock before processing
-  if (!await createLock(metadata.uploadId)) {
-    throw new Error('Another process is currently combining chunks');
-  }
+// Extract the upload logic into a separate function
+async function handleUploadRequest(req: NextRequest): Promise<NextResponse> {
+  const startTime = Date.now()
+  let success = false
+  let operation: 'init' | 'sign-part' | 'complete' | 'abort' | 'unknown' = 'unknown'
+  let errorMessage = ''
+  let user: any = null
 
   try {
-    // Verify chunks again under lock to prevent race conditions
-    if (!await areAllChunksReceived(metadata)) {
-      throw new Error('Some chunks are missing during combination');
+    const url = new URL(req.url)
+    const actionFromQuery = url.searchParams.get('action')
+    const contentType = req.headers.get('content-type') || ''
+
+    // Auth (cookie-based) - now handled by security middleware
+    const supabase = await createClient()
+    const { data: { user: authUser } } = await supabase.auth.getUser()
+    user = authUser
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    for (let i = 0; i < metadata.totalChunks; i++) {
-      const chunkPath = path.join(tempDir, `chunk-${i}`);
-      const chunk = await fs.readFile(chunkPath);
-      if (chunk.length === 0) {
-        throw new Error(`Empty chunk found at index ${i}`);
-      }
-      chunks.push(chunk);
-    }
+    if ((actionFromQuery === 'init') || contentType.includes('multipart/form-data')) {
+      operation = 'init'
+      const form = await req.formData()
+      const action = (form.get('action') as string | null) || 'init'
+      if (action !== 'init') return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
 
-    const finalBuffer = Buffer.concat(chunks);
-    
-    // Clean up temp directory
-    await fs.rm(tempDir, { recursive: true, force: true });
-    
-    return finalBuffer;
-  } catch (error) {
-    // Clean up lock in case of error
-    await releaseLock(metadata.uploadId);
-    throw error;
-  }
-}
+      const metadataStr = form.get('metadata') as string | null
+      if (!metadataStr) return NextResponse.json({ error: 'Missing metadata' }, { status: 400 })
+      let metadata: any
+      try { metadata = JSON.parse(metadataStr) } catch { return NextResponse.json({ error: 'Invalid metadata JSON' }, { status: 400 }) }
+      const { uploadId, fileName, fileType, fileSize, totalChunks, characterId } = metadata || {}
+      if (!uploadId || !fileName || !fileType || !characterId) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
 
-export async function POST(request: Request) {
-  try {
-    const supabase = await createClient();
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+      const base = sanitizePathSegment(String(fileName).replace(/\.[^/.]+$/, ''))
+      const ext = String(fileName).split('.').pop() || 'jpg'
+      const key = `user-images/${user.id}/training/${characterId}/source/${uploadId}-${base}.${ext}`
 
-    if (userError || !user) {
-      console.error('Unauthorized access attempt', userError);
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+      // Optional: simple size/chunk sanity
+      if (Number(fileSize) > 100 * 1024 * 1024) return NextResponse.json({ error: 'File too large' }, { status: 400 })
+      if (Number(totalChunks) > 1000) return NextResponse.json({ error: 'Too many chunks' }, { status: 400 })
 
-    const formData = await request.formData();
-    const chunkBlob = formData.get('chunk') as Blob;
-    const metadataStr = formData.get('metadata') as string;
+      // Create MPU
+      const createRes = await s3.send(new CreateMultipartUploadCommand({
+        Bucket: AWS_S3_BUCKET,
+        Key: key,
+        ContentType: fileType || 'application/octet-stream'
+      }))
+      if (!createRes.UploadId) return NextResponse.json({ error: 'Failed to create multipart upload' }, { status: 500 })
 
-    if (!chunkBlob || !metadataStr) {
-      return NextResponse.json({ error: 'Missing chunk or metadata' }, { status: 400 });
-    }
-
-    // Validate chunk size before processing
-    if (chunkBlob.size > MAX_CHUNK_SIZE) {
-      return NextResponse.json({ 
-        error: `Chunk size exceeds limit (${MAX_CHUNK_SIZE / 1024 / 1024}MB)` 
-      }, { status: 400 });
-    }
-
-    let metadata: ChunkMetadata;
-    try {
-      const parsedMetadata = JSON.parse(metadataStr);
-      metadata = chunkMetadataSchema.parse(parsedMetadata);
-    } catch (error) {
-      console.error('Metadata validation error:', error);
-      return NextResponse.json({ 
-        error: error instanceof z.ZodError 
-          ? error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')
-          : 'Invalid metadata format'
-      }, { status: 400 });
-    }
-
-    // Validate that the character exists and belongs to the user
-    const { data: character, error: characterError } = await supabase
-      .from('characters')
-      .select('id, user_id, status')
-      .eq('id', metadata.characterId)
-      .eq('user_id', user.id)
-      .neq('status', 'deleted') // Exclude soft-deleted characters
-      .single();
-
-    if (characterError || !character) {
-      console.error('Character validation failed:', characterError);
-      return NextResponse.json({ 
-        error: 'Character not found or does not belong to user' 
-      }, { status: 403 });
-    }
-
-    // Check if character is in appropriate status for uploading
-    if (character.status !== 'queued') {
-      return NextResponse.json({ 
-        error: `Character is in '${character.status}' status and cannot accept uploads` 
-      }, { status: 400 });
-    }
-
-    // Only validate subscription on first chunk (chunk 0) to avoid repeating validation for every chunk
-    if (metadata.chunkIndex === 0) {
-      console.log(`Validating subscription for character training for user ${user.id}`);
-      
-      // Validate subscription and character training permissions
-      const { data: subscription, error: subscriptionError } = await supabase
-        .from('user_subscriptions')
-        .select('plan_name, status, current_period_end')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .single();
-
-      console.log('Subscription query result:', { subscription, subscriptionError });
-
-      if (subscriptionError || !subscription) {
-        console.error('No active subscription found:', subscriptionError);
-        return NextResponse.json({ 
-          error: 'Active subscription required for character training' 
-        }, { status: 403 });
-      }
-
-      // Get available credits using the credit balance function
-      const { data: creditBalance, error: creditError } = await supabase
-        .rpc('get_user_available_credits', { user_uuid: user.id });
-
-      console.log('Credit balance query result:', { creditBalance, creditError });
-
-      if (creditError) {
-        console.error('Failed to get credit balance:', creditError);
-        return NextResponse.json({ 
-          error: 'Failed to check credit balance' 
-        }, { status: 500 });
-      }
-
-      // Fetch character training cost using centralized pricing utility
-      let CHARACTER_TRAINING_CREDITS = 30; // Default fallback
-      try {
-        const { data: creditCosts, error: costError } = await supabase
-          .from('credit_costs')
-          .select('type, value');
-
-        if (costError) {
-          console.error('Failed to fetch credit costs from database:', costError);
-        } else if (creditCosts) {
-          // Transform to key-value format for compatibility
-          const costsMap = creditCosts.reduce((acc: Record<string, number>, cost: any) => {
-            acc[cost.type] = cost.value;
-            return acc;
-          }, {} as Record<string, number>);
-
-          CHARACTER_TRAINING_CREDITS = costsMap['CHARACTER_TRAINING'] || 30;
-        }
-      } catch (error) {
-        console.error('Error fetching character training cost:', error);
-        // Use fallback value
-      }
-
-      if (creditBalance < CHARACTER_TRAINING_CREDITS) {
-        return NextResponse.json({ 
-          error: `Insufficient credits for character training. Need ${CHARACTER_TRAINING_CREDITS} credits, but only ${creditBalance} available.` 
-        }, { status: 403 });
-      }
-
-      console.log('Subscription validation passed for character upload');
-    }
-
-    const chunkBuffer = Buffer.from(await chunkBlob.arrayBuffer());
-
-    // Additional runtime chunk size validation as defense in depth
-    if (chunkBuffer.length > MAX_CHUNK_SIZE) {
-      return NextResponse.json({ 
-        error: `Chunk size exceeds limit (${MAX_CHUNK_SIZE / 1024 / 1024}MB)` 
-      }, { status: 400 });
-    }
-    
-    // Check if upload session exists or create new one with race condition handling
-    let { data: session } = await supabase
-      .from('upload_sessions')
-      .select()
-      .eq('id', metadata.uploadId)
-      .single();
-
-    if (!session) {
-      // Try to create new session, but handle race condition if another request created it first
-      const { data: newSession, error: createError } = await supabase
-        .from('upload_sessions')
-        .insert({
-          id: metadata.uploadId,
-          user_id: user.id,
-          character_id: metadata.characterId,
-          file_name: metadata.fileName,
-          file_size: metadata.fileSize,
-          file_type: metadata.fileType,
-          total_chunks: metadata.totalChunks,
-          quality_score: metadata.qualityScore,
-          status: 'pending'
-        })
-        .select()
-        .single();
-
-      if (createError) {
-        // If error is due to duplicate key (session already exists), fetch it
-        if (createError.code === '23505' || createError.message.includes('duplicate key')) {
-          const { data: existingSession } = await supabase
-            .from('upload_sessions')
-            .select()
-            .eq('id', metadata.uploadId)
-            .single();
-          
-          if (existingSession) {
-            session = existingSession;
-          } else {
-            throw new Error(`Failed to create or retrieve upload session: ${createError.message}`);
-          }
-        } else {
-          throw new Error(`Failed to create upload session: ${createError.message}`);
-        }
-      } else {
-        session = newSession;
-      }
-    }
-
-    // Face model stays in 'queued' status during uploads
-    // Status will only change when training starts
-
-    // Check if chunk already exists and upsert to prevent duplicates
-    const { data: existingChunk } = await supabase
-      .from('upload_chunks')
-      .select('id')
-      .eq('session_id', session.id)
-      .eq('chunk_index', metadata.chunkIndex)
-      .single();
-
-    if (existingChunk) {
-      // Chunk already exists, update it
-      const { error: updateError } = await supabase
-        .from('upload_chunks')
-        .update({
-          chunk_size: chunkBuffer.length,
-          status: 'uploaded',
-          updated_at: new Date().toISOString()
-        })
-        .eq('session_id', session.id)
-        .eq('chunk_index', metadata.chunkIndex);
-
-      if (updateError) {
-        throw new Error(`Failed to update chunk: ${updateError.message}`);
-      }
-    } else {
-      // Chunk doesn't exist, insert it
-      const { error: insertError } = await supabase
-        .from('upload_chunks')
-        .insert({
-          session_id: session.id,
-          chunk_index: metadata.chunkIndex,
-          chunk_size: chunkBuffer.length,
-          status: 'uploaded'
-        });
-
-      if (insertError) {
-        throw new Error(`Failed to insert chunk: ${insertError.message}`);
-      }
-    }
-
-    // Save chunk to temp storage (only if it doesn't already exist)
-    const tempDir = await getTempDir(metadata.uploadId);
-    const chunkPath = path.join(tempDir, `chunk-${metadata.chunkIndex}`);
-    
-    // Check if chunk file already exists to prevent overwriting
-    try {
-      await fs.access(chunkPath);
-      // File already exists, no need to save again
-      console.log(`Chunk ${metadata.chunkIndex} already exists in temp storage`);
-    } catch {
-      // File doesn't exist, save it
-      await saveChunk(chunkBuffer, metadata);
-    }
-
-    // Check if all chunks are received
-    const allChunksReceived = await areAllChunksReceived(metadata);
-    console.log(`Upload ${metadata.uploadId}: All chunks received: ${allChunksReceived}, chunk ${metadata.chunkIndex}/${metadata.totalChunks}`);
-    
-    if (allChunksReceived) {
-      // Update session status
-      await supabase
-        .from('upload_sessions')
-        .update({ status: 'processing' })
-        .eq('id', session.id);
-
-      // Combine chunks
-      const finalBuffer = await combineChunks(metadata);
-      
-      // Upload original file to S3
-      const cleanOriginalName = metadata.fileName.replace(/\.[^/.]+$/, '');
-      const fileExtension = metadata.fileName.split('.').pop() || 'jpg';
-      const key = `user-images/${user.id}/training/${metadata.characterId}/source/${metadata.uploadId}-${cleanOriginalName}.${fileExtension}`;
-      const url = await uploadToS3(finalBuffer, key, metadata.fileType);
-
-      // Use original file dimensions (we'll set defaults since we're not processing)
-      const safeWidth = 1;
-      const safeHeight = 1;
-
-      // Only generate/upload thumbnail when uploading the first image (client-provided flag)
-      let thumbUrl: string | null = null;
-      const shouldCreateThumbnail = (metadata as any).isFirstImage === true;
-      if (shouldCreateThumbnail) {
+      // Optional thumbnail
+      const thumb = form.get('thumbnail') as File | null
+      let thumbnailUrl: string | null = null
+      if (thumb) {
         try {
-          // Attempt face-aware crop if client provided a normalized face box
-          // Apply EXIF-based rotation first so metadata and crops use visual orientation
-          let thumbnailSharp = sharp(finalBuffer).rotate();
-          const meta = await thumbnailSharp.metadata();
-          const imgWidth = meta.width || 0;
-          const imgHeight = meta.height || 0;
-
-          const fb = (metadata as any).faceBox as { x: number; y: number; width: number; height: number } | undefined;
-          if (fb && imgWidth > 0 && imgHeight > 0 && fb.width > 0 && fb.height > 0) {
-            // Convert normalized box to pixels and add margin
-            const margin = 0.15; // 15% padding around face
-            const nx = Math.max(0, fb.x - margin);
-            const ny = Math.max(0, fb.y - margin);
-            const nw = Math.min(1 - nx, fb.width + margin * 2);
-            const nh = Math.min(1 - ny, fb.height + margin * 2);
-
-            // Create a square crop around the face box by expanding the shorter side
-            const px = Math.round(nx * imgWidth);
-            const py = Math.round(ny * imgHeight);
-            const pw = Math.round(nw * imgWidth);
-            const ph = Math.round(nh * imgHeight);
-
-            // Determine square side length
-            const side = Math.min(imgWidth, imgHeight, Math.max(pw, ph));
-
-            // Center square around face box center
-            const faceCenterX = px + pw / 2;
-            const faceCenterY = py + ph / 2;
-            let sx = Math.round(faceCenterX - side / 2);
-            let sy = Math.round(faceCenterY - side / 2);
-            // Clamp to image bounds
-            sx = Math.max(0, Math.min(imgWidth - side, sx));
-            sy = Math.max(0, Math.min(imgHeight - side, sy));
-
-            // If side is invalid, fallback later
-            if (side > 0 && sx >= 0 && sy >= 0 && sx + side <= imgWidth && sy + side <= imgHeight) {
-              // Ensure extraction happens after auto-rotation to match coordinates
-              thumbnailSharp = sharp(finalBuffer).rotate().extract({ left: sx, top: sy, width: side, height: side });
-            }
-          }
-
-          const thumbnailBuffer = await thumbnailSharp
-            .resize(400, 400, {
-              fit: 'cover',
-              // Fallback crop bias if no faceBox or invalid extract
-              position: 'attention',
-              withoutEnlargement: true,
-            })
-            .webp({ quality: 80 })
-            .toBuffer();
-
-          const thumbKey = `user-images/${user.id}/training/${metadata.characterId}/thumbnail.webp`;
-          const uploadedThumbUrl = await uploadToS3(thumbnailBuffer, thumbKey, 'image/webp');
-          // Ensure we always have a concrete string URL (some SDK typings mark Location as possibly undefined)
-          const bucket = process.env.AWS_S3_BUCKET;
-          const region = process.env.NEXT_PUBLIC_AWS_REGION || 'us-east-1';
-          thumbUrl = uploadedThumbUrl || (bucket ? `https://${bucket}.s3.${region}.amazonaws.com/${thumbKey}` : null);
-        } catch (thumbErr) {
-          console.error('Failed to generate/upload thumbnail.webp:', thumbErr);
+          const buf = Buffer.from(await thumb.arrayBuffer())
+          const thumbKey = `user-images/${user.id}/training/${characterId}/thumbnail.webp`
+          const contentType = thumb.type || 'image/webp'
+          await s3.send(new PutObjectCommand({ Bucket: AWS_S3_BUCKET, Key: thumbKey, Body: buf, ContentType: contentType, CacheControl: 'public, max-age=600' }))
+          thumbnailUrl = `https://${AWS_S3_BUCKET}.s3.${AWS_REGION}.amazonaws.com/${thumbKey}`
+          // Persist thumbnail_url for character (service client)
+          const svc = createServiceClient()
+          await svc.from('characters').update({ thumbnail_url: thumbnailUrl }).eq('id', characterId).eq('user_id', user.id)
+        } catch {
+          // best-effort
         }
       }
 
-              // Save to images table
-        const imageData = {
-          id: uuidv4(),
-          user_id: user.id,
-          character_id: metadata.characterId,
-          url: url,
-          file_name: `${cleanOriginalName}.${fileExtension}`,
-          file_size: finalBuffer.length,
-          mime_type: metadata.fileType,
-          dimensions: { width: safeWidth, height: safeHeight },
-          created_at: new Date().toISOString(),
-          quality_score: metadata.qualityScore
-        };
+      success = true
+      recordMetric({
+        operation: 'init',
+        userId: user.id,
+        characterId,
+        fileSize: Number(fileSize),
+        totalChunks: Number(totalChunks),
+        duration: Date.now() - startTime,
+        success: true,
+        timestamp: new Date().toISOString()
+      })
 
-      const validatedData = imageSchema.parse(imageData);
-      const { error: dbError } = await supabase
-        .from('uploaded_images')
-        .insert(validatedData);
-
-      if (dbError) {
-        throw new Error(`DB insert failed: ${dbError.message}`);
-      }
-
-      // Increment image_count in characters table
-      const { error: updateCountError } = await supabase.rpc('increment_image_count', {
-        character_id: metadata.characterId
-      });
-
-      if (updateCountError) {
-        console.error('Failed to update character image count:', updateCountError);
-        // Don't fail the upload, just log the error
-      }
-
-      // Attempt idempotent update: set thumbnail only if it's currently null
-      // Fallback: if thumbnail generation failed, use the original uploaded image URL
-      if (thumbUrl || url) {
-        await supabase
-          .from('characters')
-          .update({ thumbnail_url: thumbUrl || url })
-          .eq('id', metadata.characterId)
-          .is('thumbnail_url', null);
-        console.log(`Attempted to set thumbnail for character ${metadata.characterId}: ${thumbUrl || url}`);
-      }
-
-      // Update character status to 'uploaded' since upload is complete
-      await supabase
-        .from('characters')
-        .update({ status: 'uploaded' })
-        .eq('id', metadata.characterId);
-
-      // Clean up chunks and session from database after successful upload
-      console.log(`Starting cleanup for upload session: ${session.id}`);
-      
-      // Count chunks before cleanup for verification
-      const { count: chunkCount } = await supabase
-        .from('upload_chunks')
-        .select('*', { count: 'exact' })
-        .eq('session_id', session.id);
-        
-      console.log(`Found ${chunkCount} chunks to cleanup for session: ${session.id}`);
-      
-      // Method 1: Delete chunks first, then session
-      const { error: deleteChunksError, count: deletedChunksCount } = await supabase
-        .from('upload_chunks')
-        .delete()
-        .eq('session_id', session.id);
-
-      if (deleteChunksError) {
-        console.error('Failed to cleanup chunks:', deleteChunksError);
-      } else {
-        console.log(`Successfully deleted ${deletedChunksCount || 'unknown number of'} chunks for session: ${session.id}`);
-      }
-
-      // Delete the session
-      const { error: deleteSessionError, count: deletedSessionsCount } = await supabase
-        .from('upload_sessions')
-        .delete()
-        .eq('id', session.id);
-
-      if (deleteSessionError) {
-        console.error('Failed to cleanup session:', deleteSessionError);
-        
-        // Fallback: Try method 2 - force cleanup with direct queries
-        console.log('Attempting fallback cleanup method for session:', session.id);
-        
-        try {
-          // Use raw SQL queries to force cleanup
-          await supabase.from('upload_chunks').delete().eq('session_id', session.id);
-          await supabase.from('upload_sessions').delete().eq('id', session.id);
-          console.log('Fallback cleanup completed for session:', session.id);
-        } catch (fallbackError) {
-          console.error('Fallback cleanup failed:', fallbackError);
-          // Log error details for debugging but don't fail the upload
-          console.error('Session ID:', session.id);
-          console.error('User ID:', user.id);
-        }
-      } else {
-        console.log(`Successfully cleaned up session: ${session.id} (deleted ${deletedSessionsCount || 1} session record)`);
-      }
-      
-      // Verify cleanup was successful
-      const { count: remainingChunks } = await supabase
-        .from('upload_chunks')
-        .select('*', { count: 'exact' })
-        .eq('session_id', session.id);
-        
-      const { count: remainingSessions } = await supabase
-        .from('upload_sessions')
-        .select('*', { count: 'exact' })
-        .eq('id', session.id);
-        
-      if ((remainingChunks ?? 0) > 0 || (remainingSessions ?? 0) > 0) {
-        console.error(`Cleanup verification failed! Remaining chunks: ${remainingChunks ?? 0}, remaining sessions: ${remainingSessions ?? 0}`);
-      } else {
-        console.log(`Cleanup verification successful - no remaining data for session: ${session.id}`);
-      }
-
-      // Clean up temp files
-      const tempDir = await getTempDir(metadata.uploadId);
-      await fs.rm(tempDir, { recursive: true, force: true });
-
-      return NextResponse.json({ url });
+      return NextResponse.json({ uploadId: createRes.UploadId, key, partSize: PART_SIZE, contentType: fileType || 'application/octet-stream', thumbnailUrl })
     }
 
-    // Update completed chunks count
-    const { count } = await supabase
-      .from('upload_chunks')
-      .select('*', { count: 'exact' })
-      .eq('session_id', session.id)
-      .eq('status', 'uploaded');
+    // JSON actions
+    const body = await req.json().catch(() => ({}))
+    const action = body?.action || actionFromQuery
+    if (action !== 'sign-part' && action !== 'complete' && action !== 'abort') return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
 
-    await supabase
-      .from('upload_sessions')
-      .update({ completed_chunks: count })
-      .eq('id', session.id);
+    if (action === 'sign-part') {
+      operation = 'sign-part'
+      const { uploadId, key, partNumber } = body || {}
+      if (!uploadId || !key || !partNumber) return NextResponse.json({ error: 'Missing uploadId|key|partNumber' }, { status: 400 })
+      const command = new UploadPartCommand({ Bucket: AWS_S3_BUCKET, Key: key, PartNumber: Number(partNumber), UploadId: String(uploadId) })
+      const signedUrl = await getSignedUrl(s3, command, { expiresIn: PRESIGN_EXPIRES_S })
+      success = true
+      recordMetric({
+        operation: 'sign-part',
+        userId: user.id,
+        partNumber: Number(partNumber),
+        duration: Date.now() - startTime,
+        success: true,
+        timestamp: new Date().toISOString()
+      })
+      return NextResponse.json({ url: signedUrl, expiresIn: PRESIGN_EXPIRES_S })
+    }
 
-    // Not the last chunk, just acknowledge receipt
-    return NextResponse.json({ received: true });
+    if (action === 'complete') {
+      operation = 'complete'
+      const { uploadId, key, parts } = body || {}
+      if (!uploadId || !key || !Array.isArray(parts) || parts.length === 0) return NextResponse.json({ error: 'Missing uploadId|key|parts' }, { status: 400 })
+      const command = new CompleteMultipartUploadCommand({
+        Bucket: AWS_S3_BUCKET,
+        Key: key,
+        UploadId: String(uploadId),
+        MultipartUpload: {
+          Parts: (parts as Array<{ partNumber: number; etag: string }>).map(p => ({ PartNumber: Number(p.partNumber), ETag: String(p.etag) }))
+        }
+      })
+      const res = await s3.send(command)
+      const finalUrl = res.Location || `https://${AWS_S3_BUCKET}.s3.${AWS_REGION}.amazonaws.com/${key}`
+      // Persist uploaded image for character (for counts/progress)
+      try {
+        const svc = createServiceClient()
+        const fileName = key.split('/').pop() || null
+        await svc.from('uploaded_images').insert({
+          id: crypto.randomUUID(),
+          user_id: user.id,
+          character_id: key.split('/')[3] || null, // user-images/{uid}/training/{characterId}/...
+          url: finalUrl,
+          file_name: fileName,
+          file_size: null,
+          mime_type: null,
+          dimensions: null,
+          quality_score: null
+        })
+      } catch {
+        // best-effort; do not fail completion
+      }
+      success = true
+      recordMetric({
+        operation: 'complete',
+        userId: user.id,
+        duration: Date.now() - startTime,
+        success: true,
+        timestamp: new Date().toISOString()
+      })
+      return NextResponse.json({ success: true, url: finalUrl, thumbnailUrl: null })
+    }
 
-  } catch (error) {
-    console.error('Chunk upload error:', error);
-    const message = error instanceof Error ? error.message : 'Internal server error during upload';
-    return NextResponse.json({ error: message }, { status: 500 });
+    if (action === 'abort') {
+      operation = 'abort'
+      const { uploadId, key } = body || {}
+      if (!uploadId || !key) return NextResponse.json({ error: 'Missing uploadId|key' }, { status: 400 })
+      await s3.send(new AbortMultipartUploadCommand({ Bucket: AWS_S3_BUCKET, Key: key, UploadId: String(uploadId) }))
+      success = true
+      recordMetric({
+        operation: 'abort',
+        userId: user.id,
+        duration: Date.now() - startTime,
+        success: true,
+        timestamp: new Date().toISOString()
+      })
+      return NextResponse.json({ success: true })
+    }
+
+    return NextResponse.json({ error: 'Unsupported method or action' }, { status: 405 })
+  } catch (error: any) {
+    errorMessage = error?.message || 'Unknown error'
+
+    // Record failed operation
+    recordMetric({
+      operation,
+      userId: user?.id || 'unknown',
+      duration: Date.now() - startTime,
+      success: false,
+      error: errorMessage,
+      timestamp: new Date().toISOString()
+    })
+
+    // Log security event for suspicious failures
+    if (user) {
+      logSecurityEvent(
+        'suspicious_request',
+        'medium',
+        `Upload operation failed: ${operation} - ${errorMessage}`,
+        {
+          request: req,
+          userId: user.id,
+          metadata: { operation, duration: Date.now() - startTime }
+        }
+      )
+    }
+
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
-} 
+}
+
+function sanitizePathSegment(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9._-]/g, '')
+    .replace(/\.+/g, '.')
+}
+
+export async function OPTIONS() {
+  return await securedOPTIONS(new NextRequest('http://localhost'));
+}
+
+export async function POST(req: NextRequest) {
+  return await securedPOST(req);
+}
+
+

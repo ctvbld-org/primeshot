@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, ReactNode, useCallback, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -35,6 +35,10 @@ const ANALYTICS_TABLES = [
   'waitlist'
 ];
 
+// Reconnect backoff configuration
+const INITIAL_BACKOFF_MS = 3000;
+const MAX_BACKOFF_MS = 60000;
+
 // Global state to prevent multiple providers
 let globalChannel: RealtimeChannel | null = null;
 let globalProviderCount = 0;
@@ -48,6 +52,13 @@ export function RealtimeAnalyticsProvider({ children }: RealtimeAnalyticsProvide
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isInitializingRef = useRef(false);
   const providerIdRef = useRef(Math.random().toString(36).substring(2, 11));
+  const backoffRef = useRef<number>(INITIAL_BACKOFF_MS);
+  const connectionErrorRef = useRef<string | null>(null);
+
+  // Keep a ref in sync for places where we can't depend on state in callbacks
+  useEffect(() => {
+    connectionErrorRef.current = connectionError;
+  }, [connectionError]);
 
   // Initialize the realtime channel with all tables
   const initializeChannel = () => {
@@ -114,6 +125,7 @@ export function RealtimeAnalyticsProvider({ children }: RealtimeAnalyticsProvide
           setIsConnected(true);
           setConnectionError(null);
           isInitializingRef.current = false;
+          backoffRef.current = INITIAL_BACKOFF_MS;
           // Clear any reconnection timeout
           if (reconnectTimeoutRef.current) {
             clearTimeout(reconnectTimeoutRef.current);
@@ -128,6 +140,7 @@ export function RealtimeAnalyticsProvider({ children }: RealtimeAnalyticsProvide
           setIsConnected(true);
           setConnectionError(null);
           isInitializingRef.current = false;
+          backoffRef.current = INITIAL_BACKOFF_MS;
         } else if (status === 'CHANNEL_ERROR') {
           setIsConnected(false);
           setConnectionError('Failed to connect to realtime');
@@ -142,7 +155,7 @@ export function RealtimeAnalyticsProvider({ children }: RealtimeAnalyticsProvide
           setIsConnected(false);
           isInitializingRef.current = false;
           // Only reconnect if we didn't intentionally close
-          if (!connectionError) {
+          if (!connectionErrorRef.current) {
             scheduleReconnect();
           }
         }
@@ -157,15 +170,24 @@ export function RealtimeAnalyticsProvider({ children }: RealtimeAnalyticsProvide
     if (reconnectTimeoutRef.current) {
       clearTimeout(reconnectTimeoutRef.current);
     }
-    
+    // Avoid scheduling if already connected or initializing
+    if (isInitializingRef.current) {
+      return;
+    }
+    if (globalChannel && globalChannel.state === 'joined') {
+      return;
+    }
+
+    const delay = backoffRef.current;
     reconnectTimeoutRef.current = setTimeout(() => {
       console.log(`[Provider ${providerIdRef.current}] Attempting to reconnect realtime...`);
       initializeChannel();
-    }, 3000); // Reconnect after 3 seconds
+      backoffRef.current = Math.min(backoffRef.current * 2, MAX_BACKOFF_MS);
+    }, delay);
   };
 
   // Subscribe to realtime updates (simplified - no table filtering needed)
-  const subscribe = (callback: (table: string, eventType: string, record: any) => void): string => {
+  const subscribe = useCallback((callback: (table: string, eventType: string, record: any) => void): string => {
     const subscriptionId = Math.random().toString(36).substring(2, 11);
     
     subscriptionsRef.current.set(subscriptionId, {
@@ -176,19 +198,20 @@ export function RealtimeAnalyticsProvider({ children }: RealtimeAnalyticsProvide
     console.log(`[Provider ${providerIdRef.current}] Added subscription ${subscriptionId}, total: ${subscriptionsRef.current.size}`);
     
     return subscriptionId;
-  };
+  }, []);
 
   // Unsubscribe from realtime updates
-  const unsubscribe = (subscriptionId: string) => {
+  const unsubscribe = useCallback((subscriptionId: string) => {
     subscriptionsRef.current.delete(subscriptionId);
     console.log(`[Provider ${providerIdRef.current}] Removed subscription ${subscriptionId}, total: ${subscriptionsRef.current.size}`);
-  };
+  }, []);
 
   // Manual reconnect
-  const reconnect = () => {
+  const reconnect = useCallback(() => {
     setConnectionError(null);
+    backoffRef.current = INITIAL_BACKOFF_MS;
     initializeChannel();
-  };
+  }, []);
 
   // Initialize on mount
   useEffect(() => {
@@ -229,13 +252,13 @@ export function RealtimeAnalyticsProvider({ children }: RealtimeAnalyticsProvide
     };
   }, []); // Empty dependency array - only run once on mount
 
-  const value: RealtimeAnalyticsContextType = {
+  const value: RealtimeAnalyticsContextType = useMemo(() => ({
     isConnected,
     connectionError,
     subscribe,
     unsubscribe,
     reconnect
-  };
+  }), [isConnected, connectionError, subscribe, unsubscribe, reconnect]);
 
   return (
     <RealtimeAnalyticsContext.Provider value={value}>

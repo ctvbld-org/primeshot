@@ -87,7 +87,6 @@ export function useTrainingJobStatus(jobId: string | null) {
 
     // Cleanup subscription
     return () => {
-      console.log(`Unsubscribing from training job updates: ${jobId}`);
       supabase.removeChannel(channel);
     };
   }, [isAuthenticated, jobId]);

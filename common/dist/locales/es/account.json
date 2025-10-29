@@ -1,0 +1,65 @@
+{
+    "dialog": {
+        "title": "Cuenta",
+        "selectSection": "Seleccionar sección"
+    },
+    "navigation": {
+        "profile": "Perfil",
+        "subscription": "Suscripción",
+        "settings": "Configuración",
+        "support": "Soporte"
+    },
+    "buttons": {
+        "cancel": "Cancelar",
+        "save": "Guardar",
+        "saving": "Guardando…",
+        "signOut": "Cerrar sesión",
+        "subscribe": "Suscribirse",
+        "opening": "Abriendo…",
+        "manage": "Gestionar",
+        "renew": "Renovar",
+        "buyCredits": "Comprar créditos",
+        "deleteAccount": "Eliminar cuenta (próximamente)"
+    },
+    "profile": {
+        "title": "Perfil",
+        "firstName": "Nombre",
+        "lastName": "Apellido",
+        "email": "Correo electrónico"
+    },
+    "subscription": {
+        "title": "Suscripción",
+        "loading": "Cargando...",
+        "noPlan": "Sin plan",
+        "planSuffix": "",
+        "cancelled": "Cancelada",
+        "expires": "Expira el {{date}}",
+        "renews": "Se renueva el {{date}}",
+        "creditBalance": "Saldo de créditos",
+        "resets": "Se reinicia el {{date}}"
+    },
+    "settings": {
+        "title": "Configuración",
+        "language": "Idioma",
+        "deleteAccount": {
+            "title": "¿Eliminar cuenta?",
+            "description": "Esto borrará todos tus datos, configuración e historial. Esta acción no se puede deshacer."
+        }
+    },
+    "support": {
+        "title": "Estamos aquí para ayudarte",
+        "description": "¿Tienes preguntas o necesitas ayuda? Estamos listos para apoyarte en cada paso. Normalmente respondemos en 24 horas.",
+        "faq": "Preguntas frecuentes",
+        "faqDescription": "Consulta nuestro {{helpCenter}} para respuestas rápidas a preguntas comunes.",
+        "helpCenter": "Centro de ayuda",
+        "dmUs": "ESCRÍBENOS",
+        "emailUs": "Envíanos un correo"
+    },
+    "errors": {
+        "failedToSave": "Error al guardar los cambios"
+    },
+    "accessibility": {
+        "avatar": "avatar",
+        "plan": "plan"
+    }
+}

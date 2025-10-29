@@ -1,10 +1,24 @@
 /** @type {import('next').NextConfig} */
 const path = require('path')
-const isProd = process.env.VERCEL_TARGET_ENV !== 'local'
+const isProd = process.env.NEXT_PUBLIC_VERCEL_TARGET_ENV !== 'local'
 
 const nextConfig = {
   basePath: isProd ? '/create' : '',
   assetPrefix: isProd ? '/create' : '',
+  transpilePackages: ['@primeshot/common'],
+  experimental: { 
+    externalDir: true,
+    serverActions: {
+      bodySizeLimit: '50mb'
+    }
+  },
+  // Increase API route body size limit for image uploads
+  api: {
+    bodyParser: {
+      sizeLimit: '50mb'
+    },
+    responseLimit: '50mb'
+  },
   webpack: (config, { isServer }) => {
     // Ignore Node.js specific modules in face-api.js
     config.resolve.fallback = {
@@ -17,6 +31,15 @@ const nextConfig = {
 
     // Path alias so imports like "@/constants/profile-options" work in monorepo
     config.resolve.alias['@/constants'] = path.join(__dirname, 'src/components/constants')
+
+    // In local dev, prefer source from common package to enable HMR
+    if (!isProd) {
+      config.resolve.alias['@primeshot/common/web'] = path.resolve(__dirname, '../common/web')
+      config.resolve.alias['@primeshot/common/locales'] = path.resolve(__dirname, '../common/locales')
+      config.resolve.alias['@primeshot/common/hooks'] = path.resolve(__dirname, '../common/hooks')
+      config.resolve.alias['@primeshot/common/lib'] = path.resolve(__dirname, '../common/lib')
+      config.resolve.alias['@primeshot/common'] = path.resolve(__dirname, '../common/index.ts')
+    }
 
     return config
   },
@@ -43,6 +66,7 @@ const nextConfig = {
         hostname: 'lh3.googleusercontent.com',
       },
     ],
+    qualities: [75, 80, 85, 90, 100],
   },
   // compiler: {
   //   removeConsole: {

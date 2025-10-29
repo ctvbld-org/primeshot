@@ -4,13 +4,17 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
+import { getApiUrl } from '@primeshot/common';
 
-// Move schema outside component to prevent recreation on each render
-const formSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
+// Create schema factory to use translations
+const createFormSchema = (t: (key: string) => string) => z.object({
+  email: z.string().email(t('waitlist.validation.invalidEmail')),
 });
 
-type FormData = z.infer<typeof formSchema>;
+type FormData = {
+  email: string;
+};
 
 // Separate types for better type safety
 type SubmitStatus = {
@@ -24,14 +28,8 @@ interface WaitlistFormProps {
   className?: string;
 }
 
-// Constants for messages
-const MESSAGES = {
-  ALREADY_ON_WAITLIST: 'You\'re already on the waitlist!',
-  SUCCESS: 'Successfully joined the waitlist!',
-  DEFAULT_ERROR: 'Something went wrong',
-} as const;
-
 export default function WaitlistForm({ className }: WaitlistFormProps) {
+  const { t, i18n } = useTranslation('homepage');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>({ 
     type: null, 
@@ -44,6 +42,8 @@ export default function WaitlistForm({ className }: WaitlistFormProps) {
   const isSubmittingRef = useRef(false);
   const isTypingRef = useRef(false);
 
+  const formSchema = createFormSchema(t);
+  
   const {
     register,
     reset,
@@ -69,10 +69,10 @@ export default function WaitlistForm({ className }: WaitlistFormProps) {
     setSubmitStatus({ type: null, message: '' });
 
     try {
-      const response = await fetch('/api/waitlist', {
+      const response = await fetch(getApiUrl('/api/waitlist'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, language: i18n.language }),
       });
 
       const result = await response.json();
@@ -87,15 +87,15 @@ export default function WaitlistForm({ className }: WaitlistFormProps) {
       if (response.ok) {
         setSubmitStatus({
           type: 'success',
-          message: result.message || MESSAGES.SUCCESS,
+          message: t('waitlist.messages.success'),
         });
-      } else if (result.error === 'This email is already on the waitlist') {
+      } else if (result.error === 'ALREADY_EXISTS') {
         setSubmitStatus({
           type: 'error',
-          message: MESSAGES.ALREADY_ON_WAITLIST,
+          message: t('waitlist.messages.alreadyOnWaitlist'),
         });
       } else {
-        throw new Error(result.error || MESSAGES.DEFAULT_ERROR);
+        throw new Error(t('waitlist.messages.defaultError'));
       }
       
       // Reset form after a short delay to ensure message visibility
@@ -107,13 +107,13 @@ export default function WaitlistForm({ className }: WaitlistFormProps) {
       console.error('Form submission error:', error);
       setSubmitStatus({
         type: 'error',
-        message: error instanceof Error ? error.message : MESSAGES.DEFAULT_ERROR,
+        message: error instanceof Error ? error.message : t('waitlist.messages.defaultError'),
       });
       isSubmittingRef.current = false;
     } finally {
       setIsSubmitting(false);
     }
-  }, [reset]);
+  }, [reset, t, i18n.language]);
 
   // Handle autofill detection and submission
   useEffect(() => {
@@ -236,7 +236,7 @@ export default function WaitlistForm({ className }: WaitlistFormProps) {
     <form 
       ref={formRef}
       onSubmit={handleFormSubmit} 
-      className={`w-full max-w-xs ${className || ''}`}
+      className={`w-full ${className || ''}`}
     >
       <div className="flex items-center w-full h-11 bg-mist/70 focus-within:bg-mist rounded-full pl-5 pr-0.5">
         <input
@@ -251,10 +251,10 @@ export default function WaitlistForm({ className }: WaitlistFormProps) {
             inputRef.current = e;
           }}
           type="email"
-          placeholder="Enter email for early access"
+          placeholder={t('waitlist.placeholder')}
           className="flex-grow bg-transparent placeholder:text-obsidian focus:placeholder:text-obsidian/40 text-black text-[16px] font-medium outline-none autofill:bg-transparent"
           disabled={isSubmitting}
-          aria-label="Email address for waitlist"
+          aria-label={t('waitlist.ariaLabel')}
           tabIndex={0}
           autoComplete="email"
         />
@@ -262,7 +262,7 @@ export default function WaitlistForm({ className }: WaitlistFormProps) {
           type="submit"
           disabled={isSubmitting}
           className="w-10 h-10 bg-transparent active:bg-glacier rounded-full flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-opacity focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-glacier focus-visible:ring-offset-2" 
-          aria-label={isSubmitting ? "Submitting..." : "Submit email"}
+          aria-label={isSubmitting ? t('waitlist.submittingLabel') : t('waitlist.submitLabel')}
           tabIndex={0}
         >
           {isSubmitting ? (

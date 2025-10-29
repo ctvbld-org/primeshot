@@ -1,0 +1,22 @@
+{
+  "betaInvite": {
+    "subject": "您已加入！立即从自拍创建专业肖像照",
+    "previewText": "用AI将您的自拍转变为专业肖像照 - 欢迎使用Primeshot！",
+    "emoji": "🎊",
+    "heading": "欢迎使用Primeshot测试版！",
+    "paragraph1": "我们正在开放Primeshot封闭测试版，您已获邀参与。我们期待您的反馈，帮助我们打造更好的产品。",
+    "paragraph2": "您是最早体验全新专业肖像照获取方式的用户之一。无需摄影棚，无需预约。从您的自拍直接获得即时成果。",
+    "offerText": "为表谢意，这是您的早期访问优惠：",
+    "offerDescription": "帮助塑造Primeshot，获得年度套餐终身70%折扣或月度套餐50%折扣，并享受300位创始用户的专属特权。",
+    "ctaButton": "立即试用Primeshot",
+    "thankYou": "感谢您",
+    "companyFooter": "Primeshot，Creativebuild旗下产品。",
+    "receivingReason": "您收到此邮件是因为您通过我们的网站注册。",
+    "unsubscribePrefix": "您收到此邮件是因为您通过我们的网站注册。",
+    "unsubscribeLinkPrefix": "您可以",
+    "unsubscribeLink": "取消订阅",
+    "unsubscribeSuffix": "。",
+    "plainText": "感谢加入PrimeShot！您已在我们的等候名单中，我们将在产品发布时通知您。"
+  }
+}
+

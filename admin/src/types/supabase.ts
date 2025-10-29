@@ -178,6 +178,7 @@ export type Database = {
           created_at: string | null
           credits: number
           id: number
+          image_url: string | null
           name: string
           price: number
           translations: Json | null
@@ -188,6 +189,7 @@ export type Database = {
           created_at?: string | null
           credits: number
           id?: number
+          image_url?: string | null
           name: string
           price: number
           translations?: Json | null
@@ -198,6 +200,7 @@ export type Database = {
           created_at?: string | null
           credits?: number
           id?: number
+          image_url?: string | null
           name?: string
           price?: number
           translations?: Json | null
@@ -258,6 +261,7 @@ export type Database = {
           format: string
           height: number
           id: string
+          image_index: number
           inference_id: string
           metadata: Json | null
           original_path: string
@@ -274,6 +278,7 @@ export type Database = {
           format: string
           height: number
           id?: string
+          image_index: number
           inference_id: string
           metadata?: Json | null
           original_path: string
@@ -290,6 +295,7 @@ export type Database = {
           format?: string
           height?: number
           id?: string
+          image_index?: number
           inference_id?: string
           metadata?: Json | null
           original_path?: string
@@ -326,17 +332,16 @@ export type Database = {
           credits_spent: number
           error_message: string | null
           id: string
-          is_parent_job: boolean | null
           modal_job_id: string | null
           nb_takes: number | null
-          parent_job_id: string | null
+          prompt_override: Json | null
           quality: string | null
           queue_type: string | null
           retry_after: string | null
           scene_id: string | null
+          settings_override: Json | null
           status: string
           style_id: string | null
-          sub_job_index: number | null
           updated_at: string | null
           user_id: string
           wardrobe_id: string | null
@@ -350,17 +355,16 @@ export type Database = {
           credits_spent?: number
           error_message?: string | null
           id?: string
-          is_parent_job?: boolean | null
           modal_job_id?: string | null
           nb_takes?: number | null
-          parent_job_id?: string | null
+          prompt_override?: Json | null
           quality?: string | null
           queue_type?: string | null
           retry_after?: string | null
           scene_id?: string | null
+          settings_override?: Json | null
           status?: string
           style_id?: string | null
-          sub_job_index?: number | null
           updated_at?: string | null
           user_id: string
           wardrobe_id?: string | null
@@ -374,17 +378,16 @@ export type Database = {
           credits_spent?: number
           error_message?: string | null
           id?: string
-          is_parent_job?: boolean | null
           modal_job_id?: string | null
           nb_takes?: number | null
-          parent_job_id?: string | null
+          prompt_override?: Json | null
           quality?: string | null
           queue_type?: string | null
           retry_after?: string | null
           scene_id?: string | null
+          settings_override?: Json | null
           status?: string
           style_id?: string | null
-          sub_job_index?: number | null
           updated_at?: string | null
           user_id?: string
           wardrobe_id?: string | null
@@ -402,13 +405,6 @@ export type Database = {
             columns: ["color_id"]
             isOneToOne: false
             referencedRelation: "style_colors"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "inference_jobs_parent_job_id_fkey"
-            columns: ["parent_job_id"]
-            isOneToOne: false
-            referencedRelation: "inference_jobs"
             referencedColumns: ["id"]
           },
           {
@@ -526,6 +522,7 @@ export type Database = {
       }
       style_scenes: {
         Row: {
+          atmosphere: string | null
           created_at: string
           id: string
           image: string
@@ -536,6 +533,7 @@ export type Database = {
           value: string
         }
         Insert: {
+          atmosphere?: string | null
           created_at?: string
           id?: string
           image: string
@@ -546,6 +544,7 @@ export type Database = {
           value: string
         }
         Update: {
+          atmosphere?: string | null
           created_at?: string
           id?: string
           image?: string
@@ -607,6 +606,7 @@ export type Database = {
           name: string
           preview_images: Json
           prompt: string | null
+          settings: Json
           translations: Json
           updated_at: string | null
         }
@@ -620,6 +620,7 @@ export type Database = {
           name: string
           preview_images?: Json
           prompt?: string | null
+          settings?: Json
           translations?: Json
           updated_at?: string | null
         }
@@ -633,6 +634,7 @@ export type Database = {
           name?: string
           preview_images?: Json
           prompt?: string | null
+          settings?: Json
           translations?: Json
           updated_at?: string | null
         }
@@ -646,15 +648,18 @@ export type Database = {
           created_at: string | null
           credits: number
           description: string | null
+          disabled: boolean
           display_name: string
           features: Json | null
           id: number
+          image_url: string | null
           max_characters: number
           max_quality: string
           monthly_price: number
           name: string
           original_price: number
           popular: boolean | null
+          queue_type: string
           translations: Json | null
           updated_at: string | null
           yearly_price: number
@@ -666,15 +671,18 @@ export type Database = {
           created_at?: string | null
           credits: number
           description?: string | null
+          disabled?: boolean
           display_name: string
           features?: Json | null
           id?: number
+          image_url?: string | null
           max_characters: number
           max_quality: string
           monthly_price: number
           name: string
           original_price: number
           popular?: boolean | null
+          queue_type?: string
           translations?: Json | null
           updated_at?: string | null
           yearly_price: number
@@ -686,15 +694,18 @@ export type Database = {
           created_at?: string | null
           credits?: number
           description?: string | null
+          disabled?: boolean
           display_name?: string
           features?: Json | null
           id?: number
+          image_url?: string | null
           max_characters?: number
           max_quality?: string
           monthly_price?: number
           name?: string
           original_price?: number
           popular?: boolean | null
+          queue_type?: string
           translations?: Json | null
           updated_at?: string | null
           yearly_price?: number
@@ -766,103 +777,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      upload_chunks: {
-        Row: {
-          chunk_index: number
-          chunk_size: number
-          created_at: string
-          id: string
-          session_id: string
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          chunk_index: number
-          chunk_size: number
-          created_at?: string
-          id?: string
-          session_id: string
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          chunk_index?: number
-          chunk_size?: number
-          created_at?: string
-          id?: string
-          session_id?: string
-          status?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "upload_chunks_session_id_fkey"
-            columns: ["session_id"]
-            isOneToOne: false
-            referencedRelation: "upload_sessions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      upload_sessions: {
-        Row: {
-          character_id: string | null
-          completed_chunks: number | null
-          created_at: string
-          file_name: string
-          file_size: number
-          file_type: string
-          final_url: string | null
-          id: string
-          metadata: Json | null
-          quality_score: number | null
-          status: string
-          total_chunks: number
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          character_id?: string | null
-          completed_chunks?: number | null
-          created_at?: string
-          file_name: string
-          file_size: number
-          file_type: string
-          final_url?: string | null
-          id?: string
-          metadata?: Json | null
-          quality_score?: number | null
-          status?: string
-          total_chunks: number
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          character_id?: string | null
-          completed_chunks?: number | null
-          created_at?: string
-          file_name?: string
-          file_size?: number
-          file_type?: string
-          final_url?: string | null
-          id?: string
-          metadata?: Json | null
-          quality_score?: number | null
-          status?: string
-          total_chunks?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "upload_sessions_character_id_fkey"
-            columns: ["character_id"]
-            isOneToOne: false
-            referencedRelation: "characters"
             referencedColumns: ["id"]
           },
         ]
@@ -1127,17 +1041,16 @@ export type Database = {
           credits_spent: number
           error_message: string | null
           id: string
-          is_parent_job: boolean | null
           modal_job_id: string | null
           nb_takes: number | null
-          parent_job_id: string | null
+          prompt_override: Json | null
           quality: string | null
           queue_type: string | null
           retry_after: string | null
           scene_id: string | null
+          settings_override: Json | null
           status: string
           style_id: string | null
-          sub_job_index: number | null
           updated_at: string | null
           user_id: string
           wardrobe_id: string | null
@@ -1163,6 +1076,16 @@ export type Database = {
           user_id: string
         }
       }
+      cleanup_stuck_inference_jobs: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          action_taken: string
+          job_id: string
+          status: string
+          stuck_duration: unknown
+          user_id: string
+        }[]
+      }
       expire_credit_pack_credits: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -1178,6 +1101,20 @@ export type Database = {
       force_cleanup_upload_session: {
         Args: { session_id: string }
         Returns: undefined
+      }
+      get_active_training_jobs: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          character_id: string
+          created_at: string
+          id: string
+          modal_job_id: string
+          retry_after: string
+          retry_count: number
+          status: string
+          updated_at: string
+          user_id: string
+        }[]
       }
       get_language_preference: {
         Args: Record<PropertyKey, never>
@@ -1207,6 +1144,13 @@ export type Database = {
           training_count: number
         }[]
       }
+      get_uploaded_image_counts: {
+        Args: { character_ids: string[] }
+        Returns: {
+          character_id: string
+          uploaded_count: number
+        }[]
+      }
       get_user_available_credits: {
         Args: { user_uuid: string }
         Returns: number
@@ -1214,6 +1158,10 @@ export type Database = {
       get_user_credit_balance: {
         Args: { user_uuid: string }
         Returns: number
+      }
+      get_user_language: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       increment_image_count: {
         Args: { character_id: string }
@@ -1245,6 +1193,14 @@ export type Database = {
           refund_created: boolean
           success: boolean
         }[]
+      }
+      set_user_language: {
+        Args: { new_language: string }
+        Returns: undefined
+      }
+      should_cleanup_stuck_inference_jobs: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
       should_trigger_inference_queue: {
         Args: Record<PropertyKey, never>

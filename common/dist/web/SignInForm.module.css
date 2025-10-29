@@ -28,6 +28,38 @@
   width: 100%;
 }
 
+.heightContainer {
+  position: relative;
+  width: 100%;
+  height: auto;
+  transition: height 220ms ease;
+  overflow: hidden;
+}
+
+.section {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.sectionVisible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.sectionHidden {
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+}
+
 .logoContainer {
   display: flex;
   justify-content: center;
@@ -42,6 +74,10 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
+}
+
+.headingContainerLeft {
+  align-items: flex-start;
 }
 
 .heading {
@@ -92,7 +128,7 @@
   justify-content: center;
   gap: 8px;
   width: 100%;
-  padding: 8px 0;
+  padding: 16px 0;
 }
 
 .dividerText {
@@ -132,6 +168,27 @@
   cursor: not-allowed;
 }
 
+.emailButton {
+  width: 100%;
+  height: 3rem;
+  border-radius: 16px;
+  background-color: #17D7D0;
+  color: #001111;
+  display: flex;
+}
+
+.returnRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #99EFEC;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
 .terms {
   color: #99EFEC;
   opacity: 0.7;;
@@ -152,3 +209,26 @@
 .arrowRight {
   margin-left: 0.25rem;
 } 
+
+.signinContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.signinHeader {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .signinHeader {
+    display: block;
+  }
+}
+
+@media (max-width: 414px) {
+  .card {
+    background: none;
+    border: none;
+  }
+}

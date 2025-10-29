@@ -2,18 +2,9 @@
 
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { useDialogService } from '@/contexts/DialogServiceContext'
-import { Dialog, DialogContent, DialogBody, DialogFooter, DialogTitle } from '@primeshot/common/web/ui/dialog'
+import { Dialog, DialogContent, DialogBody, DialogFooter, DialogTitle, DialogDescription, VisuallyHidden } from '@primeshot/common/web/ui/dialog'
 import { Button, buttonVariants } from '@primeshot/common/web/ui/button'
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from '@primeshot/common/web/ui/alert-dialog'
+import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { useTranslation } from 'react-i18next'
 import { useToast } from '@primeshot/common/web/ui/use-toast'
 import { useCreditGuard } from '@/hooks/useCreditGuard'
@@ -30,13 +21,15 @@ import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
 import { ImageQualityResult } from '@/lib/image-quality'
 import { useCreditCosts, getCharacterTrainingCost, useSubscriptionTiers } from '@/hooks/usePricingConfig'
 import { useCreditBalance } from '@/hooks/useCreditBalance'
-import { getApiUrl } from '@/lib/api/client'
+import { getApiUrl } from '@primeshot/common'
+import styles from './CharacterTrainingDialog.module.css'
 
 // Import step components
 import { UploadPhotosStep } from './training/UploadPhotosStep'
 import { CharacterNameStep } from './training/CharacterNameStep'
 import { UploadProgressStep } from './training/UploadProgressStep'
 import { TrainingProgressStep } from './training/TrainingProgressStep'
+import OnboardingStep from './training/OnboardingStep'
 import dynamic from 'next/dynamic'
 
 // Code-split admin dialog so it is not bundled for non-admins
@@ -49,6 +42,9 @@ interface CharacterTrainingDialogProps {
 }
 
 type DialogStep = 
+  | 'onboarding-intro'
+  | 'onboarding-guidelines'
+  | 'onboarding-confirmation'
   | 'upload' 
   | 'name' 
   | 'uploading' 
@@ -65,13 +61,27 @@ interface StepData {
   adminTrainingParams?: {
     steps: number
     batch_size: number
+    gradient_accumulation_steps: number
     resize_size: number
+    learning_rate: number
+    resolution: number[]
     rank: number
+    optimizer: 'adamw' | 'adamw8bit'
   }
+  // Onboarding state
+  onboardingStep?: number
+  onboardingGuidelines?: Array<{
+    id: string
+    title: string
+    description: string
+    description2?: string
+    icon: string
+    images: Array<{ src: string; alt: string }>
+  }>
 }
 
-export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogProps) {
-  const { t } = useTranslation(['upload', 'profile', 'common'])
+export function CharacterTrainingDialog({ onComplete, wrapWithDialog = true }: CharacterTrainingDialogProps) {
+  const { t } = useTranslation(['character', 'common'])
   const { toast } = useToast()
   const dialogService = useDialogService()
   const { user } = useAuth()
@@ -85,16 +95,61 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
   const creditGuard = useCreditGuard(characterTrainingCost)
   const { startTraining } = useJobsApi()
   
-  // Start directly at upload step since requirements are now integrated
-  const [currentStep, setCurrentStep] = useState<DialogStep>('upload')
+  // Always start with onboarding intro step
+  const [currentStep, setCurrentStep] = useState<DialogStep>('onboarding-intro')
   const [stepData, setStepData] = useState<StepData>({
     uploadedFiles: [],
     qualityResults: {},
-    characterName: ''
+    characterName: '',
+    onboardingStep: 0,
+    onboardingGuidelines: [
+      {
+        id: 'natural-light',
+        title: t('character:onboarding.guidelines.naturalLight.title'),
+        description: t('character:onboarding.guidelines.naturalLight.description'),
+        icon: 'sun',
+        images: [
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/natural-light-2-w320.webp', alt: t('character:onboarding.guidelines.naturalLight.goodAlt') },
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/natural-light-1-w320.webp', alt: t('character:onboarding.guidelines.naturalLight.badAlt') }
+        ]
+      },
+      {
+        id: 'angles',
+        title: t('character:onboarding.guidelines.angles.title'),
+        description: t('character:onboarding.guidelines.angles.description'),
+        icon: 'angles',
+        images: [
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/angles-1-w320.webp', alt: t('character:onboarding.guidelines.angles.goodAlt') },
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/angles-2-w320.webp', alt: t('character:onboarding.guidelines.angles.badAlt') }
+        ]
+      },
+      {
+        id: 'expressions',
+        title: t('character:onboarding.guidelines.expressions.title'),
+        description: t('character:onboarding.guidelines.expressions.description'),
+        icon: 'smilyFace',
+        images: [
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/expression-2-w320.webp', alt: t('character:onboarding.guidelines.expressions.goodAlt') },
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/expression-1-w320.webp', alt: t('character:onboarding.guidelines.expressions.badAlt') }
+        ]
+      },
+      {
+        id: 'variety',
+        title: t('character:onboarding.guidelines.variety.title'),
+        description: t('character:onboarding.guidelines.variety.description'),
+        description2: t('character:onboarding.guidelines.variety.description2'),
+        icon: 'variety',
+        images: [
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/variety-1-w320.webp', alt: t('character:onboarding.guidelines.variety.goodAlt') },
+          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/variety-2-w320.webp', alt: t('character:onboarding.guidelines.variety.badAlt') }
+        ]
+      }
+    ]
   })
 
   const [isProcessing, setIsProcessing] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [uploadedFileCount, setUploadedFileCount] = useState(0)
   const [currentUploadingFile, setCurrentUploadingFile] = useState<File | null>(null)
 
   const [showCloseConfirmation, setShowCloseConfirmation] = useState(false)
@@ -109,6 +164,10 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
 
   const { getActiveCharacterCount } = useCharactersApi()
 
+  // Admin users have different limits
+  const isAdmin = user?.admin
+  const minImages = UPLOAD_CONSTANTS.MIN_IMAGES
+
   // Check if we're in a critical step where closing should be prevented
   const isInCriticalStep = useMemo(() => {
     return ['uploading'].includes(currentStep) || (currentStep === 'training' && !stepData.trainingJobId)
@@ -121,6 +180,10 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
         return stepData.uploadedFiles.length > 0
       case 'name':
         return stepData.uploadedFiles.length > 0 || stepData.characterName.trim().length > 0
+      case 'onboarding-intro':
+      case 'onboarding-guidelines':
+      case 'onboarding-confirmation':
+        return false // Onboarding steps can be skipped without confirmation
       default:
         return false
     }
@@ -131,8 +194,8 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (isInCriticalStep) {
         e.preventDefault()
-        e.returnValue = 'Your character is currently being processed. Are you sure you want to leave? This will cancel the upload.'
-        return 'Your character is currently being processed. Are you sure you want to leave? This will cancel the upload.'
+        e.returnValue = t('character:beforeUnloadWarning')
+        return t('character:beforeUnloadWarning')
       }
     }
 
@@ -179,7 +242,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
   // Handle training error - show toast and close dialog
   const handleTrainingError = useCallback((error: string) => {
     toast({
-      title: t('upload:character.trainingError'),
+      title: t('character:trainingError'),
       description: error,
       variant: 'destructive'
     })
@@ -205,6 +268,9 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
     } else if (currentStep === 'training' && stepData.trainingJobId) {
       // Allow closing during training only if training has started
       dialogService.closeDialog()
+    } else if (currentStep.startsWith('onboarding')) {
+      // Allow closing during onboarding steps
+      dialogService.closeDialog()
     }
   }, [currentStep, stepData.trainingJobId, isInCriticalStep, needsCloseConfirmation, dialogService])
 
@@ -215,12 +281,54 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
     }
   }, [handleClose])
 
+  // Handle files update from upload step
+  const handleFilesUpdate = useCallback((files: File[], qualityResults: Record<string, ImageQualityResult>, bodyShotValidation: { isValid: boolean; errors: string[] }, isAnalyzing: boolean) => {
+    setStepData(prev => {
+      // Only update if files, qualityResults, bodyShotValidation, or isAnalyzing have actually changed
+      const filesChanged = prev.uploadedFiles.length !== files.length ||
+        prev.uploadedFiles.some((f, i) => f.name !== files[i]?.name) ||
+        files.some((f, i) => f.name !== prev.uploadedFiles[i]?.name);
+      const qualityChanged = JSON.stringify(prev.qualityResults) !== JSON.stringify(qualityResults);
+      const bodyShotChanged = JSON.stringify(prev.bodyShotValidation) !== JSON.stringify(bodyShotValidation);
+      const analyzingChanged = prev.isAnalyzing !== isAnalyzing;
+
+      if (!filesChanged && !qualityChanged && !bodyShotChanged && !analyzingChanged) return prev;
+      return {
+        ...prev,
+        uploadedFiles: files,
+        qualityResults,
+        bodyShotValidation,
+        isAnalyzing
+      };
+    });
+  }, [])
+
   // Handle step navigation
   const handleNext = useCallback(async () => {
     switch (currentStep) {
+      case 'onboarding-intro':
+        setCurrentStep('onboarding-guidelines')
+        setStepData(prev => ({ ...prev, onboardingStep: 0 }))
+        break
+      case 'onboarding-guidelines':
+        const currentGuidelineIndex = stepData.onboardingStep || 0
+        const nextIndex = currentGuidelineIndex + 1
+
+        if (nextIndex < (stepData.onboardingGuidelines?.length || 0)) {
+          setStepData(prev => ({ ...prev, onboardingStep: nextIndex }))
+        } else {
+          setCurrentStep('onboarding-confirmation')
+        }
+        break
+      case 'onboarding-confirmation':
+        setCurrentStep('upload')
+        break
       case 'upload':
-        if (stepData.uploadedFiles.length >= UPLOAD_CONSTANTS.MIN_IMAGES) {
-          setCurrentStep('name')
+        {
+          const acceptedCount = Object.values(stepData.qualityResults || {}).filter(r => r?.isAcceptable).length
+          if (acceptedCount >= minImages && stepData.bodyShotValidation?.isValid && !stepData.isAnalyzing) {
+            setCurrentStep('name')
+          }
         }
         break
       case 'name':
@@ -232,20 +340,41 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
         }
         break
     }
-  }, [currentStep, stepData])
+  }, [currentStep, stepData, minImages])
 
   // Handle back navigation
   const handleBack = useCallback(() => {
     switch (currentStep) {
+      case 'onboarding-guidelines': {
+        const idx = stepData.onboardingStep || 0
+        if (idx > 0) setStepData(prev => ({ ...prev, onboardingStep: idx - 1 }))
+        else setCurrentStep('onboarding-intro')
+        break
+      }
+      case 'onboarding-confirmation': {
+        const lastGuidelineIndex = (stepData.onboardingGuidelines?.length || 1) - 1
+        setCurrentStep('onboarding-guidelines')
+        setStepData(prev => ({ ...prev, onboardingStep: lastGuidelineIndex }))
+        break
+      }
+      case 'upload':
+        setCurrentStep('onboarding-confirmation')
+        break
       case 'name':
         setCurrentStep('upload')
         break
     }
-  }, [currentStep])
+  }, [currentStep, stepData.onboardingGuidelines, stepData.onboardingStep])
 
   // Check if back button should be shown
   const canGoBack = useMemo(() => {
-    return ['name'].includes(currentStep)
+    if (currentStep === 'onboarding-guidelines') {
+      return true
+    }
+    if (currentStep === 'onboarding-confirmation') {
+      return true
+    }
+    return ['upload', 'name'].includes(currentStep)
   }, [currentStep])
 
   // Handle confirmation modal actions
@@ -262,9 +391,9 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
   const getProgressMessage = useCallback(() => {
     switch (currentStep) {
       case 'upload':
-        return t('upload:confirmClose.progressMessages.upload')
+        return t('character:confirmClose.progressMessages.upload')
       case 'name':
-        return t('upload:confirmClose.progressMessages.name')
+        return t('character:confirmClose.progressMessages.name')
       default:
         return ''
     }
@@ -274,6 +403,10 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
   const uploadImages = useCallback(async (files: File[], characterId: string) => {
     const uploadedUrls: string[] = []
     let uploadedCount = 0
+
+    // Reset upload progress and count
+    setUploadProgress(0)
+    setUploadedFileCount(0)
 
     for (const file of files) {
       try {
@@ -291,13 +424,21 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
           fileWithScore,
           characterId,
           (progress) => {
-            const overallProgress = ((uploadedCount + progress / 100) / files.length) * 100
-            setUploadProgress(overallProgress)
+            // Calculate progress for current file (0-100)
+            const currentFileProgress = progress / 100
+            // Calculate overall progress: (completed files + current file progress) / total files
+            const overallProgress = ((uploadedCount + currentFileProgress) / files.length) * 100
+            setUploadProgress(Math.min(100, overallProgress))
           }
         )
         
         uploadedUrls.push(url)
         uploadedCount++
+        setUploadedFileCount(uploadedCount)
+        
+        // Update progress to reflect completed file
+        const overallProgress = (uploadedCount / files.length) * 100
+        setUploadProgress(Math.min(100, overallProgress))
       } catch (error) {
         console.error(`Failed to upload ${file.name}:`, error)
         throw error
@@ -310,7 +451,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
   }, [stepData.qualityResults])
 
   // Handle character creation, payment, and upload
-  const handleCreateCharacter = useCallback(async (overrideParams?: { batch_size: number; resize_size: number; rank: number; steps: number }) => {
+  const handleCreateCharacter = useCallback(async (overrideParams?: { batch_size: number; resize_size: number; steps: number; learning_rate: number; resolution: number[]; rank?: number; optimizer?: 'adamw' | 'adamw8bit'; gradient_accumulation_steps?: number }) => {
     setIsProcessing(true)
     let createdCharacterId: string | undefined
     
@@ -320,14 +461,17 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
         throw new Error('Active subscription required for character training')
       }
 
-      // Get current character count using the centralized method
-      const currentCharacterCount = await getActiveCharacterCount(user!.id)
+      if (!isAdmin) {
+        // Get current character count using the centralized method
+        const currentCharacterCount = await getActiveCharacterCount(user!.id)
 
-      // Get character limit from subscription tiers data
-      const maxCharacters = subscriptionTiers?.find(tier => tier.name === subscription.plan_name)?.max_characters || 1
-      
-      if (currentCharacterCount >= maxCharacters) {
-        throw new Error(`Character limit reached. Your ${subscription.plan_name} plan allows ${maxCharacters} character(s).`)
+        // Prefer API-provided limit; fallback to tiers if missing
+        const maxCharacters = (subscription as any)?.max_characters ?? (subscriptionTiers?.find(tier => tier.name === subscription.plan_name)?.max_characters || 1)
+        
+        if (currentCharacterCount >= maxCharacters) {
+          const planLabel = (subscription as any)?.plan_display_name || subscription.plan_name
+          throw new Error(`Character limit reached. Your ${planLabel} plan allows ${maxCharacters} character(s).`)
+        }
       }
 
       // Profile data will now be automatically generated during training
@@ -354,13 +498,13 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
       }
 
       // Start training with retry mechanism
+      const finalTrainingParams = overrideParams ?? stepData.adminTrainingParams
       const trainingResponse = await startTraining({
         character_id: character.id,
         user_id: user!.id,
         // Include admin params only if defined
-        training_params: overrideParams ?? stepData.adminTrainingParams
+        training_params: finalTrainingParams
       }, (attempt, maxRetries, error) => {
-        console.log(`Training API retry ${attempt}/${maxRetries}:`, error.message)
         setRetryState({ attempt, maxRetries, error })
       })
       
@@ -388,7 +532,6 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
       
       // Cleanup: If we created a character but something failed afterwards, clean it up
       if (createdCharacterId) {
-        console.log(`Cleaning up failed character: ${createdCharacterId}`)
         try {
           // Call cleanup API endpoint
           const response = await fetch(getApiUrl('api/cleanup-character'), {
@@ -403,8 +546,6 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
 
           if (!response.ok) {
             console.error('Failed to cleanup character:', await response.text())
-          } else {
-            console.log('Successfully cleaned up character')
           }
         } catch (cleanupError) {
           console.error('Error during character cleanup:', cleanupError)
@@ -412,12 +553,12 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
       }
       
       // Show error toast and close dialog
-      let errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred during character creation'
-      let errorTitle = t('upload:character.trainingError')
+      let errorMessage = error instanceof Error ? error.message : t('character:trainingFailed')
+      let errorTitle = t('character:trainingError')
       
       // Check if this was a final retry failure
       if (retryState && retryState.attempt >= retryState.maxRetries) {
-        errorTitle = t('upload:errors.trainingRetryFailed', { attempts: retryState.maxRetries })
+        errorTitle = t('character:errors.trainingRetryFailed', { attempts: retryState.maxRetries })
         errorMessage = retryState.error?.message || errorMessage
       }
       
@@ -433,7 +574,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
     } finally {
       setIsProcessing(false)
     }
-  }, [stepData, createCharacter, uploadImages, startTraining, updateCharacterStatus, onComplete, subscription, subscriptionTiers, user, toast, t, dialogService])
+  }, [stepData, createCharacter, uploadImages, startTraining, updateCharacterStatus, onComplete, subscription, subscriptionTiers, user, toast, t, dialogService, isAdmin])
 
 
 
@@ -452,14 +593,20 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
   // Get dialog title based on current step
   const getDialogTitle = () => {
     switch (currentStep) {
+      case 'onboarding-intro':
+        return t('character:dialogTitles.onboardingIntro')
+      case 'onboarding-guidelines':
+        return t('character:dialogTitles.onboardingGuidelines')
+      case 'onboarding-confirmation':
+        return t('character:dialogTitles.onboardingConfirmation')
       case 'upload':
-        return 'Upload Photos'
+        return t('character:dialogTitles.upload')
       case 'name':
-        return 'Name Your Character'
+        return t('character:dialogTitles.name')
       case 'uploading':
-        return 'Uploading Photos'
+        return t('character:dialogTitles.uploading')
       case 'training':
-        return 'Training Model'
+        return t('character:dialogTitles.training')
       default:
         return ''
     }
@@ -473,11 +620,15 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
     }
 
     switch (currentStep) {
+      case 'onboarding-intro':
+      case 'onboarding-guidelines':
+      case 'onboarding-confirmation':
+        return false
       case 'upload':
         return (
-          stepData.uploadedFiles.length < UPLOAD_CONSTANTS.MIN_IMAGES ||
+          stepData.uploadedFiles.length < minImages ||
           stepData.isAnalyzing ||
-          !stepData.bodyShotValidation?.isValid
+          (!stepData.bodyShotValidation?.isValid)
         )
       case 'name':
         return !stepData.characterName.trim() || isProcessing
@@ -488,74 +639,115 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
 
   return (
     <Dialog open onOpenChange={handleOpenChange}>
-      <DialogContent fullscreen className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col !p-0">
+      <DialogContent fullscreen className={styles.dialogContent}>
         {/* Hidden DialogTitle for accessibility */}
-        <DialogTitle className="sr-only">{getDialogTitle()}</DialogTitle>
-        <div className="flex flex-row items-center justify-between px-6 py-4 min-h-[64px]">
-          <div className="flex items-center gap-3">
+        <VisuallyHidden>
+          <DialogTitle>{getDialogTitle()}</DialogTitle>
+        </VisuallyHidden>
+        <VisuallyHidden>
+          <DialogDescription>
+            {currentStep === 'upload' ? t('character:dialogDescription.upload') : 
+             currentStep === 'name' ? t('character:dialogDescription.name') : 
+             currentStep === 'training' ? t('character:dialogDescription.training') : 
+             t('character:dialogDescription.default')}
+          </DialogDescription>
+        </VisuallyHidden>
+        <div className={styles.header}>
+          <div className={styles.headerLeft}>
             {canGoBack && (
               <Button
                 variant="ghost"
-                size="icon"
+                size="sm"
+                iconOnly
                 onClick={handleBack}
-                className="h-8 w-8"
+                className={styles.iconButtonSmall}
               >
-                <Icon variant="arrowLeft" className="h-4 w-4" />
+                <Icon variant="arrowLeft" className={styles.iconSmall} />
               </Button>
             )}
           </div>
-          <div className="flex items-center gap-2">
-            {/* Cancel Button - only show for upload and name steps */}
-            {(currentStep === 'upload' || currentStep === 'name') && (
-              <Button
-                variant="outline"
-                onClick={handleClose}
-              >
-                {t('common:cancel')}
-              </Button>
-            )}
-            
-            {/* Next Button - only show for upload step */}
+          <div className={styles.headerRight}>
+            {/* Upload step actions: Cancel + Next */}
             {currentStep === 'upload' && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleClose}
+                >
+                  {t('common:cancel')}
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={handleNext}
+                  disabled={isNextDisabled()}
+                >
+                  {t('common:next')}
+                </Button>
+              </>
+            )}
+            {canGoBack && currentStep !== 'upload' && (
               <Button
-                onClick={handleNext}
-                disabled={isNextDisabled()}
-                variant="primary"
+                variant="ghost"
+                size="sm"
+                iconOnly
+                onClick={handleClose}
+                className={styles.iconButtonSmall}
               >
-                {t('common:next')}
+                <Icon variant="cross" className={styles.iconSmall} />
               </Button>
             )}
           </div>
         </div>
 
-        <DialogBody className="flex-1 overflow-y-auto">
+        <DialogBody className={styles.dialogBody}>
+          {/* Unified Onboarding Step */}
+          {(currentStep === 'onboarding-intro' || currentStep === 'onboarding-guidelines' || currentStep === 'onboarding-confirmation') && (
+            <div className={styles.stepCentered}>
+              <OnboardingStep
+                step={currentStep as any}
+                guidelineIndex={stepData.onboardingStep || 0}
+                guidelines={stepData.onboardingGuidelines || []}
+                onNext={handleNext}
+                onBack={() => {
+                  // inline to respect updated onboarding back rules
+                  if (currentStep === 'onboarding-confirmation') {
+                    const lastGuidelineIndex = (stepData.onboardingGuidelines?.length || 1) - 1
+                    setCurrentStep('onboarding-guidelines')
+                    setStepData(prev => ({ ...prev, onboardingStep: lastGuidelineIndex }))
+                    return
+                  }
+                  if (currentStep === 'onboarding-guidelines') {
+                    const idx = stepData.onboardingStep || 0
+                    if (idx > 0) {
+                      setStepData(prev => ({ ...prev, onboardingStep: idx - 1 }))
+                    } else {
+                      setCurrentStep('onboarding-intro')
+                    }
+                    return
+                  }
+                }}
+                onSkip={() => {
+                  setCurrentStep('upload')
+                }}
+                onFinish={() => {
+                  setCurrentStep('upload')
+                }}
+                showSkipButton={true}
+              />
+            </div>
+          )}
+
           {/* Upload Photos Step - Always rendered, hidden when not active */}
-          <div className={currentStep === 'upload' ? 'flex h-full overflow-hidden' : 'hidden'}>
+          <div className={ cn(currentStep === 'upload' ? styles.stepVisible : styles.stepHidden, styles.stepUploadPhotos)}>
             <UploadPhotosStep
-              onFilesUpdate={(files, qualityResults, bodyShotValidation, isAnalyzing) => {
-                setStepData(prev => {
-                  // Only update if files, qualityResults, bodyShotValidation, or isAnalyzing have actually changed
-                  const filesChanged = prev.uploadedFiles.length !== files.length ||
-                    prev.uploadedFiles.some((f, i) => f.name !== files[i].name);
-                  const qualityChanged = JSON.stringify(prev.qualityResults) !== JSON.stringify(qualityResults);
-                  const bodyShotChanged = JSON.stringify(prev.bodyShotValidation) !== JSON.stringify(bodyShotValidation);
-                  const analyzingChanged = prev.isAnalyzing !== isAnalyzing;
-                  
-                  if (!filesChanged && !qualityChanged && !bodyShotChanged && !analyzingChanged) return prev;
-                  return { 
-                    ...prev, 
-                    uploadedFiles: files, 
-                    qualityResults, 
-                    bodyShotValidation, 
-                    isAnalyzing 
-                  };
-                });
-              }}
+              onFilesUpdate={handleFilesUpdate}
             />
           </div>
 
           {/* Character Name Step - Always rendered, hidden when not active */}
-          <div className={currentStep === 'name' ? 'flex h-full items-center justify-center' : 'hidden'}>
+          <div className={currentStep === 'name' ? styles.stepCentered : styles.stepHidden}>
             <CharacterNameStep
               thumbnail={stepData.uploadedFiles[0]}
               value={stepData.characterName}
@@ -571,10 +763,11 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
           </div>
           
           {/* Upload Progress Step - Always rendered, hidden when not active */}
-          <div className={currentStep === 'uploading' ? 'flex h-full items-center justify-center' : 'hidden'}>
+          <div className={currentStep === 'uploading' ? styles.stepCentered : styles.stepHidden}>
             <UploadProgressStep
               progress={uploadProgress}
               totalFiles={stepData.uploadedFiles.length}
+              uploadedFileCount={uploadedFileCount}
               retryState={retryState}
               currentUploadingFile={currentUploadingFile}
               uploadedFiles={stepData.uploadedFiles}
@@ -583,7 +776,7 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
           
           {/* Training Progress Step - Conditionally rendered since it needs IDs */}
           {stepData.characterId && stepData.trainingJobId && (
-            <div className={currentStep === 'training' ? 'flex h-full items-center justify-center' : 'hidden'}>
+            <div className={currentStep === 'training' ? styles.stepCentered : styles.stepHidden}>
               <TrainingProgressStep
                 characterId={stepData.characterId}
                 trainingJobId={stepData.trainingJobId}
@@ -610,32 +803,18 @@ export function CharacterTrainingDialog({ onComplete }: CharacterTrainingDialogP
       )}
 
       {/* Confirmation Modal */}
-      <AlertDialog open={showCloseConfirmation} onOpenChange={setShowCloseConfirmation}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('upload:confirmClose.title')}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t('upload:confirmClose.description')}
-              {needsCloseConfirmation && (
-                <div className="mt-2 text-sm text-muted-foreground">
-                  {getProgressMessage()}
-                </div>
-              )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCancelClose}>
-              {t('upload:confirmClose.buttons.cancel')}
-            </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleConfirmClose} 
-              className={cn(buttonVariants({ variant: "destructive" }))}
-            >
-              {t('upload:confirmClose.buttons.confirm')}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={showCloseConfirmation}
+        onOpenChange={setShowCloseConfirmation}
+        title={t('character:confirmClose.title')}
+        description={(t('character:confirmClose.description'))}
+        confirmText={t('character:confirmClose.buttons.confirm')}
+        cancelText={t('character:confirmClose.buttons.cancel')}
+        onConfirm={handleConfirmClose}
+        onCancel={handleCancelClose}
+        iconVariant="warning"
+        confirmVariant="destructive"
+      />
     </Dialog>
   )
 }

@@ -5,6 +5,8 @@ import { useSubscriptionStatus } from './useSubscriptionStatus'
 import { useOpenSubscriptionDialog } from './useOpenSubscriptionDialog'
 import { useOpenCreditPackDialog } from './useOpenCreditPackDialog'
 import { useCreditBalance } from './useCreditBalance'
+import { useCurrentSubscription } from './useCurrentSubscription'
+import { useSubscriptionTiers } from './usePricingConfig'
 
 export function useIntentHandler() {
   const { isAuthenticated } = useAuth()
@@ -12,8 +14,19 @@ export function useIntentHandler() {
   const { hasActiveSubscription, isLoading: subscriptionLoading } = useSubscriptionStatus()
   const openSubscriptionDialog = useOpenSubscriptionDialog()
   const openCreditPackDialog = useOpenCreditPackDialog()
+  const { data: subscription } = useCurrentSubscription()
+  const { data: subscriptionTiers } = useSubscriptionTiers()
 
   const { data: creditBalance } = useCreditBalance()
+
+  // Check if user is on the highest subscription tier
+  const isOnHighestTier = (() => {
+    if (!subscription?.plan_name || !subscriptionTiers) return false
+    const tier = subscriptionTiers.find(t => t.name === subscription.plan_name)
+    // Treat max tier by having the largest max_characters
+    const max = Math.max(...subscriptionTiers.map(t => t.max_characters || 0))
+    return (tier?.max_characters || 0) >= max
+  })()
 
   useEffect(() => {
     // Only process intent when user becomes authenticated
@@ -47,8 +60,19 @@ export function useIntentHandler() {
     // Check credit balance
     if (creditBalance !== undefined) {
       if (creditBalance < intent.requiredCredits) {
-        // User has subscription but insufficient credits, show credit pack dialog
-        openCreditPackDialog(intent.requiredCredits)
+        // User has subscription but insufficient credits
+        // Check tier to determine which dialog to show
+        if (!isOnHighestTier) {
+          // Users not on highest tier should be offered to upgrade
+          openSubscriptionDialog({
+            context: 'credit-upgrade',
+            currentPlan: subscription?.plan_name,
+            showOnlyUpgrades: true
+          })
+        } else {
+          // Users on highest tier can only buy credit packs
+          openCreditPackDialog(intent.requiredCredits)
+        }
         return
       }
 
@@ -71,6 +95,8 @@ export function useIntentHandler() {
     getIntent,
     clearIntent,
     openSubscriptionDialog,
-    openCreditPackDialog
+    openCreditPackDialog,
+    isOnHighestTier,
+    subscription?.plan_name
   ])
 } 

@@ -1,0 +1,47 @@
+{
+    "buttons": {
+        "generate": "Genereren",
+        "create": "Maken",
+        "done": "Klaar",
+        "cancel": "Annuleren",
+        "confirm": "Bevestigen"
+    },
+    "labels": {
+        "woman": "Vrouw",
+        "man": "Man",
+        "scene": "Scène",
+        "wardrobe": "Kleding",
+        "creditsSuffix": "credits",
+        "requiresActiveSubscription": "Vereist actief abonnement",
+        "calculating": "Berekenen"
+    },
+    "aria": {
+        "selectStyle": "Stijl selecteren",
+        "selectScene": "Scène selecteren",
+        "selectWardrobe": "Garderobe selecteren",
+        "selectCharacter": "Karakter selecteren",
+        "openSettings": "Instellingen openen",
+        "trainingProgress": "Trainingsvoortgang",
+        "characterActions": "Karakter acties",
+        "closeOverlay": "Overlay sluiten",
+        "carouselNavigation": "Carrousel navigatie",
+        "previous": "Vorige",
+        "next": "Volgende",
+        "search": "{{title}} zoeken"
+    },
+    "placeholders": {
+        "find": "{{title}} vinden"
+    },
+    "admin": {
+        "title": "Admin inferentie overschrijvingen",
+        "enableNodeOverrides": "Node overschrijvingen inschakelen (JSON per node titel)",
+        "overridesJson": "Overschrijvingen JSON",
+        "enablePromptOverride": "Prompt overschrijving inschakelen",
+        "prompt": "Prompt",
+        "characterMetadata": "Karakter metadata (alleen lezen)"
+    },
+    "errors": {
+        "failedToStartGeneration": "Generatie starten mislukt. Probeer opnieuw.",
+        "selectCharacterToGenerate": "Selecteer een personage om te genereren"
+    }
+}

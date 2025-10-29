@@ -1,0 +1,49 @@
+{
+  "title": "Subir fotos",
+  "description": "Sube tus fotos para empezar",
+  "requirements": {
+    "title": "Requisitos de las fotos",
+    "description": "Por favor, asegúrate de que tus fotos cumplan estos requisitos"
+  },
+  "buttons": {
+    "upload": "Subir",
+    "continue": "Continuar",
+    "retry": "Reintentar"
+  },
+  "errors": {
+    "invalidFile": "Tipo de archivo inválido",
+    "fileTooLarge": "Archivo demasiado grande",
+    "uploadFailed": "Error en la subida",
+    "invalidFileType": "Tipo no admitido ({{types}})",
+    "fileSizeExceeded": "Archivo demasiado grande (máx. {{size}})",
+    "duplicateFile": "Archivo duplicado",
+    "uploadFailedCount_one": "No se pudo añadir 1 archivo",
+    "uploadFailedCount_other": "No se pudieron añadir {{count}} archivos",
+    "someImagesSkipped": "Imágenes omitidas",
+    "skippedMessage": "Solo se pudieron añadir {{count}} fotos más. Los siguientes archivos fueron omitidos: {{files}}",
+    "deleteFailed": "Error al eliminar",
+    "genericError": "Ha ocurrido un error",
+    "analysisTimeout": "Tiempo de análisis agotado",
+    "analysisTimeoutDescription": "El análisis de la imagen tardó demasiado. Por favor, inténtalo de nuevo o usa una foto diferente.",
+    "qualityIssues": "Problemas de calidad",
+    "qualityIssuesMessage": "{{count}} foto(s) no cumplieron los requisitos de calidad. Consulta las imágenes rechazadas a continuación para más detalles.",
+    "qualityAndLimitIssues": "Problemas de calidad y límite alcanzado",
+    "qualityAndLimitMessage": "{{rejected}} foto(s) rechazadas por problemas de calidad. {{skipped}} foto(s) no se pudieron añadir debido al límite de 9 imágenes."
+  },
+  "progress": {
+    "uploading": "Subiendo...",
+    "processing": "Procesando...",
+    "complete": "Completo"
+  },
+  "quality": {
+    "rejected": {
+      "oops": "¡Ups!",
+      "title": "{{rejected}} de {{total}} fotos fueron rechazadas",
+      "description": "Puedes intentar subir otras imágenes para conseguir el conjunto perfecto, o continuar con estas fotos, pero esto puede resultar en:",
+      "lessVariety": "Menos variedad en las fotos generadas",
+      "lowerQuality": "Retratos de menor calidad",
+      "notLookLike": "Fotos que pueden no parecerse a ti en todos los estilos",
+      "button": "Continuar de todos modos"
+    }
+  }
+}

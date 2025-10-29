@@ -1,0 +1,47 @@
+{
+    "buttons": {
+        "generate": "Genera",
+        "create": "Crea",
+        "done": "Fatto",
+        "cancel": "Annulla",
+        "confirm": "Conferma"
+    },
+    "labels": {
+        "woman": "Donna",
+        "man": "Uomo",
+        "scene": "Scena",
+        "wardrobe": "Abbigliamento",
+        "creditsSuffix": "crediti",
+        "requiresActiveSubscription": "Richiede abbonamento attivo",
+        "calculating": "Calcolo in corso"
+    },
+    "aria": {
+        "selectStyle": "Seleziona stile",
+        "selectScene": "Seleziona scena",
+        "selectWardrobe": "Seleziona guardaroba",
+        "selectCharacter": "Seleziona personaggio",
+        "openSettings": "Apri impostazioni",
+        "trainingProgress": "Progresso dell'allenamento",
+        "characterActions": "Azioni del personaggio",
+        "closeOverlay": "Chiudi sovrapposizione",
+        "carouselNavigation": "Navigazione carosello",
+        "previous": "Precedente",
+        "next": "Successivo",
+        "search": "Cerca {{title}}"
+    },
+    "placeholders": {
+        "find": "Trova {{title}}"
+    },
+    "admin": {
+        "title": "Override inferenza amministratore",
+        "enableNodeOverrides": "Abilita override nodo (JSON per titolo nodo)",
+        "overridesJson": "JSON degli override",
+        "enablePromptOverride": "Abilita override prompt",
+        "prompt": "Prompt",
+        "characterMetadata": "Metadati del personaggio (sola lettura)"
+    },
+    "errors": {
+        "failedToStartGeneration": "Avvio della generazione fallito. Per favore, riprova.",
+        "selectCharacterToGenerate": "Seleziona un personaggio per generare"
+    }
+}

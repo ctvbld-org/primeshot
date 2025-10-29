@@ -1,134 +1,160 @@
 import { v4 as uuidv4 } from 'uuid';
-import { getApiUrl } from '@/lib/api/client';
 import { FileWithScore } from './types';
 
-// Size of each chunk in bytes (2MB)
-export const CHUNK_SIZE = 2 * 1024 * 1024;
+// Default part size; server may override via init response
+export const DEFAULT_PART_SIZE = 6 * 1024 * 1024; // 6 MiB
 
-export interface ChunkMetadata {
-  chunkIndex: number;
-  totalChunks: number;
-  fileSize: number;
-  fileName: string;
-  fileType: string;
-  uploadId: string;
-  characterId: string;
-  qualityScore?: number;
-  // Optional normalized face box hint from client analysis (0..1)
-  faceBox?: { x: number; y: number; width: number; height: number };
-  // Marks that this file is the first accepted image in the batch
-  isFirstImage?: boolean;
+// Generate a 400x400 WebP thumbnail with optional face-aware crop (0..1 box)
+export async function generateThumbnailWebP(
+  file: File & { faceBox?: { x: number; y: number; width: number; height: number } }
+): Promise<Blob> {
+  const imgBitmap = await createImageBitmap(file);
+  const srcW = imgBitmap.width;
+  const srcH = imgBitmap.height;
+
+  // Compute square crop
+  let sx = 0, sy = 0, side = Math.min(srcW, srcH);
+  const fb = (file as any).faceBox as { x: number; y: number; width: number; height: number } | undefined;
+  if (fb && fb.width > 0 && fb.height > 0) {
+    const margin = 0.15;
+    const nx = Math.max(0, fb.x - margin);
+    const ny = Math.max(0, fb.y - margin);
+    const nw = Math.min(1 - nx, fb.width + margin * 2);
+    const nh = Math.min(1 - ny, fb.height + margin * 2);
+    const px = Math.round(nx * srcW);
+    const py = Math.round(ny * srcH);
+    const pw = Math.round(nw * srcW);
+    const ph = Math.round(nh * srcH);
+    side = Math.min(srcW, srcH, Math.max(pw, ph));
+    const cx = px + Math.floor(pw / 2);
+    const cy = py + Math.floor(ph / 2);
+    sx = Math.max(0, Math.min(srcW - side, Math.round(cx - side / 2)));
+    sy = Math.max(0, Math.min(srcH - side, Math.round(cy - side / 2)));
+  } else {
+    sx = Math.floor((srcW - side) / 2);
+    sy = Math.floor((srcH - side) / 2);
+  }
+
+  const canvas = new OffscreenCanvas(400, 400);
+  const ctx = canvas.getContext('2d')!;
+  ctx.drawImage(imgBitmap, sx, sy, side, side, 0, 0, 400, 400);
+  const blob = await canvas.convertToBlob({ type: 'image/webp', quality: 0.85 });
+  try { imgBitmap.close(); } catch {}
+  return blob;
 }
 
-export function* createChunks(
-  file: FileWithScore & { size: number; slice: File['slice'] },
+type FaceBox = { x: number; y: number; width: number; height: number } | undefined;
+
+interface InitResponse { uploadId: string; key: string; partSize: number; contentType: string }
+
+function getBasePath(): string {
+  // Prefer explicit env var in prod
+  const env = (process.env.NEXT_PUBLIC_BASE_PATH || '').trim();
+  if (env) return env.startsWith('/') ? env.replace(/\/$/, '') : `/${env.replace(/\/$/, '')}`;
+
+  // Fallback to Next runtime data on client
+  if (typeof window !== 'undefined') {
+    const ap = (window as any).__NEXT_DATA__?.assetPrefix as string | undefined;
+    if (ap) return ap.startsWith('/') ? ap.replace(/\/$/, '') : `/${ap.replace(/\/$/, '')}`;
+  }
+
+  return '';
+}
+
+function withBasePath(path: string): string {
+  const base = getBasePath();
+  const p = path.startsWith('/') ? path : `/${path}`;
+  return `${base}${p}`;
+}
+
+function getApiBase() {
+  return withBasePath('/api/upload-chunk');
+}
+
+async function initMultipart(
+  file: FileWithScore & File,
   characterId: string,
-  chunkSize: number = CHUNK_SIZE
-): Generator<{ chunk: Blob; metadata: ChunkMetadata }> {
-  if (!file.size) {
-    console.warn('Empty file provided for chunked upload');
-    return;
-  }
+  opts: { isFirstImage?: boolean; faceBox?: FaceBox; qualityScore?: number; thumbnailBlob?: Blob | null }
+): Promise<InitResponse> {
+  const apiBase = getApiBase();
+  const uploadId = uuidv4();
+  const metadata = {
+    uploadId,
+    fileName: file.name || 'unnamed',
+    fileType: file.type || 'application/octet-stream',
+    fileSize: file.size,
+    totalChunks: Math.ceil(file.size / DEFAULT_PART_SIZE),
+    characterId,
+    isFirstImage: opts.isFirstImage === true,
+    qualityScore: opts.qualityScore,
+    faceBox: opts.faceBox
+  };
+  const form = new FormData();
+  form.append('action', 'init');
+  form.append('metadata', JSON.stringify(metadata));
+  if (opts.thumbnailBlob) form.append('thumbnail', opts.thumbnailBlob, 'thumbnail.webp');
 
-  const totalChunks = Math.ceil(file.size / chunkSize);
-  const uploadId = uuidv4(); // Unique ID for this chunked upload
-
-  for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
-    const start = chunkIndex * chunkSize;
-    const end = Math.min(start + chunkSize, file.size);
-    const chunk = file.slice(start, end);
-
-    const metadata: ChunkMetadata = {
-      chunkIndex,
-      totalChunks,
-      fileSize: file.size,
-      fileName: file.name || 'unnamed',
-      fileType: file.type || 'application/octet-stream',
-      uploadId,
-      characterId,
-      // API expects an integer (0-100). Round and clamp the score if provided.
-      qualityScore: file.score !== undefined ? Math.round(Math.min(100, Math.max(0, file.score))) : undefined,
-      faceBox: file.faceBox,
-      isFirstImage: file.isFirstImage
-    };
-
-    yield { chunk, metadata };
-  }
-}
-
-export async function uploadChunk(
-  chunk: Blob,
-  metadata: ChunkMetadata,
-  onProgress?: (progress: number) => void
-): Promise<Response> {
-  const formData = new FormData();
-  formData.append('chunk', chunk);
-  formData.append('metadata', JSON.stringify(metadata));
-
-  return new Promise<Response>((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    
-    xhr.open('POST', getApiUrl('api/upload-chunk'));
-    
-    xhr.upload.addEventListener('progress', (event) => {
-      if (event.lengthComputable && onProgress) {
-        const percentComplete = (event.loaded / event.total) * 100;
-        onProgress(percentComplete);
-      }
-    });
-    
-    xhr.addEventListener('load', () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        const response = new Response(xhr.response, {
-          status: xhr.status,
-          headers: {
-            'Content-Type': xhr.getResponseHeader('Content-Type') || 'application/json'
-          }
-        });
-        resolve(response);
-      } else {
-        reject(new Error(`HTTP error ${xhr.status}`));
-      }
-    });
-    
-    xhr.addEventListener('error', () => reject(new Error('Network error')));
-    xhr.addEventListener('abort', () => reject(new Error('Upload aborted')));
-    
-    xhr.send(formData);
+  const res = await fetch(`${apiBase}?action=init`, {
+    method: 'POST',
+    // Cookie-based auth; no Authorization header needed
+    body: form
   });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `Init failed (${res.status})`);
+  }
+  const data = await res.json();
+  return { uploadId: data.uploadId, key: data.key, partSize: data.partSize || DEFAULT_PART_SIZE, contentType: data.contentType };
 }
 
-export async function cleanupFailedUpload(uploadId: string): Promise<void> {
+async function signPart(uploadId: string, key: string, partNumber: number): Promise<string> {
+  const apiBase = getApiBase();
+  const res = await fetch(`${apiBase}?action=sign-part`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'sign-part', uploadId, key, partNumber })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `sign-part failed (${res.status})`);
+  }
+  const data = await res.json();
+  return data.url as string;
+}
+
+async function completeMultipart(uploadId: string, key: string, parts: { partNumber: number; etag: string }[]): Promise<string> {
+  const apiBase = getApiBase();
+  const res = await fetch(`${apiBase}?action=complete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'complete', uploadId, key, parts })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `complete failed (${res.status})`);
+  }
+  const data = await res.json();
+  return data.url as string;
+}
+
+export async function abortMultipart(uploadId: string, key: string): Promise<void> {
   try {
-    const response = await fetch(getApiUrl('api/cleanup-upload'), {
+    const apiBase = getApiBase();
+    await fetch(`${apiBase}?action=abort`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ uploadId }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'abort', uploadId, key })
     });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.warn('Failed to cleanup upload:', errorData.error || response.statusText);
-    }
-  } catch (error) {
-    console.warn('Error during upload cleanup:', error);
+  } catch (e) {
+    console.warn('Abort failed (ignored):', e);
   }
 }
 
-// Helper to detect "duplicate chunk" errors coming from either response JSON or thrown Errors
-function isDuplicateChunkError(err: any): boolean {
-  if (!err) return false;
-  // Error instance check
-  if (err instanceof Error) {
-    return err.message?.toLowerCase().includes('duplicate');
-  }
-  // API error payload check
-  if (typeof err === 'object' && 'error' in err && typeof err.error === 'string') {
-    return (err.error as string).toLowerCase().includes('duplicate');
-  }
-  return false;
+function normalizeEtag(etag: string | null): string {
+  if (!etag) return '';
+  const t = etag.trim();
+  if (/^".*"$/.test(t)) return t;
+  return `"${t.replace(/^\"|\"$/g, '')}"`;
 }
 
 export async function uploadFileInChunks(
@@ -136,95 +162,69 @@ export async function uploadFileInChunks(
   characterId: string,
   onProgress?: (progress: number) => void,
 ): Promise<string> {
-  const chunks = createChunks(file, characterId);
-  let uploadedChunks = 0;
-  let uploadId: string | null = null;
-
+  // Prepare optional client-side thumbnail once
+  let thumbnailBlob: Blob | null = null;
   try {
-    for (const { chunk, metadata } of chunks) {
-      uploadId = metadata.uploadId; // Store uploadId for cleanup if needed
-      
-      let retries = 0;
-      const maxRetries = 3;
-      let chunkUploaded = false;
-      
-      while (retries <= maxRetries && !chunkUploaded) {
-        try {
-          const response = await uploadChunk(chunk, metadata, onProgress);
-          
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            
-            // Check if error is due to duplicate chunk (already uploaded)
-            if (isDuplicateChunkError(errorData)) {
-              console.log(`Chunk ${metadata.chunkIndex} already exists, continuing...`);
-              chunkUploaded = true;
-              uploadedChunks++;
-              if (onProgress) {
-                onProgress((uploadedChunks / metadata.totalChunks) * 100);
-              }
-              break;
-            }
-            
-            if (retries < maxRetries) {
-              retries++;
-              console.warn(`Chunk upload failed, retrying (${retries}/${maxRetries})...`);
-              // Add exponential backoff with jitter to prevent thundering herd
-              await new Promise(resolve => setTimeout(resolve, (1000 * retries) + Math.random() * 1000));
-              continue;
-            }
-            throw new Error(errorData.error || 'Failed to upload chunk');
-          }
+    if ((file as any).isFirstImage === true) {
+      thumbnailBlob = await generateThumbnailWebP(file as any);
+    }
+  } catch {}
 
-          // Success response
-          chunkUploaded = true;
-          uploadedChunks++;
-          if (onProgress) {
-            onProgress((uploadedChunks / metadata.totalChunks) * 100);
-          }
+  const init = await initMultipart(file as any, characterId, {
+    isFirstImage: (file as any).isFirstImage === true,
+    faceBox: (file as any).faceBox,
+    qualityScore: (file as any).score !== undefined ? Math.round(Math.min(100, Math.max(0, (file as any).score))) : undefined,
+    thumbnailBlob
+  });
 
-          // If this was the last chunk, get the final URL
-          if (uploadedChunks === metadata.totalChunks) {
-            const result = await response.json();
-            return result.url;
-          }
-          
-        } catch (error) {
-          // Check if error message indicates chunk already exists
-          if (isDuplicateChunkError(error)) {
-            console.log(`Chunk ${metadata.chunkIndex} already uploaded, continuing...`);
-            chunkUploaded = true;
-            uploadedChunks++;
-            if (onProgress) {
-              onProgress((uploadedChunks / metadata.totalChunks) * 100);
-            }
-            break;
-          }
-          
-          if (retries < maxRetries) {
-            retries++;
-            console.warn(`Chunk upload error, retrying (${retries}/${maxRetries})...`, error);
-            // Add exponential backoff with jitter
-            await new Promise(resolve => setTimeout(resolve, (1000 * retries) + Math.random() * 1000));
-            continue;
-          }
-          console.error(`Error uploading chunk ${metadata.chunkIndex}:`, error);
-          throw error;
-        }
-      }
-      
-      if (!chunkUploaded) {
-        throw new Error(`Failed to upload chunk ${metadata.chunkIndex} after ${maxRetries} retries`);
+  const partSize = Math.max(DEFAULT_PART_SIZE, init.partSize || DEFAULT_PART_SIZE);
+  const totalParts = Math.ceil(file.size / partSize);
+  const parts: { partNumber: number; etag: string }[] = [];
+  const concurrency = 4;
+  let nextPart = 1;
+  let uploadedBytes = 0;
+
+  async function uploadOne(partNumber: number) {
+    const start = (partNumber - 1) * partSize;
+    const end = Math.min(start + partSize, file.size);
+    const chunk = file.slice(start, end);
+
+    let attempt = 0;
+    const maxAttempts = 3;
+    while (attempt < maxAttempts) {
+      try {
+        const url = await signPart(init.uploadId, init.key, partNumber);
+        const res = await fetch(url, { method: 'PUT', body: chunk });
+        if (!res.ok) throw new Error(`PUT failed ${res.status}`);
+        const etag = normalizeEtag(res.headers.get('ETag') || res.headers.get('Etag'));
+        if (!etag) throw new Error('Missing ETag on part upload');
+        parts[partNumber - 1] = { partNumber, etag };
+        uploadedBytes += chunk.size;
+        if (onProgress) onProgress((uploadedBytes / file.size) * 100);
+        return;
+      } catch (e) {
+        attempt++;
+        if (attempt >= maxAttempts) throw e;
+        await new Promise(r => setTimeout(r, 500 * attempt + Math.random() * 250));
       }
     }
-
-    throw new Error('Failed to complete chunked upload');
-  } catch (error) {
-    // Clean up failed upload if we have an uploadId
-    if (uploadId) {
-      console.log(`Cleaning up failed upload ${uploadId}...`);
-      await cleanupFailedUpload(uploadId);
-    }
-    throw error;
   }
-} 
+
+  const workers: Promise<void>[] = [];
+  for (let i = 0; i < Math.min(concurrency, totalParts); i++) {
+    workers.push((async function run() {
+      while (true) {
+        const current = nextPart;
+        if (current > totalParts) break;
+        nextPart++;
+        await uploadOne(current);
+      }
+    })());
+  }
+  await Promise.all(workers);
+
+  // Complete
+  const url = await completeMultipart(init.uploadId, init.key, parts);
+  if (onProgress) onProgress(100);
+  return url;
+}

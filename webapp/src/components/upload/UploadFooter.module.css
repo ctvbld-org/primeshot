@@ -1,17 +1,15 @@
 .footer {
-  background: linear-gradient(0deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.03) 100%), rgba(0, 21, 20, 0.6);
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
   display: flex;
   align-items: center;
-  min-height: 72px;
-  padding: 0 24px;
-  box-shadow: inset 0 1px rgba(255, 255, 255, 0.10);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  z-index: 10;
+  min-height: 145px;
+  padding: 0;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.footerDragging {
+  background: rgba(68, 227, 201, 0.05);
+  border-radius: 16px;
 }
 
 .footerContent {
@@ -80,65 +78,21 @@
 
 .squares {
   position: relative;
-  overflow: hidden;
   flex: 1 1 auto;
 }
 
 .squaresWrapper {
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-padding: 0 20px;
   position: relative;
-  -webkit-mask: linear-gradient(90deg, 
-    transparent 0%,
-    #000 20px,
-    #000 calc(100% - 20px),
-    transparent 100%
-  );
-  mask: linear-gradient(90deg, 
-    transparent 0%,
-    #000 20px,
-    #000 calc(100% - 20px),
-    transparent 100%
-  );
+  transition: all 0.2s ease;
 }
 
-.squaresWrapper::-webkit-scrollbar {
-  display: none;
+.squaresWrapperDragging {
+  filter: brightness(1.1);
 }
 
-/* When content is at the start (no scroll left) */
-.squaresWrapper.atStart {
-  -webkit-mask: linear-gradient(90deg, 
-    #000 0%,
-    #000 calc(100% - 20px),
-    transparent 100%
-  );
-  mask: linear-gradient(90deg, 
-    #000 0%,
-    #000 calc(100% - 20px),
-    transparent 100%
-  );
-}
-
-/* When content is at the end (no scroll right) */
-.squaresWrapper.atEnd {
-  -webkit-mask: linear-gradient(90deg, 
-    transparent 0%,
-    #000 20px,
-    #000 100%
-  );
-  mask: linear-gradient(90deg, 
-    transparent 0%,
-    #000 20px,
-    #000 100%
-  );
-}
-
-/* When content fits without scrolling */
-.squaresWrapper.noScroll {
-  -webkit-mask: none;
-  mask: none;
+.squaresWrapperDragging .square:after,
+.squaresWrapperDragging .squareOptional:after {
+  border: 1px solid rgba(68, 227, 201, 0.3);
 }
 
 .squaresContainer {
@@ -149,64 +103,76 @@
 
 .squareGroup {
   display: flex;
-  gap: 0.5rem;
+  width: 100%;
 }
 
-.square, .squareOptional {
-  width: 56px;
-  height: 56px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.square, 
+.squareOptional {
+  flex: 1 1 8%;
+  height: 145px;
   color: #0C1013;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: normal;
   border: 1px solid transparent;
+  margin: 0 -2px 0 -1px;
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .square:after,
 .squareOptional:after {
-  background: #323d40;
+  background: #062121;
   content: " ";
   position: absolute;
   inset: 1px;
   z-index: -1;
   border: inherit;
-  border-radius: 11px; 
 }
 
-.squareOptional:after {
-  color: #C0CED830;
+.square:before,
+.squareOptional:before {
+  background: transparent;
+  border: 1px solid transparent;
+  content: " ";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
 }
 
-.squareOptional:after {
-  background: #263133;
+.square:first-child, 
+.squareOptional:first-child {
+  border-radius: 16px 0 0 16px;
 }
 
-.squareOptional:nth-child(2):after {
-  background: #1f2c2e;
+.square:first-child:after,
+.squareOptional:first-child:after,
+.square:first-child:before,
+.squareOptional:first-child:before {
+  border-radius: 16px 0 0 16px;
 }
 
-.squareOptional:nth-child(3):after {
-  background: #1a282a;
+.square:last-child, 
+.squareOptional:last-child {
+  border-radius: 0 16px 16px 0;
 }
 
-.squareOptional:nth-child(4):after {
-  background: #162426;
+.square:last-child:after, 
+.squareOptional:last-child:after,
+.square:last-child:before,
+.squareOptional:last-child:before {
+  border-radius: 0 16px 16px 0;
 }
 
-.squareOptional:nth-child(5):after {
-  background: #142122;
+.square img {
+  position: absolute;
+  inset: 1px;   
+  width: calc(100% - 2px) !important;
+  height: calc(100% - 2px) !important;
 }
 
-.squareActive:hover,
-.squareActive[aria-expanded="true"] {
-  border: 1px solid #44E3C9;
+.squareActive:hover:before,
+.squareActive[aria-expanded="true"]:before {
+  border-color: #44E3C9;
 }
 
 .squareActive {
@@ -221,11 +187,11 @@
 .squareAnalyzing::before {
   content: " ";
   position: absolute;
-  inset: -9px;
+  inset: -49px;
   z-index: -1;
   border: inherit;
   border-radius: 99px;
-  background-image: conic-gradient(#40403F 30%, #936741 58%, #aa6f38 92%, #FF973C 100%);    
+  background-image: conic-gradient(#111b19 30%, #075c4e 58%, #248c7b 92%, #44E3C9 100%);    
   background-origin: border-box;
   transform: rotate(0deg);
   animation: spin 2s linear infinite;
@@ -324,10 +290,11 @@
   position: absolute;
   bottom: 4px;
   right: 4px;
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: rgba(192, 206, 216, 0.60);
+  border: 1px solid #fff;
   z-index: 1;
 }
 
@@ -336,7 +303,19 @@
 }
 
 .qualityIndicatorMedium {
-  background: #FF973C;
+  background: #ffde3c;
+}
+
+.qualityIndicatorLow {
+  background: #ff7d3c;
+}
+
+.popoverContent {
+  width: auto;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  background: transparent;
 }
 
 @keyframes rotate {
@@ -360,34 +339,57 @@
   }
 }
 
-@media (max-width: 768px) {
-  .separator {
-    display: none;
+@media (max-width: 1024px) {    
+  .squareGroup {
+    flex-wrap: wrap;
   }
 
-  .footer {
-    padding: 0;
+  .square, 
+  .squareOptional {
+    flex: 1 1 27%;
+    margin: -2px -2px -1px -1px;
   }
 
-  .footerContent {
-    padding: 16px;
-    flex-direction: column-reverse;
-    align-items: flex-start;
-    gap: 16px;
+  .square:first-child, 
+  .squareOptional:first-child,
+  .square:first-child:after, 
+  .squareOptional:first-child:after,
+  .square:first-child:before, 
+  .squareOptional:first-child:before {
+    border-radius: 16px 0 0 0;
   }
 
-  .reviewButton {
-    position: absolute;
-    bottom: 16px;
-    right: 16px;
+  .square:nth-child(3), 
+  .squareOptional:nth-child(3),
+  .square:nth-child(3):after, 
+  .squareOptional:nth-child(3):after,
+  .square:nth-child(3):before, 
+  .squareOptional:nth-child(3):before {
+    border-radius: 0 16px 0 0;
   }
 
-  .countWrapper {
-    padding: 5px 0;
+  .square:last-child, 
+  .squareOptional:last-child,
+  .square:last-child:after, 
+  .squareOptional:last-child:after,
+  .square:last-child:before, 
+  .squareOptional:last-child:before {
+    border-radius: 0 0 16px 0;
   }
 
-  .squares {
-    width: 100%;
+  .square:nth-child(7), 
+  .squareOptional:nth-child(7),
+  .square:nth-child(7):after, 
+  .squareOptional:nth-child(7):after,
+  .square:nth-child(7):before, 
+  .squareOptional:nth-child(7):before {
+    border-radius: 0 0 0 16px;
   }
+}
 
-} 
+@media (max-width: 640px) and (max-height: 800px) {    
+  .square, 
+  .squareOptional {
+    height: 80px;
+  }
+}

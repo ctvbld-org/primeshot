@@ -1,0 +1,49 @@
+{
+    "title": "上传照片",
+    "description": "上传您的照片开始使用",
+    "requirements": {
+        "title": "照片要求",
+        "description": "请确保您的照片符合这些要求"
+    },
+    "buttons": {
+        "upload": "上传",
+        "continue": "继续",
+        "retry": "重试"
+    },
+    "errors": {
+        "invalidFile": "无效的文件类型",
+        "fileTooLarge": "文件过大",
+        "uploadFailed": "上传失败",
+        "invalidFileType": "不支持的文件类型（{{types}}）",
+        "fileSizeExceeded": "文件过大（最大 {{size}}）",
+        "duplicateFile": "重复的文件",
+        "uploadFailedCount_one": "1个文件无法添加",
+        "uploadFailedCount_other": "有 {{count}} 个文件无法添加",
+        "someImagesSkipped": "部分图片已跳过",
+        "skippedMessage": "只能再添加 {{count}} 张照片。以下文件已被跳过：{{files}}",
+        "deleteFailed": "删除失败",
+        "genericError": "发生错误",
+        "analysisTimeout": "分析超时",
+        "analysisTimeoutDescription": "图片分析时间过长。请重试或使用其他照片。",
+        "qualityIssues": "质量问题",
+        "qualityIssuesMessage": "{{count}} 张照片未达到质量要求。请查看下方被拒绝的图片了解详情。",
+        "qualityAndLimitIssues": "质量问题且已达限制",
+        "qualityAndLimitMessage": "{{rejected}} 张照片因质量问题被拒绝。{{skipped}} 张照片因达到9张图片限制无法添加。"
+    },
+    "progress": {
+        "uploading": "上传中...",
+        "processing": "处理中...",
+        "complete": "完成"
+    },
+    "quality": {
+        "rejected": {
+            "oops": "哎呀！",
+            "title": "{{total}}张照片中有{{rejected}}张被拒绝",
+            "description": "您可以尝试上传其他图片以获得完美的数据集，或者继续使用这些照片，但这可能导致：",
+            "lessVariety": "生成照片的多样性减少",
+            "lowerQuality": "肖像质量较低",
+            "notLookLike": "某些风格的照片可能不像您",
+            "button": "仍然继续"
+        }
+    }
+}

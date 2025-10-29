@@ -1,0 +1,240 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  gap: 112px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  text-align: center;
+}
+
+.desktopGrid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
+    align-items: center;
+}
+
+.gridItem {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: 40px;
+  overflow: hidden;
+}
+
+.gridItem > div {
+    height: 100% !important;
+}
+
+.featuredItem {
+  composes: gridItem;
+  box-shadow: 0 0 0 4px var(--glacier);
+}
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.image {
+  object-fit: cover;
+}
+
+.featuredImage {
+  object-fit: cover;
+  transform: scale(4) translate3d(-16%, 33%, 0);
+  object-position: center;
+  transition: transform 600ms ease-out, object-position 600ms ease-out;
+}
+
+.featuredItem:hover .featuredImage {
+  transform: scale(1);
+  object-position: center center;
+}
+
+.badge {
+    font-weight: 500;
+    font-size: 36px;
+    line-height: 44px;
+    letter-spacing: -0.04em;
+    color: #FFFFFF;
+    position: absolute;
+    bottom: 1rem;
+    right: 2rem;
+}
+
+/* Custom comparison slider */
+.compareContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  cursor: col-resize;
+  touch-action: none; /* Prevent default touch behaviors */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Vertical cursor for top/bottom entry */
+.compareContainer.vertical {
+  cursor: row-resize;
+}
+
+/* Mobile: remove cursor styling */
+@media (max-width: 768px) {
+  .compareContainer {
+    cursor: default;
+  }
+  
+  .compareContainer.vertical {
+    cursor: default;
+  }
+}
+
+.compareImage {
+  object-fit: cover;
+}
+
+.compareAfter {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  will-change: clip-path;
+}
+
+/* Add smooth transition when not actively tracking */
+.compareInactive .compareAfter {
+  transition: clip-path 0.3s ease-out;
+}
+
+.compareSlider {
+  position: absolute;
+  background-color: #00E5CC;
+  pointer-events: none;
+  z-index: 10;
+  will-change: left, right, top, bottom;
+}
+
+/* Fade out handle smoothly when leaving */
+.compareInactive .compareSlider {
+  transition: left 0.3s ease-out, right 0.3s ease-out, top 0.3s ease-out, bottom 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.compareHandle {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 28px;
+    height: 28px;
+    background-color: #00E5CC;
+    border-radius: 50%;
+}
+
+.mobileGrid {
+  display: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  flex: 1;
+  align-items: center;
+}
+
+/* Medium screens: 3 square images top row, 2 stretched images bottom row */
+@media (max-width: 930px) and (min-width: 769px) {
+  .container {
+    gap: 42px;
+  }
+  .desktopGrid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-auto-rows: 1fr;
+  }
+  
+  /* First 3 items - square, span 2 columns each = 3 across */
+  .desktopGrid > :nth-child(1),
+  .desktopGrid > :nth-child(2),
+  .desktopGrid > :nth-child(3) {
+    grid-column: span 2;
+    aspect-ratio: 1 / 1;
+  }
+  
+  /* Last 2 items - stretched, span 3 columns each = 2 across, same height as row 1 */
+  .desktopGrid > :nth-child(4),
+  .desktopGrid > :nth-child(5) {
+    grid-column: span 3;
+    aspect-ratio: auto;
+    height: 100%;
+  }
+}
+
+@media (max-width: 768px) and (min-width: 440px) {
+    .container {
+      height: calc(100dvh - 180px); /* Space for demo bar */
+      gap: 2rem;
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+    }
+  
+    .desktopGrid {
+      display: none;
+    }
+
+    .mobileGrid {
+        display: grid;
+        height: 100%;
+        max-height: calc(100dvh - 61%);
+    }
+
+    .gridItem {
+      height: 100%;
+      max-height: 100%;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+    }
+}
+
+@media (max-width: 441px) {
+    .container {
+      height: calc(100dvh - 340px); /* More space for larger demo bar */
+      gap: 9%;
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+      justify-content: start;
+    }
+  
+    .desktopGrid {
+      display: none;
+    }
+
+    .mobileGrid {
+        display: grid;
+        height: 100%;
+        max-height: 100%;
+    }
+
+    .gridItem {
+      height: 100%;
+      max-height: 100%;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+    }
+}
+

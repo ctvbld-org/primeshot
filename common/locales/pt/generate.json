@@ -1,0 +1,47 @@
+{
+  "buttons": {
+    "generate": "Gerar",
+    "create": "Criar",
+    "done": "Concluído",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar"
+  },
+  "labels": {
+    "woman": "Mulher",
+    "man": "Homem",
+    "scene": "Cenário",
+    "wardrobe": "Vestuário",
+    "creditsSuffix": "créditos",
+    "requiresActiveSubscription": "Requer subscrição ativa",
+    "calculating": "A calcular"
+  },
+  "aria": {
+    "selectStyle": "Selecionar estilo",
+    "selectScene": "Selecionar cenário",
+    "selectWardrobe": "Selecionar guarda-roupa",
+    "selectCharacter": "Selecionar personagem",
+    "openSettings": "Abrir definições",
+    "trainingProgress": "Progresso do treino",
+    "characterActions": "Ações do personagem",
+    "closeOverlay": "Fechar sobreposição",
+    "carouselNavigation": "Navegação do carrossel",
+    "previous": "Anterior",
+    "next": "Seguinte",
+    "search": "Pesquisar {{title}}"
+  },
+  "placeholders": {
+    "find": "Encontrar {{title}}"
+  },
+  "admin": {
+    "title": "Substituições de inferência do administrador",
+    "enableNodeOverrides": "Ativar substituições de nó (JSON por título de nó)",
+    "overridesJson": "JSON das substituições",
+    "enablePromptOverride": "Ativar substituição de prompt",
+    "prompt": "Prompt",
+    "characterMetadata": "Metadados do personagem (apenas leitura)"
+  },
+  "errors": {
+    "failedToStartGeneration": "Falha ao iniciar a geração. Por favor, tente novamente.",
+    "selectCharacterToGenerate": "Selecione um personagem para gerar"
+  }
+}

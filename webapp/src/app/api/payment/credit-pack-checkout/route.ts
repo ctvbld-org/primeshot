@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
+import { createSecuredHandler, SECURITY_PRESETS } from '@/lib/security-middleware'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-08-27.basil' as any
 })
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
-    const { priceId, successUrl, cancelUrl } = await request.json()
+    const { priceId, successUrl, cancelUrl, referralId } = await request.json()
 
     if (!priceId || !successUrl || !cancelUrl) {
       return NextResponse.json(
@@ -90,6 +91,10 @@ export async function POST(request: NextRequest) {
       customerId = customer.id
     }
 
+    // Always redirect to /create after successful checkout
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const redirectSuccessUrl = `${baseUrl}/create?credits=success`
+
     // Create checkout session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -99,6 +104,7 @@ export async function POST(request: NextRequest) {
         price: priceId,
         quantity: 1,
       }],
+      ...(referralId && { client_reference_id: referralId }),
       metadata: {
         user_id: user.id,
         user_email: user.email || '',
@@ -106,7 +112,8 @@ export async function POST(request: NextRequest) {
         credits: product.metadata.credits || '0',
         validity_days: product.metadata.validity_days || '60',
         checkout_type: 'credit_pack',
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        ...(referralId && { referral: referralId })
       },
       payment_intent_data: {
         metadata: {
@@ -116,10 +123,11 @@ export async function POST(request: NextRequest) {
           credits: product.metadata.credits || '0',
           validity_days: product.metadata.validity_days || '60',
           created_at: new Date().toISOString(),
-          source: 'webapp_checkout'
+          source: 'webapp_checkout',
+          ...(referralId && { referral: referralId })
         }
       },
-      success_url: successUrl,
+      success_url: redirectSuccessUrl,
       cancel_url: cancelUrl,
       allow_promotion_codes: true,
       billing_address_collection: 'auto',
@@ -138,3 +146,27 @@ export async function POST(request: NextRequest) {
     )
   }
 } 
+
+// Secured handler with authentication and rate limiting
+const securedPOST = createSecuredHandler(
+  handlePOST,
+  SECURITY_PRESETS.PAYMENT_OPERATION
+);
+
+export async function POST(request: NextRequest) {
+  return await securedPOST(request);
+}
+
+// Explicit OPTIONS handler for CORS preflight
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': request.headers.get('origin') || '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Credentials': 'true',
+      'Access-Control-Max-Age': '86400',
+    },
+  });
+}

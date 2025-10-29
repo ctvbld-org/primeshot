@@ -40,9 +40,10 @@ export function CreditDashboard({ className }: CreditDashboardProps) {
   const isLoading = balanceLoading || subLoading || transLoading
 
   // Get max characters allowed for current subscription
-  const maxCharacters = subscription?.plan_name && subscriptionTiers 
-    ? getCharacterLimit(subscription.plan_name, subscriptionTiers)
-    : 1
+  const maxCharacters = (subscription as any)?.max_characters 
+    ?? (subscription?.plan_name && subscriptionTiers 
+      ? getCharacterLimit(subscription.plan_name, subscriptionTiers)
+      : 1)
 
   const getTransactionIcon = (transaction: CreditTransaction) => {
     switch (transaction.transaction_type) {

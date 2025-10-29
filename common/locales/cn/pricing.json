@@ -1,0 +1,232 @@
+{
+  "buyCredits": {
+    "title": "购买积分",
+    "description": "选择积分套餐"
+  },
+  "upgradePlan": {
+    "title": "升级套餐",
+    "description": "选择订阅套餐"
+  },
+  "purchase": {
+    "success": {
+      "subscriptionTitle": "您已成功升级到{{plan}}",
+      "subscriptionTitleNew": "欢迎使用{{plan}}！",
+      "creditsTitle": "积分已添加！",
+      "subscriptionDescriptionWithCredits": "您的新订阅计费周期今天开始。享受{{amount}}积分和更多功能！",
+      "subscriptionDescriptionWithCreditsNew": "您的计费周期今天开始。享受{{amount}}积分和更多功能！",
+      "subscriptionDescription": "您的新订阅计费周期今天开始。享受您的新福利！",
+      "subscriptionDescriptionNew": "您的计费周期今天开始。享受您的新福利！",
+      "creditsDescription": "您的余额已更新。您现在可以开始生成了。",
+      "returnToShoot": "返回拍摄",
+      "defaultPlan": "您的新套餐"
+    }
+  },
+  "subscription": {
+    "context": {
+      "characterLimit": { "title": "您已达到角色限制。", "description": "升级以获得额外角色" },
+      "qualityUpgrade": { "title": "想要更高质量？", "description": "升级以获得更清晰的图像和额外福利" },
+      "creditUpgrade": { "title": "积分不够用？", "description": "升级以获得更多月度积分" },
+      "general": { "title": "升级您的套餐", "description": "解锁更多功能和灵活性" },
+      "default": { "title": "选择您的套餐", "description": "选择适合的，随时更换" }
+    },
+    "loading": "加载套餐中...",
+    "empty": {
+      "title": "无可用升级",
+      "description": "您已经在最高可用套餐上了。"
+    },
+    "headers": {
+      "chooseYourPlan": "选择您的套餐"
+    },
+    "banner": {
+      "titleStart": "加入创始人",
+      "titleNumber": "300",
+      "description": {
+        "start": "帮助塑造Primeshot，获得",
+        "lifetime": "终身",
+        "annualDiscount": "70%折扣",
+        "annualWord": "年付",
+        "or": "或",
+        "monthlyDiscount": "50%折扣",
+        "monthlyWord": "月付",
+        "end": "并获得创始人300的专属福利。"
+      },
+      "small": "终身优惠持续到您取消为止。"
+    },
+    "toggle": {
+      "monthly": "月付",
+      "yearly": "年付",
+      "aria": "计费周期"
+    },
+    "card": {
+      "recommended": "推荐",
+      "save": "节省{{pct}}%",
+      "perMonth": "/月",
+      "billed": "{{cycle}}计费",
+      "creditsCount": "{{count}}积分",
+      "perMonthWord": "每月",
+      "perCredit": "每积分{{price}}",
+      "button": {
+        "select": "选择套餐",
+        "current": "当前套餐",
+        "processing": "处理中…",
+        "disabledTooltip": "特别优惠期间不可用🚀"
+      },
+      "features": {
+        "quality": "{{quality}}质量图像",
+        "characterIncluded": "包含{{count}}个角色",
+        "maxCharacters": "最多{{count}}个角色存储",
+        "concurrentShoots": "最多{{count}}个并发拍摄",
+        "commercialUse": "商业使用"
+      }
+    },
+    "footer": {
+      "upgradeNotice": "您当前的订阅将被取消并替换为新套餐。现有积分将保留。",
+      "buyCreditPack": "购买积分包"
+    },
+    "toasts": {
+      "loginRequired": "请登录",
+      "selectPlan": "请选择套餐",
+      "invalidPlan": "选择了无效的订阅套餐",
+      "openingPortal": "正在打开Stripe客户门户...",
+      "customerPortalFailed": "无法打开客户门户",
+      "upgradePreviewFailed": "无法打开升级预览",
+      "upgraded": "订阅升级成功！",
+      "checkoutFailed": "结账失败",
+      "invalidCheckout": "结账响应无效"
+    }
+  },
+  "credits": {
+    "dialog": {
+      "headerSub": {
+        "lowBalance": "积分余额不足。",
+        "creativity": "激发您的创造力🚀"
+      },
+      "headerTitle": {
+        "lowBalance": "充值积分以继续生成",
+        "fun": "更多积分，更多创作，更多乐趣！"
+      }
+    },
+    "card": {
+      "images": "最多{{count}}张{{quality}}图像",
+      "characters": "最多{{count}}个角色",
+      "footnote": "*仅限标准和专业套餐",
+      "button": {
+        "buy": "购买",
+        "processing": "处理中…"
+      },
+      "validity": "有效期{{duration}}",
+      "oneTime": "一次性",
+      "perCredit": "每积分{{price}}",
+      "perCreditWord": "每积分"
+    },
+    "toasts": {
+      "loginRequired": "请登录",
+      "invalidPackConfig": "无效的积分套餐配置",
+      "createCheckoutFailed": "无法创建结账会话",
+      "purchaseFailed": "积分套餐购买失败"
+    }
+  },
+  "comparisonTable": {
+    "categories": {
+      "credits": "积分",
+      "image": "图像",
+      "characters": "角色",
+      "generation": "生成",
+      "support": "支持"
+    },
+    "features": {
+      "creditsPerMonth": "每月积分",
+      "pricePerCredit": "每积分价格",
+      "resolution": "分辨率",
+      "takesPerShoot": "每次拍摄张数",
+      "portraitAspectRatio": "竖屏比例",
+      "squareAspectRatio": "方形比例",
+      "landscapeAspectRatio": "横屏比例",
+      "included": "包含",
+      "storage": "存储空间",
+      "concurrentShoots": "并发拍摄",
+      "commercialUse": "商业使用",
+      "priorityFeatures": "优先使用新功能",
+      "premiumStyles": "高级风格",
+      "betaAccess": "测试版访问权限",
+      "emailSupport": "邮件支持",
+      "chatSupport": "在线客服",
+      "dedicatedSupport": "专属支持"
+    },
+    "values": {
+      "upTo": "最多{{value}}",
+      "basicQuality": "基础质量",
+      "highQuality": "高质量"
+    }
+  },
+  "page": {
+    "title": "定价",
+    "header": {
+      "title": "简单套餐，无限造型。",
+      "subtitle": "随时取消或更换。",
+      "savingsText": "最高可省",
+      "savingsHighlight": "40%",
+      "savingsOn": "选择年度套餐"
+    },
+    "tabs": {
+      "monthly": "月付",
+      "annual": "年付"
+    },
+    "buttons": {
+      "getStarted": "开始使用",
+      "selectPlan": "选择套餐",
+      "currentPlan": "当前套餐",
+      "processing": "处理中..."
+    },
+    "loading": "加载定价中...",
+    "comparison": {
+      "title": "对比套餐",
+      "description": "升级解锁更高分辨率人像、更多积分、可重复使用的角色和优先处理。"
+    },
+    "faq": {
+      "title": "有疑问？",
+      "subtitle": "关于定价和功能您需要了解的一切",
+      "items": {
+        "character": {
+          "question": "什么是角色，如何使用？",
+          "answer": "角色是您专属的AI模型，通过9张自拍训练而成。它能学习您的精确面部特征—结构、肤色、发型—让每张人像都真实呈现您的样貌。根据您的套餐，可获得1-3个角色。额外角色每个需30积分，创建后可随时重复使用，拍摄不同服装、场景和风格的照片。"
+        },
+        "credits": {
+          "question": "积分如何使用？",
+          "answer": "积分是您训练角色和生成图像的余额。训练一个角色需30积分。生成图像：基础质量（1K）需1积分，中等质量（2K）需2积分，高质量（4K）需3积分。您的套餐包含每月积分配额，每个计费周期更新。"
+        },
+        "commercial": {
+          "question": "我可以商用生成的图像吗？",
+          "answer": "可以。您生成的所有图像都属于您，可不受限制地使用—无论是LinkedIn、网站、营销还是印刷。"
+        },
+        "privacy": {
+          "question": "如何保护我的隐私和数据？",
+          "answer": "您的照片和角色安全存储，绝不会被分享、出售或用于我们自己的训练。您可以随时删除单个角色或整个账户。未经您同意，不会发生第三方访问。"
+        },
+        "changePlan": {
+          "question": "我可以更改或取消套餐吗？",
+          "answer": "可以。您可以随时在账户设置中升级或降级。升级立即生效并按比例计费；降级将在下个周期生效。如果取消，您将保留访问权限直到当前周期结束。我们保留您的数据60天，以便您重新订阅而不丢失任何内容—之后将永久删除。"
+        },
+        "rollover": {
+          "question": "未使用的积分会累积吗？",
+          "answer": "不会。积分在每个计费周期结束时过期，您的配额将更新。"
+        },
+        "moreCredits": {
+          "question": "如何获得更多积分？",
+          "answer": "您可以升级订阅以提高每月限额，或从您的账户购买一次性积分包。"
+        },
+        "refund": {
+          "question": "退款政策是什么？",
+          "answer": "订阅和积分包不可退款。如果出现技术问题—例如生成失败—请联系支持团队进行审核和可能的积分调整。"
+        },
+        "deleteAccount": {
+          "question": "如何删除我的账户？",
+          "answer": "在账户设置中，选择\"删除账户\"以永久删除所有照片、角色和图像。此操作不可逆，请先下载您想保留的所有内容。"
+        }
+      }
+    },
+    "signIn": {
+      "modalTitle": "登录以继续"
+    }
+  }
+}

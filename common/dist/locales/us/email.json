@@ -1,0 +1,22 @@
+{
+  "betaInvite": {
+    "subject": "You're in! Create studio-quality headshots from your selfies today",
+    "previewText": "Transform your selfies into professional headshots with AI - Welcome to Primeshot!",
+    "emoji": "🎉",
+    "heading": "Welcome to Primeshot beta!",
+    "paragraph1": "We're opening the doors to the Primeshot Closed Beta, and you're invited in. We welcome your feedback to guide what we build next.",
+    "paragraph2": "You are one of the very first to experience a completely new way of getting professional headshots. No studios. No scheduling. Just instant results, straight from your selfies.",
+    "offerText": "To say thanks, here is your early access offer:",
+    "offerDescription": "Help shape Primeshot, get lifetime 70% off annual or 50% off monthly, and claim exclusive perks for the Founding 300.",
+    "ctaButton": "Try Primeshot today",
+    "thankYou": "Thank You",
+    "companyFooter": "Primeshot, a Creativebuild product.",
+    "receivingReason": "You are receiving this email because you opted in via our website.",
+    "unsubscribePrefix": "You are receiving this email because you opted in via our site.",
+    "unsubscribeLinkPrefix": "You can",
+    "unsubscribeLink": "unsubscribe from this list",
+    "unsubscribeSuffix": ".",
+    "plainText": "Thanks for joining PrimeShot! You're now on our waitlist and we'll notify you when we launch."
+  }
+}
+

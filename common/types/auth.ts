@@ -24,6 +24,8 @@ export interface AuthContextType extends AuthState {
   signIn: (email: string) => Promise<void>
   signInWithGoogle: () => Promise<void>
   signInWithLinkedIn: () => Promise<void>
+  signInWithTwitter: () => Promise<void>
   signOut: () => Promise<void>
   clearError: () => void
+  refreshUser: () => Promise<void>
 } 

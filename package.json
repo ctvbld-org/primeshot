@@ -15,8 +15,7 @@
     "generate": "task-master generate",
     "parse-prd": "task-master parse-prd",
     "detect-changes": "node memory-bank/scripts/detect-changes.js",
-    "setup-stripe": "tsx common/lib/stripe/setup-stripe-products.ts",
-    "sync-pricing": "tsx scripts/sync-pricing.ts"
+    "setup-stripe": "tsx common/lib/stripe/setup-stripe-products.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
@@ -35,9 +34,10 @@
   "devDependencies": {
     "@ngrok/ngrok": "^1.5.2",
     "@types/node": "^24.0.10",
+    "axios": "^1.12.2",
     "concurrently": "^9.2.0",
     "ts-node": "^10.9.2",
-    "tsx": "^4.20.3",
+    "tsx": "^4.20.5",
     "turbo": "^2.5.4",
     "typescript": "^5.8.3"
   },

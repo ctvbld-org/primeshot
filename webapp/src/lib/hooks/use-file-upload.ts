@@ -1,16 +1,14 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ImageQualityResult } from '@/lib/image-quality'
+import { ImageQualityResult, checkBodyShotRequirements } from '@/lib/image-quality'
 import { useToast } from '@primeshot/common/web/ui/use-toast'
 import { formatFileSize } from '@/lib/utils'
 import { uploadFileInChunks } from '@/lib/upload-utils'
 import { UPLOAD_CONSTANTS } from '@/lib/constants/upload'
-import { analyzeImageQuality, loadModels } from '@/lib/image-quality'
+import { analyzeImageQuality, loadModels, analyzeForBodyShot } from '@/lib/image-quality'
 import type { FileWithScore } from '@/lib/types'
-import { getApiUrl } from '@/lib/api/client'
-
-// Add delay helper
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+import { apiRequest } from '@primeshot/common'
+import type { ClaudeAnalysisResponse, ClaudeImageInput } from '@/lib/types/claude-analysis'
 
 interface UseFileUploadOptions {
   maxSize?: number
@@ -72,6 +70,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
           brightnessScore: 100,
           contrastScore: 100,
           blurScore: 100,
+          blockinessScore: 100,
           resolutionScore: 100,
           hasSingleFace: true,
           hasGoodResolution: true,
@@ -79,10 +78,11 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
           isAcceptable: true,
           hasFace: true,
           hasBody: true,
-            faceDetectionSkipped: false,
+          faceDetectionSkipped: false,
           eyesVisible: true,
           eyeDetectionSkipped: false,
-          issues: []
+          issues: [] as string[],
+          i18nIssues: [] as Array<{ key: string; params?: Record<string, string | number> }>
         },
         uploadProgress: { progress: 100, isUploading: false },
         uploadedUrl: file.url
@@ -109,7 +109,12 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     isAnalyzing: false,
     analyzingCount: 0,
     currentFileIndex: -1,
-    acceptedCount: 0
+    acceptedCount: 0,
+    analysisAttempts: 0, // Track how many times analysis has been run
+    canBypassQuality: false, // Show "continue anyway" button
+    rejectedCount: 0, // Track rejected images count
+    batchFilteredCount: 0, // Track images filtered by batch duplicate analysis
+    totalBatchImages: 0 // Total images analyzed in batch
   })
   const [modelsStatus, setModelsStatus] = useState<'loading' | 'loaded' | 'error'>('loading')
 
@@ -202,177 +207,684 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     return validateFiles(newFiles)
   }, [validateFiles, fileStates])
 
-  const analyzeImages = async (files: File[]): Promise<[File[], Record<string, ImageQualityResult>]> => {
-    // Calculate the starting display index based on current accepted files
-    const startingDisplayIndex = fileStates.filter(state => state.qualityResult?.isAcceptable).length
-    
-    setAnalysisState(prev => ({ 
-      ...prev, 
-      isAnalyzing: true, 
-      analyzingCount: files.length,
-      currentFileIndex: startingDisplayIndex, // Start at the first empty square
-      acceptedCount: 0 
-    }))
-    
-    try {
-      const results: Record<string, ImageQualityResult> = {}
-      let acceptedCount = 0
-      let currentIndex = 0
-      let displayIndex = startingDisplayIndex
-      const maxAcceptableFiles = maxFiles - fileStates.filter(state => state.qualityResult?.isAcceptable).length
-      const acceptedFiles: File[] = []
-      const rejectedFileStates: FileState[] = []
-      
-      // Process files sequentially until we hit the max limit
-      while (currentIndex < files.length && acceptedCount < maxAcceptableFiles) {
-        const file = files[currentIndex]
-        setAnalysisState(prev => ({ ...prev, currentFileIndex: displayIndex }))
+  // Helper to compress and convert File to base64
+  const fileToBase64 = async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        // Create canvas for compression
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Could not get canvas context'));
+          return;
+        }
         
-        try {
-          // Random delay between 400ms and 800ms
-          await delay(Math.floor(Math.random() * (800 - 400 + 1)) + 400)
-          const result = await analyzeImageQuality(file, { petMode })
-          results[file.name] = result
+        // Calculate new dimensions (max 1024px on longest side - sufficient for quality checks)
+        const MAX_SIZE = 1024;
+        let width = img.width;
+        let height = img.height;
+        
+        if (width > height && width > MAX_SIZE) {
+          height = (height / width) * MAX_SIZE;
+          width = MAX_SIZE;
+        } else if (height > MAX_SIZE) {
+          width = (width / height) * MAX_SIZE;
+          height = MAX_SIZE;
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Draw and compress
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // Convert to base64 with JPEG compression (0.95 quality for maximum detail)
+        const base64 = canvas.toDataURL('image/jpeg', 0.95);
+        const base64Data = base64.split(',')[1];
+        
+        URL.revokeObjectURL(img.src);
+        resolve(base64Data);
+      };
+      
+      img.onerror = reject;
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  // Analyze images using Claude API when we have exactly 9
+  const analyzeImagesWithClaude = async (
+    files: File[], 
+    bodyResults: Array<{ hasBody: boolean; width: number; height: number }>,
+    previouslyAcceptedFileNames: Set<string> = new Set()
+  ): Promise<{
+    results: Record<string, ImageQualityResult>;
+    batchInfo: {
+      hasTooManyDuplicates: boolean;
+      filteredCount: number;
+      keptCount: number;
+      totalImages: number;
+      message: string;
+    } | null;
+  }> => {
+    try {
+      // Bodyshot check already done by caller, just use the provided results
+      console.log('[Image Protection]', {
+        previouslyAccepted: Array.from(previouslyAcceptedFileNames)
+      });
+      setAnalysisState(prev => ({ ...prev, isAnalyzing: true, analyzingCount: files.length }));
+      
+      // Step 1: Convert files to base64 and send to Claude
+      const images: ClaudeImageInput[] = await Promise.all(
+        files.map(async (file) => ({
+          filename: file.name,
+          data: await fileToBase64(file)
+        }))
+      );
+      
+      const analysis = await apiRequest<ClaudeAnalysisResponse>(
+        '/api/analyze-photo-quality',
+        {
+          method: 'POST',
+          body: JSON.stringify({ images })
+        }
+      );
+      
+      // Validate response has at least as many results as files
+      if (analysis.images.length < files.length) {
+        console.error('[Analysis] Not enough results:', {
+          filesCount: files.length,
+          analysisCount: analysis.images.length
+        });
+        throw new Error(`Returned only ${analysis.images.length} results for ${files.length} files`);
+      }
+      
+      // If Claude returned MORE results than expected (happens sometimes), just use the first N
+      if (analysis.images.length > files.length) {
+        console.warn('[Analysis] Extra results detected:', {
+          filesCount: files.length,
+          analysisCount: analysis.images.length,
+          action: 'Using first ' + files.length + ' results'
+        });
+        analysis.images = analysis.images.slice(0, files.length);
+      }
+      
+      // Step 2: Process Claude results
+      const results: Record<string, ImageQualityResult> = {};
+      
+      // ENFORCE BATCH ANALYSIS: Use keepIndices/rejectIndices from duplicate analysis
+      const duplicateAnalysis = analysis.batchAnalysis?.duplicates;
+      const batchKeepIndices = new Set<number>();
+      const batchRejectIndices = new Set<number>();
+      
+      if (duplicateAnalysis?.hasTooManyDuplicates && duplicateAnalysis.groups) {
+        // Build sets of indices to keep and reject based on batch analysis
+        duplicateAnalysis.groups.forEach(group => {
+          group.keepIndices.forEach(idx => batchKeepIndices.add(idx));
+          group.rejectIndices.forEach(idx => batchRejectIndices.add(idx));
+        });
+        
+        console.log('[Batch Enforcement]', {
+          hasTooManyDuplicates: duplicateAnalysis.hasTooManyDuplicates,
+          groups: duplicateAnalysis.groups.length,
+          keepCount: batchKeepIndices.size,
+          rejectCount: batchRejectIndices.size,
+          keepIndices: Array.from(batchKeepIndices),
+          rejectIndices: Array.from(batchRejectIndices)
+        });
+      }
+      
+      analysis.images.forEach((img, index) => {
+        // Safety check
+        if (!files[index]) {
+          console.error(`Missing file at index ${index}`);
+          return;
+        }
+        
+        // Use actual file name from files array, not Claude's generic names
+        const actualFileName = files[index].name;
+        const isPreviouslyAccepted = previouslyAcceptedFileNames.has(actualFileName);
+        const i18nIssues: Array<{key: string, params?: any}> = [];
+        
+        // Track quality issues separately from similarity issues
+        let hasQualityIssues = false;
+        let wasForcedRejection = false;
+        
+        // BATCH REJECTION: Enforce keepIndices/rejectIndices from batch analysis
+        const isBatchRejected = batchRejectIndices.has(index);
+        const isBatchKept = batchKeepIndices.has(index);
+        
+        if (isBatchRejected && !isPreviouslyAccepted) {
+          // Image rejected by batch duplicate analysis
+          wasForcedRejection = true;
+          const { sessionSimilarity, sameSessionIndices, varietyRank } = img.similarityAnalysis || {};
+          const sessionCount = sameSessionIndices?.length || 0;
           
-          if (result.isAcceptable) {
-            // Add accepted file state immediately after analysis
-            setFileStates(prev => [...prev, {
-              file,
-              previewUrl: URL.createObjectURL(file),
-              qualityResult: result,
-              uploadProgress: { progress: 0, isUploading: false }
-            }])
-            
-            acceptedFiles.push(file)
-            acceptedCount++
-            setAnalysisState(prev => ({ ...prev, acceptedCount }))
-            currentIndex++
-            displayIndex++ // Only move the loader when we accept an image
+          i18nIssues.push({ 
+            key: 'quality.issues.duplicate.sameSession',
+            params: { 
+              count: sessionCount,
+              rank: varietyRank || 0
+            }
+          });
+          console.log(`[Batch Rejection] Image ${index} "${actualFileName}" rejected by batch duplicate analysis`);
+        }
+        
+        // Add critical rejections (QUALITY ISSUES)
+        if (!img.hasSingleFace) {
+          hasQualityIssues = true;
+          if (img.faceCount === 0) {
+            i18nIssues.push({ key: 'quality.issues.face.none' });
           } else {
-            // Collect rejected file state but don't add it yet
-            rejectedFileStates.push({
-              file,
-              previewUrl: URL.createObjectURL(file),
-              qualityResult: result,
-              uploadProgress: { progress: 0, isUploading: false }
-            })
-            currentIndex++ // Try next file but keep the loader on the same position
+            i18nIssues.push({ key: 'quality.issues.face.multiple', params: { count: img.faceCount } });
           }
-        } catch (error) {
-          console.error(`Error analyzing ${file.name}:`, error)
-          const errorResult: ImageQualityResult = {
-            width: 0,
-            height: 0,
-            faceCount: 0,
-            score: 0,
-            faceScore: 0,
-            bodyScore: 0,
-            brightnessScore: 0,
-            contrastScore: 0,
-            blurScore: 0,
-            resolutionScore: 0,
-            hasSingleFace: false,
-            hasGoodResolution: false,
-            hasGoodScore: false,
-            isAcceptable: false,
-            hasFace: false,
-            hasBody: false,
-            faceDetectionSkipped: true,
-            eyesVisible: false,
-            eyeDetectionSkipped: true,
-            issues: ['Analysis error']
-          }
-          results[file.name] = errorResult
-          
-          // Collect error file state but don't add it yet
-          rejectedFileStates.push({
-            file,
-            previewUrl: URL.createObjectURL(file),
-            qualityResult: errorResult,
-            uploadProgress: { progress: 0, isUploading: false }
-          })
-          
-          currentIndex++
         }
-      }
-      
-      // Process any remaining files without showing them (for rejected dialog)
-      for (let i = currentIndex; i < files.length; i++) {
-        const file = files[i]
-        try {
-          const result = await analyzeImageQuality(file, { petMode })
-          results[file.name] = result
-          
-          // Collect rejected file state but don't add it yet
-          if (!result.isAcceptable) {
-            rejectedFileStates.push({
-              file,
-              previewUrl: URL.createObjectURL(file),
-              qualityResult: result,
-              uploadProgress: { progress: 0, isUploading: false }
-            })
-          }
-        } catch (error) {
-          console.error(`Error analyzing remaining file ${file.name}:`, error)
-          const errorResult: ImageQualityResult = {
-            width: 0,
-            height: 0,
-            faceCount: 0,
-            score: 0,
-            faceScore: 0,
-            bodyScore: 0,
-            brightnessScore: 0,
-            contrastScore: 0,
-            blurScore: 0,
-            resolutionScore: 0,
-            hasSingleFace: false,
-            hasGoodResolution: false,
-            hasGoodScore: false,
-            isAcceptable: false,
-            hasFace: false,
-            hasBody: false,
-            faceDetectionSkipped: true,
-            eyesVisible: false,
-            eyeDetectionSkipped: true,
-            issues: ['Analysis error']
-          }
-          results[file.name] = errorResult
-          
-          // Collect error file state but don't add it yet
-          rejectedFileStates.push({
-            file,
-            previewUrl: URL.createObjectURL(file),
-            qualityResult: errorResult,
-            uploadProgress: { progress: 0, isUploading: false }
-          })
+        
+        if (!img.isSharp) {
+          hasQualityIssues = true;
+          i18nIssues.push({ key: 'quality.issues.sharpness.tooBlurryOrPixelated' });
         }
-      }
+        
+        // Sunglasses check removed - too many false positives from Claude
+        
+        if (img.hasStrongFilter) {
+          hasQualityIssues = true;
+          i18nIssues.push({ key: 'quality.issues.filter.strong' });
+        }
+        
+        // Check overall quality score (reject if ≤ 55%)
+        if (img.overallScore < 55) {
+          hasQualityIssues = true;
+          i18nIssues.push({ key: 'quality.issues.score.tooLow' });
+        }
+        
+        // Bokeh rejection DISABLED - too many edge cases and false positives
+        const hasVeryPoorBokeh = false;
+        
+        // Handle similarity-based rejections (ONLY FOR NEW IMAGES)
+        const hasSimilarityIssue = img.similarityAnalysis && !img.isAcceptable && img.varietyIssue === 'duplicate';
+        
+        if (hasSimilarityIssue && !isBatchRejected) {
+          // PROTECT PREVIOUSLY ACCEPTED IMAGES: Only apply similarity rejection to new images
+          if (!isPreviouslyAccepted) {
+            const { sessionSimilarity, sameSessionIndices, varietyRank } = img.similarityAnalysis!;
+            const sessionCount = sameSessionIndices?.length || 0;
+            
+            // Image rejected due to being from same photo session with low variety
+            i18nIssues.push({ 
+              key: 'quality.issues.duplicate.sameSession',
+              params: { 
+                count: sessionCount,
+                rank: varietyRank
+              }
+            });
+          } else {
+            // Previously accepted image - ignore similarity rejection
+            console.log(`[Protected] Image "${actualFileName}" was previously accepted, ignoring similarity rejection`);
+          }
+        }
+        
+        // Bokeh warnings removed - only reject if < 10, no warnings for 10-40
+        // (Too confusing for users when it's not actually causing rejection)
+        
+        // FORCE REJECTION: NEW images similar to ALREADY ACCEPTED images
+        // If a new image is in the same session as a previously accepted image, reject the NEW one
+        const isNewImage = !isPreviouslyAccepted;
+        const isSimilarToAcceptedImage = img.similarityAnalysis?.sameSessionIndices?.some(idx => {
+          const similarFileName = files[idx]?.name;
+          return similarFileName && previouslyAcceptedFileNames.has(similarFileName);
+        });
+        
+        if (isNewImage && isSimilarToAcceptedImage && img.similarityAnalysis?.sessionSimilarity && img.similarityAnalysis.sessionSimilarity > 95 && !isBatchRejected) {
+          // NEW image is too similar to an already-accepted image
+          // Reject the NEW one to preserve the already-accepted set
+          wasForcedRejection = true;
+          const { sessionSimilarity, sameSessionIndices } = img.similarityAnalysis;
+          const sessionCount = sameSessionIndices?.length || 0;
+          
+          i18nIssues.push({ 
+            key: 'quality.issues.duplicate.sameSession',
+            params: { 
+              count: sessionCount,
+              rank: 0
+            }
+          });
+          console.log(`[Forced Rejection] NEW image "${actualFileName}" is too similar to previously accepted images, rejecting it`);
+        }
+        
+        // Determine final acceptability:
+        // - Batch rejected: Always reject (unless previously accepted)
+        // - Previously accepted images: Only reject for quality issues, ignore similarity
+        // - NEW images similar to accepted: Force rejection to protect accepted set
+        // - Other new images: Reject for both quality and similarity issues
+        const isAcceptable = isBatchRejected && !isPreviouslyAccepted
+          ? false  // Batch rejected: enforce rejection for new images
+          : wasForcedRejection
+          ? false  // New image too similar to accepted ones: reject it
+          : isPreviouslyAccepted 
+            ? !hasQualityIssues && !hasVeryPoorBokeh  // Previously accepted: only quality matters
+            : img.isAcceptable && !hasVeryPoorBokeh;  // New images: use Claude's decision
+        
+        results[actualFileName] = {
+          width: bodyResults[index].width,
+          height: bodyResults[index].height,
+          faceCount: img.faceCount,
+          score: img.overallScore,
+          faceScore: img.hasSingleFace ? 100 : 0,
+          bodyScore: bodyResults[index].hasBody ? 100 : 0,
+          brightnessScore: img.brightnessScore,
+          contrastScore: img.contrastScore,
+          blurScore: img.sharpnessScore, // Use Claude's sharpness score directly
+          blockinessScore: img.sharpnessScore, // Use sharpness as proxy for compression/pixelation
+          resolutionScore: img.sharpnessScore, // Use sharpness as proxy for resolution
+          bokehScore: img.bokehScore,
+          saturationScore: img.saturationScore,
+          hasSingleFace: img.hasSingleFace,
+          hasGoodResolution: img.isSharp,
+          hasGoodScore: isAcceptable,
+          isAcceptable: isAcceptable,
+          hasFace: img.faceCount > 0,
+          hasBody: bodyResults[index].hasBody,
+          faceDetectionSkipped: false,
+          issues: img.rejectionReasons,
+          i18nIssues: i18nIssues,
+          eyesVisible: true, // Sunglasses check disabled due to false positives
+          eyeDetectionSkipped: false
+        };
+      });
       
-      // Now that all analysis is complete, add all rejected files at once
-      if (rejectedFileStates.length > 0) {
-        setFileStates(prev => [...prev, ...rejectedFileStates])
-      }
+      // Log protection summary
+      const protectedCount = Array.from(previouslyAcceptedFileNames).filter(name => results[name]?.isAcceptable).length;
+      const newAcceptedCount = Object.entries(results).filter(([name, result]) => 
+        result.isAcceptable && !previouslyAcceptedFileNames.has(name)
+      ).length;
+      const newRejectedCount = Object.entries(results).filter(([name, result]) => 
+        !result.isAcceptable && !previouslyAcceptedFileNames.has(name)
+      ).length;
       
-      // Set analyzing to false after all files are processed
-      setAnalysisState(prev => ({ 
-        ...prev, 
-        isAnalyzing: false, 
-        currentFileIndex: -1,
-        acceptedCount: 0 
-      }))
+      console.log('[Image Protection Summary]', {
+        previouslyAccepted: previouslyAcceptedFileNames.size,
+        stillAccepted: protectedCount,
+        newAccepted: newAcceptedCount,
+        newRejected: newRejectedCount,
+        batchFilteredCount: batchRejectIndices.size,
+        batchKeptCount: batchKeepIndices.size
+      });
       
-      return [acceptedFiles, results]
+      return {
+        results,
+        batchInfo: {
+          hasTooManyDuplicates: duplicateAnalysis?.hasTooManyDuplicates || false,
+          filteredCount: batchRejectIndices.size,
+          keptCount: batchKeepIndices.size,
+          totalImages: files.length,
+          message: duplicateAnalysis?.message || ''
+        }
+      };
+      
     } catch (error) {
-      console.error('Error during image analysis:', error)
+      console.error('API analysis failed, falling back to MediaPipe:', error);
+      
+      // Fallback to MediaPipe analysis
+      const results: Record<string, ImageQualityResult> = {};
+      for (const file of files) {
+        const result = await analyzeImageQuality(file, { petMode });
+        results[file.name] = result;
+      }
+      
+      return { results, batchInfo: null };
+    }
+  };
+
+  const analyzeImages = async (files: File[]): Promise<[File[], Record<string, ImageQualityResult>]> => {
+    try {
+      // STEP 0: Capture state BEFORE any modifications
+      const originalFileStates = fileStates;
+      const acceptedExistingCount = originalFileStates.filter(state => state.qualityResult?.isAcceptable).length;
+      const totalFiles = acceptedExistingCount + files.length;
+      
+      // IMPORTANT: Track previously accepted files BEFORE adding new files to state
+      // Only files with score > 0 have been through Claude analysis
+      const previouslyAcceptedFileNames = new Set(
+        originalFileStates
+          .filter(state => state.qualityResult?.score && state.qualityResult.score > 0 && state.qualityResult.isAcceptable)
+          .map(state => state.file.name)
+      );
+            
+      // Set analyzing count to actual number of files that will be analyzed
+      const actualAnalyzingCount = totalFiles >= 9 ? 9 : files.length;
+      
+      setAnalysisState(prev => ({ 
+        ...prev, 
+        isAnalyzing: true, 
+        analyzingCount: actualAnalyzingCount,
+        currentFileIndex: -1,
+        acceptedCount: 0 
+      }));
+      
+      // STEP 1: Immediately add all new files with placeholder results (show thumbnails)
+      const placeholderResult: ImageQualityResult = {
+            width: 0,
+            height: 0,
+            faceCount: 0,
+            score: 0,  // score=0 indicates not yet validated
+            faceScore: 0,
+            bodyScore: 0,
+            brightnessScore: 0,
+            contrastScore: 0,
+            blurScore: 0,
+            blockinessScore: 0,
+            resolutionScore: 0,
+            hasSingleFace: false,
+        hasGoodResolution: true,  // Keep true for UI display purposes
+        hasGoodScore: false,  // score=0 so this is false
+        isAcceptable: true,   // Keep true so they don't show as "rejected"
+            hasFace: false,
+            hasBody: false,
+            faceDetectionSkipped: true,
+        issues: [],  // Empty - no issues yet, just pending
+        i18nIssues: [],
+        eyesVisible: true,
+        eyeDetectionSkipped: true
+      };
+      
+      // Add new files immediately
+      files.forEach(file => {
+        setFileStates(prev => [...prev, {
+            file,
+            previewUrl: URL.createObjectURL(file),
+          qualityResult: placeholderResult,
+            uploadProgress: { progress: 0, isUploading: false }
+        }]);
+      });
+      
+      // STEP 2 & 3: For 9+ files, check bodyshots THEN analyze with Claude
+      let results: Record<string, ImageQualityResult>;
+      let bodyResultsArray: Array<{ 
+        hasBody: boolean; 
+        width: number; 
+        height: number; 
+        faceCount: number;
+        isAcceptable: boolean;
+        rejectionReason?: string;
+        i18nRejectionKey?: string;
+        i18nRejectionParams?: Record<string, any>;
+      }> = [];
+      
+      if (totalFiles >= 9) {
+        // Use ORIGINAL fileStates (before adding new files) to avoid including placeholder files
+        const existingFiles = originalFileStates;
+        
+        const allFiles = [
+          ...existingFiles.map(state => state.file),
+          ...files
+        ];
+        const filesToAnalyze = allFiles.slice(0, 9);
+        
+        // Check bodyshots and early validation (runs on ALL files, including previously accepted)
+        // This is CRITICAL - we must validate ALL files, not trust placeholder results
+        bodyResultsArray = await Promise.all(filesToAnalyze.map(file => analyzeForBodyShot(file)));
+        
+        // Separate valid and rejected images from early validation
+        const earlyRejectedImages: Array<{ file: File; result: typeof bodyResultsArray[0] }> = [];
+        const validImages: Array<{ file: File; result: typeof bodyResultsArray[0]; index: number }> = [];
+        
+        filesToAnalyze.forEach((file, index) => {
+          const result = bodyResultsArray[index];
+          if (!result.isAcceptable) {
+            earlyRejectedImages.push({ file, result });
+          } else {
+            validImages.push({ file, result, index });
+          }
+        });
+        
+        // IMPORTANT: Update file states to reflect early rejections
+        // This ensures previously accepted files that fail validation are marked as rejected
+        if (earlyRejectedImages.length > 0) {
+          setFileStates(prev => prev.map(state => {
+            const rejectedFile = earlyRejectedImages.find(r => r.file.name === state.file.name);
+            if (rejectedFile) {
+              return {
+                ...state,
+                qualityResult: {
+                  width: rejectedFile.result.width,
+                  height: rejectedFile.result.height,
+                  faceCount: rejectedFile.result.faceCount,
+                  score: 0,
+                  faceScore: 0,
+                  bodyScore: rejectedFile.result.hasBody ? 100 : 0,
+                  brightnessScore: 0,
+                  contrastScore: 0,
+                  blurScore: 0,
+                  blockinessScore: 0,
+                  resolutionScore: 0,
+                  hasSingleFace: rejectedFile.result.faceCount === 1,
+                  hasGoodResolution: rejectedFile.result.width >= 768 && rejectedFile.result.height >= 768,
+                  hasGoodScore: false,
+                  isAcceptable: false,
+                  hasFace: rejectedFile.result.faceCount > 0,
+                  hasBody: rejectedFile.result.hasBody,
+                  faceDetectionSkipped: false,
+                  issues: rejectedFile.result.rejectionReason ? [rejectedFile.result.rejectionReason] : [],
+                  i18nIssues: rejectedFile.result.i18nRejectionKey ? [{ key: rejectedFile.result.i18nRejectionKey, params: rejectedFile.result.i18nRejectionParams }] : [],
+                  eyesVisible: true,
+                  eyeDetectionSkipped: false
+                }
+              };
+            }
+            return state;
+          }));
+        }
+        
+        // If all images were rejected in early validation, throw error
+        if (validImages.length === 0 && earlyRejectedImages.length > 0) {
+          const errorMessage = earlyRejectedImages[0].result.rejectionReason || 'Images failed early validation';
+          throw new Error(errorMessage);
+        }
+        
+        // Build body results record for valid images only
+        const bodyResultsRecord: Record<string, ImageQualityResult> = {};
+        validImages.forEach(({ file, result }) => {
+          bodyResultsRecord[file.name] = {
+            width: result.width,
+            height: result.height,
+            faceCount: result.faceCount,
+            score: 0,  // Don't show score until Claude analysis
+            faceScore: 0,
+            bodyScore: result.hasBody ? 100 : 0,
+            brightnessScore: 0,  // Changed from 100 to 0
+            contrastScore: 0,    // Changed from 100 to 0
+            blurScore: 0,        // Changed from 100 to 0
+            blockinessScore: 0,  // Changed from 100 to 0
+            resolutionScore: 0,  // Changed from 100 to 0
+            hasSingleFace: result.faceCount === 1,
+            hasGoodResolution: true,
+            hasGoodScore: false,  // Changed from true to false
+            isAcceptable: true,
+            hasFace: result.faceCount > 0,
+            hasBody: result.hasBody,
+            faceDetectionSkipped: false,
+            issues: [],
+            i18nIssues: [],
+            eyesVisible: true,
+            eyeDetectionSkipped: false
+          };
+        });
+        
+        const bodyCheck = checkBodyShotRequirements(bodyResultsRecord);
+        
+        // If bodyshot requirements not met, update file states with actual results and throw error
+        if (!bodyCheck.isValid) {          
+          // Update fileStates with actual bodyshot detection results
+          setFileStates(prev => prev.map(state => {
+            const actualResult = bodyResultsRecord[state.file.name];
+            if (actualResult) {
+              return {
+                ...state,
+                qualityResult: actualResult
+              };
+            }
+            return state;
+          }));
+          
+          const errorMessage = bodyCheck.errors[0] || 'Body shot requirements not met';
+          throw new Error(errorMessage);
+        }
+        
+        // Proceed with Claude analysis on valid images only
+        // (Early-rejected images are already filtered out)
+        // Use the previouslyAcceptedFileNames captured BEFORE adding new files
+        const validFilesToAnalyze = validImages.map(v => v.file);
+        const validBodyResults = validImages.map(v => v.result);
+        const { results: claudeResults, batchInfo } = await analyzeImagesWithClaude(validFilesToAnalyze, validBodyResults, previouslyAcceptedFileNames);
+        results = claudeResults;
+        
+        // Update state with batch filtering information
+        if (batchInfo?.hasTooManyDuplicates) {
+          console.log('[Batch Filtering]', {
+            filtered: batchInfo.filteredCount,
+            kept: batchInfo.keptCount,
+            total: batchInfo.totalImages,
+            message: batchInfo.message
+          });
+          
+          setAnalysisState(prev => ({
+            ...prev,
+            batchFilteredCount: batchInfo.filteredCount,
+            totalBatchImages: batchInfo.totalImages
+          }));
+        }
+        
+        // Add early-rejected images to results as rejected
+        earlyRejectedImages.forEach(({ file, result }) => {
+          results[file.name] = {
+            width: result.width,
+            height: result.height,
+            faceCount: result.faceCount,
+            score: 0,
+            faceScore: 0,
+            bodyScore: result.hasBody ? 100 : 0,
+            brightnessScore: 0,
+            contrastScore: 0,
+            blurScore: 0,
+            blockinessScore: 0,
+            resolutionScore: 0,
+            hasSingleFace: result.faceCount === 1,
+            hasGoodResolution: result.width >= 768 && result.height >= 768,
+            hasGoodScore: false,
+            isAcceptable: false,
+            hasFace: result.faceCount > 0,
+            hasBody: result.hasBody,
+            faceDetectionSkipped: false,
+            issues: result.rejectionReason ? [result.rejectionReason] : [],
+            i18nIssues: result.i18nRejectionKey ? [{ key: result.i18nRejectionKey, params: result.i18nRejectionParams }] : [],
+            eyesVisible: true,
+            eyeDetectionSkipped: false
+          };
+        });
+      } else {
+        // For less than 9, use placeholder results
+        results = {};
+        files.forEach(file => {
+          results[file.name] = placeholderResult;
+        });
+      }
+      
+      // STEP 3: Update fileStates with real analysis results
+      const acceptedFiles: File[] = [];
+      const rejectedFileStates: FileState[] = [];
+      const newAcceptedStates: FileState[] = [];
+      
+      if (totalFiles >= 9) {
+        // Rebuild fileStates with Claude results (for analyzed files only)
+        const existingFiles = fileStates.filter(state => state.qualityResult?.isAcceptable);
+        const allFiles = [
+          ...existingFiles.map(state => state.file),
+          ...files
+        ];
+        
+        // Create a map of existing preview URLs
+        const existingPreviewUrls = new Map(
+          existingFiles.map(state => [state.file.name, state.previewUrl])
+        );
+        
+        // Process analyzed files (first 9)
+        allFiles.slice(0, 9).forEach(file => {
+          const result = results[file.name];
+          const previewUrl = existingPreviewUrls.get(file.name) || URL.createObjectURL(file);
+          
+          if (result?.isAcceptable) {
+            newAcceptedStates.push({
+              file,
+              previewUrl,
+              qualityResult: result,
+              uploadProgress: { progress: 0, isUploading: false }
+            });
+            acceptedFiles.push(file);
+          } else if (result) {
+            rejectedFileStates.push({
+              file,
+              previewUrl,
+              qualityResult: result,
+              uploadProgress: { progress: 0, isUploading: false }
+            });
+          }
+        });
+        
+        // Remove any excess files beyond the first 9 from fileStates
+        const analyzedFileNames = new Set(allFiles.slice(0, 9).map(f => f.name));
+        setFileStates(prev => prev.filter(state => analyzedFileNames.has(state.file.name)));
+        
+        // Replace with new results
+        setFileStates([...newAcceptedStates, ...rejectedFileStates]);
+      } else {
+        // For < 9 files, fileStates were already updated in STEP 1
+        files.forEach(file => {
+          const result = results[file.name];
+          if (result?.isAcceptable) {
+            acceptedFiles.push(file);
+          }
+        });
+      }
+      
+      // Calculate rejected count
+      const totalAnalyzed = Object.keys(results).length;
+      const acceptedCount = Object.values(results).filter(r => r.isAcceptable).length;
+      const rejectedCount = totalAnalyzed - acceptedCount;
+      const newAttempts = analysisState.analysisAttempts + 1;
+      
+      // Enable bypass if 3rd+ attempt and 2 or fewer rejected images
+      const canBypassQuality = newAttempts >= 3 && rejectedCount > 0 && rejectedCount <= 2;
+      
+      setAnalysisState(prev => ({ 
+        ...prev, 
+        isAnalyzing: false, 
+        currentFileIndex: -1,
+        acceptedCount: acceptedCount,
+        analysisAttempts: newAttempts,
+        rejectedCount: rejectedCount,
+        canBypassQuality: canBypassQuality
+      }));
+      
+      return [acceptedFiles, results];
+      
+    } catch (error) {
+      console.error('Error during image analysis:', error);
+      
+      // DON'T remove files - keep thumbnails visible
+      // The bodyshot error will be shown in the UI by the FileUploader component
+      
       setAnalysisState(prev => ({ 
         ...prev, 
         isAnalyzing: false, 
         currentFileIndex: -1,
         acceptedCount: 0 
-      }))
-      return [[], {}]
+      }));
+      
+      // Return empty results so files stay in state with placeholder data
+      return [[], {}];
     }
-  }
+  };
 
   const clearRejectedFiles = () => {
     setFileStates(prev => prev.filter(state => state.qualityResult?.isAcceptable))
@@ -386,33 +898,74 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     // Analyze files - file states are added during analysis
     const [analyzedFiles, results] = await analyzeImages(validFiles)
 
-    // Only show skipped toast if we hit the max files limit AND have acceptable files that were skipped
+    // Check how many slots are available
     const remainingSlots = maxFiles - computedValues.acceptedCount
-    const acceptableFilesCount = Object.values(results).filter(r => r.isAcceptable).length
-    const skippedDueToLimit = acceptableFilesCount > remainingSlots
     
-    // Clean up rejected files if:
-    // 1. All files passed quality checks, or
-    // 2. We filled all remaining slots with passing files
-    const shouldShowRejected = Object.values(results).some(r => !r.isAcceptable) && 
-      acceptableFilesCount < remainingSlots;
+    // Separate files by status:
+    // 1. Analyzed and rejected (have results, not acceptable)
+    const rejectedFiles = validFiles.filter(f => results[f.name] && !results[f.name]?.isAcceptable)
+    // 2. Analyzed and accepted (have results, acceptable)
+    const acceptableFiles = validFiles.filter(f => results[f.name]?.isAcceptable)
+    // 3. Not analyzed (no results - happens when adding more than 9 files)
+    const notAnalyzedFiles = validFiles.filter(f => !results[f.name])
     
-    if (!shouldShowRejected) {
-      // Clean up rejected files immediately
-      clearRejectedFiles();
+    // Only keep acceptable files that fit within the limit
+    const filesToKeep = acceptableFiles.slice(0, remainingSlots)
+    const filesToDiscard = acceptableFiles.slice(remainingSlots)
+    
+    // Remove discarded files from fileStates (they were added during analysis)
+    if (filesToDiscard.length > 0) {
+      setFileStates(prev => prev.filter(state => 
+        !filesToDiscard.some(f => f.name === state.file.name)
+      ))
     }
     
-    if (skippedDueToLimit) {
-      const skippedAcceptableFiles = analyzedFiles
-        .slice(remainingSlots)
-        .filter(f => results[f.name]?.isAcceptable)
-      
-      if (skippedAcceptableFiles.length > 0) {
+    // Check for issues
+    const rejectedCount = rejectedFiles.length
+    const hasRejectedFiles = rejectedCount > 0
+    const hasDiscardedFiles = filesToDiscard.length > 0
+    const hasNotAnalyzedFiles = notAnalyzedFiles.length > 0
+    
+    // Don't automatically clear rejected files - let user manually remove them
+    // (Removed auto-clear logic to keep all files visible per user request)
+    
+    // Show appropriate toasts
+    // Only show toasts for actual quality/limit issues, not bodyshot check failures
+    // (bodyshot errors are shown in the FileUploader UI component)
+    const totalSkipped = filesToDiscard.length + notAnalyzedFiles.length
+    const hasAnySkipped = hasDiscardedFiles || hasNotAnalyzedFiles
+    
+    // Don't show toasts if no files were actually analyzed (bodyshot error case)
+    const hasAnyAnalyzedFiles = Object.keys(results).length > 0
+    
+    if (hasAnyAnalyzedFiles) {
+      if (hasRejectedFiles && hasAnySkipped) {
+        // Both rejections and limit reached
+        toast({
+          title: t('errors.qualityAndLimitIssues'),
+          description: t('errors.qualityAndLimitMessage', { 
+            rejected: rejectedCount,
+            skipped: totalSkipped
+          }),
+          duration: 7000,
+        })
+      } else if (hasAnySkipped) {
+        // Only limit reached (no quality issues)
+        const skippedFileNames = [...filesToDiscard, ...notAnalyzedFiles].map(f => f.name).join(', ')
         toast({
           title: t('errors.someImagesSkipped'),
           description: t('errors.skippedMessage', { 
             count: remainingSlots,
-            files: skippedAcceptableFiles.map(f => f.name).join(', ')
+            files: skippedFileNames
+          }),
+          duration: 5000,
+        })
+      } else if (hasRejectedFiles) {
+        // Only quality issues (no limit reached)
+        toast({
+          title: t('errors.qualityIssues'),
+          description: t('errors.qualityIssuesMessage', { 
+            count: rejectedCount
           }),
           duration: 5000,
         })
@@ -420,7 +973,7 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     }
 
     return fileStates
-  }, [validateFiles, computedValues.acceptedCount, maxFiles, analyzeImages, t, toast, clearRejectedFiles])
+  }, [validateFiles, computedValues.acceptedCount, maxFiles, analyzeImages, t, toast, clearRejectedFiles, setFileStates])
 
   const removeFile = useCallback(async (index: number) => {
     const state = fileStates[index]
@@ -430,19 +983,9 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     if (existingFile?.id) {
       // This is an existing file, delete it from S3 and database
       try {
-        const response = await fetch(getApiUrl(`/api/user-images?imageId=${existingFile.id}`), {
+        await apiRequest(`/api/user-images?imageId=${existingFile.id}`, {
           method: 'DELETE',
         })
-        
-        if (!response.ok) {
-          const error = await response.json()
-          toast({
-            title: t('errors.deleteFailed'),
-            description: error.error || t('errors.genericError'),
-            variant: 'destructive',
-          })
-          return
-        }
 
         // Call the callback to update existingImages in the parent
         if (existingFile.id) {
@@ -481,6 +1024,19 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
       }
     })
     setFileStates([])
+    
+    // Reset analysis state including attempts counter (important for bypass feature)
+    setAnalysisState({
+      isAnalyzing: false,
+      analyzingCount: 0,
+      currentFileIndex: -1,
+      acceptedCount: 0,
+      analysisAttempts: 0,
+      canBypassQuality: false,
+      rejectedCount: 0,
+      batchFilteredCount: 0,
+      totalBatchImages: 0
+    })
   }
 
   const uploadFile = async (file: File, orderId: string, characterId: string) => {
@@ -528,6 +1084,148 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     }
   }
 
+  // Bypass quality checks and accept all images (including rejected ones)
+  const bypassQualityChecks = useCallback(() => {
+    setFileStates(prev => prev.map(state => ({
+      ...state,
+      qualityResult: state.qualityResult ? {
+        ...state.qualityResult,
+        isAcceptable: true,
+        hasGoodScore: true
+      } : undefined
+    })));
+    
+    // Reset bypass state
+    setAnalysisState(prev => ({
+      ...prev,
+      canBypassQuality: false,
+      acceptedCount: prev.acceptedCount + prev.rejectedCount,
+      rejectedCount: 0
+    }));
+  }, []);
+
+  // Trigger Claude analysis for current files (bypassing body shot validation)
+  const triggerAnalysis = useCallback(async () => {
+    const acceptedFiles = fileStates
+      .filter(state => state.qualityResult?.isAcceptable)
+      .map(state => state.file);
+
+    if (acceptedFiles.length < 9) {
+      // Claude analysis only runs for 9+ images
+      return;
+    }
+
+    try {
+      setAnalysisState(prev => ({ ...prev, isAnalyzing: true, analyzingCount: acceptedFiles.length }));
+
+      // Step 1: Get body detection and early validation results
+      const bodyResultsArray = await Promise.all(acceptedFiles.map(file => analyzeForBodyShot(file)));
+      
+      // Step 2: Filter out images that failed early validation
+      const validImages = acceptedFiles.filter((file, index) => bodyResultsArray[index].isAcceptable);
+      const validBodyResults = bodyResultsArray.filter(result => result.isAcceptable);
+      const rejectedImages = acceptedFiles.filter((file, index) => !bodyResultsArray[index].isAcceptable);
+      
+      if (validImages.length === 0) {
+        toast({
+          title: t('errors.allImagesRejected'),
+          description: t('errors.allImagesRejectedMessage'),
+          variant: 'destructive',
+          duration: 5000,
+        });
+        return;
+      }
+      
+      // Step 3: Get previously accepted file names for similarity protection
+      // IMPORTANT: Only include files that have been through Claude analysis (score > 0)
+      const previouslyAcceptedFileNames = new Set(
+        fileStates
+          .filter(state => state.qualityResult?.score && state.qualityResult.score > 0 && state.qualityResult.isAcceptable)
+          .map(state => state.file.name)
+      );
+    
+      // Step 4: Run Claude analysis on valid images only
+      const { results: claudeResults, batchInfo } = await analyzeImagesWithClaude(validImages, validBodyResults, previouslyAcceptedFileNames);
+
+      // Update state with batch filtering information  
+      if (batchInfo?.hasTooManyDuplicates) {
+        console.log('[Batch Filtering (triggerAnalysis)]', {
+          filtered: batchInfo.filteredCount,
+          kept: batchInfo.keptCount,
+          total: batchInfo.totalImages,
+          message: batchInfo.message
+        });
+        
+        setAnalysisState(prev => ({
+          ...prev,
+          batchFilteredCount: batchInfo.filteredCount,
+          totalBatchImages: batchInfo.totalImages
+        }));
+      }
+
+      // Step 5: Update file states with new results (including rejected ones)
+      setFileStates(prev => prev.map(state => {
+        const result = claudeResults[state.file.name];
+        if (result) {
+          return {
+            ...state,
+            qualityResult: result,
+            isAnalyzing: false
+          };
+        }
+        
+        // Check if this file was rejected in early validation
+        const rejectedIndex = rejectedImages.findIndex(f => f.name === state.file.name);
+        if (rejectedIndex !== -1) {
+          const rejectionResult = bodyResultsArray.find(r => !r.isAcceptable && acceptedFiles[rejectedIndex]?.name === state.file.name);
+          if (rejectionResult) {
+            return {
+              ...state,
+              qualityResult: {
+                width: rejectionResult.width,
+                height: rejectionResult.height,
+                faceCount: rejectionResult.faceCount,
+                score: 0,
+                faceScore: 0,
+                bodyScore: rejectionResult.hasBody ? 100 : 0,
+                brightnessScore: 0,
+                contrastScore: 0,
+                blurScore: 0,
+                blockinessScore: 0,
+                resolutionScore: 0,
+                hasSingleFace: rejectionResult.faceCount === 1,
+                hasGoodResolution: rejectionResult.width >= 768 && rejectionResult.height >= 768,
+                hasGoodScore: false,
+                isAcceptable: false,
+                hasFace: rejectionResult.faceCount > 0,
+                hasBody: rejectionResult.hasBody,
+                faceDetectionSkipped: false,
+                issues: rejectionResult.rejectionReason ? [rejectionResult.rejectionReason] : [],
+                i18nIssues: rejectionResult.i18nRejectionKey ? [{ key: rejectionResult.i18nRejectionKey, params: rejectionResult.i18nRejectionParams }] : [],
+                eyesVisible: true,
+                eyeDetectionSkipped: false
+              },
+              isAnalyzing: false
+            };
+          }
+        }
+        
+        return state;
+      }));
+
+    } catch (error) {
+      console.error('Failed to trigger analysis:', error);
+      toast({
+        title: t('errors.analysisFailed'),
+        description: t('errors.analysisFailedMessage'),
+        variant: 'destructive',
+        duration: 5000,
+      });
+    } finally {
+      setAnalysisState(prev => ({ ...prev, isAnalyzing: false, analyzingCount: 0 }));
+    }
+  }, [fileStates, analyzeForBodyShot, analyzeImagesWithClaude, t, toast]);
+
   return {
     files: fileStates.map(state => state.file),
     fileStates,
@@ -544,6 +1242,8 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
     ...analysisState,
     handleNewFiles,
     uploadFile,
-    modelsStatus
+    modelsStatus,
+    bypassQualityChecks,
+    triggerAnalysis
   }
 }

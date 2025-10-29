@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
+import * as VisuallyHiddenPrimitive from "@radix-ui/react-visually-hidden"
 import styles from "./dialog.module.css"
 import { Icon } from "../Icon"
 import { useTranslation } from "react-i18next"
@@ -48,21 +49,23 @@ function DialogContent({
   fullscreen = false,
   noContainer = false,
   panelKeepOpen = false,
+  contentClassName,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   fullscreen?: boolean
   noContainer?: boolean
   panelKeepOpen?: boolean
+  contentClassName?: string
 }) {
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay data-panel-keepopen={panelKeepOpen ? '' : undefined} />
       <DialogPrimitive.Content
         data-slot="dialog-content"
-        className={`${styles.dialog} ${(fullscreen || noContainer) ? styles.fullscreen : ''} ${noContainer ? styles.noContainer : ''} ${className || ''}`}
+        className={`${styles.dialog} ${(fullscreen || noContainer) ? styles.fullscreen : ''} ${noContainer ? styles.noContainer : ''} ${className || ''} ${contentClassName || ''}`}
         {...props}
       >
-        <div className={styles.content} data-panel-keepopen={panelKeepOpen ? '' : undefined}>
+        <div className={`${styles.content} ${contentClassName || ''}`} data-panel-keepopen={panelKeepOpen ? '' : undefined}>
           {children}
         </div>
       </DialogPrimitive.Content>
@@ -70,8 +73,8 @@ function DialogContent({
   )
 }
 
-function DialogHeader({ className, children, ...props }: React.ComponentProps<"div">) {
-  const { t } = useTranslation('common')
+function DialogHeader({ className, children, hideClose, ...props }: React.ComponentProps<"div"> & { hideClose?: boolean }) {
+  const { t } = useTranslation('common') as any
 
   return (
     <div
@@ -80,10 +83,12 @@ function DialogHeader({ className, children, ...props }: React.ComponentProps<"d
       {...props}
       >
         {children}
-      <DialogPrimitive.Close className={styles.closeButton}>
-        <Icon variant="cross" size={24} className={styles.closeIcon} />
-        <span className="sr-only">{t('buttons.close')}</span>
-      </DialogPrimitive.Close>
+      {!hideClose && (
+        <DialogPrimitive.Close className={styles.closeButton}>
+          <Icon variant="cross" size={24} className={styles.closeIcon} />
+          <span className="sr-only">{t('buttons.close')}</span>
+        </DialogPrimitive.Close>
+      )}
     </div>
   )
 }
@@ -132,6 +137,8 @@ function DialogDescription({
   )
 }
 
+const VisuallyHidden = VisuallyHiddenPrimitive.Root
+
 export {
   Dialog,
   DialogClose,
@@ -144,4 +151,5 @@ export {
   DialogTitle,
   DialogBody,
   DialogTrigger,
+  VisuallyHidden,
 }

@@ -1,0 +1,269 @@
+.floatingWrapper {
+  position: relative;
+}
+
+.floatingImage {
+  position: absolute;
+  width: 114px;
+  height: 170px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  transform-origin: center center;
+}
+
+.imgCover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imgCoverGray {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(100%);
+}
+
+@keyframes cardSlide {
+  0% {
+    opacity: 1;
+    transform: translateX(var(0, 0px)) translateY(var(--slide-y, 0px)) rotate(0deg) scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(var(--slide-x, 0px)) translateY(var(--slide-y, 0px)) rotate(var(--final-rotation)) scale(1);
+  }
+}
+
+.animateCardSlide {
+  /* Fast start, slows toward the end */
+  animation: cardSlide 2s 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes cardSlideReverse {
+  0% {
+    opacity: 1;
+    transform: translateX(var(--slide-x, 0px)) translateY(var(--slide-y, 0px)) rotate(var(--final-rotation)) scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0px) translateY(0px) rotate(0deg) scale(1);
+  }
+}
+
+.animateCardSlideReverse {
+  animation: cardSlideReverse 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Fade swap helpers to crossfade content inside the card without unmounting the card */
+.fadeSwap {
+  position: relative;
+}
+
+.fadeIn {
+  animation: fadeIn 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.fadeOut {
+  animation: fadeOut 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+}
+
+.card {
+  background-color: #0A0A0B;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  border-radius: 16px;
+  padding: 48px 48px 24px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  z-index: 10;
+}
+
+.centerText {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+}
+
+.logo {
+  display: flex;
+  justify-content: center;
+}
+
+.logoIconWrap {
+  width: 4rem; /* 64px */
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.aquaText {
+  color: #2ADED8;
+}
+
+.title {
+    font-family: var(--carb);
+    font-style: normal;
+    font-weight: 300;
+    font-size: 34px;
+    line-height: 34px;
+    text-align: center;
+    color: #2ADED8;
+    letter-spacing: -0.04em;
+    max-width: 220px;
+}
+
+.confirmContent {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 24px;
+}
+
+.confirmContent .title {
+    color: #FFF;
+    max-width: 280px;
+    text-align: left;
+}
+
+.description {
+  color: #C0CED8;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.descriptionTight {
+  color: #C0CED8;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  margin-top: -24px;
+}
+
+.privacyBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 46px;
+  color: #FFFFFF50;
+}
+
+.buttonContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.primaryButton {
+  width: 100%;
+}
+
+.ghostButton {
+  width: 100%;
+  color: #C0CED8;
+}
+
+.compareRow {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.compareItem {
+  flex: 1;
+  position: relative;
+}
+
+.imageBox {
+  aspect-ratio: 1 / 1;
+  border-radius: 12px 12px 0 0;
+  overflow: hidden;
+  margin-bottom: 1px;
+}
+
+.goodLabel, .badLabel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  border-radius: 0 0 12px 12px;
+  color: #000000;
+}
+
+.goodLabel { background-color: #2ADED8; }
+.badLabel { background-color: #FF4242; }
+
+.progressButton {
+  width: 100%;
+  border: none;
+  box-shadow: inset 0 0 0 2px rgba(42, 222, 216, 0.1);
+  overflow: hidden;
+  transition: background 200ms ease;
+}
+
+.progressButton:disabled {
+    opacity: 1 !important;
+    cursor: pointer !important;
+}
+
+.confirmIconWrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+.confirmCircle {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 9999px;
+  background: rgba(68, 227, 201, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tealText { color: #44E3C9; }
+
+.confirmButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.fullWidth { width: 100%; }
+
+

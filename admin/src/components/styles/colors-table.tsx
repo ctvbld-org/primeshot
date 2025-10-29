@@ -15,6 +15,7 @@ import {
 import { Pencil, Trash, Languages } from 'lucide-react'
 import { toast } from 'sonner'
 import { TranslationDialog } from '@/components/ui/translation-dialog'
+import { translateRows } from '@/lib/translation'
 import type { Database } from '@/types/supabase'
 
 type Color = Database['public']['Tables']['style_colors']['Row']
@@ -23,11 +24,13 @@ export function ColorsTable() {
   const [selectedColor, setSelectedColor] = useState<Color | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isTranslationOpen, setIsTranslationOpen] = useState(false)
+  const [isBulkTranslating, setIsBulkTranslating] = useState(false)
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false)
   const queryClient = useQueryClient()
   const supabase = createClient()
 
   // Fetch colors
-  const { data: colors = [], isLoading } = useQuery({
+  const { data: colors = [], isLoading, refetch } = useQuery({
     queryKey: ['style-colors'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -39,6 +42,74 @@ export function ColorsTable() {
       return data
     },
   })
+
+  const handleBulkTranslate = async (selectedColors: Color[], onSuccess?: () => void) => {
+    setIsBulkTranslating(true)
+    try {
+      // Translate all selected colors
+      const translations = await translateRows('color', selectedColors)
+      
+      // Update each color with its new translations
+      const updatePromises = selectedColors.map(async (color, index) => {
+        const { error } = await supabase
+          .from('style_colors')
+          .update({ translations: translations[index] })
+          .eq('id', color.id)
+        
+        if (error) throw error
+      })
+      
+      await Promise.all(updatePromises)
+      
+      // Refetch data to show updated translations
+      await refetch()
+      
+      toast.success(`Successfully translated ${selectedColors.length} colors`)
+      
+      // Call success callback to clear selection
+      if (onSuccess) onSuccess()
+    } catch (error: any) {
+      toast.error(`Bulk translation failed: ${error.message}`)
+    } finally {
+      setIsBulkTranslating(false)
+    }
+  }
+
+  const handleBulkDelete = async (selectedColors: Color[], onSuccess?: () => void) => {
+    // Show confirmation dialog
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${selectedColors.length} color${selectedColors.length > 1 ? 's' : ''}? This action cannot be undone.`
+    )
+    
+    if (!confirmed) return
+
+    setIsBulkDeleting(true)
+    try {
+      // Delete all selected colors
+      const deletePromises = selectedColors.map(async (color) => {
+        const { error } = await supabase
+          .from('style_colors')
+          .delete()
+          .eq('id', color.id)
+        
+        if (error) throw error
+      })
+      
+      await Promise.all(deletePromises)
+      
+      // Refetch data to show updated list
+      await refetch()
+      
+      toast.success(`Successfully deleted ${selectedColors.length} color${selectedColors.length > 1 ? 's' : ''}`)
+      
+      // Call success callback to clear selection
+      if (onSuccess) onSuccess()
+    } catch (error: any) {
+      toast.error(`Bulk deletion failed: ${error.message}`)
+    } finally {
+      setIsBulkDeleting(false)
+    }
+  }
 
   // Delete mutation
   const deleteMutation = useMutation({
@@ -179,6 +250,14 @@ export function ColorsTable() {
           setIsFormOpen(true)
         }}
         addButtonLabel="Add Color"
+        enableBulkTranslation={true}
+        onBulkTranslate={handleBulkTranslate}
+        bulkTranslateLabel="Bulk Translate"
+        isBulkTranslating={isBulkTranslating}
+        enableBulkDelete={true}
+        onBulkDelete={handleBulkDelete}
+        bulkDeleteLabel="Bulk Delete"
+        isBulkDeleting={isBulkDeleting}
       />
 
       <ColorFormDialog
@@ -196,6 +275,14 @@ export function ColorsTable() {
           open={isTranslationOpen}
           onOpenChange={setIsTranslationOpen}
           currentTranslations={(selectedColor.translations as Record<string, any>) || {}}
+          table="color"
+          rowData={selectedColor}
+          onTranslationsUpdated={(newTranslations) => {
+            // Update the selected color with new translations
+            setSelectedColor(prev => prev ? { ...prev, translations: newTranslations } : null)
+            // Optionally trigger a refetch of the data
+            refetch()
+          }}
         />
       )}
     </>

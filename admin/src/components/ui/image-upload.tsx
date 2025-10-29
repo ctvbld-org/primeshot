@@ -10,6 +10,7 @@ import { toast } from 'sonner'
 import { uploadImageToS3 } from '@/lib/upload'
 import getStyleImages from '@/lib/get-styles-images'
 import getOptionsImage, { getSceneOptionImage, getWardrobeOptionImage } from '@/lib/get-options-image'
+import { getApiUrl } from '@/lib/api'
 
 interface ImageUploadProps {
   value: string[]
@@ -26,7 +27,7 @@ export function ImageUpload({
   value,
   onChange,
   styleName,
-  maxFiles = 1,
+  maxFiles,
   maxSizeMB = 10,
   uploadPath = 'app-images/placeholders/styles', // <-- Default to styles
   deferUpload = false,
@@ -42,6 +43,12 @@ export function ImageUpload({
   const [selection, setSelection] = useState<Set<string>>(new Set())
   const [staged, setStaged] = useState<{ file: File; preview: string }[]>([])
   
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const [hasMore, setHasMore] = useState(false)
+  const [nextToken, setNextToken] = useState<string | null>(null)
+  const [pageTokens, setPageTokens] = useState<(string | null)[]>([null]) // Store tokens for each page
+  
   // Use ref to store current styleName so deferred upload can access the latest value
   const styleNameRef = useRef(styleName)
   
@@ -52,7 +59,7 @@ export function ImageUpload({
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
-      if (value.length + acceptedFiles.length > maxFiles) {
+      if (maxFiles && value.length + acceptedFiles.length > maxFiles) {
         toast.error(`You can only upload up to ${maxFiles} images`)
         return
       }
@@ -110,8 +117,8 @@ export function ImageUpload({
     accept: {
       'image/*': ['.jpeg', '.jpg', '.png', '.webp'],
     },
-    maxFiles: maxFiles - value.length,
-    disabled: isUploading || value.length >= maxFiles,
+    maxFiles: maxFiles ? maxFiles - value.length : undefined,
+    disabled: isUploading || (maxFiles ? value.length >= maxFiles : false),
   })
 
   const removeImage = (index: number) => {
@@ -163,11 +170,14 @@ export function ImageUpload({
     onRegisterUploader(uploadNow)
   }, [deferUpload, onRegisterUploader, staged, uploadPath, value, onChange])
 
-  const loadExisting = useCallback(async () => {
+  const loadExisting = useCallback(async (continuationToken?: string | null) => {
     try {
       setIsListing(true)
       const params = new URLSearchParams({ prefix: uploadPath, max: '100' })
-      const res = await fetch(`/api/images/list?${params.toString()}`)
+      if (continuationToken) {
+        params.set('continuationToken', continuationToken)
+      }
+      const res = await fetch(getApiUrl(`/api/images/list?${params.toString()}`))
       if (!res.ok) throw new Error('Failed to list images')
       const json = await res.json()
       const list = (json?.files || []) as any[]
@@ -176,6 +186,8 @@ export function ImageUpload({
         // exclude responsive variants like *-w320.webp, *-w1280.jpg, etc.
         .filter(f => !/-w\d+\.(webp|png|jpe?g)$/i.test(String(f.filename)))
       setFiles(originalsOnly)
+      setHasMore(json?.hasMore || false)
+      setNextToken(json?.nextToken || null)
     } catch (e) {
       toast.error('Failed to load existing images')
     } finally {
@@ -188,8 +200,26 @@ export function ImageUpload({
     setSelection(new Set())
     setQuery('')
     setSort('newest')
-    loadExisting()
+    setCurrentPage(1)
+    setPageTokens([null])
+    loadExisting(null)
   }, [loadExisting])
+  
+  const loadNextPage = useCallback(() => {
+    if (!hasMore || !nextToken) return
+    const newPage = currentPage + 1
+    setCurrentPage(newPage)
+    setPageTokens(prev => [...prev, nextToken])
+    loadExisting(nextToken)
+  }, [hasMore, nextToken, currentPage, loadExisting])
+  
+  const loadPreviousPage = useCallback(() => {
+    if (currentPage <= 1) return
+    const newPage = currentPage - 1
+    setCurrentPage(newPage)
+    const token = pageTokens[newPage - 1]
+    loadExisting(token)
+  }, [currentPage, pageTokens, loadExisting])
 
   const toggleSelect = (name: string) => {
     setSelection(prev => {
@@ -200,6 +230,12 @@ export function ImageUpload({
   }
 
   const resolveThumb = (name: string) => {
+    if (!name) return ''
+    if (name.startsWith('http')) return name
+    if (uploadPath?.includes('website-images/stripes')) {
+      const base = process.env.NEXT_PUBLIC_AWS_DISTRIBUTION || ''
+      return `${base}/website-images/stripes/${name}`
+    }
     if (uploadPath?.includes('options/wardrobes')) return getWardrobeOptionImage(name)
     if (uploadPath?.includes('options/scenes')) return getSceneOptionImage(name)
     if (uploadPath?.includes('options')) return getOptionsImage(name)
@@ -208,7 +244,7 @@ export function ImageUpload({
 
   const onAddSelected = () => {
     if (selection.size === 0) return
-    const remaining = Math.max(0, maxFiles - value.length)
+    const remaining = maxFiles ? Math.max(0, maxFiles - value.length) : selection.size
     const chosen = Array.from(selection).slice(0, remaining)
     const dedup = Array.from(new Set([...value, ...chosen]))
     onChange(dedup)
@@ -224,7 +260,7 @@ export function ImageUpload({
             ? 'border-primary bg-primary/10'
             : 'border-gray-300 hover:border-gray-400'
         } ${
-          isUploading || value.length >= maxFiles
+          isUploading || (maxFiles && value.length >= maxFiles)
             ? 'opacity-50 cursor-not-allowed'
             : ''
         }`}
@@ -237,7 +273,7 @@ export function ImageUpload({
             : `Drag & drop images here, or click to select`}
         </p>
         <p className="text-xs text-gray-500 mt-1">
-          {maxFiles - value.length} of {maxFiles} slots available
+          {maxFiles ? `${maxFiles - value.length} of ${maxFiles} slots available` : `${value.length} images uploaded (unlimited)`}
         </p>
       </div>
 
@@ -340,34 +376,65 @@ export function ImageUpload({
                 <Loader2 className="h-4 w-4 animate-spin mr-2" /> Loading…
               </div>
             ) : (
-              <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                {files
-                  .filter(f => !query || f.filename.toLowerCase().includes(query.toLowerCase()))
-                  .sort((a, b) => sort === 'name'
-                    ? a.filename.localeCompare(b.filename)
-                    : (new Date(b.lastModified || 0).getTime() - new Date(a.lastModified || 0).getTime())
-                  )
-                  .map((f) => {
-                    const name = f.filename
-                    const url = resolveThumb(name)
-                    const already = value.includes(name)
-                    const selected = selection.has(name)
-                    const capacityFull = value.length + selection.size >= maxFiles
-                    const disabled = already || (!selected && capacityFull)
-                    return (
-                      <button
-                        type="button"
-                        key={name}
-                        onClick={() => !disabled && toggleSelect(name)}
-                        className={`relative rounded overflow-hidden border ${selected ? 'ring-2 ring-primary' : ''} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        aria-pressed={selected}
-                      >
-                        <img src={url} alt={name} className="w-full h-32 object-cover" />
-                        <div className="absolute bottom-0 inset-x-0 bg-black/50 text-white text-xs px-2 py-1 truncate">{name}</div>
-                      </button>
+              <>
+                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                  {files
+                    .filter(f => !query || f.filename.toLowerCase().includes(query.toLowerCase()))
+                    .sort((a, b) => sort === 'name'
+                      ? a.filename.localeCompare(b.filename)
+                      : (new Date(b.lastModified || 0).getTime() - new Date(a.lastModified || 0).getTime())
                     )
-                  })}
-              </div>
+                    .map((f) => {
+                      const name = f.filename
+                      const url = resolveThumb(name)
+                      const already = value.includes(name)
+                      const selected = selection.has(name)
+                      const capacityFull = maxFiles ? value.length + selection.size >= maxFiles : false
+                      const disabled = already || (!selected && capacityFull)
+                      return (
+                        <button
+                          type="button"
+                          key={name}
+                          onClick={() => !disabled && toggleSelect(name)}
+                          className={`relative rounded overflow-hidden border ${selected ? 'ring-2 ring-primary' : ''} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          aria-pressed={selected}
+                        >
+                          <img src={url} alt={name} className="w-full h-32 object-cover" />
+                          <div className="absolute bottom-0 inset-x-0 bg-black/50 text-white text-xs px-2 py-1 truncate">{name}</div>
+                        </button>
+                      )
+                    })}
+                </div>
+                
+                {/* Pagination Controls */}
+                {(currentPage > 1 || hasMore) && (
+                  <div className="mt-6 flex items-center justify-between border-t pt-4">
+                    <div className="text-sm text-muted-foreground">
+                      Page {currentPage} • Showing {files.length} images
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm"
+                        onClick={loadPreviousPage}
+                        disabled={currentPage <= 1}
+                      >
+                        Previous
+                      </Button>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm"
+                        onClick={loadNextPage}
+                        disabled={!hasMore}
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </DialogBody>
           <DialogFooter>

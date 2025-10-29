@@ -1,0 +1,232 @@
+{
+  "buyCredits": {
+    "title": "クレジットを購入",
+    "description": "クレジットパッケージを選択"
+  },
+  "upgradePlan": {
+    "title": "プランをアップグレード",
+    "description": "サブスクリプションプランを選択"
+  },
+  "purchase": {
+    "success": {
+      "subscriptionTitle": "{{plan}}への アップグレードが完了しました",
+      "subscriptionTitleNew": "{{plan}}へようこそ！",
+      "creditsTitle": "クレジットが追加されました！",
+      "subscriptionDescriptionWithCredits": "新しいサブスクリプションの請求サイクルが今日から始まります。{{amount}}クレジットとその他の特典をお楽しみください！",
+      "subscriptionDescriptionWithCreditsNew": "請求サイクルが今日から始まります。{{amount}}クレジットとその他の特典をお楽しみください！",
+      "subscriptionDescription": "新しいサブスクリプションの請求サイクルが今日から始まります。新しい特典をお楽しみください！",
+      "subscriptionDescriptionNew": "請求サイクルが今日から始まります。新しい特典をお楽しみください！",
+      "creditsDescription": "残高が更新されました。生成を開始できます。",
+      "returnToShoot": "撮影に戻る",
+      "defaultPlan": "新しいプラン"
+    }
+  },
+  "subscription": {
+    "context": {
+      "characterLimit": { "title": "キャラクター制限に達しました。", "description": "追加キャラクターのためにアップグレード" },
+      "qualityUpgrade": { "title": "より高い品質をお求めですか？", "description": "より鮮明な画像と追加特典のためにアップグレード" },
+      "creditUpgrade": { "title": "クレジットが不足していませんか？", "description": "より多くの月間クレジットのためにアップグレード" },
+      "general": { "title": "プランをアップグレード", "description": "より多くの機能と柔軟性を解放" },
+      "default": { "title": "プランを選択", "description": "適切なものを選択し、いつでも変更可能" }
+    },
+    "loading": "プランを読み込み中...",
+    "empty": {
+      "title": "利用可能なアップグレードがありません",
+      "description": "すでに最高レベルのプランをご利用中です。"
+    },
+    "headers": {
+      "chooseYourPlan": "プランを選択"
+    },
+    "banner": {
+      "titleStart": "創設者",
+      "titleNumber": "300",
+      "description": {
+        "start": "に参加してPrimeshotの形成を支援し、",
+        "lifetime": "生涯",
+        "annualDiscount": "70%割引",
+        "annualWord": "年間",
+        "or": "または",
+        "monthlyDiscount": "50%割引",
+        "monthlyWord": "月間",
+        "end": "を獲得し、創設者300の限定特典を請求してください。"
+      },
+      "small": "生涯オファーはキャンセルまで継続されます。"
+    },
+    "toggle": {
+      "monthly": "月間",
+      "yearly": "年間",
+      "aria": "請求サイクル"
+    },
+    "card": {
+      "recommended": "おすすめ",
+      "save": "{{pct}}%節約",
+      "perMonth": "/月",
+      "billed": "{{cycle}}請求",
+      "creditsCount": "{{count}}クレジット",
+      "perMonthWord": "毎月",
+      "perCredit": "1クレジット{{price}}",
+      "button": {
+        "select": "プランを選択",
+        "current": "現在のプラン",
+        "processing": "処理中…",
+        "disabledTooltip": "特別オファー中は利用できません🚀"
+      },
+      "features": {
+        "quality": "{{quality}}品質の画像",
+        "characterIncluded": "{{count}}キャラクター含む",
+        "maxCharacters": "最大{{count}}キャラクターストレージ",
+        "concurrentShoots": "最大{{count}}同時撮影",
+        "commercialUse": "商用利用"
+      }
+    },
+    "footer": {
+      "upgradeNotice": "現在のサブスクリプションはキャンセルされ、新しいプランに置き換えられます。既存のクレジットは保持されます。",
+      "buyCreditPack": "クレジットパックを購入"
+    },
+    "toasts": {
+      "loginRequired": "サインインしてください",
+      "selectPlan": "プランを選択してください",
+      "invalidPlan": "無効なサブスクリプションプランが選択されました",
+      "openingPortal": "Stripeカスタマーポータルを開いています...",
+      "customerPortalFailed": "カスタマーポータルを開けませんでした",
+      "upgradePreviewFailed": "アップグレードプレビューを開けませんでした",
+      "upgraded": "サブスクリプションのアップグレードが完了しました！",
+      "checkoutFailed": "チェックアウトに失敗しました",
+      "invalidCheckout": "チェックアウトからの無効な応答"
+    }
+  },
+  "credits": {
+    "dialog": {
+      "headerSub": {
+        "lowBalance": "クレジット残高が不足しています。",
+        "creativity": "創造性を刺激しましょう🚀"
+      },
+      "headerTitle": {
+        "lowBalance": "生成を続けるためにクレジットをチャージしてください",
+        "fun": "より多くのクレジット、より多くの創作、より多くの楽しみ！"
+      }
+    },
+    "card": {
+      "images": "最大{{count}}枚の{{quality}}画像",
+      "characters": "最大{{count}}キャラクター",
+      "footnote": "*スタンダードおよびプロプランのみ",
+      "button": {
+        "buy": "購入",
+        "processing": "処理中…"
+      },
+      "validity": "{{duration}}有効",
+      "oneTime": "1回限り",
+      "perCredit": "1クレジット{{price}}",
+      "perCreditWord": "クレジットあたり"
+    },
+    "toasts": {
+      "loginRequired": "サインインしてください",
+      "invalidPackConfig": "無効なクレジットパッケージ設定",
+      "createCheckoutFailed": "チェックアウトセッションの作成に失敗しました",
+      "purchaseFailed": "クレジットパッケージの購入に失敗しました"
+    }
+  },
+  "comparisonTable": {
+    "categories": {
+      "credits": "クレジット",
+      "image": "画像",
+      "characters": "キャラクター",
+      "generation": "生成",
+      "support": "サポート"
+    },
+    "features": {
+      "creditsPerMonth": "月間クレジット",
+      "pricePerCredit": "クレジット単価",
+      "resolution": "解像度",
+      "takesPerShoot": "撮影枚数",
+      "portraitAspectRatio": "縦向き比率",
+      "squareAspectRatio": "正方形比率",
+      "landscapeAspectRatio": "横向き比率",
+      "included": "含まれる",
+      "storage": "ストレージ",
+      "concurrentShoots": "同時撮影数",
+      "commercialUse": "商用利用",
+      "priorityFeatures": "新機能への優先アクセス",
+      "premiumStyles": "プレミアムスタイル",
+      "betaAccess": "ベータテストアクセス",
+      "emailSupport": "メールサポート",
+      "chatSupport": "チャットサポート",
+      "dedicatedSupport": "専用サポート"
+    },
+    "values": {
+      "upTo": "最大{{value}}",
+      "basicQuality": "ベーシック品質",
+      "highQuality": "高品質"
+    }
+  },
+  "page": {
+    "title": "料金プラン",
+    "header": {
+      "title": "シンプルなプラン、無限のスタイル。",
+      "subtitle": "いつでもキャンセル・変更可能。",
+      "savingsText": "最大",
+      "savingsHighlight": "40%",
+      "savingsOn": "オフ（年間プラン）"
+    },
+    "tabs": {
+      "monthly": "月額",
+      "annual": "年額"
+    },
+    "buttons": {
+      "getStarted": "始める",
+      "selectPlan": "プランを選択",
+      "currentPlan": "現在のプラン",
+      "processing": "処理中..."
+    },
+    "loading": "料金を読み込み中...",
+    "comparison": {
+      "title": "プランを比較",
+      "description": "アップグレードして高解像度ポートレート、より多くのクレジット、再利用可能なキャラクター、優先処理をアンロック。"
+    },
+    "faq": {
+      "title": "ご質問は？",
+      "subtitle": "料金と機能について知っておくべきすべて",
+      "items": {
+        "character": {
+          "question": "キャラクターとは何ですか？どのように機能しますか？",
+          "answer": "キャラクターは、9枚の自撮り写真からトレーニングされたあなた専用のAIモデルです。顔の構造、肌の色、髪型など、あなたの正確な顔の特徴を学習するため、すべてのポートレートがあなたらしく仕上がります。プランに応じて1〜3のキャラクターが含まれます。追加のキャラクターは各30クレジットで、一度作成すれば、異なる服装、シーン、スタイルでいつでも再利用できます。"
+        },
+        "credits": {
+          "question": "クレジットの仕組みは？",
+          "answer": "クレジットは、キャラクターのトレーニングや画像生成に使用する残高です。キャラクターのトレーニングは30クレジット。画像生成はベーシック品質（1K）で1クレジット、ミディアム（2K）で2クレジット、ハイ（4K）で3クレジットです。プランには毎月のクレジット割り当てが含まれており、請求サイクルごとにリセットされます。"
+        },
+        "commercial": {
+          "question": "画像を商用利用できますか？",
+          "answer": "はい。生成したすべての画像はあなたのものであり、制限なく使用できます—LinkedInでも、ウェブサイトでも、マーケティングでも、印刷でも。"
+        },
+        "privacy": {
+          "question": "プライバシーとデータの保護について教えてください。",
+          "answer": "あなたの写真とキャラクターは安全に保存され、共有、販売、または私たち自身のトレーニングに使用されることは決してありません。個別のキャラクターまたはアカウント全体をいつでも削除できます。あなたの同意なしに第三者がアクセスすることはありません。"
+        },
+        "changePlan": {
+          "question": "プランの変更やキャンセルはできますか？",
+          "answer": "はい。アカウント設定でいつでもアップグレードまたはダウングレードできます。アップグレードは即座に有効になり、日割り計算で請求されます。ダウングレードは次のサイクルで有効になります。キャンセルした場合、現在のサイクルが終了するまでアクセスは維持されます。データは60日間保存されるため、何も失わずに再登録できます—その後は完全に削除されます。"
+        },
+        "rollover": {
+          "question": "未使用のクレジットは繰り越されますか？",
+          "answer": "いいえ。クレジットは各請求サイクルの終了時に期限切れとなり、割り当てがリセットされます。"
+        },
+        "moreCredits": {
+          "question": "クレジットを追加するには？",
+          "answer": "サブスクリプションをアップグレードして月間上限を増やすか、アカウントから1回限りのクレジットパックを購入できます。"
+        },
+        "refund": {
+          "question": "返金ポリシーは？",
+          "answer": "サブスクリプションとクレジットパックは返金不可です。生成の失敗など技術的な問題がある場合は、サポートにご連絡いただければレビューとクレジット調整の可能性があります。"
+        },
+        "deleteAccount": {
+          "question": "アカウントを削除するには？",
+          "answer": "アカウント設定で「アカウントを削除」を選択すると、すべての写真、キャラクター、画像が完全に削除されます。これは元に戻せないので、保存したいものは事前にダウンロードしてください。"
+        }
+      }
+    },
+    "signIn": {
+      "modalTitle": "続けるにはサインインしてください"
+    }
+  }
+}

@@ -1,3 +1,5 @@
+import { getApiUrl } from '@primeshot/common'
+
 export async function uploadImageToS3(
   file: File,
   styleName: string,
@@ -36,7 +38,7 @@ export async function uploadImageToS3(
     form.append('variantWidths', JSON.stringify(variantWidths))
 
     onProgress?.(10)
-    const res = await fetch('/api/upload', { method: 'POST', body: form })
+    const res = await fetch(getApiUrl('/api/upload'), { method: 'POST', body: form })
     if (!res.ok) throw new Error('Upload failed')
     const data = await res.json()
     onProgress?.(100)
@@ -84,7 +86,7 @@ export async function uploadOptionImageToS3(
     form.append('variantWidths', JSON.stringify(variantWidths))
 
     onProgress?.(10)
-    const res = await fetch('/api/upload', { method: 'POST', body: form })
+    const res = await fetch(getApiUrl('/api/upload'), { method: 'POST', body: form })
     if (!res.ok) throw new Error('Upload failed')
     const data = await res.json()
     onProgress?.(100)

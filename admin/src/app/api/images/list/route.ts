@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const prefix = searchParams.get('prefix') || ''
     const max = Math.min(parseInt(searchParams.get('max') || '100', 10) || 100, 100)
+    const continuationToken = searchParams.get('continuationToken') || undefined
 
     if (!prefix) {
       return NextResponse.json({ error: 'Missing prefix parameter' }, { status: 400 })
@@ -24,6 +25,7 @@ export async function GET(request: NextRequest) {
       Prefix: prefix.endsWith('/') ? prefix : `${prefix}/`,
       Delimiter: '/',
       MaxKeys: max,
+      ContinuationToken: continuationToken,
     })
 
     const res = await s3Client.send(command)
@@ -40,7 +42,11 @@ export async function GET(request: NextRequest) {
         lastModified: obj.LastModified ? new Date(obj.LastModified).toISOString() : null,
       }))
 
-    return NextResponse.json({ files })
+    return NextResponse.json({
+      files,
+      hasMore: res.IsTruncated || false,
+      nextToken: res.NextContinuationToken || null,
+    })
   } catch (error) {
     console.error('S3 list error:', error)
     return NextResponse.json({ error: 'Failed to list images' }, { status: 500 })

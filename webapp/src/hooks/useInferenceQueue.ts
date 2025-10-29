@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { InferenceThumbnail } from '@/components/home/InferenceThumbnail';
+import { InferenceThumbnail } from '@/components/inference/InferenceThumbnail';
 import { useJobProgress } from '@/hooks/useJobProgress';
 import { useAuth } from '@/contexts/auth-context';
 import { webSocketManager } from '@/lib/websocket/connection-manager';
@@ -31,7 +31,7 @@ export interface InferenceJob {
 interface UseInferenceQueueReturn {
   jobs: InferenceJob[];
   addJob: (jobId: string, nbTakes: number) => void;
-  createQueuedThumbnails: (nbTakes: number) => string; // Returns placeholder ID
+  createQueuedThumbnails: (nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string; aspectRatio?: string; quality?: string; characterId?: string }) => string; // Returns placeholder ID
   updateJobWithRealId: (placeholderId: string, realJobId: string) => void;
   updateJobStatus: (jobId: string, status: InferenceJob['status']) => void;
   updateJobMessage: (jobId: string, message?: string) => void;
@@ -133,7 +133,9 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
             index,
             progress: 100,
             imageUrl: getInferenceImageUrl(image.original_path),
-            webImageUrl: getInferenceImageUrl(image.web_path)
+            webImageUrl: getInferenceImageUrl(image.web_path),
+            imageId: image.id,
+            favourite: (image as any).favourite === true
           }));
 
           // Fill remaining slots if there are fewer images than expected takes
@@ -182,7 +184,17 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
             .map(async (j) => {
               try {
                 const full = await fetchInferenceJob(j.id);
-                const images = full?.generated_images || [];
+                let images = full?.generated_images || [];
+                // Fallback: some backends expose results via a different endpoint
+                if (!images || images.length === 0) {
+                  try {
+                    const { fetchInferenceJobResult } = await import('@/lib/api/inference-results');
+                    const result = await fetchInferenceJobResult(j.id);
+                    images = result?.generated_images || [];
+                  } catch (e) {
+                    // ignore
+                  }
+                }
                 if (images.length > 0) {
                   setJobs(prev => prev.map(queueJob => {
                     if (queueJob.id !== j.id) return queueJob;
@@ -198,6 +210,8 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
                           progress: 100,
                           webImageUrl: webUrl,
                           imageUrl: originalUrl,
+                          imageId: img.id,
+                          favourite: (img as any).favourite === true
                         };
                       }
                     });
@@ -242,9 +256,7 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
 
     setJobs(prev => [newJob, ...prev]);
     activeJobIds.current.add(jobId);
-    
-    console.log(`➕ Added job ${jobId} with ${nbTakes} thumbnails`);
-    
+      
     // After a short delay, transition job to running if it's still queued
     // This handles cases where the job starts immediately but we haven't received WebSocket updates yet
     setTimeout(() => {
@@ -273,7 +285,7 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
     }, 3000); // 3 second delay to allow for job initialization
   }, []);
 
-  const createQueuedThumbnails = useCallback((nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string }) => {
+  const createQueuedThumbnails = useCallback((nbTakes: number, meta?: { styleId?: string; sceneId?: string; wardrobeId?: string; colorId?: string; aspectRatio?: string; quality?: string; characterId?: string }) => {
     // Create a placeholder ID for the thumbnails (no WebSocket connection yet)
     const placeholderId = `placeholder_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
@@ -294,11 +306,40 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
       sceneId: meta?.sceneId,
       wardrobeId: meta?.wardrobeId,
       colorId: meta?.colorId,
+      // Ensure correct aspect ratio/quality classes while initializing
+      aspectRatio: meta?.aspectRatio,
+      quality: meta?.quality,
+      characterId: meta?.characterId,
     };
 
     setJobs(prev => [newJob, ...prev]);
     
-    console.log(`📋 Created queued thumbnails with placeholder ${placeholderId} (${nbTakes} takes)`);
+    // Fetch character details asynchronously if characterId is provided
+    if (meta?.characterId) {
+      const characterId = meta.characterId; // Capture for closure
+      (async () => {
+        try {
+          const { charactersApi } = await import('@/lib/api/characters');
+          const characters = await charactersApi.getCharactersByIds([characterId]);
+          if (characters && characters.length > 0) {
+            const char = characters[0];
+            // Update the job with character details
+            setJobs(prev => prev.map(job => 
+              job.id === placeholderId
+                ? {
+                    ...job,
+                    characterName: char.name,
+                    characterThumbnailUrl: char.thumbnail_url as any
+                  }
+                : job
+            ));
+          }
+        } catch (error) {
+          console.warn('Failed to fetch character details for new job:', error);
+        }
+      })();
+    }
+    
     return placeholderId;
   }, []);
 
@@ -316,8 +357,6 @@ export function useInferenceQueue(): UseInferenceQueueReturn {
           id: realJobId,
           thumbnails: updatedThumbnails
         };
-        
-        console.log(`🔄 Updated placeholder ${placeholderId} to real job ID ${realJobId}`);
         
         // Add to active jobs tracking
         activeJobIds.current.add(realJobId);

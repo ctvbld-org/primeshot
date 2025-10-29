@@ -1,0 +1,232 @@
+{
+    "buyCredits": {
+        "title": "Comprar créditos",
+        "description": "Escolha um pacote de créditos"
+    },
+    "upgradePlan": {
+        "title": "Atualizar plano",
+        "description": "Escolha um plano de subscrição"
+    },
+    "purchase": {
+        "success": {
+            "subscriptionTitle": "Atualizou com sucesso para {{plan}}",
+            "subscriptionTitleNew": "Bem-vindo ao {{plan}}!",
+            "creditsTitle": "Créditos adicionados!",
+            "subscriptionDescriptionWithCredits": "O seu novo ciclo de faturação da subscrição começa hoje. Desfrute de {{amount}} créditos e muito mais!",
+            "subscriptionDescriptionWithCreditsNew": "O seu ciclo de faturação começa hoje. Desfrute de {{amount}} créditos e muito mais!",
+            "subscriptionDescription": "O seu novo ciclo de faturação da subscrição começa hoje. Desfrute dos seus novos benefícios!",
+            "subscriptionDescriptionNew": "O seu ciclo de faturação começa hoje. Desfrute dos seus novos benefícios!",
+            "creditsDescription": "O seu saldo foi atualizado. Pode começar a gerar agora.",
+            "returnToShoot": "Voltar ao ensaio",
+            "defaultPlan": "o seu novo plano"
+        }
+    },
+    "subscription": {
+        "context": {
+            "characterLimit": { "title": "Atingiu o seu limite de personagens.", "description": "Atualize para obter personagens adicionais" },
+            "qualityUpgrade": { "title": "Quer maior qualidade?", "description": "Atualize para imagens mais nítidas e benefícios extra" },
+            "creditUpgrade": { "title": "Está a ficar sem créditos?", "description": "Atualize para obter mais créditos mensais" },
+            "general": { "title": "Atualize o seu plano", "description": "Desbloqueie mais funcionalidades e flexibilidade" },
+            "default": { "title": "Escolha o seu plano", "description": "Escolha o que se adequa, mude a qualquer altura" }
+        },
+        "loading": "A carregar planos...",
+        "empty": {
+            "title": "Nenhuma atualização disponível",
+            "description": "Já está no plano mais alto disponível."
+        },
+        "headers": {
+            "chooseYourPlan": "Escolha o seu plano"
+        },
+        "banner": {
+            "titleStart": "Junte-se aos",
+            "titleNumber": "300",
+            "description": {
+                "start": "Ajude a moldar o Primeshot, obtenha",
+                "lifetime": "vitalício",
+                "annualDiscount": "70% de desconto",
+                "annualWord": "anual",
+                "or": "ou",
+                "monthlyDiscount": "50% de desconto",
+                "monthlyWord": "mensal",
+                "end": "e reivindique benefícios exclusivos para os 300 fundadores."
+            },
+            "small": "A oferta vitalícia continua até cancelar."
+        },
+        "toggle": {
+            "monthly": "Mensal",
+            "yearly": "Anual",
+            "aria": "Ciclo de faturação"
+        },
+        "card": {
+            "recommended": "Recomendado",
+            "save": "Poupe {{pct}}%",
+            "perMonth": "/ mês",
+            "billed": "Faturado {{cycle}}",
+            "creditsCount": "{{count}} créditos",
+            "perMonthWord": "por mês",
+            "perCredit": "{{price}} por crédito",
+            "button": {
+                "select": "Selecionar plano",
+                "current": "Plano atual",
+                "processing": "A processar…",
+                "disabledTooltip": "Indisponível durante a oferta especial 🚀"
+            },
+            "features": {
+                "quality": "Imagens de qualidade {{quality}}",
+                "characterIncluded": "{{count}}x Personagem incluído",
+                "maxCharacters": "Até {{count}} armazenamento de personagens",
+                "concurrentShoots": "Até {{count}} ensaios simultâneos",
+                "commercialUse": "Uso comercial"
+            }
+        },
+        "footer": {
+            "upgradeNotice": "A sua subscrição atual será cancelada e substituída pelo novo plano. Os créditos existentes serão preservados.",
+            "buyCreditPack": "Comprar um pacote de créditos"
+        },
+        "toasts": {
+            "loginRequired": "Por favor, inicie sessão",
+            "selectPlan": "Por favor, selecione um plano",
+            "invalidPlan": "Plano de subscrição selecionado inválido",
+            "openingPortal": "A abrir portal de cliente Stripe...",
+            "customerPortalFailed": "Falha ao abrir portal de cliente",
+            "upgradePreviewFailed": "Falha ao abrir pré-visualização de atualização",
+            "upgraded": "Subscrição atualizada com sucesso!",
+            "checkoutFailed": "Pagamento falhado",
+            "invalidCheckout": "Resposta inválida do pagamento"
+        }
+    },
+    "credits": {
+        "dialog": {
+            "headerSub": {
+                "lowBalance": "Saldo de créditos demasiado baixo.",
+                "creativity": "Alimente a sua criatividade 🚀"
+            },
+            "headerTitle": {
+                "lowBalance": "Recarregue os seus créditos para continuar a gerar",
+                "fun": "Mais créditos, mais criações, mais diversão!"
+            }
+        },
+        "card": {
+            "images": "Até {{count}} imagens {{quality}}",
+            "characters": "Até {{count}} personagens",
+            "footnote": "*Apenas planos Standard e Pro",
+            "button": {
+                "buy": "Comprar",
+                "processing": "A processar…"
+            },
+            "validity": "Válido por {{duration}}",
+            "oneTime": "única",
+            "perCredit": "{{price}} por crédito",
+            "perCreditWord": "por crédito"
+        },
+        "toasts": {
+            "loginRequired": "Por favor, inicie sessão",
+            "invalidPackConfig": "Configuração de pacote de créditos inválida",
+            "createCheckoutFailed": "Falha ao criar sessão de pagamento",
+            "purchaseFailed": "Falha ao comprar pacote de créditos"
+        }
+    },
+    "comparisonTable": {
+        "categories": {
+            "credits": "Créditos",
+            "image": "Imagem",
+            "characters": "Personagens",
+            "generation": "Geração",
+            "support": "Suporte"
+        },
+        "features": {
+            "creditsPerMonth": "Créditos por mês",
+            "pricePerCredit": "Preço por crédito",
+            "resolution": "Resolução",
+            "takesPerShoot": "Fotos por sessão",
+            "portraitAspectRatio": "Formato vertical",
+            "squareAspectRatio": "Formato quadrado",
+            "landscapeAspectRatio": "Formato horizontal",
+            "included": "Incluído",
+            "storage": "Armazenamento",
+            "concurrentShoots": "Sessões simultâneas",
+            "commercialUse": "Uso comercial",
+            "priorityFeatures": "Acesso prioritário a novas funcionalidades",
+            "premiumStyles": "Estilos premium",
+            "betaAccess": "Acesso a testes beta",
+            "emailSupport": "Suporte por e-mail",
+            "chatSupport": "Suporte por chat",
+            "dedicatedSupport": "Suporte dedicado"
+        },
+        "values": {
+            "upTo": "Até {{value}}",
+            "basicQuality": "Qualidade básica",
+            "highQuality": "Alta qualidade"
+        }
+    },
+    "page": {
+        "title": "Preços",
+        "header": {
+            "title": "Planos simples, looks infinitos.",
+            "subtitle": "Cancela ou muda a qualquer momento.",
+            "savingsText": "Poupa até",
+            "savingsHighlight": "40%",
+            "savingsOn": "nos planos anuais"
+        },
+        "tabs": {
+            "monthly": "Mensal",
+            "annual": "Anual"
+        },
+        "buttons": {
+            "getStarted": "Começar",
+            "selectPlan": "Selecionar plano",
+            "currentPlan": "Plano atual",
+            "processing": "A processar..."
+        },
+        "loading": "A carregar preços...",
+        "comparison": {
+            "title": "Comparar planos",
+            "description": "Melhora para desbloquear retratos de maior resolução, mais créditos, personagens reutilizáveis e processamento prioritário."
+        },
+        "faq": {
+            "title": "Questões?",
+            "subtitle": "Tudo o que precisas de saber sobre os nossos preços e funcionalidades",
+            "items": {
+                "character": {
+                    "question": "O que é um personagem e como funciona?",
+                    "answer": "Um personagem é o teu próprio modelo de IA personalizado, treinado com 9 selfies. Aprende os teus traços faciais exatos—estrutura, tom de pele, cabelo—para que cada retrato seja autenticamente tu. Dependendo do teu plano, recebes 1 a 3 personagens incluídos. Personagens adicionais custam 30 créditos cada, e uma vez criados, podes reutilizá-los a qualquer momento para novos ensaios com diferentes roupas, cenários e estilos."
+                },
+                "credits": {
+                    "question": "Como funcionam os créditos?",
+                    "answer": "Os créditos são o teu saldo para treinar personagens e gerar imagens. Treinar um personagem custa 30 créditos. A geração de imagens custa 1 crédito para qualidade básica (1K), 2 para média (2K) e 3 para alta (4K). O teu plano inclui uma alocação mensal de créditos que se renova em cada ciclo de faturação."
+                },
+                "commercial": {
+                    "question": "Posso usar as minhas imagens comercialmente?",
+                    "answer": "Sim. Todas as imagens que geras são tuas para usar sem restrições—seja para LinkedIn, websites, marketing ou impressão."
+                },
+                "privacy": {
+                    "question": "Como protegem a minha privacidade e dados?",
+                    "answer": "As tuas fotos e personagens são armazenados em segurança e nunca são partilhados, vendidos ou usados para os nossos próprios treinos. Podes eliminar personagens individuais ou a tua conta completa a qualquer momento. Não há acesso de terceiros sem o teu consentimento."
+                },
+                "changePlan": {
+                    "question": "Posso mudar ou cancelar o meu plano?",
+                    "answer": "Sim. Podes melhorar ou reduzir o teu plano a qualquer momento nas definições da tua conta. As melhorias acontecem imediatamente com faturação proporcional; as reduções entram em vigor no próximo ciclo. Se cancelares, manténs o acesso até ao fim do teu ciclo atual. Guardamos os teus dados durante 60 dias para que possas voltar a subscrever sem perder nada—depois disso, são eliminados permanentemente."
+                },
+                "rollover": {
+                    "question": "Os créditos não usados acumulam?",
+                    "answer": "Não. Os créditos expiram no fim de cada ciclo de faturação, e a tua alocação renova-se."
+                },
+                "moreCredits": {
+                    "question": "Como posso obter mais créditos?",
+                    "answer": "Podes melhorar a tua subscrição para um limite mensal mais alto ou comprar pacotes de créditos únicos a partir da tua conta."
+                },
+                "refund": {
+                    "question": "Qual é a vossa política de reembolso?",
+                    "answer": "As subscrições e pacotes de créditos não são reembolsáveis. Se houver um problema técnico—como uma geração falhada—contacta o suporte para uma revisão e possível ajuste de créditos."
+                },
+                "deleteAccount": {
+                    "question": "Como elimino a minha conta?",
+                    "answer": "Nas definições da tua conta, seleciona \"Eliminar conta\" para remover permanentemente todas as fotos, personagens e imagens. É irreversível, por isso faz o download primeiro de tudo o que queiras manter."
+                }
+            }
+        },
+        "signIn": {
+            "modalTitle": "Inicia sessão para continuar"
+        }
+    }
+}

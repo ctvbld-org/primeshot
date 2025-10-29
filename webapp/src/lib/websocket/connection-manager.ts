@@ -89,7 +89,6 @@ class WebSocketConnectionManager {
     const existingSubsForJob = this.subscriptionsByJob.get(jobKey) || new Set();
     
     if (existingSubsForJob.size > 10) {
-      console.warn(`📡 WebSocket Manager: Too many subscriptions for ${jobType} job ${jobId}, cleaning up old ones`);
       // Clean up old subscriptions to prevent memory leaks
       const subsToRemove = Array.from(existingSubsForJob).slice(0, -5);
       subsToRemove.forEach(subId => this.unsubscribe(subId));
@@ -127,7 +126,6 @@ class WebSocketConnectionManager {
     }
 
     const currentSubCount = this.subscriptionsByJob.get(jobKey)?.size || 0;
-    console.log(`📡 WebSocket Manager: Subscribed to ${jobType} job ${jobId} (subscription: ${subscriptionId}) - Total subs for job: ${currentSubCount}`);
     
     return subscriptionId;
   }
@@ -170,8 +168,6 @@ class WebSocketConnectionManager {
         this.pendingCloseTimers.set(jobKey, timer);
       }
     }
-
-    console.log(`📡 WebSocket Manager: Unsubscribed from ${jobType} job ${jobId} (subscription: ${subscriptionId})`);
   }
 
   /**
@@ -262,7 +258,6 @@ class WebSocketConnectionManager {
     this.subscriptions.clear();
     this.subscriptionsByJob.clear();
     this.statusListeners.clear();
-    console.log('📡 WebSocket Manager: Cleaned up all connections');
   }
 
   private ensureConnection(jobId: string, jobType: JobType): void {
@@ -311,7 +306,6 @@ class WebSocketConnectionManager {
     const baseUrl = this.getWebSocketUrl(jobType);
     if (!baseUrl) {
       const error = `No WebSocket URL configured for ${jobType}`;
-      console.error(`📡 WebSocket Manager: ${error}`);
       // Notify all subscribers of the error
       const jobKey = this.getJobKey(jobId, jobType);
       const jobSubs = this.subscriptionsByJob.get(jobKey);
@@ -330,7 +324,6 @@ class WebSocketConnectionManager {
     const delay = jobType === 'inference' ? 3000 : 0; // 3 second delay for inference
     
     if (delay > 0) {
-      console.log(`📡 WebSocket Manager: Delaying connection for ${jobType} job ${jobId} by ${delay}ms to allow Modal startup`);
       setTimeout(() => {
         this.createConnectionNow(jobId, jobType, baseUrl);
       }, delay);
@@ -343,8 +336,6 @@ class WebSocketConnectionManager {
     const url = `${baseUrl}/ws/progress/${jobId}`;
     const jobKey = this.getJobKey(jobId, jobType);
     
-    console.log(`📡 WebSocket Manager: Creating connection for ${jobType} job ${jobId} at ${url}`);
-
     const connection: WebSocketConnection = {
       websocket: new WebSocket(url),
       jobId,
@@ -374,7 +365,6 @@ class WebSocketConnectionManager {
     const connectionTimeout = jobType === 'inference' ? 30000 : 10000; // 30s for inference, 10s for training
     setTimeout(() => {
       if (connection.isConnecting && !connection.isConnected) {
-        console.warn(`📡 WebSocket Manager: Connection timeout for ${jobType} job ${jobId} after ${connectionTimeout}ms`);
         connection.websocket.close();
       }
     }, connectionTimeout);
@@ -385,7 +375,6 @@ class WebSocketConnectionManager {
     const jobKey = this.getJobKey(jobId, jobType);
 
     websocket.onopen = () => {
-      console.log(`📡 WebSocket Manager: Connected to ${jobType} job ${jobId}`);
       connection.isConnecting = false;
       connection.isConnected = true;
       connection.reconnectAttempts = 0;
@@ -404,7 +393,6 @@ class WebSocketConnectionManager {
         
         // Safety: ignore packets for a different job to prevent cross-job mixing
         if (data && typeof data.job_id === 'string' && data.job_id !== jobId) {
-          console.warn(`📡 WebSocket Manager: Ignoring message for mismatched job_id ${data.job_id} (connection for ${jobId})`);
           return;
         }
         
@@ -431,7 +419,6 @@ class WebSocketConnectionManager {
               }, 100);
             } else if (data.status === 'closed' && data.close_connection && data.final === true) {
               // Handle explicit close signal from server
-              console.log(`📡 WebSocket Manager: Received close signal for job ${jobId}`);
               subscription.onComplete(true);
               // Close the connection after a brief delay
               setTimeout(() => {
@@ -442,8 +429,6 @@ class WebSocketConnectionManager {
         }
       } catch (error) {
         const messageSize = event.data?.length || 0;
-        console.error(`📡 WebSocket Manager: Failed to parse message for job ${jobId} (size: ${messageSize} bytes):`, error);
-        
         // Provide more specific error messages
         let errorMessage = 'Failed to parse progress data';
         if (messageSize > 1000000) { // 1MB
@@ -457,8 +442,7 @@ class WebSocketConnectionManager {
     };
 
     websocket.onerror = (error) => {
-      console.error(`📡 WebSocket Manager: Error for ${jobType} job ${jobId}:`, error);
-      // Treat onerror as transient – close to trigger onclose → reconnect logic.
+       // Treat onerror as transient – close to trigger onclose → reconnect logic.
       connection.isConnecting = false;
       connection.isConnected = false;
       this.emitStatusChange(jobKey, 'reconnecting', 'WebSocket error; attempting reconnect');
@@ -469,7 +453,6 @@ class WebSocketConnectionManager {
     };
 
     websocket.onclose = (event) => {
-      console.log(`📡 WebSocket Manager: Disconnected from ${jobType} job ${jobId} (code: ${event.code})`);
       connection.isConnecting = false;
       connection.isConnected = false;
       this.emitStatusChange(jobKey, 'disconnected');
@@ -502,7 +485,6 @@ class WebSocketConnectionManager {
     
     const jobKey = this.getJobKey(connection.jobId, connection.jobType);
     
-    console.log(`📡 WebSocket Manager: Reconnecting to ${connection.jobType} job ${connection.jobId} in ${delay}ms (attempt ${connection.reconnectAttempts}/${connection.maxReconnectAttempts})`);
     this.emitStatusChange(jobKey, 'reconnecting');
     
     setTimeout(() => {
@@ -530,14 +512,13 @@ class WebSocketConnectionManager {
       connection.websocket.close(1000, 'Manager cleanup');
       this.connections.delete(jobKey);
       this.emitStatusChange(jobKey, 'disconnected');
-      console.log(`📡 WebSocket Manager: Closed connection for job ${connection.jobId}`);
     }
   }
 
   private getWebSocketUrl(jobType: JobType): string | null {
     switch (jobType) {
       case 'training':
-        return process.env.NEXT_PUBLIC_TRAINING_WEBSOCKET_URL || null;
+        return process.env.NEXT_PUBLIC_TRAINING_WEBSOCKET_URL || 'wss://creativebuild--training-websocket-progress.modal.run';
       case 'inference':
         return process.env.NEXT_PUBLIC_INFERENCE_WEBSOCKET_URL || 'wss://creativebuild--primeshot-inference-progress.modal.run';
       default:
