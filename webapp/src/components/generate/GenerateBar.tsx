@@ -1131,7 +1131,7 @@ export function GenerateBar({
         const filteredWardrobes = orderedWardrobes
         const availableColorsLower = availableColors.map(v => v.toLowerCase())
         const filteredColors = sortColorsByPalette(colors.filter(c => availableColorsLower.includes(c.value.toLowerCase())))
-        const showingColors = !!selectedWardrobeValue
+        const showingColors = !!selectedWardrobeValue && filteredColors.length > 0
 
         return (
             <OptionsPanel
@@ -1210,10 +1210,19 @@ export function GenerateBar({
                   const isSelected = sel?.toLowerCase() === opt.value.toLowerCase()
                   return (
                   <button key={opt.value} data-value={opt.value} className={`${styles.itemCard} ${isSelected ? styles.itemSelected : ''}`} onClick={() => {
-                    setSelectedWardrobeValue(opt.value)
                     const g = (opt as any).gender as ('man'|'woman'|'unisex'|undefined)
                     if (g === 'man' || g === 'woman') { if (g !== selectedGender) setSelectedGender(g); save(STORAGE_KEYS.WARDROBE_GENDER, g) }
                     clearError('wardrobe')
+                    
+                    // If no colors available, directly store selection and close
+                    if (filteredColors.length === 0) {
+                      storeStyleSelections(currentStyle.id, { wardrobe: opt.value });
+                      setSelectionVersion(v=>v+1);
+                      close()
+                    } else {
+                      // Otherwise show color selection
+                      setSelectedWardrobeValue(opt.value)
+                    }
                   }}>
                     {opt.image && (
                       <Image loader={wardrobesLoader} src={opt.image} alt={opt.label} width={80} height={80} className={styles.itemThumb} />

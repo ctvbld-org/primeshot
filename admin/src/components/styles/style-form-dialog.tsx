@@ -87,7 +87,7 @@ const formSchema = z.object({
   preview_images: z.array(z.string()), // Validation moved to onSubmit after deferred uploads
   available_scenes: z.array(z.string()).min(1, 'At least one scene is required'),
   available_wardrobes: z.array(z.string()).min(1, 'At least one wardrobe is required'),
-  available_colors: z.array(z.string()).min(1, 'At least one color is required'),
+  available_colors: z.array(z.string()), // No minimum required - colors are optional
   // NEW optional ordering fields
   wardrobe_category_order: z.array(z.string()).optional(),
   wardrobe_order: z.record(z.array(z.string())).optional(),

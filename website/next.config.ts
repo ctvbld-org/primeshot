@@ -45,18 +45,19 @@ const nextConfig: NextConfig = {
         },
         // Proxy API routes for user account features (subscription, credits, etc.)
         // This allows the marketing website to display user info via AccountDialog
+        // Note: webapp has basePath '/create' in production
         { 
           source: '/api/credits/:path*', 
-          destination: `${webapp}/api/credits/:path*` 
+          destination: `${webapp}/create/api/credits/:path*` 
         },
         { 
           source: '/api/subscription/:path*', 
-          destination: `${webapp}/api/subscription/:path*` 
+          destination: `${webapp}/create/api/subscription/:path*` 
         },
         // Proxy account-related API routes
         { 
           source: '/api/account/:path*', 
-          destination: `${webapp}/api/account/:path*` 
+          destination: `${webapp}/create/api/account/:path*` 
         },
       );
     }
