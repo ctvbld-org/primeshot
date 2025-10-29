@@ -284,8 +284,7 @@ export default function PricingPage() {
       }
 
       try {
-        const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL || 'http://localhost:3000';
-        const res = await fetch(`${webappUrl}/api/subscription/current`, {
+        const res = await fetch(getApiUrl('/api/subscription/current'), {
           credentials: 'include',
         });
 
@@ -336,11 +335,8 @@ export default function PricingPage() {
         return
       }
 
-      // Get webapp URL for API call (website needs to call webapp's API in development)
-      const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL || 'http://localhost:3000'
-      
-      // Create checkout session on webapp
-      const res = await fetch(`${webappUrl}/api/payment/subscription-checkout`, {
+      // Create checkout session via rewrite proxy to webapp API
+      const res = await fetch(getApiUrl('/api/payment/subscription-checkout'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include', // Important for CORS with credentials

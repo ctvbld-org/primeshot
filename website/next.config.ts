@@ -54,6 +54,10 @@ const nextConfig: NextConfig = {
           source: '/api/subscription/:path*', 
           destination: `${webapp}/create/api/subscription/:path*` 
         },
+        { 
+          source: '/api/payment/:path*', 
+          destination: `${webapp}/create/api/payment/:path*` 
+        },
         // Proxy account-related API routes
         { 
           source: '/api/account/:path*', 
