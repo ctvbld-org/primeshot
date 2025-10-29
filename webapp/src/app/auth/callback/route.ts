@@ -43,7 +43,8 @@ export async function GET(request: Request) {
         
         // Redirect to pricing page if no active subscription, otherwise go to app
         const app_url = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-        const redirectUrl = subscription ? app_url : `${app_url}/pricing`
+        const website_url = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://primeshot.ai'
+        const redirectUrl = subscription ? app_url : `${website_url}/pricing`
 
         const response = NextResponse.redirect(new URL(redirectUrl))
         

@@ -342,7 +342,7 @@ export default function PricingPage() {
         credentials: 'include', // Important for CORS with credentials
         body: JSON.stringify({
           priceId,
-          successUrl: `${window.location.origin}/pricing?subscription=success`,
+          successUrl: `${window.location.origin}/create`,
           cancelUrl: `${window.location.origin}/pricing`,
         })
       })
