@@ -4,7 +4,7 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { getCharacterTrainingCost, getSubscriptionLimits } from "../_shared/pricing.ts";
 
 // S3 Client for cleanup operations
-import { S3Client, DeleteObjectsCommand, ListObjectsV2Command } from "https://esm.sh/@aws-sdk/client-s3@3";
+import { S3Client, DeleteObjectsCommand, ListObjectsV2Command } from "npm:@aws-sdk/client-s3@3";
 
 interface TrainingRequest {
   user_id: string;

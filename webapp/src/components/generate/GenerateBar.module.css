@@ -515,6 +515,7 @@
 .colorSwatch { 
   flex: 1 0 0; 
   height: 156px; 
+  max-width: 156px;
   min-width: 50px;
   cursor: pointer;
   position: relative; 
