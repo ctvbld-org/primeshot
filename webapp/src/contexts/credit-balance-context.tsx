@@ -107,14 +107,6 @@ export function CreditBalanceProvider({ children }: { children: React.ReactNode 
       }
     )
 
-    channel.subscribe((status) => {
-      if (status === 'SUBSCRIBED') {
-        console.log('[CreditBalance] Real-time subscription active')
-      } else if (status === 'CHANNEL_ERROR' || status === 'CLOSED') {
-        console.warn('[CreditBalance] Connection issue, will retry')
-      }
-    })
-
     channelRef.current = channel
 
     return () => {

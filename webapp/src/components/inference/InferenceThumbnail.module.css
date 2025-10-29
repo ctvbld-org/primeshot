@@ -2,7 +2,8 @@
   border-right: 1px solid #000000;
   border-bottom: 1px solid #000;
   position: relative;
-  aspect-ratio: 1 / 1;
+  height: 100%;
+  width: 100%;
   overflow: hidden;
   cursor: pointer;
 }
@@ -507,10 +508,38 @@
   opacity: 0;
 }
 
-/* Hide quote overlay on mobile */
+/* Mobile-optimized quote overlay */
 @media (max-width: 768px) {
-  .quoteOverlay {
-    display: none;
+  .quoteOverlayIcon {
+    width: 20px;
+    height: 20px;
+    opacity: 0.4;
+  }
+
+  .quoteOverlayIconTopLeft {
+    top: 12px;
+    left: 12px;
+  }
+
+  .quoteOverlayIconTopRight {
+    top: 12px;
+    right: 12px;
+  }
+
+  .quoteOverlayIconBottomLeft {
+    bottom: 12px;
+    left: 12px;
+  }
+
+  .quoteOverlayIconBottomRight {
+    bottom: 12px;
+    right: 12px;
+  }
+
+  .quoteContent {
+    font-size: 16px;
+    padding: 16px;
+    line-height: 1.2;
   }
 }
 

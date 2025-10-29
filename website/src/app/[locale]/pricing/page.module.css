@@ -16,6 +16,7 @@
 
 /* Tabs Wrapper */
 .tabsWrapper {
+  flex-direction: column;
   width: 100%;
   max-width: 1280px;
   margin-left: auto;
@@ -193,6 +194,7 @@
 /* Content Wrapper */
 .contentWrapper {
   width: 100%;
+  padding: 0 24px;
   display: flex;
   flex-direction: column;
   justify-content: center;

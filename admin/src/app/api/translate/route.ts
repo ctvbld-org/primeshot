@@ -131,7 +131,7 @@ Return translations in JSON format:
 Only include requested languages. Ensure all field keys are translated with culturally appropriate, natural-sounding values.`
 
       const response = await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-5-20250929',
         max_tokens: 4000,
         temperature: 0.5,
         messages: [

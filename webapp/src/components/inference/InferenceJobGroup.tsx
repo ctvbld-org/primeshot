@@ -252,10 +252,10 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
 
     const elapsed = now - animationStartTime;
     const jobHash = activeJob.id.split('').reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
-    const totalDuration = 60000 + (jobHash % 20000); // 60–80s range per job (1-1.33 minutes)
+    const totalDuration = 90000 + (jobHash % 15000); // 90–105s range per job (1.5–1.75 minutes)
 
     // Linear ramp from 0 to 95% over the duration
-    const linear = Math.min(elapsed / totalDuration, 0.95);
+    const linear = Math.min(elapsed / totalDuration, 0.99);
     return Math.floor(linear * 100);
   };
 
@@ -528,7 +528,13 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
           runtimeAR === '2:3' ? styles.ar23 : '',
           runtimeAR === '3:2' ? styles.ar32 : '',
           runtimeAR === '1:1' ? styles.ar11 : ''
-        ].filter(Boolean).join(' ')}>
+        ].filter(Boolean).join(' ')}
+        style={delayedBackgroundImage ? {
+          backgroundImage: `url(${getStyleImages([delayedBackgroundImage])})`,
+          backgroundSize: '180%',
+          backgroundPosition: 'left bottom',
+        } : undefined}
+        >
           <div className={styles.heroAspect}>
             {(() => {
               const firstThumb = activeJob.thumbnails[0];

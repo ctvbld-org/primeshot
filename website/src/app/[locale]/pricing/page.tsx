@@ -398,7 +398,7 @@ export default function PricingPage() {
       />
 
       {/* Special Offer Banner */}
-      {isSpecialOffer && !isLoading && <SpecialOfferBanner className={styles.specialOfferBanner} />}
+      {/* isSpecialOffer && !isLoading && <SpecialOfferBanner className={styles.specialOfferBanner} /> */}
 
       {/* Pricing Plans */}
       <div className={styles.tabsWrapper}>
@@ -409,7 +409,7 @@ export default function PricingPage() {
               <p className={styles.headerSubtitle}>{t('page.header.subtitle')}</p>
             </div>
             <div className={styles.headerRight}>
-              <p className={styles.savingsText}>{t('page.header.savingsText')} <span className={styles.savingsHighlight}>{t('page.header.savingsHighlight')}</span> {t('page.header.savingsOn')}</p>
+              <p className={styles.savingsText}>{t('page.header.savingsText')} <span className={styles.savingsHighlight}>70%</span> {t('page.header.savingsOn')}</p>
               <TabsList className={styles.tabsList}>
                 <TabsTrigger value="monthly" className={styles.tabTrigger}>{t('page.tabs.monthly')}</TabsTrigger>
                 <TabsTrigger value="annual" className={styles.tabTrigger}>{t('page.tabs.annual')}</TabsTrigger>

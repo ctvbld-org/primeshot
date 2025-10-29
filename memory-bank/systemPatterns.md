@@ -2572,6 +2572,25 @@ Detected changes in:
 - website/src/components/generate/GenerateBar.tsx
 - website/src/components/generate/useCreateCharacter.tsx
 - website/src/lib/supabase/server.ts
+
+
+**Auto-update 2025-10-28**:
+Detected changes in:
+- admin/src/components/styles/wardrobes-table.tsx
+- webapp/src/components/character/training/AdminTrainingOptionsDialog.tsx
+- webapp/src/components/inference/InferenceThumbnail.module.css
+- webapp/src/lib/hooks/use-file-upload.ts
+- webapp/src/lib/image-quality.ts
+- website/src/app/[locale]/data/exploreData.tsx
+- website/src/app/[locale]/explore/page.module.css
+- website/src/app/[locale]/explore/page.tsx
+- website/src/app/[locale]/page.module.css
+- website/src/components/ExploreThumb.module.css
+- website/src/components/ExploreThumb.tsx
+- website/src/components/InteractiveGenerateBar/CTASection.module.css
+- website/src/components/InteractiveGenerateBar/CTASection.tsx
+- website/src/components/InteractiveGenerateBar/HeroGrid.module.css
+- website/src/components/InteractiveGenerateBar/ShowcaseSection.module.css
 ## Component Organization
 
 Components are organized by feature and reusability:

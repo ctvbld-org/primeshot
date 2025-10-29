@@ -1,49 +1,49 @@
 {
-  "title": "Fotos hochladen",
-  "description": "Lade deine Fotos hoch, um zu beginnen",
-  "requirements": {
-    "title": "Foto-Anforderungen",
-    "description": "Bitte stelle sicher, dass deine Fotos diese Anforderungen erfüllen"
-  },
-  "buttons": {
-    "upload": "Hochladen",
-    "continue": "Fortfahren",
-    "retry": "Erneut versuchen"
-  },
-  "errors": {
-    "invalidFile": "Ungültiger Dateityp",
-    "fileTooLarge": "Datei zu groß",
-    "uploadFailed": "Upload fehlgeschlagen",
-    "invalidFileType": "Nicht unterstützter Typ ({{types}})",
-    "fileSizeExceeded": "Datei zu groß (max. {{size}})",
-    "duplicateFile": "Doppelte Datei",
-    "uploadFailedCount_one": "1 Datei konnte nicht hinzugefügt werden",
-    "uploadFailedCount_other": "{{count}} Dateien konnten nicht hinzugefügt werden",
-    "someImagesSkipped": "Bilder übersprungen",
-    "skippedMessage": "Nur {{count}} weitere Fotos konnten hinzugefügt werden. Die folgenden Dateien wurden übersprungen: {{files}}",
-    "deleteFailed": "Löschen fehlgeschlagen",
-    "genericError": "Ein Fehler ist aufgetreten",
-    "analysisTimeout": "Analyse-Zeitüberschreitung",
-    "analysisTimeoutDescription": "Die Bildanalyse hat zu lange gedauert. Bitte versuche es erneut oder verwende ein anderes Foto.",
-    "qualityIssues": "Qualitätsprobleme",
-    "qualityIssuesMessage": "{{count}} Foto(s) erfüllten nicht die Qualitätsanforderungen. Siehe unten die abgelehnten Bilder für Details.",
-    "qualityAndLimitIssues": "Qualitätsprobleme und Limit erreicht",
-    "qualityAndLimitMessage": "{{rejected}} Foto(s) wegen Qualitätsproblemen abgelehnt. {{skipped}} Foto(s) konnten aufgrund des Limits von 9 Bildern nicht hinzugefügt werden."
-  },
-  "progress": {
-    "uploading": "Lädt hoch...",
-    "processing": "Verarbeitet...",
-    "complete": "Abgeschlossen"
-  },
-  "quality": {
-    "rejected": {
-      "oops": "Hoppla!",
-      "title": "{{rejected}} von {{total}} Fotos wurden abgelehnt",
-      "description": "Du kannst andere Bilder hochladen, um den perfekten Datensatz zu erhalten, oder mit diesen Fotos fortfahren. Dies kann jedoch zu Folgendem führen:",
-      "lessVariety": "Weniger Vielfalt bei den generierten Aufnahmen",
-      "lowerQuality": "Porträts mit geringerer Qualität",
-      "notLookLike": "Fotos entsprechen möglicherweise nicht in allen Stilen deinem Aussehen",
-      "button": "Trotzdem fortfahren"
+    "title": "Fotos hochladen",
+    "description": "Lade deine Fotos hoch, um zu beginnen",
+    "requirements": {
+        "title": "Foto-Anforderungen",
+        "description": "Bitte stelle sicher, dass deine Fotos diese Anforderungen erfüllen"
+    },
+    "buttons": {
+        "upload": "Hochladen",
+        "continue": "Fortfahren",
+        "retry": "Erneut versuchen"
+    },
+    "errors": {
+        "invalidFile": "Ungültiger Dateityp",
+        "fileTooLarge": "Datei zu groß",
+        "uploadFailed": "Upload fehlgeschlagen",
+        "invalidFileType": "Nicht unterstützter Typ ({{types}})",
+        "fileSizeExceeded": "Datei zu groß (max. {{size}})",
+        "duplicateFile": "Doppelte Datei",
+        "uploadFailedCount_one": "1 Datei konnte nicht hinzugefügt werden",
+        "uploadFailedCount_other": "{{count}} Dateien konnten nicht hinzugefügt werden",
+        "someImagesSkipped": "Bilder übersprungen",
+        "skippedMessage": "Nur {{count}} weitere Fotos konnten hinzugefügt werden. Die folgenden Dateien wurden übersprungen: {{files}}",
+        "deleteFailed": "Löschen fehlgeschlagen",
+        "genericError": "Ein Fehler ist aufgetreten",
+        "analysisTimeout": "Analyse-Zeitüberschreitung",
+        "analysisTimeoutDescription": "Die Bildanalyse hat zu lange gedauert. Bitte versuche es erneut oder verwende ein anderes Foto.",
+        "qualityIssues": "Qualitätsprobleme",
+        "qualityIssuesMessage": "{{count}} Foto(s) erfüllten nicht die Qualitätsanforderungen. Siehe unten die abgelehnten Bilder für Details.",
+        "qualityAndLimitIssues": "Qualitätsprobleme und Limit erreicht",
+        "qualityAndLimitMessage": "{{rejected}} Foto(s) wegen Qualitätsproblemen abgelehnt. {{skipped}} Foto(s) konnten aufgrund des Limits von 9 Bildern nicht hinzugefügt werden."
+    },
+    "progress": {
+        "uploading": "Lädt hoch...",
+        "processing": "Verarbeitet...",
+        "complete": "Abgeschlossen"
+    },
+    "quality": {
+        "rejected": {
+            "oops": "Hoppla!",
+            "title": "{{rejected}} von {{total}} Fotos wurden abgelehnt",
+            "description": "Du kannst andere Bilder hochladen, um den perfekten Datensatz zu erhalten, oder mit diesen Fotos fortfahren. Dies kann jedoch zu Folgendem führen:",
+            "lessVariety": "Weniger Vielfalt bei den generierten Aufnahmen",
+            "lowerQuality": "Porträts mit geringerer Qualität",
+            "notLookLike": "Fotos entsprechen möglicherweise nicht in allen Stilen deinem Aussehen",
+            "button": "Trotzdem fortfahren"
+        }
     }
-  }
 }
