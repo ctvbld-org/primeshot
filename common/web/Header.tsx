@@ -41,9 +41,9 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
       <div className={styles.container}>
         <div className={styles.leftSection}>
           {/* logo */}
-          <Link href="/">
+          <a href="/">
             <Image src={(`${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/app-images/assets/logo-primeshot.svg`)} alt={t('aria.brandLogo')} width={32} height={32} />
-          </Link>
+          </a>
         </div>
 
         <div className={styles.middleSection}>       
@@ -68,8 +68,8 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
                 >
                   {t('navigation.explore')}
                 </a>
-                <Link
-                  href={"/"}
+                <a
+                  href="/create"
                   aria-current={isActive("/create") ? 'page' : undefined}
                   className={
                     styles.navLink + ' ' +
@@ -78,7 +78,7 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
                   }
                 >
                   {t('navigation.create')}
-                </Link>
+                </a>
                 {/* <a href="/use-cases" className={styles.navLink + ' ' + styles.useCasesNavLink}>Use Cases</a> */}
                 <a href="/pricing" className={styles.navLink + ' ' + styles.pricingNavLink}>{t('navigation.pricing')}</a>
                 {isAuthenticated && user?.admin && (
@@ -135,7 +135,7 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
                         {isActive('/explore') && <Icon variant="checkmark" className={styles.mobileNavCheck} />}
                       </a>
                       <Link
-                        href="/"
+                        href="/create"
                         aria-current={isActive("/create") ? 'page' : undefined}
                         className={styles.mobileNavItem + (isActive("/create") ? ' ' + styles.mobileNavItemActive : '')}
                         onClick={handleMobileNavClick}

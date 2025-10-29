@@ -33,6 +33,7 @@ import { getStripeEnv } from "@primeshot/common/lib/stripe/env";
 import { toast } from "sonner";
 import { useAuth } from "@primeshot/common/hooks/AuthContext";
 import styles from './page.module.css';
+import { VisuallyHidden } from '@primeshot/common/web/ui/dialog';
 
 // Fallback pricing data for error states or loading
 const fallbackPricingData: PricingCategory[] = [
@@ -579,7 +580,7 @@ export default function PricingPage() {
     }}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t('page.signIn.modalTitle')}</DialogTitle>
+          <VisuallyHidden><DialogTitle>{t('page.signIn.modalTitle')}</DialogTitle></VisuallyHidden>
         </DialogHeader>
         <SignInForm />
       </DialogContent>

@@ -15,15 +15,31 @@ async function handleGET() {
       )
     }
 
-    // Get most recent subscription (active or canceled)
-    const { data: subscription, error: subError } = await supabase
+    // First try to get an active subscription
+    let { data: subscription, error: subError } = await supabase
       .from('user_subscriptions')
       .select('*')
       .eq('user_id', user.id)
-      .order('updated_at', { ascending: false })
+      .eq('status', 'active')
       .order('created_at', { ascending: false })
       .limit(1)
-      .single()
+      .maybeSingle()
+
+    // If no active subscription, fall back to most recent cancelled subscription
+    // (useful for showing grace period or "cancelled" status in UI)
+    if (!subscription && !subError) {
+      const { data: cancelledSub, error: cancelledError } = await supabase
+        .from('user_subscriptions')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('status', 'canceled')
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      
+      subscription = cancelledSub
+      subError = cancelledError
+    }
 
     if (subError || !subscription) {
       // No subscription rows; return null so UI shows "no plan"

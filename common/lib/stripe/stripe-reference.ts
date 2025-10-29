@@ -6,14 +6,14 @@ export type StripeEnv = 'dev' | 'staging' | 'production'
 export const STRIPE_REFERENCE: Record<StripeEnv, any> = {
   dev: {
     subscriptions: {
-      basic: { product: 'prod_TGuWZ2BtijEuxK', monthly: 'price_1SKMh7ENpyFv1vJecgYJUOpY', yearly: 'price_1SKMh8ENpyFv1vJefjAFNWKL' },
-      standard: { product: 'prod_TGuWMdKLe87qEH', monthly: 'price_1SKMh8ENpyFv1vJec1m5HpO0', yearly: 'price_1SKMh9ENpyFv1vJe84M5sPMN' },
-      pro: { product: 'prod_TGuWouGVfQDOyK', monthly: 'price_1SKMh9ENpyFv1vJeEsjxqJX1', yearly: 'price_1SKMhAENpyFv1vJeDSicBSfj' }
+      basic: { product: 'prod_TKGi3FiOrgAk0P', monthly: 'price_1SNcBMENpyFv1vJeiHLjkNrE', yearly: 'price_1SNcBMENpyFv1vJeYGKQ4wht' },
+      standard: { product: 'prod_TKGiSdHA0lmUjj', monthly: 'price_1SNcBNENpyFv1vJeLfEGQy9W', yearly: 'price_1SNcBNENpyFv1vJeGK1pof00' },
+      pro: { product: 'prod_TKGiKQn1MZ7YOy', monthly: 'price_1SNcBOENpyFv1vJe7icoe1MH', yearly: 'price_1SNcBOENpyFv1vJe7Uw0EWQf' }
     },
     creditPacks: {
-      credits_138: { product: 'prod_TGuWLiHXkgy0i1', price: 'price_1SKMhAENpyFv1vJe6vfmII9w' },
-      credits_276: { product: 'prod_TGuWgaiM1saHfJ', price: 'price_1SKMhBENpyFv1vJeWwQ44l5v' },
-      credits_588: { product: 'prod_TGuWt46MTMiER4', price: 'price_1SKMhBENpyFv1vJeELkQ77NB' }
+      credits_138: { product: 'prod_TKGiQWEuKQxjfC', price: 'price_1SNcBPENpyFv1vJeHNJf3zji' },
+      credits_276: { product: 'prod_TKGizqhn5BSScs', price: 'price_1SNcBPENpyFv1vJeQbhCTK0t' },
+      credits_588: { product: 'prod_TKGiUNowce4NBY', price: 'price_1SNcBQENpyFv1vJeO4ziweaf' }
     }
   },
   staging: {

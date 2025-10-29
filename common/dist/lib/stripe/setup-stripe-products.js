@@ -153,6 +153,7 @@ async function createSubscriptionProducts(subscriptionTiers) {
                 product: product.id,
                 unit_amount: Math.round(tier.monthly_price * 100), // Convert to cents
                 currency: 'usd',
+                tax_behavior: 'inclusive',
                 recurring: {
                     interval: 'month'
                 },
@@ -171,6 +172,7 @@ async function createSubscriptionProducts(subscriptionTiers) {
                     product: product.id,
                     unit_amount: Math.round(yearlyTotal * 100), // Convert to cents
                     currency: 'usd',
+                    tax_behavior: 'inclusive',
                     recurring: {
                         interval: 'year'
                     },
@@ -222,6 +224,7 @@ async function createCreditPackProducts(creditPacks) {
                 product: product.id,
                 unit_amount: Math.round(pack.price * 100), // Convert to cents
                 currency: 'usd',
+                tax_behavior: 'inclusive',
                 metadata: {
                     pack_id: `credits_${pack.credits}`,
                     credits: pack.credits.toString(),

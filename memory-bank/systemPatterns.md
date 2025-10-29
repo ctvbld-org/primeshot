@@ -2591,6 +2591,18 @@ Detected changes in:
 - website/src/components/InteractiveGenerateBar/CTASection.tsx
 - website/src/components/InteractiveGenerateBar/HeroGrid.module.css
 - website/src/components/InteractiveGenerateBar/ShowcaseSection.module.css
+
+
+**Auto-update 2025-10-29**:
+Detected changes in:
+- admin/src/app/api/media/list/route.ts
+- admin/src/app/api/translate/route.ts
+- webapp/src/components/generate/GenerateBar.module.css
+- webapp/src/components/inference/InferenceJobGroup.tsx
+- webapp/src/components/inference/InferenceThumbnail.module.css
+- webapp/src/contexts/credit-balance-context.tsx
+- website/src/app/[locale]/pricing/page.module.css
+- website/src/app/[locale]/pricing/page.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

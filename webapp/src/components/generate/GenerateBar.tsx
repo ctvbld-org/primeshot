@@ -1281,6 +1281,7 @@ export function GenerateBar({
                     {t('labels.requiresActiveSubscription', { ns: 'generate' })}
                   </div>
                 )}
+                {/* Only show "included in plan" if user has available storage slots AND training credits */}
                 {createCharacterAction.type === 'create' && remainingIncludedTrainings > 0 && (
                   <div className={styles.itemSubLabel}>
                     {t('labels.includedInPlan', { ns: 'styles', count: remainingIncludedTrainings })}

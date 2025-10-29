@@ -22,7 +22,6 @@ import { ImageQualityResult } from '@/lib/image-quality'
 import { useCreditCosts, getCharacterTrainingCost, useSubscriptionTiers } from '@/hooks/usePricingConfig'
 import { useCreditBalance } from '@/hooks/useCreditBalance'
 import { getApiUrl } from '@primeshot/common'
-import { getLocalStorageWithExpiry, setLocalStorageWithExpiry } from '@/lib/utils/localStorage'
 import styles from './CharacterTrainingDialog.module.css'
 
 // Import step components
@@ -96,13 +95,8 @@ export function CharacterTrainingDialog({ onComplete, wrapWithDialog = true }: C
   const creditGuard = useCreditGuard(characterTrainingCost)
   const { startTraining } = useJobsApi()
   
-  // Check if user has viewed onboarding before (localStorage with 30-day expiry)
-  const hasViewedOnboarding = getLocalStorageWithExpiry<boolean>('viewedOnboarding') === true
-  
-  // Start with onboarding intro step for first-time users, otherwise go directly to upload
-  const [currentStep, setCurrentStep] = useState<DialogStep>(
-    hasViewedOnboarding ? 'upload' : 'onboarding-intro'
-  )
+  // Always start with onboarding intro step
+  const [currentStep, setCurrentStep] = useState<DialogStep>('onboarding-intro')
   const [stepData, setStepData] = useState<StepData>({
     uploadedFiles: [],
     qualityResults: {},
@@ -735,16 +729,12 @@ export function CharacterTrainingDialog({ onComplete, wrapWithDialog = true }: C
                   }
                 }}
                 onSkip={() => {
-                  // Mark onboarding as viewed for 30 days
-                  setLocalStorageWithExpiry('viewedOnboarding', true, 30)
                   setCurrentStep('upload')
                 }}
                 onFinish={() => {
-                  // Mark onboarding as viewed for 30 days
-                  setLocalStorageWithExpiry('viewedOnboarding', true, 30)
                   setCurrentStep('upload')
                 }}
-                showSkipButton={hasViewedOnboarding}
+                showSkipButton={true}
               />
             </div>
           )}

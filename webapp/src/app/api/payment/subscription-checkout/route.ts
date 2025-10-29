@@ -7,26 +7,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-08-27.basil' as any
 })
 
-// CORS headers for development
-function getCorsHeaders(): HeadersInit {
-  if (process.env.NODE_ENV === 'development') {
-    return {
-      'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_WEBSITE_URL || 'http://localhost:4000',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      'Access-Control-Allow-Credentials': 'true',
-    }
-  }
-  return {}
-}
-
-// Handle OPTIONS request for CORS preflight
-export async function OPTIONS(request: NextRequest) {
-  return new NextResponse(null, {
-    status: 200,
-    headers: getCorsHeaders(),
-  })
-}
+// OPTIONS is handled by the security middleware
 
 async function handlePOST(request: NextRequest) {
   try {
@@ -35,10 +16,7 @@ async function handlePOST(request: NextRequest) {
     if (!priceId || !successUrl || !cancelUrl) {
       return NextResponse.json(
         { error: 'Missing required fields: priceId, successUrl, cancelUrl' },
-        { 
-          status: 400,
-          headers: getCorsHeaders()
-        }
+        { status: 400 }
       )
     }
 
@@ -49,10 +27,7 @@ async function handlePOST(request: NextRequest) {
     if (authError || !user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
-        { 
-          status: 401,
-          headers: getCorsHeaders()
-        }
+        { status: 401 }
       )
     }
 
@@ -64,10 +39,7 @@ async function handlePOST(request: NextRequest) {
     if (!price.active || price.type !== 'recurring') {
       return NextResponse.json(
         { error: 'Invalid subscription price ID' },
-        { 
-          status: 400,
-          headers: getCorsHeaders()
-        }
+        { status: 400 }
       )
     }
 
@@ -93,6 +65,11 @@ async function handlePOST(request: NextRequest) {
     if (existingSubscription?.stripe_customer_id) {
       customerId = existingSubscription.stripe_customer_id
       
+      // Always use Stripe checkout for better UX and to let Stripe handle the upgrade flow
+      // The webhook will handle canceling the old subscription after successful payment
+      console.log(`Customer ${customerId} has existing subscription - proceeding to checkout page`)
+      
+      /* DISABLED: Direct upgrade logic - Always redirect to Stripe instead
       // If user has an active subscription that's not scheduled for cancellation, this is an upgrade
       if (isActiveUpgrade) {
         try {
@@ -131,8 +108,6 @@ async function handlePOST(request: NextRequest) {
               success: true,
               subscription_id: newSubscription.id,
               redirect_url: `${successUrl}${successUrl.includes('?') ? '&' : '?'}subscription=success&upgrade=true`
-            }, {
-              headers: getCorsHeaders()
             })
           }
           
@@ -145,13 +120,11 @@ async function handlePOST(request: NextRequest) {
           console.error('Error handling subscription upgrade:', error)
           return NextResponse.json(
             { error: 'Failed to process subscription upgrade' },
-            { 
-              status: 500,
-              headers: getCorsHeaders()
-            }
+            { status: 500 }
           )
         }
       }
+      */
     } else {
       // Create new customer if none exists
       const customer = await stripe.customers.create({
@@ -208,18 +181,13 @@ async function handlePOST(request: NextRequest) {
     return NextResponse.json({ 
       sessionId: session.id,
       url: session.url 
-    }, {
-      headers: getCorsHeaders()
     })
 
   } catch (error) {
     console.error('Error creating subscription checkout session:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
-      { 
-        status: 500,
-        headers: getCorsHeaders()
-      }
+      { status: 500 }
     )
   }
 } 
@@ -232,4 +200,18 @@ const securedPOST = createSecuredHandler(
 
 export async function POST(request: NextRequest) {
   return await securedPOST(request);
+}
+
+// Explicit OPTIONS handler for CORS preflight
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': request.headers.get('origin') || '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Credentials': 'true',
+      'Access-Control-Max-Age': '86400',
+    },
+  });
 }

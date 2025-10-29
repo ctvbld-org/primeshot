@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCurrentSubscription } from '@/hooks/useCurrentSubscription'
 import { useSubscriptionTiers, useCreditCosts, getCharacterTrainingCost, getCharacterLimit } from '@/hooks/usePricingConfig'
@@ -34,6 +34,41 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
   const { user, isAuthenticated } = useAuth()
   const isAdmin = !!user?.admin
 
+  // Use real database count instead of stale client array
+  const [dbCharacterCount, setDbCharacterCount] = useState<number>(0)
+  const [isLoadingCount, setIsLoadingCount] = useState(false)
+
+  // Fetch real character count from database
+  useEffect(() => {
+    if (!user?.id || isAdmin) return
+
+    let isCancelled = false
+    setIsLoadingCount(true)
+
+    getActiveCharacterCount(user.id)
+      .then(count => {
+        if (!isCancelled) {
+          setDbCharacterCount(count)
+        }
+      })
+      .catch(err => {
+        console.error('Failed to fetch character count:', err)
+        // Fallback to client-side count on error
+        if (!isCancelled) {
+          setDbCharacterCount(characters.filter((c: any) => c.status !== 'failed' && c.status !== 'deleted').length)
+        }
+      })
+      .finally(() => {
+        if (!isCancelled) {
+          setIsLoadingCount(false)
+        }
+      })
+
+    return () => {
+      isCancelled = true
+    }
+  }, [user?.id, characters.length, getActiveCharacterCount, isAdmin, characters])
+
   const remainingCharacterTrainings = React.useMemo(() => {
     if (!subscription) return 0
     return Math.max(0, (subscription as any).character_training_included - (subscription as any).character_training_used)
@@ -60,12 +95,12 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
     return (getCharacterLimit as any)((subscription as any).plan_name, subscriptionTiers)
   }, [subscription, subscriptionTiers])
 
-  const activeCharacterCount = React.useMemo(() => {
-    return characters.filter((c: any) => c.status !== 'failed' && c.status !== 'deleted').length;
-  }, [characters]);
+  // Use database count instead of client array count
+  const activeCharacterCount = dbCharacterCount
 
   const hasReachedCharacterLimit = React.useMemo(() => {
     if (isAdmin) return false
+    // Use the database count for accurate limit checking
     return activeCharacterCount >= maxCharacters;
   }, [activeCharacterCount, maxCharacters, isAdmin]);
 
@@ -96,7 +131,9 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
       }
       return { type: 'create', message: 'Create' }
     }
-    // Check character limits first
+    
+    // Check character storage limits FIRST (before credits)
+    // This ensures users can't bypass storage limits even if they have training credits
     if (hasReachedCharacterLimit && !isAdmin) {
       if (isOnHighestTier) {
         return { type: 'limit_reached', message: 'Limit Reached' };
@@ -105,7 +142,7 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
       }
     }
     
-    // Check credits for paid training
+    // Check credits for paid training (only after storage check passes)
     if (needsCreditsForTraining && !hasSufficientCredits) {
       // If user is on highest tier, they can only buy credits
       if (isOnHighestTier) {
@@ -200,6 +237,7 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
               const latestCount = await getActiveCharacterCount(uid)
               const limit = maxCharacters
               if (latestCount >= limit) {
+                console.warn(`Character limit reached: ${latestCount}/${limit}`)
                 openSubscriptionDialog({
                   context: 'character-limit',
                   currentPlan: subscription.plan_name,
@@ -209,7 +247,11 @@ export function useCreateCharacter({ characters, onSelectCharacter, refreshChara
                 return
               }
             }
-          } catch {}
+          } catch (error) {
+            console.error('Error checking character limit:', error)
+            // Don't open dialog on error - fail safely by blocking creation
+            return
+          }
           openCharacterTrainingDialog()
         })()
         break;

@@ -118,10 +118,24 @@ function VerifyEmailContent() {
         return;
       }
       
-      toast.success(t('verify.otp.success'));
-      // Redirect to app
-      const basePath = typeof window !== 'undefined' && window.location.pathname.startsWith('/create') ? '/create' : '';
-      router.push('/');
+      // Check if user has an active subscription
+      const { data: { user: verifiedUser } } = await supabase.auth.getUser();
+      if (verifiedUser) {
+        const { data: subscription } = await supabase
+          .from('user_subscriptions')
+          .select('*')
+          .eq('user_id', verifiedUser.id)
+          .eq('status', 'active')
+          .limit(1)
+          .maybeSingle();
+        
+        toast.success(t('verify.otp.success'));
+        // Redirect to pricing page if no active subscription, otherwise go to app
+        router.push(subscription ? '/' : '/pricing');
+      } else {
+        toast.success(t('verify.otp.success'));
+        router.push('/');
+      }
     } catch (error) {
       toast.error(t('verify.otp.error.generic'));
       console.error("OTP verification error:", error);

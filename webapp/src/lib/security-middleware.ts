@@ -22,14 +22,38 @@ function getAllowedOrigins(request: NextRequest, overrides?: string[]): string[]
     return [
       currentOrigin,
       'http://localhost:3000',
-      'http://localhost:3001', 
+      'http://localhost:3001',
+      'http://localhost:4000', // Website dev server
       'http://127.0.0.1:3000',
-      'http://127.0.0.1:3001'
+      'http://127.0.0.1:3001',
+      'http://127.0.0.1:4000'
     ];
   }
 
-  // For production and other environments, use the current origin
-  return [currentOrigin];
+  // Production/Staging environment - allow cross-origin requests from frontend domains
+  const allowedOrigins = [currentOrigin];
+
+  // Staging environment
+  if (url.host === 'staging-webapp.primeshot.ai') {
+    allowedOrigins.push('https://staging.primeshot.ai');
+  }
+
+  // Production environment
+  if (url.host === 'primeshot-webapp.vercel.app' || url.host.includes('primeshot-webapp')) {
+    allowedOrigins.push('https://primeshot.ai');
+    allowedOrigins.push('https://www.primeshot.ai');
+  }
+
+  // Also allow if request is FROM the frontend to the API
+  if (url.host === 'staging.primeshot.ai') {
+    allowedOrigins.push('https://staging-webapp.primeshot.ai');
+  }
+  
+  if (url.host === 'primeshot.ai' || url.host === 'www.primeshot.ai') {
+    allowedOrigins.push('https://primeshot-webapp.vercel.app');
+  }
+
+  return allowedOrigins;
 }
 
 export interface SecurityConfig {
@@ -101,7 +125,7 @@ export const SECURITY_CONFIGS: Record<string, SecurityConfig> = {
     validateInput: true,
     cors: {
       origins: 'dynamic',
-      methods: ['POST', 'OPTIONS'],
+      methods: ['GET', 'POST', 'OPTIONS'],
       headers: ['Content-Type', 'Authorization', 'Stripe-Signature'],
       credentials: true
     }
@@ -288,10 +312,16 @@ export function createSecurityMiddleware(config: SecurityConfig = {}) {
     if (config.maxRequestSize) {
       const contentLength = request.headers.get('content-length');
       if (contentLength && parseInt(contentLength) > config.maxRequestSize) {
-        return NextResponse.json(
+        const corsHeaders = config.cors ? corsMiddleware(config.cors)(request) : new Headers();
+        const response = NextResponse.json(
           { error: 'Request too large', maxSize: config.maxRequestSize },
           { status: 413 }
         );
+        // Add CORS headers to error response
+        corsHeaders.forEach((value, key) => {
+          response.headers.set(key, value);
+        });
+        return response;
       }
     }
 
@@ -302,9 +332,15 @@ export function createSecurityMiddleware(config: SecurityConfig = {}) {
         const rateLimitResponse = await rateLimitMiddleware(request, async () => handler(request));
 
         if (rateLimitResponse.status === 429) {
+          const corsHeaders = config.cors ? corsMiddleware(config.cors)(request) : new Headers();
+          const headers = new Headers(rateLimitResponse.headers);
+          // Add CORS headers
+          corsHeaders.forEach((value, key) => {
+            headers.set(key, value);
+          });
           return new NextResponse(rateLimitResponse.body, {
             status: rateLimitResponse.status,
-            headers: rateLimitResponse.headers
+            headers
           });
         }
 
@@ -315,6 +351,20 @@ export function createSecurityMiddleware(config: SecurityConfig = {}) {
           headers.set('X-RateLimit-Remaining', rateLimitResponse.headers.get('x-ratelimit-remaining') || '');
           headers.set('X-RateLimit-Reset', rateLimitResponse.headers.get('x-ratelimit-reset') || '');
         }
+
+        // Add CORS headers to successful response
+        if (config.cors) {
+          const corsHeaders = corsMiddleware(config.cors)(request);
+          corsHeaders.forEach((value, key) => {
+            headers.set(key, value);
+          });
+        }
+
+        // Add security headers
+        headers.set('X-Content-Type-Options', 'nosniff');
+        headers.set('X-Frame-Options', 'DENY');
+        headers.set('X-XSS-Protection', '1; mode=block');
+        headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
         return new NextResponse(rateLimitResponse.body, {
           status: rateLimitResponse.status,
@@ -331,17 +381,29 @@ export function createSecurityMiddleware(config: SecurityConfig = {}) {
       const authResult = await authenticateRequest(request);
 
       if (!authResult.authenticated) {
-        return NextResponse.json(
+        const corsHeaders = config.cors ? corsMiddleware(config.cors)(request) : new Headers();
+        const response = NextResponse.json(
           { error: authResult.error || 'Authentication required' },
           { status: 401 }
         );
+        // Add CORS headers to error response
+        corsHeaders.forEach((value, key) => {
+          response.headers.set(key, value);
+        });
+        return response;
       }
 
       if (config.requireAdmin && !authResult.admin) {
-        return NextResponse.json(
+        const corsHeaders = config.cors ? corsMiddleware(config.cors)(request) : new Headers();
+        const response = NextResponse.json(
           { error: 'Admin access required' },
           { status: 403 }
         );
+        // Add CORS headers to error response
+        corsHeaders.forEach((value, key) => {
+          response.headers.set(key, value);
+        });
+        return response;
       }
 
       // Add user info to request headers for handler use
@@ -373,8 +435,10 @@ export function createSecurityMiddleware(config: SecurityConfig = {}) {
         const botResult = await botProtectionMiddleware(request, formData);
 
         if (!botResult.allowed) {
+          const corsHeaders = config.cors ? corsMiddleware(config.cors)(request) : new Headers();
+          
           if (botResult.challenge === 'captcha_required') {
-            return NextResponse.json(
+            const response = NextResponse.json(
               {
                 error: botResult.error,
                 challenge: 'captcha_required',
@@ -382,12 +446,22 @@ export function createSecurityMiddleware(config: SecurityConfig = {}) {
               },
               { status: 403 }
             );
+            // Add CORS headers to error response
+            corsHeaders.forEach((value, key) => {
+              response.headers.set(key, value);
+            });
+            return response;
           }
 
-          return NextResponse.json(
+          const response = NextResponse.json(
             { error: botResult.error || 'Access denied' },
             { status: 403 }
           );
+          // Add CORS headers to error response
+          corsHeaders.forEach((value, key) => {
+            response.headers.set(key, value);
+          });
+          return response;
         }
       } catch (error) {
         console.error('Bot protection error:', error);
@@ -415,19 +489,31 @@ export function createSecurityMiddleware(config: SecurityConfig = {}) {
 
           for (const pattern of suspiciousPatterns) {
             if (bodyStr.includes(pattern)) {
-              return NextResponse.json(
+              const corsHeaders = config.cors ? corsMiddleware(config.cors)(request) : new Headers();
+              const response = NextResponse.json(
                 { error: 'Invalid request content' },
                 { status: 400 }
               );
+              // Add CORS headers to error response
+              corsHeaders.forEach((value, key) => {
+                response.headers.set(key, value);
+              });
+              return response;
             }
           }
         }
       } catch (error) {
         // Invalid JSON is handled as validation error
-        return NextResponse.json(
+        const corsHeaders = config.cors ? corsMiddleware(config.cors)(request) : new Headers();
+        const response = NextResponse.json(
           { error: 'Invalid request format' },
           { status: 400 }
         );
+        // Add CORS headers to error response
+        corsHeaders.forEach((value, key) => {
+          response.headers.set(key, value);
+        });
+        return response;
       }
     }
 
@@ -456,10 +542,16 @@ export function createSecurityMiddleware(config: SecurityConfig = {}) {
       });
     } catch (error) {
       console.error('Handler execution error:', error);
-      return NextResponse.json(
+      const corsHeaders = config.cors ? corsMiddleware(config.cors)(request) : new Headers();
+      const response = NextResponse.json(
         { error: 'Internal server error' },
         { status: 500 }
       );
+      // Add CORS headers to error response
+      corsHeaders.forEach((value, key) => {
+        response.headers.set(key, value);
+      });
+      return response;
     }
   };
 }

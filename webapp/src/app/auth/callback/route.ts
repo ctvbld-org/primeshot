@@ -32,10 +32,20 @@ export async function GET(request: Request) {
         // User creation is now handled automatically by the database trigger
         // No need to manually create/update user in database
         
-        // Create a new response with the redirect
+        // Check if user has an active subscription
+        const { data: subscription } = await supabase
+          .from('user_subscriptions')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .limit(1)
+          .maybeSingle()
+        
+        // Redirect to pricing page if no active subscription, otherwise go to app
         const app_url = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+        const redirectUrl = subscription ? app_url : `${app_url}/pricing`
 
-        const response = NextResponse.redirect(new URL(app_url))
+        const response = NextResponse.redirect(new URL(redirectUrl))
         
         // Copy over the cookies from the cookie store
         const allCookies = cookieStore.getAll()
