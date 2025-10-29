@@ -84,6 +84,20 @@ function mapToSupported(tag: string | undefined | null): typeof SUPPORTED[number
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // Handle OPTIONS requests (CORS preflight) for all routes
+  if (request.method === 'OPTIONS') {
+    return new NextResponse(null, {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': request.headers.get('origin') || '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Credentials': 'true',
+        'Access-Control-Max-Age': '86400',
+      },
+    });
+  }
+
   // Ignore static and API assets
   if (
     pathname.startsWith('/_next') ||
