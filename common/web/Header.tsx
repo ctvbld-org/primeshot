@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/AuthContext';
 import { SignInModal } from './SignInModal';
@@ -25,6 +25,12 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
   const { t } = useTranslation('common');
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Wait for hydration to complete before rendering auth-dependent UI
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const isActive = (href: string) => {
     if (!pathname) return false;
@@ -48,7 +54,7 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
 
         <div className={styles.middleSection}>       
           <nav className={styles.nav}>
-            {isLoading ? (
+            {!mounted || isLoading ? (
               <>
                 <Skeleton className={styles.navLinkSkeleton + ' ' + styles.skeleton} />
                 <Skeleton className={styles.navLinkSkeleton + ' ' + styles.skeleton} />
@@ -100,7 +106,7 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
         </div>
 
         <div className={styles.rightSection}>
-            {isLoading ? (
+            {!mounted || isLoading ? (
               <>
                 <Skeleton className={styles.rightSkeleton + ' ' + styles.skeleton} />
                 <Skeleton className={styles.rightSkeleton + ' ' + styles.skeleton} />

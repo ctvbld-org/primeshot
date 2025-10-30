@@ -2627,6 +2627,11 @@ Detected changes in:
 Detected changes in:
 - webapp/src/components/style/StylesCarousel.module.css
 - website/src/components/InteractiveGenerateBar/HeroGrid.tsx
+
+
+**Auto-update 2025-10-30**:
+Detected changes in:
+- website/src/components/InteractiveGenerateBar/ShowcaseSection.module.css
 ## Component Organization
 
 Components are organized by feature and reusability:
