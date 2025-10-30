@@ -1,102 +1,102 @@
 {
-    "welcome": "欢迎",
-    "error": {
-        "title": "错误",
-        "description": "发生了错误"
+  "welcome": "欢迎",
+  "error": {
+    "title": "错误",
+    "description": "发生了错误"
+  },
+  "language": "语言",
+  "loading": "加载中...",
+  "buttons": {
+    "customize": "自定义",
+    "confirmChanges": "确认更改",
+    "addToShoot": "添加到拍摄",
+    "edit": "编辑",
+    "delete": "删除",
+    "save": "保存",
+    "cancel": "取消",
+    "back": "返回",
+    "close": "关闭",
+    "next": "下一步",
+    "previous": "上一步",
+    "keep": "保留",
+    "discard": "丢弃",
+    "confirm": "确认",
+    "remove": "移除",
+    "add": "添加",
+    "explore": "探索",
+    "signIn": "登录"
+  },
+  "navigation": {
+    "addStyles": "添加风格",
+    "payment": "付款",
+    "uploadPhotos": "上传照片",
+    "generate": "生成",
+    "explore": "探索",
+    "create": "创建",
+    "pricing": "价格",
+    "admin": "管理员",
+    "menu": "菜单"
+  },
+  "userNav": {
+    "signOut": "退出登录",
+    "accountSettings": "账户设置"
+  },
+  "footer": {
+    "hero": "您的形象，属于您自己。",
+    "sections": {
+      "overview": "概览",
+      "latestStyles": "最新风格",
+      "legal": "法律信息",
+      "support": "支持"
     },
-    "language": "语言",
-    "loading": "加载中...",
-    "buttons": {
-        "customize": "自定义",
-        "confirmChanges": "确认更改",
-        "addToShoot": "添加到拍摄",
-        "edit": "编辑",
-        "delete": "删除",
-        "save": "保存",
-        "cancel": "取消",
-        "back": "返回",
-        "close": "关闭",
-        "next": "下一步",
-        "previous": "上一步",
-        "keep": "保留",
-        "discard": "丢弃",
-        "confirm": "确认",
-        "remove": "移除",
-        "add": "添加",
-        "explore": "探索",
-        "signIn": "登录"
+    "links": {
+      "explore": "探索",
+      "create": "创建",
+      "pricing": "价格与常见问题",
+      "studioPro": "Studio Pro",
+      "business": "Business",
+      "editorial": "Editorial",
+      "terms": "服务条款",
+      "privacy": "隐私政策",
+      "contact": "联系我们",
+      "about": "关于我们"
     },
-    "navigation": {
-        "addStyles": "添加风格",
-        "payment": "付款",
-        "uploadPhotos": "上传照片",
-        "generate": "生成",
-        "explore": "探索",
-        "create": "创建",
-        "pricing": "价格",
-        "admin": "管理员",
-        "menu": "菜单"
+    "copyright": "© {{year}} Primeshot. 保留所有权利"
+  },
+  "duration": {
+    "year_one": "{{count}}年",
+    "year_other": "{{count}}年",
+    "month_one": "{{count}}个月",
+    "month_other": "{{count}}个月",
+    "day_one": "{{count}}天",
+    "day_other": "{{count}}天"
+  },
+  "aria": {
+    "favourites": "收藏",
+    "avatar": "用户头像",
+    "brandLogo": "Primeshot"
+  },
+  "explore": {
+    "generateTooltip": "生成这张图片"
+  },
+  "credits": {
+    "remaining_one": "剩余{{value}}个积分",
+    "remaining_other": "剩余{{value}}个积分"
+  },
+  "contexts": {
+    "dialogService": {
+      "defaultTitle": "对话框",
+      "defaultDescription": "内容",
+      "notReadyWarning": "DialogService未准备就绪"
     },
-    "userNav": {
-        "signOut": "退出登录",
-        "accountSettings": "账户设置"
-    },
-    "footer": {
-        "hero": "您的形象，属于您自己。",
-        "sections": {
-            "overview": "概览",
-            "latestStyles": "最新风格",
-            "legal": "法律信息",
-            "support": "支持"
-        },
-        "links": {
-            "explore": "探索",
-            "create": "创建",
-            "pricing": "价格与常见问题",
-            "studioPro": "Studio Pro",
-            "business": "Business",
-            "editorial": "Editorial",
-            "terms": "服务条款",
-            "privacy": "隐私政策",
-            "contact": "联系我们",
-            "about": "关于我们"
-        },
-        "copyright": "© {{year}} Primeshot. 保留所有权利"
-    },
-    "duration": {
-        "year_one": "{{count}}年",
-        "year_other": "{{count}}年",
-        "month_one": "{{count}}个月",
-        "month_other": "{{count}}个月",
-        "day_one": "{{count}}天",
-        "day_other": "{{count}}天"
-    },
-    "aria": {
-        "favourites": "收藏",
-        "avatar": "用户头像",
-        "brandLogo": "Primeshot"
-    },
-    "explore": {
-        "generateTooltip": "生成这张图片"
-    },
-    "credits": {
-        "remaining_one": "剩余{{value}}个积分",
-        "remaining_other": "剩余{{value}}个积分"
-    },
-    "contexts": {
-        "dialogService": {
-            "defaultTitle": "对话框",
-            "defaultDescription": "内容",
-            "notReadyWarning": "DialogService未准备就绪"
-        },
-        "errors": {
-            "missingProvider": {
-                "styleSelection": "useStyleSelection必须在StyleSelectionProvider中使用",
-                "dialogService": "useDialogService必须在DialogServiceProvider中使用",
-                "inferenceQueue": "useInferenceQueue必须在InferenceQueueProvider中使用",
-                "carousel": "useCarouselContext必须在CarouselProvider中使用",
-                "realtime": "useRealtime必须在RealtimeProvider中使用"
-            }
-        }
+    "errors": {
+      "missingProvider": {
+        "styleSelection": "useStyleSelection必须在StyleSelectionProvider中使用",
+        "dialogService": "useDialogService必须在DialogServiceProvider中使用",
+        "inferenceQueue": "useInferenceQueue必须在InferenceQueueProvider中使用",
+        "carousel": "useCarouselContext必须在CarouselProvider中使用",
+        "realtime": "useRealtime必须在RealtimeProvider中使用"
+      }
     }
+  }
 }
