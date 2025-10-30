@@ -12,6 +12,10 @@ import styles from './GenerateBar.module.css'
 import { useAuth } from '@primeshot/common'
 import { getApiUrl } from '@primeshot/common'
 import { useRef } from 'react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, VisuallyHidden } from '@primeshot/common/web/ui/dialog'
+import { SignInForm } from '@primeshot/common/web'
+import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus'
+import { useGenerationIntent } from '@/hooks/useGenerationIntent'
 
 // Stub implementations for demo-only website
 import {
@@ -25,7 +29,6 @@ import {
   useGenerationConfig,
   useCurrentSubscription,
   useCreditCosts,
-  useSubscriptionStatus,
   useCreditGuard,
   useJobsApi,
   useOpenCreditPackDialog,
@@ -121,6 +124,12 @@ export function GenerateBar({
   // Auth state for conditional data loading
   const { isAuthenticated, user: authUser } = useAuth()
   const authReady = isAuthenticated !== undefined // Auth state has been resolved
+  
+  // Generation intent hook for sign-in flow
+  const { saveIntent } = useGenerationIntent()
+  
+  // Sign-in dialog state
+  const [isSignInOpen, setIsSignInOpen] = useState(false)
   
   // Only load option data once auth is ready - now using centralized context
   const { data: rawScenes = [] } = useScenesFromContext()
@@ -608,13 +617,30 @@ export function GenerateBar({
 
   const onGenerate = useCallback(async () => {
     if (mode === 'demo') {
+      // Check authentication and subscription status
+      if (!isAuthenticated) {
+        // User not signed in: save intent and open sign-in dialog
+        saveIntent(0, 'generate_images')
+        setIsSignInOpen(true)
+        return
+      }
+      
+      if (!hasActiveSubscription) {
+        // User signed in but no subscription: redirect to pricing
+        if (typeof window !== 'undefined') {
+          window.location.href = '/pricing'
+        }
+        return
+      }
+      
+      // User has active subscription: redirect to create page
       if (typeof window !== 'undefined') {
-        window.location.href = '/auth/signup'
+        window.location.href = '/create'
       }
       return
     }
     await runGenerate(null)
-  }, [mode, runGenerate])
+  }, [mode, runGenerate, isAuthenticated, hasActiveSubscription, saveIntent])
 
   // Introduce TTL for character list refresh when panel opens
   const CHARACTER_LIST_TTL_MS = 60_000
@@ -1720,6 +1746,20 @@ export function GenerateBar({
       <div ref={panelRef} className={styles.panelSlot}>
         {renderPanel()}
       </div>
+      
+      {/* Sign In Dialog - only in demo mode */}
+      {mode === 'demo' && (
+        <Dialog open={isSignInOpen} onOpenChange={setIsSignInOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <VisuallyHidden>
+                <DialogTitle>{t('aria.signIn', { ns: 'common', defaultValue: 'Sign In' })}</DialogTitle>
+              </VisuallyHidden>
+            </DialogHeader>
+            <SignInForm />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   )
 }

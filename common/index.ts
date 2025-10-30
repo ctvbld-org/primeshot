@@ -2,6 +2,9 @@ export * as hooks from './hooks';
 export * as web from './web';
 export * as contexts from './contexts';
 
+// Fonts
+export { carb } from './fonts';
+
 // Convenience re-exports
 export { LanguageProvider, useLanguage } from './hooks/LanguageContext';
 export { AuthProvider, useAuth } from './hooks/AuthContext';

@@ -148,8 +148,8 @@
       "originalUnavailableDesc": "Couldn't load original image."
     },
     "viewOriginal": {
-      "label": "Switch to original",
-      "viewing": "Viewing original",
+      "label": "Preview full size",
+      "viewing": "Viewing full size",
       "aria": "Switch to original quality image",
       "viewingAria": "Currently viewing original quality image"
     },

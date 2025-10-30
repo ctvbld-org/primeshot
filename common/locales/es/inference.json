@@ -148,8 +148,8 @@
       "originalUnavailableDesc": "No se pudo cargar la variante de imagen original."
     },
     "viewOriginal": {
-      "label": "Cambiar a original",
-      "viewing": "Viendo original",
+      "label": "Ver en tamaño completo",
+      "viewing": "Viendo en tamaño completo",
       "aria": "Cambiar a imagen en calidad original",
       "viewingAria": "Viendo imagen en calidad original"
     },

@@ -148,8 +148,8 @@
       "originalUnavailableDesc": "无法加载原始图像变体。"
     },
     "viewOriginal": {
-      "label": "切换到原图",
-      "viewing": "正在查看原图",
+      "label": "预览完整尺寸",
+      "viewing": "正在查看完整尺寸",
       "aria": "切换到原图",
       "viewingAria": "正在查看原图"
     },

@@ -148,8 +148,8 @@
       "originalUnavailableDesc": "オリジナル画像バリアントを読み込めませんでした。"
     },
     "viewOriginal": {
-      "label": "オリジナルに切り替え",
-      "viewing": "オリジナルを表示中",
+      "label": "フルサイズでプレビュー",
+      "viewing": "フルサイズ表示中",
       "aria": "オリジナル画質に切り替え",
       "viewingAria": "オリジナル画質を表示中"
     },

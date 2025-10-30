@@ -148,8 +148,8 @@
       "originalUnavailableDesc": "Original-Bildvariante konnte nicht geladen werden."
     },
     "viewOriginal": {
-      "label": "Zum Original wechseln",
-      "viewing": "Original wird angezeigt",
+      "label": "Vorschau in voller Größe",
+      "viewing": "Volle Größe wird angezeigt",
       "aria": "Zum Originalbild in voller Qualität wechseln",
       "viewingAria": "Originalbild in voller Qualität wird angezeigt"
     },

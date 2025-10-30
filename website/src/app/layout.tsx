@@ -1,6 +1,6 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
-import { carb } from '@/fonts'
+import { carb } from '@primeshot/common'
 import { headers, cookies } from 'next/headers'
 
 const SUPPORTED_LOCALES = ['us','gb','cn','es','fr','pt','de','jp','it','nl'] as const;

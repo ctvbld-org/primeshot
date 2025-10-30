@@ -68,7 +68,9 @@ interface IconProps extends React.SVGProps<SVGSVGElement> {
     | 'facebook'
     | 'handDrawnArrow'
     | 'styles'
-    | 'menu';
+    | 'menu'
+    | 'star'
+    | 'starOutline';
 }
 
 export function Icon({ size = 28, className, variant, ...props }: IconProps) {
@@ -137,6 +139,8 @@ export function Icon({ size = 28, className, variant, ...props }: IconProps) {
     handDrawnArrow: "0 0 93 52",
     styles: "0 0 20 20",
     menu: "0 0 16 16",
+    star: "0 0 16 16",
+    starOutline: "0 0 16 16",
   } as const;
 
   const icons = {
@@ -470,6 +474,12 @@ export function Icon({ size = 28, className, variant, ...props }: IconProps) {
     ),
     menu: (
       <path d="M2 8H14M2 4H14M2 12H14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    ),
+    starOutline: (
+      <path d="M7.9987 1.33333L10.0587 5.50667L14.6654 6.18L11.332 9.42667L12.1187 14.0133L7.9987 11.8467L3.8787 14.0133L4.66536 9.42667L1.33203 6.18L5.9387 5.50667L7.9987 1.33333Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+    ),
+    star: (
+      <path d="M7.9987 1.33333L10.0587 5.50667L14.6654 6.18L11.332 9.42667L12.1187 14.0133L7.9987 11.8467L3.8787 14.0133L4.66536 9.42667L1.33203 6.18L5.9387 5.50667L7.9987 1.33333Z" fill="currentColor" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
     )
   } as Record<string, React.ReactNode>;
 

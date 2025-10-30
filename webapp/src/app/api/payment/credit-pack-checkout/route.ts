@@ -93,7 +93,7 @@ async function handlePOST(request: NextRequest) {
 
     // Always redirect to /create after successful checkout
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    const redirectSuccessUrl = `${baseUrl}/create?credits=success`
+    const redirectSuccessUrl = `${baseUrl}?credits=success`
 
     // Create checkout session
     const session = await stripe.checkout.sessions.create({

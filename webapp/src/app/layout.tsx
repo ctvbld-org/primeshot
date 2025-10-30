@@ -1,5 +1,5 @@
 import { Inter } from 'next/font/google'
-import { carb } from '@/fonts'
+import { carb } from '@primeshot/common'
 import './globals.css'
 import { cookies, headers } from 'next/headers'
 import Script from 'next/script'

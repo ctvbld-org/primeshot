@@ -1,6 +1,7 @@
 export * as hooks from './hooks';
 export * as web from './web';
 export * as contexts from './contexts';
+export { carb } from './fonts';
 export { LanguageProvider, useLanguage } from './hooks/LanguageContext';
 export { AuthProvider, useAuth } from './hooks/AuthContext';
 export { StyleDataProvider, useStyleData, useStylesFromContext, useScenesFromContext, useWardrobesFromContext, useColorsFromContext } from './contexts/StyleDataContext';

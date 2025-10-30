@@ -148,8 +148,8 @@
       "originalUnavailableDesc": "Kon originele afbeelding variant niet laden."
     },
     "viewOriginal": {
-      "label": "Schakel naar origineel",
-      "viewing": "Origineel wordt getoond",
+      "label": "Bekijk op volledige grootte",
+      "viewing": "Volledige grootte weergegeven",
       "aria": "Schakel naar originele afbeelding in volledige kwaliteit",
       "viewingAria": "Originele afbeelding in volledige kwaliteit wordt getoond"
     },
