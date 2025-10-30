@@ -124,7 +124,7 @@ export function HeroGrid() {
     { 
       id: 1, 
       hasComparison: true,
-      afterImage: 'explore/studiopro/20-w960.webp',
+      afterImage: 'homepage/6-w960.webp',
       beforeImage: 'homepage/hero-compare-2-w960.webp'
     },
     { 
