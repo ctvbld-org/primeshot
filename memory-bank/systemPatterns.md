@@ -2603,6 +2603,24 @@ Detected changes in:
 - webapp/src/contexts/credit-balance-context.tsx
 - website/src/app/[locale]/pricing/page.module.css
 - website/src/app/[locale]/pricing/page.tsx
+
+
+**Auto-update 2025-10-29**:
+Detected changes in:
+- admin/src/components/styles/style-form-dialog.tsx
+- webapp/src/app/api/payment/credit-pack-checkout/route.ts
+- webapp/src/app/api/payment/subscription-checkout/route.ts
+- webapp/src/app/api/subscription/current/route.ts
+- webapp/src/app/api/subscription/customer-portal/route.ts
+- webapp/src/app/auth/callback/route.ts
+- webapp/src/app/auth/verify/page.tsx
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/generate/GenerateBar.module.css
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/generate/useCreateCharacter.tsx
+- webapp/src/lib/security-middleware.ts
+- website/src/app/[locale]/pricing/page.tsx
+- website/src/app/api/subscription/current/route.ts
 ## Component Organization
 
 Components are organized by feature and reusability:
