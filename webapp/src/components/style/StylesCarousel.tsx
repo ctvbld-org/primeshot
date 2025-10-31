@@ -160,6 +160,7 @@ export function StylesCarousel() {
     openDialog(
       createElement(StylePreviewDialog, {
         styleName: style.name,
+        styleId: style.id,
         previewImages: style.preview_images || [],
         fullscreen: true,
         noContainer: true

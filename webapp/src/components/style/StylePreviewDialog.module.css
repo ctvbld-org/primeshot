@@ -96,27 +96,6 @@
   break-inside: avoid;
   width: 100%;
   margin-bottom: 16px;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #1a1a1a;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.imageCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-}
-
-.image {
-  width: 100%;
-  height: auto;
-  display: block;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.imageCard:hover .image {
-  transform: scale(1.02);
 }
 
 /* Empty state */

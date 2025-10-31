@@ -27,7 +27,7 @@ export default function ImagesTab() {
       const data = await response.json();
       return {
         images: data.images as ExploreImageWithRelations[],
-        groupedByStyle: data.groupedByStyle as Record<string, ExploreImageWithRelations[]>,
+        groupedByCategory: data.groupedByCategory as Record<string, ExploreImageWithRelations[]>,
       };
     },
   });
@@ -44,9 +44,7 @@ export default function ImagesTab() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      // Call webapp API to delete (it handles S3 cleanup)
-      const webappUrl = process.env.NEXT_PUBLIC_WEBAPP_URL || 'http://localhost:3000';
-      const response = await fetch(`${webappUrl}/api/admin/explore/remove?id=${id}`, {
+      const response = await fetch(`/api/explore/remove?id=${id}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete image');
@@ -111,7 +109,7 @@ export default function ImagesTab() {
     return <div className={styles.loading}>Loading images...</div>;
   }
 
-  if (!imagesData?.groupedByStyle || Object.keys(imagesData.groupedByStyle).length === 0) {
+  if (!imagesData?.groupedByCategory || Object.keys(imagesData.groupedByCategory).length === 0) {
     return <div className={styles.empty}>No images in explore yet. Add some from the webapp!</div>;
   }
 
@@ -144,12 +142,12 @@ export default function ImagesTab() {
         </div>
       )}
 
-      {/* Images grouped by style */}
+      {/* Images grouped by category */}
       <div className={styles.styleGroups}>
-        {Object.entries(imagesData.groupedByStyle).map(([styleName, images]) => (
+        {Object.entries(imagesData.groupedByCategory).map(([categoryName, images]) => (
           <StyleGroup
-            key={styleName}
-            styleName={styleName}
+            key={categoryName}
+            styleName={categoryName}
             images={images}
             categories={categories || []}
             selectedImages={selectedImages}

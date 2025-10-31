@@ -9,6 +9,8 @@ export type SyncableTable =
   | 'credit_packs'
   | 'credit_costs'
   | 'inference_settings'
+  | 'explore_categories'
+  | 'explore_images'
 
 export type ChangeType = 'created' | 'updated' | 'deleted'
 
@@ -83,4 +85,6 @@ export const SYNCABLE_TABLES: Record<SyncableTable, string> = {
   credit_packs: 'Credit Packs',
   credit_costs: 'Credit Costs',
   inference_settings: 'Inference Settings',
+  explore_categories: 'Explore Categories',
+  explore_images: 'Explore Images',
 } 

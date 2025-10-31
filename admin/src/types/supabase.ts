@@ -253,6 +253,147 @@ export type Database = {
           },
         ]
       }
+      explore_categories: {
+        Row: {
+          created_at: string | null
+          cta_link: string | null
+          description: string | null
+          id: string
+          name: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          cta_link?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          cta_link?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      explore_images: {
+        Row: {
+          aspect_ratio: string | null
+          category_id: string | null
+          color_id: string | null
+          created_at: string | null
+          generated_image_id: string | null
+          id: string
+          inference_id: string | null
+          original_s3_path: string
+          resolution: string | null
+          s3_path: string
+          scene_id: string | null
+          style_id: string | null
+          updated_at: string | null
+          user_id: string | null
+          wardrobe_id: string | null
+        }
+        Insert: {
+          aspect_ratio?: string | null
+          category_id?: string | null
+          color_id?: string | null
+          created_at?: string | null
+          generated_image_id?: string | null
+          id?: string
+          inference_id?: string | null
+          original_s3_path: string
+          resolution?: string | null
+          s3_path: string
+          scene_id?: string | null
+          style_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          wardrobe_id?: string | null
+        }
+        Update: {
+          aspect_ratio?: string | null
+          category_id?: string | null
+          color_id?: string | null
+          created_at?: string | null
+          generated_image_id?: string | null
+          id?: string
+          inference_id?: string | null
+          original_s3_path?: string
+          resolution?: string | null
+          s3_path?: string
+          scene_id?: string | null
+          style_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          wardrobe_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "explore_images_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "explore_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "explore_images_color_id_fkey"
+            columns: ["color_id"]
+            isOneToOne: false
+            referencedRelation: "style_colors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "explore_images_generated_image_id_fkey"
+            columns: ["generated_image_id"]
+            isOneToOne: true
+            referencedRelation: "generated_images"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "explore_images_inference_id_fkey"
+            columns: ["inference_id"]
+            isOneToOne: false
+            referencedRelation: "inference_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "explore_images_scene_id_fkey"
+            columns: ["scene_id"]
+            isOneToOne: false
+            referencedRelation: "style_scenes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "explore_images_style_id_fkey"
+            columns: ["style_id"]
+            isOneToOne: false
+            referencedRelation: "styles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "explore_images_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "explore_images_wardrobe_id_fkey"
+            columns: ["wardrobe_id"]
+            isOneToOne: false
+            referencedRelation: "style_wardrobes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       generated_images: {
         Row: {
           bytes: number
@@ -261,7 +402,7 @@ export type Database = {
           format: string
           height: number
           id: string
-          image_index: number
+          image_index: number | null
           inference_id: string
           metadata: Json | null
           original_path: string
@@ -278,7 +419,7 @@ export type Database = {
           format: string
           height: number
           id?: string
-          image_index: number
+          image_index?: number | null
           inference_id: string
           metadata?: Json | null
           original_path: string
@@ -295,7 +436,7 @@ export type Database = {
           format?: string
           height?: number
           id?: string
-          image_index?: number
+          image_index?: number | null
           inference_id?: string
           metadata?: Json | null
           original_path?: string
@@ -609,6 +750,8 @@ export type Database = {
           settings: Json
           translations: Json
           updated_at: string | null
+          wardrobe_category_order: string[]
+          wardrobe_order: Json
         }
         Insert: {
           available_colors?: string[]
@@ -623,6 +766,8 @@ export type Database = {
           settings?: Json
           translations?: Json
           updated_at?: string | null
+          wardrobe_category_order?: string[]
+          wardrobe_order?: Json
         }
         Update: {
           available_colors?: string[]
@@ -637,6 +782,8 @@ export type Database = {
           settings?: Json
           translations?: Json
           updated_at?: string | null
+          wardrobe_category_order?: string[]
+          wardrobe_order?: Json
         }
         Relationships: []
       }

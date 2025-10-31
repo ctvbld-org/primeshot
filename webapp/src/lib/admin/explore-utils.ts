@@ -105,22 +105,26 @@ export async function deleteS3Image(
 
 /**
  * Generate a filename for explore image
- * Format: [style-name]-[timestamp].webp
+ * Format: {style}_{scene}_{wardrobe}_{color}_{aspectRatio}_{resolution}.webp
  */
-export function generateExploreFilename(styleName: string): string {
+export function generateExploreFilename(
+  styleName: string,
+  scene: string,
+  wardrobe: string,
+  color: string,
+  aspectRatio: string,
+  resolution: string
+): string {
   // Normalize style name: lowercase, replace spaces with hyphens
-  const normalizedName = styleName
+  const normalizedStyle = styleName
     .toLowerCase()
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/g, '');
 
-  // Generate timestamp to the second
-  const timestamp = new Date()
-    .toISOString()
-    .replace(/[:.]/g, '-')
-    .split('.')[0]; // Remove milliseconds
+  // Normalize aspect ratio: remove colons (e.g., "1:1" -> "1-1")
+  const normalizedAspectRatio = aspectRatio.replace(/:/g, '-');
 
-  return `${normalizedName}-${timestamp}.webp`;
+  return `${normalizedStyle}__${scene}__${wardrobe}__${color}__${normalizedAspectRatio}__${resolution}.webp`;
 }
 
 /**

@@ -65,20 +65,20 @@ export async function GET(request: NextRequest) {
       color: colorsMap.get(img.color_id),
     }));
 
-    // Group by style
-    const groupedByStyle: Record<string, ExploreImageWithRelations[]> = {};
+    // Group by category
+    const groupedByCategory: Record<string, ExploreImageWithRelations[]> = {};
     enrichedImages.forEach((image: any) => {
-      const styleName = image.style?.name || 'Unknown';
-      if (!groupedByStyle[styleName]) {
-        groupedByStyle[styleName] = [];
+      const categoryName = image.category?.name || 'Uncategorized';
+      if (!groupedByCategory[categoryName]) {
+        groupedByCategory[categoryName] = [];
       }
-      groupedByStyle[styleName].push(image);
+      groupedByCategory[categoryName].push(image);
     });
 
     return NextResponse.json({
       success: true,
       images: enrichedImages,
-      groupedByStyle
+      groupedByCategory
     });
 
   } catch (error) {

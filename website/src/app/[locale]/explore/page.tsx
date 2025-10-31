@@ -9,6 +9,7 @@ import ContentPageHeader from '@/components/ContentPageHeader';
 import { ExploreItem } from '../data/exploreData';
 import { getWebsiteCdnUrl } from '@primeshot/common/lib/utils/cdn';
 import { getApiUrl } from '@primeshot/common/lib/api/client';
+import { parseExploreImageFilename } from '@/lib/utils/parse-explore-image-metadata';
 import styles from './page.module.css';
 
 // Dynamic filter generation from data
@@ -40,11 +41,37 @@ function ExploreContent() {
         const response = await fetch(getApiUrl(`/api/explore${activeFilter !== 'All' ? `?category=${activeFilter}` : ''}`));
         if (response.ok) {
           const data = await response.json();
-          setExploreData(data.images || []);
+          
+          // Parse metadata from filenames
+          const parsedImages: ExploreItem[] = (data.images || []).map((img: any) => {
+            // Remove "placeholders/styles/" prefix from filename before parsing
+            const filename = img.image.replace(/^placeholders\/styles\//i, '');
+            const metadata = parseExploreImageFilename(filename);
+            
+            if (!metadata) {
+              console.warn('Failed to parse filename:', img.image);
+              return null;
+            }
+            
+            return {
+              id: img.id,
+              image: img.image,
+              aspectRatio: metadata.aspectRatio,
+              resolution: metadata.resolution,
+              model: 'Primeshot v1',
+              style: metadata.styleFormatted,
+              scene: metadata.scene,
+              wardrobe: metadata.wardrobe,
+              color: metadata.color,
+              category: img.category,
+            };
+          }).filter((img: ExploreItem | null): img is ExploreItem => img !== null); // Remove nulls with type guard
+          
+          setExploreData(parsedImages);
           setStyleFilterData(data.categories || {});
           
           // Extract unique categories for filters
-          const uniqueCategories = Array.from(new Set((data.images as ExploreItem[]).map(img => img.category)));
+          const uniqueCategories = Array.from(new Set(parsedImages.map((img: ExploreItem) => String(img.category))));
           setStyleFilters(['All', ...uniqueCategories.sort()]);
         }
       } catch (error) {

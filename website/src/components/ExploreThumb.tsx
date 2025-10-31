@@ -178,7 +178,7 @@ const ExploreThumb: React.FC<ExploreThumbProps> = ({
         <Tooltip>
           <TooltipTrigger asChild>
             <Link 
-              href={`/create?style=${encodeURIComponent(style.toLowerCase().replace(/\s+/g, ''))}&scene=${encodeURIComponent(scene)}&wardrobe=${encodeURIComponent(wardrobe)}&color=${encodeURIComponent(color)}`}
+              href={`/create?style=${encodeURIComponent(style.toLowerCase().replace(/\s+/g, ''))}&scene=${encodeURIComponent(scene)}&wardrobe=${encodeURIComponent(wardrobe)}&color=${encodeURIComponent(color)}&aspectRatio=${encodeURIComponent(aspectRatio)}&quality=${encodeURIComponent(resolution)}`}
               className={styles.generateButton}
             >
               <svg className={styles.generateIconDefault} width="20" height="20" viewBox="0 0 20 20" fill="none">

@@ -102,7 +102,7 @@ export interface ListExploreImagesRequest {
 export interface ListExploreImagesResponse {
     success: boolean;
     images?: ExploreImageWithRelations[];
-    groupedByStyle?: Record<string, ExploreImageWithRelations[]>;
+    groupedByCategory?: Record<string, ExploreImageWithRelations[]>;
     error?: string;
 }
 export interface ListExploreCategoriesResponse {

@@ -130,8 +130,27 @@ export async function POST(request: NextRequest) {
       finalCategory = newCategory;
     }
 
+    // Fetch scene, wardrobe, and color values for filename
+    const [sceneData, wardrobeData, colorData] = await Promise.all([
+      supabase.from('style_scenes').select('value').eq('id', inferenceData.scene_id).single(),
+      supabase.from('style_wardrobes').select('value').eq('id', inferenceData.wardrobe_id).single(),
+      supabase.from('style_colors').select('value').eq('id', inferenceData.color_id).single()
+    ]);
+
+    const scene = sceneData.data?.value || 'unknown';
+    const wardrobe = wardrobeData.data?.value || 'unknown';
+    const color = colorData.data?.value || 'default';
+    const resolution = inferenceData.quality || '2K';
+
     // Generate filename and paths
-    const filename = generateExploreFilename(styleName);
+    const filename = generateExploreFilename(
+      styleName,
+      scene,
+      wardrobe,
+      color,
+      inferenceData.aspect_ratio,
+      resolution
+    );
     const destinationPath = getExploreImagePath(filename);
     
     console.log('Attempting copy with web_path:', generatedImage.web_path);
@@ -152,9 +171,6 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-
-    // Use quality directly as resolution (already in format: '4K', '2K', '1K')
-    const resolution = inferenceData.quality || '2K';
 
     // Create explore_images record
     const { data: exploreImage, error: insertError } = await supabase

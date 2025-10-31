@@ -1,22 +1,24 @@
 'use client'
 
-import { useCallback } from 'react'
-import Image from 'next/image'
+import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { makeCloudfrontLoader } from '@/lib/utils/cloudfrontLoader'
 import { Icon } from '@primeshot/common/web/Icon'
 import { useDialogService } from '@/contexts/DialogServiceContext'
+import { StylePreviewCard } from './StylePreviewCard'
+import { parseStyleImageFilenames } from '@/lib/utils/parse-style-image-metadata'
 import styles from './StylePreviewDialog.module.css'
 
 interface StylePreviewDialogProps {
   styleName: string
+  styleId: string
   previewImages: string[]
   fullscreen?: boolean
   noContainer?: boolean
 }
 
 export function StylePreviewDialog({ 
-  styleName, 
+  styleName,
+  styleId,
   previewImages,
   fullscreen = true,
   noContainer = true 
@@ -34,7 +36,12 @@ export function StylePreviewDialog({
     }
   }, [handleClose])
 
-  if (!previewImages || previewImages.length === 0) {
+  // Parse metadata from filenames
+  const parsedImages = useMemo(() => {
+    return parseStyleImageFilenames(previewImages)
+  }, [previewImages])
+
+  if (!previewImages || previewImages.length === 0 || parsedImages.length === 0) {
     return (
       <div className={styles.container} onClick={handleBackdropClick}>
         <div className={styles.header}>
@@ -69,19 +76,20 @@ export function StylePreviewDialog({
       
       <div className={styles.content}>
         <div className={styles.masonry}>
-          {previewImages.map((imageSrc, index) => (
-            <div key={`${imageSrc}-${index}`} className={styles.imageCard}>
-              <Image
-                loader={makeCloudfrontLoader('app-images/placeholders/styles')}
-                src={imageSrc}
-                alt={`${styleName} preview ${index + 1}`}
-                width={400}
-                height={600}
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                quality={85}
-                loading={index < 6 ? 'eager' : 'lazy'}
-                decoding="async"
-                className={styles.image}
+          {parsedImages.map((metadata, index) => (
+            <div key={`${metadata.filename}-${index}`} className={styles.imageCard}>
+              <StylePreviewCard
+                image={`placeholders/styles/${metadata.filename}`}
+                aspectRatio={metadata.aspectRatio}
+                resolution={metadata.resolution}
+                style={metadata.style}
+                styleFormatted={metadata.styleFormatted}
+                scene={metadata.scene}
+                wardrobe={metadata.wardrobe}
+                color={metadata.color}
+                priority={index < 6}
+                styleId={styleId}
+                onGenerate={handleClose}
               />
             </div>
           ))}

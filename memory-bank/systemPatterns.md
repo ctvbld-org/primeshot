@@ -2640,6 +2640,44 @@ Detected changes in:
 - webapp/src/app/layout.tsx
 - website/src/app/layout.tsx
 - website/src/components/generate/GenerateBar.tsx
+
+
+**Auto-update 2025-10-31**:
+Detected changes in:
+- admin/src/app/api/explore/bulk-update-category/route.ts
+- admin/src/app/api/explore/categories/route.ts
+- admin/src/app/api/explore/list/route.ts
+- admin/src/app/api/explore/update/route.ts
+- admin/src/app/explore/page.tsx
+- admin/src/components/explore/CategoriesTab.module.css
+- admin/src/components/explore/CategoriesTab.tsx
+- admin/src/components/explore/ImagesTab.module.css
+- admin/src/components/explore/ImagesTab.tsx
+- admin/src/components/layout/AdminHeader.tsx
+- webapp/src/app/api/admin/explore/check/route.ts
+- webapp/src/app/api/admin/explore/remove/route.ts
+- webapp/src/app/api/admin/explore/save/route.ts
+- webapp/src/app/auth/auth-code-error/page.tsx
+- webapp/src/app/layout.tsx
+- webapp/src/app/site.webmanifest/route.ts
+- webapp/src/components/inference/InferenceThumbnail.module.css
+- webapp/src/components/inference/InferenceThumbnail.tsx
+- webapp/src/lib/admin/explore-utils.ts
+- webapp/src/lib/upload-utils.ts
+- website/src/app/[locale]/explore/page.module.css
+- website/src/app/[locale]/explore/page.tsx
+- website/src/app/[locale]/layout.tsx
+- website/src/app/[locale]/pricing/page.tsx
+- website/src/app/api/explore/route.ts
+- website/src/app/site.webmanifest/route.ts
+- website/src/components/ExploreThumb.tsx
+- website/src/components/InteractiveGenerateBar/CTASection.tsx
+- website/src/components/InteractiveGenerateBar/ShowcaseSections/CharactersShowcase.tsx
+- website/src/components/InteractiveGenerateBar/ShowcaseSections/ScenesShowcase.tsx
+- website/src/components/InteractiveGenerateBar/ShowcaseSections/StylesShowcase.tsx
+- website/src/components/InteractiveGenerateBar/ShowcaseSections/WardrobeShowcase.tsx
+- website/src/lib/data/mockCharacters.ts
+- website/src/lib/utils/cdn.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

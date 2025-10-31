@@ -153,6 +153,29 @@ export function GenerateBar({
   const [quality, setQuality] = useState<QualityCode>(() => String(load(STORAGE_KEYS.QUALITY, '')))
   const [aspectRatio, setAspectRatio] = useState<string>(() => load(STORAGE_KEYS.ASPECT_RATIO, ''))
 
+  // Initialize aspectRatio and quality from URL params (one-time on mount)
+  const urlParamsInitRef = useRef(false)
+  useEffect(() => {
+    if (urlParamsInitRef.current) return
+    if (typeof window === 'undefined') return
+    
+    const params = new URLSearchParams(window.location.search)
+    const aspectRatioParam = params.get('aspectRatio')
+    const qualityParam = params.get('quality')
+    
+    if (aspectRatioParam) {
+      setAspectRatio(aspectRatioParam)
+      save(STORAGE_KEYS.ASPECT_RATIO, aspectRatioParam)
+    }
+    
+    if (qualityParam) {
+      setQuality(qualityParam as QualityCode)
+      save(STORAGE_KEYS.QUALITY, qualityParam)
+    }
+    
+    urlParamsInitRef.current = true
+  }, [])
+
   // Selected character tracking (for selector thumbnail progress overlay)
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(() => {
     try {
@@ -207,7 +230,14 @@ export function GenerateBar({
 
   // Refresh labels/UI when selections change externally (e.g., via URL init)
   useEffect(() => {
-    const bump = () => setSelectionVersion(v => v + 1)
+    const bump = () => {
+      setSelectionVersion(v => v + 1)
+      // Reload aspect ratio and quality from localStorage
+      const newAspectRatio = load(STORAGE_KEYS.ASPECT_RATIO, '')
+      const newQuality = load(STORAGE_KEYS.QUALITY, '')
+      if (newAspectRatio) setAspectRatio(newAspectRatio)
+      if (newQuality) setQuality(newQuality)
+    }
     try { window.addEventListener('style-selections-updated', bump as any) } catch {}
     try { window.addEventListener('storage', bump) } catch {}
     return () => {

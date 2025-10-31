@@ -9,8 +9,8 @@ export async function GET(request: NextRequest) {
   try {
     let query = supabase
       .from('explore_images')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .select('id, s3_path, category_id')
+      .order('created_at', { ascending: false});
 
     // Filter by category if provided
     if (category && category !== 'All') {
@@ -35,60 +35,23 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch related data separately to avoid PostgREST aliasing issues
+    // Only fetch categories for mapping
     const categoryIds = [...new Set((images || []).map(img => img.category_id).filter(Boolean))];
-    const styleIds = [...new Set((images || []).map(img => img.style_id).filter(Boolean))];
-    const wardrobeIds = [...new Set((images || []).map(img => img.wardrobe_id).filter(Boolean))];
-    const sceneIds = [...new Set((images || []).map(img => img.scene_id).filter(Boolean))];
-    const colorIds = [...new Set((images || []).map(img => img.color_id).filter(Boolean))];
+    
+    const { data: categoriesData } = await supabase
+      .from('explore_categories')
+      .select('id, name')
+      .in('id', categoryIds);
 
-    // Fetch all related data in parallel
-    const [categoriesData, stylesData, wardrobesData, scenesData, colorsData] = await Promise.all([
-      categoryIds.length ? supabase.from('explore_categories').select('id, name, title, description, cta_link').in('id', categoryIds) : Promise.resolve({ data: [] }),
-      styleIds.length ? supabase.from('styles').select('id, name').in('id', styleIds) : Promise.resolve({ data: [] }),
-      wardrobeIds.length ? supabase.from('style_wardrobes').select('id, value').in('id', wardrobeIds) : Promise.resolve({ data: [] }),
-      sceneIds.length ? supabase.from('style_scenes').select('id, value').in('id', sceneIds) : Promise.resolve({ data: [] }),
-      colorIds.length ? supabase.from('style_colors').select('id, value').in('id', colorIds) : Promise.resolve({ data: [] })
-    ]);
+    const categoriesMap = new Map((categoriesData || []).map(c => [c.id, c]));
 
-    // Create lookup maps
-    const categoriesMap = new Map((categoriesData.data || []).map(c => [c.id, c]));
-    const stylesMap = new Map((stylesData.data || []).map(s => [s.id, s]));
-    const wardrobesMap = new Map((wardrobesData.data || []).map(w => [w.id, w]));
-    const scenesMap = new Map((scenesData.data || []).map(s => [s.id, s]));
-    const colorsMap = new Map((colorsData.data || []).map(c => [c.id, c]));
-
-    // Format images for website (match ExploreItem interface)
+    // Format images - metadata will be parsed from filename on frontend
     const formattedImages = (images || []).map((img: any) => {
       const categoryData = categoriesMap.get(img.category_id);
-      const styleData = stylesMap.get(img.style_id);
-      const wardrobeData = wardrobesMap.get(img.wardrobe_id);
-      const sceneData = scenesMap.get(img.scene_id);
-      const colorData = colorsMap.get(img.color_id);
-
-      // Debug logging
-      if (!sceneData || !wardrobeData || !colorData) {
-        console.log('Missing data for image:', {
-          imageId: img.id,
-          scene_id: img.scene_id,
-          wardrobe_id: img.wardrobe_id,
-          color_id: img.color_id,
-          sceneData: sceneData?.value,
-          wardrobeData: wardrobeData?.value,
-          colorData: colorData?.value
-        });
-      }
 
       return {
         id: img.id,
-        image: img.s3_path,
-        aspectRatio: img.aspect_ratio,
-        resolution: img.resolution,
-        model: 'Primeshot v1',
-        style: styleData?.name || 'Unknown',
-        scene: sceneData?.value || 'unknown', // Use value for lookup in ExploreThumb
-        wardrobe: wardrobeData?.value || 'unknown', // Use value for lookup in ExploreThumb
-        color: colorData?.value || 'default', // Use value for lookup in ExploreThumb
+        image: img.s3_path, // Full filename with all metadata
         category: categoryData?.name || 'Uncategorized',
       };
     });
@@ -97,9 +60,9 @@ export async function GET(request: NextRequest) {
     const { data: allCategories } = await supabase
       .from('explore_categories')
       .select('*')
-      .order('name', { ascending: true });
+      .order('name', { ascending: true});
 
-    // Format categories for website (match StyleFilter interface)
+    // Format categories for website
     const formattedCategories: Record<string, any> = {};
     (allCategories || []).forEach((cat: any) => {
       formattedCategories[cat.name] = {
@@ -122,4 +85,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-
