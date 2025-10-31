@@ -5,7 +5,7 @@ import { Icon } from '@primeshot/common/web/Icon'
 import { makeCloudfrontLoader } from '@/lib/utils/cloudfrontLoader'
 import { StickyShowcaseSection } from '../StickyShowcaseSection'
 import styles from '../ShowcaseSection.module.css'
-import { getWebsiteCdnUrl } from '@/lib/utils/cdn'
+import { getWebsiteCdnUrl } from '@primeshot/common/lib/utils/cdn'
 import { useTranslation } from 'react-i18next'
 
 const cloudfrontLoader = makeCloudfrontLoader('website-images')

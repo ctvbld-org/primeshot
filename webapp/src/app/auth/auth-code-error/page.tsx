@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next';
-import { getAppCdnUrl } from '@/lib/utils/cdn';
+import { getAppCdnUrl } from '@primeshot/common/lib/utils/cdn';
 
 export default function AuthCodeErrorPage() {
   const { t } = useTranslation('auth');

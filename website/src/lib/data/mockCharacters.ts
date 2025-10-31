@@ -1,5 +1,5 @@
 import type { Character } from '@/../../webapp/src/types/jobs'
-import { getWebsiteCdnUrl } from '@/lib/utils/cdn'
+import { getWebsiteCdnUrl } from '@primeshot/common/lib/utils/cdn'
 
 /**
  * Mock characters for demo/preview mode on the marketing website.

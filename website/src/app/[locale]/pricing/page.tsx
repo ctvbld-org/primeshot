@@ -25,7 +25,7 @@ import {
 import { Button } from "@primeshot/common/web/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@primeshot/common/web/ui/dialog";
 import ContentPageHeader from "@/components/ContentPageHeader";
-import { getWebsiteCdnUrl } from "@/lib/utils/cdn";
+import { getWebsiteCdnUrl } from "@primeshot/common/lib/utils/cdn";
 import { PricingCategory, transformPricingData, getApiUrl, SubscriptionTier } from "@primeshot/common";
 import { PricingCards, SpecialOfferBanner, SignInForm } from "@primeshot/common/web";
 import { STRIPE_REFERENCE } from "@primeshot/common/lib/stripe/stripe-reference";

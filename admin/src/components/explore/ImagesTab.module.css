@@ -1,0 +1,114 @@
+.container {
+  padding: 1rem;
+}
+
+.loading,
+.empty {
+  text-align: center;
+  padding: 3rem;
+  color: var(--muted-foreground);
+}
+
+.bulkActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: var(--accent);
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.bulkActionsGroup {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.categorySelect {
+  min-width: 200px;
+}
+
+.styleGroups {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.styleGroup {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.styleHeader {
+  padding: 1rem 1.5rem;
+  background: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.styleHeader:hover {
+  background: var(--accent);
+}
+
+.styleName {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.imagesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.imageCard {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--card);
+}
+
+.imageCheckbox {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.25rem;
+  border-radius: 4px;
+}
+
+.imagePreview {
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%; /* 1:1 aspect ratio */
+  background: var(--muted);
+}
+
+.imageInfo {
+  padding: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.imageInfo p {
+  margin: 0.25rem 0;
+}
+
+.imageActions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0 0.75rem 0.75rem;
+}
+
+.imageActions button {
+  flex: 1;
+}
+

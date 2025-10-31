@@ -23,7 +23,7 @@ import { CreditBalanceProvider } from '@/contexts/credit-balance-context'
 import QueryParamCleaner from '@/components/shared/QueryParamCleaner'
 import { PurchaseSuccessHandler } from '@/components/providers/PurchaseSuccessHandler'
 import { CrispInitializer } from '@/components/providers/CrispInitializer'
-import { getWebsiteCdnUrl } from '@/lib/utils/cdn'
+import { getWebsiteCdnUrl } from '@primeshot/common/lib/utils/cdn'
 
 const inter = Inter({
   subsets: ["latin"],

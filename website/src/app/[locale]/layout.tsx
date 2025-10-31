@@ -6,7 +6,7 @@ import { AuthProvider, LanguageProvider, I18nProvider } from '@primeshot/common'
 import { GoogleAnalytics } from '@next/third-parties/google'
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import { getWebsiteCdnUrl } from '@/lib/utils/cdn'
+import { getWebsiteCdnUrl } from '@primeshot/common/lib/utils/cdn'
 import { StyleProviders } from '@/contexts/StyleProviders'
 import { Header, Footer } from '@primeshot/common'
 import { IntentHandler } from '@/components/IntentHandler'

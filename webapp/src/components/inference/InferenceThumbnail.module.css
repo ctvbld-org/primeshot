@@ -399,6 +399,14 @@
   -webkit-filter: blur(0);
 }
 
+.exploreBtn {
+  opacity: 1; 
+  transform: translateY(0);
+  filter: blur(0);
+  -webkit-filter: blur(0);
+  color: var(--brand-primary);
+}
+
 /* Generating state gradient loader */
 .statusGenerating .imageContainer,
 .statusInitializing .imageContainer {

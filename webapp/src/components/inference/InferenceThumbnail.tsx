@@ -232,8 +232,32 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
   const [isDownloading, setIsDownloading] = useState(false);
   const [isTogglingFav, setIsTogglingFav] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSavingToExplore, setIsSavingToExplore] = useState(false);
+  const [isInExplore, setIsInExplore] = useState(false);
   const [localFavourite, setLocalFavourite] = useState(Boolean(thumbnail.favourite));
   useEffect(() => { setLocalFavourite(Boolean(thumbnail.favourite)); }, [thumbnail.favourite]);
+  
+  // Check if user is admin
+  const isAdmin = user?.admin === true;
+
+  // Check if image is in explore on mount
+  useEffect(() => {
+    if (!isAdmin || !thumbnail.imageId) return;
+    
+    const checkExploreStatus = async () => {
+      try {
+        const response = await fetch(`/api/admin/explore/check?generatedImageId=${thumbnail.imageId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setIsInExplore(data.isInExplore || false);
+        }
+      } catch (error) {
+        console.error('Failed to check explore status:', error);
+      }
+    };
+    
+    checkExploreStatus();
+  }, [isAdmin, thumbnail.imageId]);
 
   const handleToggleFavourite = useCallback(async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -319,6 +343,64 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
       setTimeout(() => setIsDeleting(false), 600);
     }
   }, [thumbnail.imageId, thumbnail.jobId, thumbnail.index, queue]);
+
+  const handleToggleExplore = useCallback(async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!thumbnail.imageId || !isAdmin) return;
+    if (isSavingToExplore) return;
+    
+    setIsSavingToExplore(true);
+    try {
+      if (isInExplore) {
+        // Remove from explore - need to get the explore image ID first
+        const checkResponse = await fetch(`/api/admin/explore/check?generatedImageId=${thumbnail.imageId}`);
+        if (checkResponse.ok) {
+          const checkData = await checkResponse.json();
+          if (checkData.exploreImageId) {
+            const response = await fetch(`/api/admin/explore/remove?id=${checkData.exploreImageId}`, {
+              method: 'DELETE',
+            });
+            
+            if (response.ok) {
+              setIsInExplore(false);
+              toast({
+                title: t('thumbnail.explore.removed', { ns: 'inference' }),
+                variant: 'success',
+              });
+            } else {
+              throw new Error('Failed to remove from explore');
+            }
+          }
+        }
+      } else {
+        // Save to explore
+        const response = await fetch('/api/admin/explore/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ generatedImageId: thumbnail.imageId }),
+        });
+        
+        if (response.ok) {
+          setIsInExplore(true);
+          toast({
+            title: t('thumbnail.explore.saved', { ns: 'inference' }),
+            variant: 'success',
+          });
+        } else {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to save to explore');
+        }
+      }
+    } catch (error) {
+      toast({
+        title: t('thumbnail.explore.error', { ns: 'inference' }),
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: 'destructive',
+      });
+    } finally {
+      setTimeout(() => setIsSavingToExplore(false), 600);
+    }
+  }, [thumbnail.imageId, isAdmin, isInExplore, isSavingToExplore, toast, t]);
 
   return (
     <div 
@@ -425,26 +507,53 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
         {/* Hover actions */}
         {thumbnail.status === 'completed' && (thumbnail.webImageUrl || thumbnail.imageUrl) && finalLoaded && (
           <div className={styles.actionsOverlay}>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    iconOnly
-                    className={`${styles.actionBtn} ${localFavourite ? styles.favBtn : ''}`}
-                    onClick={handleToggleFavourite}
-                    aria-label={localFavourite ? t('thumbnail.favourite.remove') : t('thumbnail.favourite.add')}
-                    disabled={isTogglingFav}
-                  >
-                    {isTogglingFav
-                      ? <Loader size="sm" />
-                      : <Icon variant={localFavourite ? 'heart' : 'heartOutline'} size={16} />}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="top">{localFavourite ? t('thumbnail.favourite.remove') : t('thumbnail.favourite.add')}</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <div className={styles.actionBtnGroup}>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      iconOnly
+                      className={`${styles.actionBtn} ${localFavourite ? styles.favBtn : ''}`}
+                      onClick={handleToggleFavourite}
+                      aria-label={localFavourite ? t('thumbnail.favourite.remove') : t('thumbnail.favourite.add')}
+                      disabled={isTogglingFav}
+                    >
+                      {isTogglingFav
+                        ? <Loader size="sm" />
+                        : <Icon variant={localFavourite ? 'heart' : 'heartOutline'} size={16} />}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">{localFavourite ? t('thumbnail.favourite.remove') : t('thumbnail.favourite.add')}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              {/* Star icon for admins */}
+              {isAdmin && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        iconOnly
+                        className={`${styles.actionBtn} ${isInExplore ? styles.exploreBtn : ''}`}
+                        onClick={handleToggleExplore}
+                        aria-label={isInExplore ? t('thumbnail.explore.remove') : t('thumbnail.explore.add')}
+                        disabled={isSavingToExplore}
+                      >
+                        {isSavingToExplore
+                          ? <Loader size="sm" />
+                          : <Icon variant={isInExplore ? 'star' : 'starOutline'} size={16} />}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">{isInExplore ? t('thumbnail.explore.remove') : t('thumbnail.explore.add')}</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
+
             <TooltipProvider>
               {/* Favourite is handled by the pinned button; no duplicate here */}
               <div className={styles.actionBtnGroup}>
@@ -456,19 +565,19 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
                   </TooltipTrigger>
                   <TooltipContent side="top">{t('thumbnail.actions.delete.label')}</TooltipContent>
                 </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="sm" iconOnly className={styles.actionBtn} onClick={handleDownload} aria-label={t('thumbnail.actions.download.aria')} disabled={isDownloading || (!thumbnail.imageUrl && !thumbnail.webImageUrl)}>
-                    {isDownloading ? <Loader size="sm" /> : <Icon variant="download" size={16} />}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="top">{t('thumbnail.actions.download.label')}</TooltipContent>
-              </Tooltip>
-            </div>
-          </TooltipProvider>
-        </div>
-      )}
-    </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="sm" iconOnly className={styles.actionBtn} onClick={handleDownload} aria-label={t('thumbnail.actions.download.aria')} disabled={isDownloading || (!thumbnail.imageUrl && !thumbnail.webImageUrl)}>
+                      {isDownloading ? <Loader size="sm" /> : <Icon variant="download" size={16} />}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">{t('thumbnail.actions.download.label')}</TooltipContent>
+                </Tooltip>
+              </div>
+            </TooltipProvider>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

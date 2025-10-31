@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getAppCdnUrl } from '@/lib/utils/cdn';
+import { getAppCdnUrl } from '@primeshot/common/lib/utils/cdn';
 import { useStyleData } from '@primeshot/common';
 import { useTranslation } from 'react-i18next';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@primeshot/common/web/ui/tooltip';
@@ -161,17 +161,11 @@ const ExploreThumb: React.FC<ExploreThumbProps> = ({
     >
       <div className={styles.imageWrapper}>
         {isInView ? (
-          <Image
+          <img
             src={getAppCdnUrl(image)}
             alt={category}
-            fill
-            quality={95}
-            priority={priority}
             sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
             className={styles.image}
-            onError={(e) => {
-              e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='533' viewBox='0 0 300 533'%3E%3Crect width='300' height='533' fill='%23374151'/%3E%3Ctext x='150' y='266' text-anchor='middle' fill='%236B7280' font-family='Arial' font-size='16'%3EImage%3C/text%3E%3C/svg%3E";
-            }}
           />
         ) : (
           <div className={styles.loadingContainer}>

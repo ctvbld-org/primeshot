@@ -43,10 +43,16 @@ const nextConfig = {
         hostname: 'primeshot.ai',
       },
       // Only allow HTTP localhost in development environment
-      ...(isProd ? [] : [{
-        protocol: 'http',
-        hostname: 'localhost',
-      }]),
+      ...(isProd ? [] : [
+        {
+          protocol: 'http',
+          hostname: 'localhost',
+        },
+        {
+          protocol: 'http',
+          hostname: '127.0.0.1',
+        }
+      ]),
       {
         protocol: 'https',
         hostname: 'd3el9qajjnmn76.cloudfront.net',

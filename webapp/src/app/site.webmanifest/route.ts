@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getWebsiteCdnUrl } from '@/lib/utils/cdn';
+import { getWebsiteCdnUrl } from '@primeshot/common/lib/utils/cdn';
 
 export async function GET() {
   const manifest = {

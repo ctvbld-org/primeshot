@@ -36,6 +36,7 @@ export const AdminHeader: React.FC = () => {
               { label: 'Dashboard', path: '/dashboard' },
               { label: 'Styles', path: '/styles' },
               { label: 'Media', path: '/media' },
+              { label: 'Explore', path: '/explore' },
               { label: 'Subscriptions', path: '/subscriptions' },
               { label: 'Inference', path: '/inference' },
             ].map(({ label, path }) => (
