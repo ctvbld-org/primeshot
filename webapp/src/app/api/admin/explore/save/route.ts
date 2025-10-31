@@ -98,11 +98,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Get or create category based on style name
-    let { data: category, error: categoryError } = await supabase
+    const { data: category, error: categoryError } = await supabase
       .from('explore_categories')
       .select('*')
       .eq('name', styleName)
       .single();
+
+    let finalCategory = category;
 
     if (categoryError || !category) {
       // Create new category with CTA link to create page with style
@@ -125,7 +127,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      category = newCategory;
+      finalCategory = newCategory;
     }
 
     // Generate filename and paths
@@ -167,7 +169,7 @@ export async function POST(request: NextRequest) {
         color_id: inferenceData.color_id,
         aspect_ratio: inferenceData.aspect_ratio,
         resolution: resolution,
-        category_id: category.id,
+        category_id: finalCategory.id,
         s3_path: destinationPath,
         original_s3_path: successfulSourcePath
       })
