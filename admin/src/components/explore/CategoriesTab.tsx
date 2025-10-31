@@ -9,6 +9,7 @@ import { Label } from '@primeshot/common/web/ui/label';
 import { Textarea } from '@primeshot/common/web/ui/textarea';
 import { useToast } from '@primeshot/common/web/ui/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@primeshot/common/web/ui/dialog';
+import { getApiUrl } from '@primeshot/common/lib/api/client';
 import styles from './CategoriesTab.module.css';
 
 export default function CategoriesTab() {
@@ -20,7 +21,7 @@ export default function CategoriesTab() {
   const { data: categories, isLoading } = useQuery({
     queryKey: ['exploreCategories'],
     queryFn: async () => {
-      const response = await fetch('/api/explore/categories');
+      const response = await fetch(getApiUrl('/api/explore/categories'));
       if (!response.ok) throw new Error('Failed to fetch categories');
       const data = await response.json();
       return data.categories as ExploreCategory[];
@@ -29,7 +30,7 @@ export default function CategoriesTab() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`/api/explore/categories?id=${id}`, {
+      const response = await fetch(getApiUrl(`/api/explore/categories?id=${id}`), {
         method: 'DELETE',
       });
       if (!response.ok) {
@@ -152,8 +153,8 @@ function CategoryForm({ category, onSuccess, onCancel }: CategoryFormProps) {
   const mutation = useMutation({
     mutationFn: async (data: typeof formData) => {
       const url = category
-        ? `/api/explore/categories`
-        : `/api/explore/categories`;
+        ? getApiUrl('/api/explore/categories')
+        : getApiUrl('/api/explore/categories');
       
       const body = category
         ? { id: category.id, ...data }

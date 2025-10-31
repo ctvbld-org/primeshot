@@ -8,6 +8,7 @@ import { useScrollSection } from '../ScrollSectionManager'
 import cssStyles from '../ShowcaseSection.module.css'
 import { makeCloudfrontLoader } from '@/lib/utils/cloudfrontLoader'
 import { useTranslation } from 'react-i18next'
+import { getApiUrl } from '@primeshot/common/lib/api/client'
 
 const cloudfrontLoader = makeCloudfrontLoader('app-images')
 
@@ -40,7 +41,7 @@ export function ScenesShowcase() {
 
   useEffect(() => {
     // Fetch styles from API
-    fetch('/api/styles')
+    fetch(getApiUrl('/api/styles'))
       .then((res) => {
         if (!res.ok) throw new Error('Failed to fetch styles')
         return res.json()

@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { FileWithScore } from './types';
+import { getApiUrl } from '@primeshot/common/lib/api/client';
 
 // Default part size; server may override via init response
 export const DEFAULT_PART_SIZE = 6 * 1024 * 1024; // 6 MiB
@@ -47,36 +48,11 @@ type FaceBox = { x: number; y: number; width: number; height: number } | undefin
 
 interface InitResponse { uploadId: string; key: string; partSize: number; contentType: string }
 
-function getBasePath(): string {
-  // Prefer explicit env var in prod
-  const env = (process.env.NEXT_PUBLIC_BASE_PATH || '').trim();
-  if (env) return env.startsWith('/') ? env.replace(/\/$/, '') : `/${env.replace(/\/$/, '')}`;
-
-  // Fallback to Next runtime data on client
-  if (typeof window !== 'undefined') {
-    const ap = (window as any).__NEXT_DATA__?.assetPrefix as string | undefined;
-    if (ap) return ap.startsWith('/') ? ap.replace(/\/$/, '') : `/${ap.replace(/\/$/, '')}`;
-  }
-
-  return '';
-}
-
-function withBasePath(path: string): string {
-  const base = getBasePath();
-  const p = path.startsWith('/') ? path : `/${path}`;
-  return `${base}${p}`;
-}
-
-function getApiBase() {
-  return withBasePath('/api/upload-chunk');
-}
-
 async function initMultipart(
   file: FileWithScore & File,
   characterId: string,
   opts: { isFirstImage?: boolean; faceBox?: FaceBox; qualityScore?: number; thumbnailBlob?: Blob | null }
 ): Promise<InitResponse> {
-  const apiBase = getApiBase();
   const uploadId = uuidv4();
   const metadata = {
     uploadId,
@@ -94,7 +70,7 @@ async function initMultipart(
   form.append('metadata', JSON.stringify(metadata));
   if (opts.thumbnailBlob) form.append('thumbnail', opts.thumbnailBlob, 'thumbnail.webp');
 
-  const res = await fetch(`${apiBase}?action=init`, {
+  const res = await fetch(getApiUrl('/api/upload-chunk?action=init'), {
     method: 'POST',
     // Cookie-based auth; no Authorization header needed
     body: form
@@ -108,8 +84,7 @@ async function initMultipart(
 }
 
 async function signPart(uploadId: string, key: string, partNumber: number): Promise<string> {
-  const apiBase = getApiBase();
-  const res = await fetch(`${apiBase}?action=sign-part`, {
+  const res = await fetch(getApiUrl('/api/upload-chunk?action=sign-part'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action: 'sign-part', uploadId, key, partNumber })
@@ -123,8 +98,7 @@ async function signPart(uploadId: string, key: string, partNumber: number): Prom
 }
 
 async function completeMultipart(uploadId: string, key: string, parts: { partNumber: number; etag: string }[]): Promise<string> {
-  const apiBase = getApiBase();
-  const res = await fetch(`${apiBase}?action=complete`, {
+  const res = await fetch(getApiUrl('/api/upload-chunk?action=complete'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action: 'complete', uploadId, key, parts })
@@ -139,8 +113,7 @@ async function completeMultipart(uploadId: string, key: string, parts: { partNum
 
 export async function abortMultipart(uploadId: string, key: string): Promise<void> {
   try {
-    const apiBase = getApiBase();
-    await fetch(`${apiBase}?action=abort`, {
+    await fetch(getApiUrl('/api/upload-chunk?action=abort'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'abort', uploadId, key })

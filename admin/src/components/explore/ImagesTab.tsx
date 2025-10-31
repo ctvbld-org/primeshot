@@ -9,6 +9,7 @@ import { Checkbox } from '@primeshot/common/web/ui/checkbox';
 import { useToast } from '@primeshot/common/web/ui/use-toast';
 import { Icon } from '@primeshot/common/web/Icon';
 import Image from 'next/image';
+import { getApiUrl } from '@primeshot/common/lib/api/client';
 import styles from './ImagesTab.module.css';
 import { getAppCdnUrl } from '@primeshot/common/lib/utils/cdn';
 
@@ -21,7 +22,7 @@ export default function ImagesTab() {
   const { data: imagesData, isLoading: imagesLoading } = useQuery({
     queryKey: ['exploreImages'],
     queryFn: async () => {
-      const response = await fetch('/api/explore/list');
+      const response = await fetch(getApiUrl('/api/explore/list'));
       if (!response.ok) throw new Error('Failed to fetch images');
       const data = await response.json();
       return {
@@ -34,7 +35,7 @@ export default function ImagesTab() {
   const { data: categories } = useQuery({
     queryKey: ['exploreCategories'],
     queryFn: async () => {
-      const response = await fetch('/api/explore/categories');
+      const response = await fetch(getApiUrl('/api/explore/categories'));
       if (!response.ok) throw new Error('Failed to fetch categories');
       const data = await response.json();
       return data.categories as ExploreCategory[];
@@ -61,7 +62,7 @@ export default function ImagesTab() {
 
   const bulkUpdateMutation = useMutation({
     mutationFn: async (data: { imageIds: string[]; categoryId: string }) => {
-      const response = await fetch('/api/explore/bulk-update-category', {
+      const response = await fetch(getApiUrl('/api/explore/bulk-update-category'), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -219,7 +220,7 @@ function ImageCard({ image, categories, isSelected, onSelect, onDelete, onUpdate
 
   const updateMutation = useMutation({
     mutationFn: async (data: { categoryId: string }) => {
-      const response = await fetch('/api/explore/update', {
+      const response = await fetch(getApiUrl('/api/explore/update'), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: image.id, categoryId: data.categoryId }),

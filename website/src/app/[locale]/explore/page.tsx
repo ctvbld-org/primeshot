@@ -8,6 +8,7 @@ import { Button } from "@primeshot/common/web/ui/button";
 import ContentPageHeader from '@/components/ContentPageHeader';
 import { ExploreItem } from '../data/exploreData';
 import { getWebsiteCdnUrl } from '@primeshot/common/lib/utils/cdn';
+import { getApiUrl } from '@primeshot/common/lib/api/client';
 import styles from './page.module.css';
 
 // Dynamic filter generation from data
@@ -36,7 +37,7 @@ function ExploreContent() {
     // Fetch explore data
     const fetchData = async () => {
       try {
-        const response = await fetch(`/api/explore${activeFilter !== 'All' ? `?category=${activeFilter}` : ''}`);
+        const response = await fetch(getApiUrl(`/api/explore${activeFilter !== 'All' ? `?category=${activeFilter}` : ''}`));
         if (response.ok) {
           const data = await response.json();
           setExploreData(data.images || []);

@@ -14,6 +14,7 @@ import { useToast } from '@primeshot/common/web/ui/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/auth-context';
 import { useTranslation } from 'react-i18next';
+import { getApiUrl } from '@primeshot/common/lib/api/client';
 
 export interface InferenceThumbnail {
   id: string;
@@ -246,7 +247,7 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
     
     const checkExploreStatus = async () => {
       try {
-        const response = await fetch(`/api/admin/explore/check?generatedImageId=${thumbnail.imageId}`);
+        const response = await fetch(getApiUrl(`/api/admin/explore/check?generatedImageId=${thumbnail.imageId}`));
         if (response.ok) {
           const data = await response.json();
           setIsInExplore(data.isInExplore || false);
@@ -353,11 +354,11 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
     try {
       if (isInExplore) {
         // Remove from explore - need to get the explore image ID first
-        const checkResponse = await fetch(`/api/admin/explore/check?generatedImageId=${thumbnail.imageId}`);
+        const checkResponse = await fetch(getApiUrl(`/api/admin/explore/check?generatedImageId=${thumbnail.imageId}`));
         if (checkResponse.ok) {
           const checkData = await checkResponse.json();
           if (checkData.exploreImageId) {
-            const response = await fetch(`/api/admin/explore/remove?id=${checkData.exploreImageId}`, {
+            const response = await fetch(getApiUrl(`/api/admin/explore/remove?id=${checkData.exploreImageId}`), {
               method: 'DELETE',
             });
             
@@ -374,7 +375,7 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
         }
       } else {
         // Save to explore
-        const response = await fetch('/api/admin/explore/save', {
+        const response = await fetch(getApiUrl('/api/admin/explore/save'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ generatedImageId: thumbnail.imageId }),
