@@ -19,6 +19,8 @@ import { Button } from '@primeshot/common/web/ui/button';
 import { confirmationService } from '@/lib/services/confirmationService';
 import { useJobsApi } from '@/lib/api/jobs';
 import { getStyleImages } from '@/lib/utils/get-styles-images';
+import { useCreditGuard } from '@/hooks/useCreditGuard';
+import { calculateImageCredits, useCreditCosts } from '@/hooks/usePricingConfig';
 
 interface InferenceJobGroupProps {
   job: InferenceJob;
@@ -44,6 +46,14 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
     const jobs = inferenceQueue?.jobs;
     return jobs?.find(j => j.id === job.id) || job;
   }, [inferenceQueue?.jobs, job]);
+
+  // Credit validation for rerun action (must come after activeJob is defined)
+  const { data: creditCosts, isLoading: isLoadingCreditCosts } = useCreditCosts();
+  const requiredCredits = useMemo(() => {
+    if (!activeJob.quality || !activeJob.nbTakes) return 0;
+    return calculateImageCredits(activeJob.quality, activeJob.nbTakes, creditCosts) || 0;
+  }, [activeJob.quality, activeJob.nbTakes, creditCosts]);
+  const guard = useCreditGuard(requiredCredits);
 
   // Helper to detect UUID vs value codes
   const isUuid = (v?: string) => !!v && /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i.test(v);
@@ -351,8 +361,6 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
   };
 
   const handleRerun = async () => {
-    let placeholderId: string | null = null;
-    
     try {
       // Extract parameters from the current job to recreate it
       // We need to ensure all required fields are present
@@ -392,17 +400,6 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
         colorValue = activeJob.colorId || '';
       }
 
-
-      // Create placeholder thumbnails first (this is what shows the loading UI)
-      placeholderId = createQueuedThumbnails(activeJob.nbTakes || 1, {
-        styleId: activeJob.styleId,
-        sceneId: sceneValue,
-        wardrobeId: wardrobeValue,
-        colorId: colorValue,
-        aspectRatio: activeJob.aspectRatio,
-        quality: activeJob.quality,
-      });
-
       const request = {
         user_id: user?.id || '',
         character_id: activeJob.characterId,
@@ -417,39 +414,75 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
         },
       };
 
-
-      const data = await startInference(request);
-      
-      // Handle the response to connect placeholder with real job
-      const realJobId = (data as any)?.job_id;
-      const responseStatus = (data as any)?.status;
-      
-      if (realJobId && placeholderId) {
-        // Update thumbnails with real job ID
-        updateJobWithRealId(placeholderId, realJobId);
+      // Wrap with credit guard to validate credits before starting
+      await guard(async () => {
+        let placeholderId: string | null = null;
         
-        // Update status based on response
-        if (responseStatus) {
-          updateJobStatus(realJobId, responseStatus);
+        try {
+          // Create placeholder thumbnails first (this is what shows the loading UI)
+          placeholderId = createQueuedThumbnails(activeJob.nbTakes || 1, {
+            styleId: activeJob.styleId,
+            sceneId: sceneValue,
+            wardrobeId: wardrobeValue,
+            colorId: colorValue,
+            aspectRatio: activeJob.aspectRatio,
+            quality: activeJob.quality,
+          });
+
+          const data = await startInference(request);
+          
+          // Handle the response to connect placeholder with real job
+          const realJobId = (data as any)?.job_id;
+          const responseStatus = (data as any)?.status;
+          
+          if (realJobId && placeholderId) {
+            // Update thumbnails with real job ID
+            updateJobWithRealId(placeholderId, realJobId);
+            
+            // Update status based on response
+            if (responseStatus) {
+              updateJobStatus(realJobId, responseStatus);
+            }
+          }
+
+          // Show success toast
+          toast({
+            title: t('group.rerun.started', { ns: 'inference', defaultValue: 'Generation started' }),
+            duration: 3000
+          });
+
+        } catch (err) {
+          // Mark placeholder as failed on API error
+          if (placeholderId) {
+            try { 
+              updateJobStatus(placeholderId, 'failed' as any); 
+            } catch {}
+          }
+          throw err;
         }
-      }
+      })();
 
     } catch (e) {
       console.error('Failed to rerun job', e);
       
-      // Mark placeholder as failed on API error
-      if (placeholderId) {
-        try { 
-          updateJobStatus(placeholderId, 'failed' as any); 
-        } catch {}
+      // Handle insufficient credits specifically
+      const msg = (e as any)?.message || '';
+      if (typeof msg === 'string' && (msg.includes('Insufficient credits') || msg.includes('402'))) {
+        toast({
+          title: t('group.rerun.insufficientCredits', { ns: 'inference', defaultValue: 'Not enough credits' }),
+          description: t('group.rerun.insufficientCreditsDesc', { ns: 'inference', defaultValue: 'Please purchase more credits to continue.' }),
+          variant: 'destructive',
+          duration: 5000
+        });
+      } else {
+        // Generic error toast
+        toast({ 
+          title: t('group.rerun.failed', { ns: 'inference' }), 
+          description: t('common.pleaseTryAgain', { ns: 'inference' }), 
+          variant: 'destructive', 
+          duration: 4000 
+        });
       }
-      
-      toast({ 
-        title: t('group.rerun.failed', { ns: 'inference' }), 
-        description: t('common.pleaseTryAgain', { ns: 'inference' }), 
-        variant: 'destructive', 
-        duration: 4000 
-      });
     }
   };
 
@@ -494,7 +527,13 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" className={`${styles.dotsMenuButton} ${styles.actionBtn}`} onClick={handleRerun} aria-label={t('group.tooltips.rerunShoot', { ns: 'inference' })}>
+                    <Button 
+                      variant="ghost" 
+                      className={`${styles.dotsMenuButton} ${styles.actionBtn}`} 
+                      onClick={handleRerun} 
+                      disabled={isLoadingCreditCosts || !requiredCredits}
+                      aria-label={t('group.tooltips.rerunShoot', { ns: 'inference' })}
+                    >
                       <Icon variant="restart" size={16} />
                     </Button>
                   </TooltipTrigger>

@@ -12,6 +12,7 @@ import Image from 'next/image';
 import { getApiUrl } from '@primeshot/common/lib/api/client';
 import styles from './ImagesTab.module.css';
 import { getAppCdnUrl } from '@primeshot/common/lib/utils/cdn';
+import { parseExploreImageFilename } from '@/lib/utils/parse-explore-image-metadata';
 
 export default function ImagesTab() {
   const { toast } = useToast();
@@ -243,6 +244,10 @@ function ImageCard({ image, categories, isSelected, onSelect, onDelete, onUpdate
     }
   };
 
+  // Parse metadata from filename
+  const filename = image.s3_path.replace(/^placeholders\/styles\//i, '');
+  const metadata = parseExploreImageFilename(filename);
+  
   // Construct CDN URL for image (images are in app-images bucket)
   const imageUrl = image.s3_path;
 
@@ -255,15 +260,15 @@ function ImageCard({ image, categories, isSelected, onSelect, onDelete, onUpdate
       <div className={styles.imagePreview}>
         <img
           src={getAppCdnUrl(imageUrl)}
-          alt={`${image.style.name} - ${image.aspect_ratio}`}
+          alt={metadata ? `${metadata.styleFormatted} - ${metadata.aspectRatio}` : 'Explore image'}
           loading="lazy"
           style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 }}
         />
       </div>
       
       <div className={styles.imageInfo}>
-        <p><strong>AR:</strong> {image.aspect_ratio}</p>
-        <p><strong>Res:</strong> {image.resolution}</p>
+        <p><strong>AR:</strong> {metadata?.aspectRatio || 'Unknown'}</p>
+        <p><strong>Res:</strong> {metadata?.resolution || 'Unknown'}</p>
         {!isEditing ? (
           <p><strong>Cat:</strong> {image.category?.name || 'None'}</p>
         ) : (

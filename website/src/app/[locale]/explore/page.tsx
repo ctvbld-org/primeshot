@@ -6,15 +6,29 @@ import { useTranslation } from 'react-i18next';
 import ExploreThumb from '@/components/ExploreThumb';
 import { Button } from "@primeshot/common/web/ui/button";
 import ContentPageHeader from '@/components/ContentPageHeader';
-import { ExploreItem } from '../data/exploreData';
+import type { ExploreImage } from '@primeshot/common/types/explore';
 import { getWebsiteCdnUrl } from '@primeshot/common/lib/utils/cdn';
 import { getApiUrl } from '@primeshot/common/lib/api/client';
-import { parseExploreImageFilename } from '@/lib/utils/parse-explore-image-metadata';
+import { parseExploreImageFilename, type AspectRatio } from '@/lib/utils/parse-explore-image-metadata';
 import styles from './page.module.css';
 
+// Extended type for parsed explore images with metadata from filename
+interface ParsedExploreImage {
+  id: string;
+  image: string;
+  aspectRatio: AspectRatio;
+  resolution: string;
+  model: string;
+  style: string;
+  scene: string;
+  wardrobe: string;
+  color: string;
+  category: string;
+}
+
 // Dynamic filter generation from data
-const getDynamicFilters = (data: ExploreItem[]): string[] => {
-  const categories = new Set(data.map(item => item.category));
+const getDynamicFilters = (data: ParsedExploreImage[]): string[] => {
+  const categories = new Set(data.map(item => item.category).filter(Boolean));
   return ["All", ...Array.from(categories).sort()];
 };
 
@@ -27,7 +41,7 @@ function ExploreContent() {
   const [mounted, setMounted] = useState(false);
   
   // Fetch explore data from API
-  const [exploreData, setExploreData] = useState<ExploreItem[]>([]);
+  const [exploreData, setExploreData] = useState<ParsedExploreImage[]>([]);
   const [styleFilters, setStyleFilters] = useState<string[]>(['All']);
   const [styleFilterData, setStyleFilterData] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState(true);
@@ -35,15 +49,15 @@ function ExploreContent() {
   useEffect(() => {
     setMounted(true);
     
-    // Fetch explore data
+    // Fetch explore data (fetch all categories once)
     const fetchData = async () => {
       try {
-        const response = await fetch(getApiUrl(`/api/explore${activeFilter !== 'All' ? `?category=${activeFilter}` : ''}`));
+        const response = await fetch(getApiUrl('/api/explore'));
         if (response.ok) {
           const data = await response.json();
           
           // Parse metadata from filenames
-          const parsedImages: ExploreItem[] = (data.images || []).map((img: any) => {
+          const parsedImages: ParsedExploreImage[] = (data.images || []).map((img: any) => {
             // Remove "placeholders/styles/" prefix from filename before parsing
             const filename = img.image.replace(/^placeholders\/styles\//i, '');
             const metadata = parseExploreImageFilename(filename);
@@ -65,13 +79,13 @@ function ExploreContent() {
               color: metadata.color,
               category: img.category,
             };
-          }).filter((img: ExploreItem | null): img is ExploreItem => img !== null); // Remove nulls with type guard
+          }).filter((img: ParsedExploreImage | null): img is ParsedExploreImage => img !== null); // Remove nulls with type guard
           
           setExploreData(parsedImages);
           setStyleFilterData(data.categories || {});
           
           // Extract unique categories for filters
-          const uniqueCategories = Array.from(new Set(parsedImages.map((img: ExploreItem) => String(img.category))));
+          const uniqueCategories = Array.from(new Set(parsedImages.map((img: ParsedExploreImage) => img.category).filter(Boolean)));
           setStyleFilters(['All', ...uniqueCategories.sort()]);
         }
       } catch (error) {
@@ -82,7 +96,7 @@ function ExploreContent() {
     };
     
     fetchData();
-  }, [activeFilter]);
+  }, []); // Only fetch once on mount
 
   useEffect(() => {
     if (!mounted) return;

@@ -2678,6 +2678,29 @@ Detected changes in:
 - website/src/components/InteractiveGenerateBar/ShowcaseSections/WardrobeShowcase.tsx
 - website/src/lib/data/mockCharacters.ts
 - website/src/lib/utils/cdn.ts
+
+
+**Auto-update 2025-11-01**:
+Detected changes in:
+- admin/src/app/api/explore/list/route.ts
+- admin/src/app/api/explore/remove/route.ts
+- admin/src/components/explore/ImagesTab.tsx
+- admin/src/lib/s3.ts
+- admin/src/lib/sync/types.ts
+- webapp/src/app/api/admin/explore/save/route.ts
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/style/StylePreviewCard.module.css
+- webapp/src/components/style/StylePreviewCard.tsx
+- webapp/src/components/style/StylePreviewDialog.module.css
+- webapp/src/components/style/StylePreviewDialog.tsx
+- webapp/src/components/style/StylesCarousel.tsx
+- webapp/src/lib/admin/explore-utils.ts
+- webapp/src/lib/utils/parse-style-image-metadata.ts
+- website/src/app/[locale]/explore/page.tsx
+- website/src/app/api/explore/route.ts
+- website/src/components/ExploreThumb.module.css
+- website/src/components/ExploreThumb.tsx
+- website/src/lib/utils/parse-explore-image-metadata.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

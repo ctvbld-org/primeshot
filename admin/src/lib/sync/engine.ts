@@ -113,6 +113,47 @@ async function syncStyleTableRecord(
 }
 
 /**
+ * Sanitizes explore_images record by removing foreign key references that don't exist in target environment
+ * This allows explore images to be deployed independently without requiring all related data
+ */
+async function sanitizeExploreImageRecord(
+  recordData: any,
+  targetClient: any
+): Promise<{ sanitizedData: any; warnings: string[] }> {
+  const warnings: string[] = []
+  const sanitizedData = { ...recordData }
+  
+  // Check foreign keys: generated_image_id and category_id
+  const foreignKeyChecks = [
+    { field: 'generated_image_id', table: 'generated_images', label: 'Generated Image' },
+    { field: 'category_id', table: 'explore_categories', label: 'Category' }
+  ]
+  
+  // Check each foreign key reference
+  for (const { field, table, label } of foreignKeyChecks) {
+    const foreignKeyValue = sanitizedData[field]
+    
+    if (foreignKeyValue) {
+      // Check if the referenced record exists in target
+      const { data, error } = await targetClient
+        .from(table)
+        .select('id')
+        .eq('id', foreignKeyValue)
+        .single()
+      
+      if (error || !data) {
+        // Foreign key reference doesn't exist in target - null it out
+        sanitizedData[field] = null
+        warnings.push(`${label} reference (${foreignKeyValue}) not found in target environment - nulled out`)
+        console.log(`Nulling out ${field} for explore_images: reference ${foreignKeyValue} doesn't exist in target`)
+      }
+    }
+  }
+  
+  return { sanitizedData, warnings }
+}
+
+/**
  * Validates that a sync operation won't cause foreign key constraint violations
  */
 async function validateSyncOperation(
@@ -255,11 +296,28 @@ export async function executSync(request: SyncRequest): Promise<SyncResult> {
               await syncStyleTableRecord(sourceRecord, null, table as SyncableTable, targetClient, 'create')
             } else {
               const { created_at, updated_at, ...recordData } = sourceRecord
+              
+              // Special handling for explore_images to sanitize foreign keys
+              let finalRecordData = recordData
+              if (table === 'explore_images') {
+                console.log(`Sanitizing explore_images record before create`)
+                const { sanitizedData, warnings } = await sanitizeExploreImageRecord(recordData, targetClient)
+                finalRecordData = sanitizedData
+                
+                // Add warnings to errors array for user visibility
+                if (warnings.length > 0) {
+                  warnings.forEach(warning => {
+                    console.warn(`[explore_images] ${warning}`)
+                    errors.push(`[Warning] ${warning}`)
+                  })
+                }
+              }
+              
               const onConflict = table === 'inference_settings' ? 'key' : 'id'
 
               const { error: upsertError } = await targetClient
                 .from(table as SyncableTable)
-                .upsert(recordData as any, { onConflict })
+                .upsert(finalRecordData as any, { onConflict })
 
               if (upsertError) {
                 throw new Error(`Failed to create record ${changeId}: ${upsertError.message}`)
@@ -275,11 +333,28 @@ export async function executSync(request: SyncRequest): Promise<SyncResult> {
               await syncStyleTableRecord(sourceRecord, targetRecord, table as SyncableTable, targetClient, 'update')
             } else {
               const { created_at, updated_at, ...recordData } = sourceRecord
+              
+              // Special handling for explore_images to sanitize foreign keys
+              let finalRecordData = recordData
+              if (table === 'explore_images') {
+                console.log(`Sanitizing explore_images record before update`)
+                const { sanitizedData, warnings } = await sanitizeExploreImageRecord(recordData, targetClient)
+                finalRecordData = sanitizedData
+                
+                // Add warnings to errors array for user visibility
+                if (warnings.length > 0) {
+                  warnings.forEach(warning => {
+                    console.warn(`[explore_images] ${warning}`)
+                    errors.push(`[Warning] ${warning}`)
+                  })
+                }
+              }
+              
               const onConflict = table === 'inference_settings' ? 'key' : 'id'
 
               const { error: upsertError } = await targetClient
                 .from(table as SyncableTable)
-                .upsert(recordData as any, { onConflict })
+                .upsert(finalRecordData as any, { onConflict })
 
               if (upsertError) {
                 throw new Error(`Failed to update record ${changeId}: ${upsertError.message}`)
@@ -362,11 +437,24 @@ export async function syncSingleTable(
             await syncStyleTableRecord(change.data, null, table, targetClient, 'create')
           } else {
             const { created_at, updated_at, ...recordData } = change.data
+            
+            // Special handling for explore_images to sanitize foreign keys
+            let finalRecordData = recordData
+            if (table === 'explore_images') {
+              console.log(`Sanitizing explore_images record before create`)
+              const { sanitizedData, warnings } = await sanitizeExploreImageRecord(recordData, targetClient)
+              finalRecordData = sanitizedData
+              
+              if (warnings.length > 0) {
+                warnings.forEach(warning => console.warn(`[explore_images] ${warning}`))
+              }
+            }
+            
             const onConflict = table === 'inference_settings' ? 'key' : 'id'
             
             const { error } = await targetClient
               .from(table)
-              .upsert(recordData as any, { onConflict })
+              .upsert(finalRecordData as any, { onConflict })
             
             if (error) {
               throw new Error(`Failed to sync created record: ${error.message}`)
@@ -395,11 +483,24 @@ export async function syncSingleTable(
             await syncStyleTableRecord(change.data, targetRecord, table, targetClient, 'update')
           } else {
             const { created_at, updated_at, ...recordData } = change.data
+            
+            // Special handling for explore_images to sanitize foreign keys
+            let finalRecordData = recordData
+            if (table === 'explore_images') {
+              console.log(`Sanitizing explore_images record before update`)
+              const { sanitizedData, warnings } = await sanitizeExploreImageRecord(recordData, targetClient)
+              finalRecordData = sanitizedData
+              
+              if (warnings.length > 0) {
+                warnings.forEach(warning => console.warn(`[explore_images] ${warning}`))
+              }
+            }
+            
             const onConflict = table === 'inference_settings' ? 'key' : 'id'
             
             const { error } = await targetClient
               .from(table)
-              .upsert(recordData as any, { onConflict })
+              .upsert(finalRecordData as any, { onConflict })
             
             if (error) {
               throw new Error(`Failed to sync updated record: ${error.message}`)

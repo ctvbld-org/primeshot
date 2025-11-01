@@ -43,7 +43,7 @@ export async function DELETE(request: NextRequest) {
     // Get the image data before deleting (for S3 cleanup)
     const { data: exploreImage, error: fetchError } = await supabase
       .from('explore_images')
-      .select('s3_path, style_id')
+      .select('s3_path')
       .eq('id', id)
       .single();
 
@@ -53,9 +53,6 @@ export async function DELETE(request: NextRequest) {
         { status: 404 }
       );
     }
-
-    // Get the filename from s3_path for preview_images update
-    const filename = exploreImage.s3_path.split('/').pop();
 
     // Delete from database
     const { error: deleteError } = await supabase
@@ -68,26 +65,6 @@ export async function DELETE(request: NextRequest) {
         { success: false, error: 'Failed to delete image from database' },
         { status: 500 }
       );
-    }
-
-    // Update styles.preview_images to remove the filename
-    if (filename && exploreImage.style_id) {
-      const { data: style, error: styleError } = await supabase
-        .from('styles')
-        .select('preview_images')
-        .eq('id', exploreImage.style_id)
-        .single();
-
-      if (!styleError && style) {
-        const previewImages: string[] = Array.isArray(style.preview_images)
-          ? style.preview_images.filter(img => img !== filename)
-          : [];
-
-        await supabase
-          .from('styles')
-          .update({ preview_images: previewImages })
-          .eq('id', exploreImage.style_id);
-      }
     }
 
     // Delete S3 file

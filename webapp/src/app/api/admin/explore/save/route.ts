@@ -172,22 +172,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create explore_images record
+    // Create explore_images record (simplified schema - metadata in filename)
     const { data: exploreImage, error: insertError } = await supabase
       .from('explore_images')
       .insert({
-        user_id: userId,
         generated_image_id: generatedImageId,
-        inference_id: inferenceData.id,
-        style_id: inferenceData.style_id,
-        wardrobe_id: inferenceData.wardrobe_id,
-        scene_id: inferenceData.scene_id,
-        color_id: inferenceData.color_id,
-        aspect_ratio: inferenceData.aspect_ratio,
-        resolution: resolution,
         category_id: finalCategory.id,
-        s3_path: destinationPath,
-        original_s3_path: successfulSourcePath
+        s3_path: destinationPath
       })
       .select()
       .single();

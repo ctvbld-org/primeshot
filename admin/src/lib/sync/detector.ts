@@ -33,6 +33,10 @@ function getDisplayName(table: SyncableTable, record: DatabaseRecord): string {
       return record.name || `${record.credits} Credits`
     case 'credit_costs':
       return `${record.type} - ${record.value} credits`
+    case 'explore_categories':
+      return record.title || record.name || `Category ${record.id}`
+    case 'explore_images':
+      return record.s3_path?.split('/').pop() || `Image ${record.id}`
     default:
       return `Record ${record.id}`
   }
@@ -188,14 +192,27 @@ export async function detectChanges(
   
   const syncableTables = Object.keys(SYNCABLE_TABLES) as SyncableTable[]
   
+  console.log(`\n===== SYNC COMPARISON START =====`)
+  console.log(`Source: ${source}`)
+  console.log(`Target: ${target}`)
+  console.log(`Tables to check: ${syncableTables.join(', ')}\n`)
+  
   for (const table of syncableTables) {
     try {
+      console.log(`\n[${table}] Fetching data...`)
       const [sourceData, targetData] = await Promise.all([
         fetchTableData(source, table),
         fetchTableData(target, table),
       ])
       
+      console.log(`[${table}] Source records: ${sourceData.length}, Target records: ${targetData.length}`)
+      
       const changes = compareRecords(sourceData, targetData, table)
+      
+      console.log(`[${table}] Changes detected: ${changes.length}`)
+      if (changes.length > 0) {
+        console.log(`[${table}] Change types:`, changes.map(c => c.type).join(', '))
+      }
       
       tables.push({
         table,
@@ -206,7 +223,7 @@ export async function detectChanges(
       
       totalChanges += changes.length
     } catch (error) {
-      console.error(`Error comparing table ${table}:`, error)
+      console.error(`[${table}] ERROR:`, error)
       // Include error information in the response so users can see what went wrong
       tables.push({
         table,
@@ -217,6 +234,9 @@ export async function detectChanges(
       })
     }
   }
+  
+  console.log(`\n===== SYNC COMPARISON COMPLETE =====`)
+  console.log(`Total changes across all tables: ${totalChanges}\n`)
   
   return {
     source,
