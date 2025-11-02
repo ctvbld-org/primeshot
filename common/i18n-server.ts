@@ -80,7 +80,7 @@ export function initServerI18n(language: string = DEFAULT_LANGUAGE) {
       escapeValue: false,
     },
     defaultNS: 'common',
-    ns: ['common', 'auth', 'pricing', 'styles', 'generate', 'inference', 'character', 'about', 'legal', 'upload', 'homepage', 'account'],
+    ns: ['common', 'auth', 'pricing', 'styles', 'generate', 'inference', 'character', 'about', 'legal', 'upload', 'homepage', 'account', 'explore', 'metadata'],
     resources,
   });
 

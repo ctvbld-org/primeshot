@@ -1,65 +1,65 @@
 {
-    "dialog": {
-        "title": "Konto",
-        "selectSection": "Bereich auswählen"
-    },
-    "navigation": {
-        "profile": "Profil",
-        "subscription": "Abonnement",
-        "settings": "Einstellungen",
-        "support": "Support"
-    },
-    "buttons": {
-        "cancel": "Abbrechen",
-        "save": "Speichern",
-        "saving": "Speichern…",
-        "signOut": "Abmelden",
-        "subscribe": "Abonnieren",
-        "opening": "Öffnen…",
-        "manage": "Verwalten",
-        "renew": "Verlängern",
-        "buyCredits": "Credits kaufen",
-        "deleteAccount": "Konto löschen (demnächst)"
-    },
-    "profile": {
-        "title": "Profil",
-        "firstName": "Vorname",
-        "lastName": "Nachname",
-        "email": "E-Mail"
-    },
-    "subscription": {
-        "title": "Abonnement",
-        "loading": "Laden...",
-        "noPlan": "Kein Tarif",
-        "planSuffix": "-Tarif",
-        "cancelled": "Gekündigt",
-        "expires": "Läuft ab am {{date}}",
-        "renews": "Verlängert sich am {{date}}",
-        "creditBalance": "Credit-Guthaben",
-        "resets": "Zurückgesetzt am {{date}}"
-    },
-    "settings": {
-        "title": "Einstellungen",
-        "language": "Sprache",
-        "deleteAccount": {
-            "title": "Konto löschen?",
-            "description": "Dies wird alle deine Daten, Einstellungen und den Verlauf löschen. Diese Aktion kann nicht rückgängig gemacht werden."
-        }
-    },
-    "support": {
-        "title": "Wir sind für dich da",
-        "description": "Hast du Fragen oder brauchst Hilfe? Wir sind bereit, dich bei jedem Schritt zu unterstützen. Wir antworten normalerweise innerhalb von 24 Stunden.",
-        "faq": "Häufige Fragen",
-        "faqDescription": "Schau in unser {{helpCenter}} für schnelle Antworten auf häufige Fragen.",
-        "helpCenter": "Hilfezentrum",
-        "dmUs": "NACHRICHT SENDEN",
-        "emailUs": "E-Mail senden"
-    },
-    "errors": {
-        "failedToSave": "Änderungen konnten nicht gespeichert werden"
-    },
-    "accessibility": {
-        "avatar": "Avatar",
-        "plan": "Tarif"
+  "dialog": {
+    "title": "Konto",
+    "selectSection": "Bereich auswählen"
+  },
+  "navigation": {
+    "profile": "Profil",
+    "subscription": "Abonnement",
+    "settings": "Einstellungen",
+    "support": "Support"
+  },
+  "buttons": {
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "saving": "Speichern…",
+    "signOut": "Abmelden",
+    "subscribe": "Abonnieren",
+    "opening": "Öffnen…",
+    "manage": "Verwalten",
+    "renew": "Verlängern",
+    "buyCredits": "Credits kaufen",
+    "deleteAccount": "Konto löschen (demnächst)"
+  },
+  "profile": {
+    "title": "Profil",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "email": "E-Mail"
+  },
+  "subscription": {
+    "title": "Abonnement",
+    "loading": "Laden...",
+    "noPlan": "Kein Tarif",
+    "planSuffix": "-Tarif",
+    "cancelled": "Gekündigt",
+    "expires": "Läuft ab am {{date}}",
+    "renews": "Verlängert sich am {{date}}",
+    "creditBalance": "Credit-Guthaben",
+    "resets": "Zurückgesetzt am {{date}}"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "language": "Sprache",
+    "deleteAccount": {
+      "title": "Konto löschen?",
+      "description": "Dies wird alle deine Daten, Einstellungen und den Verlauf löschen. Diese Aktion kann nicht rückgängig gemacht werden."
     }
+  },
+  "support": {
+    "title": "Wir sind für dich da",
+    "description": "Hast du Fragen oder brauchst Hilfe? Wir sind bereit, dich bei jedem Schritt zu unterstützen. Wir antworten normalerweise innerhalb von 24 Stunden.",
+    "faq": "Häufige Fragen",
+    "faqDescription": "Schau in unser {{helpCenter}} für schnelle Antworten auf häufige Fragen.",
+    "helpCenter": "Hilfezentrum",
+    "dmUs": "NACHRICHT SENDEN",
+    "emailUs": "E-Mail senden"
+  },
+  "errors": {
+    "failedToSave": "Änderungen konnten nicht gespeichert werden"
+  },
+  "accessibility": {
+    "avatar": "Avatar",
+    "plan": "Tarif"
+  }
 }

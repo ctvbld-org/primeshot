@@ -1321,6 +1321,20 @@ export declare const resources: {
                 };
             };
         };
+        metadata: {
+            title: string;
+            description: string;
+            keywords: string[];
+            og: {
+                title: string;
+                description: string;
+                imageAlt: string;
+            };
+            twitter: {
+                title: string;
+                description: string;
+            };
+        };
     };
     gb: {
         common: {
@@ -2627,6 +2641,20 @@ export declare const resources: {
                 };
             };
         };
+        metadata: {
+            title: string;
+            description: string;
+            keywords: string[];
+            og: {
+                title: string;
+                description: string;
+                imageAlt: string;
+            };
+            twitter: {
+                title: string;
+                description: string;
+            };
+        };
     };
     fr: {
         common: {
@@ -3927,6 +3955,20 @@ export declare const resources: {
                 };
             };
         };
+        metadata: {
+            title: string;
+            description: string;
+            keywords: string[];
+            og: {
+                title: string;
+                description: string;
+                imageAlt: string;
+            };
+            twitter: {
+                title: string;
+                description: string;
+            };
+        };
     };
     es: {
         common: {
@@ -5212,6 +5254,20 @@ export declare const resources: {
                     name: string;
                     description: string;
                 };
+            };
+        };
+        metadata: {
+            title: string;
+            description: string;
+            keywords: string[];
+            og: {
+                title: string;
+                description: string;
+                imageAlt: string;
+            };
+            twitter: {
+                title: string;
+                description: string;
             };
         };
     };
@@ -6501,6 +6557,20 @@ export declare const resources: {
                 };
             };
         };
+        metadata: {
+            title: string;
+            description: string;
+            keywords: string[];
+            og: {
+                title: string;
+                description: string;
+                imageAlt: string;
+            };
+            twitter: {
+                title: string;
+                description: string;
+            };
+        };
     };
     pt: {
         common: {
@@ -7786,6 +7856,20 @@ export declare const resources: {
                     name: string;
                     description: string;
                 };
+            };
+        };
+        metadata: {
+            title: string;
+            description: string;
+            keywords: string[];
+            og: {
+                title: string;
+                description: string;
+                imageAlt: string;
+            };
+            twitter: {
+                title: string;
+                description: string;
             };
         };
     };
@@ -9075,6 +9159,20 @@ export declare const resources: {
                 };
             };
         };
+        metadata: {
+            title: string;
+            description: string;
+            keywords: string[];
+            og: {
+                title: string;
+                description: string;
+                imageAlt: string;
+            };
+            twitter: {
+                title: string;
+                description: string;
+            };
+        };
     };
     nl: {
         common: {
@@ -10360,6 +10458,20 @@ export declare const resources: {
                     name: string;
                     description: string;
                 };
+            };
+        };
+        metadata: {
+            title: string;
+            description: string;
+            keywords: string[];
+            og: {
+                title: string;
+                description: string;
+                imageAlt: string;
+            };
+            twitter: {
+                title: string;
+                description: string;
             };
         };
     };
@@ -11650,6 +11762,20 @@ export declare const resources: {
                 };
             };
         };
+        metadata: {
+            title: string;
+            description: string;
+            keywords: string[];
+            og: {
+                title: string;
+                description: string;
+                imageAlt: string;
+            };
+            twitter: {
+                title: string;
+                description: string;
+            };
+        };
     };
     jp: {
         common: {
@@ -12936,6 +13062,20 @@ export declare const resources: {
                     name: string;
                     description: string;
                 };
+            };
+        };
+        metadata: {
+            title: string;
+            description: string;
+            keywords: string[];
+            og: {
+                title: string;
+                description: string;
+                imageAlt: string;
+            };
+            twitter: {
+                title: string;
+                description: string;
             };
         };
     };

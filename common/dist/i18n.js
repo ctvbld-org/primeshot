@@ -14,6 +14,7 @@ import uploadUs from './locales/us/upload.json';
 import homepageUs from './locales/us/homepage.json';
 import accountUs from './locales/us/account.json';
 import exploreUs from './locales/us/explore.json';
+import metadataUs from './locales/us/metadata.json';
 // UK English
 import commonGb from './locales/gb/common.json';
 import authGb from './locales/gb/auth.json';
@@ -28,6 +29,7 @@ import uploadGb from './locales/gb/upload.json';
 import homepageGb from './locales/gb/homepage.json';
 import accountGb from './locales/gb/account.json';
 import exploreGb from './locales/gb/explore.json';
+import metadataGb from './locales/gb/metadata.json';
 // French
 import commonFr from './locales/fr/common.json';
 import authFr from './locales/fr/auth.json';
@@ -42,6 +44,7 @@ import uploadFr from './locales/fr/upload.json';
 import homepageFr from './locales/fr/homepage.json';
 import accountFr from './locales/fr/account.json';
 import exploreFr from './locales/fr/explore.json';
+import metadataFr from './locales/fr/metadata.json';
 // Spanish
 import commonEs from './locales/es/common.json';
 import authEs from './locales/es/auth.json';
@@ -56,6 +59,7 @@ import uploadEs from './locales/es/upload.json';
 import homepageEs from './locales/es/homepage.json';
 import accountEs from './locales/es/account.json';
 import exploreEs from './locales/es/explore.json';
+import metadataEs from './locales/es/metadata.json';
 // Italian
 import commonIt from './locales/it/common.json';
 import authIt from './locales/it/auth.json';
@@ -70,6 +74,7 @@ import uploadIt from './locales/it/upload.json';
 import homepageIt from './locales/it/homepage.json';
 import accountIt from './locales/it/account.json';
 import exploreIt from './locales/it/explore.json';
+import metadataIt from './locales/it/metadata.json';
 // Portuguese
 import commonPt from './locales/pt/common.json';
 import authPt from './locales/pt/auth.json';
@@ -84,6 +89,7 @@ import uploadPt from './locales/pt/upload.json';
 import homepagePt from './locales/pt/homepage.json';
 import accountPt from './locales/pt/account.json';
 import explorePt from './locales/pt/explore.json';
+import metadataPt from './locales/pt/metadata.json';
 // German
 import commonDe from './locales/de/common.json';
 import authDe from './locales/de/auth.json';
@@ -98,6 +104,7 @@ import uploadDe from './locales/de/upload.json';
 import homepageDe from './locales/de/homepage.json';
 import accountDe from './locales/de/account.json';
 import exploreDe from './locales/de/explore.json';
+import metadataDe from './locales/de/metadata.json';
 // Dutch
 import commonNl from './locales/nl/common.json';
 import authNl from './locales/nl/auth.json';
@@ -112,6 +119,7 @@ import uploadNl from './locales/nl/upload.json';
 import homepageNl from './locales/nl/homepage.json';
 import accountNl from './locales/nl/account.json';
 import exploreNl from './locales/nl/explore.json';
+import metadataNl from './locales/nl/metadata.json';
 // Chinese
 import commonCn from './locales/cn/common.json';
 import authCn from './locales/cn/auth.json';
@@ -126,6 +134,7 @@ import uploadCn from './locales/cn/upload.json';
 import homepageCn from './locales/cn/homepage.json';
 import accountCn from './locales/cn/account.json';
 import exploreCn from './locales/cn/explore.json';
+import metadataCn from './locales/cn/metadata.json';
 // Japanese
 import commonJp from './locales/jp/common.json';
 import authJp from './locales/jp/auth.json';
@@ -140,6 +149,7 @@ import uploadJp from './locales/jp/upload.json';
 import homepageJp from './locales/jp/homepage.json';
 import accountJp from './locales/jp/account.json';
 import exploreJp from './locales/jp/explore.json';
+import metadataJp from './locales/jp/metadata.json';
 // Global resources with all namespaces
 export const resources = {
     us: {
@@ -156,6 +166,7 @@ export const resources = {
         homepage: homepageUs,
         account: accountUs,
         explore: exploreUs,
+        metadata: metadataUs,
     },
     gb: {
         common: commonGb,
@@ -171,6 +182,7 @@ export const resources = {
         homepage: homepageGb,
         account: accountGb,
         explore: exploreGb,
+        metadata: metadataGb,
     },
     fr: {
         common: commonFr,
@@ -186,6 +198,7 @@ export const resources = {
         homepage: homepageFr,
         account: accountFr,
         explore: exploreFr,
+        metadata: metadataFr,
     },
     es: {
         common: commonEs,
@@ -201,6 +214,7 @@ export const resources = {
         homepage: homepageEs,
         account: accountEs,
         explore: exploreEs,
+        metadata: metadataEs,
     },
     it: {
         common: commonIt,
@@ -216,6 +230,7 @@ export const resources = {
         homepage: homepageIt,
         account: accountIt,
         explore: exploreIt,
+        metadata: metadataIt,
     },
     pt: {
         common: commonPt,
@@ -231,6 +246,7 @@ export const resources = {
         homepage: homepagePt,
         account: accountPt,
         explore: explorePt,
+        metadata: metadataPt,
     },
     de: {
         common: commonDe,
@@ -246,6 +262,7 @@ export const resources = {
         homepage: homepageDe,
         account: accountDe,
         explore: exploreDe,
+        metadata: metadataDe,
     },
     nl: {
         common: commonNl,
@@ -261,6 +278,7 @@ export const resources = {
         homepage: homepageNl,
         account: accountNl,
         explore: exploreNl,
+        metadata: metadataNl,
     },
     cn: {
         common: commonCn,
@@ -276,6 +294,7 @@ export const resources = {
         homepage: homepageCn,
         account: accountCn,
         explore: exploreCn,
+        metadata: metadataCn,
     },
     jp: {
         common: commonJp,
@@ -291,6 +310,7 @@ export const resources = {
         homepage: homepageJp,
         account: accountJp,
         explore: exploreJp,
+        metadata: metadataJp,
     },
 };
 export const SUPPORTED_LANGUAGES = ['us', 'gb', 'cn', 'es', 'fr', 'pt', 'de', 'jp', 'it', 'nl'];
@@ -306,7 +326,7 @@ if (!i18n.isInitialized) {
             escapeValue: false,
         },
         defaultNS: 'common',
-        ns: ['common', 'auth', 'pricing', 'styles', 'generate', 'inference', 'character', 'about', 'legal', 'upload', 'homepage', 'account', 'explore'],
+        ns: ['common', 'auth', 'pricing', 'styles', 'generate', 'inference', 'character', 'about', 'legal', 'upload', 'homepage', 'account', 'explore', 'metadata'],
         resources,
     });
 }

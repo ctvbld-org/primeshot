@@ -69,7 +69,7 @@ export function initServerI18n(language = DEFAULT_LANGUAGE) {
             escapeValue: false,
         },
         defaultNS: 'common',
-        ns: ['common', 'auth', 'pricing', 'styles', 'generate', 'inference', 'character', 'about', 'legal', 'upload', 'homepage', 'account'],
+        ns: ['common', 'auth', 'pricing', 'styles', 'generate', 'inference', 'character', 'about', 'legal', 'upload', 'homepage', 'account', 'explore', 'metadata'],
         resources,
     });
     return serverI18n;

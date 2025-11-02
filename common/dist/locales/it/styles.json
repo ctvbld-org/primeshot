@@ -1,63 +1,63 @@
 {
-    "titles": {
-        "styleLabel": "Stile",
-        "photoStyle": "Stile fotografico",
-        "sceneLabel": "Scena",
-        "wardrobeLabel": "Abbigliamento",
-        "characterLabel": "Personaggio",
-        "settingsLabel": "Impostazioni"
+  "titles": {
+    "styleLabel": "Stile",
+    "photoStyle": "Stile fotografico",
+    "sceneLabel": "Scena",
+    "wardrobeLabel": "Abbigliamento",
+    "characterLabel": "Personaggio",
+    "settingsLabel": "Impostazioni"
+  },
+  "shoot": {
+    "subtitle": "{{style}} con ambientazione {{scene}}, indossando {{wardrobe}} in {{color}}"
+  },
+  "character": {
+    "trainingQueued": "In coda",
+    "trainingPending": "In attesa",
+    "trainingInitializing": "Inizializzazione",
+    "remaining": "rimanenti",
+    "photos": "foto",
+    "trainingFailedTitle": "Allenamento fallito",
+    "trainingFailedDesc": "Questo personaggio non può essere usato per la generazione. Per favore eliminalo e riprova."
+  },
+  "qualities": {
+    "basic": "Base",
+    "medium": "Media",
+    "high": "Alta"
+  },
+  "labels": {
+    "credits": "{{count}} crediti",
+    "includedInPlan": "{{count}} inclusi nel piano",
+    "limitReached": "Limite raggiunto",
+    "upgradePlanAddMore": "Aggiorna il piano per aggiungerne altri",
+    "upgradeOrBuyCredits": "Aggiorna il piano o acquista pacchetto crediti",
+    "buyCredits": "Acquista pacchetto crediti",
+    "newStylesDropWeekly": "Nuovi stili ogni settimana"
+  },
+  "settings": {
+    "numberOfTakes": "Numero di scatti",
+    "quality": "Qualità",
+    "aspectRatio": "Rapporto d'aspetto"
+  },
+  "status": {
+    "badge": {
+      "pending": "In attesa",
+      "queued": "In coda",
+      "initializing": "Inizializzazione",
+      "starting": "Avvio",
+      "running": "Generazione",
+      "generating": "Generazione",
+      "completed": "Completato",
+      "failed": "Fallito",
+      "connecting": "Connessione"
     },
-    "shoot": {
-        "subtitle": "{{style}} con ambientazione {{scene}}, indossando {{wardrobe}} in {{color}}"
-    },
-    "character": {
-        "trainingQueued": "In coda",
-        "trainingPending": "In attesa",
-        "trainingInitializing": "Inizializzazione",
-        "remaining": "rimanenti",
-        "photos": "foto",
-        "trainingFailedTitle": "Allenamento fallito",
-        "trainingFailedDesc": "Questo personaggio non può essere usato per la generazione. Per favore eliminalo e riprova."
-    },
-    "qualities": {
-        "basic": "Base",
-        "medium": "Media",
-        "high": "Alta"
-    },
-    "labels": {
-        "credits": "{{count}} crediti",
-        "includedInPlan": "{{count}} inclusi nel piano",
-        "limitReached": "Limite raggiunto",
-        "upgradePlanAddMore": "Aggiorna il piano per aggiungerne altri",
-        "upgradeOrBuyCredits": "Aggiorna il piano o acquista pacchetto crediti",
-        "buyCredits": "Acquista pacchetto crediti",
-        "newStylesDropWeekly": "Nuovi stili ogni settimana"
-    },
-    "settings": {
-        "numberOfTakes": "Numero di scatti",
-        "quality": "Qualità",
-        "aspectRatio": "Rapporto d'aspetto"
-    },
-    "status": {
-        "badge": {
-            "pending": "In attesa",
-            "queued": "In coda",
-            "initializing": "Inizializzazione",
-            "starting": "Avvio",
-            "running": "Generazione",
-            "generating": "Generazione",
-            "completed": "Completato",
-            "failed": "Fallito",
-            "connecting": "Connessione"
-        },
-        "tooltip": {
-            "pending": "In attesa della disponibilità del server - dovrebbe procedere presto",
-            "queued": "Limite raggiunto, in attesa che una generazione si completi",
-            "queueReasons": {
-                "character_not_ready": "Il personaggio si sta allenando — inizierà automaticamente",
-                "concurrent_limit": "Limite raggiunto ({{current}}/{{limit}}). Inizierà automaticamente",
-                "provider_temporary_issue": "Problema temporaneo nell'invio al provider. Riproveremo automaticamente."
-            }
-        }
+    "tooltip": {
+      "pending": "In attesa della disponibilità del server - dovrebbe procedere presto",
+      "queued": "Limite raggiunto, in attesa che una generazione si completi",
+      "queueReasons": {
+        "character_not_ready": "Il personaggio si sta allenando — inizierà automaticamente",
+        "concurrent_limit": "Limite raggiunto ({{current}}/{{limit}}). Inizierà automaticamente",
+        "provider_temporary_issue": "Problema temporaneo nell'invio al provider. Riproveremo automaticamente."
+      }
     }
+  }
 }

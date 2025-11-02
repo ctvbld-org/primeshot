@@ -2,7 +2,7 @@ import Script from 'next/script'
 
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { AuthProvider, LanguageProvider, I18nProvider } from '@primeshot/common'
+import { AuthProvider, LanguageProvider, I18nProvider, initServerI18n } from '@primeshot/common'
 import { GoogleAnalytics } from '@next/third-parties/google'
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -14,6 +14,12 @@ import { createClient } from '@/lib/supabase/server'
 import { createConfigApi } from '@primeshot/common/lib/api/config'
 
 const SUPPORTED_LOCALES = ['en','cn','es','fr','pt','de','jp','it','nl'] as const;
+
+// Map website locale codes to common package language codes
+function mapLocaleToLanguage(locale: string): string {
+  if (locale === 'en') return 'us'; // Map 'en' to 'us' for common package
+  return locale;
+}
 
 async function getBaseUrl() {
   const headersList = await headers();
@@ -65,6 +71,21 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   // Ensure locale is valid, fallback to en if not
   const finalLocale = SUPPORTED_LOCALES.includes(locale as typeof SUPPORTED_LOCALES[number]) ? locale : 'en';
   
+  // Map to common package language code and initialize i18n for translations
+  const language = mapLocaleToLanguage(finalLocale);
+  const i18n = initServerI18n(language);
+  
+  // Get translated metadata
+  const t = (key: string) => i18n.t(key, { ns: 'metadata' });
+  const title = t('title');
+  const description = t('description');
+  const keywords = i18n.t('keywords', { ns: 'metadata', returnObjects: true }) as string[];
+  const ogTitle = t('og.title');
+  const ogDescription = t('og.description');
+  const ogImageAlt = t('og.imageAlt');
+  const twitterTitle = t('twitter.title');
+  const twitterDescription = t('twitter.description');
+  
   // Map locale to OpenGraph locale format
   const ogLocale = finalLocale.replace('-', '_'); // fr-FR -> fr_FR
   
@@ -84,9 +105,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const canonicalUrl = `${baseUrl}/${finalLocale}${currentPathname}`;
   
   return {
-    title: "AI Headshots That Open Doors | Primeshot",
-    description: "Make your first impression count. Primeshot turns everyday selfies into stunning, studio-quality AI headshots—crafted to reflect your style, ambition, and story.",
-    keywords: ["AI headshots", "professional portraits", "AI photography", "headshot generator", "professional image", "AI portraits", "business headshots"],
+    title,
+    description,
+    keywords,
     authors: [{ name: "Primeshot" }],
     creator: "Primeshot",
     publisher: "Primeshot",
@@ -129,22 +150,22 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       type: "website",
       locale: ogLocale, // Dynamic locale based on URL
       url: canonicalUrl,
-      title: "AI Headshots That Open Doors | Primeshot",
-      description: "Make your first impression count. Primeshot turns everyday selfies into stunning, studio-quality AI headshots—crafted to reflect your style, ambition, and story.",
+      title: ogTitle,
+      description: ogDescription,
       siteName: "Primeshot",
       images: [
         {
           url: getWebsiteCdnUrl('og-image.webp'),
           width: 1200,
           height: 630,
-          alt: "Primeshot - AI Headshots",
+          alt: ogImageAlt,
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title: "AI Headshots That Open Doors | Primeshot",
-      description: "Make your first impression count. Primeshot turns everyday selfies into stunning, studio-quality AI headshots—crafted to reflect your style, ambition, and story.",
+      title: twitterTitle,
+      description: twitterDescription,
       creator: "@primeshotai",
       images: [getWebsiteCdnUrl('og-image.webp')],
     },
@@ -199,11 +220,6 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   }
   return (
     <>
-      <script 
-        type="application/json" 
-        id="initial-data" 
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(initialData) }} 
-      />
       <I18nProvider locale={finalLocale}>
         <AuthProvider>
           <LanguageProvider>
@@ -216,6 +232,26 @@ export default async function LocaleLayout({ children, params }: { children: Rea
           </LanguageProvider>
         </AuthProvider>
       </I18nProvider>
+      <SpeedInsights/>
+      <GoogleAnalytics gaId="G-MHV2EKTQZG" />
+      <Analytics />
+      {/* Rewardful tracking scripts */}
+      {process.env.NEXT_PUBLIC_REWARDFUL_API_KEY && (
+        <>
+          <Script
+            src={`https://r.wdfl.co/rw.js`}
+            data-rewardful={process.env.NEXT_PUBLIC_REWARDFUL_API_KEY}
+            strategy="beforeInteractive"
+          />
+          <Script
+            id="rewardful-queue"
+            strategy="beforeInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `(function(w,r){w._rwq=r;w[r]=w[r]||function(){(w[r].q=w[r].q||[]).push(arguments)}})(window,'rewardful');`
+            }}
+          />
+        </>
+      )}
     </>
   )
 }
