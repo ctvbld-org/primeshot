@@ -98,6 +98,32 @@ export function middleware(request: NextRequest) {
     });
   }
 
+  // Configure CSP to allow third-party analytics and tracking scripts
+  const cspHeader = `
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' 
+      https://www.googletagmanager.com 
+      https://www.google-analytics.com 
+      https://ssl.google-analytics.com
+      https://va.vercel-scripts.com
+      https://r.wdfl.co;
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' data: https: blob:;
+    font-src 'self' data:;
+    connect-src 'self' 
+      https://www.google-analytics.com
+      https://analytics.google.com
+      https://vitals.vercel-insights.com
+      https://*.supabase.co
+      https://*.amazonaws.com;
+    frame-src 'self' https://www.google.com;
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+    upgrade-insecure-requests;
+  `.replace(/\s{2,}/g, ' ').trim();
+
   // Ignore static and API assets
   if (
     pathname.startsWith('/_next') ||
@@ -133,6 +159,7 @@ export function middleware(request: NextRequest) {
       // Set the detected language cookie before the rewrite
       const res = NextResponse.next()
       res.cookies.set('i18n_lang', detectedLocale, { path: '/', maxAge: 60 * 60 * 24 * 365, sameSite: 'lax' })
+      res.headers.set('Content-Security-Policy', cspHeader)
       
       console.log('[Website Language Detection for /create]', {
         pathname,
@@ -145,7 +172,9 @@ export function middleware(request: NextRequest) {
     }
     
     // Cookie already exists, let the rewrite happen
-    return NextResponse.next()
+    const res = NextResponse.next()
+    res.headers.set('Content-Security-Policy', cspHeader)
+    return res
   }
 
   const segments = pathname.split('/').filter(Boolean)
@@ -156,6 +185,7 @@ export function middleware(request: NextRequest) {
     // Ensure cookie is set for downstream usage
     const res = NextResponse.next()
     res.cookies.set('i18n_lang', first, { path: '/', maxAge: 60 * 60 * 24 * 365, sameSite: 'lax' })
+    res.headers.set('Content-Security-Policy', cspHeader)
     return res
   }
 
@@ -191,7 +221,9 @@ export function middleware(request: NextRequest) {
 
   const url = request.nextUrl.clone()
   url.pathname = `/${locale}${pathname}`
-  return NextResponse.redirect(url)
+  const response = NextResponse.redirect(url)
+  response.headers.set('Content-Security-Policy', cspHeader)
+  return response
 }
 
 export const config = {
