@@ -220,7 +220,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
       <GoogleAnalytics gaId="G-MHV2EKTQZG" />
       <Analytics />
       {/* Rewardful tracking scripts */}
-      {process.env.NEXT_PUBLIC_REWARDFUL_API_KEY && (
+      {/* {process.env.NEXT_PUBLIC_REWARDFUL_API_KEY && (
         <>
           <Script
             src={`https://r.wdfl.co/rw.js`}
@@ -235,7 +235,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
             }}
           />
         </>
-      )}
+      )} */}
     </>
   )
 }

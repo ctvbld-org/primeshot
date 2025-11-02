@@ -2717,6 +2717,17 @@ Detected changes in:
 - webapp/src/lib/admin/explore-utils.ts
 - website/src/app/[locale]/explore/page.tsx
 - website/src/lib/utils/parse-explore-image-metadata.ts
+
+
+**Auto-update 2025-11-02**:
+Detected changes in:
+- webapp/src/app/layout.tsx
+- website/src/app/[locale]/layout.tsx
+- website/src/components/HomePageWrapper.tsx
+- website/src/components/InteractiveGenerateBar/ShowcaseSections/CharactersShowcase.tsx
+- website/src/components/WebGLBackground.tsx
+- website/src/components/WebGLContext.tsx
+- website/src/components/WebGLImageTransition.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

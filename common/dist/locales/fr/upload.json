@@ -1,49 +1,49 @@
 {
-  "title": "Télécharger des photos",
-  "description": "Téléchargez vos photos pour commencer",
-  "requirements": {
-    "title": "Exigences des photos",
-    "description": "Veuillez vous assurer que vos photos répondent à ces exigences"
-  },
-  "buttons": {
-    "upload": "Télécharger",
-    "continue": "Continuer",
-    "retry": "Réessayer"
-  },
-  "errors": {
-    "invalidFile": "Type de fichier invalide",
-    "fileTooLarge": "Fichier trop volumineux",
-    "uploadFailed": "Échec du téléchargement",
-    "invalidFileType": "Type non pris en charge ({{types}})",
-    "fileSizeExceeded": "Fichier trop lourd (max {{size}})",
-    "duplicateFile": "Fichier en double",
-    "uploadFailedCount_one": "1 fichier n'a pas pu être ajouté",
-    "uploadFailedCount_other": "{{count}} fichiers n'ont pas pu être ajoutés",
-    "someImagesSkipped": "Images ignorées",
-    "skippedMessage": "Seulement {{count}} photos supplémentaires ont pu être ajoutées. Les fichiers suivants ont été ignorés : {{files}}",
-    "deleteFailed": "Échec de la suppression",
-    "genericError": "Une erreur s'est produite",
-    "analysisTimeout": "Délai d'analyse dépassé",
-    "analysisTimeoutDescription": "L'analyse de l'image a pris trop de temps. Veuillez réessayer ou utiliser une autre photo.",
-    "qualityIssues": "Problèmes de qualité",
-    "qualityIssuesMessage": "{{count}} photo(s) ne répondent pas aux exigences de qualité. Consultez les images rejetées ci-dessous pour plus de détails.",
-    "qualityAndLimitIssues": "Problèmes de qualité et limite atteinte",
-    "qualityAndLimitMessage": "{{rejected}} photo(s) rejetées pour problèmes de qualité. {{skipped}} photo(s) n'ont pas pu être ajoutées en raison de la limite de 9 images."
-  },
-  "progress": {
-    "uploading": "Téléchargement en cours...",
-    "processing": "Traitement en cours...",
-    "complete": "Terminé"
-  },
-  "quality": {
-    "rejected": {
-      "oops": "Oups !",
-      "title": "{{rejected}} photos sur {{total}} ont été refusées",
-      "description": "Vous pouvez essayer d'importer d'autres images pour obtenir un ensemble parfait, ou continuer avec ces photos, mais cela peut entraîner :",
-      "lessVariety": "Moins de variété dans les résultats générés",
-      "lowerQuality": "Des portraits de qualité inférieure",
-      "notLookLike": "Des photos qui ne vous ressemblent pas dans tous les styles",
-      "button": "Continuer quand même"
+    "title": "Télécharger des photos",
+    "description": "Téléchargez vos photos pour commencer",
+    "requirements": {
+        "title": "Exigences des photos",
+        "description": "Veuillez vous assurer que vos photos répondent à ces exigences"
+    },
+    "buttons": {
+        "upload": "Télécharger",
+        "continue": "Continuer",
+        "retry": "Réessayer"
+    },
+    "errors": {
+        "invalidFile": "Type de fichier invalide",
+        "fileTooLarge": "Fichier trop volumineux",
+        "uploadFailed": "Échec du téléchargement",
+        "invalidFileType": "Type non pris en charge ({{types}})",
+        "fileSizeExceeded": "Fichier trop lourd (max {{size}})",
+        "duplicateFile": "Fichier en double",
+        "uploadFailedCount_one": "1 fichier n'a pas pu être ajouté",
+        "uploadFailedCount_other": "{{count}} fichiers n'ont pas pu être ajoutés",
+        "someImagesSkipped": "Images ignorées",
+        "skippedMessage": "Seulement {{count}} photos supplémentaires ont pu être ajoutées. Les fichiers suivants ont été ignorés : {{files}}",
+        "deleteFailed": "Échec de la suppression",
+        "genericError": "Une erreur s'est produite",
+        "analysisTimeout": "Délai d'analyse dépassé",
+        "analysisTimeoutDescription": "L'analyse de l'image a pris trop de temps. Veuillez réessayer ou utiliser une autre photo.",
+        "qualityIssues": "Problèmes de qualité",
+        "qualityIssuesMessage": "{{count}} photo(s) ne répondent pas aux exigences de qualité. Consultez les images rejetées ci-dessous pour plus de détails.",
+        "qualityAndLimitIssues": "Problèmes de qualité et limite atteinte",
+        "qualityAndLimitMessage": "{{rejected}} photo(s) rejetées pour problèmes de qualité. {{skipped}} photo(s) n'ont pas pu être ajoutées en raison de la limite de 9 images."
+    },
+    "progress": {
+        "uploading": "Téléchargement en cours...",
+        "processing": "Traitement en cours...",
+        "complete": "Terminé"
+    },
+    "quality": {
+        "rejected": {
+            "oops": "Oups !",
+            "title": "{{rejected}} photos sur {{total}} ont été refusées",
+            "description": "Vous pouvez essayer d'importer d'autres images pour obtenir un ensemble parfait, ou continuer avec ces photos, mais cela peut entraîner :",
+            "lessVariety": "Moins de variété dans les résultats générés",
+            "lowerQuality": "Des portraits de qualité inférieure",
+            "notLookLike": "Des photos qui ne vous ressemblent pas dans tous les styles",
+            "button": "Continuer quand même"
+        }
     }
-  }
 }

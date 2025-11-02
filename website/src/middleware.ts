@@ -106,6 +106,7 @@ export function middleware(request: NextRequest) {
       https://www.google-analytics.com 
       https://ssl.google-analytics.com
       https://va.vercel-scripts.com
+      https://vercel.live
       https://r.wdfl.co;
     style-src 'self' 'unsafe-inline';
     img-src 'self' data: https: blob:;
@@ -113,7 +114,9 @@ export function middleware(request: NextRequest) {
     connect-src 'self' 
       https://www.google-analytics.com
       https://analytics.google.com
+      https://region1.google-analytics.com
       https://vitals.vercel-insights.com
+      wss://*.supabase.co
       https://*.supabase.co
       https://*.amazonaws.com;
     frame-src 'self' https://www.google.com;
