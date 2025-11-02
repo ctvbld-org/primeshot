@@ -105,7 +105,8 @@ export async function deleteS3Image(
 
 /**
  * Generate a filename for explore image
- * Format: {style}_{scene}_{wardrobe}_{color}_{aspectRatio}_{resolution}.webp
+ * Format: {style}__{scene}__{wardrobe}__{color}__{aspectRatio}__{resolution}__{uuid}.webp
+ * The UUID suffix ensures uniqueness when saving multiple images with identical settings
  */
 export function generateExploreFilename(
   styleName: string,
@@ -124,7 +125,10 @@ export function generateExploreFilename(
   // Normalize aspect ratio: remove colons (e.g., "1:1" -> "1-1")
   const normalizedAspectRatio = aspectRatio.replace(/:/g, '-');
 
-  return `${normalizedStyle}__${scene}__${wardrobe}__${color}__${normalizedAspectRatio}__${resolution}.webp`;
+  // Generate short unique ID (first 8 chars of UUID) to prevent filename collisions
+  const uniqueId = crypto.randomUUID().slice(0, 8);
+
+  return `${normalizedStyle}__${scene}__${wardrobe}__${color}__${normalizedAspectRatio}__${resolution}__${uniqueId}.webp`;
 }
 
 /**

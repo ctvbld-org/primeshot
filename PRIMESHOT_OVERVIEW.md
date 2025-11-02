@@ -335,15 +335,14 @@ Of course. Cancel anytime—no contracts, no questions asked. You'll keep access
 ## What You Need to Know
 
 **Getting Started:**
-- Upload 9-15 photos (regular phone photos work great)
+- Upload 9 photos
 - Character setup takes under 8 minutes
-- New photo sessions complete in 2-3 minutes
+- New photo generations complete in 1-2 minutes
 
 **What You Get:**
-- Up to 4K resolution (4096px) for print-quality images
+- Up to 4K resolution for print-quality images
 - Portrait, square, and landscape formats
 - Original quality PNG files
-- Web-optimized WebP versions
 - Full ownership and commercial rights
 
 **Platform:**
@@ -364,8 +363,18 @@ We approach every feature from a photographer's perspective. What lighting setup
 **Speed That Doesn't Compromise Quality**
 Most AI photography tools make you wait hours. Primeshot delivers in minutes because we've optimized every step of the process for speed without sacrificing the quality you expect from professional photography.
 
-**Secure & Private**
-Your photos are encrypted and securely stored. Your Character is yours alone—we never use your images for anything beyond creating your personalized photos. You maintain complete control and ownership.
+**True Privacy & Data Control**
+Here's where Primeshot is fundamentally different from most AI photography services: we built everything from the ground up on our own infrastructure. 
+
+Most AI headshot providers use third-party APIs like Fal.ai or Replicate.com, meaning your photos get stored on servers they don't control, often in multiple places, with no guarantee about how long those services keep your data or who can access it.
+
+**Primeshot's approach:**
+- **Single, Secure Location**: All your data lives in one place—our secure Amazon AWS servers. No third-party APIs. No data scattered across multiple providers.
+- **You're In Complete Control**: Want to delete your uploaded photos? Gone. Your Character model? Deleted. Your generated images? Removed. You can permanently delete everything with a single click—and it's actually gone, not just hidden.
+- **Encrypted & Protected**: Your photos are encrypted in transit and at rest. Your Character is trained in isolated, secure environments.
+- **Never Shared, Never Reused**: We never use your photos to train other models. We never share your images with third parties. We never reuse your data for any purpose beyond creating your personal photos.
+
+This is your data, on our servers, under your control. That's privacy that actually means something.
 
 **Always Improving**
 Photography trends evolve. Styles change. Technology advances. Primeshot grows with all of it. Your subscription gets better over time as we add styles, improve quality, and expand capabilities.
@@ -374,15 +383,12 @@ Photography trends evolve. Styles change. Technology advances. Primeshot grows w
 
 ## Contact & Support
 
-**Website:** [your-domain.com]  
-**Email:** support@your-domain.com  
+**Website:** [https://primeshot.ai]  
+**Email:** team@primeshot.ai 
 **Social Media:**
 - LinkedIn: [link]
 - Twitter: [link]  
 - Instagram: [link]
-
-**Support Hours:** 24/7 email support  
-**Response Time:** < 24 hours for Basic, < 12 hours for Standard, < 4 hours for Pro
 
 ---
 

@@ -115,6 +115,12 @@ async function syncStyleTableRecord(
 /**
  * Sanitizes explore_images record by removing foreign key references that don't exist in target environment
  * This allows explore images to be deployed independently without requiring all related data
+ * 
+ * IMPORTANT: generated_image_id is NOT sanitized because:
+ * - It has a UNIQUE constraint that prevents duplicates
+ * - It's used by the "check if in explore" feature
+ * - It's required for the star icon UI to work
+ * - Nulling it breaks duplicate detection
  */
 async function sanitizeExploreImageRecord(
   recordData: any,
@@ -123,9 +129,9 @@ async function sanitizeExploreImageRecord(
   const warnings: string[] = []
   const sanitizedData = { ...recordData }
   
-  // Check foreign keys: generated_image_id and category_id
+  // Check foreign keys: category_id only
+  // NOTE: generated_image_id is kept intact to maintain uniqueness and enable duplicate detection
   const foreignKeyChecks = [
-    { field: 'generated_image_id', table: 'generated_images', label: 'Generated Image' },
     { field: 'category_id', table: 'explore_categories', label: 'Category' }
   ]
   

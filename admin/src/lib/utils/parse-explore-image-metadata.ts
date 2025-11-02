@@ -1,7 +1,8 @@
 /**
  * Parse explore image filename to extract metadata
- * Format: {style}__{scene}__{wardrobe}__{color}__{aspectRatio}__{resolution}.webp
- * Example: studio-throne__sunny-mustard-yellow__stat_m_02__black__1-1__2K.webp
+ * Format: {style}__{scene}__{wardrobe}__{color}__{aspectRatio}__{resolution}__{uuid}.webp
+ * Example: studio-throne__sunny-mustard-yellow__stat_m_02__black__1-1__2K__a1b2c3d4.webp
+ * Note: UUID suffix is optional for backward compatibility
  */
 
 export type AspectRatio = '1:1' | '2:3' | '3:2' | '9:16';
@@ -60,12 +61,14 @@ export function parseExploreImageFilename(filename: string): ExploreImageMetadat
     // Split by double underscore
     const parts = nameWithoutExt.split('__');
     
-    // Expected format: [style, scene, wardrobe, color, aspectRatio, resolution]
-    if (parts.length !== 6) {
-      console.warn(`Invalid filename format: ${filename}. Expected 6 parts, got ${parts.length}`);
+    // Expected format: [style, scene, wardrobe, color, aspectRatio, resolution, uuid?]
+    // UUID is optional for backward compatibility (6 parts = old format, 7 parts = new format)
+    if (parts.length !== 6 && parts.length !== 7) {
+      console.warn(`Invalid filename format: ${filename}. Expected 6 or 7 parts, got ${parts.length}`);
       return null;
     }
     
+    // Extract parts - ignore UUID if present (last part)
     const [style, scene, wardrobe, color, aspectRatio, resolution] = parts;
     
     // Validate all parts exist

@@ -80,6 +80,12 @@ The explore feature is split across three separate Next.js projects, each with i
 - `explore_images` - Saved explore images with metadata
 - Foreign keys to: `styles`, `style_wardrobes`, `style_scenes`, `style_colors`
 
+### Image Filename Format
+- Format: `{style}__{scene}__{wardrobe}__{color}__{aspectRatio}__{resolution}__{uuid}.webp`
+- Example: `studio-throne__neon-pink__black-blouse__default__1-1__2K__a1b2c3d4.webp`
+- UUID suffix (8 chars) ensures uniqueness when saving multiple images from the same batch
+- Parsers support both old format (6 parts, no UUID) and new format (7 parts, with UUID) for backward compatibility
+
 ### RLS Policies
 - All tables: Public read access
 - All tables: Admin-only write access (checks `users.admin = true`)
