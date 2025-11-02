@@ -59,7 +59,7 @@ export const metadata: Metadata = {
       { url: getWebsiteCdnUrl('apple-touch-icon.png'), sizes: '180x180', type: 'image/png' }
     ]
   },
-  manifest: getWebsiteCdnUrl('site.webmanifest'),
+  manifest: '/create/site.webmanifest',
   openGraph: {
     type: "website",
     locale: "en_US",

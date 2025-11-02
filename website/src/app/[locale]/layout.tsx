@@ -124,7 +124,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
         { url: getWebsiteCdnUrl('apple-touch-icon.png'), sizes: '180x180', type: 'image/png' }
       ]
     },
-    manifest: getWebsiteCdnUrl('site.webmanifest'),
+    manifest: '/site.webmanifest',
     openGraph: {
       type: "website",
       locale: ogLocale, // Dynamic locale based on URL
