@@ -63,10 +63,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
           const supabase = createClient()
           const { data } = await supabase.rpc('get_user_language')
           dbLang = (data as string | null) ?? null
-        } catch {}
+        } catch {        }
 
         // Precedence: URL > DB > cookie > localStorage > default
-        const lang = urlLocale || dbLang || cookieLocale || localStorage.getItem('i18nextLng') || 'us'
+        const storedLang = typeof window !== 'undefined' ? localStorage.getItem('i18nextLng') : null
+        const lang = urlLocale || dbLang || cookieLocale || storedLang || 'us'
         
         // Only change language if it's different from current
         if (lang !== i18n.language) {

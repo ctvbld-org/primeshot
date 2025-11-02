@@ -14,6 +14,9 @@ const INTENT_EXPIRY_MS = 30 * 60 * 1000 // 30 minutes
 
 export function useGenerationIntent() {
   const saveIntent = useCallback((requiredCredits: number, actionType: string = 'subscribe', actionData?: any) => {
+    // Only run on client
+    if (typeof window === 'undefined') return
+    
     const intent: GenerationIntent = {
       requiredCredits,
       timestamp: Date.now(),
@@ -31,6 +34,9 @@ export function useGenerationIntent() {
   }, [])
 
   const getIntent = useCallback((): GenerationIntent | null => {
+    // Only run on client
+    if (typeof window === 'undefined') return null
+    
     try {
       const stored = localStorage.getItem(INTENT_STORAGE_KEY)
       if (!stored) {
@@ -57,6 +63,8 @@ export function useGenerationIntent() {
   }, [])
 
   const clearIntent = useCallback(() => {
+    // Only run on client
+    if (typeof window === 'undefined') return
     localStorage.removeItem(INTENT_STORAGE_KEY)
   }, [])
 
