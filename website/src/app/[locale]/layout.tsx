@@ -204,7 +204,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
         id="initial-data" 
         dangerouslySetInnerHTML={{ __html: JSON.stringify(initialData) }} 
       />
-      <I18nProvider>
+      <I18nProvider locale={finalLocale}>
         <AuthProvider>
           <LanguageProvider>
             <StyleProviders>

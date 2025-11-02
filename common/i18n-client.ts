@@ -9,15 +9,13 @@ import { resources, SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE, LANGUAGE_COOKIE_NAME 
 if (!i18n.isInitialized) {
   const isClient = typeof window !== 'undefined';
   
-  // Only use LanguageDetector on client-side
-  if (isClient) {
-    i18n.use(LanguageDetector);
-  }
+  // Don't use LanguageDetector during initialization to prevent hydration mismatch
+  // Language will be set by I18nProvider based on server-detected locale
   
   i18n
     .use(initReactI18next)
     .init({
-      lng: DEFAULT_LANGUAGE, // Force client to start with English
+      lng: DEFAULT_LANGUAGE, // Start with default, will be synced by I18nProvider
       fallbackLng: DEFAULT_LANGUAGE,
       supportedLngs: SUPPORTED_LANGUAGES as readonly string[],
       interpolation: {
@@ -26,18 +24,11 @@ if (!i18n.isInitialized) {
       defaultNS: 'common',
       ns: ['common', 'auth', 'pricing', 'styles', 'generate', 'inference', 'character', 'about', 'legal', 'upload', 'homepage', 'account'],
       resources,
-      // Only set detection on client-side
-      ...(isClient && {
-        detection: {
-          order: ['cookie', 'localStorage'],
-          caches: ['localStorage', 'cookie'],
-          lookupFromPathIndex: 0,
-          lookupCookie: LANGUAGE_COOKIE_NAME,
-          cookieMinutes: 525600, // 1 year
-          cookieDomain: undefined,
-          cookieOptions: { path: '/', sameSite: 'lax' }
-        }
-      })
+      // Disable automatic detection to prevent hydration mismatch
+      // Language is controlled by I18nProvider prop
+      react: {
+        useSuspense: false
+      }
     });
 }
 

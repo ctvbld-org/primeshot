@@ -2,13 +2,10 @@
 
 import Image from 'next/image'
 import { Icon } from '@primeshot/common/web/Icon'
-import { makeCloudfrontLoader } from '@/lib/utils/cloudfrontLoader'
 import { StickyShowcaseSection } from '../StickyShowcaseSection'
 import styles from '../ShowcaseSection.module.css'
 import { getWebsiteCdnUrl } from '@primeshot/common/lib/utils/cdn'
 import { useTranslation } from 'react-i18next'
-
-const cloudfrontLoader = makeCloudfrontLoader('website-images')
 
 export function CharactersShowcase() {
   const { t } = useTranslation('homepage')
@@ -41,7 +38,7 @@ export function CharactersShowcase() {
                 alt="Character selfie"
                 fill
                 className={styles.heroImage}
-                loader={cloudfrontLoader}
+                unoptimized
               />
           </div>
 
@@ -52,7 +49,7 @@ export function CharactersShowcase() {
                 alt="Character selfie"
                 fill
                 className={styles.heroImage}
-                loader={cloudfrontLoader}
+                unoptimized
               />
           </div>
 
@@ -63,7 +60,7 @@ export function CharactersShowcase() {
                 alt="Character selfie"
                 fill
                 className={styles.heroImage}
-                loader={cloudfrontLoader}
+                unoptimized
               />
           </div>
 
