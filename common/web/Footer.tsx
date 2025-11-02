@@ -6,9 +6,39 @@ import styles from './Footer.module.css'
 import { Icon } from './Icon'
 import SocialIcons from './SocialIcons'
 
-export const Footer = ({ variant = 'full' }: { variant?: 'full' | 'compact' }) => {
-  const { t } = useTranslation('common')
+interface FooterStyle {
+  id: string
+  name: string
+  translations?: {
+    [lang: string]: {
+      name: string
+    }
+  }
+}
+
+interface FooterProps {
+  variant?: 'full' | 'compact'
+  latestStyles?: FooterStyle[]
+}
+
+export const Footer = ({ variant = 'full', latestStyles }: FooterProps) => {
+  const { t, i18n } = useTranslation('common')
   const year = new Date().getFullYear()
+
+  // Fallback styles if none provided
+  const defaultStyles: FooterStyle[] = [
+    { id: 'default-1', name: 'Studio Pro', translations: {} },
+    { id: 'default-2', name: 'Business', translations: {} },
+    { id: 'default-3', name: 'Editorial', translations: {} }
+  ]
+
+  const displayStyles = latestStyles && latestStyles.length > 0 ? latestStyles : defaultStyles
+  
+  // Helper to get translated name or fallback to default name
+  const getStyleName = (style: FooterStyle) => {
+    const currentLang = i18n.language
+    return style.translations?.[currentLang]?.name || style.name
+  }
   return (
     <footer className={styles.footer}>
       {variant === 'full' ? (
@@ -53,10 +83,17 @@ export const Footer = ({ variant = 'full' }: { variant?: 'full' | 'compact' }) =
               
               <div className={styles.column}>
                 <h3 className={styles.columnTitle}>{t('footer.sections.latestStyles')}</h3>
-                <ul className={styles.linksList}>
-                  <li><a href="/explore?style=Studio%20Pro" className={styles.link}>{t('footer.links.studioPro')}</a></li>
-                  <li><a href="/explore?style=Business" className={styles.link}>{t('footer.links.business')}</a></li>
-                  <li><a href="/explore?style=Editorial" className={styles.link}>{t('footer.links.editorial')}</a></li>
+                <ul className={styles.linksList} suppressHydrationWarning>
+                  {displayStyles.slice(0, 3).map((style) => (
+                    <li key={style.id}>
+                      <a 
+                        href={`/explore?style=${encodeURIComponent(style.name)}`} 
+                        className={styles.link}
+                      >
+                        {getStyleName(style)}
+                      </a>
+                    </li>
+                  ))}
                 </ul>
               </div>
               
@@ -80,7 +117,7 @@ export const Footer = ({ variant = 'full' }: { variant?: 'full' | 'compact' }) =
 
 
           <div className={styles.bottomSection}>
-            <div className={styles.copyright}>
+            <div className={styles.copyright} suppressHydrationWarning>
               {t('footer.copyright', { year })}
             </div>
 
@@ -93,7 +130,7 @@ export const Footer = ({ variant = 'full' }: { variant?: 'full' | 'compact' }) =
               <Link href="/" aria-label="Primeshot home" className={styles.logoLink}>
                   <Icon variant="primeshotLogo" size={118} className={styles.logo} />
               </Link>
-              <div className={styles.copyright}>
+              <div className={styles.copyright} suppressHydrationWarning>
               {t('footer.copyright', { year })}
               </div>
           </div>

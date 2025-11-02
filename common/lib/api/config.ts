@@ -29,6 +29,17 @@ export function createConfigApi(supabase: SupabaseClient<any>) {
     return data as Style;
   }
 
+  // Get the latest N styles (for footer, homepage, etc.)
+  async function getLatestStyles(limit: number = 3): Promise<Pick<Style, 'id' | 'name' | 'translations'>[]> {
+    const { data, error } = await supabase
+      .from('styles')
+      .select('id, name, translations')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return data as Pick<Style, 'id' | 'name' | 'translations'>[];
+  }
+
   // New separate table functions
   async function getScenes(): Promise<Scene[]> {
     const { data, error } = await supabase
@@ -196,6 +207,7 @@ export function createConfigApi(supabase: SupabaseClient<any>) {
   return {
     getAllStyleConfigs,
     getStyleConfigById,
+    getLatestStyles,
     getScenes,
     getWardrobes,
     getColors,

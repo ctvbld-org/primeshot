@@ -1,260 +1,260 @@
 {
-    "common": {
-        "pleaseTryAgain": "请重试",
-        "cancel": "取消"
-    },
-    "time": {
-        "justNow": "刚刚",
-        "minutesAgo": "{{count}}分钟前",
-        "hoursAgo": "{{count}}小时前",
-        "daysAgo": "{{count}}天前"
-    },
-    "gallery": {
-        "error": "加载推理作业失败：{{error}}",
-        "retry": "重试",
-        "loadingMore": "加载更多拍摄",
-        "endOfList": "您已到达拍摄列表的末尾",
-        "howItWorksAria": "工作原理",
-        "quotes": [
-            "每个细节都在成形",
-            "您的肖像正在变得生动",
-            "可能会出现一些惊喜，快乐的意外",
-            "带着惊奇去探索",
-            "发现那些真实的自己",
-            "见证您的蜕变",
-            "魔法正在发生",
-            "您的故事正在展开",
-            "拥抱意想不到",
-            "艺术与您相遇",
-            "每一帧都是启示",
-            "美丽正在诞生",
-            "捕捉您的本质",
-            "瞬间化为回忆",
-            "找到您的光芒",
-            "完美需要时间",
-            "快要完成了，快要是您了",
-            "创造美好事物",
-            "您的独特视野正在显现",
-            "相信这个过程",
-            "特别的事物在等待",
-            "您的时刻即将到来",
-            "让艺术呼吸",
-            "耐心成就完美",
-            "梦想正在成形",
-            "您的画布充满生机",
-            "见证魔法的发生",
-            "变得非凡",
-            "细节造就不同",
-            "像素中的故事",
-            "艺术需要耐心",
-            "打造您的时刻",
-            "每一秒都很重要",
-            "您的愿景正在实现",
-            "等待是值得的",
-            "美丽需要时间",
-            "即将闪耀",
-            "您的杰作正在加载",
-            "赋予您生命",
-            "更近一步",
-            "打造完美的您",
-            "您的愿景觉醒",
-            "碎片拼凑到位",
-            "看着您浮现",
-            "最好的还在后面",
-            "您的旅程在这里展开",
-            "创造纯粹的魔法",
-            "光彩的时刻",
-            "您的真相揭示",
-            "捕捉您的灵魂",
-            "梦想成为现实",
-            "成为的艺术",
-            "您的美丽绽放",
-            "耐心即将得到回报",
-            "魔法在运动",
-            "您的身份正在形成",
-            "艺术进行中",
-            "揭示临近",
-            "您的本质闪耀",
-            "美好的事物正在酝酿",
-            "您的图像正在完善",
-            "时间花得值得",
-            "创造您的遗产",
-            "您的火花点燃",
-            "终点线临近",
-            "绘制您的肖像",
-            "您的奇迹在等待",
-            "光彩正在创造",
-            "您闪耀的时刻",
-            "从您创造艺术",
-            "魔法触碰应用",
-            "您的故事成形",
-            "编织您的魔法",
-            "您的光彩浮现",
-            "最后润色",
-            "您的转变即将完成",
-            "创造永恒之物",
-            "您真实的自我",
-            "旅程是美丽的",
-            "您的光辉增长",
-            "完善每个细节",
-            "您的独特性被捕捉",
-            "您的艺术",
-            "您的美丽倍增",
-            "创造您的时刻",
-            "魔法展开",
-            "您的灵魂在画布上",
-            "几乎完美的您",
-            "创造纯粹之美",
-            "您的光芒即将闪耀",
-            "艺术变得生动",
-            "您的梦想实现",
-            "打造卓越",
-            "您的杰作正在加载",
-            "完美的时刻",
-            "您的故事美丽讲述"
-        ],
-        "steps": {
-            "choose": {
-                "title": "选择风格",
-                "desc": "选择适合您造型的氛围、场景和服装。"
-            },
-            "character": {
-                "title": "创建角色",
-                "desc": "上传一些照片，让我们的AI准确学习您的特征。"
-            },
-            "generate": {
-                "title": "生成您的拍摄",
-                "desc": "几分钟内获得您的肖像——真实、精致、随时可用。"
-            }
-        }
-    },
-    "viewer": {
-        "confirmDelete": {
-            "title": "删除图像？",
-            "description": "这将永久删除图像且无法撤销。",
-            "confirm": "删除",
-            "cancel": "取消"
-        },
-        "closeAria": "关闭查看器",
-        "carousel": {
-            "aria": "轮播导航",
-            "prevAria": "上一张图像",
-            "nextAria": "下一张图像"
-        },
-        "overlay": {
-            "displayOriginal": "显示原图",
-            "displayOriginalAria": "显示原始图像",
-            "originalUnavailableTitle": "原图不可用",
-            "originalUnavailableDesc": "无法加载原始图像变体。"
-        },
-        "viewOriginal": {
-            "label": "预览完整尺寸",
-            "viewing": "正在查看完整尺寸",
-            "aria": "切换到原图",
-            "viewingAria": "正在查看原图"
-        },
-        "title": "拍摄{{shootNumber}}",
-        "imageIndex": "图像{{index}}",
-        "favourite": {
-            "ariaButton": "收藏",
-            "add": "添加到收藏",
-            "remove": "从收藏中移除",
-            "updateErrorTitle": "收藏更新失败"
-        },
-        "metadata": {
-            "labels": {
-                "aspectRatio": "宽高比",
-                "quality": "质量",
-                "model": "模型",
-                "character": "角色"
-            },
-            "aspectLabels": {
-                "square": "正方形",
-                "landscape": "横向",
-                "portrait": "纵向"
-            }
-        },
-        "actions": {
-            "delete": {
-                "label": "删除",
-                "aria": "删除图像"
-            },
-            "download": {
-                "label": "下载",
-                "aria": "下载图像"
-            }
-        },
-        "alt": {
-            "generated": "生成的图像{{index}}",
-            "thumbnail": "缩略图{{index}}"
-        }
-    },
-    "group": {
-        "status": {
-            "failed": "生成失败"
-        },
-        "error": {
-            "generic": "出现了一些问题，您的积分已退还",
-            "timeout": "创作时间超出预期，您的积分已退还",
-            "serverBusy": "我们的服务器暂时繁忙，您的积分已退还",
-            "memory": "服务器容量超限，您的积分已退还",
-            "connection": "连接暂时中断，您的积分已退还",
-            "imageGeneration": "创作未能完成，您的积分已退还"
-        },
-        "confirmDelete": {
-            "title": "删除拍摄？",
-            "description": "这将从您的画廊中移除拍摄。此操作无法撤销。",
-            "confirm": "删除"
-        },
-        "deleteFailedTitle": "删除失败",
-        "rerun": {
-            "cannot": "无法重新运行",
-            "missingInfo": "缺少必需的作业信息。",
-            "failed": "重新运行失败"
-        },
-        "header": {
-            "shootTitle": "拍摄#{{number}}"
-        },
-        "tooltips": {
-            "deleteShoot": "删除拍摄",
-            "rerunShoot": "重新运行拍摄"
-        },
-        "aria": {
-            "thumbnailsPreview": "缩略图预览",
-            "viewAllImages": "查看所有图像"
-        },
-        "alt": {
-            "preview": "预览{{index}}"
-        },
-        "buttons": {
-            "viewAll": "查看全部"
-        }
-    },
-    "thumbnail": {
-        "alt": {
-            "generatingPreview": "生成预览{{index}}",
-            "generated": "生成的图像{{index}}"
-        },
-        "favourite": {
-            "add": "添加到收藏",
-            "remove": "从收藏中移除"
-        },
-        "loadingTitle": "加载中…",
-        "loadingDesc": "图像详细信息仍在加载。请稍后重试。",
-        "actions": {
-            "delete": {
-                "label": "删除",
-                "aria": "删除图像"
-            },
-            "download": {
-                "label": "下载",
-                "aria": "下载图像"
-            }
-        },
-        "confirmDelete": {
-            "title": "删除图像？",
-            "description": "这将从您的画廊中移除图像。此操作无法撤销。",
-            "confirm": "删除"
-        }
+  "common": {
+    "pleaseTryAgain": "请重试",
+    "cancel": "取消"
+  },
+  "time": {
+    "justNow": "刚刚",
+    "minutesAgo": "{{count}}分钟前",
+    "hoursAgo": "{{count}}小时前",
+    "daysAgo": "{{count}}天前"
+  },
+  "gallery": {
+    "error": "加载推理作业失败：{{error}}",
+    "retry": "重试",
+    "loadingMore": "加载更多拍摄",
+    "endOfList": "您已到达拍摄列表的末尾",
+    "howItWorksAria": "工作原理",
+    "quotes": [
+      "每个细节都在成形",
+      "您的肖像正在变得生动",
+      "可能会出现一些惊喜，快乐的意外",
+      "带着惊奇去探索",
+      "发现那些真实的自己",
+      "见证您的蜕变",
+      "魔法正在发生",
+      "您的故事正在展开",
+      "拥抱意想不到",
+      "艺术与您相遇",
+      "每一帧都是启示",
+      "美丽正在诞生",
+      "捕捉您的本质",
+      "瞬间化为回忆",
+      "找到您的光芒",
+      "完美需要时间",
+      "快要完成了，快要是您了",
+      "创造美好事物",
+      "您的独特视野正在显现",
+      "相信这个过程",
+      "特别的事物在等待",
+      "您的时刻即将到来",
+      "让艺术呼吸",
+      "耐心成就完美",
+      "梦想正在成形",
+      "您的画布充满生机",
+      "见证魔法的发生",
+      "变得非凡",
+      "细节造就不同",
+      "像素中的故事",
+      "艺术需要耐心",
+      "打造您的时刻",
+      "每一秒都很重要",
+      "您的愿景正在实现",
+      "等待是值得的",
+      "美丽需要时间",
+      "即将闪耀",
+      "您的杰作正在加载",
+      "赋予您生命",
+      "更近一步",
+      "打造完美的您",
+      "您的愿景觉醒",
+      "碎片拼凑到位",
+      "看着您浮现",
+      "最好的还在后面",
+      "您的旅程在这里展开",
+      "创造纯粹的魔法",
+      "光彩的时刻",
+      "您的真相揭示",
+      "捕捉您的灵魂",
+      "梦想成为现实",
+      "成为的艺术",
+      "您的美丽绽放",
+      "耐心即将得到回报",
+      "魔法在运动",
+      "您的身份正在形成",
+      "艺术进行中",
+      "揭示临近",
+      "您的本质闪耀",
+      "美好的事物正在酝酿",
+      "您的图像正在完善",
+      "时间花得值得",
+      "创造您的遗产",
+      "您的火花点燃",
+      "终点线临近",
+      "绘制您的肖像",
+      "您的奇迹在等待",
+      "光彩正在创造",
+      "您闪耀的时刻",
+      "从您创造艺术",
+      "魔法触碰应用",
+      "您的故事成形",
+      "编织您的魔法",
+      "您的光彩浮现",
+      "最后润色",
+      "您的转变即将完成",
+      "创造永恒之物",
+      "您真实的自我",
+      "旅程是美丽的",
+      "您的光辉增长",
+      "完善每个细节",
+      "您的独特性被捕捉",
+      "您的艺术",
+      "您的美丽倍增",
+      "创造您的时刻",
+      "魔法展开",
+      "您的灵魂在画布上",
+      "几乎完美的您",
+      "创造纯粹之美",
+      "您的光芒即将闪耀",
+      "艺术变得生动",
+      "您的梦想实现",
+      "打造卓越",
+      "您的杰作正在加载",
+      "完美的时刻",
+      "您的故事美丽讲述"
+    ],
+    "steps": {
+      "choose": {
+        "title": "选择风格",
+        "desc": "选择适合您造型的氛围、场景和服装。"
+      },
+      "character": {
+        "title": "创建角色",
+        "desc": "上传一些照片，让我们的AI准确学习您的特征。"
+      },
+      "generate": {
+        "title": "生成您的拍摄",
+        "desc": "几分钟内获得您的肖像——真实、精致、随时可用。"
+      }
     }
+  },
+  "viewer": {
+    "confirmDelete": {
+      "title": "删除图像？",
+      "description": "这将永久删除图像且无法撤销。",
+      "confirm": "删除",
+      "cancel": "取消"
+    },
+    "closeAria": "关闭查看器",
+    "carousel": {
+      "aria": "轮播导航",
+      "prevAria": "上一张图像",
+      "nextAria": "下一张图像"
+    },
+    "overlay": {
+      "displayOriginal": "显示原图",
+      "displayOriginalAria": "显示原始图像",
+      "originalUnavailableTitle": "原图不可用",
+      "originalUnavailableDesc": "无法加载原始图像变体。"
+    },
+    "viewOriginal": {
+      "label": "预览完整尺寸",
+      "viewing": "正在查看完整尺寸",
+      "aria": "切换到原图",
+      "viewingAria": "正在查看原图"
+    },
+    "title": "拍摄{{shootNumber}}",
+    "imageIndex": "图像{{index}}",
+    "favourite": {
+      "ariaButton": "收藏",
+      "add": "添加到收藏",
+      "remove": "从收藏中移除",
+      "updateErrorTitle": "收藏更新失败"
+    },
+    "metadata": {
+      "labels": {
+        "aspectRatio": "宽高比",
+        "quality": "质量",
+        "model": "模型",
+        "character": "角色"
+      },
+      "aspectLabels": {
+        "square": "正方形",
+        "landscape": "横向",
+        "portrait": "纵向"
+      }
+    },
+    "actions": {
+      "delete": {
+        "label": "删除",
+        "aria": "删除图像"
+      },
+      "download": {
+        "label": "下载",
+        "aria": "下载图像"
+      }
+    },
+    "alt": {
+      "generated": "生成的图像{{index}}",
+      "thumbnail": "缩略图{{index}}"
+    }
+  },
+  "group": {
+    "status": {
+      "failed": "生成失败"
+    },
+    "error": {
+      "generic": "出现了一些问题，您的积分已退还",
+      "timeout": "创作时间超出预期，您的积分已退还",
+      "serverBusy": "我们的服务器暂时繁忙，您的积分已退还",
+      "memory": "服务器容量超限，您的积分已退还",
+      "connection": "连接暂时中断，您的积分已退还",
+      "imageGeneration": "创作未能完成，您的积分已退还"
+    },
+    "confirmDelete": {
+      "title": "删除拍摄？",
+      "description": "这将从您的画廊中移除拍摄。此操作无法撤销。",
+      "confirm": "删除"
+    },
+    "deleteFailedTitle": "删除失败",
+    "rerun": {
+      "cannot": "无法重新运行",
+      "missingInfo": "缺少必需的作业信息。",
+      "failed": "重新运行失败"
+    },
+    "header": {
+      "shootTitle": "拍摄#{{number}}"
+    },
+    "tooltips": {
+      "deleteShoot": "删除拍摄",
+      "rerunShoot": "重新运行拍摄"
+    },
+    "aria": {
+      "thumbnailsPreview": "缩略图预览",
+      "viewAllImages": "查看所有图像"
+    },
+    "alt": {
+      "preview": "预览{{index}}"
+    },
+    "buttons": {
+      "viewAll": "查看全部"
+    }
+  },
+  "thumbnail": {
+    "alt": {
+      "generatingPreview": "生成预览{{index}}",
+      "generated": "生成的图像{{index}}"
+    },
+    "favourite": {
+      "add": "添加到收藏",
+      "remove": "从收藏中移除"
+    },
+    "loadingTitle": "加载中…",
+    "loadingDesc": "图像详细信息仍在加载。请稍后重试。",
+    "actions": {
+      "delete": {
+        "label": "删除",
+        "aria": "删除图像"
+      },
+      "download": {
+        "label": "下载",
+        "aria": "下载图像"
+      }
+    },
+    "confirmDelete": {
+      "title": "删除图像？",
+      "description": "这将从您的画廊中移除图像。此操作无法撤销。",
+      "confirm": "删除"
+    }
+  }
 }

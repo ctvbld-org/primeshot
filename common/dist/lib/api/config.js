@@ -26,6 +26,17 @@ export function createConfigApi(supabase) {
         }
         return data;
     }
+    // Get the latest N styles (for footer, homepage, etc.)
+    async function getLatestStyles(limit = 3) {
+        const { data, error } = await supabase
+            .from('styles')
+            .select('id, name, translations')
+            .order('created_at', { ascending: false })
+            .limit(limit);
+        if (error)
+            throw error;
+        return data;
+    }
     // New separate table functions
     async function getScenes() {
         const { data, error } = await supabase
@@ -193,6 +204,7 @@ export function createConfigApi(supabase) {
     return {
         getAllStyleConfigs,
         getStyleConfigById,
+        getLatestStyles,
         getScenes,
         getWardrobes,
         getColors,

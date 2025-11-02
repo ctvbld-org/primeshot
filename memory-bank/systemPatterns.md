@@ -2701,6 +2701,22 @@ Detected changes in:
 - website/src/components/ExploreThumb.module.css
 - website/src/components/ExploreThumb.tsx
 - website/src/lib/utils/parse-explore-image-metadata.ts
+
+
+**Auto-update 2025-11-02**:
+Detected changes in:
+- admin/src/app/api/explore/list/route.ts
+- admin/src/app/api/explore/remove/route.ts
+- admin/src/components/explore/ImagesTab.tsx
+- admin/src/lib/sync/detector.ts
+- admin/src/lib/sync/engine.ts
+- admin/src/lib/utils/parse-explore-image-metadata.ts
+- webapp/src/app/api/admin/explore/remove/route.ts
+- webapp/src/app/api/admin/explore/save/route.ts
+- webapp/src/components/inference/InferenceJobGroup.tsx
+- webapp/src/lib/admin/explore-utils.ts
+- website/src/app/[locale]/explore/page.tsx
+- website/src/lib/utils/parse-explore-image-metadata.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

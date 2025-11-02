@@ -10,6 +10,8 @@ import { getWebsiteCdnUrl } from '@primeshot/common/lib/utils/cdn'
 import { StyleProviders } from '@/contexts/StyleProviders'
 import { Header, Footer } from '@primeshot/common'
 import { IntentHandler } from '@/components/IntentHandler'
+import { createClient } from '@/lib/supabase/server'
+import { createConfigApi } from '@primeshot/common/lib/api/config'
 
 const SUPPORTED_LOCALES = ['en','cn','es','fr','pt','de','jp','it','nl'] as const;
 
@@ -180,6 +182,16 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   // Ensure locale is valid, fallback to en if not
   const finalLocale = SUPPORTED_LOCALES.includes(locale as typeof SUPPORTED_LOCALES[number]) ? locale : 'en';
   
+  // Fetch latest styles for footer
+  let latestStyles: Array<{ id: string; name: string; translations?: any }> = []
+  try {
+    const supabase = await createClient()
+    const api = createConfigApi(supabase)
+    latestStyles = await api.getLatestStyles(3)
+  } catch (error) {
+    console.error('Failed to fetch latest styles for footer:', error)
+    // Will use fallback styles in Footer component
+  }
   
   // Create initial locale data as JSON instead of executable script
   const initialData = {
@@ -199,7 +211,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
               <IntentHandler />
               <Header />
               {children}
-              <Footer />
+              <Footer latestStyles={latestStyles} />
             </StyleProviders>
           </LanguageProvider>
         </AuthProvider>

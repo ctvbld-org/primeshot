@@ -3,6 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 export declare function createConfigApi(supabase: SupabaseClient<any>): {
     getAllStyleConfigs: () => Promise<Style[]>;
     getStyleConfigById: (id: StyleId) => Promise<Style | null>;
+    getLatestStyles: (limit?: number) => Promise<Pick<Style, "id" | "name" | "translations">[]>;
     getScenes: () => Promise<Scene[]>;
     getWardrobes: () => Promise<Wardrobe[]>;
     getColors: () => Promise<Color[]>;
