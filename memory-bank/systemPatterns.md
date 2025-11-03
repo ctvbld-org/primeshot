@@ -2753,6 +2753,11 @@ Detected changes in:
 **Auto-update 2025-11-03**:
 Detected changes in:
 - website/src/app/layout.tsx
+
+
+**Auto-update 2025-11-03**:
+Detected changes in:
+- website/src/app/globals.css
 ## Component Organization
 
 Components are organized by feature and reusability:
