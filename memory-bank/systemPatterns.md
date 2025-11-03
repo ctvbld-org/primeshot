@@ -2728,6 +2728,11 @@ Detected changes in:
 - website/src/components/WebGLBackground.tsx
 - website/src/components/WebGLContext.tsx
 - website/src/components/WebGLImageTransition.tsx
+
+
+**Auto-update 2025-11-03**:
+Detected changes in:
+- website/src/app/[locale]/layout.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

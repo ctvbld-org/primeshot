@@ -188,21 +188,14 @@ export function InteractiveGenerateBar({ children, className }: InteractiveGener
 
   // Custom handlers for demo mode item clicks
   const handleStyleClick = useCallback((styleId: string) => {
-    // In demo mode, update the selected style to show its images
-    console.log('Style clicked:', styleId)
     setSelectedStyleId(styleId)
   }, [])
 
   const handleSceneClick = useCallback((sceneValue: string) => {
-    // In demo mode, update the selected scene to trigger re-randomization
-    console.log('Scene clicked:', sceneValue)
     setSelectedSceneId(sceneValue)
   }, [])
 
   const handleWardrobeClick = useCallback((wardrobeValue: string) => {
-    // In demo mode, wardrobe click stores selection AND keeps panel open to show colors
-    console.log('Wardrobe clicked:', wardrobeValue)
-    
     // Empty string means "back" button was clicked - clear selection
     if (wardrobeValue === '') {
       setSelectedWardrobeId(null)
@@ -216,14 +209,10 @@ export function InteractiveGenerateBar({ children, className }: InteractiveGener
   }, [])
 
   const handleColorClick = useCallback((colorValue: string) => {
-    // In demo mode, color click triggers random image re-shuffle
-    console.log('Color clicked:', colorValue)
     setSelectedColorId(colorValue)
   }, [])
 
   const handleCharacterClick = useCallback(() => {
-    console.log('Character/Create clicked')
-    
     // Check if user is authenticated
     if (isAuthenticated) {
       // Redirect to app's create page
@@ -279,7 +268,7 @@ export function InteractiveGenerateBar({ children, className }: InteractiveGener
         {isDataReady && (
           <div 
             ref={barRef}
-            className={`fixed left-1/2 z-50 w-[600px] px-2 max-w-full ${cssStyles.generateBarWrapper} ${cssStyles.visible}`}
+            className={`${cssStyles.generateBarWrapper} ${cssStyles.visible}`}
           >
             <GenerateBar
               emblaApi={null}
