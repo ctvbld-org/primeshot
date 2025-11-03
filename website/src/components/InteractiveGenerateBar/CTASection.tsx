@@ -13,10 +13,12 @@ import { useTranslation } from 'react-i18next'
 import styles from './CTASection.module.css'
 import showcaseStyles from './ShowcaseSection.module.css'
 
+type PositionMode = 'hidden' | 'fixed' | 'relative'
+
 export function CTASection() {
   const { t } = useTranslation('homepage')
   const [isSignInOpen, setIsSignInOpen] = useState(false)
-  const [isVisible, setIsVisible] = useState(false)
+  const [positionMode, setPositionMode] = useState<PositionMode>('hidden')
   const contentRef = useRef<HTMLDivElement>(null)
   
   // Auth and subscription state
@@ -53,13 +55,22 @@ export function CTASection() {
         const viewportHeight = window.innerHeight
         const viewportMiddle = viewportHeight / 2
 
-        // Calculate CTA middle position relative to viewport top
-        const ctaMiddleInViewport = ctaRect.top + (ctaRect.height / 2)
+        // Calculate key positions
+        const ctaTop = ctaRect.top
+        const ctaTriggerPoint = ctaTop + 250 // Top of section + 200px
+        const ctaMiddleInViewport = ctaTop + (ctaRect.height / 2)
 
-        // Visible when CTA middle is above viewport middle
-        const shouldBeVisible = ctaMiddleInViewport < viewportMiddle
-
-        setIsVisible(shouldBeVisible)
+        // Determine positioning mode based on scroll position
+        if (ctaMiddleInViewport < viewportMiddle) {
+          // Phase 3: Middle of section passed viewport middle - scroll naturally
+          setPositionMode('relative')
+        } else if (ctaTriggerPoint < viewportMiddle) {
+          // Phase 2: Trigger point reached - stay fixed
+          setPositionMode('fixed')
+        } else {
+          // Phase 1: Not yet reached trigger point - hidden
+          setPositionMode('hidden')
+        }
       })
     }
 
@@ -78,6 +89,22 @@ export function CTASection() {
     }
   }, [])
 
+  // Determine content wrapper classes based on position mode
+  const getContentClasses = () => {
+    const baseClasses = [showcaseStyles.content, styles.contentContainer]
+    
+    if (positionMode === 'fixed') {
+      baseClasses.push(styles.contentFixed)
+      baseClasses.push(showcaseStyles.visible)
+    } else if (positionMode === 'relative') {
+      baseClasses.push(styles.contentRelative)
+      baseClasses.push(showcaseStyles.visible)
+    }
+    // Hidden state uses default (no additional classes)
+    
+    return baseClasses.join(' ')
+  }
+
   return (
     <>
       {/* Background Image */}
@@ -95,7 +122,7 @@ export function CTASection() {
 
       <div 
         ref={contentRef}
-        className={`${showcaseStyles.content} ${isVisible ? showcaseStyles.visible : ''} ${styles.contentContainer}`}
+        className={getContentClasses()}
       >
         <div className={showcaseStyles.titleContainer}>
           <div className={showcaseStyles.iconWrapper + ' ' + styles.iconWrapper}>

@@ -19,10 +19,24 @@
 }
 
 .contentContainer {
+  position: fixed !important;
   min-height: auto !important;
   pointer-events: auto !important;
   gap: 130px;
-  margin-top: -27px;
+  top: calc(50% - 27px);
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 64px 32px;
+  z-index: 12;
+}
+
+/* Relative positioning phase - content scrolls naturally */
+.contentRelative {
+  position: relative !important;
+  transform: translateY(-27px) !important;
 }
 
 .heading {
