@@ -19,10 +19,10 @@ export const AdminHeader: React.FC = () => {
       <div className={styles.container}>
         <div className={styles.leftSection}>
           {/* logo */}
-          <Link href="/dashboard">
+          <Link href={process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://primeshot.ai'}>
             <Image 
               src="/logo-primeshot.svg" 
-              alt="Primeshot Admin" 
+              alt="Primeshot" 
               width={32} 
               height={32} 
             />
