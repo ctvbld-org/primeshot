@@ -2748,6 +2748,11 @@ Detected changes in:
 - website/src/app/[locale]/explore/page.module.css
 - website/src/components/ContentPageHeader.module.css
 - website/src/contexts/StyleProviders.tsx
+
+
+**Auto-update 2025-11-03**:
+Detected changes in:
+- website/src/app/layout.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:
