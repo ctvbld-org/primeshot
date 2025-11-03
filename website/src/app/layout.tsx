@@ -108,10 +108,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = await detectLocale()
+  // Don't detect locale here - the middleware already handled it and it's in the URL
+  // The [locale] layout will handle the actual locale logic
   
   return (
-    <html lang={locale} className={`${carb.variable} bg-[#000000]`}>
+    <html lang="en" className={`${carb.variable} bg-[#000000]`}>
       <body className={`${inter.variable} font-sans antialiased bg-[#000000] min-h-screen text-[#FFFFFF70] pt-[56px]`}>
         {children}
       </body>

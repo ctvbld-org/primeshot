@@ -1,6 +1,6 @@
 'use client';
 import { jsx as _jsx } from "react/jsx-runtime";
-import { useMemo } from 'react';
+import { useEffect } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n-client';
 /**
@@ -9,11 +9,9 @@ import i18n from './i18n-client';
  * Accepts optional locale to ensure server/client language sync
  */
 export function I18nProvider({ children, locale }) {
-    // Synchronously set language BEFORE rendering to prevent hydration mismatch
-    useMemo(() => {
+    // Set language in useEffect to avoid calling async operations during render
+    useEffect(() => {
         if (locale && i18n.language !== locale) {
-            // Use changeLanguage synchronously during render to ensure both
-            // server and client start with the same language
             i18n.changeLanguage(locale);
         }
     }, [locale]);

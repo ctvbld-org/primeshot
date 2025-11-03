@@ -2740,6 +2740,14 @@ Detected changes in:
 - website/src/components/InteractiveGenerateBar/CTASection.module.css
 - website/src/components/InteractiveGenerateBar/InteractiveGenerateBar.module.css
 - website/src/components/InteractiveGenerateBar/InteractiveGenerateBar.tsx
+
+
+**Auto-update 2025-11-03**:
+Detected changes in:
+- admin/src/components/layout/AdminHeader.tsx
+- website/src/app/[locale]/explore/page.module.css
+- website/src/components/ContentPageHeader.module.css
+- website/src/contexts/StyleProviders.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:
