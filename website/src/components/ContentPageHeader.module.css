@@ -16,6 +16,13 @@
 @media (min-width: 640px) {
   .container {
     border-radius: 1.75rem;
+    height: 280px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    border-radius: 1.75rem;
     height: 340px;
   }
 }
