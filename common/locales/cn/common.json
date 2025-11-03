@@ -77,7 +77,7 @@
     "brandLogo": "Primeshot"
   },
   "explore": {
-    "generateTooltip": "生成这张图片"
+    "generateTooltip": "应用此风格"
   },
   "credits": {
     "remaining_one": "剩余{{value}}个积分",

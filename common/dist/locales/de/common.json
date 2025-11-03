@@ -77,7 +77,7 @@
         "brandLogo": "Primeshot"
     },
     "explore": {
-        "generateTooltip": "Dieses Bild generieren"
+        "generateTooltip": "Diesen Stil anwenden"
     },
     "credits": {
         "remaining_one": "{{value}} Guthaben verbleibt",

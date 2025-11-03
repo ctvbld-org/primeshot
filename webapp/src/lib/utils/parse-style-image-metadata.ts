@@ -60,15 +60,16 @@ export function parseStyleImageFilename(filename: string): StyleImageMetadata | 
     // Split by double underscore
     const parts = nameWithoutExt.split('__');
     
-    // Expected format: [style, scene, wardrobe, color, aspectRatio, resolution]
-    if (parts.length !== 6) {
-      console.warn(`Invalid filename format: ${filename}. Expected 6 parts, got ${parts.length}`);
+    // Expected format: [style, scene, wardrobe, color, aspectRatio, resolution, optionalHash]
+    // Accept 6 or 7 parts (7th part is optional unique hash)
+    if (parts.length !== 6 && parts.length !== 7) {
+      console.warn(`Invalid filename format: ${filename}. Expected 6 or 7 parts, got ${parts.length}`);
       return null;
     }
     
     const [style, scene, wardrobe, color, aspectRatio, resolution] = parts;
     
-    // Validate all parts exist
+    // Validate all required parts exist
     if (!style || !scene || !wardrobe || !color || !aspectRatio || !resolution) {
       console.warn(`Missing parts in filename: ${filename}`);
       return null;

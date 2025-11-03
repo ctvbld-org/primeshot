@@ -77,7 +77,7 @@
         "brandLogo": "Primeshot"
     },
     "explore": {
-        "generateTooltip": "Générer cette image"
+        "generateTooltip": "Appliquer ce style"
     },
     "credits": {
         "remaining_one": "{{value}} crédit restant",

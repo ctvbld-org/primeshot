@@ -66,6 +66,12 @@ const nextConfig = {
         hostname: 'lh3.googleusercontent.com',
       },
     ],
+    localPatterns: [
+      {
+        pathname: '/api/app-images',
+        search: '',
+      },
+    ],
     qualities: [75, 80, 85, 90, 100],
   },
   // compiler: {
