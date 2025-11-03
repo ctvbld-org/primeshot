@@ -12,8 +12,8 @@ export function StyleProviders({ children }: { children: ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 1000 * 60 * 60 * 24 * 7, // 1 week
-        gcTime: 1000 * 60 * 60 * 24 * 7, // 1 week (formerly cacheTime)
+        staleTime: 1000 * 60 * 5, // 5 minutes - shorter to prevent stale cache issues across deploys
+        gcTime: 1000 * 60 * 30, // 30 minutes - enough for session, not too long for deploys
       },
     },
   }))
