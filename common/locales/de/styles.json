@@ -22,7 +22,8 @@
   "qualities": {
     "basic": "Basis",
     "medium": "Mittel",
-    "high": "Hoch"
+    "high": "Hoch",
+    "requiresHigherPlan": "Erfordert höheren Plan"
   },
   "labels": {
     "credits": "{{count}} Guthaben",

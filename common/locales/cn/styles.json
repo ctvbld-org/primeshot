@@ -22,7 +22,8 @@
   "qualities": {
     "basic": "基础",
     "medium": "中等",
-    "high": "高级"
+    "high": "高级",
+    "requiresHigherPlan": "需要更高套餐"
   },
   "labels": {
     "credits": "{{count}}积分",

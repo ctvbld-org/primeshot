@@ -105,6 +105,7 @@
     "petMode": "Haustiermodus",
     "bodyShotRequirementsNotMet": "Ganzkörperaufnahme-Anforderungen nicht erfüllt",
     "bodyShotBypassExplanation": "Sie können ohne Ganzkörperaufnahmen fortfahren, aber es wird keine genaue Darstellung von Ihnen sein",
+    "bodyShotBypassExplanationTooMany": "Du kannst fortfahren, aber Nahaufnahmen sehen möglicherweise nicht optimal aus. Für beste Ergebnisse verwende maximal 3 Ganzkörperfotos.",
     "bodyShotBypassButton": "Ich verstehe, trotzdem fortfahren"
   },
   "nameStep": {

@@ -1,63 +1,64 @@
 {
-    "titles": {
-        "styleLabel": "Stil",
-        "photoStyle": "Foto-Stil",
-        "sceneLabel": "Szene",
-        "wardrobeLabel": "Kleidung",
-        "characterLabel": "Charakter",
-        "settingsLabel": "Einstellungen"
+  "titles": {
+    "styleLabel": "Stil",
+    "photoStyle": "Foto-Stil",
+    "sceneLabel": "Szene",
+    "wardrobeLabel": "Kleidung",
+    "characterLabel": "Charakter",
+    "settingsLabel": "Einstellungen"
+  },
+  "shoot": {
+    "subtitle": "{{style}} mit {{scene}} Kulisse, trägt {{wardrobe}} in {{color}}"
+  },
+  "character": {
+    "trainingQueued": "In Warteschlange",
+    "trainingPending": "Ausstehend",
+    "trainingInitializing": "Initialisiert",
+    "remaining": "verbleibend",
+    "photos": "Fotos",
+    "trainingFailedTitle": "Training fehlgeschlagen",
+    "trainingFailedDesc": "Dieser Charakter kann nicht für die Generierung verwendet werden. Bitte lösche ihn und versuche es erneut."
+  },
+  "qualities": {
+    "basic": "Basis",
+    "medium": "Mittel",
+    "high": "Hoch",
+    "requiresHigherPlan": "Erfordert höheren Plan"
+  },
+  "labels": {
+    "credits": "{{count}} Guthaben",
+    "includedInPlan": "{{count}} im Plan enthalten",
+    "limitReached": "Limit erreicht",
+    "upgradePlanAddMore": "Plan upgraden für mehr",
+    "upgradeOrBuyCredits": "Plan upgraden oder Guthaben-Paket kaufen",
+    "buyCredits": "Guthaben-Paket kaufen",
+    "newStylesDropWeekly": "Jede Woche neue Stile"
+  },
+  "settings": {
+    "numberOfTakes": "Anzahl der Aufnahmen",
+    "quality": "Qualität",
+    "aspectRatio": "Seitenverhältnis"
+  },
+  "status": {
+    "badge": {
+      "pending": "Ausstehend",
+      "queued": "In Warteschlange",
+      "initializing": "Initialisiert",
+      "starting": "Startet",
+      "running": "Generiert",
+      "generating": "Generiert",
+      "completed": "Abgeschlossen",
+      "failed": "Fehlgeschlagen",
+      "connecting": "Verbindet"
     },
-    "shoot": {
-        "subtitle": "{{style}} mit {{scene}} Kulisse, trägt {{wardrobe}} in {{color}}"
-    },
-    "character": {
-        "trainingQueued": "In Warteschlange",
-        "trainingPending": "Ausstehend",
-        "trainingInitializing": "Initialisiert",
-        "remaining": "verbleibend",
-        "photos": "Fotos",
-        "trainingFailedTitle": "Training fehlgeschlagen",
-        "trainingFailedDesc": "Dieser Charakter kann nicht für die Generierung verwendet werden. Bitte lösche ihn und versuche es erneut."
-    },
-    "qualities": {
-        "basic": "Basis",
-        "medium": "Mittel",
-        "high": "Hoch"
-    },
-    "labels": {
-        "credits": "{{count}} Guthaben",
-        "includedInPlan": "{{count}} im Plan enthalten",
-        "limitReached": "Limit erreicht",
-        "upgradePlanAddMore": "Plan upgraden für mehr",
-        "upgradeOrBuyCredits": "Plan upgraden oder Guthaben-Paket kaufen",
-        "buyCredits": "Guthaben-Paket kaufen",
-        "newStylesDropWeekly": "Jede Woche neue Stile"
-    },
-    "settings": {
-        "numberOfTakes": "Anzahl der Aufnahmen",
-        "quality": "Qualität",
-        "aspectRatio": "Seitenverhältnis"
-    },
-    "status": {
-        "badge": {
-            "pending": "Ausstehend",
-            "queued": "In Warteschlange",
-            "initializing": "Initialisiert",
-            "starting": "Startet",
-            "running": "Generiert",
-            "generating": "Generiert",
-            "completed": "Abgeschlossen",
-            "failed": "Fehlgeschlagen",
-            "connecting": "Verbindet"
-        },
-        "tooltip": {
-            "pending": "Wartet auf Server-Verfügbarkeit - sollte bald fortfahren",
-            "queued": "Limit erreicht, wartet auf Abschluss einer Generierung",
-            "queueReasons": {
-                "character_not_ready": "Charakter trainiert noch — startet automatisch",
-                "concurrent_limit": "Limit erreicht ({{current}}/{{limit}}). Startet automatisch",
-                "provider_temporary_issue": "Temporäres Problem beim Senden an Anbieter. Wir versuchen es automatisch erneut."
-            }
-        }
+    "tooltip": {
+      "pending": "Wartet auf Server-Verfügbarkeit - sollte bald fortfahren",
+      "queued": "Limit erreicht, wartet auf Abschluss einer Generierung",
+      "queueReasons": {
+        "character_not_ready": "Charakter trainiert noch — startet automatisch",
+        "concurrent_limit": "Limit erreicht ({{current}}/{{limit}}). Startet automatisch",
+        "provider_temporary_issue": "Temporäres Problem beim Senden an Anbieter. Wir versuchen es automatisch erneut."
+      }
     }
+  }
 }

@@ -105,6 +105,7 @@
     "petMode": "Huisdier modus",
     "bodyShotRequirementsNotMet": "Lichaam shot vereisten niet voldaan",
     "bodyShotBypassExplanation": "Je kunt doorgaan zonder volledige lichaamsfoto's, maar het zal geen echte weergave van jezelf zijn",
+    "bodyShotBypassExplanationTooMany": "Je kunt doorgaan, maar close-ups zien er misschien niet optimaal uit. Voor de beste resultaten gebruik je maximaal 3 lichaamsfoto's.",
     "bodyShotBypassButton": "Ik begrijp het, toch doorgaan"
   },
   "nameStep": {

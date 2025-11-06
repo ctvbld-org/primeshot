@@ -1,102 +1,102 @@
 {
-    "welcome": "Bienvenue",
-    "error": {
-        "title": "Erreur",
-        "description": "Une erreur s'est produite"
+  "welcome": "Bienvenue",
+  "error": {
+    "title": "Erreur",
+    "description": "Une erreur s'est produite"
+  },
+  "language": "Langue",
+  "loading": "Chargement...",
+  "buttons": {
+    "customize": "Personnaliser",
+    "confirmChanges": "Confirmer les modifications",
+    "addToShoot": "Ajouter au shooting",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "back": "Retour",
+    "close": "Fermer",
+    "next": "Suivant",
+    "previous": "Préc.",
+    "keep": "Conserver",
+    "discard": "Abandonner",
+    "confirm": "Confirmer",
+    "remove": "Retirer",
+    "add": "Ajouter",
+    "explore": "Explorer",
+    "signIn": "Se connecter"
+  },
+  "navigation": {
+    "addStyles": "Ajouter des styles",
+    "payment": "Paiement",
+    "uploadPhotos": "Télécharger des photos",
+    "generate": "Générer",
+    "explore": "Explorer",
+    "create": "Créer",
+    "pricing": "Tarifs",
+    "admin": "Admin",
+    "menu": "Menu"
+  },
+  "userNav": {
+    "signOut": "Se déconnecter",
+    "accountSettings": "Paramètres du compte"
+  },
+  "footer": {
+    "hero": "Votre image vous appartient.",
+    "sections": {
+      "overview": "Aperçu",
+      "latestStyles": "Derniers Styles",
+      "legal": "Mentions légales",
+      "support": "Support"
     },
-    "language": "Langue",
-    "loading": "Chargement...",
-    "buttons": {
-        "customize": "Personnaliser",
-        "confirmChanges": "Confirmer les modifications",
-        "addToShoot": "Ajouter au shooting",
-        "edit": "Modifier",
-        "delete": "Supprimer",
-        "save": "Enregistrer",
-        "cancel": "Annuler",
-        "back": "Retour",
-        "close": "Fermer",
-        "next": "Suivant",
-        "previous": "Préc.",
-        "keep": "Conserver",
-        "discard": "Abandonner",
-        "confirm": "Confirmer",
-        "remove": "Retirer",
-        "add": "Ajouter",
-        "explore": "Explorer",
-        "signIn": "Se connecter"
+    "links": {
+      "explore": "Explorer",
+      "create": "Créer",
+      "pricing": "Tarifs et FAQ",
+      "studioPro": "Studio Pro",
+      "business": "Business",
+      "editorial": "Editorial",
+      "terms": "Conditions générales",
+      "privacy": "Politique de confidentialité",
+      "contact": "Nous contacter",
+      "about": "À propos"
     },
-    "navigation": {
-        "addStyles": "Ajouter des styles",
-        "payment": "Paiement",
-        "uploadPhotos": "Télécharger des photos",
-        "generate": "Générer",
-        "explore": "Explorer",
-        "create": "Créer",
-        "pricing": "Tarifs",
-        "admin": "Admin",
-        "menu": "Menu"
+    "copyright": "© {{year}} Primeshot. Tous droits réservés"
+  },
+  "duration": {
+    "year_one": "{{count}} an",
+    "year_other": "{{count}} ans",
+    "month_one": "{{count}} mois",
+    "month_other": "{{count}} mois",
+    "day_one": "{{count}} jour",
+    "day_other": "{{count}} jours"
+  },
+  "aria": {
+    "favourites": "Favoris",
+    "avatar": "Avatar utilisateur",
+    "brandLogo": "Primeshot"
+  },
+  "explore": {
+    "generateTooltip": "Appliquer ce style"
+  },
+  "credits": {
+    "remaining_one": "{{value}} crédit restant",
+    "remaining_other": "{{value}} crédits restants"
+  },
+  "contexts": {
+    "dialogService": {
+      "defaultTitle": "Dialogue",
+      "defaultDescription": "Contenu",
+      "notReadyWarning": "DialogService non prêt"
     },
-    "userNav": {
-        "signOut": "Se déconnecter",
-        "accountSettings": "Paramètres du compte"
-    },
-    "footer": {
-        "hero": "Votre image vous appartient.",
-        "sections": {
-            "overview": "Aperçu",
-            "latestStyles": "Derniers Styles",
-            "legal": "Mentions légales",
-            "support": "Support"
-        },
-        "links": {
-            "explore": "Explorer",
-            "create": "Créer",
-            "pricing": "Tarifs et FAQ",
-            "studioPro": "Studio Pro",
-            "business": "Business",
-            "editorial": "Editorial",
-            "terms": "Conditions générales",
-            "privacy": "Politique de confidentialité",
-            "contact": "Nous contacter",
-            "about": "À propos"
-        },
-        "copyright": "© {{year}} Primeshot. Tous droits réservés"
-    },
-    "duration": {
-        "year_one": "{{count}} an",
-        "year_other": "{{count}} ans",
-        "month_one": "{{count}} mois",
-        "month_other": "{{count}} mois",
-        "day_one": "{{count}} jour",
-        "day_other": "{{count}} jours"
-    },
-    "aria": {
-        "favourites": "Favoris",
-        "avatar": "Avatar utilisateur",
-        "brandLogo": "Primeshot"
-    },
-    "explore": {
-        "generateTooltip": "Appliquer ce style"
-    },
-    "credits": {
-        "remaining_one": "{{value}} crédit restant",
-        "remaining_other": "{{value}} crédits restants"
-    },
-    "contexts": {
-        "dialogService": {
-            "defaultTitle": "Dialogue",
-            "defaultDescription": "Contenu",
-            "notReadyWarning": "DialogService non prêt"
-        },
-        "errors": {
-            "missingProvider": {
-                "styleSelection": "useStyleSelection doit être utilisé dans un StyleSelectionProvider",
-                "dialogService": "useDialogService doit être utilisé dans un DialogServiceProvider",
-                "inferenceQueue": "useInferenceQueue doit être utilisé dans un InferenceQueueProvider",
-                "carousel": "useCarouselContext doit être utilisé dans un CarouselProvider",
-                "realtime": "useRealtime doit être utilisé dans un RealtimeProvider"
-            }
-        }
+    "errors": {
+      "missingProvider": {
+        "styleSelection": "useStyleSelection doit être utilisé dans un StyleSelectionProvider",
+        "dialogService": "useDialogService doit être utilisé dans un DialogServiceProvider",
+        "inferenceQueue": "useInferenceQueue doit être utilisé dans un InferenceQueueProvider",
+        "carousel": "useCarouselContext doit être utilisé dans un CarouselProvider",
+        "realtime": "useRealtime doit être utilisé dans un RealtimeProvider"
+      }
     }
+  }
 }

@@ -105,6 +105,7 @@
     "petMode": "Modo mascota",
     "bodyShotRequirementsNotMet": "Requisitos de plano corporal no cumplidos",
     "bodyShotBypassExplanation": "Puedes continuar sin fotos de cuerpo completo, pero no será una representación fiel de ti mismo",
+    "bodyShotBypassExplanationTooMany": "Puedes continuar, pero las imágenes de primer plano podrían no verse en su mejor forma. Para resultados óptimos, incluye no más de 3 fotos de cuerpo completo.",
     "bodyShotBypassButton": "Entiendo, continuar de todos modos"
   },
   "nameStep": {

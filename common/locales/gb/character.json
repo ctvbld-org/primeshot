@@ -105,6 +105,7 @@
     "petMode": "Pet mode",
     "bodyShotRequirementsNotMet": "Body shot requirements not met",
     "bodyShotBypassExplanation": "You can continue without body shots, but it won't be a true representation of yourself",
+    "bodyShotBypassExplanationTooMany": "You can continue, but close-up images may not look their best. For optimal results, include no more than 3 body shots.",
     "bodyShotBypassButton": "I understand, continue anyway"
   },
   "nameStep": {

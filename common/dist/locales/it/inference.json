@@ -1,260 +1,260 @@
 {
-    "common": {
-        "pleaseTryAgain": "Per favore riprova",
-        "cancel": "Annulla"
-    },
-    "time": {
-        "justNow": "Proprio ora",
-        "minutesAgo": "{{count}}min fa",
-        "hoursAgo": "{{count}}h fa",
-        "daysAgo": "{{count}}g fa"
-    },
-    "gallery": {
-        "error": "Caricamento dei lavori di inferenza fallito: {{error}}",
-        "retry": "Riprova",
-        "loadingMore": "Caricamento di più servizi",
-        "endOfList": "Hai raggiunto la fine dei tuoi servizi",
-        "howItWorksAria": "Come funziona",
-        "quotes": [
-            "Ogni dettaglio prende forma",
-            "I tuoi ritratti prendono vita",
-            "Possono apparire alcune sorprese, felici casualità",
-            "Gioca con meraviglia",
-            "E scopri quelli fedeli a te",
-            "Osserva la tua trasformazione",
-            "La magia è in corso",
-            "La tua storia si svela",
-            "Abbraccia l'inaspettato",
-            "L'arte ti incontra",
-            "Ogni immagine una rivelazione",
-            "Bellezza in divenire",
-            "La tua essenza catturata",
-            "Momenti che diventano ricordi",
-            "Trovare la tua luce",
-            "La perfezione richiede tempo",
-            "Quasi lì, quasi tu",
-            "Creare qualcosa di bello",
-            "La tua visione unica emerge",
-            "Fidati del processo",
-            "Qualcosa di speciale ti aspetta",
-            "Il tuo momento sta arrivando",
-            "Lascia respirare l'arte",
-            "La pazienza rende perfetto",
-            "I sogni prendono forma",
-            "La tua tela è viva",
-            "Guarda la magia accadere",
-            "Diventare straordinario",
-            "I dettagli fanno la differenza",
-            "La tua storia in pixel",
-            "L'arte è paziente",
-            "Creare il tuo momento",
-            "Ogni secondo conta",
-            "La tua visione si materializza",
-            "L'attesa vale la pena",
-            "La bellezza ha bisogno di tempo",
-            "Quasi pronto a brillare",
-            "Il tuo capolavoro in caricamento",
-            "Darti vita",
-            "Un momento più vicino",
-            "Creare il te perfetto",
-            "La tua visione si risveglia",
-            "I pezzi vanno al loro posto",
-            "Vederti emergere",
-            "Il meglio deve ancora venire",
-            "Il tuo viaggio si svolge qui",
-            "Creare pura magia",
-            "Momenti di brillantezza",
-            "La tua verità rivelata",
-            "Catturare la tua anima",
-            "I sogni diventano realtà",
-            "L'arte del divenire",
-            "La tua bellezza si dispiega",
-            "Pazienza presto ricompensata",
-            "Magia in movimento",
-            "La tua identità si forma",
-            "Arte in corso",
-            "La rivelazione si avvicina",
-            "La tua essenza traspare",
-            "Qualcosa di bello si prepara",
-            "La tua immagine si perfeziona",
-            "Tempo ben speso",
-            "Creare il tuo lascito",
-            "La tua scintilla si accende",
-            "Il traguardo si avvicina",
-            "Dipingere il tuo ritratto",
-            "La tua meraviglia ti aspetta",
-            "Brillantezza in creazione",
-            "Il tuo momento di brillare",
-            "Creare arte da te",
-            "Il tocco magico applicato",
-            "La tua storia prende forma",
-            "Tessere la tua magia",
-            "La tua brillantezza emerge",
-            "I ritocchi finali",
-            "La tua trasformazione presto completa",
-            "Creare qualcosa di senza tempo",
-            "Il tuo io autentico",
-            "Il viaggio è bellissimo",
-            "Il tuo splendore cresce",
-            "Perfezionare ogni dettaglio",
-            "La tua unicità catturata",
-            "L'arte di te",
-            "La tua bellezza moltiplicata",
-            "Creare il tuo momento",
-            "La magia si svela",
-            "La tua anima su tela",
-            "Quasi perfettamente tu",
-            "Creare pura bellezza",
-            "La tua luce brilla presto",
-            "L'arte prende vita",
-            "Il tuo sogno realizzato",
-            "Creare eccellenza",
-            "Il tuo capolavoro in caricamento",
-            "Il momento perfetto",
-            "La tua storia raccontata splendidamente"
-        ],
-        "steps": {
-            "choose": {
-                "title": "Scegli uno stile",
-                "desc": "Seleziona l'atmosfera, la scena e l'outfit che si adattano al tuo look."
-            },
-            "character": {
-                "title": "Crea un personaggio",
-                "desc": "Carica alcune foto così la nostra IA impara esattamente quello che ti rende te."
-            },
-            "generate": {
-                "title": "Genera il tuo servizio",
-                "desc": "Ottieni i tuoi ritratti in minuti — autentici, raffinati e pronti all'uso."
-            }
-        }
-    },
-    "viewer": {
-        "confirmDelete": {
-            "title": "Eliminare l'immagine?",
-            "description": "Questo eliminerà permanentemente l'immagine e non può essere annullato.",
-            "confirm": "Elimina",
-            "cancel": "Annulla"
-        },
-        "closeAria": "Chiudi visualizzatore",
-        "carousel": {
-            "aria": "Navigazione carosello",
-            "prevAria": "Immagine precedente",
-            "nextAria": "Immagine successiva"
-        },
-        "overlay": {
-            "displayOriginal": "Mostra originale",
-            "displayOriginalAria": "Mostra immagine originale",
-            "originalUnavailableTitle": "Originale non disponibile",
-            "originalUnavailableDesc": "Impossibile caricare la variante dell'immagine originale."
-        },
-        "viewOriginal": {
-            "label": "Vedi a dimensione intera",
-            "viewing": "Dimensione intera visualizzata",
-            "aria": "Passa all'immagine in qualità originale",
-            "viewingAria": "Immagine in qualità originale visualizzata"
-        },
-        "title": "Servizio {{shootNumber}}",
-        "imageIndex": "IMG {{index}}",
-        "favourite": {
-            "ariaButton": "Preferito",
-            "add": "Aggiungi ai preferiti",
-            "remove": "Rimuovi dai preferiti",
-            "updateErrorTitle": "Aggiornamento del preferito fallito"
-        },
-        "metadata": {
-            "labels": {
-                "aspectRatio": "Rapporto d'aspetto",
-                "quality": "Qualità",
-                "model": "Modello",
-                "character": "Personaggio"
-            },
-            "aspectLabels": {
-                "square": "Quadrato",
-                "landscape": "Orizzontale",
-                "portrait": "Verticale"
-            }
-        },
-        "actions": {
-            "delete": {
-                "label": "Elimina",
-                "aria": "Elimina immagine"
-            },
-            "download": {
-                "label": "Scarica",
-                "aria": "Scarica immagine"
-            }
-        },
-        "alt": {
-            "generated": "Immagine generata {{index}}",
-            "thumbnail": "Miniatura {{index}}"
-        }
-    },
-    "group": {
-        "status": {
-            "failed": "Generazione fallita"
-        },
-        "error": {
-            "generic": "Qualcosa è andato storto, i tuoi crediti sono stati rimborsati",
-            "timeout": "La creazione ha richiesto più tempo del previsto, i tuoi crediti sono stati rimborsati",
-            "serverBusy": "I nostri server erano temporaneamente occupati, i tuoi crediti sono stati rimborsati",
-            "memory": "Capacità del server superata, i tuoi crediti sono stati rimborsati",
-            "connection": "Problema di connessione temporaneo, i tuoi crediti sono stati rimborsati",
-            "imageGeneration": "La creazione non è andata a buon fine, i tuoi crediti sono stati rimborsati"
-        },
-        "confirmDelete": {
-            "title": "Eliminare il servizio?",
-            "description": "Questo rimuoverà il servizio dalla tua galleria. Questa azione non può essere annullata.",
-            "confirm": "Elimina"
-        },
-        "deleteFailedTitle": "Eliminazione fallita",
-        "rerun": {
-            "cannot": "Impossibile rieseguire",
-            "missingInfo": "Informazioni del lavoro richieste mancanti.",
-            "failed": "Riesecuzione fallita"
-        },
-        "header": {
-            "shootTitle": "SERVIZIO #{{number}}"
-        },
-        "tooltips": {
-            "deleteShoot": "Elimina servizio",
-            "rerunShoot": "Riesegui servizio"
-        },
-        "aria": {
-            "thumbnailsPreview": "Anteprima miniature",
-            "viewAllImages": "Visualizza tutte le immagini"
-        },
-        "alt": {
-            "preview": "Anteprima {{index}}"
-        },
-        "buttons": {
-            "viewAll": "Visualizza tutto"
-        }
-    },
-    "thumbnail": {
-        "alt": {
-            "generatingPreview": "Generazione anteprima {{index}}",
-            "generated": "Immagine generata {{index}}"
-        },
-        "favourite": {
-            "add": "Aggiungi ai preferiti",
-            "remove": "Rimuovi dai preferiti"
-        },
-        "loadingTitle": "Caricamento…",
-        "loadingDesc": "I dettagli dell'immagine sono ancora in caricamento. Per favore riprova tra un momento.",
-        "actions": {
-            "delete": {
-                "label": "Elimina",
-                "aria": "Elimina immagine"
-            },
-            "download": {
-                "label": "Scarica",
-                "aria": "Scarica immagine"
-            }
-        },
-        "confirmDelete": {
-            "title": "Eliminare l'immagine?",
-            "description": "Questo rimuoverà l'immagine dalla tua galleria. Questa azione non può essere annullata.",
-            "confirm": "Elimina"
-        }
+  "common": {
+    "pleaseTryAgain": "Per favore riprova",
+    "cancel": "Annulla"
+  },
+  "time": {
+    "justNow": "Proprio ora",
+    "minutesAgo": "{{count}}min fa",
+    "hoursAgo": "{{count}}h fa",
+    "daysAgo": "{{count}}g fa"
+  },
+  "gallery": {
+    "error": "Caricamento dei lavori di inferenza fallito: {{error}}",
+    "retry": "Riprova",
+    "loadingMore": "Caricamento di più servizi",
+    "endOfList": "Hai raggiunto la fine dei tuoi servizi",
+    "howItWorksAria": "Come funziona",
+    "quotes": [
+      "Ogni dettaglio prende forma",
+      "I tuoi ritratti prendono vita",
+      "Possono apparire alcune sorprese, felici casualità",
+      "Gioca con meraviglia",
+      "E scopri quelli fedeli a te",
+      "Osserva la tua trasformazione",
+      "La magia è in corso",
+      "La tua storia si svela",
+      "Abbraccia l'inaspettato",
+      "L'arte ti incontra",
+      "Ogni immagine una rivelazione",
+      "Bellezza in divenire",
+      "La tua essenza catturata",
+      "Momenti che diventano ricordi",
+      "Trovare la tua luce",
+      "La perfezione richiede tempo",
+      "Quasi lì, quasi tu",
+      "Creare qualcosa di bello",
+      "La tua visione unica emerge",
+      "Fidati del processo",
+      "Qualcosa di speciale ti aspetta",
+      "Il tuo momento sta arrivando",
+      "Lascia respirare l'arte",
+      "La pazienza rende perfetto",
+      "I sogni prendono forma",
+      "La tua tela è viva",
+      "Guarda la magia accadere",
+      "Diventare straordinario",
+      "I dettagli fanno la differenza",
+      "La tua storia in pixel",
+      "L'arte è paziente",
+      "Creare il tuo momento",
+      "Ogni secondo conta",
+      "La tua visione si materializza",
+      "L'attesa vale la pena",
+      "La bellezza ha bisogno di tempo",
+      "Quasi pronto a brillare",
+      "Il tuo capolavoro in caricamento",
+      "Darti vita",
+      "Un momento più vicino",
+      "Creare il te perfetto",
+      "La tua visione si risveglia",
+      "I pezzi vanno al loro posto",
+      "Vederti emergere",
+      "Il meglio deve ancora venire",
+      "Il tuo viaggio si svolge qui",
+      "Creare pura magia",
+      "Momenti di brillantezza",
+      "La tua verità rivelata",
+      "Catturare la tua anima",
+      "I sogni diventano realtà",
+      "L'arte del divenire",
+      "La tua bellezza si dispiega",
+      "Pazienza presto ricompensata",
+      "Magia in movimento",
+      "La tua identità si forma",
+      "Arte in corso",
+      "La rivelazione si avvicina",
+      "La tua essenza traspare",
+      "Qualcosa di bello si prepara",
+      "La tua immagine si perfeziona",
+      "Tempo ben speso",
+      "Creare il tuo lascito",
+      "La tua scintilla si accende",
+      "Il traguardo si avvicina",
+      "Dipingere il tuo ritratto",
+      "La tua meraviglia ti aspetta",
+      "Brillantezza in creazione",
+      "Il tuo momento di brillare",
+      "Creare arte da te",
+      "Il tocco magico applicato",
+      "La tua storia prende forma",
+      "Tessere la tua magia",
+      "La tua brillantezza emerge",
+      "I ritocchi finali",
+      "La tua trasformazione presto completa",
+      "Creare qualcosa di senza tempo",
+      "Il tuo io autentico",
+      "Il viaggio è bellissimo",
+      "Il tuo splendore cresce",
+      "Perfezionare ogni dettaglio",
+      "La tua unicità catturata",
+      "L'arte di te",
+      "La tua bellezza moltiplicata",
+      "Creare il tuo momento",
+      "La magia si svela",
+      "La tua anima su tela",
+      "Quasi perfettamente tu",
+      "Creare pura bellezza",
+      "La tua luce brilla presto",
+      "L'arte prende vita",
+      "Il tuo sogno realizzato",
+      "Creare eccellenza",
+      "Il tuo capolavoro in caricamento",
+      "Il momento perfetto",
+      "La tua storia raccontata splendidamente"
+    ],
+    "steps": {
+      "choose": {
+        "title": "Scegli uno stile",
+        "desc": "Seleziona l'atmosfera, la scena e l'outfit che si adattano al tuo look."
+      },
+      "character": {
+        "title": "Crea un personaggio",
+        "desc": "Carica alcune foto così la nostra IA impara esattamente quello che ti rende te."
+      },
+      "generate": {
+        "title": "Genera il tuo servizio",
+        "desc": "Ottieni i tuoi ritratti in minuti — autentici, raffinati e pronti all'uso."
+      }
     }
+  },
+  "viewer": {
+    "confirmDelete": {
+      "title": "Eliminare l'immagine?",
+      "description": "Questo eliminerà permanentemente l'immagine e non può essere annullato.",
+      "confirm": "Elimina",
+      "cancel": "Annulla"
+    },
+    "closeAria": "Chiudi visualizzatore",
+    "carousel": {
+      "aria": "Navigazione carosello",
+      "prevAria": "Immagine precedente",
+      "nextAria": "Immagine successiva"
+    },
+    "overlay": {
+      "displayOriginal": "Mostra originale",
+      "displayOriginalAria": "Mostra immagine originale",
+      "originalUnavailableTitle": "Originale non disponibile",
+      "originalUnavailableDesc": "Impossibile caricare la variante dell'immagine originale."
+    },
+    "viewOriginal": {
+      "label": "Vedi a dimensione intera",
+      "viewing": "Dimensione intera visualizzata",
+      "aria": "Passa all'immagine in qualità originale",
+      "viewingAria": "Immagine in qualità originale visualizzata"
+    },
+    "title": "Servizio {{shootNumber}}",
+    "imageIndex": "IMG {{index}}",
+    "favourite": {
+      "ariaButton": "Preferito",
+      "add": "Aggiungi ai preferiti",
+      "remove": "Rimuovi dai preferiti",
+      "updateErrorTitle": "Aggiornamento del preferito fallito"
+    },
+    "metadata": {
+      "labels": {
+        "aspectRatio": "Rapporto d'aspetto",
+        "quality": "Qualità",
+        "model": "Modello",
+        "character": "Personaggio"
+      },
+      "aspectLabels": {
+        "square": "Quadrato",
+        "landscape": "Orizzontale",
+        "portrait": "Verticale"
+      }
+    },
+    "actions": {
+      "delete": {
+        "label": "Elimina",
+        "aria": "Elimina immagine"
+      },
+      "download": {
+        "label": "Scarica",
+        "aria": "Scarica immagine"
+      }
+    },
+    "alt": {
+      "generated": "Immagine generata {{index}}",
+      "thumbnail": "Miniatura {{index}}"
+    }
+  },
+  "group": {
+    "status": {
+      "failed": "Generazione fallita"
+    },
+    "error": {
+      "generic": "Qualcosa è andato storto, i tuoi crediti sono stati rimborsati",
+      "timeout": "La creazione ha richiesto più tempo del previsto, i tuoi crediti sono stati rimborsati",
+      "serverBusy": "I nostri server erano temporaneamente occupati, i tuoi crediti sono stati rimborsati",
+      "memory": "Capacità del server superata, i tuoi crediti sono stati rimborsati",
+      "connection": "Problema di connessione temporaneo, i tuoi crediti sono stati rimborsati",
+      "imageGeneration": "La creazione non è andata a buon fine, i tuoi crediti sono stati rimborsati"
+    },
+    "confirmDelete": {
+      "title": "Eliminare il servizio?",
+      "description": "Questo rimuoverà il servizio dalla tua galleria. Questa azione non può essere annullata.",
+      "confirm": "Elimina"
+    },
+    "deleteFailedTitle": "Eliminazione fallita",
+    "rerun": {
+      "cannot": "Impossibile rieseguire",
+      "missingInfo": "Informazioni del lavoro richieste mancanti.",
+      "failed": "Riesecuzione fallita"
+    },
+    "header": {
+      "shootTitle": "SERVIZIO #{{number}}"
+    },
+    "tooltips": {
+      "deleteShoot": "Elimina servizio",
+      "rerunShoot": "Riesegui servizio"
+    },
+    "aria": {
+      "thumbnailsPreview": "Anteprima miniature",
+      "viewAllImages": "Visualizza tutte le immagini"
+    },
+    "alt": {
+      "preview": "Anteprima {{index}}"
+    },
+    "buttons": {
+      "viewAll": "Visualizza tutto"
+    }
+  },
+  "thumbnail": {
+    "alt": {
+      "generatingPreview": "Generazione anteprima {{index}}",
+      "generated": "Immagine generata {{index}}"
+    },
+    "favourite": {
+      "add": "Aggiungi ai preferiti",
+      "remove": "Rimuovi dai preferiti"
+    },
+    "loadingTitle": "Caricamento…",
+    "loadingDesc": "I dettagli dell'immagine sono ancora in caricamento. Per favore riprova tra un momento.",
+    "actions": {
+      "delete": {
+        "label": "Elimina",
+        "aria": "Elimina immagine"
+      },
+      "download": {
+        "label": "Scarica",
+        "aria": "Scarica immagine"
+      }
+    },
+    "confirmDelete": {
+      "title": "Eliminare l'immagine?",
+      "description": "Questo rimuoverà l'immagine dalla tua galleria. Questa azione non può essere annullata.",
+      "confirm": "Elimina"
+    }
+  }
 }

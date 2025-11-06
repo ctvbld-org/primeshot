@@ -105,6 +105,7 @@
     "petMode": "Modalità animale",
     "bodyShotRequirementsNotMet": "Requisiti per inquadratura corpo non soddisfatti",
     "bodyShotBypassExplanation": "Puoi continuare senza foto a figura intera, ma non sarà una vera rappresentazione di te stesso",
+    "bodyShotBypassExplanationTooMany": "Puoi continuare, ma i primi piani potrebbero non essere al meglio. Per risultati ottimali, includi non più di 3 foto a figura intera.",
     "bodyShotBypassButton": "Ho capito, continua comunque"
   },
   "nameStep": {

@@ -22,7 +22,8 @@
   "qualities": {
     "basic": "Básica",
     "medium": "Média",
-    "high": "Alta"
+    "high": "Alta",
+    "requiresHigherPlan": "Requer plano superior"
   },
   "labels": {
     "credits": "{{count}} créditos",

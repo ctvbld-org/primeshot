@@ -22,7 +22,8 @@
   "qualities": {
     "basic": "Basis",
     "medium": "Gemiddeld",
-    "high": "Hoog"
+    "high": "Hoog",
+    "requiresHigherPlan": "Vereist hoger abonnement"
   },
   "labels": {
     "credits": "{{count}} credits",

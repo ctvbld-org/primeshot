@@ -453,6 +453,7 @@ export declare const resources: {
                 basic: string;
                 medium: string;
                 high: string;
+                requiresHigherPlan: string;
             };
             labels: {
                 credits: string;
@@ -808,6 +809,7 @@ export declare const resources: {
                 petMode: string;
                 bodyShotRequirementsNotMet: string;
                 bodyShotBypassExplanation: string;
+                bodyShotBypassExplanationTooMany: string;
                 bodyShotBypassButton: string;
             };
             nameStep: {
@@ -1789,6 +1791,7 @@ export declare const resources: {
                 basic: string;
                 medium: string;
                 high: string;
+                requiresHigherPlan: string;
             };
             labels: {
                 credits: string;
@@ -2144,6 +2147,7 @@ export declare const resources: {
                 petMode: string;
                 bodyShotRequirementsNotMet: string;
                 bodyShotBypassExplanation: string;
+                bodyShotBypassExplanationTooMany: string;
                 bodyShotBypassButton: string;
             };
             nameStep: {
@@ -3103,6 +3107,7 @@ export declare const resources: {
                 basic: string;
                 medium: string;
                 high: string;
+                requiresHigherPlan: string;
             };
             labels: {
                 credits: string;
@@ -3458,6 +3463,7 @@ export declare const resources: {
                 petMode: string;
                 bodyShotRequirementsNotMet: string;
                 bodyShotBypassExplanation: string;
+                bodyShotBypassExplanationTooMany: string;
                 bodyShotBypassButton: string;
             };
             nameStep: {
@@ -4404,6 +4410,7 @@ export declare const resources: {
                 basic: string;
                 medium: string;
                 high: string;
+                requiresHigherPlan: string;
             };
             labels: {
                 credits: string;
@@ -4759,6 +4766,7 @@ export declare const resources: {
                 petMode: string;
                 bodyShotRequirementsNotMet: string;
                 bodyShotBypassExplanation: string;
+                bodyShotBypassExplanationTooMany: string;
                 bodyShotBypassButton: string;
             };
             nameStep: {
@@ -5705,6 +5713,7 @@ export declare const resources: {
                 basic: string;
                 medium: string;
                 high: string;
+                requiresHigherPlan: string;
             };
             labels: {
                 credits: string;
@@ -6060,6 +6069,7 @@ export declare const resources: {
                 petMode: string;
                 bodyShotRequirementsNotMet: string;
                 bodyShotBypassExplanation: string;
+                bodyShotBypassExplanationTooMany: string;
                 bodyShotBypassButton: string;
             };
             nameStep: {
@@ -7006,6 +7016,7 @@ export declare const resources: {
                 basic: string;
                 medium: string;
                 high: string;
+                requiresHigherPlan: string;
             };
             labels: {
                 credits: string;
@@ -7361,6 +7372,7 @@ export declare const resources: {
                 petMode: string;
                 bodyShotRequirementsNotMet: string;
                 bodyShotBypassExplanation: string;
+                bodyShotBypassExplanationTooMany: string;
                 bodyShotBypassButton: string;
             };
             nameStep: {
@@ -8307,6 +8319,7 @@ export declare const resources: {
                 basic: string;
                 medium: string;
                 high: string;
+                requiresHigherPlan: string;
             };
             labels: {
                 credits: string;
@@ -8662,6 +8675,7 @@ export declare const resources: {
                 petMode: string;
                 bodyShotRequirementsNotMet: string;
                 bodyShotBypassExplanation: string;
+                bodyShotBypassExplanationTooMany: string;
                 bodyShotBypassButton: string;
             };
             nameStep: {
@@ -9608,6 +9622,7 @@ export declare const resources: {
                 basic: string;
                 medium: string;
                 high: string;
+                requiresHigherPlan: string;
             };
             labels: {
                 credits: string;
@@ -9963,6 +9978,7 @@ export declare const resources: {
                 petMode: string;
                 bodyShotRequirementsNotMet: string;
                 bodyShotBypassExplanation: string;
+                bodyShotBypassExplanationTooMany: string;
                 bodyShotBypassButton: string;
             };
             nameStep: {
@@ -10910,6 +10926,7 @@ export declare const resources: {
                 basic: string;
                 medium: string;
                 high: string;
+                requiresHigherPlan: string;
             };
             labels: {
                 credits: string;
@@ -11265,6 +11282,7 @@ export declare const resources: {
                 petMode: string;
                 bodyShotRequirementsNotMet: string;
                 bodyShotBypassExplanation: string;
+                bodyShotBypassExplanationTooMany: string;
                 bodyShotBypassButton: string;
             };
             nameStep: {
@@ -12212,6 +12230,7 @@ export declare const resources: {
                 basic: string;
                 medium: string;
                 high: string;
+                requiresHigherPlan: string;
             };
             labels: {
                 credits: string;
@@ -12567,6 +12586,7 @@ export declare const resources: {
                 petMode: string;
                 bodyShotRequirementsNotMet: string;
                 bodyShotBypassExplanation: string;
+                bodyShotBypassExplanationTooMany: string;
                 bodyShotBypassButton: string;
             };
             nameStep: {

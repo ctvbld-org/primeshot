@@ -441,18 +441,38 @@ export function GenerateBar({
   }
 
   // Ensure stored quality stays valid if settings change (future-proof for new qualities like 8K)
+  // Also ensure quality doesn't exceed user's plan max_quality
   React.useEffect(() => {
     const allowed = (inferenceSettings?.qualities || []) as string[]
     if (allowed.length === 0) return
-    if (!allowed.includes(String(quality))) {
-      const next = sanitizeQuality(
-        (inferenceSettings?.defaults?.quality as string) || allowed[0],
-        allowed
-      )
-      setQuality(next as QualityCode)
-      save(STORAGE_KEYS.QUALITY, next)
+    
+    // Get max allowed quality from subscription
+    const maxAllowedQuality = (subscription as any)?.max_quality
+    let targetQuality = String(quality)
+    
+    // If current quality is not in allowed list
+    if (!allowed.includes(targetQuality)) {
+      targetQuality = (inferenceSettings?.defaults?.quality as string) || allowed[0]
     }
-  }, [inferenceSettings?.qualities, inferenceSettings?.defaults?.quality])
+    
+    // Check if quality exceeds plan limit
+    if (maxAllowedQuality && allowed.length > 0) {
+      const maxIdx = allowed.indexOf(maxAllowedQuality)
+      const currentIdx = allowed.indexOf(targetQuality)
+      
+      // If current quality exceeds max allowed, downgrade to max allowed
+      if (maxIdx !== -1 && currentIdx > maxIdx) {
+        console.log(`Downgrading default quality from ${targetQuality} to ${maxAllowedQuality} based on plan`)
+        targetQuality = maxAllowedQuality
+      }
+    }
+    
+    // Update if changed
+    if (targetQuality !== String(quality)) {
+      setQuality(targetQuality as QualityCode)
+      save(STORAGE_KEYS.QUALITY, targetQuality)
+    }
+  }, [inferenceSettings?.qualities, inferenceSettings?.defaults?.quality, subscription])
 
   // Panel contents
   // Characters panel hooks and logic (top-level to respect rules of hooks)
@@ -514,7 +534,31 @@ export function GenerateBar({
         return
       }
 
-      const effectiveQuality = (quality || (inferenceSettings?.defaults?.quality as string)) as string
+      // Validate and auto-downgrade quality based on user's subscription tier
+      let effectiveQuality = (quality || (inferenceSettings?.defaults?.quality as string)) as string
+      const maxAllowedQuality = (subscription as any)?.max_quality
+      if (maxAllowedQuality && allowed.length > 0) {
+        const qualityHierarchy = allowed
+        const maxIdx = qualityHierarchy.indexOf(maxAllowedQuality)
+        const currentIdx = qualityHierarchy.indexOf(effectiveQuality)
+        
+        // If current quality exceeds max allowed, downgrade to max allowed
+        if (maxIdx !== -1 && currentIdx > maxIdx) {
+          console.log(`Auto-downgrading quality from ${effectiveQuality} to ${maxAllowedQuality} based on plan`)
+          effectiveQuality = maxAllowedQuality
+          
+          // Also update the UI state and storage
+          setQuality(maxAllowedQuality as QualityCode)
+          save(STORAGE_KEYS.QUALITY, maxAllowedQuality)
+          
+          // Show a toast notification
+          toast({
+            description: t('qualities.requiresHigherPlan', { ns: 'styles' }),
+            variant: 'default'
+          })
+        }
+      }
+      
       const effectiveTakes = (nbTakes || (inferenceSettings?.defaults?.nb_takes as number)) as number
       const effectiveAspect = (aspectRatio || (inferenceSettings?.defaults?.aspect_ratio as string)) as string
 
@@ -1524,7 +1568,12 @@ export function GenerateBar({
             <div className={styles.settingsColumn}>
               <span className={styles.settingLabel}>{t('settings.quality', { ns: 'styles' })}</span>
               <SegmentedControl
-                options={qualityOptions.map(opt => ({ value: opt.value, content: opt.display, disabled: gated(opt.value) }))}
+                options={qualityOptions.map(opt => ({ 
+                  value: opt.value, 
+                  content: opt.display, 
+                  disabled: gated(opt.value),
+                  tooltip: gated(opt.value) ? t('qualities.requiresHigherPlan', { ns: 'styles' }) : undefined
+                }))}
                 value={quality}
                 onChange={(v) => {
                   const allowed = (inferenceSettings?.qualities || []) as string[]

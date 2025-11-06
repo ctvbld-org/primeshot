@@ -332,7 +332,9 @@ export const FileUploader = React.forwardRef<FileUploaderHandle, FileUploaderPro
             {showBodyShotError && !bodyRequirementBypassed && onBypassBodyShotRequirement && (
               <div className={styles.bypassSection}>
                 <p className={styles.bypassExplanation}>
-                  {t('uploadStep.bodyShotBypassExplanation')}
+                  {bodyShotValidation?.i18nErrors?.[0]?.key === 'quality.issues.body.tooMany'
+                    ? t('uploadStep.bodyShotBypassExplanationTooMany')
+                    : t('uploadStep.bodyShotBypassExplanation')}
                 </p>
                 <Button
                   type="button"

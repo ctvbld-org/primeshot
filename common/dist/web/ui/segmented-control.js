@@ -107,6 +107,6 @@ export function SegmentedControl({ options, value, onChange, className, fullWidt
                     : { width: fallbackWidth, transform: fallbackTransform } })), options.map((opt, i) => {
                 var _a;
                 const isActive = String(value) === String(opt.value);
-                return (_jsx("button", { type: "button", role: "radio", "aria-checked": isActive, "aria-disabled": opt.disabled || undefined, tabIndex: i === focusIndex ? 0 : -1, ref: el => { itemRefs.current[i] = el; }, className: cn(styles.segment, isActive && styles.segmentActive, opt.disabled && styles.segmentDisabled), disabled: opt.disabled, onClick: () => !opt.disabled && onChange(opt.value), onKeyDown: (e) => handleKeyDown(e, i), children: (_a = opt.content) !== null && _a !== void 0 ? _a : String(opt.value) }, String(opt.value)));
+                return (_jsx("button", { type: "button", role: "radio", "aria-checked": isActive, "aria-disabled": opt.disabled || undefined, title: opt.disabled && opt.tooltip ? opt.tooltip : undefined, tabIndex: i === focusIndex ? 0 : -1, ref: el => { itemRefs.current[i] = el; }, className: cn(styles.segment, isActive && styles.segmentActive, opt.disabled && styles.segmentDisabled), disabled: opt.disabled, onClick: () => !opt.disabled && onChange(opt.value), onKeyDown: (e) => handleKeyDown(e, i), children: (_a = opt.content) !== null && _a !== void 0 ? _a : String(opt.value) }, String(opt.value)));
             })] }));
 }

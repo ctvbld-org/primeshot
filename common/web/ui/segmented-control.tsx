@@ -2,7 +2,7 @@ import * as React from 'react'
 import styles from './segmented-control.module.css'
 import { cn } from '../../lib/utils'
 
-export type Option = { value: string | number; content?: React.ReactNode; disabled?: boolean }
+export type Option = { value: string | number; content?: React.ReactNode; disabled?: boolean; tooltip?: string }
 
 export function SegmentedControl({
   options,
@@ -133,6 +133,7 @@ export function SegmentedControl({
             role="radio"
             aria-checked={isActive}
             aria-disabled={opt.disabled || undefined}
+            title={opt.disabled && opt.tooltip ? opt.tooltip : undefined}
             tabIndex={i === focusIndex ? 0 : -1}
             ref={el => { itemRefs.current[i] = el }}
             className={cn(styles.segment, isActive && styles.segmentActive, opt.disabled && styles.segmentDisabled)}

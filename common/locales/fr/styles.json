@@ -22,7 +22,8 @@
   "qualities": {
     "basic": "Basique",
     "medium": "Moyen",
-    "high": "Élevé"
+    "high": "Élevé",
+    "requiresHigherPlan": "Requiert un forfait supérieur"
   },
   "labels": {
     "credits": "{{count}} crédits",

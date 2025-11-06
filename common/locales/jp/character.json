@@ -105,6 +105,7 @@
     "petMode": "ペットモード",
     "bodyShotRequirementsNotMet": "全身ショット要件が満たされていません",
     "bodyShotBypassExplanation": "全身写真なしで続行できますが、ご自身の真の表現にはなりません",
+    "bodyShotBypassExplanationTooMany": "続行できますが、クローズアップ画像が最高の仕上がりにならない可能性があります。最適な結果を得るには、全身写真を3枚以下にしてください。",
     "bodyShotBypassButton": "理解しました、このまま続ける"
   },
   "nameStep": {

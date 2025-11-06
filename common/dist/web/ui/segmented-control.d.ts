@@ -3,6 +3,7 @@ export type Option = {
     value: string | number;
     content?: React.ReactNode;
     disabled?: boolean;
+    tooltip?: string;
 };
 export declare function SegmentedControl({ options, value, onChange, className, fullWidth, size, ariaLabel, }: {
     options: Option[];

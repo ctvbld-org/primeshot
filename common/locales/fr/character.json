@@ -105,6 +105,7 @@
     "petMode": "Mode animal",
     "bodyShotRequirementsNotMet": "Exigences de plan corps non respectées",
     "bodyShotBypassExplanation": "Vous pouvez continuer sans photos en pied, mais cela ne sera pas une vraie représentation de vous-même",
+    "bodyShotBypassExplanationTooMany": "Vous pouvez continuer, mais les photos en gros plan pourraient ne pas être optimales. Pour de meilleurs résultats, incluez maximum 3 photos en pied.",
     "bodyShotBypassButton": "Je comprends, continuer quand même"
   },
   "nameStep": {

@@ -22,7 +22,8 @@
   "qualities": {
     "basic": "ベーシック",
     "medium": "ミディアム",
-    "high": "ハイ"
+    "high": "ハイ",
+    "requiresHigherPlan": "より高いプランが必要です"
   },
   "labels": {
     "credits": "{{count}}クレジット",

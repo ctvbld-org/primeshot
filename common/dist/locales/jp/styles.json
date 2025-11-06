@@ -1,63 +1,64 @@
 {
-    "titles": {
-        "styleLabel": "スタイル",
-        "photoStyle": "写真スタイル",
-        "sceneLabel": "シーン",
-        "wardrobeLabel": "服装",
-        "characterLabel": "キャラクター",
-        "settingsLabel": "設定"
+  "titles": {
+    "styleLabel": "スタイル",
+    "photoStyle": "写真スタイル",
+    "sceneLabel": "シーン",
+    "wardrobeLabel": "服装",
+    "characterLabel": "キャラクター",
+    "settingsLabel": "設定"
+  },
+  "shoot": {
+    "subtitle": "{{style}}、{{scene}}の設定で、{{color}}の{{wardrobe}}を着用"
+  },
+  "character": {
+    "trainingQueued": "待機中",
+    "trainingPending": "保留中",
+    "trainingInitializing": "初期化中",
+    "remaining": "残り",
+    "photos": "写真",
+    "trainingFailedTitle": "トレーニングに失敗しました",
+    "trainingFailedDesc": "このキャラクターは生成に使用できません。削除して再度お試しください。"
+  },
+  "qualities": {
+    "basic": "ベーシック",
+    "medium": "ミディアム",
+    "high": "ハイ",
+    "requiresHigherPlan": "より高いプランが必要です"
+  },
+  "labels": {
+    "credits": "{{count}}クレジット",
+    "includedInPlan": "プランに{{count}}含まれています",
+    "limitReached": "制限に達しました",
+    "upgradePlanAddMore": "プランをアップグレードしてさらに追加",
+    "upgradeOrBuyCredits": "プランをアップグレードまたはクレジットパッケージを購入",
+    "buyCredits": "クレジットパッケージを購入",
+    "newStylesDropWeekly": "毎週新しいスタイルが登場"
+  },
+  "settings": {
+    "numberOfTakes": "撮影回数",
+    "quality": "品質",
+    "aspectRatio": "アスペクト比"
+  },
+  "status": {
+    "badge": {
+      "pending": "保留中",
+      "queued": "待機中",
+      "initializing": "初期化中",
+      "starting": "開始中",
+      "running": "生成中",
+      "generating": "生成中",
+      "completed": "完了",
+      "failed": "失敗",
+      "connecting": "接続中"
     },
-    "shoot": {
-        "subtitle": "{{style}}、{{scene}}の設定で、{{color}}の{{wardrobe}}を着用"
-    },
-    "character": {
-        "trainingQueued": "待機中",
-        "trainingPending": "保留中",
-        "trainingInitializing": "初期化中",
-        "remaining": "残り",
-        "photos": "写真",
-        "trainingFailedTitle": "トレーニングに失敗しました",
-        "trainingFailedDesc": "このキャラクターは生成に使用できません。削除して再度お試しください。"
-    },
-    "qualities": {
-        "basic": "ベーシック",
-        "medium": "ミディアム",
-        "high": "ハイ"
-    },
-    "labels": {
-        "credits": "{{count}}クレジット",
-        "includedInPlan": "プランに{{count}}含まれています",
-        "limitReached": "制限に達しました",
-        "upgradePlanAddMore": "プランをアップグレードしてさらに追加",
-        "upgradeOrBuyCredits": "プランをアップグレードまたはクレジットパッケージを購入",
-        "buyCredits": "クレジットパッケージを購入",
-        "newStylesDropWeekly": "毎週新しいスタイルが登場"
-    },
-    "settings": {
-        "numberOfTakes": "撮影回数",
-        "quality": "品質",
-        "aspectRatio": "アスペクト比"
-    },
-    "status": {
-        "badge": {
-            "pending": "保留中",
-            "queued": "待機中",
-            "initializing": "初期化中",
-            "starting": "開始中",
-            "running": "生成中",
-            "generating": "生成中",
-            "completed": "完了",
-            "failed": "失敗",
-            "connecting": "接続中"
-        },
-        "tooltip": {
-            "pending": "サーバーの可用性を待機中 - まもなく続行されます",
-            "queued": "制限に達しました、生成の完了を待機中",
-            "queueReasons": {
-                "character_not_ready": "キャラクターがまだトレーニング中です — 自動的に開始されます",
-                "concurrent_limit": "制限に達しました（{{current}}/{{limit}}）。自動的に開始されます",
-                "provider_temporary_issue": "プロバイダーへの送信で一時的な問題が発生しています。自動的に再試行します。"
-            }
-        }
+    "tooltip": {
+      "pending": "サーバーの可用性を待機中 - まもなく続行されます",
+      "queued": "制限に達しました、生成の完了を待機中",
+      "queueReasons": {
+        "character_not_ready": "キャラクターがまだトレーニング中です — 自動的に開始されます",
+        "concurrent_limit": "制限に達しました（{{current}}/{{limit}}）。自動的に開始されます",
+        "provider_temporary_issue": "プロバイダーへの送信で一時的な問題が発生しています。自動的に再試行します。"
+      }
     }
+  }
 }
