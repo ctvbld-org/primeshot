@@ -38,19 +38,9 @@
       "chooseYourPlan": "Wähle deinen Plan"
     },
     "banner": {
-      "titleStart": "Tritt den Gründer",
-      "titleNumber": "300",
-      "description": {
-        "start": "bei. Hilf Primeshot zu formen, erhalte",
-        "lifetime": "lebenslang",
-        "annualDiscount": "70% Rabatt",
-        "annualWord": "jährlich",
-        "or": "oder",
-        "monthlyDiscount": "50% Rabatt",
-        "monthlyWord": "monatlich",
-        "end": "und sichere dir exklusive Vorteile für die Gründer 300."
-      },
-      "small": "Lebenslang-Angebot läuft weiter bis zur Kündigung."
+      "titleStart": "Begrenztes Lebenslang-Angebot",
+      "description": "Sichere dir bis zu 70 % Rabatt auf Jahrespläne oder 50 % auf Monatspläne.",
+      "small": "Nur für 300 Mitglieder. Lebenslang-Angebot läuft bis zur Kündigung weiter."
     },
     "toggle": {
       "monthly": "Monatlich",

@@ -209,3 +209,4 @@ CREATE TABLE explore_categories (
 2. Check if style config has preview images
 3. Look for parsing errors in console
 
+

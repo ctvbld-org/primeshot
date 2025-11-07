@@ -38,19 +38,9 @@
       "chooseYourPlan": "プランを選択"
     },
     "banner": {
-      "titleStart": "創設者",
-      "titleNumber": "300",
-      "description": {
-        "start": "に参加してPrimeshotの形成を支援し、",
-        "lifetime": "生涯",
-        "annualDiscount": "70%割引",
-        "annualWord": "年間",
-        "or": "または",
-        "monthlyDiscount": "50%割引",
-        "monthlyWord": "月間",
-        "end": "を獲得し、創設者300の限定特典を請求してください。"
-      },
-      "small": "生涯オファーはキャンセルまで継続されます。"
+      "titleStart": "期間限定の生涯オファー",
+      "description": "年間プランで最大70%オフ、または月間プランで50%オフを確保。",
+      "small": "300名様限定。生涯オファーはキャンセルまで継続されます。"
     },
     "toggle": {
       "monthly": "月間",

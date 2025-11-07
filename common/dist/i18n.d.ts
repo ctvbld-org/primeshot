@@ -231,17 +231,7 @@ export declare const resources: {
                 };
                 banner: {
                     titleStart: string;
-                    titleNumber: string;
-                    description: {
-                        start: string;
-                        lifetime: string;
-                        annualDiscount: string;
-                        annualWord: string;
-                        or: string;
-                        monthlyDiscount: string;
-                        monthlyWord: string;
-                        end: string;
-                    };
+                    description: string;
                     small: string;
                 };
                 toggle: {
@@ -1569,17 +1559,7 @@ export declare const resources: {
                 };
                 banner: {
                     titleStart: string;
-                    titleNumber: string;
-                    description: {
-                        start: string;
-                        lifetime: string;
-                        annualDiscount: string;
-                        annualWord: string;
-                        or: string;
-                        monthlyDiscount: string;
-                        monthlyWord: string;
-                        end: string;
-                    };
+                    description: string;
                     small: string;
                 };
                 toggle: {
@@ -2891,17 +2871,7 @@ export declare const resources: {
                 };
                 banner: {
                     titleStart: string;
-                    titleNumber: string;
-                    description: {
-                        start: string;
-                        lifetime: string;
-                        annualDiscount: string;
-                        annualWord: string;
-                        or: string;
-                        monthlyDiscount: string;
-                        monthlyWord: string;
-                        end: string;
-                    };
+                    description: string;
                     small: string;
                 };
                 toggle: {
@@ -4194,17 +4164,7 @@ export declare const resources: {
                 };
                 banner: {
                     titleStart: string;
-                    titleNumber: string;
-                    description: {
-                        start: string;
-                        lifetime: string;
-                        annualDiscount: string;
-                        annualWord: string;
-                        or: string;
-                        monthlyDiscount: string;
-                        monthlyWord: string;
-                        end: string;
-                    };
+                    description: string;
                     small: string;
                 };
                 toggle: {
@@ -5497,17 +5457,7 @@ export declare const resources: {
                 };
                 banner: {
                     titleStart: string;
-                    titleNumber: string;
-                    description: {
-                        start: string;
-                        lifetime: string;
-                        annualDiscount: string;
-                        annualWord: string;
-                        or: string;
-                        monthlyDiscount: string;
-                        monthlyWord: string;
-                        end: string;
-                    };
+                    description: string;
                     small: string;
                 };
                 toggle: {
@@ -6800,17 +6750,7 @@ export declare const resources: {
                 };
                 banner: {
                     titleStart: string;
-                    titleNumber: string;
-                    description: {
-                        start: string;
-                        lifetime: string;
-                        annualDiscount: string;
-                        annualWord: string;
-                        or: string;
-                        monthlyDiscount: string;
-                        monthlyWord: string;
-                        end: string;
-                    };
+                    description: string;
                     small: string;
                 };
                 toggle: {
@@ -8103,17 +8043,7 @@ export declare const resources: {
                 };
                 banner: {
                     titleStart: string;
-                    titleNumber: string;
-                    description: {
-                        start: string;
-                        lifetime: string;
-                        annualDiscount: string;
-                        annualWord: string;
-                        or: string;
-                        monthlyDiscount: string;
-                        monthlyWord: string;
-                        end: string;
-                    };
+                    description: string;
                     small: string;
                 };
                 toggle: {
@@ -9406,17 +9336,7 @@ export declare const resources: {
                 };
                 banner: {
                     titleStart: string;
-                    titleNumber: string;
-                    description: {
-                        start: string;
-                        lifetime: string;
-                        annualDiscount: string;
-                        annualWord: string;
-                        or: string;
-                        monthlyDiscount: string;
-                        monthlyWord: string;
-                        end: string;
-                    };
+                    description: string;
                     small: string;
                 };
                 toggle: {
@@ -10710,17 +10630,7 @@ export declare const resources: {
                 };
                 banner: {
                     titleStart: string;
-                    titleNumber: string;
-                    description: {
-                        start: string;
-                        lifetime: string;
-                        annualDiscount: string;
-                        annualWord: string;
-                        or: string;
-                        monthlyDiscount: string;
-                        monthlyWord: string;
-                        end: string;
-                    };
+                    description: string;
                     small: string;
                 };
                 toggle: {
@@ -12014,17 +11924,7 @@ export declare const resources: {
                 };
                 banner: {
                     titleStart: string;
-                    titleNumber: string;
-                    description: {
-                        start: string;
-                        lifetime: string;
-                        annualDiscount: string;
-                        annualWord: string;
-                        or: string;
-                        monthlyDiscount: string;
-                        monthlyWord: string;
-                        end: string;
-                    };
+                    description: string;
                     small: string;
                 };
                 toggle: {

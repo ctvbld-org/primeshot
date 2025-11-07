@@ -1,232 +1,222 @@
 {
-  "buyCredits": {
-    "title": "Buy credits",
-    "description": "Choose a credit pack"
-  },
-  "upgradePlan": {
-    "title": "Upgrade plan",
-    "description": "Choose a subscription plan"
-  },
-  "purchase": {
-    "success": {
-      "subscriptionTitle": "You have successfully upgraded to {{plan}}",
-      "subscriptionTitleNew": "Welcome to {{plan}}!",
-      "creditsTitle": "Credits added!",
-      "subscriptionDescriptionWithCredits": "Your new subscription billing cycle starts today. Enjoy {{amount}} credits and much more!",
-      "subscriptionDescriptionWithCreditsNew": "Your new billing cycle starts today. Enjoy {{amount}} credits and much more!",
-      "subscriptionDescription": "Your new subscription billing cycle starts today. Enjoy your new benefits!",
-      "subscriptionDescriptionNew": "Your billing cycle starts today. Enjoy your new benefits!",
-      "creditsDescription": "Your balance has been updated. You can start generating now.",
-      "returnToShoot": "Return to Shoot",
-      "defaultPlan": "your new plan"
-    }
-  },
-  "subscription": {
-    "context": {
-      "characterLimit": { "title": "You've hit your character limit.", "description": "Upgrade to get additional characters" },
-      "qualityUpgrade": { "title": "Want higher quality?", "description": "Upgrade for sharper images and extra perks" },
-      "creditUpgrade": { "title": "Running low on credits?", "description": "Upgrade to get more credits monthly" },
-      "general": { "title": "Upgrade your plan", "description": "Unlock more features and flexibility" },
-      "default": { "title": "Pick your plan", "description": "Choose what fits, switch anytime" }
+    "buyCredits": {
+        "title": "Buy credits",
+        "description": "Choose a credit pack"
     },
-    "loading": "Loading Plans...",
-    "empty": {
-      "title": "No Upgrade Available",
-      "description": "You're already on the highest available plan."
+    "upgradePlan": {
+        "title": "Upgrade plan",
+        "description": "Choose a subscription plan"
     },
-    "headers": {
-      "chooseYourPlan": "Choose your plan"
-    },
-    "banner": {
-      "titleStart": "Join the Founding",
-      "titleNumber": "300",
-      "description": {
-        "start": "Help shape Primeshot, get",
-        "lifetime": "lifetime",
-        "annualDiscount": "70% off",
-        "annualWord": "annual",
-        "or": "or",
-        "monthlyDiscount": "50% off",
-        "monthlyWord": "monthly",
-        "end": "and claim exclusive perks for the Founding 300."
-      },
-      "small": "Lifetime offer continues until you cancel."
-    },
-    "toggle": {
-      "monthly": "Monthly",
-      "yearly": "Yearly",
-      "aria": "Billing cycle"
-    },
-    "card": {
-      "recommended": "Recommended",
-      "save": "Save {{pct}}%",
-      "perMonth": "/ month",
-      "billed": "Billed {{cycle}}",
-      "creditsCount": "{{count}} credits",
-      "perMonthWord": "per month",
-      "perCredit": "{{price}} per credit",
-      "button": {
-        "select": "Select Plan",
-        "current": "Current Plan",
-        "processing": "Processing…",
-        "disabledTooltip": "Unavailable during special offer 🚀"
-      },
-      "features": {
-        "quality": "{{quality}} quality images",
-        "characterIncluded": "{{count}}x Character Included",
-        "maxCharacters": "Up to {{count}} Character Storage",
-        "concurrentShoots": "Up to {{count}} concurrent Shoots",
-        "commercialUse": "Commercial use"
-      }
-    },
-      "footer": {
-    "upgradeNotice": "Your current subscription will be canceled and replaced with the new plan. Existing credits will be kept.",
-    "buyCreditPack": "Buy a credit pack"
-  },
-    "toasts": {
-      "loginRequired": "Please log in",
-      "selectPlan": "Please select a plan",
-      "invalidPlan": "Invalid subscription plan selected",
-      "openingPortal": "Opening Stripe customer portal...",
-      "customerPortalFailed": "Failed to open customer portal",
-      "upgradePreviewFailed": "Failed to open upgrade preview",
-      "upgraded": "Subscription upgraded successfully!",
-      "checkoutFailed": "Checkout failed",
-      "invalidCheckout": "Invalid response from checkout"
-    }
-  },
-  "credits": {
-    "dialog": {
-      "headerSub": {
-        "lowBalance": "Credit balance too low.",
-        "creativity": "Fuel your creativity  🚀"
-      },
-      "headerTitle": {
-        "lowBalance": "Top up your credits to continue generating",
-        "fun": "More credits, more creations, more fun!"
-      }
-    },
-    "card": {
-      "images": "Up to {{count}} {{quality}} images",
-      "characters": "Up to {{count}} Characters",
-      "footnote": "*Standard and Pro plans only",
-      "button": {
-        "buy": "Buy",
-        "processing": "Processing…"
-      },
-      "validity": "Valid for {{duration}}",
-      "oneTime": "one-time",
-      "perCredit": "{{price}} per credit",
-      "perCreditWord": "per credit"
-    },
-    "toasts": {
-      "loginRequired": "Please log in",
-      "invalidPackConfig": "Invalid credit pack configuration",
-      "createCheckoutFailed": "Failed to create checkout session",
-      "purchaseFailed": "Failed to purchase credit pack"
-    }
-  },
-  "comparisonTable": {
-    "categories": {
-      "credits": "Credits",
-      "image": "Image",
-      "characters": "Characters",
-      "generation": "Generation",
-      "support": "Support"
-    },
-    "features": {
-      "creditsPerMonth": "Credits per month",
-      "pricePerCredit": "Price per credit",
-      "resolution": "Resolution",
-      "takesPerShoot": "Takes per shoot",
-      "portraitAspectRatio": "Portrait aspect ratio",
-      "squareAspectRatio": "Square aspect ratio",
-      "landscapeAspectRatio": "Landscape aspect ratio",
-      "included": "Included",
-      "storage": "Storage",
-      "concurrentShoots": "Concurrent shoots",
-      "commercialUse": "Commercial use",
-      "priorityFeatures": "Priority access to new features",
-      "premiumStyles": "Premium styles",
-      "betaAccess": "Beta testing access",
-      "emailSupport": "Email support",
-      "chatSupport": "Chat support",
-      "dedicatedSupport": "Dedicated support"
-    },
-    "values": {
-      "upTo": "Upto {{value}}",
-      "basicQuality": "Basic quality",
-      "highQuality": "High quality"
-    }
-  },
-  "page": {
-    "title": "Pricing",
-    "header": {
-      "title": "Simple plans, endless looks.",
-      "subtitle": "Cancel or switch anytime.",
-      "savingsText": "Save up to",
-      "savingsHighlight": "40%",
-      "savingsOn": "on annual plans"
-    },
-    "tabs": {
-      "monthly": "Monthly",
-      "annual": "Annual"
-    },
-    "buttons": {
-      "getStarted": "Get Started",
-      "selectPlan": "Select Plan",
-      "currentPlan": "Current Plan",
-      "processing": "Processing..."
-    },
-    "loading": "Loading pricing...",
-    "comparison": {
-      "title": "Compare plans",
-      "description": "Upgrade to unlock higher-resolution headshots, more credits, reusable Characters, and priority processing."
-    },
-    "faq": {
-      "title": "Questions?",
-      "subtitle": "Everything you need to know about our pricing and features",
-      "items": {
-        "character": {
-          "question": "What is a Character and how does it work?",
-          "answer": "A Character is your own custom AI model, trained from 9 selfies. It learns your exact facial features—structure, skin tone, hair—so every headshot looks authentically you. Depending on your plan, you get 1–3 Characters included. Additional Characters cost 30 credits each, and once created, you can reuse them anytime for new shoots in different outfits, scenes, and styles."
-        },
-        "credits": {
-          "question": "How do credits work?",
-          "answer": "Credits are your balance for training Characters and generating images. Training a Character costs 30 credits. Image generation costs 1 credit for Basic (1K), 2 for Medium (2K), and 3 for High (4K) resolution. Your plan includes a monthly credit allowance that resets each billing cycle."
-        },
-        "commercial": {
-          "question": "Can I use my images commercially?",
-          "answer": "Yes. All images you generate are yours to use without restrictions—whether that's for LinkedIn, websites, marketing, or print."
-        },
-        "privacy": {
-          "question": "How do you protect my privacy and data?",
-          "answer": "Your photos and Characters are stored securely and never shared, sold, or used for our own training. You can delete individual Characters or your entire account anytime. No third-party access occurs without your consent."
-        },
-        "changePlan": {
-          "question": "Can I change or cancel my plan?",
-          "answer": "Yes. You can upgrade or downgrade anytime in your account settings. Upgrades happen immediately with prorated billing; downgrades take effect at the next cycle. If you cancel, you'll keep access until the end of your current cycle. We store your data for 60 days so you can resubscribe without losing anything—after that, it's permanently deleted."
-        },
-        "rollover": {
-          "question": "Do unused credits roll over?",
-          "answer": "No. Credits expire at the end of each billing cycle, and your allowance resets."
-        },
-        "moreCredits": {
-          "question": "How can I get more credits?",
-          "answer": "You can upgrade your subscription for a higher monthly limit or purchase one-time credit packs from your account."
-        },
-        "refund": {
-          "question": "What is your refund policy?",
-          "answer": "Subscriptions and credit packs are non-refundable. If there's a technical issue—like a failed generation—contact support for a review and possible credit adjustment."
-        },
-        "deleteAccount": {
-          "question": "How do I delete my account?",
-          "answer": "In your account settings, select \"Delete Account\" to permanently remove all photos, Characters, and images. This is irreversible, so download anything you want to keep first."
+    "purchase": {
+        "success": {
+            "subscriptionTitle": "You have successfully upgraded to {{plan}}",
+            "subscriptionTitleNew": "Welcome to {{plan}}!",
+            "creditsTitle": "Credits added!",
+            "subscriptionDescriptionWithCredits": "Your new subscription billing cycle starts today. Enjoy {{amount}} credits and much more!",
+            "subscriptionDescriptionWithCreditsNew": "Your new billing cycle starts today. Enjoy {{amount}} credits and much more!",
+            "subscriptionDescription": "Your new subscription billing cycle starts today. Enjoy your new benefits!",
+            "subscriptionDescriptionNew": "Your billing cycle starts today. Enjoy your new benefits!",
+            "creditsDescription": "Your balance has been updated. You can start generating now.",
+            "returnToShoot": "Return to Shoot",
+            "defaultPlan": "your new plan"
         }
-      }
     },
-    "signIn": {
-      "modalTitle": "Sign in to continue"
+    "subscription": {
+        "context": {
+            "characterLimit": { "title": "You've hit your character limit.", "description": "Upgrade to get additional characters" },
+            "qualityUpgrade": { "title": "Want higher quality?", "description": "Upgrade for sharper images and extra perks" },
+            "creditUpgrade": { "title": "Running low on credits?", "description": "Upgrade to get more credits monthly" },
+            "general": { "title": "Upgrade your plan", "description": "Unlock more features and flexibility" },
+            "default": { "title": "Pick your plan", "description": "Choose what fits, switch anytime" }
+        },
+        "loading": "Loading Plans...",
+        "empty": {
+            "title": "No Upgrade Available",
+            "description": "You're already on the highest available plan."
+        },
+        "headers": {
+            "chooseYourPlan": "Choose your plan"
+        },
+        "banner": {
+            "titleStart": "Limited lifetime offer",
+            "description": "Lock in up to 70% off annual plans, or 50% off monthly.",
+            "small": "Limited to 300 members only. Lifetime offer continues until canceled."
+        },
+        "toggle": {
+            "monthly": "Monthly",
+            "yearly": "Yearly",
+            "aria": "Billing cycle"
+        },
+        "card": {
+            "recommended": "Recommended",
+            "save": "Save {{pct}}%",
+            "perMonth": "/ month",
+            "billed": "Billed {{cycle}}",
+            "creditsCount": "{{count}} credits",
+            "perMonthWord": "per month",
+            "perCredit": "{{price}} per credit",
+            "button": {
+                "select": "Select Plan",
+                "current": "Current Plan",
+                "processing": "Processing…",
+                "disabledTooltip": "Unavailable during special offer 🚀"
+            },
+            "features": {
+                "quality": "{{quality}} quality images",
+                "characterIncluded": "{{count}}x Character Included",
+                "maxCharacters": "Up to {{count}} Character Storage",
+                "concurrentShoots": "Up to {{count}} concurrent Shoots",
+                "commercialUse": "Commercial use"
+            }
+        },
+        "footer": {
+            "upgradeNotice": "Your current subscription will be canceled and replaced with the new plan. Existing credits will be kept.",
+            "buyCreditPack": "Buy a credit pack"
+        },
+        "toasts": {
+            "loginRequired": "Please log in",
+            "selectPlan": "Please select a plan",
+            "invalidPlan": "Invalid subscription plan selected",
+            "openingPortal": "Opening Stripe customer portal...",
+            "customerPortalFailed": "Failed to open customer portal",
+            "upgradePreviewFailed": "Failed to open upgrade preview",
+            "upgraded": "Subscription upgraded successfully!",
+            "checkoutFailed": "Checkout failed",
+            "invalidCheckout": "Invalid response from checkout"
+        }
+    },
+    "credits": {
+        "dialog": {
+            "headerSub": {
+                "lowBalance": "Credit balance too low.",
+                "creativity": "Fuel your creativity  🚀"
+            },
+            "headerTitle": {
+                "lowBalance": "Top up your credits to continue generating",
+                "fun": "More credits, more creations, more fun!"
+            }
+        },
+        "card": {
+            "images": "Up to {{count}} {{quality}} images",
+            "characters": "Up to {{count}} Characters",
+            "footnote": "*Standard and Pro plans only",
+            "button": {
+                "buy": "Buy",
+                "processing": "Processing…"
+            },
+            "validity": "Valid for {{duration}}",
+            "oneTime": "one-time",
+            "perCredit": "{{price}} per credit",
+            "perCreditWord": "per credit"
+        },
+        "toasts": {
+            "loginRequired": "Please log in",
+            "invalidPackConfig": "Invalid credit pack configuration",
+            "createCheckoutFailed": "Failed to create checkout session",
+            "purchaseFailed": "Failed to purchase credit pack"
+        }
+    },
+    "comparisonTable": {
+        "categories": {
+            "credits": "Credits",
+            "image": "Image",
+            "characters": "Characters",
+            "generation": "Generation",
+            "support": "Support"
+        },
+        "features": {
+            "creditsPerMonth": "Credits per month",
+            "pricePerCredit": "Price per credit",
+            "resolution": "Resolution",
+            "takesPerShoot": "Takes per shoot",
+            "portraitAspectRatio": "Portrait aspect ratio",
+            "squareAspectRatio": "Square aspect ratio",
+            "landscapeAspectRatio": "Landscape aspect ratio",
+            "included": "Included",
+            "storage": "Storage",
+            "concurrentShoots": "Concurrent shoots",
+            "commercialUse": "Commercial use",
+            "priorityFeatures": "Priority access to new features",
+            "premiumStyles": "Premium styles",
+            "betaAccess": "Beta testing access",
+            "emailSupport": "Email support",
+            "chatSupport": "Chat support",
+            "dedicatedSupport": "Dedicated support"
+        },
+        "values": {
+            "upTo": "Upto {{value}}",
+            "basicQuality": "Basic quality",
+            "highQuality": "High quality"
+        }
+    },
+    "page": {
+        "title": "Pricing",
+        "header": {
+            "title": "Simple plans, endless looks.",
+            "subtitle": "Cancel or switch anytime.",
+            "savingsText": "Save up to",
+            "savingsHighlight": "40%",
+            "savingsOn": "on annual plans"
+        },
+        "tabs": {
+            "monthly": "Monthly",
+            "annual": "Annual"
+        },
+        "buttons": {
+            "getStarted": "Get Started",
+            "selectPlan": "Select Plan",
+            "currentPlan": "Current Plan",
+            "processing": "Processing..."
+        },
+        "loading": "Loading pricing...",
+        "comparison": {
+            "title": "Compare plans",
+            "description": "Upgrade to unlock higher-resolution headshots, more credits, reusable Characters, and priority processing."
+        },
+        "faq": {
+            "title": "Questions?",
+            "subtitle": "Everything you need to know about our pricing and features",
+            "items": {
+                "character": {
+                    "question": "What is a Character and how does it work?",
+                    "answer": "A Character is your own custom AI model, trained from 9 selfies. It learns your exact facial features—structure, skin tone, hair—so every headshot looks authentically you. Depending on your plan, you get 1–3 Characters included. Additional Characters cost 30 credits each, and once created, you can reuse them anytime for new shoots in different outfits, scenes, and styles."
+                },
+                "credits": {
+                    "question": "How do credits work?",
+                    "answer": "Credits are your balance for training Characters and generating images. Training a Character costs 30 credits. Image generation costs 1 credit for Basic (1K), 2 for Medium (2K), and 3 for High (4K) resolution. Your plan includes a monthly credit allowance that resets each billing cycle."
+                },
+                "commercial": {
+                    "question": "Can I use my images commercially?",
+                    "answer": "Yes. All images you generate are yours to use without restrictions—whether that's for LinkedIn, websites, marketing, or print."
+                },
+                "privacy": {
+                    "question": "How do you protect my privacy and data?",
+                    "answer": "Your photos and Characters are stored securely and never shared, sold, or used for our own training. You can delete individual Characters or your entire account anytime. No third-party access occurs without your consent."
+                },
+                "changePlan": {
+                    "question": "Can I change or cancel my plan?",
+                    "answer": "Yes. You can upgrade or downgrade anytime in your account settings. Upgrades happen immediately with prorated billing; downgrades take effect at the next cycle. If you cancel, you'll keep access until the end of your current cycle. We store your data for 60 days so you can resubscribe without losing anything—after that, it's permanently deleted."
+                },
+                "rollover": {
+                    "question": "Do unused credits roll over?",
+                    "answer": "No. Credits expire at the end of each billing cycle, and your allowance resets."
+                },
+                "moreCredits": {
+                    "question": "How can I get more credits?",
+                    "answer": "You can upgrade your subscription for a higher monthly limit or purchase one-time credit packs from your account."
+                },
+                "refund": {
+                    "question": "What is your refund policy?",
+                    "answer": "Subscriptions and credit packs are non-refundable. If there's a technical issue—like a failed generation—contact support for a review and possible credit adjustment."
+                },
+                "deleteAccount": {
+                    "question": "How do I delete my account?",
+                    "answer": "In your account settings, select \"Delete Account\" to permanently remove all photos, Characters, and images. This is irreversible, so download anything you want to keep first."
+                }
+            }
+        },
+        "signIn": {
+            "modalTitle": "Sign in to continue"
+        }
     }
-  }
 }

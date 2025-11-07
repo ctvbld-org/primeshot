@@ -38,19 +38,9 @@
       "chooseYourPlan": "Choisissez votre forfait"
     },
     "banner": {
-      "titleStart": "Rejoignez les",
-      "titleNumber": "300",
-      "description": {
-        "start": "Aidez à façonner Primeshot, obtenez",
-        "lifetime": "à vie",
-        "annualDiscount": "70% de réduction",
-        "annualWord": "annuel",
-        "or": "ou",
-        "monthlyDiscount": "50% de réduction",
-        "monthlyWord": "mensuel",
-        "end": "et réclamez des avantages exclusifs pour les 300 fondateurs."
-      },
-      "small": "L'offre à vie continue jusqu'à ce que vous annuliez."
+      "titleStart": "Offre à vie limitée",
+      "description": "Profitez de 70 % de réduction sur les forfaits annuels, ou 50 % sur les forfaits mensuels.",
+      "small": "Limité à 300 membres uniquement. L'offre à vie continue jusqu'à annulation."
     },
     "toggle": {
       "monthly": "Mensuel",

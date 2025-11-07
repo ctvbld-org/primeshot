@@ -38,19 +38,9 @@
       "chooseYourPlan": "选择您的套餐"
     },
     "banner": {
-      "titleStart": "加入创始人",
-      "titleNumber": "300",
-      "description": {
-        "start": "帮助塑造Primeshot，获得",
-        "lifetime": "终身",
-        "annualDiscount": "70%折扣",
-        "annualWord": "年付",
-        "or": "或",
-        "monthlyDiscount": "50%折扣",
-        "monthlyWord": "月付",
-        "end": "并获得创始人300的专属福利。"
-      },
-      "small": "终身优惠持续到您取消为止。"
+      "titleStart": "限时终身优惠",
+      "description": "锁定年度套餐最高70%折扣，或月度套餐50%折扣。",
+      "small": "仅限300名会员。终身优惠持续到您取消为止。"
     },
     "toggle": {
       "monthly": "月付",

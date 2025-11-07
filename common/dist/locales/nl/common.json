@@ -1,102 +1,102 @@
 {
-  "welcome": "Welkom",
-  "error": {
-    "title": "Fout",
-    "description": "Er is een fout opgetreden"
-  },
-  "language": "Taal",
-  "loading": "Laden...",
-  "buttons": {
-    "customize": "Aanpassen",
-    "confirmChanges": "Wijzigingen bevestigen",
-    "addToShoot": "Toevoegen aan shoot",
-    "edit": "Bewerken",
-    "delete": "Verwijderen",
-    "save": "Opslaan",
-    "cancel": "Annuleren",
-    "back": "Terug",
-    "close": "Sluiten",
-    "next": "Volgende",
-    "previous": "Vorige",
-    "keep": "Behouden",
-    "discard": "Weggooien",
-    "confirm": "Bevestigen",
-    "remove": "Verwijderen",
-    "add": "Toevoegen",
-    "explore": "Verkennen",
-    "signIn": "Inloggen"
-  },
-  "navigation": {
-    "addStyles": "Stijlen toevoegen",
-    "payment": "Betaling",
-    "uploadPhotos": "Foto's uploaden",
-    "generate": "Genereren",
-    "explore": "Verkennen",
-    "create": "Maken",
-    "pricing": "Prijzen",
-    "admin": "Admin",
-    "menu": "Menu"
-  },
-  "userNav": {
-    "signOut": "Uitloggen",
-    "accountSettings": "Accountinstellingen"
-  },
-  "footer": {
-    "hero": "Jouw beeld, jouw eigendom.",
-    "sections": {
-      "overview": "Overzicht",
-      "latestStyles": "Nieuwste Stijlen",
-      "legal": "Juridisch",
-      "support": "Ondersteuning"
+    "welcome": "Welkom",
+    "error": {
+        "title": "Fout",
+        "description": "Er is een fout opgetreden"
     },
-    "links": {
-      "explore": "Verkennen",
-      "create": "Maken",
-      "pricing": "Prijzen & FAQ",
-      "studioPro": "Studio Pro",
-      "business": "Business",
-      "editorial": "Editorial",
-      "terms": "Algemene Voorwaarden",
-      "privacy": "Privacybeleid",
-      "contact": "Contact",
-      "about": "Over ons"
+    "language": "Taal",
+    "loading": "Laden...",
+    "buttons": {
+        "customize": "Aanpassen",
+        "confirmChanges": "Wijzigingen bevestigen",
+        "addToShoot": "Toevoegen aan shoot",
+        "edit": "Bewerken",
+        "delete": "Verwijderen",
+        "save": "Opslaan",
+        "cancel": "Annuleren",
+        "back": "Terug",
+        "close": "Sluiten",
+        "next": "Volgende",
+        "previous": "Vorige",
+        "keep": "Behouden",
+        "discard": "Weggooien",
+        "confirm": "Bevestigen",
+        "remove": "Verwijderen",
+        "add": "Toevoegen",
+        "explore": "Verkennen",
+        "signIn": "Inloggen"
     },
-    "copyright": "© {{year}} Primeshot. Alle rechten voorbehouden"
-  },
-  "duration": {
-    "year_one": "{{count}} jaar",
-    "year_other": "{{count}} jaar",
-    "month_one": "{{count}} maand",
-    "month_other": "{{count}} maanden",
-    "day_one": "{{count}} dag",
-    "day_other": "{{count}} dagen"
-  },
-  "aria": {
-    "favourites": "Favorieten",
-    "avatar": "Gebruikersavatar",
-    "brandLogo": "Primeshot"
-  },
-  "explore": {
-    "generateTooltip": "Deze stijl toepassen"
-  },
-  "credits": {
-    "remaining_one": "{{value}} credit over",
-    "remaining_other": "{{value}} credits over"
-  },
-  "contexts": {
-    "dialogService": {
-      "defaultTitle": "Dialoog",
-      "defaultDescription": "Inhoud",
-      "notReadyWarning": "DialogService niet gereed"
+    "navigation": {
+        "addStyles": "Stijlen toevoegen",
+        "payment": "Betaling",
+        "uploadPhotos": "Foto's uploaden",
+        "generate": "Genereren",
+        "explore": "Verkennen",
+        "create": "Maken",
+        "pricing": "Prijzen",
+        "admin": "Admin",
+        "menu": "Menu"
     },
-    "errors": {
-      "missingProvider": {
-        "styleSelection": "useStyleSelection moet gebruikt worden binnen een StyleSelectionProvider",
-        "dialogService": "useDialogService moet gebruikt worden binnen een DialogServiceProvider",
-        "inferenceQueue": "useInferenceQueue moet gebruikt worden binnen een InferenceQueueProvider",
-        "carousel": "useCarouselContext moet gebruikt worden binnen een CarouselProvider",
-        "realtime": "useRealtime moet gebruikt worden binnen een RealtimeProvider"
-      }
+    "userNav": {
+        "signOut": "Uitloggen",
+        "accountSettings": "Accountinstellingen"
+    },
+    "footer": {
+        "hero": "Jouw beeld, jouw eigendom.",
+        "sections": {
+            "overview": "Overzicht",
+            "latestStyles": "Nieuwste Stijlen",
+            "legal": "Juridisch",
+            "support": "Ondersteuning"
+        },
+        "links": {
+            "explore": "Verkennen",
+            "create": "Maken",
+            "pricing": "Prijzen & FAQ",
+            "studioPro": "Studio Pro",
+            "business": "Business",
+            "editorial": "Editorial",
+            "terms": "Algemene Voorwaarden",
+            "privacy": "Privacybeleid",
+            "contact": "Contact",
+            "about": "Over ons"
+        },
+        "copyright": "© {{year}} Primeshot. Alle rechten voorbehouden"
+    },
+    "duration": {
+        "year_one": "{{count}} jaar",
+        "year_other": "{{count}} jaar",
+        "month_one": "{{count}} maand",
+        "month_other": "{{count}} maanden",
+        "day_one": "{{count}} dag",
+        "day_other": "{{count}} dagen"
+    },
+    "aria": {
+        "favourites": "Favorieten",
+        "avatar": "Gebruikersavatar",
+        "brandLogo": "Primeshot"
+    },
+    "explore": {
+        "generateTooltip": "Deze stijl toepassen"
+    },
+    "credits": {
+        "remaining_one": "{{value}} credit over",
+        "remaining_other": "{{value}} credits over"
+    },
+    "contexts": {
+        "dialogService": {
+            "defaultTitle": "Dialoog",
+            "defaultDescription": "Inhoud",
+            "notReadyWarning": "DialogService niet gereed"
+        },
+        "errors": {
+            "missingProvider": {
+                "styleSelection": "useStyleSelection moet gebruikt worden binnen een StyleSelectionProvider",
+                "dialogService": "useDialogService moet gebruikt worden binnen een DialogServiceProvider",
+                "inferenceQueue": "useInferenceQueue moet gebruikt worden binnen een InferenceQueueProvider",
+                "carousel": "useCarouselContext moet gebruikt worden binnen een CarouselProvider",
+                "realtime": "useRealtime moet gebruikt worden binnen een RealtimeProvider"
+            }
+        }
     }
-  }
 }

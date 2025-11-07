@@ -223,13 +223,13 @@
 }
 
 .bannerContainer {
+  background: #FF6B35;
+  color: #fff;
   display: flex;
   align-items: center;
   padding: 24px 36px;
-  gap: 32px;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.3) 100%), url(https://d3el9qajjnmn76.cloudfront.net/website-images/landing-page-3-w1280.webp), #000000;
+  gap: 92px;
   border-radius: 26px;  
-  background-position: 0px -295px;
 }
 
 .bannerLeft {
@@ -241,30 +241,29 @@
 .bannerRight {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .bannerDescription {
   font-weight: 500;
-  font-size: 14px;
+  font-size: 20px;
   line-height: 20px;
-  color: #FFFFFF;
   letter-spacing: 0.02em;
 }
 
 .bannerSmall {
   font-weight: 500;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 120%;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .bannerTitle {
   font-family:var(--font-carb);
-  font-weight: 400;
+  font-weight: 500;
+  max-width: 200px;
   font-size: 34px;
   line-height: 31px;
-  color: #99EFEC;
   display: inline-block;
   flex: 1;
   gap: 8px;

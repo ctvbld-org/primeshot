@@ -38,19 +38,9 @@
       "chooseYourPlan": "Escolha o seu plano"
     },
     "banner": {
-      "titleStart": "Junte-se aos",
-      "titleNumber": "300",
-      "description": {
-        "start": "Ajude a moldar o Primeshot, obtenha",
-        "lifetime": "vitalício",
-        "annualDiscount": "70% de desconto",
-        "annualWord": "anual",
-        "or": "ou",
-        "monthlyDiscount": "50% de desconto",
-        "monthlyWord": "mensal",
-        "end": "e reivindique benefícios exclusivos para os 300 fundadores."
-      },
-      "small": "A oferta vitalícia continua até cancelar."
+      "titleStart": "Oferta vitalícia limitada",
+      "description": "Garante até 70% de desconto nos planos anuais, ou 50% nos planos mensais.",
+      "small": "Limitado a apenas 300 membros. A oferta vitalícia continua até cancelar."
     },
     "toggle": {
       "monthly": "Mensal",

@@ -38,19 +38,9 @@
       "chooseYourPlan": "Choose your plan"
     },
     "banner": {
-      "titleStart": "Join the Founding",
-      "titleNumber": "300",
-      "description": {
-        "start": "Help shape Primeshot, get",
-        "lifetime": "lifetime",
-        "annualDiscount": "70% off",
-        "annualWord": "annual",
-        "or": "or",
-        "monthlyDiscount": "50% off",
-        "monthlyWord": "monthly",
-        "end": "and claim exclusive perks for the Founding 300."
-      },
-      "small": "Lifetime offer continues until you cancel."
+      "titleStart": "Limited lifetime offer",
+      "description": "Lock in up to 70% off annual plans, or 50% off monthly.",
+      "small": "Limited to 300 members only. Lifetime offer continues until canceled."
     },
     "toggle": {
       "monthly": "Monthly",

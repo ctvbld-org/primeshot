@@ -2776,6 +2776,15 @@ Detected changes in:
 - webapp/src/components/generate/GenerateBar.tsx
 - webapp/src/components/upload/FileUploader.tsx
 - website/src/components/generate/GenerateBar.tsx
+
+
+**Auto-update 2025-11-07**:
+Detected changes in:
+- website/src/app/[locale]/layout.tsx
+- website/src/app/[locale]/page.module.css
+- website/src/components/InteractiveGenerateBar/HeroGrid.module.css
+- website/src/components/InteractiveGenerateBar/HeroGrid.tsx
+- website/src/components/InteractiveGenerateBar/ShowcaseSection.module.css
 ## Component Organization
 
 Components are organized by feature and reusability:

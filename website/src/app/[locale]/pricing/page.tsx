@@ -395,7 +395,7 @@ export default function PricingPage() {
       />
 
       {/* Special Offer Banner */}
-      {/* isSpecialOffer && !isLoading && <SpecialOfferBanner className={styles.specialOfferBanner} /> */}
+      {isSpecialOffer && !isLoading && <SpecialOfferBanner className={styles.specialOfferBanner} />}
 
       {/* Pricing Plans */}
       <div className={styles.tabsWrapper}>

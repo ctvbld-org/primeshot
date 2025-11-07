@@ -38,19 +38,9 @@
       "chooseYourPlan": "Scegli il tuo piano"
     },
     "banner": {
-      "titleStart": "Unisciti ai",
-      "titleNumber": "300",
-      "description": {
-        "start": "Aiuta a plasmare Primeshot, ottieni",
-        "lifetime": "a vita",
-        "annualDiscount": "70% di sconto",
-        "annualWord": "annuale",
-        "or": "o",
-        "monthlyDiscount": "50% di sconto",
-        "monthlyWord": "mensile",
-        "end": "e rivendica vantaggi esclusivi per i 300 fondatori."
-      },
-      "small": "L'offerta a vita continua finché non cancelli."
+      "titleStart": "Offerta a vita limitata",
+      "description": "Assicurati fino al 70% di sconto sui piani annuali, o il 50% sui piani mensili.",
+      "small": "Limitato a soli 300 membri. L'offerta a vita continua fino alla cancellazione."
     },
     "toggle": {
       "monthly": "Mensile",

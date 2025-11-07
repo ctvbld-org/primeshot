@@ -38,19 +38,9 @@
       "chooseYourPlan": "Kies je plan"
     },
     "banner": {
-      "titleStart": "Word lid van de oprichters",
-      "titleNumber": "300",
-      "description": {
-        "start": "Help Primeshot vorm te geven, krijg",
-        "lifetime": "levenslang",
-        "annualDiscount": "70% korting",
-        "annualWord": "jaarlijks",
-        "or": "of",
-        "monthlyDiscount": "50% korting",
-        "monthlyWord": "maandelijks",
-        "end": "en claim exclusieve voordelen voor de oprichters 300."
-      },
-      "small": "Levenslang aanbod loopt door tot je opzegt."
+      "titleStart": "Beperkt levenslang aanbod",
+      "description": "Profiteer van tot 70% korting op jaarplannen, of 50% op maandplannen.",
+      "small": "Beperkt tot slechts 300 leden. Levenslang aanbod loopt door tot je opzegt."
     },
     "toggle": {
       "monthly": "Maandelijks",
