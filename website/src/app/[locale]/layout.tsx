@@ -214,13 +214,9 @@ export default async function LocaleLayout({ children, params }: { children: Rea
     // Will use fallback styles in Footer component
   }
   
-  // Create initial locale data as JSON instead of executable script
-  const initialData = {
-    locale: finalLocale
-  }
   return (
     <>
-      <I18nProvider locale={finalLocale}>
+      <I18nProvider>
         <AuthProvider>
           <LanguageProvider>
             <StyleProviders>

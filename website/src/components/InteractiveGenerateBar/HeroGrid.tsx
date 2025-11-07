@@ -6,6 +6,7 @@ import { makeCloudfrontLoader } from '@/lib/utils/cloudfrontLoader'
 import { useTranslation } from 'react-i18next'
 import showcaseStyles from './ShowcaseSection.module.css'
 import styles from './HeroGrid.module.css'
+import { getWebsiteCdnUrl } from '@primeshot/common/lib/utils/cdn'
 
 const cloudfrontLoader = makeCloudfrontLoader('website-images')
 
@@ -342,12 +343,10 @@ export function HeroGrid() {
           >
             {img.featured ? (
               <div className={styles.imageContainer}>
-                <Image
-                  src="homepage/8.webp"
+                <img
+                  src={getWebsiteCdnUrl("homepage/8.webp")}
                   alt="Featured 4K quality"
-                  fill
                   className={styles.featuredImage}
-                  loader={cloudfrontLoader}
                 />
                 <div className={styles.badge}>
                   {t('grid.badge')}

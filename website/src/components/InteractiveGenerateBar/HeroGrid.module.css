@@ -54,15 +54,25 @@
 }
 
 .featuredImage {
+  width: 1000px !important;
+  height: 1000px !important;
+  max-width: none;
+  transform-origin: 0 0;
   object-fit: cover;
-  transform: scale(4) translate3d(-16%, 33%, 0);
+  transform: scale(1) translate3d(-54%, -4%, 0);
   object-position: center;
   transition: transform 600ms ease-out, object-position 600ms ease-out;
 }
 
 .featuredItem:hover .featuredImage {
-  transform: scale(1);
+  transform: scale(0.3) translate3d(0, 0, 0);
   object-position: center center;
+}
+
+@media (min-width: 930px) and (max-width: 1130px) {
+  .featuredImage {
+    transform: scale(1) translate3d(-57%, -8%, 0);
+  }
 }
 
 .badge {
