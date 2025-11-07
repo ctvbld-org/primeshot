@@ -2769,6 +2769,13 @@ Detected changes in:
 - website/src/components/InteractiveGenerateBar/CTASection.module.css
 - website/src/components/InteractiveGenerateBar/CTASection.tsx
 - website/src/components/InteractiveGenerateBar/ShowcaseSection.module.css
+
+
+**Auto-update 2025-11-07**:
+Detected changes in:
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/upload/FileUploader.tsx
+- website/src/components/generate/GenerateBar.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

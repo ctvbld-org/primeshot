@@ -1,23 +1,22 @@
 {
-  "title": "AI Headshots That Open Doors | Primeshot",
-  "description": "Make your first impression count. Primeshot turns everyday selfies into stunning, studio-quality AI headshots—crafted to reflect your style, ambition, and story.",
-  "keywords": [
-    "AI headshots",
-    "professional portraits",
-    "AI photography",
-    "headshot generator",
-    "professional image",
-    "AI portraits",
-    "business headshots"
-  ],
-  "og": {
     "title": "AI Headshots That Open Doors | Primeshot",
     "description": "Make your first impression count. Primeshot turns everyday selfies into stunning, studio-quality AI headshots—crafted to reflect your style, ambition, and story.",
-    "imageAlt": "Primeshot - AI Headshots"
-  },
-  "twitter": {
-    "title": "AI Headshots That Open Doors | Primeshot",
-    "description": "Make your first impression count. Primeshot turns everyday selfies into stunning, studio-quality AI headshots—crafted to reflect your style, ambition, and story."
-  }
+    "keywords": [
+        "AI headshots",
+        "professional portraits",
+        "AI photography",
+        "headshot generator",
+        "professional image",
+        "AI portraits",
+        "business headshots"
+    ],
+    "og": {
+        "title": "AI Headshots That Open Doors | Primeshot",
+        "description": "Make your first impression count. Primeshot turns everyday selfies into stunning, studio-quality AI headshots—crafted to reflect your style, ambition, and story.",
+        "imageAlt": "Primeshot - AI Headshots"
+    },
+    "twitter": {
+        "title": "AI Headshots That Open Doors | Primeshot",
+        "description": "Make your first impression count. Primeshot turns everyday selfies into stunning, studio-quality AI headshots—crafted to reflect your style, ambition, and story."
+    }
 }
-

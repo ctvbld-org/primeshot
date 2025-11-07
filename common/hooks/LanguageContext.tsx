@@ -16,7 +16,8 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const { i18n } = useTranslation() as any
-  const [currentLanguage, setCurrentLanguage] = useState<string | null>(i18n.language || null)
+  // Initialize with null to match SSR - will be set after hydration
+  const [currentLanguage, setCurrentLanguage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isHydrated, setIsHydrated] = useState(false)
 
@@ -30,9 +31,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       try {
         setIsLoading(true)
         
-        // Don't change language during initial hydration to prevent mismatches
+        // On first render (not yet hydrated), just sync with current i18n language
         if (!isHydrated) {
-          setCurrentLanguage(i18n.language)
+          setCurrentLanguage(i18n.language || 'us')
+          setIsLoading(false)
           return
         }
 

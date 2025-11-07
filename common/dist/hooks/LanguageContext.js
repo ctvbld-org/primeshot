@@ -6,7 +6,8 @@ import { createClient } from '../lib/supabase/client';
 const LanguageContext = createContext(undefined);
 export function LanguageProvider({ children }) {
     const { i18n } = useTranslation();
-    const [currentLanguage, setCurrentLanguage] = useState(i18n.language || null);
+    // Initialize with null to match SSR - will be set after hydration
+    const [currentLanguage, setCurrentLanguage] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isHydrated, setIsHydrated] = useState(false);
     // Track hydration to prevent SSR mismatches
@@ -18,9 +19,10 @@ export function LanguageProvider({ children }) {
             var _a, _b;
             try {
                 setIsLoading(true);
-                // Don't change language during initial hydration to prevent mismatches
+                // On first render (not yet hydrated), just sync with current i18n language
                 if (!isHydrated) {
-                    setCurrentLanguage(i18n.language);
+                    setCurrentLanguage(i18n.language || 'us');
+                    setIsLoading(false);
                     return;
                 }
                 // Try to read locale from URL prefix (explicit user intent)
