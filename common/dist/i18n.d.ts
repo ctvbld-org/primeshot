@@ -39,6 +39,7 @@ export declare const resources: {
                 pricing: string;
                 admin: string;
                 menu: string;
+                blog: string;
             };
             userNav: {
                 signOut: string;
@@ -1357,6 +1358,22 @@ export declare const resources: {
                 description: string;
             };
         };
+        blog: {
+            hero: {
+                title: string;
+            };
+            filters: {
+                all: string;
+                featured: string;
+            };
+            noPosts: string;
+            loadMore: string;
+            relatedPosts: string;
+            meta: {
+                title: string;
+                description: string;
+            };
+        };
     };
     gb: {
         common: {
@@ -1397,6 +1414,7 @@ export declare const resources: {
                 pricing: string;
                 admin: string;
                 menu: string;
+                blog: string;
             };
             userNav: {
                 signOut: string;
@@ -1433,7 +1451,7 @@ export declare const resources: {
                 day_other: string;
             };
             aria: {
-                favourites: string;
+                favorites: string;
                 avatar: string;
                 brandLogo: string;
             };
@@ -2699,6 +2717,22 @@ export declare const resources: {
                 description: string;
             };
         };
+        blog: {
+            hero: {
+                title: string;
+            };
+            filters: {
+                all: string;
+                featured: string;
+            };
+            noPosts: string;
+            loadMore: string;
+            relatedPosts: string;
+            meta: {
+                title: string;
+                description: string;
+            };
+        };
     };
     fr: {
         common: {
@@ -2739,6 +2773,7 @@ export declare const resources: {
                 pricing: string;
                 admin: string;
                 menu: string;
+                blog: string;
             };
             userNav: {
                 signOut: string;
@@ -2775,7 +2810,7 @@ export declare const resources: {
                 day_other: string;
             };
             aria: {
-                favourites: string;
+                favorites: string;
                 avatar: string;
                 brandLogo: string;
             };
@@ -4035,6 +4070,22 @@ export declare const resources: {
                 description: string;
             };
         };
+        blog: {
+            hero: {
+                title: string;
+            };
+            filters: {
+                all: string;
+                featured: string;
+            };
+            noPosts: string;
+            loadMore: string;
+            relatedPosts: string;
+            meta: {
+                title: string;
+                description: string;
+            };
+        };
     };
     es: {
         common: {
@@ -4075,6 +4126,7 @@ export declare const resources: {
                 pricing: string;
                 admin: string;
                 menu: string;
+                blog: string;
             };
             userNav: {
                 signOut: string;
@@ -4111,7 +4163,7 @@ export declare const resources: {
                 day_other: string;
             };
             aria: {
-                favourites: string;
+                favorites: string;
                 avatar: string;
                 brandLogo: string;
             };
@@ -5354,6 +5406,22 @@ export declare const resources: {
                 imageAlt: string;
             };
             twitter: {
+                title: string;
+                description: string;
+            };
+        };
+        blog: {
+            hero: {
+                title: string;
+            };
+            filters: {
+                all: string;
+                featured: string;
+            };
+            noPosts: string;
+            loadMore: string;
+            relatedPosts: string;
+            meta: {
                 title: string;
                 description: string;
             };
@@ -5398,6 +5466,7 @@ export declare const resources: {
                 pricing: string;
                 admin: string;
                 menu: string;
+                blog: string;
             };
             userNav: {
                 signOut: string;
@@ -5434,7 +5503,7 @@ export declare const resources: {
                 day_other: string;
             };
             aria: {
-                favourites: string;
+                favorites: string;
                 avatar: string;
                 brandLogo: string;
             };
@@ -6677,6 +6746,22 @@ export declare const resources: {
                 imageAlt: string;
             };
             twitter: {
+                title: string;
+                description: string;
+            };
+        };
+        blog: {
+            hero: {
+                title: string;
+            };
+            filters: {
+                all: string;
+                featured: string;
+            };
+            noPosts: string;
+            loadMore: string;
+            relatedPosts: string;
+            meta: {
                 title: string;
                 description: string;
             };
@@ -6721,6 +6806,7 @@ export declare const resources: {
                 pricing: string;
                 admin: string;
                 menu: string;
+                blog: string;
             };
             userNav: {
                 signOut: string;
@@ -6757,7 +6843,7 @@ export declare const resources: {
                 day_other: string;
             };
             aria: {
-                favourites: string;
+                favorites: string;
                 avatar: string;
                 brandLogo: string;
             };
@@ -8000,6 +8086,22 @@ export declare const resources: {
                 imageAlt: string;
             };
             twitter: {
+                title: string;
+                description: string;
+            };
+        };
+        blog: {
+            hero: {
+                title: string;
+            };
+            filters: {
+                all: string;
+                featured: string;
+            };
+            noPosts: string;
+            loadMore: string;
+            relatedPosts: string;
+            meta: {
                 title: string;
                 description: string;
             };
@@ -8044,6 +8146,7 @@ export declare const resources: {
                 pricing: string;
                 admin: string;
                 menu: string;
+                blog: string;
             };
             userNav: {
                 signOut: string;
@@ -8080,7 +8183,7 @@ export declare const resources: {
                 day_other: string;
             };
             aria: {
-                favourites: string;
+                favorites: string;
                 avatar: string;
                 brandLogo: string;
             };
@@ -9323,6 +9426,22 @@ export declare const resources: {
                 imageAlt: string;
             };
             twitter: {
+                title: string;
+                description: string;
+            };
+        };
+        blog: {
+            hero: {
+                title: string;
+            };
+            filters: {
+                all: string;
+                featured: string;
+            };
+            noPosts: string;
+            loadMore: string;
+            relatedPosts: string;
+            meta: {
                 title: string;
                 description: string;
             };
@@ -9367,6 +9486,7 @@ export declare const resources: {
                 pricing: string;
                 admin: string;
                 menu: string;
+                blog: string;
             };
             userNav: {
                 signOut: string;
@@ -9403,7 +9523,7 @@ export declare const resources: {
                 day_other: string;
             };
             aria: {
-                favourites: string;
+                favorites: string;
                 avatar: string;
                 brandLogo: string;
             };
@@ -10646,6 +10766,22 @@ export declare const resources: {
                 imageAlt: string;
             };
             twitter: {
+                title: string;
+                description: string;
+            };
+        };
+        blog: {
+            hero: {
+                title: string;
+            };
+            filters: {
+                all: string;
+                featured: string;
+            };
+            noPosts: string;
+            loadMore: string;
+            relatedPosts: string;
+            meta: {
                 title: string;
                 description: string;
             };
@@ -10690,6 +10826,7 @@ export declare const resources: {
                 pricing: string;
                 admin: string;
                 menu: string;
+                blog: string;
             };
             userNav: {
                 signOut: string;
@@ -10726,7 +10863,7 @@ export declare const resources: {
                 day_other: string;
             };
             aria: {
-                favourites: string;
+                favorites: string;
                 avatar: string;
                 brandLogo: string;
             };
@@ -11970,6 +12107,22 @@ export declare const resources: {
                 imageAlt: string;
             };
             twitter: {
+                title: string;
+                description: string;
+            };
+        };
+        blog: {
+            hero: {
+                title: string;
+            };
+            filters: {
+                all: string;
+                featured: string;
+            };
+            noPosts: string;
+            loadMore: string;
+            relatedPosts: string;
+            meta: {
                 title: string;
                 description: string;
             };
@@ -12014,6 +12167,7 @@ export declare const resources: {
                 pricing: string;
                 admin: string;
                 menu: string;
+                blog: string;
             };
             userNav: {
                 signOut: string;
@@ -12050,7 +12204,7 @@ export declare const resources: {
                 day_other: string;
             };
             aria: {
-                favourites: string;
+                favorites: string;
                 avatar: string;
                 brandLogo: string;
             };
@@ -13294,6 +13448,22 @@ export declare const resources: {
                 imageAlt: string;
             };
             twitter: {
+                title: string;
+                description: string;
+            };
+        };
+        blog: {
+            hero: {
+                title: string;
+            };
+            filters: {
+                all: string;
+                featured: string;
+            };
+            noPosts: string;
+            loadMore: string;
+            relatedPosts: string;
+            meta: {
                 title: string;
                 description: string;
             };

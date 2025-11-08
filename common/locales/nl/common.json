@@ -1,101 +1,102 @@
 {
-  "welcome": "Welkom",
+  "welcome": "Welcome",
   "error": {
-    "title": "Fout",
-    "description": "Er is een fout opgetreden"
+    "title": "Error",
+    "description": "An error occurred"
   },
-  "language": "Taal",
-  "loading": "Laden...",
+  "language": "Language",
+  "loading": "Loading...",
   "buttons": {
-    "customize": "Aanpassen",
-    "confirmChanges": "Wijzigingen bevestigen",
-    "addToShoot": "Toevoegen aan shoot",
-    "edit": "Bewerken",
-    "delete": "Verwijderen",
-    "save": "Opslaan",
-    "cancel": "Annuleren",
-    "back": "Terug",
-    "close": "Sluiten",
-    "next": "Volgende",
-    "previous": "Vorige",
-    "keep": "Behouden",
-    "discard": "Weggooien",
-    "confirm": "Bevestigen",
-    "remove": "Verwijderen",
-    "add": "Toevoegen",
-    "explore": "Verkennen",
-    "signIn": "Inloggen"
+    "customize": "Customize",
+    "confirmChanges": "Confirm changes",
+    "addToShoot": "Add to Shoot",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "close": "Close",
+    "next": "Next",
+    "previous": "Prev.",
+    "keep": "Keep it",
+    "discard": "Discard",
+    "confirm": "Confirm",
+    "remove": "Remove",
+    "add": "Add",
+    "explore": "Explore",
+    "signIn": "Sign in"
   },
   "navigation": {
-    "addStyles": "Stijlen toevoegen",
-    "payment": "Betaling",
-    "uploadPhotos": "Foto's uploaden",
-    "generate": "Genereren",
-    "explore": "Verkennen",
-    "create": "Maken",
-    "pricing": "Prijzen",
+    "addStyles": "Add Styles",
+    "payment": "Payment",
+    "uploadPhotos": "Upload Photos",
+    "generate": "Generate",
+    "explore": "Explore",
+    "create": "Create",
+    "pricing": "Pricing",
     "admin": "Admin",
-    "menu": "Menu"
+    "menu": "Menu",
+    "blog": "Blog"
   },
   "userNav": {
-    "signOut": "Uitloggen",
-    "accountSettings": "Accountinstellingen"
+    "signOut": "Sign out",
+    "accountSettings": "Account Settings"
   },
   "footer": {
-    "hero": "Jouw beeld, jouw eigendom.",
+    "hero": "Own your image.",
     "sections": {
-      "overview": "Overzicht",
-      "latestStyles": "Nieuwste Stijlen",
-      "legal": "Juridisch",
-      "support": "Ondersteuning"
+      "overview": "Overview",
+      "latestStyles": "Latest Styles",
+      "legal": "Legal",
+      "support": "Support"
     },
     "links": {
-      "explore": "Verkennen",
-      "create": "Maken",
-      "pricing": "Prijzen & FAQ",
+      "explore": "Explore",
+      "create": "Create",
+      "pricing": "Pricing & FAQ",
       "studioPro": "Studio Pro",
       "business": "Business",
       "editorial": "Editorial",
-      "terms": "Algemene Voorwaarden",
-      "privacy": "Privacybeleid",
-      "contact": "Contact",
-      "about": "Over ons"
+      "terms": "Terms and Conditions",
+      "privacy": "Privacy Policy",
+      "contact": "Contact us",
+      "about": "About us"
     },
-    "copyright": "© {{year}} Primeshot. Alle rechten voorbehouden"
+    "copyright": "© {{year}} Primeshot. All Rights Reserved"
   },
   "duration": {
-    "year_one": "{{count}} jaar",
-    "year_other": "{{count}} jaar",
-    "month_one": "{{count}} maand",
-    "month_other": "{{count}} maanden",
-    "day_one": "{{count}} dag",
-    "day_other": "{{count}} dagen"
+    "year_one": "{{count}} year",
+    "year_other": "{{count}} years",
+    "month_one": "{{count}} month",
+    "month_other": "{{count}} months",
+    "day_one": "{{count}} day",
+    "day_other": "{{count}} days"
   },
   "aria": {
-    "favourites": "Favorieten",
-    "avatar": "Gebruikersavatar",
+    "favorites": "Favorites",
+    "avatar": "User avatar",
     "brandLogo": "Primeshot"
   },
   "explore": {
-    "generateTooltip": "Deze stijl toepassen"
+    "generateTooltip": "Apply this style"
   },
   "credits": {
-    "remaining_one": "{{value}} credit over",
-    "remaining_other": "{{value}} credits over"
+    "remaining_one": "{{value}} credit remaining",
+    "remaining_other": "{{value}} credits remaining"
   },
   "contexts": {
     "dialogService": {
-      "defaultTitle": "Dialoog",
-      "defaultDescription": "Inhoud",
-      "notReadyWarning": "DialogService niet gereed"
+      "defaultTitle": "Dialog",
+      "defaultDescription": "Content",
+      "notReadyWarning": "DialogService not ready"
     },
     "errors": {
       "missingProvider": {
-        "styleSelection": "useStyleSelection moet gebruikt worden binnen een StyleSelectionProvider",
-        "dialogService": "useDialogService moet gebruikt worden binnen een DialogServiceProvider",
-        "inferenceQueue": "useInferenceQueue moet gebruikt worden binnen een InferenceQueueProvider",
-        "carousel": "useCarouselContext moet gebruikt worden binnen een CarouselProvider",
-        "realtime": "useRealtime moet gebruikt worden binnen een RealtimeProvider"
+        "styleSelection": "useStyleSelection must be used within a StyleSelectionProvider",
+        "dialogService": "useDialogService must be used within DialogServiceProvider",
+        "inferenceQueue": "useInferenceQueue must be used within an InferenceQueueProvider",
+        "carousel": "useCarouselContext must be used within a CarouselProvider",
+        "realtime": "useRealtime must be used within a RealtimeProvider"
       }
     }
   }

@@ -35,7 +35,8 @@
     "create": "Create",
     "pricing": "Pricing",
     "admin": "Admin",
-    "menu": "Menu"
+    "menu": "Menu",
+    "blog": "Blog"
   },
   "userNav": {
     "signOut": "Sign out",
@@ -72,7 +73,7 @@
     "day_other": "{{count}} days"
   },
   "aria": {
-    "favourites": "Favourites",
+    "favorites": "Favorites",
     "avatar": "User avatar",
     "brandLogo": "Primeshot"
   },
@@ -99,4 +100,4 @@
       }
     }
   }
-} 
+}

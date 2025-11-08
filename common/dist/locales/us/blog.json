@@ -1,0 +1,17 @@
+{
+  "hero": {
+    "title": "Blog"
+  },
+  "filters": {
+    "all": "All Posts",
+    "featured": "Featured"
+  },
+  "noPosts": "No posts found",
+  "loadMore": "Load More",
+  "relatedPosts": "Related Posts",
+  "meta": {
+    "title": "Blog - Primeshot",
+    "description": "Discover tips, tutorials, and insights about AI photography and professional headshots"
+  }
+}
+

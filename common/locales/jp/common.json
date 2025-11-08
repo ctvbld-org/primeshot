@@ -1,101 +1,102 @@
 {
-  "welcome": "ようこそ",
+  "welcome": "Welcome",
   "error": {
-    "title": "エラー",
-    "description": "エラーが発生しました"
+    "title": "Error",
+    "description": "An error occurred"
   },
-  "language": "言語",
-  "loading": "読み込み中...",
+  "language": "Language",
+  "loading": "Loading...",
   "buttons": {
-    "customize": "カスタマイズ",
-    "confirmChanges": "変更を確認",
-    "addToShoot": "撮影に追加",
-    "edit": "編集",
-    "delete": "削除",
-    "save": "保存",
-    "cancel": "キャンセル",
-    "back": "戻る",
-    "close": "閉じる",
-    "next": "次へ",
-    "previous": "前へ",
-    "keep": "保持",
-    "discard": "破棄",
-    "confirm": "確認",
-    "remove": "削除",
-    "add": "追加",
-    "explore": "探索",
-    "signIn": "サインイン"
+    "customize": "Customize",
+    "confirmChanges": "Confirm changes",
+    "addToShoot": "Add to Shoot",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "close": "Close",
+    "next": "Next",
+    "previous": "Prev.",
+    "keep": "Keep it",
+    "discard": "Discard",
+    "confirm": "Confirm",
+    "remove": "Remove",
+    "add": "Add",
+    "explore": "Explore",
+    "signIn": "Sign in"
   },
   "navigation": {
-    "addStyles": "スタイルを追加",
-    "payment": "お支払い",
-    "uploadPhotos": "写真をアップロード",
-    "generate": "生成",
-    "explore": "探索",
-    "create": "作成",
-    "pricing": "料金",
-    "admin": "管理者",
-    "menu": "メニュー"
+    "addStyles": "Add Styles",
+    "payment": "Payment",
+    "uploadPhotos": "Upload Photos",
+    "generate": "Generate",
+    "explore": "Explore",
+    "create": "Create",
+    "pricing": "Pricing",
+    "admin": "Admin",
+    "menu": "Menu",
+    "blog": "ブログ"
   },
   "userNav": {
-    "signOut": "サインアウト",
-    "accountSettings": "アカウント設定"
+    "signOut": "Sign out",
+    "accountSettings": "Account Settings"
   },
   "footer": {
-    "hero": "あなたのイメージは、あなたのもの。",
+    "hero": "Own your image.",
     "sections": {
-      "overview": "概要",
-      "latestStyles": "最新スタイル",
-      "legal": "法的情報",
-      "support": "サポート"
+      "overview": "Overview",
+      "latestStyles": "Latest Styles",
+      "legal": "Legal",
+      "support": "Support"
     },
     "links": {
-      "explore": "探索",
-      "create": "作成",
-      "pricing": "料金とFAQ",
+      "explore": "Explore",
+      "create": "Create",
+      "pricing": "Pricing & FAQ",
       "studioPro": "Studio Pro",
       "business": "Business",
       "editorial": "Editorial",
-      "terms": "利用規約",
-      "privacy": "プライバシーポリシー",
-      "contact": "お問い合わせ",
-      "about": "私たちについて"
+      "terms": "Terms and Conditions",
+      "privacy": "Privacy Policy",
+      "contact": "Contact us",
+      "about": "About us"
     },
-    "copyright": "© {{year}} Primeshot. All rights reserved"
+    "copyright": "© {{year}} Primeshot. All Rights Reserved"
   },
   "duration": {
-    "year_one": "{{count}}年",
-    "year_other": "{{count}}年",
-    "month_one": "{{count}}ヶ月",
-    "month_other": "{{count}}ヶ月",
-    "day_one": "{{count}}日",
-    "day_other": "{{count}}日"
+    "year_one": "{{count}} year",
+    "year_other": "{{count}} years",
+    "month_one": "{{count}} month",
+    "month_other": "{{count}} months",
+    "day_one": "{{count}} day",
+    "day_other": "{{count}} days"
   },
   "aria": {
-    "favourites": "お気に入り",
-    "avatar": "ユーザーアバター",
+    "favorites": "Favorites",
+    "avatar": "User avatar",
     "brandLogo": "Primeshot"
   },
   "explore": {
-    "generateTooltip": "このスタイルを適用"
+    "generateTooltip": "Apply this style"
   },
   "credits": {
-    "remaining_one": "残り{{value}}クレジット",
-    "remaining_other": "残り{{value}}クレジット"
+    "remaining_one": "{{value}} credit remaining",
+    "remaining_other": "{{value}} credits remaining"
   },
   "contexts": {
     "dialogService": {
-      "defaultTitle": "ダイアログ",
-      "defaultDescription": "コンテンツ",
-      "notReadyWarning": "DialogServiceの準備ができていません"
+      "defaultTitle": "Dialog",
+      "defaultDescription": "Content",
+      "notReadyWarning": "DialogService not ready"
     },
     "errors": {
       "missingProvider": {
-        "styleSelection": "useStyleSelectionはStyleSelectionProvider内で使用する必要があります",
-        "dialogService": "useDialogServiceはDialogServiceProvider内で使用する必要があります",
-        "inferenceQueue": "useInferenceQueueはInferenceQueueProvider内で使用する必要があります",
-        "carousel": "useCarouselContextはCarouselProvider内で使用する必要があります",
-        "realtime": "useRealtimeはRealtimeProvider内で使用する必要があります"
+        "styleSelection": "useStyleSelection must be used within a StyleSelectionProvider",
+        "dialogService": "useDialogService must be used within DialogServiceProvider",
+        "inferenceQueue": "useInferenceQueue must be used within an InferenceQueueProvider",
+        "carousel": "useCarouselContext must be used within a CarouselProvider",
+        "realtime": "useRealtime must be used within a RealtimeProvider"
       }
     }
   }

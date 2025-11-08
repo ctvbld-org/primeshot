@@ -35,7 +35,8 @@
     "create": "Create",
     "pricing": "Pricing",
     "admin": "Admin",
-    "menu": "Menu"
+    "menu": "Menu",
+    "blog": "Blog"
   },
   "userNav": {
     "signOut": "Sign out",

@@ -1,101 +1,102 @@
 {
-  "welcome": "Benvenuto",
+  "welcome": "Welcome",
   "error": {
-    "title": "Errore",
-    "description": "Si è verificato un errore"
+    "title": "Error",
+    "description": "An error occurred"
   },
-  "language": "Lingua",
-  "loading": "Caricamento...",
+  "language": "Language",
+  "loading": "Loading...",
   "buttons": {
-    "customize": "Personalizza",
-    "confirmChanges": "Conferma modifiche",
-    "addToShoot": "Aggiungi al servizio",
-    "edit": "Modifica",
-    "delete": "Elimina",
-    "save": "Salva",
-    "cancel": "Annulla",
-    "back": "Indietro",
-    "close": "Chiudi",
-    "next": "Avanti",
-    "previous": "Prec.",
-    "keep": "Mantieni",
-    "discard": "Scarta",
-    "confirm": "Conferma",
-    "remove": "Rimuovi",
-    "add": "Aggiungi",
-    "explore": "Esplora",
-    "signIn": "Accedi"
+    "customize": "Customize",
+    "confirmChanges": "Confirm changes",
+    "addToShoot": "Add to Shoot",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "close": "Close",
+    "next": "Next",
+    "previous": "Prev.",
+    "keep": "Keep it",
+    "discard": "Discard",
+    "confirm": "Confirm",
+    "remove": "Remove",
+    "add": "Add",
+    "explore": "Explore",
+    "signIn": "Sign in"
   },
   "navigation": {
-    "addStyles": "Aggiungi stili",
-    "payment": "Pagamento",
-    "uploadPhotos": "Carica foto",
-    "generate": "Genera",
-    "explore": "Esplora",
-    "create": "Crea",
-    "pricing": "Prezzi",
+    "addStyles": "Add Styles",
+    "payment": "Payment",
+    "uploadPhotos": "Upload Photos",
+    "generate": "Generate",
+    "explore": "Explore",
+    "create": "Create",
+    "pricing": "Pricing",
     "admin": "Admin",
-    "menu": "Menu"
+    "menu": "Menu",
+    "blog": "Blog"
   },
   "userNav": {
-    "signOut": "Esci",
-    "accountSettings": "Impostazioni account"
+    "signOut": "Sign out",
+    "accountSettings": "Account Settings"
   },
   "footer": {
-    "hero": "La tua immagine ti appartiene.",
+    "hero": "Own your image.",
     "sections": {
-      "overview": "Panoramica",
-      "latestStyles": "Ultimi Stili",
-      "legal": "Note legali",
-      "support": "Supporto"
+      "overview": "Overview",
+      "latestStyles": "Latest Styles",
+      "legal": "Legal",
+      "support": "Support"
     },
     "links": {
-      "explore": "Esplora",
-      "create": "Crea",
-      "pricing": "Prezzi e FAQ",
+      "explore": "Explore",
+      "create": "Create",
+      "pricing": "Pricing & FAQ",
       "studioPro": "Studio Pro",
       "business": "Business",
       "editorial": "Editorial",
-      "terms": "Termini e Condizioni",
-      "privacy": "Informativa sulla Privacy",
-      "contact": "Contattaci",
-      "about": "Chi siamo"
+      "terms": "Terms and Conditions",
+      "privacy": "Privacy Policy",
+      "contact": "Contact us",
+      "about": "About us"
     },
-    "copyright": "© {{year}} Primeshot. Tutti i diritti riservati"
+    "copyright": "© {{year}} Primeshot. All Rights Reserved"
   },
   "duration": {
-    "year_one": "{{count}} anno",
-    "year_other": "{{count}} anni",
-    "month_one": "{{count}} mese",
-    "month_other": "{{count}} mesi",
-    "day_one": "{{count}} giorno",
-    "day_other": "{{count}} giorni"
+    "year_one": "{{count}} year",
+    "year_other": "{{count}} years",
+    "month_one": "{{count}} month",
+    "month_other": "{{count}} months",
+    "day_one": "{{count}} day",
+    "day_other": "{{count}} days"
   },
   "aria": {
-    "favourites": "Preferiti",
-    "avatar": "Avatar utente",
+    "favorites": "Favorites",
+    "avatar": "User avatar",
     "brandLogo": "Primeshot"
   },
   "explore": {
-    "generateTooltip": "Applica questo stile"
+    "generateTooltip": "Apply this style"
   },
   "credits": {
-    "remaining_one": "{{value}} credito rimanente",
-    "remaining_other": "{{value}} crediti rimanenti"
+    "remaining_one": "{{value}} credit remaining",
+    "remaining_other": "{{value}} credits remaining"
   },
   "contexts": {
     "dialogService": {
-      "defaultTitle": "Dialogo",
-      "defaultDescription": "Contenuto",
-      "notReadyWarning": "DialogService non pronto"
+      "defaultTitle": "Dialog",
+      "defaultDescription": "Content",
+      "notReadyWarning": "DialogService not ready"
     },
     "errors": {
       "missingProvider": {
-        "styleSelection": "useStyleSelection deve essere usato all'interno di un StyleSelectionProvider",
-        "dialogService": "useDialogService deve essere usato all'interno di un DialogServiceProvider",
-        "inferenceQueue": "useInferenceQueue deve essere usato all'interno di un InferenceQueueProvider",
-        "carousel": "useCarouselContext deve essere usato all'interno di un CarouselProvider",
-        "realtime": "useRealtime deve essere usato all'interno di un RealtimeProvider"
+        "styleSelection": "useStyleSelection must be used within a StyleSelectionProvider",
+        "dialogService": "useDialogService must be used within DialogServiceProvider",
+        "inferenceQueue": "useInferenceQueue must be used within an InferenceQueueProvider",
+        "carousel": "useCarouselContext must be used within a CarouselProvider",
+        "realtime": "useRealtime must be used within a RealtimeProvider"
       }
     }
   }

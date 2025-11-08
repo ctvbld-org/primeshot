@@ -16,6 +16,7 @@ import homepageUs from './locales/us/homepage.json';
 import accountUs from './locales/us/account.json';
 import exploreUs from './locales/us/explore.json';
 import metadataUs from './locales/us/metadata.json';
+import blogUs from './locales/us/blog.json';
 
 // UK English
 import commonGb from './locales/gb/common.json';
@@ -32,6 +33,7 @@ import homepageGb from './locales/gb/homepage.json';
 import accountGb from './locales/gb/account.json';
 import exploreGb from './locales/gb/explore.json';
 import metadataGb from './locales/gb/metadata.json';
+import blogGb from './locales/gb/blog.json';
 
 // French
 import commonFr from './locales/fr/common.json';
@@ -48,6 +50,7 @@ import homepageFr from './locales/fr/homepage.json';
 import accountFr from './locales/fr/account.json';
 import exploreFr from './locales/fr/explore.json';
 import metadataFr from './locales/fr/metadata.json';
+import blogFr from './locales/fr/blog.json';
 
 // Spanish
 import commonEs from './locales/es/common.json';
@@ -64,6 +67,7 @@ import homepageEs from './locales/es/homepage.json';
 import accountEs from './locales/es/account.json';
 import exploreEs from './locales/es/explore.json';
 import metadataEs from './locales/es/metadata.json';
+import blogEs from './locales/es/blog.json';
 
 // Italian
 import commonIt from './locales/it/common.json';
@@ -80,6 +84,7 @@ import homepageIt from './locales/it/homepage.json';
 import accountIt from './locales/it/account.json';
 import exploreIt from './locales/it/explore.json';
 import metadataIt from './locales/it/metadata.json';
+import blogIt from './locales/it/blog.json';
 
 // Portuguese
 import commonPt from './locales/pt/common.json';
@@ -96,6 +101,7 @@ import homepagePt from './locales/pt/homepage.json';
 import accountPt from './locales/pt/account.json';
 import explorePt from './locales/pt/explore.json';
 import metadataPt from './locales/pt/metadata.json';
+import blogPt from './locales/pt/blog.json';
 
 // German
 import commonDe from './locales/de/common.json';
@@ -112,6 +118,7 @@ import homepageDe from './locales/de/homepage.json';
 import accountDe from './locales/de/account.json';
 import exploreDe from './locales/de/explore.json';
 import metadataDe from './locales/de/metadata.json';
+import blogDe from './locales/de/blog.json';
 
 // Dutch
 import commonNl from './locales/nl/common.json';
@@ -128,6 +135,7 @@ import homepageNl from './locales/nl/homepage.json';
 import accountNl from './locales/nl/account.json';
 import exploreNl from './locales/nl/explore.json';
 import metadataNl from './locales/nl/metadata.json';
+import blogNl from './locales/nl/blog.json';
 
 // Chinese
 import commonCn from './locales/cn/common.json';
@@ -144,6 +152,7 @@ import homepageCn from './locales/cn/homepage.json';
 import accountCn from './locales/cn/account.json';
 import exploreCn from './locales/cn/explore.json';
 import metadataCn from './locales/cn/metadata.json';
+import blogCn from './locales/cn/blog.json';
 
 // Japanese
 import commonJp from './locales/jp/common.json';
@@ -160,6 +169,7 @@ import homepageJp from './locales/jp/homepage.json';
 import accountJp from './locales/jp/account.json';
 import exploreJp from './locales/jp/explore.json';
 import metadataJp from './locales/jp/metadata.json';
+import blogJp from './locales/jp/blog.json';
 
 // Global resources with all namespaces
 export const resources = {
@@ -178,6 +188,7 @@ export const resources = {
     account: accountUs,
     explore: exploreUs,
     metadata: metadataUs,
+    blog: blogUs,
   },
   gb: {
     common: commonGb,
@@ -194,6 +205,7 @@ export const resources = {
     account: accountGb,
     explore: exploreGb,
     metadata: metadataGb,
+    blog: blogGb,
   },
   fr: {
     common: commonFr,
@@ -210,6 +222,7 @@ export const resources = {
     account: accountFr,
     explore: exploreFr,
     metadata: metadataFr,
+    blog: blogFr,
   },
   es: {
     common: commonEs,
@@ -226,6 +239,7 @@ export const resources = {
     account: accountEs,
     explore: exploreEs,
     metadata: metadataEs,
+    blog: blogEs,
   },
   it: {
     common: commonIt,
@@ -242,6 +256,7 @@ export const resources = {
     account: accountIt,
     explore: exploreIt,
     metadata: metadataIt,
+    blog: blogIt,
   },
   pt: {
     common: commonPt,
@@ -258,6 +273,7 @@ export const resources = {
     account: accountPt,
     explore: explorePt,
     metadata: metadataPt,
+    blog: blogPt,
   },
   de: {
     common: commonDe,
@@ -274,6 +290,7 @@ export const resources = {
     account: accountDe,
     explore: exploreDe,
     metadata: metadataDe,
+    blog: blogDe,
   },
   nl: {
     common: commonNl,
@@ -290,6 +307,7 @@ export const resources = {
     account: accountNl,
     explore: exploreNl,
     metadata: metadataNl,
+    blog: blogNl,
   },
   cn: {
     common: commonCn,
@@ -306,6 +324,7 @@ export const resources = {
     account: accountCn,
     explore: exploreCn,
     metadata: metadataCn,
+    blog: blogCn,
   },
   jp: {
     common: commonJp,
@@ -322,6 +341,7 @@ export const resources = {
     account: accountJp,
     explore: exploreJp,
     metadata: metadataJp,
+    blog: blogJp,
   },
 };
 
@@ -341,7 +361,7 @@ if (!i18n.isInitialized) {
       escapeValue: false,
     },
     defaultNS: 'common',
-    ns: ['common', 'auth', 'pricing', 'styles', 'generate', 'inference', 'character', 'about', 'legal', 'upload', 'homepage', 'account', 'explore', 'metadata'],
+    ns: ['common', 'auth', 'pricing', 'styles', 'generate', 'inference', 'character', 'about', 'legal', 'upload', 'homepage', 'account', 'explore', 'metadata', 'blog'],
     resources,
   });
 }

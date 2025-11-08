@@ -128,10 +128,16 @@
 
 .thumbnailGrid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   border-radius: 28px;
   overflow: hidden;
   position: relative;
+}
+
+@media (max-width: 768px) {
+  .thumbnailGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .shootTitle {

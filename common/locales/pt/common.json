@@ -1,101 +1,102 @@
 {
-  "welcome": "Bem-vindo",
+  "welcome": "Welcome",
   "error": {
-    "title": "Erro",
-    "description": "Ocorreu um erro"
+    "title": "Error",
+    "description": "An error occurred"
   },
-  "language": "Idioma",
-  "loading": "A carregar...",
+  "language": "Language",
+  "loading": "Loading...",
   "buttons": {
-    "customize": "Personalizar",
-    "confirmChanges": "Confirmar alterações",
-    "addToShoot": "Adicionar ao ensaio",
-    "edit": "Editar",
-    "delete": "Eliminar",
-    "save": "Guardar",
-    "cancel": "Cancelar",
-    "back": "Voltar",
-    "close": "Fechar",
-    "next": "Seguinte",
-    "previous": "Ant.",
-    "keep": "Manter",
-    "discard": "Descartar",
-    "confirm": "Confirmar",
-    "remove": "Remover",
-    "add": "Adicionar",
-    "explore": "Explorar",
-    "signIn": "Entrar"
+    "customize": "Customize",
+    "confirmChanges": "Confirm changes",
+    "addToShoot": "Add to Shoot",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "close": "Close",
+    "next": "Next",
+    "previous": "Prev.",
+    "keep": "Keep it",
+    "discard": "Discard",
+    "confirm": "Confirm",
+    "remove": "Remove",
+    "add": "Add",
+    "explore": "Explore",
+    "signIn": "Sign in"
   },
   "navigation": {
-    "addStyles": "Adicionar estilos",
-    "payment": "Pagamento",
-    "uploadPhotos": "Carregar fotos",
-    "generate": "Gerar",
-    "explore": "Explorar",
-    "create": "Criar",
-    "pricing": "Preços",
+    "addStyles": "Add Styles",
+    "payment": "Payment",
+    "uploadPhotos": "Upload Photos",
+    "generate": "Generate",
+    "explore": "Explore",
+    "create": "Create",
+    "pricing": "Pricing",
     "admin": "Admin",
-    "menu": "Menu"
+    "menu": "Menu",
+    "blog": "Blog"
   },
   "userNav": {
-    "signOut": "Terminar sessão",
-    "accountSettings": "Definições da conta"
+    "signOut": "Sign out",
+    "accountSettings": "Account Settings"
   },
   "footer": {
-    "hero": "A sua imagem pertence-lhe.",
+    "hero": "Own your image.",
     "sections": {
-      "overview": "Visão Geral",
-      "latestStyles": "Últimos Estilos",
+      "overview": "Overview",
+      "latestStyles": "Latest Styles",
       "legal": "Legal",
-      "support": "Suporte"
+      "support": "Support"
     },
     "links": {
-      "explore": "Explorar",
-      "create": "Criar",
-      "pricing": "Preços e FAQ",
+      "explore": "Explore",
+      "create": "Create",
+      "pricing": "Pricing & FAQ",
       "studioPro": "Studio Pro",
       "business": "Business",
       "editorial": "Editorial",
-      "terms": "Termos e Condições",
-      "privacy": "Política de Privacidade",
-      "contact": "Contacte-nos",
-      "about": "Sobre nós"
+      "terms": "Terms and Conditions",
+      "privacy": "Privacy Policy",
+      "contact": "Contact us",
+      "about": "About us"
     },
-    "copyright": "© {{year}} Primeshot. Todos os direitos reservados"
+    "copyright": "© {{year}} Primeshot. All Rights Reserved"
   },
   "duration": {
-    "year_one": "{{count}} ano",
-    "year_other": "{{count}} anos",
-    "month_one": "{{count}} mês",
-    "month_other": "{{count}} meses",
-    "day_one": "{{count}} dia",
-    "day_other": "{{count}} dias"
+    "year_one": "{{count}} year",
+    "year_other": "{{count}} years",
+    "month_one": "{{count}} month",
+    "month_other": "{{count}} months",
+    "day_one": "{{count}} day",
+    "day_other": "{{count}} days"
   },
   "aria": {
-    "favourites": "Favoritos",
-    "avatar": "Avatar do utilizador",
+    "favorites": "Favorites",
+    "avatar": "User avatar",
     "brandLogo": "Primeshot"
   },
   "explore": {
-    "generateTooltip": "Aplicar este estilo"
+    "generateTooltip": "Apply this style"
   },
   "credits": {
-    "remaining_one": "{{value}} crédito restante",
-    "remaining_other": "{{value}} créditos restantes"
+    "remaining_one": "{{value}} credit remaining",
+    "remaining_other": "{{value}} credits remaining"
   },
   "contexts": {
     "dialogService": {
-      "defaultTitle": "Diálogo",
-      "defaultDescription": "Conteúdo",
-      "notReadyWarning": "DialogService não está pronto"
+      "defaultTitle": "Dialog",
+      "defaultDescription": "Content",
+      "notReadyWarning": "DialogService not ready"
     },
     "errors": {
       "missingProvider": {
-        "styleSelection": "useStyleSelection deve ser usado dentro de um StyleSelectionProvider",
-        "dialogService": "useDialogService deve ser usado dentro de um DialogServiceProvider",
-        "inferenceQueue": "useInferenceQueue deve ser usado dentro de um InferenceQueueProvider",
-        "carousel": "useCarouselContext deve ser usado dentro de um CarouselProvider",
-        "realtime": "useRealtime deve ser usado dentro de um RealtimeProvider"
+        "styleSelection": "useStyleSelection must be used within a StyleSelectionProvider",
+        "dialogService": "useDialogService must be used within DialogServiceProvider",
+        "inferenceQueue": "useInferenceQueue must be used within an InferenceQueueProvider",
+        "carousel": "useCarouselContext must be used within a CarouselProvider",
+        "realtime": "useRealtime must be used within a RealtimeProvider"
       }
     }
   }

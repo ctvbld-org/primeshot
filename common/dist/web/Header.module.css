@@ -140,10 +140,6 @@
   padding: 8px;
 }
 
-.mobileNavDialog > div {    
-  padding: 0 0 0 40px !important;
-}
-
 .mobileNavList {
   display: flex;
   flex-direction: column;
