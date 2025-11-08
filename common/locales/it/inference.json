@@ -199,7 +199,11 @@
       "serverBusy": "I nostri server erano temporaneamente occupati, i tuoi crediti sono stati rimborsati",
       "memory": "Capacità del server superata, i tuoi crediti sono stati rimborsati",
       "connection": "Problema di connessione temporaneo, i tuoi crediti sono stati rimborsati",
-      "imageGeneration": "La creazione non è andata a buon fine, i tuoi crediti sono stati rimborsati"
+      "imageGeneration": "La creazione non è andata a buon fine, i tuoi crediti sono stati rimborsati",
+      "missingStyle": "Lo stile o personaggio richiesto non è più disponibile. Crediti rimborsati.",
+      "validation": "Impostazioni non valide fornite. Crediti rimborsati.",
+      "resourceError": "Risorse insufficienti. Crediti rimborsati.",
+      "creditsRefunded": "Crediti rimborsati"
     },
     "confirmDelete": {
       "title": "Eliminare il servizio?",
@@ -255,6 +259,32 @@
       "title": "Eliminare l'immagine?",
       "description": "Questo rimuoverà l'immagine dalla tua galleria. Questa azione non può essere annullata.",
       "confirm": "Elimina"
+    }
+  },
+  "errors": {
+    "validation": {
+      "missingStyleOrCharacter": "Lo stile o personaggio richiesto non è più disponibile. Per favore riprova o seleziona uno stile diverso.",
+      "invalidParameter": "Valore del parametro non valido. Per favore riprova con impostazioni diverse.",
+      "workflowConfig": "Errore di configurazione del workflow. Per favore riprova o contatta il supporto.",
+      "invalidRequest": "Parametri della richiesta non validi. Per favore riprova."
+    },
+    "connection": {
+      "unavailable": "Servizio temporaneamente non disponibile. Per favore riprova tra un momento."
+    },
+    "timeout": {
+      "idle": "La generazione ha impiegato troppo tempo senza progressi. Questo può essere dovuto ad un carico elevato del server. Per favore riprova.",
+      "general": "Richiesta scaduta. Per favore riprova o usa impostazioni di qualità inferiore."
+    },
+    "endpoint": {
+      "configuration": "Errore di configurazione del servizio. Per favore contatta il supporto."
+    },
+    "resource": {
+      "insufficient": "Risorse insufficienti. Per favore riprova con risoluzione inferiore o meno immagini.",
+      "missing": "Risorsa richiesta non trovata. Per favore riprova o contatta il supporto se il problema persiste."
+    },
+    "generation": {
+      "failed": "Generazione fallita. Per favore riprova con impostazioni diverse.",
+      "general": "Si è verificato un errore durante la generazione. Per favore riprova."
     }
   }
 }

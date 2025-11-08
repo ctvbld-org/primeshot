@@ -199,7 +199,11 @@
       "serverBusy": "Onze servers waren tijdelijk bezet, je credits zijn terugbetaald",
       "memory": "Servercapaciteit overschreden, je credits zijn terugbetaald",
       "connection": "Tijdelijk verbindingsprobleem, je credits zijn terugbetaald",
-      "imageGeneration": "Het maken kon niet worden voltooid, je credits zijn terugbetaald"
+      "imageGeneration": "Het maken kon niet worden voltooid, je credits zijn terugbetaald",
+      "missingStyle": "De gevraagde stijl of karakter is niet langer beschikbaar. Credits terugbetaald.",
+      "validation": "Ongeldige instellingen verstrekt. Credits terugbetaald.",
+      "resourceError": "Onvoldoende middelen. Credits terugbetaald.",
+      "creditsRefunded": "Credits terugbetaald"
     },
     "confirmDelete": {
       "title": "Shoot verwijderen?",
@@ -255,6 +259,32 @@
       "title": "Afbeelding verwijderen?",
       "description": "Dit verwijdert de afbeelding uit je galerij. Dit kan niet ongedaan worden gemaakt.",
       "confirm": "Verwijderen"
+    }
+  },
+  "errors": {
+    "validation": {
+      "missingStyleOrCharacter": "De gevraagde stijl of karakter is niet langer beschikbaar. Probeer opnieuw of selecteer een andere stijl.",
+      "invalidParameter": "Ongeldige parameterwaarde. Probeer opnieuw met andere instellingen.",
+      "workflowConfig": "Workflow configuratiefout. Probeer opnieuw of neem contact op met support.",
+      "invalidRequest": "Ongeldige aanvraagparameters. Probeer opnieuw."
+    },
+    "connection": {
+      "unavailable": "Service tijdelijk niet beschikbaar. Probeer over een moment opnieuw."
+    },
+    "timeout": {
+      "idle": "Generatie duurde te lang zonder voortgang. Dit kan komen door hoge serverbelasting. Probeer opnieuw.",
+      "general": "Aanvraag time-out. Probeer opnieuw of gebruik lagere kwaliteitsinstellingen."
+    },
+    "endpoint": {
+      "configuration": "Service configuratiefout. Neem contact op met support."
+    },
+    "resource": {
+      "insufficient": "Onvoldoende middelen. Probeer opnieuw met lagere resolutie of minder afbeeldingen.",
+      "missing": "Vereiste resource niet gevonden. Probeer opnieuw of neem contact op met support als het probleem aanhoudt."
+    },
+    "generation": {
+      "failed": "Generatie mislukt. Probeer opnieuw met andere instellingen.",
+      "general": "Er is een fout opgetreden tijdens het genereren. Probeer opnieuw."
     }
   }
 }

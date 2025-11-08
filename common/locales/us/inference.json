@@ -199,7 +199,11 @@
       "serverBusy": "Server was busy, credits refunded",
       "memory": "Server overloaded, credits refunded",
       "connection": "Connection issue, credits refunded",
-      "imageGeneration": "Image generation failed, credits refunded"
+      "imageGeneration": "Image generation failed, credits refunded",
+      "missingStyle": "The requested style or character is no longer available. Credits refunded.",
+      "validation": "Invalid settings provided. Credits refunded.",
+      "resourceError": "Insufficient resources. Credits refunded.",
+      "creditsRefunded": "Credits refunded"
     },
     "confirmDelete": {
       "title": "Delete shoot?",
@@ -255,6 +259,32 @@
       "title": "Delete image?",
       "description": "This will remove the image from your gallery. Can't be undone.",
       "confirm": "Delete"
+    }
+  },
+  "errors": {
+    "validation": {
+      "missingStyleOrCharacter": "The requested style or character is no longer available. Please try again or select a different style.",
+      "invalidParameter": "Invalid parameter value. Please try again with different settings.",
+      "workflowConfig": "Workflow configuration error. Please try again or contact support.",
+      "invalidRequest": "Invalid request parameters. Please try again."
+    },
+    "connection": {
+      "unavailable": "Service temporarily unavailable. Please try again in a moment."
+    },
+    "timeout": {
+      "idle": "Generation took too long without progress. This may be due to high server load. Please try again.",
+      "general": "Request timed out. Please try again or use lower quality settings."
+    },
+    "endpoint": {
+      "configuration": "Service configuration error. Please contact support."
+    },
+    "resource": {
+      "insufficient": "Insufficient resources. Please try again with lower resolution or fewer images.",
+      "missing": "Required resource not found. Please try again or contact support if the issue persists."
+    },
+    "generation": {
+      "failed": "Generation failed. Please try again with different settings.",
+      "general": "An error occurred during generation. Please try again."
     }
   }
 }

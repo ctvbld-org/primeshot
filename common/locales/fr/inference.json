@@ -199,7 +199,11 @@
       "serverBusy": "Nos serveurs étaient temporairement indisponibles, vos crédits ont été remboursés",
       "memory": "Capacité serveur dépassée, vos crédits ont été remboursés",
       "connection": "Problème de connexion temporaire, vos crédits ont été remboursés",
-      "imageGeneration": "La création n'a pas abouti, vos crédits ont été remboursés"
+      "imageGeneration": "La création n'a pas abouti, vos crédits ont été remboursés",
+      "missingStyle": "Le style ou personnage demandé n'est plus disponible. Crédits remboursés.",
+      "validation": "Paramètres non valides fournis. Crédits remboursés.",
+      "resourceError": "Ressources insuffisantes. Crédits remboursés.",
+      "creditsRefunded": "Crédits remboursés"
     },
     "confirmDelete": {
       "title": "Supprimer le shooting ?",
@@ -255,6 +259,32 @@
       "title": "Supprimer l'image ?",
       "description": "Cela retirera l'image de votre galerie. Cette action ne peut pas être annulée.",
       "confirm": "Supprimer"
+    }
+  },
+  "errors": {
+    "validation": {
+      "missingStyleOrCharacter": "Le style ou personnage demandé n'est plus disponible. Veuillez réessayer ou sélectionner un style différent.",
+      "invalidParameter": "Valeur de paramètre non valide. Veuillez réessayer avec des paramètres différents.",
+      "workflowConfig": "Erreur de configuration du workflow. Veuillez réessayer ou contacter le support.",
+      "invalidRequest": "Paramètres de requête non valides. Veuillez réessayer."
+    },
+    "connection": {
+      "unavailable": "Service temporairement indisponible. Veuillez réessayer dans un instant."
+    },
+    "timeout": {
+      "idle": "La génération a pris trop de temps sans progression. Cela peut être dû à une charge serveur élevée. Veuillez réessayer.",
+      "general": "La requête a expiré. Veuillez réessayer ou utiliser des paramètres de qualité inférieure."
+    },
+    "endpoint": {
+      "configuration": "Erreur de configuration du service. Veuillez contacter le support."
+    },
+    "resource": {
+      "insufficient": "Ressources insuffisantes. Veuillez réessayer avec une résolution inférieure ou moins d'images.",
+      "missing": "Ressource requise introuvable. Veuillez réessayer ou contacter le support si le problème persiste."
+    },
+    "generation": {
+      "failed": "La génération a échoué. Veuillez réessayer avec des paramètres différents.",
+      "general": "Une erreur s'est produite pendant la génération. Veuillez réessayer."
     }
   }
 }

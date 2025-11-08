@@ -634,6 +634,10 @@ export declare const resources: {
                     memory: string;
                     connection: string;
                     imageGeneration: string;
+                    missingStyle: string;
+                    validation: string;
+                    resourceError: string;
+                    creditsRefunded: string;
                 };
                 confirmDelete: {
                     title: string;
@@ -689,6 +693,32 @@ export declare const resources: {
                     title: string;
                     description: string;
                     confirm: string;
+                };
+            };
+            errors: {
+                validation: {
+                    missingStyleOrCharacter: string;
+                    invalidParameter: string;
+                    workflowConfig: string;
+                    invalidRequest: string;
+                };
+                connection: {
+                    unavailable: string;
+                };
+                timeout: {
+                    idle: string;
+                    general: string;
+                };
+                endpoint: {
+                    configuration: string;
+                };
+                resource: {
+                    insufficient: string;
+                    missing: string;
+                };
+                generation: {
+                    failed: string;
+                    general: string;
                 };
             };
         };
@@ -1962,6 +1992,10 @@ export declare const resources: {
                     memory: string;
                     connection: string;
                     imageGeneration: string;
+                    missingStyle: string;
+                    validation: string;
+                    resourceError: string;
+                    creditsRefunded: string;
                 };
                 confirmDelete: {
                     title: string;
@@ -2017,6 +2051,32 @@ export declare const resources: {
                     title: string;
                     description: string;
                     confirm: string;
+                };
+            };
+            errors: {
+                validation: {
+                    missingStyleOrCharacter: string;
+                    invalidParameter: string;
+                    workflowConfig: string;
+                    invalidRequest: string;
+                };
+                connection: {
+                    unavailable: string;
+                };
+                timeout: {
+                    idle: string;
+                    general: string;
+                };
+                endpoint: {
+                    configuration: string;
+                };
+                resource: {
+                    insufficient: string;
+                    missing: string;
+                };
+                generation: {
+                    failed: string;
+                    general: string;
                 };
             };
         };
@@ -3268,6 +3328,10 @@ export declare const resources: {
                     memory: string;
                     connection: string;
                     imageGeneration: string;
+                    missingStyle: string;
+                    validation: string;
+                    resourceError: string;
+                    creditsRefunded: string;
                 };
                 confirmDelete: {
                     title: string;
@@ -3323,6 +3387,32 @@ export declare const resources: {
                     title: string;
                     description: string;
                     confirm: string;
+                };
+            };
+            errors: {
+                validation: {
+                    missingStyleOrCharacter: string;
+                    invalidParameter: string;
+                    workflowConfig: string;
+                    invalidRequest: string;
+                };
+                connection: {
+                    unavailable: string;
+                };
+                timeout: {
+                    idle: string;
+                    general: string;
+                };
+                endpoint: {
+                    configuration: string;
+                };
+                resource: {
+                    insufficient: string;
+                    missing: string;
+                };
+                generation: {
+                    failed: string;
+                    general: string;
                 };
             };
         };
@@ -4561,6 +4651,10 @@ export declare const resources: {
                     memory: string;
                     connection: string;
                     imageGeneration: string;
+                    missingStyle: string;
+                    validation: string;
+                    resourceError: string;
+                    creditsRefunded: string;
                 };
                 confirmDelete: {
                     title: string;
@@ -4616,6 +4710,32 @@ export declare const resources: {
                     title: string;
                     description: string;
                     confirm: string;
+                };
+            };
+            errors: {
+                validation: {
+                    missingStyleOrCharacter: string;
+                    invalidParameter: string;
+                    workflowConfig: string;
+                    invalidRequest: string;
+                };
+                connection: {
+                    unavailable: string;
+                };
+                timeout: {
+                    idle: string;
+                    general: string;
+                };
+                endpoint: {
+                    configuration: string;
+                };
+                resource: {
+                    insufficient: string;
+                    missing: string;
+                };
+                generation: {
+                    failed: string;
+                    general: string;
                 };
             };
         };
@@ -5854,6 +5974,10 @@ export declare const resources: {
                     memory: string;
                     connection: string;
                     imageGeneration: string;
+                    missingStyle: string;
+                    validation: string;
+                    resourceError: string;
+                    creditsRefunded: string;
                 };
                 confirmDelete: {
                     title: string;
@@ -5909,6 +6033,32 @@ export declare const resources: {
                     title: string;
                     description: string;
                     confirm: string;
+                };
+            };
+            errors: {
+                validation: {
+                    missingStyleOrCharacter: string;
+                    invalidParameter: string;
+                    workflowConfig: string;
+                    invalidRequest: string;
+                };
+                connection: {
+                    unavailable: string;
+                };
+                timeout: {
+                    idle: string;
+                    general: string;
+                };
+                endpoint: {
+                    configuration: string;
+                };
+                resource: {
+                    insufficient: string;
+                    missing: string;
+                };
+                generation: {
+                    failed: string;
+                    general: string;
                 };
             };
         };
@@ -7147,6 +7297,10 @@ export declare const resources: {
                     memory: string;
                     connection: string;
                     imageGeneration: string;
+                    missingStyle: string;
+                    validation: string;
+                    resourceError: string;
+                    creditsRefunded: string;
                 };
                 confirmDelete: {
                     title: string;
@@ -7202,6 +7356,32 @@ export declare const resources: {
                     title: string;
                     description: string;
                     confirm: string;
+                };
+            };
+            errors: {
+                validation: {
+                    missingStyleOrCharacter: string;
+                    invalidParameter: string;
+                    workflowConfig: string;
+                    invalidRequest: string;
+                };
+                connection: {
+                    unavailable: string;
+                };
+                timeout: {
+                    idle: string;
+                    general: string;
+                };
+                endpoint: {
+                    configuration: string;
+                };
+                resource: {
+                    insufficient: string;
+                    missing: string;
+                };
+                generation: {
+                    failed: string;
+                    general: string;
                 };
             };
         };
@@ -8440,6 +8620,10 @@ export declare const resources: {
                     memory: string;
                     connection: string;
                     imageGeneration: string;
+                    missingStyle: string;
+                    validation: string;
+                    resourceError: string;
+                    creditsRefunded: string;
                 };
                 confirmDelete: {
                     title: string;
@@ -8495,6 +8679,32 @@ export declare const resources: {
                     title: string;
                     description: string;
                     confirm: string;
+                };
+            };
+            errors: {
+                validation: {
+                    missingStyleOrCharacter: string;
+                    invalidParameter: string;
+                    workflowConfig: string;
+                    invalidRequest: string;
+                };
+                connection: {
+                    unavailable: string;
+                };
+                timeout: {
+                    idle: string;
+                    general: string;
+                };
+                endpoint: {
+                    configuration: string;
+                };
+                resource: {
+                    insufficient: string;
+                    missing: string;
+                };
+                generation: {
+                    failed: string;
+                    general: string;
                 };
             };
         };
@@ -9733,6 +9943,10 @@ export declare const resources: {
                     memory: string;
                     connection: string;
                     imageGeneration: string;
+                    missingStyle: string;
+                    validation: string;
+                    resourceError: string;
+                    creditsRefunded: string;
                 };
                 confirmDelete: {
                     title: string;
@@ -9788,6 +10002,32 @@ export declare const resources: {
                     title: string;
                     description: string;
                     confirm: string;
+                };
+            };
+            errors: {
+                validation: {
+                    missingStyleOrCharacter: string;
+                    invalidParameter: string;
+                    workflowConfig: string;
+                    invalidRequest: string;
+                };
+                connection: {
+                    unavailable: string;
+                };
+                timeout: {
+                    idle: string;
+                    general: string;
+                };
+                endpoint: {
+                    configuration: string;
+                };
+                resource: {
+                    insufficient: string;
+                    missing: string;
+                };
+                generation: {
+                    failed: string;
+                    general: string;
                 };
             };
         };
@@ -11027,6 +11267,10 @@ export declare const resources: {
                     memory: string;
                     connection: string;
                     imageGeneration: string;
+                    missingStyle: string;
+                    validation: string;
+                    resourceError: string;
+                    creditsRefunded: string;
                 };
                 confirmDelete: {
                     title: string;
@@ -11082,6 +11326,32 @@ export declare const resources: {
                     title: string;
                     description: string;
                     confirm: string;
+                };
+            };
+            errors: {
+                validation: {
+                    missingStyleOrCharacter: string;
+                    invalidParameter: string;
+                    workflowConfig: string;
+                    invalidRequest: string;
+                };
+                connection: {
+                    unavailable: string;
+                };
+                timeout: {
+                    idle: string;
+                    general: string;
+                };
+                endpoint: {
+                    configuration: string;
+                };
+                resource: {
+                    insufficient: string;
+                    missing: string;
+                };
+                generation: {
+                    failed: string;
+                    general: string;
                 };
             };
         };
@@ -12321,6 +12591,10 @@ export declare const resources: {
                     memory: string;
                     connection: string;
                     imageGeneration: string;
+                    missingStyle: string;
+                    validation: string;
+                    resourceError: string;
+                    creditsRefunded: string;
                 };
                 confirmDelete: {
                     title: string;
@@ -12376,6 +12650,32 @@ export declare const resources: {
                     title: string;
                     description: string;
                     confirm: string;
+                };
+            };
+            errors: {
+                validation: {
+                    missingStyleOrCharacter: string;
+                    invalidParameter: string;
+                    workflowConfig: string;
+                    invalidRequest: string;
+                };
+                connection: {
+                    unavailable: string;
+                };
+                timeout: {
+                    idle: string;
+                    general: string;
+                };
+                endpoint: {
+                    configuration: string;
+                };
+                resource: {
+                    insufficient: string;
+                    missing: string;
+                };
+                generation: {
+                    failed: string;
+                    general: string;
                 };
             };
         };

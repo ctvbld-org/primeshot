@@ -1,22 +1,24 @@
 {
+  "title": "开启机遇的AI专业照 | Primeshot",
+  "description": "让您的第一印象更出色。Primeshot将您的日常自拍转化为令人惊艳的专业级AI照片——精心打造，展现您的风格、抱负与故事。",
+  "keywords": [
+    "AI专业照",
+    "专业肖像",
+    "AI摄影",
+    "专业照生成器",
+    "职业形象",
+    "AI肖像",
+    "商务照"
+  ],
+  "og": {
     "title": "开启机遇的AI专业照 | Primeshot",
     "description": "让您的第一印象更出色。Primeshot将您的日常自拍转化为令人惊艳的专业级AI照片——精心打造，展现您的风格、抱负与故事。",
-    "keywords": [
-        "AI专业照",
-        "专业肖像",
-        "AI摄影",
-        "专业照生成器",
-        "职业形象",
-        "AI肖像",
-        "商务照"
-    ],
-    "og": {
-        "title": "开启机遇的AI专业照 | Primeshot",
-        "description": "让您的第一印象更出色。Primeshot将您的日常自拍转化为令人惊艳的专业级AI照片——精心打造，展现您的风格、抱负与故事。",
-        "imageAlt": "Primeshot - AI专业照"
-    },
-    "twitter": {
-        "title": "开启机遇的AI专业照 | Primeshot",
-        "description": "让您的第一印象更出色。Primeshot将您的日常自拍转化为令人惊艳的专业级AI照片——精心打造，展现您的风格、抱负与故事。"
-    }
+    "imageAlt": "Primeshot - AI专业照"
+  },
+  "twitter": {
+    "title": "开启机遇的AI专业照 | Primeshot",
+    "description": "让您的第一印象更出色。Primeshot将您的日常自拍转化为令人惊艳的专业级AI照片——精心打造，展现您的风格、抱负与故事。"
+  }
 }
+
+

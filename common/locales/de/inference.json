@@ -199,7 +199,11 @@
       "serverBusy": "Unsere Server waren vorübergehend ausgelastet, deine Credits wurden erstattet",
       "memory": "Serverkapazität überschritten, deine Credits wurden erstattet",
       "connection": "Vorübergehendes Verbindungsproblem, deine Credits wurden erstattet",
-      "imageGeneration": "Die Erstellung konnte nicht abgeschlossen werden, deine Credits wurden erstattet"
+      "imageGeneration": "Die Erstellung konnte nicht abgeschlossen werden, deine Credits wurden erstattet",
+      "missingStyle": "Der gewünschte Stil oder Charakter ist nicht mehr verfügbar. Credits erstattet.",
+      "validation": "Ungültige Einstellungen bereitgestellt. Credits erstattet.",
+      "resourceError": "Unzureichende Ressourcen. Credits erstattet.",
+      "creditsRefunded": "Credits erstattet"
     },
     "confirmDelete": {
       "title": "Shooting löschen?",
@@ -255,6 +259,32 @@
       "title": "Bild löschen?",
       "description": "Dies entfernt das Bild aus deiner Galerie. Diese Aktion kann nicht rückgängig gemacht werden.",
       "confirm": "Löschen"
+    }
+  },
+  "errors": {
+    "validation": {
+      "missingStyleOrCharacter": "Der gewünschte Stil oder Charakter ist nicht mehr verfügbar. Bitte versuche es erneut oder wähle einen anderen Stil.",
+      "invalidParameter": "Ungültiger Parameterwert. Bitte versuche es erneut mit anderen Einstellungen.",
+      "workflowConfig": "Workflow-Konfigurationsfehler. Bitte versuche es erneut oder kontaktiere den Support.",
+      "invalidRequest": "Ungültige Anfrageparameter. Bitte versuche es erneut."
+    },
+    "connection": {
+      "unavailable": "Service vorübergehend nicht verfügbar. Bitte versuche es in einem Moment erneut."
+    },
+    "timeout": {
+      "idle": "Die Generierung hat zu lange ohne Fortschritt gedauert. Dies kann an hoher Serverauslastung liegen. Bitte versuche es erneut.",
+      "general": "Anfrage-Zeitüberschreitung. Bitte versuche es erneut oder verwende niedrigere Qualitätseinstellungen."
+    },
+    "endpoint": {
+      "configuration": "Service-Konfigurationsfehler. Bitte kontaktiere den Support."
+    },
+    "resource": {
+      "insufficient": "Unzureichende Ressourcen. Bitte versuche es erneut mit niedrigerer Auflösung oder weniger Bildern.",
+      "missing": "Erforderliche Ressource nicht gefunden. Bitte versuche es erneut oder kontaktiere den Support, wenn das Problem weiterhin besteht."
+    },
+    "generation": {
+      "failed": "Generierung fehlgeschlagen. Bitte versuche es erneut mit anderen Einstellungen.",
+      "general": "Ein Fehler ist während der Generierung aufgetreten. Bitte versuche es erneut."
     }
   }
 }

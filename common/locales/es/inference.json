@@ -199,7 +199,11 @@
       "serverBusy": "Nuestros servidores estaban ocupados, tus créditos han sido reembolsados",
       "memory": "Capacidad del servidor superada, tus créditos han sido reembolsados",
       "connection": "Problema de conexión temporal, tus créditos han sido reembolsados",
-      "imageGeneration": "La creación no se completó, tus créditos han sido reembolsados"
+      "imageGeneration": "La creación no se completó, tus créditos han sido reembolsados",
+      "missingStyle": "El estilo o personaje solicitado ya no está disponible. Créditos reembolsados.",
+      "validation": "Configuración no válida. Créditos reembolsados.",
+      "resourceError": "Recursos insuficientes. Créditos reembolsados.",
+      "creditsRefunded": "Créditos reembolsados"
     },
     "confirmDelete": {
       "title": "¿Eliminar shooting?",
@@ -255,6 +259,32 @@
       "title": "¿Eliminar imagen?",
       "description": "Esto quitará la imagen de tu galería. Esta acción no se puede deshacer.",
       "confirm": "Eliminar"
+    }
+  },
+  "errors": {
+    "validation": {
+      "missingStyleOrCharacter": "El estilo o personaje solicitado ya no está disponible. Por favor, inténtalo de nuevo o selecciona un estilo diferente.",
+      "invalidParameter": "Valor de parámetro no válido. Por favor, inténtalo de nuevo con configuraciones diferentes.",
+      "workflowConfig": "Error de configuración del flujo de trabajo. Por favor, inténtalo de nuevo o contacta con soporte.",
+      "invalidRequest": "Parámetros de solicitud no válidos. Por favor, inténtalo de nuevo."
+    },
+    "connection": {
+      "unavailable": "Servicio temporalmente no disponible. Por favor, inténtalo de nuevo en un momento."
+    },
+    "timeout": {
+      "idle": "La generación tardó demasiado sin progreso. Esto puede deberse a alta carga del servidor. Por favor, inténtalo de nuevo.",
+      "general": "Se agotó el tiempo de espera de la solicitud. Por favor, inténtalo de nuevo o usa configuraciones de menor calidad."
+    },
+    "endpoint": {
+      "configuration": "Error de configuración del servicio. Por favor, contacta con soporte."
+    },
+    "resource": {
+      "insufficient": "Recursos insuficientes. Por favor, inténtalo de nuevo con menor resolución o menos imágenes.",
+      "missing": "Recurso requerido no encontrado. Por favor, inténtalo de nuevo o contacta con soporte si el problema persiste."
+    },
+    "generation": {
+      "failed": "La generación falló. Por favor, inténtalo de nuevo con configuraciones diferentes.",
+      "general": "Ocurrió un error durante la generación. Por favor, inténtalo de nuevo."
     }
   }
 }

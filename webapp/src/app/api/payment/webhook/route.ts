@@ -82,12 +82,44 @@ async function handleWebhookRequest(request: NextRequest): Promise<NextResponse>
     // Use centralized service client creation
     const supabase = createServiceClient();
 
+    // Check if we've already processed this event (deduplication)
+    const { data: existingEvent } = await supabase
+      .from('webhook_events')
+      .select('id, status')
+      .eq('stripe_event_id', event.id)
+      .single();
+    
+    if (existingEvent) {
+      devLog(`Webhook ${event.id} already processed with status: ${existingEvent.status}`);
+      return NextResponse.json({ 
+        received: true, 
+        status: 'duplicate',
+        message: 'Event already processed' 
+      });
+    }
+    
+    // Record that we're processing this event
+    const { error: insertError } = await supabase
+      .from('webhook_events')
+      .insert({
+        stripe_event_id: event.id,
+        event_type: event.type,
+        status: 'processing',
+        received_at: new Date().toISOString()
+      });
+    
+    if (insertError && insertError.code !== '23505') { // 23505 is unique violation
+      console.error('Failed to insert webhook event:', insertError);
+      // Continue processing anyway, but log the error
+    }
+
     // Handle different event types
+    let processingResult: any = null;
     try {
       switch (event.type) {
         case 'invoice.payment_succeeded': {
           const invoice = event.data.object as Stripe.Invoice;
-          await handleSubscriptionPaymentSucceeded(invoice, supabase);
+          processingResult = await handleSubscriptionPaymentSucceeded(invoice, supabase, event.id);
           devLog(`Processed invoice.payment_succeeded: ${invoice.id}`);
           break;
         }
@@ -132,6 +164,17 @@ async function handleWebhookRequest(request: NextRequest): Promise<NextResponse>
         default:
           devLog(`Ignored unhandled event type: ${event.type}`);
       }
+      
+      // Update webhook event status to completed
+      await supabase
+        .from('webhook_events')
+        .update({ 
+          status: 'completed',
+          processed_at: new Date().toISOString(),
+          result: processingResult
+        })
+        .eq('stripe_event_id', event.id);
+      
     } catch (eventError) {
       // Log the error but don't fail the webhook - this prevents Stripe from retrying
       const errorMessage = eventError instanceof Error ? eventError.message : 'Unknown error';
@@ -140,6 +183,16 @@ async function handleWebhookRequest(request: NextRequest): Promise<NextResponse>
       if (eventError instanceof Error && eventError.stack) {
         console.error(eventError.stack);
       }
+      
+      // Update webhook event status to failed
+      await supabase
+        .from('webhook_events')
+        .update({ 
+          status: 'failed',
+          processed_at: new Date().toISOString(),
+          error: errorMessage
+        })
+        .eq('stripe_event_id', event.id);
     }
 
     // Return a 200 success response to acknowledge receipt of the event
@@ -416,14 +469,15 @@ async function ensureSubscriptionRecord(
  */
 async function handleSubscriptionPaymentSucceeded(
   invoice: Stripe.Invoice,
-  supabase: SupabaseClient
+  supabase: SupabaseClient,
+  eventId: string
 ) {
   const customerId = (invoice as any).customer as string;
   let subscriptionId = (invoice as any).subscription as string;
 
   if (!customerId) {
     console.error(`No customer ID in invoice ${invoice.id}`);
-    return;
+    return { success: false, error: 'No customer ID' };
   }
 
   // Process subscription payments (both initial and renewal)
@@ -437,7 +491,7 @@ async function handleSubscriptionPaymentSucceeded(
 
   if (!validBillingReasons.includes(invoice.billing_reason as string)) {
     devLog(`Skipping invoice ${invoice.id} - billing reason: ${invoice.billing_reason}`);
-    return;
+    return { success: true, skipped: true, reason: 'invalid_billing_reason' };
   }
 
   // If no subscription ID in invoice, get it from Stripe by customer
@@ -451,14 +505,14 @@ async function handleSubscriptionPaymentSucceeded(
 
       if (subscriptions.data.length === 0) {
         console.error(`No active subscription found in Stripe for customer ${customerId}`);
-        return;
+        return { success: false, error: 'No active subscription' };
       }
 
       subscriptionId = subscriptions.data[0].id;
       devLog(`Found subscription ${subscriptionId} for customer ${customerId}`);
     } catch (error) {
       console.error(`Error fetching subscription from Stripe for customer ${customerId}:`, error);
-      return;
+      return { success: false, error: 'Failed to fetch subscription' };
     }
   }
 
@@ -467,7 +521,7 @@ async function handleSubscriptionPaymentSucceeded(
   
   if (!subscription) {
     console.error(`Failed to ensure subscription record exists for: ${subscriptionId}`);
-    return;
+    return { success: false, error: 'Failed to ensure subscription record' };
   }
 
   // Get plan details from Stripe and process atomically
@@ -496,6 +550,17 @@ async function handleSubscriptionPaymentSucceeded(
 
     devLog(`Processing invoice ${invoice.id} for subscription ${subscriptionId}: ${creditsIncluded} credits`);
 
+    // Calculate which month this is (for tracking)
+    const { data: subData } = await supabase
+      .from('user_subscriptions')
+      .select('created_at, last_awarded_month')
+      .eq('stripe_subscription_id', subscriptionId)
+      .single();
+    
+    const monthsSinceStart = subData?.created_at 
+      ? Math.floor((Date.now() - new Date(subData.created_at).getTime()) / (1000 * 60 * 60 * 24 * 365.25 / 12))
+      : 0;
+
     // Check for existing earned credits from this subscription (potential upgrade scenario)
     const { data: existingCredits, error: existingCreditsError } = await supabase
       .from('user_credits')
@@ -504,6 +569,7 @@ async function handleSubscriptionPaymentSucceeded(
       .eq('source_type', 'subscription')
       .eq('source_id', subscriptionId)
       .eq('transaction_type', 'earned')
+      .is('invoice_id', null) // Only check old credits without invoice_id
       .order('created_at', { ascending: false });
 
     if (existingCreditsError) {
@@ -536,7 +602,8 @@ async function handleSubscriptionPaymentSucceeded(
         .eq('user_id', subscription.user_id)
         .eq('source_type', 'subscription')
         .eq('source_id', subscriptionId)
-        .eq('transaction_type', 'earned');
+        .eq('transaction_type', 'earned')
+        .is('invoice_id', null); // Only expire old credits
 
       if (expireError) {
         console.error('Error expiring existing credits:', expireError.message);
@@ -551,20 +618,22 @@ async function handleSubscriptionPaymentSucceeded(
 
     const description = `Credits from subscription ${invoice.billing_reason === 'subscription_create' ? (isUpgrade ? 'upgrade' : 'activation') : 'renewal'} - ${subscription.plan_name}`;
     const metadata = {
-      invoice_id: invoice.id,
       billing_reason: invoice.billing_reason,
       billing_period_start: periodStartDate.toISOString(),
       billing_period_end: periodEndDate.toISOString(),
       is_upgrade: isUpgrade,
       was_upgrade: subscription.was_upgrade || false,
-      old_plan_name: subscription.old_plan_name
+      old_plan_name: subscription.old_plan_name,
+      webhook_event_id: eventId
     };
 
     if (creditsIncluded > 0) {
-      // Atomically update periods and award credits
-      const { error: atomicError } = await supabase.rpc('award_subscription_credits', {
+      // Use NEW idempotent RPC function with invoice tracking
+      const { data: result, error: atomicError } = await supabase.rpc('award_subscription_credits_idempotent', {
         p_user_id: subscription.user_id,
         p_subscription_id: subscriptionId,
+        p_invoice_id: invoice.id,
+        p_month_number: monthsSinceStart,
         p_credits: creditsIncluded,
         p_expires_at: periodEndDate.toISOString(),
         p_period_start: periodStartDate.toISOString(),
@@ -578,7 +647,28 @@ async function handleSubscriptionPaymentSucceeded(
         throw new Error(`Failed to process subscription credits atomically: ${atomicError.message}`);
       }
 
-      devLog(`Atomically awarded ${creditsIncluded} credits to user ${subscription.user_id}`);
+      devLog(`Credit award result:`, result);
+      
+      if (result.status === 'already_awarded') {
+        devLog(`Credits already awarded for invoice ${invoice.id} - idempotency check passed`);
+        return { 
+          success: true, 
+          status: 'already_awarded', 
+          invoice_id: invoice.id,
+          credit_id: result.credit_id 
+        };
+      }
+
+      devLog(`Atomically awarded ${creditsIncluded} credits to user ${subscription.user_id} (Month ${monthsSinceStart})`);
+      
+      return { 
+        success: true, 
+        status: 'awarded', 
+        invoice_id: invoice.id,
+        credits: creditsIncluded,
+        month_number: monthsSinceStart,
+        credit_id: result.credit_id 
+      };
     } else {
       // No credits to award, but still keep subscription periods up-to-date
       const { error: updateError } = await supabase
@@ -595,11 +685,17 @@ async function handleSubscriptionPaymentSucceeded(
       } else {
         devLog(`Updated subscription periods for ${subscriptionId} (no credits included)`);
       }
+      
+      return { 
+        success: true, 
+        status: 'no_credits', 
+        invoice_id: invoice.id 
+      };
     }
 
   } catch (stripeError) {
     console.error('Error processing subscription payment:', stripeError);
-    throw new Error('Failed to process subscription payment');
+    return { success: false, error: 'Failed to process subscription payment', details: stripeError };
   }
 }
 

@@ -194,12 +194,16 @@
       "failed": "生成失败"
     },
     "error": {
-      "generic": "出现了一些问题，您的积分已退还",
+      "generic": "出现了一些问题,您的积分已退还",
       "timeout": "创作时间超出预期，您的积分已退还",
       "serverBusy": "我们的服务器暂时繁忙，您的积分已退还",
       "memory": "服务器容量超限，您的积分已退还",
       "connection": "连接暂时中断，您的积分已退还",
-      "imageGeneration": "创作未能完成，您的积分已退还"
+      "imageGeneration": "创作未能完成，您的积分已退还",
+      "missingStyle": "所请求的风格或角色已不再可用。积分已退还。",
+      "validation": "提供的设置无效。积分已退还。",
+      "resourceError": "资源不足。积分已退还。",
+      "creditsRefunded": "积分已退还"
     },
     "confirmDelete": {
       "title": "删除拍摄？",
@@ -255,6 +259,32 @@
       "title": "删除图像？",
       "description": "这将从您的画廊中移除图像。此操作无法撤销。",
       "confirm": "删除"
+    }
+  },
+  "errors": {
+    "validation": {
+      "missingStyleOrCharacter": "所请求的风格或角色已不再可用。请重试或选择不同的风格。",
+      "invalidParameter": "参数值无效。请使用不同的设置重试。",
+      "workflowConfig": "工作流配置错误。请重试或联系支持。",
+      "invalidRequest": "请求参数无效。请重试。"
+    },
+    "connection": {
+      "unavailable": "服务暂时不可用。请稍后重试。"
+    },
+    "timeout": {
+      "idle": "生成时间过长且无进展。这可能是由于服务器负载较高。请重试。",
+      "general": "请求超时。请重试或使用较低的质量设置。"
+    },
+    "endpoint": {
+      "configuration": "服务配置错误。请联系支持。"
+    },
+    "resource": {
+      "insufficient": "资源不足。请使用较低分辨率或较少图像重试。",
+      "missing": "未找到所需资源。请重试，如果问题持续存在，请联系支持。"
+    },
+    "generation": {
+      "failed": "生成失败。请使用不同的设置重试。",
+      "general": "生成过程中发生错误。请重试。"
     }
   }
 }
