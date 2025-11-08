@@ -112,6 +112,7 @@ export function middleware(request: NextRequest) {
     pathname.endsWith('.jpeg') ||
     pathname.endsWith('.webp') ||
     pathname.endsWith('.ico') ||
+    pathname.endsWith('.txt') ||
     pathname.endsWith('.webmanifest')
   ) {
     return NextResponse.next()
