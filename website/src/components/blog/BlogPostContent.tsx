@@ -21,7 +21,7 @@ export function BlogPostContent({ content }: BlogPostContentProps) {
         darkMode={true}
         components={{
           // Use Next.js Image component
-          Image: ({ src, alt, ...props }) => {
+          Image: ({ src, alt, ...props }: { src: string; alt?: string; [key: string]: any }) => {
             return (
               <Image
                 src={src}
@@ -34,7 +34,7 @@ export function BlogPostContent({ content }: BlogPostContentProps) {
             );
           },
           // Use Next.js Link component
-          Link: ({ href, children, ...props }) => {
+          Link: ({ href, children, ...props }: { href: string; children: React.ReactNode; [key: string]: any }) => {
             if (href.startsWith('http')) {
               return (
                 <a href={href} target="_blank" rel="noopener noreferrer" {...props}>
