@@ -68,7 +68,15 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         } catch {        }
 
         // Precedence: URL > DB > cookie > localStorage > default
-        const storedLang = typeof window !== 'undefined' ? localStorage.getItem('i18nextLng') : null
+        // IMPORTANT: Only read localStorage AFTER hydration to prevent hydration mismatches
+        let storedLang: string | null = null
+        if (typeof window !== 'undefined' && isHydrated) {
+          try {
+            storedLang = localStorage.getItem('i18nextLng')
+          } catch {
+            // Ignore localStorage errors
+          }
+        }
         const lang = urlLocale || dbLang || cookieLocale || storedLang || 'us'
         
         // Only change language if it's different from current

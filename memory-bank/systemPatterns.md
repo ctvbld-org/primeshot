@@ -2796,6 +2796,23 @@ Detected changes in:
 Detected changes in:
 - webapp/src/app/api/payment/webhook/route.ts
 - website/src/app/[locale]/page.module.css
+
+
+**Auto-update 2025-11-09**:
+Detected changes in:
+- webapp/src/components/inference/InferenceJobGroup.module.css
+- website/src/app/[locale]/blog/[slug]/page.tsx
+- website/src/app/[locale]/blog/page.tsx
+- website/src/app/[locale]/blog/sitemap.ts
+- website/src/components/blog/BlogCard.tsx
+- website/src/components/blog/BlogGrid.tsx
+- website/src/components/blog/BlogHero.tsx
+- website/src/components/blog/BlogPostContent.tsx
+- website/src/components/blog/BlogPostHeader.tsx
+- website/src/components/blog/RelatedPosts.tsx
+- website/src/lib/notion/api.ts
+- website/src/lib/notion/client.ts
+- website/src/lib/notion/types.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

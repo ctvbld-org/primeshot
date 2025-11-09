@@ -167,15 +167,51 @@ export function GenerateBar({
       setInternalWardrobeValue(value)
     }
   }, [mode, selectedWardrobeId, onWardrobeClick])
-  const [selectedGender, setSelectedGender] = useState<'man' | 'woman'>(() => {
+  // Initialize with default to match server render, hydrate from localStorage in useEffect
+  const [selectedGender, setSelectedGender] = useState<'man' | 'woman'>('woman')
+  const [selectionVersion, setSelectionVersion] = useState(0)
+  const [isSwitchingGender, setIsSwitchingGender] = useState(false)
+
+  // Hydrate all localStorage state after mount (client-only) to prevent hydration mismatches
+  useEffect(() => {
+    // Hydrate gender
     try {
       const raw = localStorage.getItem('generation-wardrobe-gender')
       const v = raw ? JSON.parse(raw) : null
-      return v === 'man' || v === 'woman' ? v : 'woman'
-    } catch { return 'woman' }
-  })
-  const [selectionVersion, setSelectionVersion] = useState(0)
-  const [isSwitchingGender, setIsSwitchingGender] = useState(false)
+      if (v === 'man' || v === 'woman') {
+        setSelectedGender(v)
+      }
+    } catch {
+      // Ignore errors, keep default
+    }
+
+    // Hydrate generation settings
+    try {
+      const loadedNbTakes = load(STORAGE_KEYS.NB_TAKES, null)
+      if (loadedNbTakes !== null) setNbTakes(loadedNbTakes)
+
+      const loadedQuality = String(load(STORAGE_KEYS.QUALITY, ''))
+      if (loadedQuality) setQuality(loadedQuality)
+
+      const loadedAspectRatio = load(STORAGE_KEYS.ASPECT_RATIO, '')
+      if (loadedAspectRatio) setAspectRatio(loadedAspectRatio)
+    } catch {
+      // Ignore errors, keep defaults
+    }
+
+    // Hydrate selected character
+    try {
+      const saved = localStorage.getItem('character-selection')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (parsed?.modelId) {
+          setSelectedCharacterId(parsed.modelId)
+        }
+      }
+    } catch {
+      // Ignore errors, keep null
+    }
+  }, [])
 
   // Validation error state for required selectors
   const [errors, setErrors] = useState<{ character?: boolean; scene?: boolean; wardrobe?: boolean; color?: boolean }>({})
@@ -221,17 +257,14 @@ export function GenerateBar({
   const inferenceSettings = generationConfig?.inferenceSettings
   const generationCreditCosts = generationConfig?.creditCosts
   
-  const [nbTakes, setNbTakes] = useState<number>(() => load(STORAGE_KEYS.NB_TAKES, null))
-  const [quality, setQuality] = useState<QualityCode>(() => String(load(STORAGE_KEYS.QUALITY, '')))
-  const [aspectRatio, setAspectRatio] = useState<string>(() => load(STORAGE_KEYS.ASPECT_RATIO, ''))
+  // Initialize with defaults to match server render, hydrate from localStorage in useEffect
+  const [nbTakes, setNbTakes] = useState<number | null>(null)
+  const [quality, setQuality] = useState<QualityCode>('')
+  const [aspectRatio, setAspectRatio] = useState<string>('')
 
   // Selected character tracking (for selector thumbnail progress overlay)
-  const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(() => {
-    try {
-      const saved = localStorage.getItem('character-selection')
-      return saved ? JSON.parse(saved).modelId : null
-    } catch { return null }
-  })
+  // Initialize with null to match server render, hydrate from localStorage in useEffect
+  const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(null)
   
   // In demo mode, use controlled character selection
   const effectiveCharacterId = mode === 'demo' && demoSelectedCharacter !== undefined && demoSelectedCharacter !== null
