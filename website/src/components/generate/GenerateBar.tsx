@@ -1593,7 +1593,7 @@ export function GenerateBar({
               <span className={styles.settingLabel}>{t('settings.numberOfTakes', { ns: 'styles' })}</span>
               <SegmentedControl
                 options={(inferenceSettings?.nb_takes_options || []).map(n => ({ value: n, content: n }))}
-                value={nbTakes}
+                value={nbTakes ?? (inferenceSettings?.defaults?.nb_takes as number) ?? 4}
                 onChange={(n) => { const v = Number(n); setNbTakes(v); save(STORAGE_KEYS.NB_TAKES, v) }}
                 fullWidth
               />
