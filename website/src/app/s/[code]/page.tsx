@@ -62,7 +62,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const cdnUrl = `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/${exploreImage.s3_path}`;
     
     return {
-      title: `${metadata?.styleFormatted || 'AI Photoshoot'} | Primeshot',
+      title: `${metadata?.styleFormatted || 'AI Photoshoot'} | Primeshot`,
       description: 'Create your own AI photoshoot with Primeshot',
       openGraph: {
         title: `${metadata?.styleFormatted || 'AI Photoshoot'}`,
