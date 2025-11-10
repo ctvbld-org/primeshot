@@ -9,20 +9,19 @@ export async function GET(
   try {
     const supabase = await createClient();
     const { code } = await params;
-    const shortCode = code;
     
     // First, try to find in share_links (for user-shared images)
     const { data: shareLink } = await supabase
       .from('share_links')
       .select('*')
-      .eq('short_code', shortCode)
+      .eq('short_code', code)
       .maybeSingle();
     
     if (shareLink) {
       // Check if expired
       if (shareLink.expires_at && new Date(shareLink.expires_at) < new Date()) {
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-        return NextResponse.redirect(new URL(baseUrl));
+        return NextResponse.json({ redirectUrl: baseUrl });
       }
       
       // Increment click count (fire and forget)
@@ -41,14 +40,14 @@ export async function GET(
       if (shareLink.wardrobe_id) redirectUrl.searchParams.set('wardrobe', shareLink.wardrobe_id);
       if (shareLink.color_id) redirectUrl.searchParams.set('color', shareLink.color_id);
       
-      return NextResponse.redirect(redirectUrl);
+      return NextResponse.json({ redirectUrl: redirectUrl.toString() });
     }
     
     // If not in share_links, try explore_images (for explore page images)
     const { data: exploreImage } = await supabase
       .from('explore_images')
       .select('s3_path')
-      .eq('short_code', shortCode)
+      .eq('short_code', code)
       .maybeSingle();
     
     if (exploreImage) {
@@ -69,18 +68,18 @@ export async function GET(
         redirectUrl.searchParams.set('aspectRatio', metadata.aspectRatio);
         redirectUrl.searchParams.set('quality', metadata.resolution);
         
-        return NextResponse.redirect(redirectUrl);
+        return NextResponse.json({ redirectUrl: redirectUrl.toString() });
       }
     }
     
     // Not found in either table - redirect to homepage
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    return NextResponse.redirect(new URL(baseUrl));
+    return NextResponse.json({ redirectUrl: baseUrl });
     
   } catch (error) {
     console.error('Error in share redirect:', error);
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    return NextResponse.redirect(new URL(baseUrl));
+    return NextResponse.json({ redirectUrl: baseUrl });
   }
 }
 

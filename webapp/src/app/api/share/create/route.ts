@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { generateShortCode } from '@/lib/utils/short-code';
+import { getShareImageSignedUrl } from '@/lib/utils/share-image-url';
 
 interface CreateShareLinkRequest {
   shortCode?: string; // Optional pre-generated code
+  imageUrl?: string;  // Image URL to generate signed URL from
   styleId?: string;
   sceneId?: string;
   wardrobeId?: string;
@@ -23,7 +25,7 @@ export async function POST(request: NextRequest) {
     }
     
     const body: CreateShareLinkRequest = await request.json();
-    const { shortCode: providedCode, styleId, sceneId, wardrobeId, colorId, quality, aspectRatio } = body;
+    const { shortCode: providedCode, imageUrl, styleId, sceneId, wardrobeId, colorId, quality, aspectRatio } = body;
     
     // Validate that at least one parameter is provided
     if (!styleId && !sceneId && !wardrobeId && !colorId) {
@@ -86,6 +88,17 @@ export async function POST(request: NextRequest) {
       }
     }
     
+    // Generate signed URL for the image (if provided)
+    let signedImageUrl: string | null = null;
+    if (imageUrl) {
+      try {
+        signedImageUrl = await getShareImageSignedUrl(imageUrl);
+      } catch (error) {
+        console.error('Failed to generate signed URL:', error);
+        // Continue without signed URL - not critical
+      }
+    }
+    
     // Create share link (expires in 1 year)
     const expiresAt = new Date();
     expiresAt.setFullYear(expiresAt.getFullYear() + 1);
@@ -101,7 +114,8 @@ export async function POST(request: NextRequest) {
         quality,
         aspect_ratio: aspectRatio,
         user_id: user.id,
-        expires_at: expiresAt.toISOString()
+        expires_at: expiresAt.toISOString(),
+        signed_image_url: signedImageUrl
       })
       .select()
       .single();

@@ -90,7 +90,8 @@ export async function shareImage(options: ShareImageOptions): Promise<ShareResul
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...jobMetadata,
-          shortCode // Pass the pre-generated code
+          shortCode, // Pass the pre-generated code
+          imageUrl   // Pass image URL for signed URL generation
         })
       });
       
