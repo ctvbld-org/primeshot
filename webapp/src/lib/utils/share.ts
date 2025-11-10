@@ -36,7 +36,10 @@ export async function shareImage(options: ShareImageOptions): Promise<ShareResul
     const shortCode = generateShortCode(6);
     
     // Use NEXT_PUBLIC_WEBSITE_URL for root domain (without /create)
-    const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || window.location.origin.replace(/\/create$/, '');
+    let baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || window.location.origin.replace(/\/create$/, '');
+    // Remove trailing slash to prevent double slashes
+    baseUrl = baseUrl.replace(/\/$/, '');
+    
     const shareUrl = `${baseUrl}/s/${shortCode}`;
     
     // Step 2: Build share text with short URL

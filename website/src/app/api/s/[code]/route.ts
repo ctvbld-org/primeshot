@@ -10,6 +10,9 @@ export async function GET(
     const supabase = await createClient();
     const { code } = await params;
     
+    // Get the origin from the request (works in both local and production)
+    const origin = request.nextUrl.origin;
+    
     // First, try to find in share_links (for user-shared images)
     const { data: shareLink } = await supabase
       .from('share_links')
@@ -20,8 +23,7 @@ export async function GET(
     if (shareLink) {
       // Check if expired
       if (shareLink.expires_at && new Date(shareLink.expires_at) < new Date()) {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-        return NextResponse.json({ redirectUrl: baseUrl });
+        return NextResponse.json({ redirectUrl: origin });
       }
       
       // Increment click count (fire and forget)
@@ -32,8 +34,7 @@ export async function GET(
         .then(() => {});
       
       // Build redirect URL with style parameters
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-      const redirectUrl = new URL(`${baseUrl}/create`);
+      const redirectUrl = new URL(`${origin}/create`);
       
       if (shareLink.style_id) redirectUrl.searchParams.set('style', shareLink.style_id);
       if (shareLink.scene_id) redirectUrl.searchParams.set('scene', shareLink.scene_id);
@@ -56,8 +57,7 @@ export async function GET(
       const metadata = parseExploreImageFilename(filename);
       
       if (metadata) {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-        const redirectUrl = new URL(`${baseUrl}/create`);
+        const redirectUrl = new URL(`${origin}/create`);
         
         // Use parsed metadata to build URL params
         const styleSlug = metadata.styleFormatted.toLowerCase().replace(/\s+/g, '');
@@ -73,13 +73,12 @@ export async function GET(
     }
     
     // Not found in either table - redirect to homepage
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    return NextResponse.json({ redirectUrl: baseUrl });
+    return NextResponse.json({ redirectUrl: origin });
     
   } catch (error) {
     console.error('Error in share redirect:', error);
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    return NextResponse.json({ redirectUrl: baseUrl });
+    // Fallback to request origin
+    return NextResponse.json({ redirectUrl: request.nextUrl.origin });
   }
 }
 
