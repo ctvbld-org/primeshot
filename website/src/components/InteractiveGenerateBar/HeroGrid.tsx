@@ -111,15 +111,12 @@ export function HeroGrid() {
   const [mobileTouchPosition, setMobileTouchPosition] = useState<number>(0)
   const [touchStartPos, setTouchStartPos] = useState<{ x: number; y: number } | null>(null)
   const [dynamicEntryEdge, setDynamicEntryEdge] = useState<'left' | 'right' | 'top' | 'bottom' | null>(null)
-  const [headerVisible, setHeaderVisible] = useState(false)
+  // Initialize true to match server render and avoid hydration mismatch
+  // CSS will handle the initial fade-in animation
+  const [headerVisible, setHeaderVisible] = useState(true)
   const containerRef = useRef<HTMLDivElement>(null)
   const isFirstMove = useRef<boolean>(true)
   const isFirstTouch = useRef<boolean>(true)
-  
-  // Show header on mount
-  useEffect(() => {
-    setHeaderVisible(true)
-  }, [])
 
   const gridImages = [
     { 

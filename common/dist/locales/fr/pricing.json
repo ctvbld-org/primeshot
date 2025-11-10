@@ -1,222 +1,222 @@
 {
-  "buyCredits": {
-    "title": "Acheter des crédits",
-    "description": "Choisissez un pack de crédits"
-  },
-  "upgradePlan": {
-    "title": "Améliorer le forfait",
-    "description": "Choisissez un forfait d'abonnement"
-  },
-  "purchase": {
-    "success": {
-      "subscriptionTitle": "Vous avez mis à niveau avec succès vers {{plan}}",
-      "subscriptionTitleNew": "Bienvenue dans {{plan}} !",
-      "creditsTitle": "Crédits ajoutés !",
-      "subscriptionDescriptionWithCredits": "Votre nouveau cycle de facturation d'abonnement commence aujourd'hui. Profitez de {{amount}} crédits et bien plus encore !",
-      "subscriptionDescriptionWithCreditsNew": "Votre cycle de facturation commence aujourd'hui. Profitez de {{amount}} crédits et bien plus encore !",
-      "subscriptionDescription": "Votre nouveau cycle de facturation d'abonnement commence aujourd'hui. Profitez de vos nouveaux avantages !",
-      "subscriptionDescriptionNew": "Votre cycle de facturation commence aujourd'hui. Profitez de vos nouveaux avantages !",
-      "creditsDescription": "Votre solde a été mis à jour. Vous pouvez commencer à générer maintenant.",
-      "returnToShoot": "Retourner au shooting",
-      "defaultPlan": "votre nouveau forfait"
-    }
-  },
-  "subscription": {
-    "context": {
-      "characterLimit": { "title": "Vous avez atteint votre limite de persos.", "description": "Améliorez votre forfait pour obtenir des persos supplémentaires" },
-      "qualityUpgrade": { "title": "Vous voulez une meilleure qualité ?", "description": "Améliorez votre forfait pour des images plus nettes et des avantages supplémentaires" },
-      "creditUpgrade": { "title": "Vous manquez de crédits ?", "description": "Améliorez votre forfait pour obtenir plus de crédits mensuellement" },
-      "general": { "title": "Améliorez votre forfait", "description": "Débloquez plus de fonctionnalités et de flexibilité" },
-      "default": { "title": "Choisissez votre forfait", "description": "Choisissez ce qui vous convient, changez à tout moment" }
+    "buyCredits": {
+        "title": "Acheter des crédits",
+        "description": "Choisissez un pack de crédits"
     },
-    "loading": "Chargement des forfaits...",
-    "empty": {
-      "title": "Aucune amélioration disponible",
-      "description": "Vous êtes déjà sur le forfait le plus élevé disponible."
+    "upgradePlan": {
+        "title": "Améliorer le forfait",
+        "description": "Choisissez un forfait d'abonnement"
     },
-    "headers": {
-      "chooseYourPlan": "Choisissez votre forfait"
-    },
-    "banner": {
-      "titleStart": "Offre à vie limitée",
-      "description": "Profitez de 70 % de réduction sur les forfaits annuels, ou 50 % sur les forfaits mensuels.",
-      "small": "Limité à 300 membres uniquement. L'offre à vie continue jusqu'à annulation."
-    },
-    "toggle": {
-      "monthly": "Mensuel",
-      "yearly": "Annuel",
-      "aria": "Cycle de facturation"
-    },
-    "card": {
-      "recommended": "Recommandé",
-      "save": "Économisez {{pct}}%",
-      "perMonth": "/ mois",
-      "billed": "Facturé {{cycle}}",
-      "creditsCount": "{{count}} crédits",
-      "perMonthWord": "par mois",
-      "perCredit": "{{price}} par crédit",
-      "button": {
-        "select": "Sélectionner le forfait",
-        "current": "Forfait actuel",
-        "processing": "Traitement en cours…",
-        "disabledTooltip": "Indisponible pendant l'offre spéciale 🚀"
-      },
-      "features": {
-        "quality": "Images de qualité {{quality}}",
-        "characterIncluded": "{{count}}x Perso inclus",
-        "maxCharacters": "Jusqu'à {{count}} stockage de persos",
-        "concurrentShoots": "Jusqu'à {{count}} shootings simultanés",
-        "commercialUse": "Usage commercial"
-      }
-    },
-    "footer": {
-      "upgradeNotice": "Votre abonnement actuel sera annulé et remplacé par le nouveau forfait. Les crédits existants seront préservés.",
-      "buyCreditPack": "Acheter un pack de crédits"
-    },
-    "toasts": {
-      "loginRequired": "Veuillez vous connecter",
-      "selectPlan": "Veuillez sélectionner un forfait",
-      "invalidPlan": "Forfait d'abonnement sélectionné invalide",
-      "openingPortal": "Ouverture du portail client Stripe...",
-      "customerPortalFailed": "Échec de l'ouverture du portail client",
-      "upgradePreviewFailed": "Échec de l'ouverture de l'aperçu de mise à niveau",
-      "upgraded": "Abonnement mis à niveau avec succès !",
-      "checkoutFailed": "Échec du paiement",
-      "invalidCheckout": "Réponse invalide du paiement"
-    }
-  },
-  "credits": {
-    "dialog": {
-      "headerSub": {
-        "lowBalance": "Solde de crédits trop bas.",
-        "creativity": "Alimentez votre créativité 🚀"
-      },
-      "headerTitle": {
-        "lowBalance": "Rechargez vos crédits pour continuer à générer",
-        "fun": "Plus de crédits, plus de créations, plus de plaisir !"
-      }
-    },
-    "card": {
-      "images": "Jusqu'à {{count}} images {{quality}}",
-      "characters": "Jusqu'à {{count}} persos",
-      "footnote": "*Forfaits Standard et Pro uniquement",
-      "button": {
-        "buy": "Acheter",
-        "processing": "Traitement en cours…"
-      },
-      "validity": "Valide pendant {{duration}}",
-      "oneTime": "unique",
-      "perCredit": "{{price}} par crédit",
-      "perCreditWord": "par crédit"
-    },
-    "toasts": {
-      "loginRequired": "Veuillez vous connecter",
-      "invalidPackConfig": "Configuration de pack de crédits invalide",
-      "createCheckoutFailed": "Échec de la création de la session de paiement",
-      "purchaseFailed": "Échec de l'achat du pack de crédits"
-    }
-  },
-  "comparisonTable": {
-    "categories": {
-      "credits": "Crédits",
-      "image": "Image",
-      "characters": "Personnages",
-      "generation": "Génération",
-      "support": "Assistance"
-    },
-    "features": {
-      "creditsPerMonth": "Crédits par mois",
-      "pricePerCredit": "Prix par crédit",
-      "resolution": "Résolution",
-      "takesPerShoot": "Prises par séance",
-      "portraitAspectRatio": "Format portrait",
-      "squareAspectRatio": "Format carré",
-      "landscapeAspectRatio": "Format paysage",
-      "included": "Inclus",
-      "storage": "Stockage",
-      "concurrentShoots": "Séances simultanées",
-      "commercialUse": "Usage commercial",
-      "priorityFeatures": "Accès prioritaire aux nouvelles fonctionnalités",
-      "premiumStyles": "Styles premium",
-      "betaAccess": "Accès aux tests bêta",
-      "emailSupport": "Assistance par e-mail",
-      "chatSupport": "Assistance par chat",
-      "dedicatedSupport": "Assistance dédiée"
-    },
-    "values": {
-      "upTo": "Jusqu'à {{value}}",
-      "basicQuality": "Qualité basique",
-      "highQuality": "Haute qualité"
-    }
-  },
-  "page": {
-    "title": "Tarifs",
-    "header": {
-      "title": "Des forfaits simples, des styles infinis.",
-      "subtitle": "Annulez ou changez à tout moment.",
-      "savingsText": "Économisez jusqu'à",
-      "savingsHighlight": "40%",
-      "savingsOn": "sur les forfaits annuels"
-    },
-    "tabs": {
-      "monthly": "Mensuel",
-      "annual": "Annuel"
-    },
-    "buttons": {
-      "getStarted": "Commencer",
-      "selectPlan": "Sélectionner le forfait",
-      "currentPlan": "Forfait actuel",
-      "processing": "Traitement..."
-    },
-    "loading": "Chargement des tarifs...",
-    "comparison": {
-      "title": "Comparer les forfaits",
-      "description": "Améliorez votre forfait pour débloquer des portraits haute résolution, plus de crédits, des persos réutilisables et un traitement prioritaire."
-    },
-    "faq": {
-      "title": "Des questions ?",
-      "subtitle": "Tout ce que vous devez savoir sur nos tarifs et fonctionnalités",
-      "items": {
-        "character": {
-          "question": "Qu'est-ce qu'un perso et comment fonctionne-t-il ?",
-          "answer": "Un perso est votre propre modèle IA personnalisé, entraîné à partir de 9 selfies. Il apprend vos traits faciaux exacts—structure, teint, cheveux—pour que chaque portrait vous ressemble authentiquement. Selon votre forfait, vous obtenez 1 à 3 persos inclus. Les persos supplémentaires coûtent 30 crédits chacun, et une fois créés, vous pouvez les réutiliser à tout moment pour de nouvelles séances avec différentes tenues, scènes et styles."
-        },
-        "credits": {
-          "question": "Comment fonctionnent les crédits ?",
-          "answer": "Les crédits sont votre solde pour entraîner des persos et générer des images. L'entraînement d'un perso coûte 30 crédits. La génération d'images coûte 1 crédit pour la qualité basique (1K), 2 pour moyenne (2K) et 3 pour haute (4K). Votre forfait inclut une allocation mensuelle de crédits qui se renouvelle à chaque cycle de facturation."
-        },
-        "commercial": {
-          "question": "Puis-je utiliser mes images commercialement ?",
-          "answer": "Oui. Toutes les images que vous générez sont les vôtres, sans restrictions—que ce soit pour LinkedIn, des sites web, du marketing ou de l'impression."
-        },
-        "privacy": {
-          "question": "Comment protégez-vous ma vie privée et mes données ?",
-          "answer": "Vos photos et persos sont stockés en toute sécurité et ne sont jamais partagés, vendus ou utilisés pour nos propres entraînements. Vous pouvez supprimer des persos individuels ou votre compte entier à tout moment. Aucun accès tiers ne se produit sans votre consentement."
-        },
-        "changePlan": {
-          "question": "Puis-je changer ou annuler mon forfait ?",
-          "answer": "Oui. Vous pouvez améliorer ou réduire votre forfait à tout moment dans les paramètres de votre compte. Les améliorations prennent effet immédiatement avec facturation au prorata ; les réductions prennent effet au cycle suivant. Si vous annulez, vous conservez l'accès jusqu'à la fin de votre cycle actuel. Nous conservons vos données pendant 60 jours pour que vous puissiez vous réabonner sans rien perdre—après cela, elles sont définitivement supprimées."
-        },
-        "rollover": {
-          "question": "Les crédits non utilisés sont-ils reportés ?",
-          "answer": "Non. Les crédits expirent à la fin de chaque cycle de facturation, et votre allocation se renouvelle."
-        },
-        "moreCredits": {
-          "question": "Comment puis-je obtenir plus de crédits ?",
-          "answer": "Vous pouvez améliorer votre abonnement pour une limite mensuelle plus élevée ou acheter des packs de crédits uniques depuis votre compte."
-        },
-        "refund": {
-          "question": "Quelle est votre politique de remboursement ?",
-          "answer": "Les abonnements et packs de crédits ne sont pas remboursables. S'il y a un problème technique—comme une génération échouée—contactez l'assistance pour une évaluation et un éventuel ajustement de crédits."
-        },
-        "deleteAccount": {
-          "question": "Comment supprimer mon compte ?",
-          "answer": "Dans les paramètres de votre compte, sélectionnez \"Supprimer le compte\" pour retirer définitivement toutes les photos, persos et images. C'est irréversible, alors téléchargez d'abord tout ce que vous voulez conserver."
+    "purchase": {
+        "success": {
+            "subscriptionTitle": "Vous avez mis à niveau avec succès vers {{plan}}",
+            "subscriptionTitleNew": "Bienvenue dans {{plan}} !",
+            "creditsTitle": "Crédits ajoutés !",
+            "subscriptionDescriptionWithCredits": "Votre nouveau cycle de facturation d'abonnement commence aujourd'hui. Profitez de {{amount}} crédits et bien plus encore !",
+            "subscriptionDescriptionWithCreditsNew": "Votre cycle de facturation commence aujourd'hui. Profitez de {{amount}} crédits et bien plus encore !",
+            "subscriptionDescription": "Votre nouveau cycle de facturation d'abonnement commence aujourd'hui. Profitez de vos nouveaux avantages !",
+            "subscriptionDescriptionNew": "Votre cycle de facturation commence aujourd'hui. Profitez de vos nouveaux avantages !",
+            "creditsDescription": "Votre solde a été mis à jour. Vous pouvez commencer à générer maintenant.",
+            "returnToShoot": "Retourner au shooting",
+            "defaultPlan": "votre nouveau forfait"
         }
-      }
     },
-    "signIn": {
-      "modalTitle": "Connectez-vous pour continuer"
+    "subscription": {
+        "context": {
+            "characterLimit": { "title": "Vous avez atteint votre limite de persos.", "description": "Améliorez votre forfait pour obtenir des persos supplémentaires" },
+            "qualityUpgrade": { "title": "Vous voulez une meilleure qualité ?", "description": "Améliorez votre forfait pour des images plus nettes et des avantages supplémentaires" },
+            "creditUpgrade": { "title": "Vous manquez de crédits ?", "description": "Améliorez votre forfait pour obtenir plus de crédits mensuellement" },
+            "general": { "title": "Améliorez votre forfait", "description": "Débloquez plus de fonctionnalités et de flexibilité" },
+            "default": { "title": "Choisissez votre forfait", "description": "Choisissez ce qui vous convient, changez à tout moment" }
+        },
+        "loading": "Chargement des forfaits...",
+        "empty": {
+            "title": "Aucune amélioration disponible",
+            "description": "Vous êtes déjà sur le forfait le plus élevé disponible."
+        },
+        "headers": {
+            "chooseYourPlan": "Choisissez votre forfait"
+        },
+        "banner": {
+            "titleStart": "Offre à vie limitée",
+            "description": "Profitez de 70 % de réduction sur les forfaits annuels, ou 50 % sur les forfaits mensuels.",
+            "small": "Limité à 300 membres uniquement. L'offre à vie continue jusqu'à annulation."
+        },
+        "toggle": {
+            "monthly": "Mensuel",
+            "yearly": "Annuel",
+            "aria": "Cycle de facturation"
+        },
+        "card": {
+            "recommended": "Recommandé",
+            "save": "Économisez {{pct}}%",
+            "perMonth": "/ mois",
+            "billed": "Facturé {{cycle}}",
+            "creditsCount": "{{count}} crédits",
+            "perMonthWord": "par mois",
+            "perCredit": "{{price}} par crédit",
+            "button": {
+                "select": "Sélectionner le forfait",
+                "current": "Forfait actuel",
+                "processing": "Traitement en cours…",
+                "disabledTooltip": "Indisponible pendant l'offre spéciale 🚀"
+            },
+            "features": {
+                "quality": "Images de qualité {{quality}}",
+                "characterIncluded": "{{count}}x Perso inclus",
+                "maxCharacters": "Jusqu'à {{count}} stockage de persos",
+                "concurrentShoots": "Jusqu'à {{count}} shootings simultanés",
+                "commercialUse": "Usage commercial"
+            }
+        },
+        "footer": {
+            "upgradeNotice": "Votre abonnement actuel sera annulé et remplacé par le nouveau forfait. Les crédits existants seront préservés.",
+            "buyCreditPack": "Acheter un pack de crédits"
+        },
+        "toasts": {
+            "loginRequired": "Veuillez vous connecter",
+            "selectPlan": "Veuillez sélectionner un forfait",
+            "invalidPlan": "Forfait d'abonnement sélectionné invalide",
+            "openingPortal": "Ouverture du portail client Stripe...",
+            "customerPortalFailed": "Échec de l'ouverture du portail client",
+            "upgradePreviewFailed": "Échec de l'ouverture de l'aperçu de mise à niveau",
+            "upgraded": "Abonnement mis à niveau avec succès !",
+            "checkoutFailed": "Échec du paiement",
+            "invalidCheckout": "Réponse invalide du paiement"
+        }
+    },
+    "credits": {
+        "dialog": {
+            "headerSub": {
+                "lowBalance": "Solde de crédits trop bas.",
+                "creativity": "Alimentez votre créativité 🚀"
+            },
+            "headerTitle": {
+                "lowBalance": "Rechargez vos crédits pour continuer à générer",
+                "fun": "Plus de crédits, plus de créations, plus de plaisir !"
+            }
+        },
+        "card": {
+            "images": "Jusqu'à {{count}} images {{quality}}",
+            "characters": "Jusqu'à {{count}} persos",
+            "footnote": "*Forfaits Standard et Pro uniquement",
+            "button": {
+                "buy": "Acheter",
+                "processing": "Traitement en cours…"
+            },
+            "validity": "Valide pendant {{duration}}",
+            "oneTime": "unique",
+            "perCredit": "{{price}} par crédit",
+            "perCreditWord": "par crédit"
+        },
+        "toasts": {
+            "loginRequired": "Veuillez vous connecter",
+            "invalidPackConfig": "Configuration de pack de crédits invalide",
+            "createCheckoutFailed": "Échec de la création de la session de paiement",
+            "purchaseFailed": "Échec de l'achat du pack de crédits"
+        }
+    },
+    "comparisonTable": {
+        "categories": {
+            "credits": "Crédits",
+            "image": "Image",
+            "characters": "Personnages",
+            "generation": "Génération",
+            "support": "Assistance"
+        },
+        "features": {
+            "creditsPerMonth": "Crédits par mois",
+            "pricePerCredit": "Prix par crédit",
+            "resolution": "Résolution",
+            "takesPerShoot": "Prises par séance",
+            "portraitAspectRatio": "Format portrait",
+            "squareAspectRatio": "Format carré",
+            "landscapeAspectRatio": "Format paysage",
+            "included": "Inclus",
+            "storage": "Stockage",
+            "concurrentShoots": "Séances simultanées",
+            "commercialUse": "Usage commercial",
+            "priorityFeatures": "Accès prioritaire aux nouvelles fonctionnalités",
+            "premiumStyles": "Styles premium",
+            "betaAccess": "Accès aux tests bêta",
+            "emailSupport": "Assistance par e-mail",
+            "chatSupport": "Assistance par chat",
+            "dedicatedSupport": "Assistance dédiée"
+        },
+        "values": {
+            "upTo": "Jusqu'à {{value}}",
+            "basicQuality": "Qualité basique",
+            "highQuality": "Haute qualité"
+        }
+    },
+    "page": {
+        "title": "Tarifs",
+        "header": {
+            "title": "Des forfaits simples, des styles infinis.",
+            "subtitle": "Annulez ou changez à tout moment.",
+            "savingsText": "Économisez jusqu'à",
+            "savingsHighlight": "40%",
+            "savingsOn": "sur les forfaits annuels"
+        },
+        "tabs": {
+            "monthly": "Mensuel",
+            "annual": "Annuel"
+        },
+        "buttons": {
+            "getStarted": "Commencer",
+            "selectPlan": "Sélectionner le forfait",
+            "currentPlan": "Forfait actuel",
+            "processing": "Traitement..."
+        },
+        "loading": "Chargement des tarifs...",
+        "comparison": {
+            "title": "Comparer les forfaits",
+            "description": "Améliorez votre forfait pour débloquer des portraits haute résolution, plus de crédits, des persos réutilisables et un traitement prioritaire."
+        },
+        "faq": {
+            "title": "Des questions ?",
+            "subtitle": "Tout ce que vous devez savoir sur nos tarifs et fonctionnalités",
+            "items": {
+                "character": {
+                    "question": "Qu'est-ce qu'un perso et comment fonctionne-t-il ?",
+                    "answer": "Un perso est votre propre modèle IA personnalisé, entraîné à partir de 9 selfies. Il apprend vos traits faciaux exacts—structure, teint, cheveux—pour que chaque portrait vous ressemble authentiquement. Selon votre forfait, vous obtenez 1 à 3 persos inclus. Les persos supplémentaires coûtent 30 crédits chacun, et une fois créés, vous pouvez les réutiliser à tout moment pour de nouvelles séances avec différentes tenues, scènes et styles."
+                },
+                "credits": {
+                    "question": "Comment fonctionnent les crédits ?",
+                    "answer": "Les crédits sont votre solde pour entraîner des persos et générer des images. L'entraînement d'un perso coûte 30 crédits. La génération d'images coûte 1 crédit pour la qualité basique (1K), 2 pour moyenne (2K) et 3 pour haute (4K). Votre forfait inclut une allocation mensuelle de crédits qui se renouvelle à chaque cycle de facturation."
+                },
+                "commercial": {
+                    "question": "Puis-je utiliser mes images commercialement ?",
+                    "answer": "Oui. Toutes les images que vous générez sont les vôtres, sans restrictions—que ce soit pour LinkedIn, des sites web, du marketing ou de l'impression."
+                },
+                "privacy": {
+                    "question": "Comment protégez-vous ma vie privée et mes données ?",
+                    "answer": "Vos photos et persos sont stockés en toute sécurité et ne sont jamais partagés, vendus ou utilisés pour nos propres entraînements. Vous pouvez supprimer des persos individuels ou votre compte entier à tout moment. Aucun accès tiers ne se produit sans votre consentement."
+                },
+                "changePlan": {
+                    "question": "Puis-je changer ou annuler mon forfait ?",
+                    "answer": "Oui. Vous pouvez améliorer ou réduire votre forfait à tout moment dans les paramètres de votre compte. Les améliorations prennent effet immédiatement avec facturation au prorata ; les réductions prennent effet au cycle suivant. Si vous annulez, vous conservez l'accès jusqu'à la fin de votre cycle actuel. Nous conservons vos données pendant 60 jours pour que vous puissiez vous réabonner sans rien perdre—après cela, elles sont définitivement supprimées."
+                },
+                "rollover": {
+                    "question": "Les crédits non utilisés sont-ils reportés ?",
+                    "answer": "Non. Les crédits expirent à la fin de chaque cycle de facturation, et votre allocation se renouvelle."
+                },
+                "moreCredits": {
+                    "question": "Comment puis-je obtenir plus de crédits ?",
+                    "answer": "Vous pouvez améliorer votre abonnement pour une limite mensuelle plus élevée ou acheter des packs de crédits uniques depuis votre compte."
+                },
+                "refund": {
+                    "question": "Quelle est votre politique de remboursement ?",
+                    "answer": "Les abonnements et packs de crédits ne sont pas remboursables. S'il y a un problème technique—comme une génération échouée—contactez l'assistance pour une évaluation et un éventuel ajustement de crédits."
+                },
+                "deleteAccount": {
+                    "question": "Comment supprimer mon compte ?",
+                    "answer": "Dans les paramètres de votre compte, sélectionnez \"Supprimer le compte\" pour retirer définitivement toutes les photos, persos et images. C'est irréversible, alors téléchargez d'abord tout ce que vous voulez conserver."
+                }
+            }
+        },
+        "signIn": {
+            "modalTitle": "Connectez-vous pour continuer"
+        }
     }
-  }
 }

@@ -2813,6 +2813,11 @@ Detected changes in:
 - website/src/lib/notion/api.ts
 - website/src/lib/notion/client.ts
 - website/src/lib/notion/types.ts
+
+
+**Auto-update 2025-11-09**:
+Detected changes in:
+- website/src/components/generate/GenerateBar.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:
