@@ -73,7 +73,6 @@ export default function ShareRedirectClient({ params }: Props) {
           animation: 'spin 0.8s linear infinite',
           margin: '0 auto 16px'
         }} />
-        <p>Loading your AI photoshoot...</p>
         <style jsx>{`
           @keyframes spin {
             to { transform: rotate(360deg); }
