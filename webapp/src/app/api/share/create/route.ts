@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
     
-    let shortCode: string;
+    let shortCode: string = '';
     
     // Use provided code or generate a new one
     if (providedCode) {
@@ -63,20 +63,23 @@ export async function POST(request: NextRequest) {
       const maxAttempts = 5;
       
       while (attempts < maxAttempts) {
-        shortCode = generateShortCode(6);
+        const tempCode = generateShortCode(6);
         
         // Check if code already exists
         const { data: existing } = await supabase
           .from('share_links')
           .select('id')
-          .eq('short_code', shortCode)
+          .eq('short_code', tempCode)
           .maybeSingle();
         
-        if (!existing) break;
+        if (!existing) {
+          shortCode = tempCode;
+          break;
+        }
         attempts++;
       }
       
-      if (attempts === maxAttempts) {
+      if (attempts === maxAttempts || !shortCode) {
         return NextResponse.json({ 
           error: 'Failed to generate unique code' 
         }, { status: 500 });
