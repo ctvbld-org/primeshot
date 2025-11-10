@@ -172,46 +172,7 @@ export function GenerateBar({
   const [selectionVersion, setSelectionVersion] = useState(0)
   const [isSwitchingGender, setIsSwitchingGender] = useState(false)
 
-  // Hydrate all localStorage state after mount (client-only) to prevent hydration mismatches
-  useEffect(() => {
-    // Hydrate gender
-    try {
-      const raw = localStorage.getItem('generation-wardrobe-gender')
-      const v = raw ? JSON.parse(raw) : null
-      if (v === 'man' || v === 'woman') {
-        setSelectedGender(v)
-      }
-    } catch {
-      // Ignore errors, keep default
-    }
-
-    // Hydrate generation settings
-    try {
-      const loadedNbTakes = load(STORAGE_KEYS.NB_TAKES, null)
-      if (loadedNbTakes !== null) setNbTakes(loadedNbTakes)
-
-      const loadedQuality = String(load(STORAGE_KEYS.QUALITY, ''))
-      if (loadedQuality) setQuality(loadedQuality)
-
-      const loadedAspectRatio = load(STORAGE_KEYS.ASPECT_RATIO, '')
-      if (loadedAspectRatio) setAspectRatio(loadedAspectRatio)
-    } catch {
-      // Ignore errors, keep defaults
-    }
-
-    // Hydrate selected character
-    try {
-      const saved = localStorage.getItem('character-selection')
-      if (saved) {
-        const parsed = JSON.parse(saved)
-        if (parsed?.modelId) {
-          setSelectedCharacterId(parsed.modelId)
-        }
-      }
-    } catch {
-      // Ignore errors, keep null
-    }
-  }, [])
+  // Demo-only component: No localStorage hydration needed
 
   // Validation error state for required selectors
   const [errors, setErrors] = useState<{ character?: boolean; scene?: boolean; wardrobe?: boolean; color?: boolean }>({})
@@ -229,11 +190,7 @@ export function GenerateBar({
     WARDROBE_GENDER: 'generation-wardrobe-gender'
   }
 
-  const load = (k: string, def: any) => {
-    try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : def } catch { return def }
-  }
-  const save = (k: string, v: any) => { try { localStorage.setItem(k, JSON.stringify(v)) } catch {}
-  }
+  // Demo-only component: No localStorage persistence needed
 
   // Normalize various gender strings to 'man' | 'woman'
   const mapGenderToWardrobe = React.useCallback((raw: string | null | undefined): ('man' | 'woman' | null) => {
@@ -332,16 +289,7 @@ export function GenerateBar({
     return { scene: sceneLabel, wardrobe: wardrobeLabel, color: colorLabel }
   }, [displayCurrentStyle?.id, scenes, wardrobes, colors, effectiveStyleIndex, selectionVersion, hideSelections, mode, demoSelectedScene, demoSelectedWardrobe, demoSelectedColor])
 
-  // Refresh labels/UI when selections change externally (e.g., via URL init)
-  useEffect(() => {
-    const bump = () => setSelectionVersion(v => v + 1)
-    try { window.addEventListener('style-selections-updated', bump as any) } catch {}
-    try { window.addEventListener('storage', bump) } catch {}
-    return () => {
-      try { window.removeEventListener('style-selections-updated', bump as any) } catch {}
-      try { window.removeEventListener('storage', bump) } catch {}
-    }
-  }, [])
+  // Demo-only: No external storage events to listen to
 
   const checkSticky = useCallback(() => {
     const el = barRef.current
@@ -359,49 +307,49 @@ export function GenerateBar({
   const open = (panel: PanelKey) => { 
     setOpenPanel(panel); 
     onPanelToggle?.(true)
-    // When opening wardrobe, prefer selected character gender; otherwise keep current (localStorage/default)
-    if (panel === 'wardrobe') {
-      // Reset wardrobe selection to show wardrobe items (not colors)
-      setSelectedWardrobeValue(null)
-      try {
-        if (selectedCharacterId) {
-          if (Array.isArray(characters) && characters.length) {
-            const char = characters.find((c: any) => c.id === selectedCharacterId)
-            const rawCache = (char as any)?.gender ?? (char as any)?.metadata?.gender
-            const mapped = mapGenderToWardrobe(rawCache as any)
-            if (!mapped && authUser?.id) {
+      // When opening wardrobe, prefer selected character gender; otherwise keep current (localStorage/default)
+      if (panel === 'wardrobe') {
+        // Reset wardrobe selection to show wardrobe items (not colors)
+        setSelectedWardrobeValue(null)
+        try {
+          if (selectedCharacterId) {
+            if (Array.isArray(characters) && characters.length) {
+              const char = characters.find((c: any) => c.id === selectedCharacterId)
+              const rawCache = (char as any)?.gender ?? (char as any)?.metadata?.gender
+              const mapped = mapGenderToWardrobe(rawCache as any)
+              if (!mapped && authUser?.id) {
+                ;(async () => {
+                  try {
+                    const c = await (getCharacter as (id: string, userId: string) => Promise<any>)(selectedCharacterId, authUser.id)
+                    const rawFetched = (c as any)?.gender ?? (c as any)?.metadata?.gender
+                    const fetched = mapGenderToWardrobe(rawFetched as any)
+                    if (fetched && fetched !== selectedGender) {
+                      setSelectedGender(fetched)
+                      // Demo-only: Don't persist to localStorage
+                    }
+                  } catch (e) {
+                  }
+                })()
+              }
+              if (mapped && mapped !== selectedGender) {
+                setSelectedGender(mapped)
+                // Demo-only: Don't persist to localStorage
+              }
+            } else if (authUser?.id) {
               ;(async () => {
                 try {
                   const c = await (getCharacter as (id: string, userId: string) => Promise<any>)(selectedCharacterId, authUser.id)
-                  const rawFetched = (c as any)?.gender ?? (c as any)?.metadata?.gender
-                  const fetched = mapGenderToWardrobe(rawFetched as any)
-                  if (fetched && fetched !== selectedGender) {
-                    setSelectedGender(fetched)
-                    save(STORAGE_KEYS.WARDROBE_GENDER, fetched)
+                  const mapped = mapGenderToWardrobe((c as any)?.gender)
+                  if (mapped && mapped !== selectedGender) {
+                    setSelectedGender(mapped)
+                    // Demo-only: Don't persist to localStorage
                   }
-                } catch (e) {
-                }
+                } catch {}
               })()
             }
-            if (mapped && mapped !== selectedGender) {
-              setSelectedGender(mapped)
-              save(STORAGE_KEYS.WARDROBE_GENDER, mapped)
-            }
-          } else if (authUser?.id) {
-            ;(async () => {
-              try {
-                const c = await (getCharacter as (id: string, userId: string) => Promise<any>)(selectedCharacterId, authUser.id)
-                const mapped = mapGenderToWardrobe((c as any)?.gender)
-                if (mapped && mapped !== selectedGender) {
-                  setSelectedGender(mapped)
-                  save(STORAGE_KEYS.WARDROBE_GENDER, mapped)
-                }
-              } catch {}
-            })()
           }
-        }
-      } catch {}
-    }
+        } catch {}
+      }
     // Check sticky state after panel opens
     setTimeout(checkSticky, 300)
     
@@ -433,7 +381,7 @@ export function GenerateBar({
     }
     
     setSelectedStyleIndex(index)
-    storeSelectedStyleIndex(index)
+    // Demo-only: Don't persist to localStorage
     emblaApi?.scrollTo(index)
     close()
   }, [emblaApi, setSelectedStyleIndex, stylesWithPreview, onStyleClick, close])
@@ -503,7 +451,7 @@ export function GenerateBar({
     // Update if changed
     if (targetQuality !== String(quality)) {
       setQuality(targetQuality as QualityCode)
-      save(STORAGE_KEYS.QUALITY, targetQuality)
+      // Demo-only: Don't persist to localStorage
     }
   }, [inferenceSettings?.qualities, inferenceSettings?.defaults?.quality, subscription])
 
@@ -582,7 +530,7 @@ export function GenerateBar({
           
           // Also update the UI state and storage
           setQuality(maxAllowedQuality as QualityCode)
-          save(STORAGE_KEYS.QUALITY, maxAllowedQuality)
+          // Demo-only: Don't persist to localStorage
           
           // Show a toast notification
           toast({
@@ -832,14 +780,14 @@ export function GenerateBar({
       }
       setCharacterThumbs(map)
 
-      // If the currently selected character is failed/deleted/missing, clear selection (no toast on page load)
-      if (selectedCharacterIdRef.current) {
-        const selected = list.find((m: any) => m.id === selectedCharacterIdRef.current)
-        if (!selected || selected.status === 'failed' || selected.status === 'deleted') {
-          try { localStorage.removeItem('character-selection') } catch {}
-          setSelectedCharacterId(null)
-        }
-      }
+            // If the currently selected character is failed/deleted/missing, clear selection (no toast on page load)
+            if (selectedCharacterIdRef.current) {
+              const selected = list.find((m: any) => m.id === selectedCharacterIdRef.current)
+              if (!selected || selected.status === 'failed' || selected.status === 'deleted') {
+                // Demo-only: Don't access localStorage
+                setSelectedCharacterId(null)
+              }
+            }
       // Fetch batched data for current list
       try { await fetchBatchedCharacterData(list.map((m:any)=>m.id).filter(Boolean)) } catch {}
 
@@ -954,7 +902,7 @@ export function GenerateBar({
       return
     }
     
-    try { localStorage.setItem('character-selection', JSON.stringify({ modelId })) } catch {}
+    // Demo-only: Don't persist to localStorage
     setSelectedCharacterId(modelId)
     // Apply gender immediately based on selected character metadata
     try {
@@ -962,7 +910,7 @@ export function GenerateBar({
       const mapped = mapGenderToWardrobe(raw)
       if (mapped && mapped !== selectedGender) {
         setSelectedGender(mapped)
-        save(STORAGE_KEYS.WARDROBE_GENDER, mapped)
+        // Demo-only: Don't persist to localStorage
       }
     } catch {}
     clearError('character')
@@ -1024,7 +972,7 @@ export function GenerateBar({
   useEffect(() => {
     if (selectedWsStatus === 'failed' && selectedCharacterId && !hasClearedFailedSelectionRef.current) {
       hasClearedFailedSelectionRef.current = true
-      try { localStorage.removeItem('character-selection') } catch {}
+      // Demo-only: Don't access localStorage
       setSelectedCharacterId(null)
       toast({
         title: t('character.trainingFailedTitle', { ns: 'styles', defaultValue: 'Training failed' }),
@@ -1313,7 +1261,8 @@ export function GenerateBar({
                 return (
                 <button key={opt.value} data-value={opt.value} className={`${styles.itemCard} ${styles.itemCardLoaded} ${isSelected ? styles.itemSelected : ''}`} onClick={() => { 
                   if (onSceneClick) onSceneClick(opt.value);
-                  storeStyleSelections(currentStyle.id, { scene: opt.value }); setSelectionVersion(v=>v+1); clearError('scene'); close() 
+                  // Demo-only: Don't persist to localStorage, just update local state
+                  setSelectionVersion(v=>v+1); clearError('scene'); close() 
                 }}>
                   {opt.image && (
                     <Image loader={scenesLoader} src={opt.image} alt={opt.label} width={80} height={80} className={styles.itemThumb} />
@@ -1428,7 +1377,7 @@ export function GenerateBar({
                     
                     setTimeout(() => {
                       setSelectedGender(v)
-                      save(STORAGE_KEYS.WARDROBE_GENDER, v)
+                      // Demo-only: Don't persist to localStorage
                       
                       setTimeout(() => {
                         setIsSwitchingGender(false)
@@ -1451,7 +1400,10 @@ export function GenerateBar({
                     if (onWardrobeClick) onWardrobeClick(opt.value);
                     setSelectedWardrobeValue(opt.value)
                     const g = (opt as any).gender as ('man'|'woman'|'unisex'|undefined)
-                    if (g === 'man' || g === 'woman') { if (g !== selectedGender) setSelectedGender(g); save(STORAGE_KEYS.WARDROBE_GENDER, g) }
+                    if (g === 'man' || g === 'woman') { 
+                      if (g !== selectedGender) setSelectedGender(g); 
+                      // Demo-only: Don't persist to localStorage
+                    }
                     clearError('wardrobe')
                   }}>
                     {opt.image && (
@@ -1469,7 +1421,7 @@ export function GenerateBar({
                     {filteredColors.map(col => (
                       <button key={col.value} className={styles.colorSwatch} style={{ backgroundColor: col.color || '#fff' }} onClick={() => {
                         if (onColorClick) onColorClick(col.value);
-                        storeStyleSelections(currentStyle.id, { wardrobe: selectedWardrobeValue!, color: col.value });
+                        // Demo-only: Don't persist to localStorage, just update local state
                         setSelectionVersion(v=>v+1);
                         clearError('color');
                         close()
@@ -1482,7 +1434,7 @@ export function GenerateBar({
                       {filteredColors.map(col => (
                         <button key={col.value} className={`${styles.colorSwatch} ${styles.colorSwatchFixed}`} style={{ backgroundColor: col.color || '#fff' }} onClick={() => {
                           if (onColorClick) onColorClick(col.value);
-                          storeStyleSelections(currentStyle.id, { wardrobe: selectedWardrobeValue!, color: col.value });
+                          // Demo-only: Don't persist to localStorage, just update local state
                           setSelectionVersion(v=>v+1);
                           clearError('color');
                           close()
@@ -1594,7 +1546,11 @@ export function GenerateBar({
               <SegmentedControl
                 options={(inferenceSettings?.nb_takes_options || []).map(n => ({ value: n, content: n }))}
                 value={nbTakes ?? (inferenceSettings?.defaults?.nb_takes as number) ?? 4}
-                onChange={(n) => { const v = Number(n); setNbTakes(v); save(STORAGE_KEYS.NB_TAKES, v) }}
+                onChange={(n) => { 
+                  const v = Number(n); 
+                  setNbTakes(v); 
+                  // Demo-only: Don't persist to localStorage
+                }}
                 fullWidth
               />
             </div>
@@ -1612,7 +1568,7 @@ export function GenerateBar({
                   const allowed = (inferenceSettings?.qualities || []) as string[]
                   const q = sanitizeQuality(v, allowed.length ? allowed : [String(v)])
                   setQuality(q)
-                  save(STORAGE_KEYS.QUALITY, q)
+                  // Demo-only: Don't persist to localStorage
                 }}
                 fullWidth
               />
@@ -1622,7 +1578,11 @@ export function GenerateBar({
               <SegmentedControl
                 options={(inferenceSettings?.aspect_ratios || []).map(r => ({ value: r, content: <Icon variant={getAspectIcon(String(r))} size={16} /> }))}
                 value={aspectRatio || (inferenceSettings?.defaults?.aspect_ratio as string) || ((inferenceSettings?.aspect_ratios?.[0] as string) || '')}
-                onChange={(r) => { const v = String(r); setAspectRatio(v); save(STORAGE_KEYS.ASPECT_RATIO, v) }}
+                onChange={(r) => { 
+                  const v = String(r); 
+                  setAspectRatio(v); 
+                  // Demo-only: Don't persist to localStorage
+                }}
                 fullWidth
               />
             </div>
