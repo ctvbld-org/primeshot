@@ -13,6 +13,7 @@
 
 .charactersContainer {
   margin-top: -40dvh;
+  z-index: 50;
 }
 
 .stylesContainer,
