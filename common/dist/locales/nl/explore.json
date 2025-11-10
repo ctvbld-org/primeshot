@@ -1,27 +1,27 @@
 {
-    "title": "Galerij",
-    "loading": "Laden...",
-    "buttons": {
-        "customiseStyle": "Stijl aanpassen",
-        "showAllStyles": "Alle stijlen tonen"
+  "title": "Galerij",
+  "loading": "Laden...",
+  "buttons": {
+    "customiseStyle": "Stijl aanpassen",
+    "showAllStyles": "Alle stijlen tonen"
+  },
+  "noResults": "Geen resultaten voor \"{{filter}}\"",
+  "styleFilters": {
+    "Corporate": {
+      "name": "Corporate",
+      "description": "Professioneel en toegankelijk met een moderne touch. Ideaal voor LinkedIn, zakelijke portretten, teampagina's en presentaties."
     },
-    "noResults": "Geen resultaten voor \"{{filter}}\"",
-    "styleFilters": {
-        "Corporate": {
-            "name": "Corporate",
-            "description": "Professioneel en toegankelijk met een moderne touch. Ideaal voor LinkedIn, zakelijke portretten, teampagina's en presentaties."
-        },
-        "Blindlight": {
-            "name": "Blindlight",
-            "description": "Opvallend en filmisch met sterke schaduwen en licht. Perfect voor expressieve portretten, profielen en creatieve branding."
-        },
-        "Golden Noir": {
-            "name": "Golden Noir",
-            "description": "Sfeervol en dramatisch met rijke tonen en contrast. Een filmische portretstijl voor gedurfde personal branding en redactioneel gebruik."
-        },
-        "Studio Pro": {
-            "name": "Studio Pro",
-            "description": "Helder en verzorgd met tijdloze studiobelichting. Een veelzijdige keuze voor professionele portretten, personal branding en acteurs portfolios."
-        }
+    "Blindlight": {
+      "name": "Blindlight",
+      "description": "Opvallend en filmisch met sterke schaduwen en licht. Perfect voor expressieve portretten, profielen en creatieve branding."
+    },
+    "Golden Noir": {
+      "name": "Golden Noir",
+      "description": "Sfeervol en dramatisch met rijke tonen en contrast. Een filmische portretstijl voor gedurfde personal branding en redactioneel gebruik."
+    },
+    "Studio Pro": {
+      "name": "Studio Pro",
+      "description": "Helder en verzorgd met tijdloze studiobelichting. Een veelzijdige keuze voor professionele portretten, personal branding en acteurs portfolios."
     }
+  }
 }

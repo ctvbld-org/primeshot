@@ -19,6 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .maybeSingle();
   
   if (shareLink?.signed_image_url) {
+    console.log('Share link found with signed URL:', shareLink.signed_image_url);
     return {
       title: 'Check out my AI photoshoot! 📸✨ | Primeshot',
       description: 'Created with Primeshot. Try it yourself!',
@@ -44,6 +45,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
   
+  console.log('No signed URL found for share link:', code);
+  
   // Fallback: Try explore image
   const { data: exploreImage } = await supabase
     .from('explore_images')
@@ -55,11 +58,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const filename = exploreImage.s3_path.replace(/^placeholders\/styles\//i, '');
     const metadata = parseExploreImageFilename(filename);
     
-    // Build CDN URL for explore image (these are public)
+    // Explore images are public
     const cdnUrl = `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/${exploreImage.s3_path}`;
     
     return {
-      title: `${metadata?.styleFormatted || 'AI Photoshoot'} | Primeshot`,
+      title: `${metadata?.styleFormatted || 'AI Photoshoot'} | Primeshot',
       description: 'Create your own AI photoshoot with Primeshot',
       openGraph: {
         title: `${metadata?.styleFormatted || 'AI Photoshoot'}`,
@@ -84,6 +87,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
   
   // Default fallback
+  console.log('No share link or explore image found for code:', code);
   return {
     title: 'Primeshot - AI Photoshoot Generator',
     description: 'Create stunning AI-generated photos in seconds',

@@ -14,6 +14,7 @@ import { Skeleton } from './ui/skeleton';
 import { usePathname } from 'next/navigation';
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from './ui/dialog';
 import { Button } from './ui/button';
+import { SUPPORTED_LANGUAGES } from '../i18n';
 
 interface HeaderProps {
   /** Optional element rendered on the right side (e.g. login button). */
@@ -34,8 +35,20 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
 
   const isActive = (href: string) => {
     if (!pathname) return false;
-    if (href === '/') return pathname === '/';
-    return pathname === href || pathname.startsWith(href + '/');
+    
+    // Remove locale prefix from pathname (e.g., /us/explore -> /explore)
+    let pathnameWithoutLocale = pathname;
+    
+    for (const locale of SUPPORTED_LANGUAGES) {
+      if (pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)) {
+        pathnameWithoutLocale = pathname.slice(locale.length + 1) || '/';
+        break;
+      }
+    }
+    
+    // Compare without locale prefix
+    if (href === '/') return pathnameWithoutLocale === '/';
+    return pathnameWithoutLocale === href || pathnameWithoutLocale.startsWith(href + '/');
   };
 
   const handleMobileNavClick = () => {
@@ -87,7 +100,7 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
                 </a>
                 {/* <a href="/use-cases" className={styles.navLink + ' ' + styles.useCasesNavLink}>Use Cases</a> */}
                 <a href="/pricing" className={styles.navLink + ' ' + styles.pricingNavLink}>{t('navigation.pricing')}</a>
-                {/* <a
+                <a
                   href="/blog"
                   aria-current={isActive("/blog") ? 'page' : undefined}
                   className={
@@ -97,7 +110,7 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
                   }
                 >
                   {t('navigation.blog')}
-                </a> */}
+                </a>
                 {isAuthenticated && user?.admin && (
                   <a
                     href="/admin"

@@ -234,7 +234,7 @@
   font-family: var(--font-carb-bold);
   font-size: 2.25rem;
   line-height: 2.5rem;
-  color: #A8D5E2;
+  color: #99EFEC;
   margin-bottom: 1rem;
 }
 
@@ -268,24 +268,16 @@
   font-size: 1.125rem;
   line-height: 1.75rem;
   font-weight: 700;
-  color: #A8D5E2;
+  color: #99EFEC;
   width: 25%;
   line-height: 1.25;
 }
-
-@media (min-width: 768px) {
-  .categoryHeader {
-    font-size: 1.25rem;
-    line-height: 1.75rem;
-    width: 50%;
-  }
-}
-
 .tierHeader {
   padding: 0.75rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 700;
+  text-align: left;
   width: 25%;
   color: rgba(255, 255, 255, 0.4);
 }
@@ -348,14 +340,17 @@
 }
 
 @media (min-width: 768px) {
-  .featureName {
-    font-size: 1.125rem;
-    line-height: 1.75rem;
-    width: 50%;
+  .featureName,
+  .categoryHeader {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    width: 37%;
   }
 }
 
-.featureValueBasic {
+.featureValueBasic,
+.featureValueStandard,
+.featureValuePro {
   padding: 0.75rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
@@ -366,45 +361,11 @@
 }
 
 @media (min-width: 768px) {
-  .featureValueBasic {
-    font-size: 1.125rem;
-    line-height: 1.75rem;
-    width: 16.666667%;
-  }
-}
-
-.featureValueStandard {
-  padding: 0.75rem;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: #E8E6E1;
-  background-color: rgba(16, 43, 52, 0.5);
-  width: 25%;
-  border: none;
-}
-
-@media (min-width: 768px) {
-  .featureValueStandard {
-    font-size: 1.125rem;
-    line-height: 1.75rem;
-    width: 16.666667%;
-  }
-}
-
-.featureValuePro {
-  padding: 0.75rem;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: #E8E6E1;
-  background-color: rgba(16, 43, 52, 0.7);
-  width: 25%;
-  border: none;
-}
-
-@media (min-width: 768px) {
+  .featureValueBasic,
+  .featureValueStandard,
   .featureValuePro {
-    font-size: 1.125rem;
-    line-height: 1.75rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
     width: 16.666667%;
   }
 }
@@ -439,7 +400,7 @@
   font-family: var(--font-carb-bold);
   font-size: 2.25rem;
   line-height: 2.5rem;
-  color: #A8D5E2;
+  color: #99EFEC;
   margin-bottom: 1rem;
 }
 
@@ -501,7 +462,7 @@
 }
 
 .faqTrigger[data-state="open"] {
-  color: #A8D5E2;
+  color: #99EFEC;
 }
 
 .faqTrigger :global(svg) {

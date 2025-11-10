@@ -13,6 +13,9 @@
 
 .charactersContainer {
   margin-top: -40dvh;
+}
+
+.charactersContainer:has(.visible) {
   z-index: 50;
 }
 
@@ -165,7 +168,7 @@
 
 .visible .subtitle,
 .subtitle.visible {
-  opacity: 0.5;
+  opacity: 0.8;
 }
 
 .floatingImagesContainer {

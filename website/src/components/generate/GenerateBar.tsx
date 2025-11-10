@@ -1772,7 +1772,7 @@ export function GenerateBar({
 
               <div className={styles.credits}>{requiredCredits} {t('labels.creditsSuffix', { ns: 'generate' })}</div>
               <Button
-                  variant="primary"
+                  variant="tertiary"
                   className={styles.generate}
                   icon={<Icon variant="generate" size={16} />}
                   iconSide='right'

@@ -110,12 +110,13 @@
 }
 
 .tertiary {
-  background-color: #FF491C;
+  background: rgb(246 87 70);
   color: #FFFFFF;
 }
 
 .tertiary:not(:disabled):hover {
-  background: #E92E00;
+  background-color: #fdbeae;
+  color: #000000;
   transition: background 0.2s ease; 
 }
 

@@ -92,11 +92,15 @@ export async function POST(request: NextRequest) {
     let signedImageUrl: string | null = null;
     if (imageUrl) {
       try {
+        console.log('Generating signed URL for image:', imageUrl);
         signedImageUrl = await getShareImageSignedUrl(imageUrl);
+        console.log('Generated signed URL:', signedImageUrl ? 'Success' : 'Failed');
       } catch (error) {
         console.error('Failed to generate signed URL:', error);
         // Continue without signed URL - not critical
       }
+    } else {
+      console.log('No imageUrl provided, skipping signed URL generation');
     }
     
     // Create share link (expires in 1 year)

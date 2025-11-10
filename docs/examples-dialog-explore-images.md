@@ -210,3 +210,4 @@ CREATE TABLE explore_categories (
 3. Look for parsing errors in console
 
 
+

@@ -8,3 +8,4 @@ ADD COLUMN IF NOT EXISTS signed_image_url TEXT;
 -- Add index for potential future queries
 CREATE INDEX IF NOT EXISTS idx_share_links_signed_image_url ON share_links(signed_image_url) WHERE signed_image_url IS NOT NULL;
 
+

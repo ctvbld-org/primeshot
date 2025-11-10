@@ -1,6 +1,6 @@
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 0;
   overflow: visible;
   justify-content: center;
@@ -15,8 +15,6 @@
   gap: 20px;
   position: relative;
 }
-
-.cardHighlight {}
 
 .cardSelected {
   outline: 2px solid #2ADED8;
@@ -223,7 +221,7 @@
 }
 
 .bannerContainer {
-  background: #FF6B35;
+  background: #FF491C;
   color: #fff;
   display: flex;
   align-items: center;
@@ -248,7 +246,6 @@
   font-weight: 500;
   font-size: 20px;
   line-height: 20px;
-  letter-spacing: 0.02em;
 }
 
 .bannerSmall {
@@ -305,27 +302,7 @@
   }
 }
 
-@media (max-width: 680px) {
-  .bannerContainer {
-    padding: 24px;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .bannerTitle {
-    display: inline-block;
-    font-size: 34px;
-  }
-
-  .bannerTitle span {
-    display: inline-block;
-  }
-
-  .bannerLeft svg {
-    width: 64px;
-    height: 64px;
-  }
-
+@media (max-width: 780px) {
   .grid {
     grid-template-columns: repeat(1, 1fr);
   }
@@ -347,6 +324,28 @@
 
   .recommendedBadge {
     top: -6px;
+  }
+}
+
+@media (max-width: 680px) {
+  .bannerContainer {
+    padding: 24px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .bannerTitle {
+    display: inline-block;
+    font-size: 34px;
+  }
+
+  .bannerTitle span {
+    display: inline-block;
+  }
+
+  .bannerLeft svg {
+    width: 64px;
+    height: 64px;
   }
 
   .mainPrice,

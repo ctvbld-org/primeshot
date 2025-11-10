@@ -2825,6 +2825,25 @@ Detected changes in:
 - website/src/components/InteractiveGenerateBar/HeroGrid.tsx
 - website/src/components/InteractiveGenerateBar/ShowcaseSection.module.css
 - website/src/components/generate/GenerateBar.tsx
+
+
+**Auto-update 2025-11-10**:
+Detected changes in:
+- webapp/src/app/api/admin/explore/save/route.ts
+- webapp/src/app/api/share/create/route.ts
+- webapp/src/components/inference/GalleryPlaceholder.tsx
+- webapp/src/components/inference/InferenceImageViewerDialog.tsx
+- webapp/src/components/inference/InferenceJobGroup.module.css
+- webapp/src/components/inference/InferenceThumbnail.tsx
+- webapp/src/lib/utils/share-image-url.ts
+- webapp/src/lib/utils/share.ts
+- webapp/src/lib/utils/short-code.ts
+- website/src/app/[locale]/explore/page.tsx
+- website/src/app/api/explore/route.ts
+- website/src/app/api/s/[code]/route.ts
+- website/src/app/s/[code]/ShareRedirectClient.tsx
+- website/src/app/s/[code]/page.tsx
+- website/src/components/ExploreThumb.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

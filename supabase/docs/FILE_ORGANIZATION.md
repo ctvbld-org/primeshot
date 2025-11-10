@@ -122,3 +122,4 @@ supabase db push --project-ref <your-project-ref>
 
 **All systems operational!** 🚀
 
+

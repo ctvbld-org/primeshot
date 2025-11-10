@@ -262,3 +262,4 @@ website/
 - SEObot Docs: [seobotai.com/docs](https://seobotai.com)
 - Next.js ISR: [nextjs.org/docs/basic-features/data-fetching/incremental-static-regeneration](https://nextjs.org/docs/basic-features/data-fetching/incremental-static-regeneration)
 
+

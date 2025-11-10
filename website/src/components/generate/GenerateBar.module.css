@@ -657,16 +657,6 @@
   background-color: #E5FBFA;
 }
 
-.barDemo .generate {
-  background-color: #FF491C;
-  color: #fff;
-}
-
-.barDemo .generate:hover {
-  background-color: #fdbeae;
-  color: #000000;
-}
-
 .barDemo .generate svg {
   width: 20px !important;
   height: 20px !important;

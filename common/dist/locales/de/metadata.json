@@ -1,22 +1,25 @@
 {
+  "title": "KI-Porträts Die Türen Öffnen | Primeshot",
+  "description": "Sorgen Sie dafür, dass Ihr erster Eindruck zählt. Primeshot verwandelt Ihre alltäglichen Selfies in beeindruckende, professionelle KI-Porträts—geschaffen, um Ihren Stil, Ihre Ambition und Ihre Geschichte widerzuspiegeln.",
+  "keywords": [
+    "KI-Porträts",
+    "professionelle Porträts",
+    "KI-Fotografie",
+    "Porträt-Generator",
+    "professionelles Bild",
+    "KI-Portraits",
+    "Business-Porträts"
+  ],
+  "og": {
     "title": "KI-Porträts Die Türen Öffnen | Primeshot",
     "description": "Sorgen Sie dafür, dass Ihr erster Eindruck zählt. Primeshot verwandelt Ihre alltäglichen Selfies in beeindruckende, professionelle KI-Porträts—geschaffen, um Ihren Stil, Ihre Ambition und Ihre Geschichte widerzuspiegeln.",
-    "keywords": [
-        "KI-Porträts",
-        "professionelle Porträts",
-        "KI-Fotografie",
-        "Porträt-Generator",
-        "professionelles Bild",
-        "KI-Portraits",
-        "Business-Porträts"
-    ],
-    "og": {
-        "title": "KI-Porträts Die Türen Öffnen | Primeshot",
-        "description": "Sorgen Sie dafür, dass Ihr erster Eindruck zählt. Primeshot verwandelt Ihre alltäglichen Selfies in beeindruckende, professionelle KI-Porträts—geschaffen, um Ihren Stil, Ihre Ambition und Ihre Geschichte widerzuspiegeln.",
-        "imageAlt": "Primeshot - KI-Porträts"
-    },
-    "twitter": {
-        "title": "KI-Porträts Die Türen Öffnen | Primeshot",
-        "description": "Sorgen Sie dafür, dass Ihr erster Eindruck zählt. Primeshot verwandelt Ihre alltäglichen Selfies in beeindruckende, professionelle KI-Porträts—geschaffen, um Ihren Stil, Ihre Ambition und Ihre Geschichte widerzuspiegeln."
-    }
+    "imageAlt": "Primeshot - KI-Porträts"
+  },
+  "twitter": {
+    "title": "KI-Porträts Die Türen Öffnen | Primeshot",
+    "description": "Sorgen Sie dafür, dass Ihr erster Eindruck zählt. Primeshot verwandelt Ihre alltäglichen Selfies in beeindruckende, professionelle KI-Porträts—geschaffen, um Ihren Stil, Ihre Ambition und Ihre Geschichte widerzuspiegeln."
+  }
 }
+
+
+
