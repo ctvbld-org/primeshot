@@ -4,11 +4,12 @@ import { parseExploreImageFilename } from '@/lib/utils/parse-explore-image-metad
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { code: string } }
+  { params }: { params: Promise<{ code: string }> }
 ) {
   try {
     const supabase = await createClient();
-    const shortCode = params.code;
+    const { code } = await params;
+    const shortCode = code;
     
     // First, try to find in share_links (for user-shared images)
     const { data: shareLink } = await supabase
