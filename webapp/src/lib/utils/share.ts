@@ -34,7 +34,9 @@ export async function shareImage(options: ShareImageOptions): Promise<ShareResul
   try {
     // Step 1: Generate short code locally (no DB entry yet)
     const shortCode = generateShortCode(6);
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+    
+    // Use NEXT_PUBLIC_WEBSITE_URL for root domain (without /create)
+    const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || window.location.origin.replace(/\/create$/, '');
     const shareUrl = `${baseUrl}/s/${shortCode}`;
     
     // Step 2: Build share text with short URL
