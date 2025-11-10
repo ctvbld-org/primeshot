@@ -253,7 +253,24 @@
             "download": {
                 "label": "Download",
                 "aria": "Download image"
+            },
+            "share": {
+                "label": "Share",
+                "aria": "Share this image"
             }
+        },
+        "share": {
+            "text": "Check out my AI photoshoot! 📸✨\n\nCreated with Primeshot. Try it yourself:\n{{url}}\n",
+            "success": "Image shared successfully!",
+            "copiedToClipboard": "Link copied to clipboard!",
+            "error": "Failed to share image"
+        },
+        "explore": {
+            "add": "Add to Explore",
+            "remove": "Remove from Explore",
+            "saved": "Added to Explore",
+            "removed": "Removed from Explore",
+            "error": "Failed to update Explore"
         },
         "confirmDelete": {
             "title": "Delete image?",

@@ -253,12 +253,29 @@
       "download": {
         "label": "Scarica",
         "aria": "Scarica immagine"
+      },
+      "share": {
+        "label": "Condividi",
+        "aria": "Condividi questa immagine"
       }
     },
     "confirmDelete": {
       "title": "Eliminare l'immagine?",
       "description": "Questo rimuoverà l'immagine dalla tua galleria. Questa azione non può essere annullata.",
       "confirm": "Elimina"
+    },
+    "share": {
+      "text": "Guarda il mio servizio fotografico AI! 📸✨\n\nCreato con Primeshot. Provalo anche tu:\n{{url}}\n",
+      "success": "Immagine condivisa con successo!",
+      "copiedToClipboard": "Link copiato negli appunti!",
+      "error": "Errore nella condivisione dell'immagine"
+    },
+    "explore": {
+      "add": "Add to Explore",
+      "remove": "Remove from Explore",
+      "saved": "Added to Explore",
+      "removed": "Removed from Explore",
+      "error": "Failed to update Explore"
     }
   },
   "errors": {

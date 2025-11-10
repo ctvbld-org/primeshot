@@ -253,12 +253,29 @@
       "download": {
         "label": "Descarregar",
         "aria": "Descarregar imagem"
+      },
+      "share": {
+        "label": "Compartilhar",
+        "aria": "Compartilhar esta imagem"
       }
     },
     "confirmDelete": {
       "title": "Eliminar imagem?",
       "description": "Isto removerá a imagem da sua galeria. Esta ação não pode ser desfeita.",
       "confirm": "Eliminar"
+    },
+    "share": {
+      "text": "Confira meu ensaio fotográfico com IA! 📸✨\n\nCriado com Primeshot. Experimente:\n{{url}}\n",
+      "success": "Imagem compartilhada com sucesso!",
+      "copiedToClipboard": "Link copiado para a área de transferência!",
+      "error": "Falha ao compartilhar imagem"
+    },
+    "explore": {
+      "add": "Add to Explore",
+      "remove": "Remove from Explore",
+      "saved": "Added to Explore",
+      "removed": "Removed from Explore",
+      "error": "Failed to update Explore"
     }
   },
   "errors": {
@@ -286,5 +303,17 @@
       "failed": "A geração falhou. Por favor, tente novamente com configurações diferentes.",
       "general": "Ocorreu um erro durante a geração. Por favor, tente novamente."
     }
+  },
+  "shareDialog": {
+    "title": "Compartilhe sua criação",
+    "shareOnX": "Compartilhar no X",
+    "shareOnFacebook": "Compartilhar no Facebook",
+    "shareOnLinkedIn": "Compartilhar no LinkedIn",
+    "shareOnWhatsApp": "Compartilhar no WhatsApp",
+    "downloadImage": "Baixar imagem",
+    "copyLink": "Copiar link",
+    "previewText": "Visualização",
+    "description": "Baixe a imagem primeiro e depois compartilhe-a com seu texto nas redes sociais",
+    "orShareLink": "Ou compartilhar apenas o link"
   }
 }

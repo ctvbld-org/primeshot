@@ -253,12 +253,29 @@
       "download": {
         "label": "Télécharger",
         "aria": "Télécharger l'image"
+      },
+      "share": {
+        "label": "Partager",
+        "aria": "Partager cette image"
       }
     },
     "confirmDelete": {
       "title": "Supprimer l'image ?",
       "description": "Cela retirera l'image de votre galerie. Cette action ne peut pas être annulée.",
       "confirm": "Supprimer"
+    },
+    "share": {
+      "text": "Découvrez ma séance photo IA ! 📸✨\n\nCréé avec Primeshot. Essayez-le :\n{{url}}\n",
+      "success": "Image partagée avec succès !",
+      "copiedToClipboard": "Lien copié dans le presse-papiers !",
+      "error": "Échec du partage de l'image"
+    },
+    "explore": {
+      "add": "Add to Explore",
+      "remove": "Remove from Explore",
+      "saved": "Added to Explore",
+      "removed": "Removed from Explore",
+      "error": "Failed to update Explore"
     }
   },
   "errors": {

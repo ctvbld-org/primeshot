@@ -9,6 +9,8 @@ const nextConfig = {
     NEXT_PUBLIC_BASE_PATH: isProd ? '/admin' : ''
   },
   transpilePackages: isProd ? [] : ['@primeshot/common'],
+  // Set output file tracing root to silence monorepo warning
+  outputFileTracingRoot: path.join(__dirname, '../'),
   webpack: (config, { isServer }) => {
     // Ignore Node.js specific modules in face-api.js
     config.resolve.fallback = {

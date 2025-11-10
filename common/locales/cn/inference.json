@@ -253,12 +253,29 @@
       "download": {
         "label": "下载",
         "aria": "下载图像"
+      },
+      "share": {
+        "label": "分享",
+        "aria": "分享此图片"
       }
     },
     "confirmDelete": {
       "title": "删除图像？",
       "description": "这将从您的画廊中移除图像。此操作无法撤销。",
       "confirm": "删除"
+    },
+    "share": {
+      "text": "看看我的 AI 照片！📸✨\n\n使用 Primeshot 创建。试试看：\n{{url}}\n",
+      "success": "图片分享成功！",
+      "copiedToClipboard": "链接已复制到剪贴板！",
+      "error": "分享图片失败"
+    },
+    "explore": {
+      "add": "Add to Explore",
+      "remove": "Remove from Explore",
+      "saved": "Added to Explore",
+      "removed": "Removed from Explore",
+      "error": "Failed to update Explore"
     }
   },
   "errors": {
@@ -286,5 +303,17 @@
       "failed": "生成失败。请使用不同的设置重试。",
       "general": "生成过程中发生错误。请重试。"
     }
+  },
+  "shareDialog": {
+    "title": "分享您的创作",
+    "shareOnX": "在 X 上分享",
+    "shareOnFacebook": "在 Facebook 上分享",
+    "shareOnLinkedIn": "在 LinkedIn 上分享",
+    "shareOnWhatsApp": "在 WhatsApp 上分享",
+    "downloadImage": "下载图片",
+    "copyLink": "复制链接",
+    "previewText": "预览",
+    "description": "先下载图片，然后在社交媒体上分享您的文字",
+    "orShareLink": "或仅分享链接"
   }
 }

@@ -253,12 +253,29 @@
       "download": {
         "label": "ダウンロード",
         "aria": "画像をダウンロード"
+      },
+      "share": {
+        "label": "シェア",
+        "aria": "この画像をシェア"
       }
     },
     "confirmDelete": {
       "title": "画像を削除しますか？",
       "description": "これによりギャラリーから画像が削除されます。この操作は元に戻せません。",
       "confirm": "削除"
+    },
+    "share": {
+      "text": "AI フォトシュートをチェック！📸✨\n\nPrimeshot で作成。あなたも試してみて：\n{{url}}\n",
+      "success": "画像を共有しました！",
+      "copiedToClipboard": "リンクをクリップボードにコピーしました！",
+      "error": "画像の共有に失敗しました"
+    },
+    "explore": {
+      "add": "Add to Explore",
+      "remove": "Remove from Explore",
+      "saved": "Added to Explore",
+      "removed": "Removed from Explore",
+      "error": "Failed to update Explore"
     }
   },
   "errors": {
@@ -286,5 +303,17 @@
       "failed": "生成に失敗しました。異なる設定で再度お試しください。",
       "general": "生成中にエラーが発生しました。再度お試しください。"
     }
+  },
+  "shareDialog": {
+    "title": "作品を共有",
+    "shareOnX": "Xでシェア",
+    "shareOnFacebook": "Facebookでシェア",
+    "shareOnLinkedIn": "LinkedInでシェア",
+    "shareOnWhatsApp": "WhatsAppでシェア",
+    "downloadImage": "画像をダウンロード",
+    "copyLink": "リンクをコピー",
+    "previewText": "プレビュー",
+    "description": "まず画像をダウンロードし、ソーシャルメディアでテキストと一緒にシェアしてください",
+    "orShareLink": "またはリンクのみ共有"
   }
 }

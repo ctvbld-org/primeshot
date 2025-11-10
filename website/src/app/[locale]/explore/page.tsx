@@ -24,6 +24,7 @@ interface ParsedExploreImage {
   wardrobe: string;
   color: string;
   category: string;
+  shortCode?: string; // NEW: short code for URL shortener
 }
 
 // Dynamic filter generation from data
@@ -78,6 +79,7 @@ function ExploreContent() {
               wardrobe: metadata.wardrobe,
               color: metadata.color,
               category: img.category,
+              shortCode: img.shortCode, // NEW: include short code
             };
           }).filter((img: ParsedExploreImage | null): img is ParsedExploreImage => img !== null); // Remove nulls with type guard
           
@@ -223,6 +225,7 @@ function ExploreContent() {
                 wardrobe={item.wardrobe}
                 color={item.color}
                 category={item.category}
+                shortCode={item.shortCode}
                 staggerIndex={index}
                   totalItems={filteredData.length}
               />

@@ -105,6 +105,7 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/public') ||
     pathname.startsWith('/api') ||
     pathname.startsWith('/admin') ||
+    pathname.startsWith('/s/') || // Share link redirects
     pathname.startsWith('/.well-known') ||
     pathname.endsWith('.svg') ||
     pathname.endsWith('.png') ||

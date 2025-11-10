@@ -8,6 +8,7 @@ import {
   updateStylePreviewImages,
   deleteS3Image
 } from '@/lib/admin/explore-utils';
+import { generateShortCode } from '@/lib/utils/short-code';
 
 export async function POST(request: NextRequest) {
   // Verify admin access
@@ -173,12 +174,39 @@ export async function POST(request: NextRequest) {
     }
 
     // Create explore_images record (simplified schema - metadata in filename)
+    // Generate unique short code for this explore image
+    let shortCode: string = '';
+    let attempts = 0;
+    const maxAttempts = 5;
+    
+    while (attempts < maxAttempts) {
+      shortCode = generateShortCode(6);
+      
+      // Check if code already exists in explore_images or share_links
+      const [{ data: existingExplore }, { data: existingShare }] = await Promise.all([
+        supabase.from('explore_images').select('id').eq('short_code', shortCode).maybeSingle(),
+        supabase.from('share_links').select('id').eq('short_code', shortCode).maybeSingle()
+      ]);
+      
+      if (!existingExplore && !existingShare) break;
+      attempts++;
+    }
+    
+    if (attempts === maxAttempts) {
+      await deleteS3Image(destinationPath);
+      return NextResponse.json<SaveToExploreResponse>(
+        { success: false, error: 'Failed to generate unique short code' },
+        { status: 500 }
+      );
+    }
+    
     const { data: exploreImage, error: insertError } = await supabase
       .from('explore_images')
       .insert({
         generated_image_id: generatedImageId,
         category_id: finalCategory.id,
-        s3_path: destinationPath
+        s3_path: destinationPath,
+        short_code: shortCode
       })
       .select()
       .single();

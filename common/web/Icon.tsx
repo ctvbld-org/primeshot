@@ -70,7 +70,8 @@ interface IconProps extends React.SVGProps<SVGSVGElement> {
     | 'styles'
     | 'menu'
     | 'star'
-    | 'starOutline';
+    | 'starOutline'
+    | 'share';
 }
 
 export function Icon({ size = 28, className, variant, ...props }: IconProps) {
@@ -141,6 +142,7 @@ export function Icon({ size = 28, className, variant, ...props }: IconProps) {
     menu: "0 0 16 16",
     star: "0 0 16 16",
     starOutline: "0 0 16 16",
+    share: "0 0 16 16",
   } as const;
 
   const icons = {
@@ -480,6 +482,9 @@ export function Icon({ size = 28, className, variant, ...props }: IconProps) {
     ),
     star: (
       <path d="M7.9987 1.33333L10.0587 5.50667L14.6654 6.18L11.332 9.42667L12.1187 14.0133L7.9987 11.8467L3.8787 14.0133L4.66536 9.42667L1.33203 6.18L5.9387 5.50667L7.9987 1.33333Z" fill="currentColor" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
+    ),
+    share: (
+      <path d="M2.66797 8V13.3333C2.66797 13.687 2.80844 14.0261 3.05849 14.2761C3.30854 14.5262 3.64768 14.6667 4.0013 14.6667H12.0013C12.3549 14.6667 12.6941 14.5262 12.9441 14.2761C13.1942 14.0261 13.3346 13.687 13.3346 13.3333V8M10.668 4L8.0013 1.33333M8.0013 1.33333L5.33464 4M8.0013 1.33333V10" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
     )
   } as Record<string, React.ReactNode>;
 

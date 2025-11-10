@@ -234,6 +234,7 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
   const [isTogglingFav, setIsTogglingFav] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSavingToExplore, setIsSavingToExplore] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
   const [isInExplore, setIsInExplore] = useState(false);
   const [localFavourite, setLocalFavourite] = useState(Boolean(thumbnail.favourite));
   useEffect(() => { setLocalFavourite(Boolean(thumbnail.favourite)); }, [thumbnail.favourite]);
@@ -403,6 +404,55 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
     }
   }, [thumbnail.imageId, isAdmin, isInExplore, isSavingToExplore, toast, t]);
 
+  const handleShare = useCallback(async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const imageUrl = thumbnail.imageUrl || thumbnail.webImageUrl;
+    if (!imageUrl) return;
+    if (isSharing) return;
+    
+    setIsSharing(true);
+    try {
+      // Get job metadata from queue context
+      const job = queue?.jobs.find(j => j.id === thumbnail.jobId);
+      const jobMetadata = {
+        styleId: job?.styleId,
+        sceneId: job?.sceneId,
+        wardrobeId: job?.wardrobeId,
+        colorId: job?.colorId,
+        quality: job?.quality,
+        aspectRatio: job?.aspectRatio,
+      };
+      
+      const { shareImage } = await import('@/lib/utils/share');
+      const result = await shareImage({
+        imageUrl,
+        jobMetadata,
+        t: (key: string, options?: { url?: string }) => t(key, { ...options, ns: 'inference' }),
+      });
+      
+      if (result.success && result.method === 'clipboard') {
+        toast({
+          title: t('thumbnail.share.copiedToClipboard', { ns: 'inference' }),
+          variant: 'success',
+        });
+      } else if (result.success) {
+        toast({
+          title: t('thumbnail.share.success', { ns: 'inference' }),
+          variant: 'success',
+        });
+      }
+      // Don't show error if user cancelled
+    } catch (error) {
+      toast({
+        title: t('thumbnail.share.error', { ns: 'inference' }),
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: 'destructive',
+      });
+    } finally {
+      setTimeout(() => setIsSharing(false), 600);
+    }
+  }, [thumbnail.imageUrl, thumbnail.webImageUrl, thumbnail.jobId, queue, isSharing, toast, t]);
+
   return (
     <div 
       className={`${styles.thumbnail} ${getStatusClass()} ${!hasAnyImage ? styles.empty : ''}`}
@@ -527,6 +577,24 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top">{localFavourite ? t('thumbnail.favourite.remove') : t('thumbnail.favourite.add')}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      iconOnly
+                      className={styles.actionBtn}
+                      onClick={handleShare}
+                      aria-label={t('thumbnail.actions.share.aria')}
+                      disabled={isSharing}
+                    >
+                      {isSharing ? <Loader size="sm" /> : <Icon variant="share" size={16} />}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">{t('thumbnail.actions.share.label')}</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
               

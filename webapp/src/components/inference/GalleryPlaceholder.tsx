@@ -79,8 +79,8 @@ export function GalleryPlaceholder() {
                 </div>
               ))}
             </div>
-            <div className={stylesInference.thumbnailGrid}>
-              {[0, 1, 2, 3, 4].map((i) => (
+            <div className={stylesInference.thumbnailGrid + ' ' + stylesInference.ar11}>
+              {[0, 1, 2, 3].map((i) => (
                 <div className={stylesThumbnail.thumbnail} style={{ ['--stagger' as any]: i,  pointerEvents: 'none' }} key={'thumbnail-placeholder-' + i}>
                   <div className={`${stylesThumbnail.imageContainer} ${stylesThumbnail.statusGenerating}`} style={{pointerEvents: 'none'}}>
                     <Skeleton className={stylesThumbnail.gradientLoader} style={{ opacity: '0.1', pointerEvents: 'none' }} />

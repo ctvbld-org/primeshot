@@ -253,12 +253,29 @@
             "download": {
                 "label": "Download",
                 "aria": "Download image"
+            },
+            "share": {
+                "label": "Share",
+                "aria": "Share this image"
             }
         },
         "confirmDelete": {
             "title": "Delete image?",
             "description": "This will remove the image from your gallery. This cannot be undone.",
             "confirm": "Delete"
+        },
+        "share": {
+            "text": "Check out my AI photoshoot! 📸✨\n\nCreated with Primeshot. Try it yourself:\n{{url}}\n",
+            "success": "Image shared successfully!",
+            "copiedToClipboard": "Link copied to clipboard!",
+            "error": "Failed to share image"
+        },
+        "explore": {
+            "add": "Add to Explore",
+            "remove": "Remove from Explore",
+            "saved": "Added to Explore",
+            "removed": "Removed from Explore",
+            "error": "Failed to update Explore"
         }
     },
     "errors": {
@@ -286,5 +303,17 @@
             "failed": "Generation failed. Please try again with different settings.",
             "general": "An error occurred during generation. Please try again."
         }
+    },
+    "shareDialog": {
+        "title": "Share Your Creation",
+        "shareOnX": "Share on X",
+        "shareOnFacebook": "Share on Facebook",
+        "shareOnLinkedIn": "Share on LinkedIn",
+        "shareOnWhatsApp": "Share on WhatsApp",
+        "downloadImage": "Download Image",
+        "copyLink": "Copy Link",
+        "previewText": "Preview",
+        "description": "Download the image first, then share it with your text on social media",
+        "orShareLink": "Or share link only"
     }
 }

@@ -12,13 +12,8 @@ const nextConfig = {
       bodySizeLimit: '50mb'
     }
   },
-  // Increase API route body size limit for image uploads
-  api: {
-    bodyParser: {
-      sizeLimit: '50mb'
-    },
-    responseLimit: '50mb'
-  },
+  // Set output file tracing root to silence monorepo warning
+  outputFileTracingRoot: path.join(__dirname, '../'),
   webpack: (config, { isServer }) => {
     // Ignore Node.js specific modules in face-api.js
     config.resolve.fallback = {

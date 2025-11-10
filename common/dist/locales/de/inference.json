@@ -253,12 +253,29 @@
             "download": {
                 "label": "Herunterladen",
                 "aria": "Bild herunterladen"
+            },
+            "share": {
+                "label": "Teilen",
+                "aria": "Dieses Bild teilen"
             }
         },
         "confirmDelete": {
             "title": "Bild löschen?",
             "description": "Dies entfernt das Bild aus deiner Galerie. Diese Aktion kann nicht rückgängig gemacht werden.",
             "confirm": "Löschen"
+        },
+        "share": {
+            "text": "Schaut euch mein KI-Fotoshooting an! 📸✨\n\nErstellt mit Primeshot. Probiert es aus:\n{{url}}\n",
+            "success": "Bild erfolgreich geteilt!",
+            "copiedToClipboard": "Link in Zwischenablage kopiert!",
+            "error": "Fehler beim Teilen des Bildes"
+        },
+        "explore": {
+            "add": "Add to Explore",
+            "remove": "Remove from Explore",
+            "saved": "Added to Explore",
+            "removed": "Removed from Explore",
+            "error": "Failed to update Explore"
         }
     },
     "errors": {

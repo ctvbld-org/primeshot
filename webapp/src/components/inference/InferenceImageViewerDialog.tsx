@@ -55,6 +55,7 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
   const [characterImageUrl, setCharacterImageUrl] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
   // Store overlay per image ID to persist when navigating
   const [overlayCache, setOverlayCache] = useState<Record<string, { src: string, loaded: boolean }>>({});
   const [isLoadingOriginal, setIsLoadingOriginal] = useState(false);
@@ -442,6 +443,53 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
     // TODO: Implement regenerate functionality
     console.log('Regenerate image:', currentThumbnail?.id);
   }, [currentThumbnail]);
+
+  const handleShare = useCallback(async () => {
+    const imageUrl = currentThumbnail?.imageUrl || currentThumbnail?.webImageUrl;
+    if (!imageUrl) return;
+    if (isSharing) return;
+    
+    setIsSharing(true);
+    try {
+      // Get job metadata from active job
+      const jobMetadata = {
+        styleId: activeJob.styleId,
+        sceneId: activeJob.sceneId,
+        wardrobeId: activeJob.wardrobeId,
+        colorId: activeJob.colorId,
+        quality: activeJob.quality,
+        aspectRatio: activeJob.aspectRatio,
+      };
+      
+      const { shareImage } = await import('@/lib/utils/share');
+      const result = await shareImage({
+        imageUrl,
+        jobMetadata,
+        t: (key: string, options?: { url?: string }) => t(key, { ...options, ns: 'inference' }),
+      });
+      
+      if (result.success && result.method === 'clipboard') {
+        toast({
+          title: t('inference:thumbnail.share.copiedToClipboard'),
+          variant: 'success',
+        });
+      } else if (result.success) {
+        toast({
+          title: t('inference:thumbnail.share.success'),
+          variant: 'success',
+        });
+      }
+      // Don't show error if user cancelled
+    } catch (error) {
+      toast({
+        title: t('inference:thumbnail.share.error'),
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: 'destructive',
+      });
+    } finally {
+      setTimeout(() => setIsSharing(false), 600);
+    }
+  }, [currentThumbnail?.imageUrl, currentThumbnail?.webImageUrl, activeJob, isSharing, toast, t]);
 
   const handleThumbnailClick = useCallback((index: number) => {
     if (index !== currentImageIndex) {
@@ -835,31 +883,49 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
             <h3 className={styles.title}>
               {t('inference:viewer.title', { shootNumber })} <span className={styles.imageIndex}>{t('inference:viewer.imageIndex', { index: currentImageIndex + 1 })}</span>
             </h3>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className={`${styles.iconButton} ${styles.favButton} ${isFavourite ? styles.favActive : ''} ${isTogglingFav ? styles.favBeating : ''}`}
-                    aria-label={t('inference:viewer.favourite.ariaButton')}
-                    aria-pressed={isFavourite}
-                    onClick={toggleFavourite}
-                    disabled={isTogglingFav || !currentThumbnail?.imageId}
-                    data-anim-key={favAnimatingKey}
-                  >
-                    <span className={`${styles.favIconWrapper} ${isFavourite ? styles.favIconActive : ''}`}>
-                      <Icon variant={isFavourite ? 'heart' : 'heartOutline'} size={16} />
-                    </span>
-                    {showFavConfirm && (
-                      <span className={styles.favConfirm} aria-hidden="true">
-                        <Icon className={styles.favConfirmIcon} variant="heart" size={18} />
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className={`${styles.iconButton}`}
+                      onClick={handleShare}
+                      aria-label={t('inference:thumbnail.actions.share.aria')}
+                      disabled={isSharing || !currentThumbnail?.imageUrl && !currentThumbnail?.webImageUrl}
+                    >
+                      {isSharing ? <Loader size="sm" /> : <Icon variant="share" size={16} />}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">{t('inference:thumbnail.actions.share.label')}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className={`${styles.iconButton} ${styles.favButton} ${isFavourite ? styles.favActive : ''} ${isTogglingFav ? styles.favBeating : ''}`}
+                      aria-label={t('inference:viewer.favourite.ariaButton')}
+                      aria-pressed={isFavourite}
+                      onClick={toggleFavourite}
+                      disabled={isTogglingFav || !currentThumbnail?.imageId}
+                      data-anim-key={favAnimatingKey}
+                    >
+                      <span className={`${styles.favIconWrapper} ${isFavourite ? styles.favIconActive : ''}`}>
+                        <Icon variant={isFavourite ? 'heart' : 'heartOutline'} size={16} />
                       </span>
-                    )}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">{isFavourite ? t('inference:viewer.favourite.remove') : t('inference:viewer.favourite.add')}</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+                      {showFavConfirm && (
+                        <span className={styles.favConfirm} aria-hidden="true">
+                          <Icon className={styles.favConfirmIcon} variant="heart" size={18} />
+                        </span>
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">{isFavourite ? t('inference:viewer.favourite.remove') : t('inference:viewer.favourite.add')}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
           {!!subtitle && (
             <>

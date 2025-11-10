@@ -253,12 +253,29 @@
       "download": {
         "label": "Downloaden",
         "aria": "Afbeelding downloaden"
+      },
+      "share": {
+        "label": "Delen",
+        "aria": "Deze afbeelding delen"
       }
     },
     "confirmDelete": {
       "title": "Afbeelding verwijderen?",
       "description": "Dit verwijdert de afbeelding uit je galerij. Dit kan niet ongedaan worden gemaakt.",
       "confirm": "Verwijderen"
+    },
+    "share": {
+      "text": "Bekijk mijn AI-fotoshoot! 📸✨\n\nGemaakt met Primeshot. Probeer het zelf:\n{{url}}\n",
+      "success": "Afbeelding succesvol gedeeld!",
+      "copiedToClipboard": "Link gekopieerd naar klembord!",
+      "error": "Fout bij delen van afbeelding"
+    },
+    "explore": {
+      "add": "Add to Explore",
+      "remove": "Remove from Explore",
+      "saved": "Added to Explore",
+      "removed": "Removed from Explore",
+      "error": "Failed to update Explore"
     }
   },
   "errors": {
@@ -286,5 +303,17 @@
       "failed": "Generatie mislukt. Probeer opnieuw met andere instellingen.",
       "general": "Er is een fout opgetreden tijdens het genereren. Probeer opnieuw."
     }
+  },
+  "shareDialog": {
+    "title": "Deel je creatie",
+    "shareOnX": "Delen op X",
+    "shareOnFacebook": "Delen op Facebook",
+    "shareOnLinkedIn": "Delen op LinkedIn",
+    "shareOnWhatsApp": "Delen op WhatsApp",
+    "downloadImage": "Afbeelding downloaden",
+    "copyLink": "Link kopiëren",
+    "previewText": "Voorbeeld",
+    "description": "Download eerst de afbeelding en deel deze vervolgens met uw tekst op sociale media",
+    "orShareLink": "Of alleen link delen"
   }
 }

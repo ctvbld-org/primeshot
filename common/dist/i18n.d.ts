@@ -689,6 +689,23 @@ export declare const resources: {
                         label: string;
                         aria: string;
                     };
+                    share: {
+                        label: string;
+                        aria: string;
+                    };
+                };
+                share: {
+                    text: string;
+                    success: string;
+                    copiedToClipboard: string;
+                    error: string;
+                };
+                explore: {
+                    add: string;
+                    remove: string;
+                    saved: string;
+                    removed: string;
+                    error: string;
                 };
                 confirmDelete: {
                     title: string;
@@ -2064,11 +2081,28 @@ export declare const resources: {
                         label: string;
                         aria: string;
                     };
+                    share: {
+                        label: string;
+                        aria: string;
+                    };
                 };
                 confirmDelete: {
                     title: string;
                     description: string;
                     confirm: string;
+                };
+                share: {
+                    text: string;
+                    success: string;
+                    copiedToClipboard: string;
+                    error: string;
+                };
+                explore: {
+                    add: string;
+                    remove: string;
+                    saved: string;
+                    removed: string;
+                    error: string;
                 };
             };
             errors: {
@@ -2096,6 +2130,18 @@ export declare const resources: {
                     failed: string;
                     general: string;
                 };
+            };
+            shareDialog: {
+                title: string;
+                shareOnX: string;
+                shareOnFacebook: string;
+                shareOnLinkedIn: string;
+                shareOnWhatsApp: string;
+                downloadImage: string;
+                copyLink: string;
+                previewText: string;
+                description: string;
+                orShareLink: string;
             };
         };
         character: {
@@ -3417,11 +3463,28 @@ export declare const resources: {
                         label: string;
                         aria: string;
                     };
+                    share: {
+                        label: string;
+                        aria: string;
+                    };
                 };
                 confirmDelete: {
                     title: string;
                     description: string;
                     confirm: string;
+                };
+                share: {
+                    text: string;
+                    success: string;
+                    copiedToClipboard: string;
+                    error: string;
+                };
+                explore: {
+                    add: string;
+                    remove: string;
+                    saved: string;
+                    removed: string;
+                    error: string;
                 };
             };
             errors: {
@@ -4757,11 +4820,28 @@ export declare const resources: {
                         label: string;
                         aria: string;
                     };
+                    share: {
+                        label: string;
+                        aria: string;
+                    };
                 };
                 confirmDelete: {
                     title: string;
                     description: string;
                     confirm: string;
+                };
+                share: {
+                    text: string;
+                    success: string;
+                    copiedToClipboard: string;
+                    error: string;
+                };
+                explore: {
+                    add: string;
+                    remove: string;
+                    saved: string;
+                    removed: string;
+                    error: string;
                 };
             };
             errors: {
@@ -6097,11 +6177,28 @@ export declare const resources: {
                         label: string;
                         aria: string;
                     };
+                    share: {
+                        label: string;
+                        aria: string;
+                    };
                 };
                 confirmDelete: {
                     title: string;
                     description: string;
                     confirm: string;
+                };
+                share: {
+                    text: string;
+                    success: string;
+                    copiedToClipboard: string;
+                    error: string;
+                };
+                explore: {
+                    add: string;
+                    remove: string;
+                    saved: string;
+                    removed: string;
+                    error: string;
                 };
             };
             errors: {
@@ -7437,11 +7534,28 @@ export declare const resources: {
                         label: string;
                         aria: string;
                     };
+                    share: {
+                        label: string;
+                        aria: string;
+                    };
                 };
                 confirmDelete: {
                     title: string;
                     description: string;
                     confirm: string;
+                };
+                share: {
+                    text: string;
+                    success: string;
+                    copiedToClipboard: string;
+                    error: string;
+                };
+                explore: {
+                    add: string;
+                    remove: string;
+                    saved: string;
+                    removed: string;
+                    error: string;
                 };
             };
             errors: {
@@ -7469,6 +7583,18 @@ export declare const resources: {
                     failed: string;
                     general: string;
                 };
+            };
+            shareDialog: {
+                title: string;
+                shareOnX: string;
+                shareOnFacebook: string;
+                shareOnLinkedIn: string;
+                shareOnWhatsApp: string;
+                downloadImage: string;
+                copyLink: string;
+                previewText: string;
+                description: string;
+                orShareLink: string;
             };
         };
         character: {
@@ -8777,11 +8903,28 @@ export declare const resources: {
                         label: string;
                         aria: string;
                     };
+                    share: {
+                        label: string;
+                        aria: string;
+                    };
                 };
                 confirmDelete: {
                     title: string;
                     description: string;
                     confirm: string;
+                };
+                share: {
+                    text: string;
+                    success: string;
+                    copiedToClipboard: string;
+                    error: string;
+                };
+                explore: {
+                    add: string;
+                    remove: string;
+                    saved: string;
+                    removed: string;
+                    error: string;
                 };
             };
             errors: {
@@ -10117,11 +10260,28 @@ export declare const resources: {
                         label: string;
                         aria: string;
                     };
+                    share: {
+                        label: string;
+                        aria: string;
+                    };
                 };
                 confirmDelete: {
                     title: string;
                     description: string;
                     confirm: string;
+                };
+                share: {
+                    text: string;
+                    success: string;
+                    copiedToClipboard: string;
+                    error: string;
+                };
+                explore: {
+                    add: string;
+                    remove: string;
+                    saved: string;
+                    removed: string;
+                    error: string;
                 };
             };
             errors: {
@@ -10149,6 +10309,18 @@ export declare const resources: {
                     failed: string;
                     general: string;
                 };
+            };
+            shareDialog: {
+                title: string;
+                shareOnX: string;
+                shareOnFacebook: string;
+                shareOnLinkedIn: string;
+                shareOnWhatsApp: string;
+                downloadImage: string;
+                copyLink: string;
+                previewText: string;
+                description: string;
+                orShareLink: string;
             };
         };
         character: {
@@ -11458,11 +11630,28 @@ export declare const resources: {
                         label: string;
                         aria: string;
                     };
+                    share: {
+                        label: string;
+                        aria: string;
+                    };
                 };
                 confirmDelete: {
                     title: string;
                     description: string;
                     confirm: string;
+                };
+                share: {
+                    text: string;
+                    success: string;
+                    copiedToClipboard: string;
+                    error: string;
+                };
+                explore: {
+                    add: string;
+                    remove: string;
+                    saved: string;
+                    removed: string;
+                    error: string;
                 };
             };
             errors: {
@@ -11490,6 +11679,18 @@ export declare const resources: {
                     failed: string;
                     general: string;
                 };
+            };
+            shareDialog: {
+                title: string;
+                shareOnX: string;
+                shareOnFacebook: string;
+                shareOnLinkedIn: string;
+                shareOnWhatsApp: string;
+                downloadImage: string;
+                copyLink: string;
+                previewText: string;
+                description: string;
+                orShareLink: string;
             };
         };
         character: {
@@ -12799,11 +13000,28 @@ export declare const resources: {
                         label: string;
                         aria: string;
                     };
+                    share: {
+                        label: string;
+                        aria: string;
+                    };
                 };
                 confirmDelete: {
                     title: string;
                     description: string;
                     confirm: string;
+                };
+                share: {
+                    text: string;
+                    success: string;
+                    copiedToClipboard: string;
+                    error: string;
+                };
+                explore: {
+                    add: string;
+                    remove: string;
+                    saved: string;
+                    removed: string;
+                    error: string;
                 };
             };
             errors: {
@@ -12831,6 +13049,18 @@ export declare const resources: {
                     failed: string;
                     general: string;
                 };
+            };
+            shareDialog: {
+                title: string;
+                shareOnX: string;
+                shareOnFacebook: string;
+                shareOnLinkedIn: string;
+                shareOnWhatsApp: string;
+                downloadImage: string;
+                copyLink: string;
+                previewText: string;
+                description: string;
+                orShareLink: string;
             };
         };
         character: {

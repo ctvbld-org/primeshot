@@ -20,6 +20,7 @@ interface ExploreThumbProps {
   wardrobe: string;
   color: string;
   category: string;
+  shortCode?: string; // NEW: short code for URL shortener
   staggerIndex?: number;
   totalItems?: number;
   priority?: boolean;
@@ -71,6 +72,7 @@ const ExploreThumb: React.FC<ExploreThumbProps> = ({
   wardrobe,
   color,
   category,
+  shortCode,
   staggerIndex = 0,
   totalItems = 1,
   priority = false,
@@ -80,6 +82,15 @@ const ExploreThumb: React.FC<ExploreThumbProps> = ({
   const { ref, isInView } = useLazyLoad(0.1, forceVisible);
   const { t, i18n } = useTranslation(['styles', 'common']);
   const { findSceneByValue, findWardrobeByValue, findColorByValue, scenesLoading, wardrobesLoading, colorsLoading } = useStyleData();
+  
+  // Generate URL - use short code if available, otherwise fallback to query params
+  const generateUrl = useMemo(() => {
+    if (shortCode) {
+      return `/s/${shortCode}`;
+    }
+    // Fallback for backward compatibility (explore images without short codes)
+    return `/create?style=${encodeURIComponent(style.toLowerCase().replace(/\s+/g, ''))}&scene=${encodeURIComponent(scene)}&wardrobe=${encodeURIComponent(wardrobe)}&color=${encodeURIComponent(color)}&aspectRatio=${encodeURIComponent(aspectRatio)}&quality=${encodeURIComponent(resolution)}`;
+  }, [shortCode, style, scene, wardrobe, color, aspectRatio, resolution]);
   
   // Helper to get translated label
   const getTranslatedLabel = <T extends { translations?: { [lang: string]: { [key: string]: string } }; label?: string }>(
@@ -178,7 +189,7 @@ const ExploreThumb: React.FC<ExploreThumbProps> = ({
         <Tooltip>
           <TooltipTrigger asChild>
             <Link 
-              href={`/create?style=${encodeURIComponent(style.toLowerCase().replace(/\s+/g, ''))}&scene=${encodeURIComponent(scene)}&wardrobe=${encodeURIComponent(wardrobe)}&color=${encodeURIComponent(color)}&aspectRatio=${encodeURIComponent(aspectRatio)}&quality=${encodeURIComponent(resolution)}`}
+              href={generateUrl}
               className={styles.generateButton}
             >
               <svg className={styles.generateIconDefault} width="20" height="20" viewBox="0 0 20 20" fill="none">

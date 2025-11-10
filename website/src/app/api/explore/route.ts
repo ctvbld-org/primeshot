@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   try {
     let query = supabase
       .from('explore_images')
-      .select('id, s3_path, category_id')
+      .select('id, s3_path, category_id, short_code')
       .order('created_at', { ascending: false});
 
     // Filter by category if provided
@@ -53,6 +53,7 @@ export async function GET(request: NextRequest) {
         id: img.id,
         image: img.s3_path, // Full filename with all metadata
         category: categoryData?.name || 'Uncategorized',
+        shortCode: img.short_code, // Include short code for URL shortener
       };
     });
 
