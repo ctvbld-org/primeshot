@@ -22,10 +22,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     console.log('Share link found with signed URL:', shareLink.signed_image_url);
     return {
       title: 'Check out my AI photoshoot! 📸✨ | Primeshot',
-      description: 'Created with Primeshot. Try it yourself!',
+      description: 'Created with Primeshot - Try it yourself!',
       openGraph: {
         title: 'Check out my AI photoshoot! 📸✨',
-        description: 'Created with Primeshot. Try it yourself!',
+        description: 'Created with Primeshot\n\nTry it yourself!',
         images: [
           {
             url: shareLink.signed_image_url,
@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       twitter: {
         card: 'summary_large_image',
         title: 'Check out my AI photoshoot! 📸✨',
-        description: 'Created with Primeshot. Try it yourself!',
+        description: 'Created with Primeshot\n\nTry it yourself!',
         images: [shareLink.signed_image_url],
       },
     };
@@ -66,7 +66,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: 'Create your own AI photoshoot with Primeshot',
       openGraph: {
         title: `${metadata?.styleFormatted || 'AI Photoshoot'}`,
-        description: 'Create your own AI photoshoot with Primeshot',
+        description: 'Create your own AI photoshoot with Primeshot\n\nGet started today!',
         images: [
           {
             url: cdnUrl,
@@ -80,7 +80,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       twitter: {
         card: 'summary_large_image',
         title: `${metadata?.styleFormatted || 'AI Photoshoot'}`,
-        description: 'Create your own AI photoshoot with Primeshot',
+        description: 'Create your own AI photoshoot with Primeshot\n\nGet started today!',
         images: [cdnUrl],
       },
     };
