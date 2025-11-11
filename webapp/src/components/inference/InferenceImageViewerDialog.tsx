@@ -900,31 +900,31 @@ export const InferenceImageViewerDialog: FC<InferenceImageViewerDialogProps> = (
                   <TooltipContent side="bottom">{t('inference:thumbnail.actions.share.label')}</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className={`${styles.iconButton} ${styles.favButton} ${isFavourite ? styles.favActive : ''} ${isTogglingFav ? styles.favBeating : ''}`}
-                      aria-label={t('inference:viewer.favourite.ariaButton')}
-                      aria-pressed={isFavourite}
-                      onClick={toggleFavourite}
-                      disabled={isTogglingFav || !currentThumbnail?.imageId}
-                      data-anim-key={favAnimatingKey}
-                    >
-                      <span className={`${styles.favIconWrapper} ${isFavourite ? styles.favIconActive : ''}`}>
-                        <Icon variant={isFavourite ? 'heart' : 'heartOutline'} size={16} />
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className={`${styles.iconButton} ${styles.favButton} ${isFavourite ? styles.favActive : ''} ${isTogglingFav ? styles.favBeating : ''}`}
+                    aria-label={t('inference:viewer.favourite.ariaButton')}
+                    aria-pressed={isFavourite}
+                    onClick={toggleFavourite}
+                    disabled={isTogglingFav || !currentThumbnail?.imageId}
+                    data-anim-key={favAnimatingKey}
+                  >
+                    <span className={`${styles.favIconWrapper} ${isFavourite ? styles.favIconActive : ''}`}>
+                      <Icon variant={isFavourite ? 'heart' : 'heartOutline'} size={16} />
+                    </span>
+                    {showFavConfirm && (
+                      <span className={styles.favConfirm} aria-hidden="true">
+                        <Icon className={styles.favConfirmIcon} variant="heart" size={18} />
                       </span>
-                      {showFavConfirm && (
-                        <span className={styles.favConfirm} aria-hidden="true">
-                          <Icon className={styles.favConfirmIcon} variant="heart" size={18} />
-                        </span>
-                      )}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom">{isFavourite ? t('inference:viewer.favourite.remove') : t('inference:viewer.favourite.add')}</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{isFavourite ? t('inference:viewer.favourite.remove') : t('inference:viewer.favourite.add')}</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             </div>
           </div>
           {!!subtitle && (

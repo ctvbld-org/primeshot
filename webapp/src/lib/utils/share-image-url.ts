@@ -1,7 +1,7 @@
-import { getCloudFrontSignedUrl } from '../cloudfront';
+import { getSignedUrl } from '@aws-sdk/cloudfront-signer';
 
 /**
- * Extract S3 path from app-images URL
+ * Extract S3 path from app-images URL and convert to full CloudFront URL
  * Example: /create/api/app-images?path=user-images%2F... -> user-images/...
  */
 function extractS3Path(imageUrl: string): string | null {
@@ -30,13 +30,18 @@ function extractS3Path(imageUrl: string): string | null {
 
 /**
  * Generate a long-lived CloudFront signed URL for share links
- * Reuses the existing getCloudFrontSignedUrl but with 1 year expiry
+ * These URLs expire in 1 year to match share link expiry
  */
 export async function getShareImageSignedUrl(imageUrl: string): Promise<string> {
   try {
     // Check if CloudFront signing is configured
     if (!process.env.CLOUDFRONT_KEY_PAIR_ID || !process.env.CLOUDFRONT_PRIVATE_KEY) {
       console.warn('CloudFront signing not configured, returning original URL');
+      return imageUrl;
+    }
+    
+    if (!process.env.NEXT_PUBLIC_AWS_DISTRIBUTION) {
+      console.warn('NEXT_PUBLIC_AWS_DISTRIBUTION not configured');
       return imageUrl;
     }
 
@@ -49,8 +54,21 @@ export async function getShareImageSignedUrl(imageUrl: string): Promise<string> 
 
     console.log('Extracted S3 path:', s3Path);
 
-    // Use the existing working CloudFront signing function
-    const signedUrl = await getCloudFrontSignedUrl(s3Path);
+    // Construct full CloudFront URL
+    const cloudFrontUrl = `${process.env.NEXT_PUBLIC_AWS_DISTRIBUTION}/${s3Path}`;
+    console.log('Constructing CloudFront URL:', cloudFrontUrl);
+
+    // Set expiry to 1 year (matching share link expiry)
+    const expiryDate = new Date();
+    expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+
+    // Use the same approach as the working cloudfront.ts
+    const signedUrl = getSignedUrl({
+      url: cloudFrontUrl,
+      keyPairId: process.env.CLOUDFRONT_KEY_PAIR_ID,
+      privateKey: process.env.CLOUDFRONT_PRIVATE_KEY,
+      dateLessThan: expiryDate.toISOString(),
+    });
 
     console.log('Successfully generated signed URL');
     return signedUrl;

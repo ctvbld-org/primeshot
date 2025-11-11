@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { generateShortCode } from '@/lib/utils/short-code';
-import { getShareImageSignedUrl } from '@/lib/utils/share-image-url';
+import { copyImageToPublic } from '@/lib/utils/copy-image-to-public';
 
 interface CreateShareLinkRequest {
   shortCode?: string; // Optional pre-generated code
@@ -88,19 +88,19 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    // Generate signed URL for the image (if provided)
-    let signedImageUrl: string | null = null;
+    // Copy image to public S3 path (if provided)
+    let publicImageUrl: string | null = null;
     if (imageUrl) {
       try {
-        console.log('Generating signed URL for image:', imageUrl);
-        signedImageUrl = await getShareImageSignedUrl(imageUrl);
-        console.log('Generated signed URL:', signedImageUrl ? 'Success' : 'Failed');
+        console.log('Copying image to public S3 path for sharing');
+        publicImageUrl = await copyImageToPublic(imageUrl, shortCode);
+        console.log('Image copied successfully:', publicImageUrl);
       } catch (error) {
-        console.error('Failed to generate signed URL:', error);
-        // Continue without signed URL - not critical
+        console.error('Failed to copy image to public S3:', error);
+        // Continue without public image - not critical for link creation
       }
     } else {
-      console.log('No imageUrl provided, skipping signed URL generation');
+      console.log('No imageUrl provided, skipping image copy');
     }
     
     // Create share link (expires in 1 year)
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
         aspect_ratio: aspectRatio,
         user_id: user.id,
         expires_at: expiresAt.toISOString(),
-        signed_image_url: signedImageUrl
+        signed_image_url: publicImageUrl // Store the public image URL
       })
       .select()
       .single();
