@@ -23,7 +23,7 @@ interface ShareResult {
 /**
  * Share a generated image with promotional text and short link
  * Uses Web Share API when available, falls back to clipboard
- * Only creates DB entry after successful share
+ * Creates DB entry and public image copy FIRST, then shares the public image
  * 
  * @param options Share configuration including image URL, metadata, and translation function
  * @returns Result indicating success and method used
@@ -32,7 +32,7 @@ export async function shareImage(options: ShareImageOptions): Promise<ShareResul
   const { imageUrl, jobMetadata, t } = options;
   
   try {
-    // Step 1: Generate short code locally (no DB entry yet)
+    // Step 1: Generate short code locally
     const shortCode = generateShortCode(6);
     
     // Use NEXT_PUBLIC_WEBSITE_URL for root domain (without /create)
@@ -42,16 +42,43 @@ export async function shareImage(options: ShareImageOptions): Promise<ShareResul
     
     const shareUrl = `${baseUrl}/s/${shortCode}`;
     
-    // Step 2: Build share text with short URL
+    // Step 2: Create DB entry and get public image URL FIRST
+    let publicImageUrl: string | null = null;
+    try {
+      const response = await fetch(getApiUrl('/api/share/create'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...jobMetadata,
+          shortCode, // Pass the pre-generated code
+          imageUrl   // Pass image URL for copying to public S3
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        publicImageUrl = data.publicImageUrl; // Get the public image URL from API
+        console.log('Public image URL created:', publicImageUrl);
+      } else {
+        console.warn('Failed to create share link, continuing with original image');
+      }
+    } catch (dbError) {
+      console.warn('Failed to create share link:', dbError);
+    }
+    
+    // Step 3: Build share text with short URL
     const shareText = t('thumbnail.share.text', { url: shareUrl });
+    
+    // Use public image URL if available, otherwise fall back to original
+    const imageToShare = publicImageUrl || imageUrl;
     
     let shareMethod: 'native' | 'native-text' | 'clipboard' | null = null;
     
-    // Step 3: Try Web Share API with image
+    // Step 4: Try Web Share API with image
     if (navigator.share && navigator.canShare) {
       try {
         // Fetch image as blob
-        const imageResponse = await fetch(imageUrl);
+        const imageResponse = await fetch(imageToShare);
         const blob = await imageResponse.blob();
         const file = new File([blob], 'primeshot-creation.png', { type: 'image/png' });
         
@@ -72,7 +99,7 @@ export async function shareImage(options: ShareImageOptions): Promise<ShareResul
         }
       } catch (error: any) {
         if (error.name === 'AbortError') {
-          // User cancelled - no DB entry created, nothing to clean up
+          // User cancelled - DB entry already created but that's okay
           return { success: false, cancelled: true };
         }
         // Fall through to clipboard fallback
@@ -80,30 +107,15 @@ export async function shareImage(options: ShareImageOptions): Promise<ShareResul
       }
     }
     
-    // Fallback: Copy text to clipboard
+    // Fallback: Copy public image URL + text to clipboard
     if (!shareMethod) {
-      await navigator.clipboard.writeText(shareText);
-      shareMethod = 'clipboard';
-    }
-    
-    // Step 4: Share succeeded! Now create the DB entry
-    try {
-      const response = await fetch(getApiUrl('/api/share/create'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...jobMetadata,
-          shortCode, // Pass the pre-generated code
-          imageUrl   // Pass image URL for signed URL generation
-        })
-      });
+      // For desktop Slack/Discord, copy the direct image URL so it embeds as an image
+      const clipboardText = publicImageUrl 
+        ? `${shareText}\n\n${publicImageUrl}` // Image URL for embedding
+        : shareText; // Fall back to just text with share link
       
-      if (!response.ok) {
-        console.warn('Failed to save share link to database, but share succeeded');
-      }
-    } catch (dbError) {
-      // Share succeeded but DB save failed - not critical, just log it
-      console.warn('Failed to save share link to database:', dbError);
+      await navigator.clipboard.writeText(clipboardText);
+      shareMethod = 'clipboard';
     }
     
     return { success: true, method: shareMethod };

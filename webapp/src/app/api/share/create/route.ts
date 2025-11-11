@@ -137,7 +137,8 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({ 
       shortCode: data.short_code,
-      shareUrl
+      shareUrl,
+      publicImageUrl // Return the public image URL for sharing
     });
     
   } catch (error) {
