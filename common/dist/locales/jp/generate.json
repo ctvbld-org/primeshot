@@ -1,47 +1,47 @@
 {
-  "buttons": {
-    "generate": "生成",
-    "create": "作成",
-    "done": "完了",
-    "cancel": "キャンセル",
-    "confirm": "確認"
-  },
-  "labels": {
-    "woman": "女性",
-    "man": "男性",
-    "scene": "シーン",
-    "wardrobe": "服装",
-    "creditsSuffix": "クレジット",
-    "requiresActiveSubscription": "有効なサブスクリプションが必要",
-    "calculating": "計算中"
-  },
-  "aria": {
-    "selectStyle": "スタイルを選択",
-    "selectScene": "シーンを選択",
-    "selectWardrobe": "服装を選択",
-    "selectCharacter": "キャラクターを選択",
-    "openSettings": "設定を開く",
-    "trainingProgress": "トレーニング進行状況",
-    "characterActions": "キャラクターアクション",
-    "closeOverlay": "オーバーレイを閉じる",
-    "carouselNavigation": "カルーセルナビゲーション",
-    "previous": "前へ",
-    "next": "次へ",
-    "search": "{{title}}を検索"
-  },
-  "placeholders": {
-    "find": "{{title}}を見つける"
-  },
-  "admin": {
-    "title": "管理者推論オーバーライド",
-    "enableNodeOverrides": "ノードオーバーライドを有効にする（ノードタイトル別JSON）",
-    "overridesJson": "オーバーライドJSON",
-    "enablePromptOverride": "プロンプトオーバーライドを有効にする",
-    "prompt": "プロンプト",
-    "characterMetadata": "キャラクターメタデータ（読み取り専用）"
-  },
-  "errors": {
-    "failedToStartGeneration": "生成の開始に失敗しました。再度お試しください。",
-    "selectCharacterToGenerate": "生成するキャラクターを選択してください"
-  }
+    "buttons": {
+        "generate": "生成",
+        "create": "作成",
+        "done": "完了",
+        "cancel": "キャンセル",
+        "confirm": "確認"
+    },
+    "labels": {
+        "woman": "女性",
+        "man": "男性",
+        "scene": "シーン",
+        "wardrobe": "服装",
+        "creditsSuffix": "クレジット",
+        "requiresActiveSubscription": "有効なサブスクリプションが必要",
+        "calculating": "計算中"
+    },
+    "aria": {
+        "selectStyle": "スタイルを選択",
+        "selectScene": "シーンを選択",
+        "selectWardrobe": "服装を選択",
+        "selectCharacter": "キャラクターを選択",
+        "openSettings": "設定を開く",
+        "trainingProgress": "トレーニング進行状況",
+        "characterActions": "キャラクターアクション",
+        "closeOverlay": "オーバーレイを閉じる",
+        "carouselNavigation": "カルーセルナビゲーション",
+        "previous": "前へ",
+        "next": "次へ",
+        "search": "{{title}}を検索"
+    },
+    "placeholders": {
+        "find": "{{title}}を見つける"
+    },
+    "admin": {
+        "title": "管理者推論オーバーライド",
+        "enableNodeOverrides": "ノードオーバーライドを有効にする（ノードタイトル別JSON）",
+        "overridesJson": "オーバーライドJSON",
+        "enablePromptOverride": "プロンプトオーバーライドを有効にする",
+        "prompt": "プロンプト",
+        "characterMetadata": "キャラクターメタデータ（読み取り専用）"
+    },
+    "errors": {
+        "failedToStartGeneration": "生成の開始に失敗しました。再度お試しください。",
+        "selectCharacterToGenerate": "生成するキャラクターを選択してください"
+    }
 }

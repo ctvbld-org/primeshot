@@ -1,307 +1,307 @@
 {
-  "common": {
-    "pleaseTryAgain": "Por favor, inténtalo de nuevo",
-    "cancel": "Cancelar"
-  },
-  "time": {
-    "justNow": "Ahora mismo",
-    "minutesAgo": "Hace {{count}}min",
-    "hoursAgo": "Hace {{count}}h",
-    "daysAgo": "Hace {{count}}d"
-  },
-  "gallery": {
-    "error": "Error al cargar trabajos de inferencia: {{error}}",
-    "retry": "Reintentar",
-    "loadingMore": "Cargando más shootings",
-    "endOfList": "Has llegado al final de tus shootings",
-    "howItWorksAria": "Cómo funciona",
-    "quotes": [
-      "Cada detalle toma forma",
-      "Tus retratos cobran vida",
-      "Pueden aparecer algunas sorpresas, felices casualidades",
-      "Juega con asombro",
-      "Y descubre los que son fieles a ti",
-      "Observa tu transformación",
-      "La magia está en marcha",
-      "Tu historia se despliega",
-      "Abraza lo inesperado",
-      "El arte te encuentra",
-      "Cada imagen una revelación",
-      "Belleza en progreso",
-      "Tu esencia capturada",
-      "Momentos volviéndose recuerdos",
-      "Encontrando tu luz",
-      "La perfección toma tiempo",
-      "Casi ahí, casi tú",
-      "Creando algo hermoso",
-      "Tu visión única emerge",
-      "Confía en el proceso",
-      "Algo especial te espera",
-      "Tu momento está llegando",
-      "Deja que el arte respire",
-      "La paciencia hace la perfección",
-      "Los sueños toman forma",
-      "Tu lienzo está vivo",
-      "Observa la magia suceder",
-      "Volviéndote extraordinario",
-      "Los detalles marcan la diferencia",
-      "Tu historia en píxeles",
-      "El arte es paciente",
-      "Creando tu momento",
-      "Cada segundo cuenta",
-      "Tu visión materializándose",
-      "La espera vale la pena",
-      "La belleza necesita tiempo",
-      "Casi listo para brillar",
-      "Tu obra maestra cargando",
-      "Dándote vida",
-      "Un momento más cerca",
-      "Creando el tú perfecto",
-      "Tu visión despierta",
-      "Las piezas encajan",
-      "Viéndote emerger",
-      "Lo mejor está por venir",
-      "Tu viaje se despliega aquí",
-      "Creando pura magia",
-      "Momentos de brillantez",
-      "Tu verdad revelada",
-      "Capturando tu alma",
-      "Los sueños se hacen realidad",
-      "El arte de convertirse",
-      "Tu belleza desplegándose",
-      "Paciencia pronto recompensada",
-      "Magia en movimiento",
-      "Tu identidad formándose",
-      "Arte en progreso",
-      "La revelación se acerca",
-      "Tu esencia resplandece",
-      "Algo hermoso preparándose",
-      "Tu imagen perfeccionándose",
-      "Tiempo bien invertido",
-      "Creando tu legado",
-      "Tu chispa encendiéndose",
-      "La meta se acerca",
-      "Pintando tu retrato",
-      "Tu maravilla te espera",
-      "Brillantez en creación",
-      "Tu momento de brillar",
-      "Creando arte de ti",
-      "El toque mágico aplicado",
-      "Tu historia tomando forma",
-      "Tejiendo tu magia",
-      "Tu brillantez emergiendo",
-      "Los toques finales",
-      "Tu transformación pronto completa",
-      "Creando algo atemporal",
-      "Tu yo auténtico",
-      "El viaje es hermoso",
-      "Tu resplandor creciendo",
-      "Perfeccionando cada detalle",
-      "Tu singularidad capturada",
-      "El arte de ti",
-      "Tu belleza multiplicada",
-      "Creando tu momento",
-      "La magia se despliega",
-      "Tu alma en lienzo",
-      "Casi perfectamente tú",
-      "Creando pura belleza",
-      "Tu luz brilla pronto",
-      "El arte cobra vida",
-      "Tu sueño realizado",
-      "Creando excelencia",
-      "Tu obra maestra cargando",
-      "El momento perfecto",
-      "Tu historia bellamente contada"
-    ],
-    "steps": {
-      "choose": {
-        "title": "Elige un estilo",
-        "desc": "Selecciona el ambiente, la escena y el outfit que se adapten a tu look."
-      },
-      "character": {
-        "title": "Crea un personaje",
-        "desc": "Sube unas fotos para que nuestra IA aprenda exactamente lo que te hace ser tú."
-      },
-      "generate": {
-        "title": "Genera tu shooting",
-        "desc": "Obtén tus retratos en minutos — auténticos, pulidos y listos para usar."
-      }
+    "common": {
+        "pleaseTryAgain": "Por favor, inténtalo de nuevo",
+        "cancel": "Cancelar"
+    },
+    "time": {
+        "justNow": "Ahora mismo",
+        "minutesAgo": "Hace {{count}}min",
+        "hoursAgo": "Hace {{count}}h",
+        "daysAgo": "Hace {{count}}d"
+    },
+    "gallery": {
+        "error": "Error al cargar trabajos de inferencia: {{error}}",
+        "retry": "Reintentar",
+        "loadingMore": "Cargando más shootings",
+        "endOfList": "Has llegado al final de tus shootings",
+        "howItWorksAria": "Cómo funciona",
+        "quotes": [
+            "Cada detalle toma forma",
+            "Tus retratos cobran vida",
+            "Pueden aparecer algunas sorpresas, felices casualidades",
+            "Juega con asombro",
+            "Y descubre los que son fieles a ti",
+            "Observa tu transformación",
+            "La magia está en marcha",
+            "Tu historia se despliega",
+            "Abraza lo inesperado",
+            "El arte te encuentra",
+            "Cada imagen una revelación",
+            "Belleza en progreso",
+            "Tu esencia capturada",
+            "Momentos volviéndose recuerdos",
+            "Encontrando tu luz",
+            "La perfección toma tiempo",
+            "Casi ahí, casi tú",
+            "Creando algo hermoso",
+            "Tu visión única emerge",
+            "Confía en el proceso",
+            "Algo especial te espera",
+            "Tu momento está llegando",
+            "Deja que el arte respire",
+            "La paciencia hace la perfección",
+            "Los sueños toman forma",
+            "Tu lienzo está vivo",
+            "Observa la magia suceder",
+            "Volviéndote extraordinario",
+            "Los detalles marcan la diferencia",
+            "Tu historia en píxeles",
+            "El arte es paciente",
+            "Creando tu momento",
+            "Cada segundo cuenta",
+            "Tu visión materializándose",
+            "La espera vale la pena",
+            "La belleza necesita tiempo",
+            "Casi listo para brillar",
+            "Tu obra maestra cargando",
+            "Dándote vida",
+            "Un momento más cerca",
+            "Creando el tú perfecto",
+            "Tu visión despierta",
+            "Las piezas encajan",
+            "Viéndote emerger",
+            "Lo mejor está por venir",
+            "Tu viaje se despliega aquí",
+            "Creando pura magia",
+            "Momentos de brillantez",
+            "Tu verdad revelada",
+            "Capturando tu alma",
+            "Los sueños se hacen realidad",
+            "El arte de convertirse",
+            "Tu belleza desplegándose",
+            "Paciencia pronto recompensada",
+            "Magia en movimiento",
+            "Tu identidad formándose",
+            "Arte en progreso",
+            "La revelación se acerca",
+            "Tu esencia resplandece",
+            "Algo hermoso preparándose",
+            "Tu imagen perfeccionándose",
+            "Tiempo bien invertido",
+            "Creando tu legado",
+            "Tu chispa encendiéndose",
+            "La meta se acerca",
+            "Pintando tu retrato",
+            "Tu maravilla te espera",
+            "Brillantez en creación",
+            "Tu momento de brillar",
+            "Creando arte de ti",
+            "El toque mágico aplicado",
+            "Tu historia tomando forma",
+            "Tejiendo tu magia",
+            "Tu brillantez emergiendo",
+            "Los toques finales",
+            "Tu transformación pronto completa",
+            "Creando algo atemporal",
+            "Tu yo auténtico",
+            "El viaje es hermoso",
+            "Tu resplandor creciendo",
+            "Perfeccionando cada detalle",
+            "Tu singularidad capturada",
+            "El arte de ti",
+            "Tu belleza multiplicada",
+            "Creando tu momento",
+            "La magia se despliega",
+            "Tu alma en lienzo",
+            "Casi perfectamente tú",
+            "Creando pura belleza",
+            "Tu luz brilla pronto",
+            "El arte cobra vida",
+            "Tu sueño realizado",
+            "Creando excelencia",
+            "Tu obra maestra cargando",
+            "El momento perfecto",
+            "Tu historia bellamente contada"
+        ],
+        "steps": {
+            "choose": {
+                "title": "Elige un estilo",
+                "desc": "Selecciona el ambiente, la escena y el outfit que se adapten a tu look."
+            },
+            "character": {
+                "title": "Crea un personaje",
+                "desc": "Sube unas fotos para que nuestra IA aprenda exactamente lo que te hace ser tú."
+            },
+            "generate": {
+                "title": "Genera tu shooting",
+                "desc": "Obtén tus retratos en minutos — auténticos, pulidos y listos para usar."
+            }
+        }
+    },
+    "viewer": {
+        "confirmDelete": {
+            "title": "¿Eliminar imagen?",
+            "description": "Esto eliminará permanentemente la imagen y no se puede deshacer.",
+            "confirm": "Eliminar",
+            "cancel": "Cancelar"
+        },
+        "closeAria": "Cerrar visor",
+        "carousel": {
+            "aria": "Navegación del carrusel",
+            "prevAria": "Imagen anterior",
+            "nextAria": "Imagen siguiente"
+        },
+        "overlay": {
+            "displayOriginal": "Mostrar original",
+            "displayOriginalAria": "Mostrar imagen original",
+            "originalUnavailableTitle": "Original no disponible",
+            "originalUnavailableDesc": "No se pudo cargar la variante de imagen original."
+        },
+        "viewOriginal": {
+            "label": "Ver en tamaño completo",
+            "viewing": "Viendo en tamaño completo",
+            "aria": "Cambiar a imagen en calidad original",
+            "viewingAria": "Viendo imagen en calidad original"
+        },
+        "title": "Shooting {{shootNumber}}",
+        "imageIndex": "IMG {{index}}",
+        "favourite": {
+            "ariaButton": "Favorito",
+            "add": "Añadir a favoritos",
+            "remove": "Quitar de favoritos",
+            "updateErrorTitle": "Error al actualizar favorito"
+        },
+        "metadata": {
+            "labels": {
+                "aspectRatio": "Relación de aspecto",
+                "quality": "Calidad",
+                "model": "Modelo",
+                "character": "Personaje"
+            },
+            "aspectLabels": {
+                "square": "Cuadrado",
+                "landscape": "Horizontal",
+                "portrait": "Vertical"
+            }
+        },
+        "actions": {
+            "delete": {
+                "label": "Eliminar",
+                "aria": "Eliminar imagen"
+            },
+            "download": {
+                "label": "Descargar",
+                "aria": "Descargar imagen"
+            }
+        },
+        "alt": {
+            "generated": "Imagen generada {{index}}",
+            "thumbnail": "Miniatura {{index}}"
+        }
+    },
+    "group": {
+        "status": {
+            "failed": "Generación fallida"
+        },
+        "error": {
+            "generic": "Algo no salió bien, tus créditos han sido reembolsados",
+            "timeout": "La creación tomó más tiempo del esperado, tus créditos han sido reembolsados",
+            "serverBusy": "Nuestros servidores estaban ocupados, tus créditos han sido reembolsados",
+            "memory": "Capacidad del servidor superada, tus créditos han sido reembolsados",
+            "connection": "Problema de conexión temporal, tus créditos han sido reembolsados",
+            "imageGeneration": "La creación no se completó, tus créditos han sido reembolsados",
+            "missingStyle": "El estilo o personaje solicitado ya no está disponible. Créditos reembolsados.",
+            "validation": "Configuración no válida. Créditos reembolsados.",
+            "resourceError": "Recursos insuficientes. Créditos reembolsados.",
+            "creditsRefunded": "Créditos reembolsados"
+        },
+        "confirmDelete": {
+            "title": "¿Eliminar shooting?",
+            "description": "Esto quitará el shooting de tu galería. Esta acción no se puede deshacer.",
+            "confirm": "Eliminar"
+        },
+        "deleteFailedTitle": "Eliminación fallida",
+        "rerun": {
+            "cannot": "No se puede reejecutar",
+            "missingInfo": "Falta información requerida del trabajo.",
+            "failed": "Reejecución fallida"
+        },
+        "header": {
+            "shootTitle": "SHOOTING #{{number}}"
+        },
+        "tooltips": {
+            "deleteShoot": "Eliminar shooting",
+            "rerunShoot": "Reejecutar shooting"
+        },
+        "aria": {
+            "thumbnailsPreview": "Vista previa de miniaturas",
+            "viewAllImages": "Ver todas las imágenes"
+        },
+        "alt": {
+            "preview": "Vista previa {{index}}"
+        },
+        "buttons": {
+            "viewAll": "Ver todo"
+        }
+    },
+    "thumbnail": {
+        "alt": {
+            "generatingPreview": "Generando vista previa {{index}}",
+            "generated": "Imagen generada {{index}}"
+        },
+        "favourite": {
+            "add": "Añadir a favoritos",
+            "remove": "Quitar de favoritos"
+        },
+        "loadingTitle": "Cargando…",
+        "loadingDesc": "Los detalles de la imagen aún se están cargando. Por favor, inténtalo de nuevo en un momento.",
+        "actions": {
+            "delete": {
+                "label": "Eliminar",
+                "aria": "Eliminar imagen"
+            },
+            "download": {
+                "label": "Descargar",
+                "aria": "Descargar imagen"
+            },
+            "share": {
+                "label": "Compartir",
+                "aria": "Compartir esta imagen"
+            }
+        },
+        "confirmDelete": {
+            "title": "¿Eliminar imagen?",
+            "description": "Esto quitará la imagen de tu galería. Esta acción no se puede deshacer.",
+            "confirm": "Eliminar"
+        },
+        "share": {
+            "text": "¡Mira mi sesión de fotos con IA! 📸✨\n\nCreado con Primeshot. Pruébalo tú:\n{{url}}\n",
+            "success": "¡Imagen compartida con éxito!",
+            "copiedToClipboard": "¡Enlace copiado al portapapeles!",
+            "error": "Error al compartir la imagen"
+        },
+        "explore": {
+            "add": "Add to Explore",
+            "remove": "Remove from Explore",
+            "saved": "Added to Explore",
+            "removed": "Removed from Explore",
+            "error": "Failed to update Explore"
+        }
+    },
+    "errors": {
+        "validation": {
+            "missingStyleOrCharacter": "El estilo o personaje solicitado ya no está disponible. Por favor, inténtalo de nuevo o selecciona un estilo diferente.",
+            "invalidParameter": "Valor de parámetro no válido. Por favor, inténtalo de nuevo con configuraciones diferentes.",
+            "workflowConfig": "Error de configuración del flujo de trabajo. Por favor, inténtalo de nuevo o contacta con soporte.",
+            "invalidRequest": "Parámetros de solicitud no válidos. Por favor, inténtalo de nuevo."
+        },
+        "connection": {
+            "unavailable": "Servicio temporalmente no disponible. Por favor, inténtalo de nuevo en un momento."
+        },
+        "timeout": {
+            "idle": "La generación tardó demasiado sin progreso. Esto puede deberse a alta carga del servidor. Por favor, inténtalo de nuevo.",
+            "general": "Se agotó el tiempo de espera de la solicitud. Por favor, inténtalo de nuevo o usa configuraciones de menor calidad."
+        },
+        "endpoint": {
+            "configuration": "Error de configuración del servicio. Por favor, contacta con soporte."
+        },
+        "resource": {
+            "insufficient": "Recursos insuficientes. Por favor, inténtalo de nuevo con menor resolución o menos imágenes.",
+            "missing": "Recurso requerido no encontrado. Por favor, inténtalo de nuevo o contacta con soporte si el problema persiste."
+        },
+        "generation": {
+            "failed": "La generación falló. Por favor, inténtalo de nuevo con configuraciones diferentes.",
+            "general": "Ocurrió un error durante la generación. Por favor, inténtalo de nuevo."
+        }
     }
-  },
-  "viewer": {
-    "confirmDelete": {
-      "title": "¿Eliminar imagen?",
-      "description": "Esto eliminará permanentemente la imagen y no se puede deshacer.",
-      "confirm": "Eliminar",
-      "cancel": "Cancelar"
-    },
-    "closeAria": "Cerrar visor",
-    "carousel": {
-      "aria": "Navegación del carrusel",
-      "prevAria": "Imagen anterior",
-      "nextAria": "Imagen siguiente"
-    },
-    "overlay": {
-      "displayOriginal": "Mostrar original",
-      "displayOriginalAria": "Mostrar imagen original",
-      "originalUnavailableTitle": "Original no disponible",
-      "originalUnavailableDesc": "No se pudo cargar la variante de imagen original."
-    },
-    "viewOriginal": {
-      "label": "Ver en tamaño completo",
-      "viewing": "Viendo en tamaño completo",
-      "aria": "Cambiar a imagen en calidad original",
-      "viewingAria": "Viendo imagen en calidad original"
-    },
-    "title": "Shooting {{shootNumber}}",
-    "imageIndex": "IMG {{index}}",
-    "favourite": {
-      "ariaButton": "Favorito",
-      "add": "Añadir a favoritos",
-      "remove": "Quitar de favoritos",
-      "updateErrorTitle": "Error al actualizar favorito"
-    },
-    "metadata": {
-      "labels": {
-        "aspectRatio": "Relación de aspecto",
-        "quality": "Calidad",
-        "model": "Modelo",
-        "character": "Personaje"
-      },
-      "aspectLabels": {
-        "square": "Cuadrado",
-        "landscape": "Horizontal",
-        "portrait": "Vertical"
-      }
-    },
-    "actions": {
-      "delete": {
-        "label": "Eliminar",
-        "aria": "Eliminar imagen"
-      },
-      "download": {
-        "label": "Descargar",
-        "aria": "Descargar imagen"
-      }
-    },
-    "alt": {
-      "generated": "Imagen generada {{index}}",
-      "thumbnail": "Miniatura {{index}}"
-    }
-  },
-  "group": {
-    "status": {
-      "failed": "Generación fallida"
-    },
-    "error": {
-      "generic": "Algo no salió bien, tus créditos han sido reembolsados",
-      "timeout": "La creación tomó más tiempo del esperado, tus créditos han sido reembolsados",
-      "serverBusy": "Nuestros servidores estaban ocupados, tus créditos han sido reembolsados",
-      "memory": "Capacidad del servidor superada, tus créditos han sido reembolsados",
-      "connection": "Problema de conexión temporal, tus créditos han sido reembolsados",
-      "imageGeneration": "La creación no se completó, tus créditos han sido reembolsados",
-      "missingStyle": "El estilo o personaje solicitado ya no está disponible. Créditos reembolsados.",
-      "validation": "Configuración no válida. Créditos reembolsados.",
-      "resourceError": "Recursos insuficientes. Créditos reembolsados.",
-      "creditsRefunded": "Créditos reembolsados"
-    },
-    "confirmDelete": {
-      "title": "¿Eliminar shooting?",
-      "description": "Esto quitará el shooting de tu galería. Esta acción no se puede deshacer.",
-      "confirm": "Eliminar"
-    },
-    "deleteFailedTitle": "Eliminación fallida",
-    "rerun": {
-      "cannot": "No se puede reejecutar",
-      "missingInfo": "Falta información requerida del trabajo.",
-      "failed": "Reejecución fallida"
-    },
-    "header": {
-      "shootTitle": "SHOOTING #{{number}}"
-    },
-    "tooltips": {
-      "deleteShoot": "Eliminar shooting",
-      "rerunShoot": "Reejecutar shooting"
-    },
-    "aria": {
-      "thumbnailsPreview": "Vista previa de miniaturas",
-      "viewAllImages": "Ver todas las imágenes"
-    },
-    "alt": {
-      "preview": "Vista previa {{index}}"
-    },
-    "buttons": {
-      "viewAll": "Ver todo"
-    }
-  },
-  "thumbnail": {
-    "alt": {
-      "generatingPreview": "Generando vista previa {{index}}",
-      "generated": "Imagen generada {{index}}"
-    },
-    "favourite": {
-      "add": "Añadir a favoritos",
-      "remove": "Quitar de favoritos"
-    },
-    "loadingTitle": "Cargando…",
-    "loadingDesc": "Los detalles de la imagen aún se están cargando. Por favor, inténtalo de nuevo en un momento.",
-    "actions": {
-      "delete": {
-        "label": "Eliminar",
-        "aria": "Eliminar imagen"
-      },
-      "download": {
-        "label": "Descargar",
-        "aria": "Descargar imagen"
-      },
-      "share": {
-        "label": "Compartir",
-        "aria": "Compartir esta imagen"
-      }
-    },
-    "confirmDelete": {
-      "title": "¿Eliminar imagen?",
-      "description": "Esto quitará la imagen de tu galería. Esta acción no se puede deshacer.",
-      "confirm": "Eliminar"
-    },
-    "share": {
-      "text": "¡Mira mi sesión de fotos con IA! 📸✨\n\nCreado con Primeshot. Pruébalo tú:\n{{url}}\n",
-      "success": "¡Imagen compartida con éxito!",
-      "copiedToClipboard": "¡Enlace copiado al portapapeles!",
-      "error": "Error al compartir la imagen"
-    },
-    "explore": {
-      "add": "Add to Explore",
-      "remove": "Remove from Explore",
-      "saved": "Added to Explore",
-      "removed": "Removed from Explore",
-      "error": "Failed to update Explore"
-    }
-  },
-  "errors": {
-    "validation": {
-      "missingStyleOrCharacter": "El estilo o personaje solicitado ya no está disponible. Por favor, inténtalo de nuevo o selecciona un estilo diferente.",
-      "invalidParameter": "Valor de parámetro no válido. Por favor, inténtalo de nuevo con configuraciones diferentes.",
-      "workflowConfig": "Error de configuración del flujo de trabajo. Por favor, inténtalo de nuevo o contacta con soporte.",
-      "invalidRequest": "Parámetros de solicitud no válidos. Por favor, inténtalo de nuevo."
-    },
-    "connection": {
-      "unavailable": "Servicio temporalmente no disponible. Por favor, inténtalo de nuevo en un momento."
-    },
-    "timeout": {
-      "idle": "La generación tardó demasiado sin progreso. Esto puede deberse a alta carga del servidor. Por favor, inténtalo de nuevo.",
-      "general": "Se agotó el tiempo de espera de la solicitud. Por favor, inténtalo de nuevo o usa configuraciones de menor calidad."
-    },
-    "endpoint": {
-      "configuration": "Error de configuración del servicio. Por favor, contacta con soporte."
-    },
-    "resource": {
-      "insufficient": "Recursos insuficientes. Por favor, inténtalo de nuevo con menor resolución o menos imágenes.",
-      "missing": "Recurso requerido no encontrado. Por favor, inténtalo de nuevo o contacta con soporte si el problema persiste."
-    },
-    "generation": {
-      "failed": "La generación falló. Por favor, inténtalo de nuevo con configuraciones diferentes.",
-      "general": "Ocurrió un error durante la generación. Por favor, inténtalo de nuevo."
-    }
-  }
 }

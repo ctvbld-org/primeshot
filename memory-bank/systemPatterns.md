@@ -2844,6 +2844,20 @@ Detected changes in:
 - website/src/app/s/[code]/ShareRedirectClient.tsx
 - website/src/app/s/[code]/page.tsx
 - website/src/components/ExploreThumb.tsx
+
+
+**Auto-update 2025-11-11**:
+Detected changes in:
+- webapp/src/app/api/share/create/route.ts
+- webapp/src/lib/utils/share-image-url.ts
+- website/src/app/[locale]/blog/sitemap.ts
+- website/src/app/[locale]/pricing/page.module.css
+- website/src/app/s/[code]/ShareRedirectClient.tsx
+- website/src/app/s/[code]/page.tsx
+- website/src/components/InteractiveGenerateBar/ShowcaseSection.module.css
+- website/src/components/blog/BlogCard.tsx
+- website/src/components/generate/GenerateBar.module.css
+- website/src/components/generate/GenerateBar.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

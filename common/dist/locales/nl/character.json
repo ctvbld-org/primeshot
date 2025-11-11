@@ -1,239 +1,239 @@
 {
-  "nameLabel": "Karakternaam",
-  "creditsRequired": "Training gebruikt {{credits}} credits",
-  "training": "Karakter trainen",
-  "trainingInitializing": "Je karakter pakt zijn spullen",
-  "trainingInitializingInfo": "Je karakter wordt naar het trainingsstation gebracht.",
-  "trainingQueued": "Je karakter staat in de rij",
-  "trainingQueuedInfo": "Wacht tot een ander karakter ruimte vrijmaakt.",
-  "trainingWarmingUp": "Je karakter warmt op",
-  "trainingWarmingUpInfo": "Wacht op groen licht om te beginnen met trainen.",
-  "trainingPending": "Je karakter wacht op een machine",
-  "trainingPendingInfo": "Machines zijn bezet tijdens piekuren, start zodra er een beschikbaar is. Positie {{position}} in de rij.",
-  "trainingRunning": "Training eindigt over ongeveer ",
-  "trainingRunningNoCountdown": "Je karakter traint en is over een paar minuten klaar.",
-  "trainingRunningInfo": "Je kunt terug naar de app om meer shoots in te plannen.",
-  "returnToApp": "Terug naar app",
-  "trainingError": "Fout:",
-  "trainingFailed": "Er was een probleem bij het trainen van je karakter",
-  "trainingFailedDescription": "Het was ofwel te moeilijk of je karakter was te mooi voor het model. Probeer opnieuw of neem contact op met support als het probleem aanhoudt.",
-  "confirmClose": {
-    "title": "Karakter maken sluiten?",
-    "description": "Weet je zeker dat je wilt sluiten? Al je voortgang gaat verloren en je moet opnieuw beginnen.",
-    "progressMessages": {
-      "upload": "Je geüploade foto's gaan verloren.",
-      "profile": "Je profielinformatie gaat verloren.",
-      "name": "Je karakternaam gaat verloren."
-    },
-    "buttons": {
-      "cancel": "Annuleren",
-      "confirm": "Toch sluiten"
-    }
-  },
-  "errors": {
-    "trainingRetryFailed": "Training mislukt na {{attempts}} pogingen. Probeer later opnieuw.",
-    "retryError": "Fout: {{message}}"
-  },
-  "upload": {
-    "uploadingFiles": "Je beste looks laden {{current}} van {{total}}",
-    "uploadingInfo": "Houd deze pagina open tot de upload voltooid is."
-  },
-  "dialogTitles": {
-    "onboardingIntro": "Karakter maken gids",
-    "onboardingGuidelines": "Fotografie tips",
-    "onboardingConfirmation": "Klaar om te uploaden",
-    "upload": "Foto's uploaden",
-    "name": "Geef je karakter een naam",
-    "uploading": "Foto's uploaden",
-    "training": "Model trainen"
-  },
-  "dialogDescription": {
-    "upload": "Upload foto's om je karakter te maken",
-    "name": "Geef je karakter een naam",
-    "training": "Karakter training bezig",
-    "default": "Karakter maken dialoog"
-  },
-  "beforeUnloadWarning": "Je karakter wordt momenteel verwerkt. Weet je zeker dat je weg wilt? Dit annuleert de upload.",
-  "onboarding": {
-    "intro": {
-      "title": "Ontmoet je karakter",
-      "description1": "Upload je beste foto's met gevarieerde <span style='color: #FF81F5;'>uitdrukkingen</span>, <span style='color: #70FFA7;'>hoeken</span> en <span style='color: #FFCF55;'>poses</span> om je unieke AI-tweeling vorm te geven!",
-      "description2": "Net als bij een echte fotoshoot leveren wat voorbereidingen authentieke, professionele resultaten.",
-      "privacy": "Je uploads zijn privé en veilig.",
-      "buttonGetStarted": "Beginnen",
-      "buttonSkip": "Overslaan"
-    },
-    "confirmation": {
-      "title": "Net als bij een echte fotoshoot maken <span style='color: #2ADED8;'>wat voorbereidingen</span> het verschil.",
-      "paragraph1": "Primeshot maakt hoogwaardige portretten van je dagelijkse foto's. Heldere, goed verlichte en gevarieerde foto's maken je gegenereerde shoots natuurlijker en indrukwekkender. Foto's van lage kwaliteit of wazig kunnen resultaten beperken.",
-      "paragraph2": "Als de resultaten niet zijn wat je verwachtte, probeer een nieuwe set foto's in een nieuw karakter.",
-      "buttonStart": "Ik begrijp het. Laten we beginnen!"
-    },
-    "guidelines": {
-      "naturalLight": {
-        "title": "Natuurlijk licht",
-        "description": "Gebruik goed verlichte foto's bij een raam of buiten! Vermijd donkerte of waas voor scherpe resultaten.",
-        "goodAlt": "Voorbeeld van goed natuurlijk licht",
-        "badAlt": "Voorbeeld van slechte verlichting"
-      },
-      "angles": {
-        "title": "Hoeken",
-        "description": "Varieer de hoeken! Kies schouder-shots, van voren en opzij, voeg wat heup-shots toe.",
-        "goodAlt": "Voorbeeld van goede hoek",
-        "badAlt": "Voorbeeld van slechte hoek"
-      },
-      "expressions": {
-        "title": "Uitdrukkingen",
-        "description": "Druk je persoonlijkheid uit met gevarieerde glimlachen en poses. Vermijd hetzelfde gezicht voor dynamische shots.",
-        "goodAlt": "Voorbeeld van goede uitdrukking",
-        "badAlt": "Voorbeeld van slechte uitdrukking"
-      },
-      "variety": {
-        "title": "Variatie",
-        "description": "Kies shots met een mix van kleding en achtergronden.",
-        "description2": "Gebruik geen filters.",
-        "goodAlt": "Voorbeeld van goede variatie",
-        "badAlt": "Voorbeeld van slechte variatie"
-      }
-    },
-    "buttons": {
-      "next": "Volgende"
-    },
-    "floatingAlt": "Zwevend voorbeeld {{id}}"
-  },
-  "uploadStep": {
-    "petMode": "Huisdier modus",
-    "bodyShotRequirementsNotMet": "Lichaam shot vereisten niet voldaan",
-    "bodyShotBypassExplanation": "Je kunt doorgaan zonder volledige lichaamsfoto's, maar het zal geen echte weergave van jezelf zijn",
-    "bodyShotBypassExplanationTooMany": "Je kunt doorgaan, maar close-ups zien er misschien niet optimaal uit. Voor de beste resultaten gebruik je maximaal 3 lichaamsfoto's.",
-    "bodyShotBypassButton": "Ik begrijp het, toch doorgaan"
-  },
-  "nameStep": {
-    "noPreview": "Geen voorvertoning",
-    "create": "Maken",
-    "altPreview": "Gezichtsmodel voorvertoning"
-  },
-  "countdown": {
-    "fallback": "Berekenen..."
-  },
-  "requirements": {
-    "header": {
-      "title": "Een Personage maken",
-      "description": "Upload {{minImages}} hoogwaardige foto's van jezelf om een herbruikbaar Personage te trainen dat je ware gelijkenis vastlegt in elke opname.",
-      "secureNote": "Je uploads zijn privé en veilig."
-    },
-    "sections": {
-      "uploadTips": "Upload tips",
-      "dosDonts": "Wel en niet doen"
-    },
-    "tips": {
-      "blurredBackground": "Kies voor onscherpe achtergronden om je onderwerp goed te scheiden.",
-      "naturalLight": "Gebruik natuurlijk licht door bij een raam te gaan staan of naar buiten te gaan!",
-      "photos": "Voeg close-up en borstbeeldfoto's toe.",
-      "expression": "Houd een neutrale of natuurlijk vriendelijke uitdrukking aan.",
-      "avoid": "Vermijd filters, hoeden, zware make-up of AI-gegenereerde afbeeldingen.",
-      "clothing": "Draag eenvoudige kleding met effen kleuren of zachte patronen.",
-      "quantity": "Upload {{minImages}} foto's of meer met verschillende hoeken en belichting."
-    },
-    "dodonts": {
-      "eyes": "Kijk naar de camera met je ogen duidelijk zichtbaar.",
-      "lighting": "Gebruik heldere, natuurlijke verlichting. Vermijd donkere of wazige foto's.",
-      "frame": "Zorg ervoor dat je alleen in het kader staat, zonder rommel of andere mensen.",
-      "face": "Kadreer je gezicht zodat het niet te klein of afgesneden is."
-    },
-    "altText": {
-      "goodExample": "Goed voorbeeld",
-      "badExample": "Slecht voorbeeld"
-    }
-  },
-  "quality": {
-    "scores": {
-      "bokeh": "Achtergrondvervaging",
-      "brightness": "Helderheid",
-      "contrast": "Contrast",
-      "saturation": "Verzadiging",
-      "sharpness": "Scherpte"
-    },
-    "issues": {
-      "image": {
-        "lowResolution": "Afbeelding met lage resolutie. Minimale grootte: {{minWidth}}x{{minHeight}}px.",
-        "suboptimalResolution": "De afbeeldingsresolutie is {{currentWidth}}x{{currentHeight}}px. Voor beste resultaten gebruik je minstens {{idealWidth}}x{{idealHeight}}px.",
-        "suboptimalResolutionLow": "De afbeeldingsresolutie is {{currentWidth}}x{{currentHeight}}px (onder 800px). Overweeg minstens 800x800px voor betere kwaliteit.",
-        "tooDark": "De afbeelding is te donker.",
-        "tooBright": "De afbeelding is te helder."
-      },
-      "face": {
-        "none": "Geen gezicht gedetecteerd.",
-        "multiple": "Meerdere gezichten gedetecteerd.",
-        "positionNotOptimal": "De gezichtspositie is niet optimaal.",
-        "detectSkipped": "Gezichtsdetectie werd overgeslagen.",
-        "angleExtreme": "De gezichtshoek is te extreem (pitch: {{pitch}}°, yaw: {{yaw}}°, roll: {{roll}}°)",
-        "sunglasses": "De ogen zijn bedekt door een zonnebril of donkere glazen.",
-        "sunglasses.critical": "Zonnebril gedetecteerd - verwijder de zonnebril alstublieft.",
-        "eyesClosed": "De ogen lijken gesloten of niet zichtbaar te zijn.",
-        "tooSmall": "Het gezicht is te klein in het beeld.",
-        "tooSmallToDetect": "Het gezicht is te klein en moeilijk te detecteren.",
-        "tooLarge": "Het gezicht is te groot/dichtbij.",
-        "sizeNotOptimal": "De gezichtsgrootte is niet optimaal."
-      },
-      "contrast": {
-        "separation": {
-          "nearlyIdentical": "Onderwerp en achtergrond hebben bijna identieke tinten - gebruik een sterk contrasterende achtergrond.",
-          "tooSimilar": "Onderwerp en achtergrond hebben te vergelijkbare tinten - overweeg een contrasterende achtergrond.",
-          "couldBeMoreDistinct": "Onderwerp en achtergrond zouden meer onderscheidend kunnen zijn - probeer een andere achtergrondkleur."
+    "nameLabel": "Karakternaam",
+    "creditsRequired": "Training gebruikt {{credits}} credits",
+    "training": "Karakter trainen",
+    "trainingInitializing": "Je karakter pakt zijn spullen",
+    "trainingInitializingInfo": "Je karakter wordt naar het trainingsstation gebracht.",
+    "trainingQueued": "Je karakter staat in de rij",
+    "trainingQueuedInfo": "Wacht tot een ander karakter ruimte vrijmaakt.",
+    "trainingWarmingUp": "Je karakter warmt op",
+    "trainingWarmingUpInfo": "Wacht op groen licht om te beginnen met trainen.",
+    "trainingPending": "Je karakter wacht op een machine",
+    "trainingPendingInfo": "Machines zijn bezet tijdens piekuren, start zodra er een beschikbaar is. Positie {{position}} in de rij.",
+    "trainingRunning": "Training eindigt over ongeveer ",
+    "trainingRunningNoCountdown": "Je karakter traint en is over een paar minuten klaar.",
+    "trainingRunningInfo": "Je kunt terug naar de app om meer shoots in te plannen.",
+    "returnToApp": "Terug naar app",
+    "trainingError": "Fout:",
+    "trainingFailed": "Er was een probleem bij het trainen van je karakter",
+    "trainingFailedDescription": "Het was ofwel te moeilijk of je karakter was te mooi voor het model. Probeer opnieuw of neem contact op met support als het probleem aanhoudt.",
+    "confirmClose": {
+        "title": "Karakter maken sluiten?",
+        "description": "Weet je zeker dat je wilt sluiten? Al je voortgang gaat verloren en je moet opnieuw beginnen.",
+        "progressMessages": {
+            "upload": "Je geüploade foto's gaan verloren.",
+            "profile": "Je profielinformatie gaat verloren.",
+            "name": "Je karakternaam gaat verloren."
         },
-        "poorOrFlat": "De afbeelding heeft slecht contrast of lijkt te vlak."
-      },
-      "sharpness": {
-        "tooBlurry": "De afbeelding lijkt wazig of mist voldoende detail.",
-        "pixelated": "De afbeelding lijkt gepixeld of heeft compressie-artefacten.",
-        "suboptimal": "De scherpte van de afbeelding kan worden verbeterd.",
-        "tooBlurryOrPixelated": "Image is too blurry or pixelated - use higher quality camera."
-      },
-      "background": {
-        "notBlurred": "De achtergrond is niet wazig. Gebruik de portretmodus of een wazige achtergrond."
-      },
-      "upload": {
-        "none": "Geen afbeeldingen geüpload"
-      },
-      "body": {
-        "minRequired": "Minstens {{min}} volledige lichaamsfoto's vereist (momenteel heb je {{current}})",
-        "tooMany": "Te veel volledige lichaamsfoto's ({{current}} van {{total}}). Maximum {{max}} toegestaan"
-      },
-      "score": {
-        "tooLow": "De beeldkwaliteitsscore is te laag"
-      },
-      "eyes": {
-        "maybeNotVisible": "Ogen zijn mogelijk niet duidelijk zichtbaar (controleer zonnebril, haar of slechte verlichting)"
-      },
-      "reject": {
-        "genericHint": "Deze foto voldeed niet aan de kwaliteitseisen. Probeer een goed verlichte foto van voren."
-      },
-      "bokeh": {
-        "lowScore": "Background not blurred enough.",
-        "batchRejection": "Most images lack background blur - use portrait mode or stand further from background.",
-        "veryPoor": "Background not blurred enough."
-      },
-      "filter": {
-        "strong": "Strong beauty or color filter detected - please use natural photo."
-      },
-      "duplicate": {
-        "tooSimilar": "Too similar to images {{similar}} - add more variety.",
-        "sameSession": "Looks too similar to other images - add more variety"
-      }
+        "buttons": {
+            "cancel": "Annuleren",
+            "confirm": "Toch sluiten"
+        }
+    },
+    "errors": {
+        "trainingRetryFailed": "Training mislukt na {{attempts}} pogingen. Probeer later opnieuw.",
+        "retryError": "Fout: {{message}}"
+    },
+    "upload": {
+        "uploadingFiles": "Je beste looks laden {{current}} van {{total}}",
+        "uploadingInfo": "Houd deze pagina open tot de upload voltooid is."
+    },
+    "dialogTitles": {
+        "onboardingIntro": "Karakter maken gids",
+        "onboardingGuidelines": "Fotografie tips",
+        "onboardingConfirmation": "Klaar om te uploaden",
+        "upload": "Foto's uploaden",
+        "name": "Geef je karakter een naam",
+        "uploading": "Foto's uploaden",
+        "training": "Model trainen"
+    },
+    "dialogDescription": {
+        "upload": "Upload foto's om je karakter te maken",
+        "name": "Geef je karakter een naam",
+        "training": "Karakter training bezig",
+        "default": "Karakter maken dialoog"
+    },
+    "beforeUnloadWarning": "Je karakter wordt momenteel verwerkt. Weet je zeker dat je weg wilt? Dit annuleert de upload.",
+    "onboarding": {
+        "intro": {
+            "title": "Ontmoet je karakter",
+            "description1": "Upload je beste foto's met gevarieerde <span style='color: #FF81F5;'>uitdrukkingen</span>, <span style='color: #70FFA7;'>hoeken</span> en <span style='color: #FFCF55;'>poses</span> om je unieke AI-tweeling vorm te geven!",
+            "description2": "Net als bij een echte fotoshoot leveren wat voorbereidingen authentieke, professionele resultaten.",
+            "privacy": "Je uploads zijn privé en veilig.",
+            "buttonGetStarted": "Beginnen",
+            "buttonSkip": "Overslaan"
+        },
+        "confirmation": {
+            "title": "Net als bij een echte fotoshoot maken <span style='color: #2ADED8;'>wat voorbereidingen</span> het verschil.",
+            "paragraph1": "Primeshot maakt hoogwaardige portretten van je dagelijkse foto's. Heldere, goed verlichte en gevarieerde foto's maken je gegenereerde shoots natuurlijker en indrukwekkender. Foto's van lage kwaliteit of wazig kunnen resultaten beperken.",
+            "paragraph2": "Als de resultaten niet zijn wat je verwachtte, probeer een nieuwe set foto's in een nieuw karakter.",
+            "buttonStart": "Ik begrijp het. Laten we beginnen!"
+        },
+        "guidelines": {
+            "naturalLight": {
+                "title": "Natuurlijk licht",
+                "description": "Gebruik goed verlichte foto's bij een raam of buiten! Vermijd donkerte of waas voor scherpe resultaten.",
+                "goodAlt": "Voorbeeld van goed natuurlijk licht",
+                "badAlt": "Voorbeeld van slechte verlichting"
+            },
+            "angles": {
+                "title": "Hoeken",
+                "description": "Varieer de hoeken! Kies schouder-shots, van voren en opzij, voeg wat heup-shots toe.",
+                "goodAlt": "Voorbeeld van goede hoek",
+                "badAlt": "Voorbeeld van slechte hoek"
+            },
+            "expressions": {
+                "title": "Uitdrukkingen",
+                "description": "Druk je persoonlijkheid uit met gevarieerde glimlachen en poses. Vermijd hetzelfde gezicht voor dynamische shots.",
+                "goodAlt": "Voorbeeld van goede uitdrukking",
+                "badAlt": "Voorbeeld van slechte uitdrukking"
+            },
+            "variety": {
+                "title": "Variatie",
+                "description": "Kies shots met een mix van kleding en achtergronden.",
+                "description2": "Gebruik geen filters.",
+                "goodAlt": "Voorbeeld van goede variatie",
+                "badAlt": "Voorbeeld van slechte variatie"
+            }
+        },
+        "buttons": {
+            "next": "Volgende"
+        },
+        "floatingAlt": "Zwevend voorbeeld {{id}}"
+    },
+    "uploadStep": {
+        "petMode": "Huisdier modus",
+        "bodyShotRequirementsNotMet": "Lichaam shot vereisten niet voldaan",
+        "bodyShotBypassExplanation": "Je kunt doorgaan zonder volledige lichaamsfoto's, maar het zal geen echte weergave van jezelf zijn",
+        "bodyShotBypassExplanationTooMany": "Je kunt doorgaan, maar close-ups zien er misschien niet optimaal uit. Voor de beste resultaten gebruik je maximaal 3 lichaamsfoto's.",
+        "bodyShotBypassButton": "Ik begrijp het, toch doorgaan"
+    },
+    "nameStep": {
+        "noPreview": "Geen voorvertoning",
+        "create": "Maken",
+        "altPreview": "Gezichtsmodel voorvertoning"
+    },
+    "countdown": {
+        "fallback": "Berekenen..."
+    },
+    "requirements": {
+        "header": {
+            "title": "Een Personage maken",
+            "description": "Upload {{minImages}} hoogwaardige foto's van jezelf om een herbruikbaar Personage te trainen dat je ware gelijkenis vastlegt in elke opname.",
+            "secureNote": "Je uploads zijn privé en veilig."
+        },
+        "sections": {
+            "uploadTips": "Upload tips",
+            "dosDonts": "Wel en niet doen"
+        },
+        "tips": {
+            "blurredBackground": "Kies voor onscherpe achtergronden om je onderwerp goed te scheiden.",
+            "naturalLight": "Gebruik natuurlijk licht door bij een raam te gaan staan of naar buiten te gaan!",
+            "photos": "Voeg close-up en borstbeeldfoto's toe.",
+            "expression": "Houd een neutrale of natuurlijk vriendelijke uitdrukking aan.",
+            "avoid": "Vermijd filters, hoeden, zware make-up of AI-gegenereerde afbeeldingen.",
+            "clothing": "Draag eenvoudige kleding met effen kleuren of zachte patronen.",
+            "quantity": "Upload {{minImages}} foto's of meer met verschillende hoeken en belichting."
+        },
+        "dodonts": {
+            "eyes": "Kijk naar de camera met je ogen duidelijk zichtbaar.",
+            "lighting": "Gebruik heldere, natuurlijke verlichting. Vermijd donkere of wazige foto's.",
+            "frame": "Zorg ervoor dat je alleen in het kader staat, zonder rommel of andere mensen.",
+            "face": "Kadreer je gezicht zodat het niet te klein of afgesneden is."
+        },
+        "altText": {
+            "goodExample": "Goed voorbeeld",
+            "badExample": "Slecht voorbeeld"
+        }
+    },
+    "quality": {
+        "scores": {
+            "bokeh": "Achtergrondvervaging",
+            "brightness": "Helderheid",
+            "contrast": "Contrast",
+            "saturation": "Verzadiging",
+            "sharpness": "Scherpte"
+        },
+        "issues": {
+            "image": {
+                "lowResolution": "Afbeelding met lage resolutie. Minimale grootte: {{minWidth}}x{{minHeight}}px.",
+                "suboptimalResolution": "De afbeeldingsresolutie is {{currentWidth}}x{{currentHeight}}px. Voor beste resultaten gebruik je minstens {{idealWidth}}x{{idealHeight}}px.",
+                "suboptimalResolutionLow": "De afbeeldingsresolutie is {{currentWidth}}x{{currentHeight}}px (onder 800px). Overweeg minstens 800x800px voor betere kwaliteit.",
+                "tooDark": "De afbeelding is te donker.",
+                "tooBright": "De afbeelding is te helder."
+            },
+            "face": {
+                "none": "Geen gezicht gedetecteerd.",
+                "multiple": "Meerdere gezichten gedetecteerd.",
+                "positionNotOptimal": "De gezichtspositie is niet optimaal.",
+                "detectSkipped": "Gezichtsdetectie werd overgeslagen.",
+                "angleExtreme": "De gezichtshoek is te extreem (pitch: {{pitch}}°, yaw: {{yaw}}°, roll: {{roll}}°)",
+                "sunglasses": "De ogen zijn bedekt door een zonnebril of donkere glazen.",
+                "sunglasses.critical": "Zonnebril gedetecteerd - verwijder de zonnebril alstublieft.",
+                "eyesClosed": "De ogen lijken gesloten of niet zichtbaar te zijn.",
+                "tooSmall": "Het gezicht is te klein in het beeld.",
+                "tooSmallToDetect": "Het gezicht is te klein en moeilijk te detecteren.",
+                "tooLarge": "Het gezicht is te groot/dichtbij.",
+                "sizeNotOptimal": "De gezichtsgrootte is niet optimaal."
+            },
+            "contrast": {
+                "separation": {
+                    "nearlyIdentical": "Onderwerp en achtergrond hebben bijna identieke tinten - gebruik een sterk contrasterende achtergrond.",
+                    "tooSimilar": "Onderwerp en achtergrond hebben te vergelijkbare tinten - overweeg een contrasterende achtergrond.",
+                    "couldBeMoreDistinct": "Onderwerp en achtergrond zouden meer onderscheidend kunnen zijn - probeer een andere achtergrondkleur."
+                },
+                "poorOrFlat": "De afbeelding heeft slecht contrast of lijkt te vlak."
+            },
+            "sharpness": {
+                "tooBlurry": "De afbeelding lijkt wazig of mist voldoende detail.",
+                "pixelated": "De afbeelding lijkt gepixeld of heeft compressie-artefacten.",
+                "suboptimal": "De scherpte van de afbeelding kan worden verbeterd.",
+                "tooBlurryOrPixelated": "Image is too blurry or pixelated - use higher quality camera."
+            },
+            "background": {
+                "notBlurred": "De achtergrond is niet wazig. Gebruik de portretmodus of een wazige achtergrond."
+            },
+            "upload": {
+                "none": "Geen afbeeldingen geüpload"
+            },
+            "body": {
+                "minRequired": "Minstens {{min}} volledige lichaamsfoto's vereist (momenteel heb je {{current}})",
+                "tooMany": "Te veel volledige lichaamsfoto's ({{current}} van {{total}}). Maximum {{max}} toegestaan"
+            },
+            "score": {
+                "tooLow": "De beeldkwaliteitsscore is te laag"
+            },
+            "eyes": {
+                "maybeNotVisible": "Ogen zijn mogelijk niet duidelijk zichtbaar (controleer zonnebril, haar of slechte verlichting)"
+            },
+            "reject": {
+                "genericHint": "Deze foto voldeed niet aan de kwaliteitseisen. Probeer een goed verlichte foto van voren."
+            },
+            "bokeh": {
+                "lowScore": "Background not blurred enough.",
+                "batchRejection": "Most images lack background blur - use portrait mode or stand further from background.",
+                "veryPoor": "Background not blurred enough."
+            },
+            "filter": {
+                "strong": "Strong beauty or color filter detected - please use natural photo."
+            },
+            "duplicate": {
+                "tooSimilar": "Too similar to images {{similar}} - add more variety.",
+                "sameSession": "Looks too similar to other images - add more variety"
+            }
+        }
+    },
+    "uploader": {
+        "dragDropMessage": "Sleep {{count}} selfies hierheen, of",
+        "dragDropMoreMessage_one": "Sleep er nog 1 hierheen, of",
+        "dragDropMoreMessage_other": "Sleep er nog {{count}} hierheen, of",
+        "browse": "bladeren",
+        "supportedFormats": "Ondersteunt JPG en PNG bestanden",
+        "dropMessage": "Laat je foto's hier vallen",
+        "maxImagesReached": "Alle foto's toegevoegd, je bent klaar!"
+    },
+    "status": {
+        "analyzing": "{{count}} foto's analyseren...",
+        "checkingQuality": "Fotokwaliteit controleren..."
     }
-  },
-  "uploader": {
-    "dragDropMessage": "Sleep {{count}} selfies hierheen, of",
-    "dragDropMoreMessage_one": "Sleep er nog 1 hierheen, of",
-    "dragDropMoreMessage_other": "Sleep er nog {{count}} hierheen, of",
-    "browse": "bladeren",
-    "supportedFormats": "Ondersteunt JPG en PNG bestanden",
-    "dropMessage": "Laat je foto's hier vallen",
-    "maxImagesReached": "Alle foto's toegevoegd, je bent klaar!"
-  },
-  "status": {
-    "analyzing": "{{count}} foto's analyseren...",
-    "checkingQuality": "Fotokwaliteit controleren..."
-  }
 }
