@@ -74,7 +74,6 @@ export async function copyImageToPublic(imageUrl: string, shortCode: string): Pr
       Bucket: bucketName,
       CopySource: `${bucketName}/${sourceKey}`,
       Key: destinationKey,
-      ACL: 'public-read', // Make it publicly accessible
       MetadataDirective: 'COPY',
     }));
 
