@@ -33,13 +33,23 @@ export async function GET(
         .eq('id', shareLink.id)
         .then(() => {});
       
-      // Build redirect URL with style parameters
+      // Fetch the actual option values (not IDs) for the URL params
+      const [style, scene, wardrobe, color] = await Promise.all([
+        shareLink.style_id ? supabase.from('styles').select('id').eq('id', shareLink.style_id).maybeSingle() : Promise.resolve({ data: null }),
+        shareLink.scene_id ? supabase.from('scenes').select('value').eq('id', shareLink.scene_id).maybeSingle() : Promise.resolve({ data: null }),
+        shareLink.wardrobe_id ? supabase.from('wardrobes').select('value').eq('id', shareLink.wardrobe_id).maybeSingle() : Promise.resolve({ data: null }),
+        shareLink.color_id ? supabase.from('colors').select('value').eq('id', shareLink.color_id).maybeSingle() : Promise.resolve({ data: null }),
+      ]);
+      
+      // Build redirect URL with style parameters (using values, not IDs)
       const redirectUrl = new URL(`${origin}/create`);
       
-      if (shareLink.style_id) redirectUrl.searchParams.set('style', shareLink.style_id);
-      if (shareLink.scene_id) redirectUrl.searchParams.set('scene', shareLink.scene_id);
-      if (shareLink.wardrobe_id) redirectUrl.searchParams.set('wardrobe', shareLink.wardrobe_id);
-      if (shareLink.color_id) redirectUrl.searchParams.set('color', shareLink.color_id);
+      if (style.data?.id) redirectUrl.searchParams.set('style', style.data.id);
+      if (scene.data?.value) redirectUrl.searchParams.set('scene', scene.data.value);
+      if (wardrobe.data?.value) redirectUrl.searchParams.set('wardrobe', wardrobe.data.value);
+      if (color.data?.value) redirectUrl.searchParams.set('color', color.data.value);
+      if (shareLink.quality) redirectUrl.searchParams.set('quality', shareLink.quality);
+      if (shareLink.aspect_ratio) redirectUrl.searchParams.set('aspectRatio', shareLink.aspect_ratio);
       
       return NextResponse.json({ redirectUrl: redirectUrl.toString() });
     }

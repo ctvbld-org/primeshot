@@ -1,66 +1,66 @@
 {
-    "hero": {
-        "headline": "headshots that open doors",
-        "tagline": "The most advanced <ai>AI</ai> headshots. <period>Period.</period>",
-        "subtitle": "Make your first impression count. Transform everyday selfies into standout headshots, personalised to you and ready in minutes."
+  "hero": {
+    "headline": "headshots that open doors",
+    "tagline": "The most advanced <ai>AI</ai> headshots. <period>Period.</period>",
+    "subtitle": "Make your first impression count. Transform everyday selfies into standout headshots, personalised to you and ready in minutes."
+  },
+  "story": {
+    "paragraph1": "We've forgotten the art of showing up at our best. We snap a selfie, tweak the angle, and hope it's enough to make a mark. In a world that scrolls fast and judges faster, you need a photo that speaks—clearly, confidently, and with purpose.",
+    "paragraph2": "Primeshot transforms your everyday photos into premium headshots, brimming with style and personality. No stiff poses. No awkward photoshoots. Just authentic, scroll-stopping portraits delivered in minutes.",
+    "callToAction": "Shine as you are—with bold ambition."
+  },
+  "aria": {
+    "photoMetadata": "Photo metadata visualisation"
+  },
+  "waitlist": {
+    "placeholder": "Enter email for early access",
+    "ariaLabel": "Email address for waitlist",
+    "submitLabel": "Submit email",
+    "submittingLabel": "Submitting...",
+    "validation": {
+      "invalidEmail": "Please enter a valid email address"
     },
-    "story": {
-        "paragraph1": "We've forgotten the art of showing up at our best. We snap a selfie, tweak the angle, and hope it's enough to make a mark. In a world that scrolls fast and judges faster, you need a photo that speaks—clearly, confidently, and with purpose.",
-        "paragraph2": "Primeshot transforms your everyday photos into premium headshots, brimming with style and personality. No stiff poses. No awkward photoshoots. Just authentic, scroll-stopping portraits delivered in minutes.",
-        "callToAction": "Shine as you are—with bold ambition."
-    },
-    "aria": {
-        "photoMetadata": "Photo metadata visualisation"
-    },
-    "waitlist": {
-        "placeholder": "Enter email for early access",
-        "ariaLabel": "Email address for waitlist",
-        "submitLabel": "Submit email",
-        "submittingLabel": "Submitting...",
-        "validation": {
-            "invalidEmail": "Please enter a valid email address"
-        },
-        "messages": {
-            "alreadyOnWaitlist": "You're already on the waitlist!",
-            "success": "Thanks! You will receive an email for your early access.",
-            "defaultError": "Something went wrong"
-        }
-    },
-    "sections": {
-        "characters": {
-            "title": "Characters",
-            "subtitle": "Capture you from just 9 images of yourself. Create for you and others. Your digital you ready in less than 8 mins."
-        },
-        "scenes": {
-            "title": "Set the scene",
-            "subtitle": "Choose from a diverse collection of backgrounds and environments that perfectly complement your vision and style."
-        },
-        "styles": {
-            "title": "Photo styles",
-            "subtitle": "From professional portraits to artistic interpretations, select from dozens of curated styles that capture your unique essence."
-        },
-        "wardrobe": {
-            "title": "Dress to impress",
-            "titleColors": "In any colour",
-            "subtitle": "Select from an extensive wardrobe collection. From casual to formal, find the perfect outfit for every occasion.",
-            "subtitleColors": "Customise every detail with our extensive colour palette. Match your style or explore bold new combinations."
-        }
-    },
-    "grid": {
-        "tagline": "The AI Studio for Stunning Portrait Photography",
-        "title": "Your best self, captured.",
-        "badge": "4K"
-    },
-    "cta": {
-        "title": "Ready to meet your best self?",
-        "subtitle": "Join thousands creating professional AI portraits with Primeshot",
-        "pricing": "Start from £9 a month."
-    },
-    "ctaHero": {
-        "heading": "Professional headshots made accessible to everyone.",
-        "subheading": "Ready in minutes.",
-        "googleButton": "Join with Google",
-        "createButton": "Create your shoot",
-        "signInTitle": "Sign In"
+    "messages": {
+      "alreadyOnWaitlist": "You're already on the waitlist!",
+      "success": "Thanks! You will receive an email for your early access.",
+      "defaultError": "Something went wrong"
     }
+  },
+  "sections": {
+    "characters": {
+      "title": "Characters",
+      "subtitle": "Capture you from just 9 images of yourself. Create for you and others. Your digital you ready in less than 8 mins."
+    },
+    "scenes": {
+      "title": "Set the scene",
+      "subtitle": "Choose from a diverse collection of backgrounds and environments that perfectly complement your vision and style."
+    },
+    "styles": {
+      "title": "Photo styles",
+      "subtitle": "From professional portraits to artistic interpretations, select from dozens of curated styles that capture your unique essence."
+    },
+    "wardrobe": {
+      "title": "Dress to impress",
+      "titleColors": "In any colour",
+      "subtitle": "Select from an extensive wardrobe collection. From casual to formal, find the perfect outfit for every occasion.",
+      "subtitleColors": "Customise every detail with our extensive colour palette. Match your style or explore bold new combinations."
+    }
+  },
+  "grid": {
+    "tagline": "The AI Studio for Stunning Portrait Photography",
+    "title": "Your best self, captured.",
+    "badge": "4K"
+  },
+  "cta": {
+    "title": "Ready to meet your best self?",
+    "subtitle": "Join thousands creating professional AI portraits with Primeshot",
+    "pricing": "Start from £9 a month."
+  },
+  "ctaHero": {
+    "heading": "Professional headshots made accessible to everyone.",
+    "subheading": "Ready in minutes.",
+    "googleButton": "Join with Google",
+    "createButton": "Create your shoot",
+    "signInTitle": "Sign In"
+  }
 }

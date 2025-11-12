@@ -1,22 +1,25 @@
 {
+  "title": "Photos Pro IA Qui Ouvrent Des Portes | Primeshot",
+  "description": "Soignez votre première impression. Primeshot transforme vos selfies du quotidien en photos professionnelles époustouflantes—créées pour refléter votre style, votre ambition et votre histoire.",
+  "keywords": [
+    "photos pro IA",
+    "portraits professionnels",
+    "photographie IA",
+    "générateur de photos pro",
+    "image professionnelle",
+    "portraits IA",
+    "photos pro business"
+  ],
+  "og": {
     "title": "Photos Pro IA Qui Ouvrent Des Portes | Primeshot",
     "description": "Soignez votre première impression. Primeshot transforme vos selfies du quotidien en photos professionnelles époustouflantes—créées pour refléter votre style, votre ambition et votre histoire.",
-    "keywords": [
-        "photos pro IA",
-        "portraits professionnels",
-        "photographie IA",
-        "générateur de photos pro",
-        "image professionnelle",
-        "portraits IA",
-        "photos pro business"
-    ],
-    "og": {
-        "title": "Photos Pro IA Qui Ouvrent Des Portes | Primeshot",
-        "description": "Soignez votre première impression. Primeshot transforme vos selfies du quotidien en photos professionnelles époustouflantes—créées pour refléter votre style, votre ambition et votre histoire.",
-        "imageAlt": "Primeshot - Photos Pro IA"
-    },
-    "twitter": {
-        "title": "Photos Pro IA Qui Ouvrent Des Portes | Primeshot",
-        "description": "Soignez votre première impression. Primeshot transforme vos selfies du quotidien en photos professionnelles époustouflantes—créées pour refléter votre style, votre ambition et votre histoire."
-    }
+    "imageAlt": "Primeshot - Photos Pro IA"
+  },
+  "twitter": {
+    "title": "Photos Pro IA Qui Ouvrent Des Portes | Primeshot",
+    "description": "Soignez votre première impression. Primeshot transforme vos selfies du quotidien en photos professionnelles époustouflantes—créées pour refléter votre style, votre ambition et votre histoire."
+  }
 }
+
+
+
