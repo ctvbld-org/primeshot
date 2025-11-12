@@ -613,10 +613,11 @@ export function useFileUpload(options: UseFileUploadOptions = {}) {
       
       if (totalFiles >= 9) {
         // Use ORIGINAL fileStates (before adding new files) to avoid including placeholder files
-        const existingFiles = originalFileStates;
+        // IMPORTANT: Only include ACCEPTED files, not rejected ones
+        const acceptedExistingFiles = originalFileStates.filter(state => state.qualityResult?.isAcceptable);
         
         const allFiles = [
-          ...existingFiles.map(state => state.file),
+          ...acceptedExistingFiles.map(state => state.file),
           ...files
         ];
         const filesToAnalyze = allFiles.slice(0, 9);

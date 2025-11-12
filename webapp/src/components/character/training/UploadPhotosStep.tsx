@@ -69,8 +69,12 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
   })
   
   const acceptedFiles = useMemo(() => {
-    return selectedFiles
-      .filter(file => qualityResults[file.name]?.isAcceptable)
+    const filtered = selectedFiles
+      .filter(file => {
+        const result = qualityResults[file.name];
+        const isAcceptable = result?.isAcceptable === true;
+        return isAcceptable;
+      })
       .map(file => {
         const result = qualityResults[file.name];
         return Object.assign(file, {
@@ -82,6 +86,7 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
           blurScore: result?.blurScore
         });
       });
+    return filtered;
   }, [selectedFiles, qualityResults])
 
   const rejectedFiles = useMemo(() => 
@@ -130,10 +135,10 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
     };
   }, [acceptedFiles, qualityResults, petMode, bodyRequirementBypassed])
 
-  // Update parent component when files change (trigger on selectedFiles too)
+  // Update parent component when files change
   React.useEffect(() => {
     onFilesUpdate(acceptedFiles, qualityResults, bodyShotValidation, isAnalyzing)
-  }, [selectedFiles.length, acceptedFiles.length, qualityResults, bodyShotValidation, isAnalyzing, onFilesUpdate])
+  }, [acceptedFiles, qualityResults, bodyShotValidation, isAnalyzing, onFilesUpdate])
 
   const handleDialogClose = useCallback(() => {
     clearRejectedFiles()
