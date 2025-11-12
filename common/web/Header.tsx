@@ -35,19 +35,31 @@ export const Header: React.FC<HeaderProps> = ({ rightSlot }) => {
   const isActive = (href: string) => {
     if (!pathname) return false;
     
-    // Remove locale prefix from pathname (e.g., /us/explore -> /explore)
-    let pathnameWithoutLocale = pathname;
+    // Get the full URL path (e.g., when webapp is served at /create, this will be /create)
+    // while Next.js pathname might be / due to basePath
+    const fullPathname = typeof window !== 'undefined' ? window.location.pathname : pathname;
     
-    for (const locale of SUPPORTED_LANGUAGES) {
-      if (pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)) {
-        pathnameWithoutLocale = pathname.slice(locale.length + 1) || '/';
-        break;
+    // Helper to remove locale prefix from any pathname
+    const removeLocalePrefix = (path: string) => {
+      for (const locale of SUPPORTED_LANGUAGES) {
+        if (path === `/${locale}` || path.startsWith(`/${locale}/`)) {
+          return path.slice(locale.length + 1) || '/';
+        }
       }
-    }
+      return path;
+    };
     
-    // Compare without locale prefix
-    if (href === '/') return pathnameWithoutLocale === '/';
-    return pathnameWithoutLocale === href || pathnameWithoutLocale.startsWith(href + '/');
+    // Remove locale prefix from both paths
+    const nextPathnameWithoutLocale = removeLocalePrefix(pathname);
+    const fullPathnameWithoutLocale = removeLocalePrefix(fullPathname);
+    
+    // Check against both paths (handles webapp served via rewrite with basePath)
+    const checkPath = (path: string) => {
+      if (href === '/') return path === '/';
+      return path === href || path.startsWith(href + '/');
+    };
+    
+    return checkPath(nextPathnameWithoutLocale) || checkPath(fullPathnameWithoutLocale);
   };
 
   const handleMobileNavClick = () => {
