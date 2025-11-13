@@ -248,7 +248,7 @@ export function UploadPhotosStep({ onFilesUpdate }: UploadPhotosStepProps) {
         {/* Rejected Images Section - shown when there are rejected files */}
         <RejectedImagesContent
           files={rejectedFiles}
-          totalFiles={selectedFiles.length}
+          totalFiles={analyzingCount > 0 ? analyzingCount : rejectedFiles.length}
           qualityResults={qualityResults}
           onRemoveFile={(index) => removeFileByFileRef(rejectedFiles[index])}
           onContinue={handleDialogClose}
