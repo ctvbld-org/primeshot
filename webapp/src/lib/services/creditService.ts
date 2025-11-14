@@ -75,15 +75,28 @@ export class CreditService {
    */
   async getCurrentBalance(userId: string): Promise<number> {
     const supabase = await this.getSupabase()
+    
+    // Use new quota-based credit system
     const { data, error } = await supabase
-      .rpc('get_user_available_credits', { user_uuid: userId })
+      .rpc('get_available_credits', { p_user_id: userId })
 
     if (error) {
       console.error('Error getting credit balance:', error)
-      throw new Error('Failed to get credit balance')
+      
+      // Fallback to calculate_user_credit_balance (which also uses new system)
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .rpc('calculate_user_credit_balance', { p_user_id: userId })
+      
+      if (fallbackError) {
+        console.error('Error in fallback balance calculation:', fallbackError)
+        throw new Error('Failed to get credit balance')
+      }
+      
+      return fallbackData || 0
     }
 
-    return data || 0
+    // Extract total from JSONB result
+    return data?.total || 0
   }
 
   /**

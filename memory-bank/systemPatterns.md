@@ -2858,6 +2858,19 @@ Detected changes in:
 - website/src/components/blog/BlogCard.tsx
 - website/src/components/generate/GenerateBar.module.css
 - website/src/components/generate/GenerateBar.tsx
+
+
+**Auto-update 2025-11-14**:
+Detected changes in:
+- webapp/src/app/api/share/create/route.ts
+- webapp/src/components/character/training/UploadPhotosStep.tsx
+- webapp/src/components/inference/InferenceImageViewerDialog.tsx
+- webapp/src/lib/hooks/use-file-upload.ts
+- webapp/src/lib/utils/copy-image-to-public.ts
+- webapp/src/lib/utils/share-image-url.ts
+- webapp/src/lib/utils/share.ts
+- website/src/app/api/s/[code]/route.ts
+- website/src/app/s/[code]/page.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

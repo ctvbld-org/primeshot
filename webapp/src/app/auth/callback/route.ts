@@ -32,19 +32,10 @@ export async function GET(request: Request) {
         // User creation is now handled automatically by the database trigger
         // No need to manually create/update user in database
         
-        // Check if user has an active subscription
-        const { data: subscription } = await supabase
-          .from('user_subscriptions')
-          .select('*')
-          .eq('user_id', user.id)
-          .eq('status', 'active')
-          .limit(1)
-          .maybeSingle()
-        
-        // Redirect to pricing page if no active subscription, otherwise go to app
+        // Redirect to post-login path (defaults to /create)
         const app_url = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-        const website_url = process.env.NEXT_PUBLIC_WEBSITE_URL || 'https://primeshot.ai'
-        const redirectUrl = subscription ? app_url : `${website_url}/pricing`
+        const postLoginPath = process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/create'
+        const redirectUrl = `${app_url}${postLoginPath}`
 
         const response = NextResponse.redirect(new URL(redirectUrl))
         

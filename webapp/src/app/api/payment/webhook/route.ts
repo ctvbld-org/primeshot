@@ -616,59 +616,62 @@ async function handleSubscriptionPaymentSucceeded(
       devLog(`This is an upgrade - preserving existing credits from previous subscription`);
     }
 
-    const description = `Credits from subscription ${invoice.billing_reason === 'subscription_create' ? (isUpgrade ? 'upgrade' : 'activation') : 'renewal'} - ${subscription.plan_name}`;
-    const metadata = {
-      billing_reason: invoice.billing_reason,
-      billing_period_start: periodStartDate.toISOString(),
-      billing_period_end: periodEndDate.toISOString(),
-      is_upgrade: isUpgrade,
-      was_upgrade: subscription.was_upgrade || false,
-      old_plan_name: subscription.old_plan_name,
-      webhook_event_id: eventId
-    };
-
+    const isInitialSubscription = invoice.billing_reason === 'subscription_create';
+    const description = `Credits from subscription ${isInitialSubscription ? (isUpgrade ? 'upgrade' : 'activation') : 'renewal'} - ${subscription.plan_name}`;
+    
     if (creditsIncluded > 0) {
-      // Use NEW idempotent RPC function with invoice tracking
-      const { data: result, error: atomicError } = await supabase.rpc('award_subscription_credits_idempotent', {
-        p_user_id: subscription.user_id,
-        p_subscription_id: subscriptionId,
-        p_invoice_id: invoice.id,
-        p_month_number: monthsSinceStart,
-        p_credits: creditsIncluded,
-        p_expires_at: periodEndDate.toISOString(),
-        p_period_start: periodStartDate.toISOString(),
-        p_period_end: periodEndDate.toISOString(),
-        p_description: description,
-        p_metadata: metadata
-      });
+      if (isInitialSubscription) {
+        // NEW SYSTEM: Initialize quota for new subscription
+        devLog(`Initializing subscription quota: ${creditsIncluded} credits for ${subscriptionId}`);
+        
+        const { error: initError } = await supabase
+          .from('user_subscriptions')
+          .update({
+            monthly_credits_quota: creditsIncluded,
+            current_period_credits_used: 0,
+            last_quota_reset_at: periodStartDate.toISOString(),
+            current_period_start: periodStartDate.toISOString(),
+            current_period_end: periodEndDate.toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .eq('stripe_subscription_id', subscriptionId);
 
-      if (atomicError) {
-        console.error('Error in atomic subscription credit operation:', atomicError.message);
-        throw new Error(`Failed to process subscription credits atomically: ${atomicError.message}`);
-      }
+        if (initError) {
+          console.error('Error initializing subscription quota:', initError.message);
+          throw new Error(`Failed to initialize subscription quota: ${initError.message}`);
+        }
 
-      devLog(`Credit award result:`, result);
-      
-      if (result.status === 'already_awarded') {
-        devLog(`Credits already awarded for invoice ${invoice.id} - idempotency check passed`);
+        devLog(`Successfully initialized quota for subscription ${subscriptionId}: ${creditsIncluded} credits`);
+        
         return { 
           success: true, 
-          status: 'already_awarded', 
+          status: 'quota_initialized', 
           invoice_id: invoice.id,
-          credit_id: result.credit_id 
+          credits: creditsIncluded,
+          subscription_id: subscriptionId
+        };
+      } else {
+        // NEW SYSTEM: Reset quota for subscription renewal
+        devLog(`Resetting subscription quota for renewal: ${subscriptionId}`);
+        
+        const { error: resetError } = await supabase.rpc('reset_subscription_quota', {
+          p_subscription_id: subscriptionId
+        });
+
+        if (resetError) {
+          console.error('Error resetting subscription quota:', resetError.message);
+          throw new Error(`Failed to reset subscription quota: ${resetError.message}`);
+        }
+
+        devLog(`Successfully reset quota for subscription ${subscriptionId}`);
+        
+        return { 
+          success: true, 
+          status: 'quota_reset', 
+          invoice_id: invoice.id,
+          subscription_id: subscriptionId
         };
       }
-
-      devLog(`Atomically awarded ${creditsIncluded} credits to user ${subscription.user_id} (Month ${monthsSinceStart})`);
-      
-      return { 
-        success: true, 
-        status: 'awarded', 
-        invoice_id: invoice.id,
-        credits: creditsIncluded,
-        month_number: monthsSinceStart,
-        credit_id: result.credit_id 
-      };
     } else {
       // No credits to award, but still keep subscription periods up-to-date
       const { error: updateError } = await supabase
@@ -723,8 +726,56 @@ async function handleSubscriptionEvent(
     return;
   }
 
-  // For active subscriptions, ensure this user only has one active subscription
+  // NEW SYSTEM: Initialize quota for new active subscriptions
   if (subscription.status === 'active') {
+    try {
+      // Get credits from product metadata
+      const stripeSub = await stripe.subscriptions.retrieve(subscription.id, {
+        expand: ['items.data.price.product']
+      });
+      
+      const firstItem = stripeSub.items.data[0];
+      const product = firstItem?.price?.product as Stripe.Product | undefined;
+      const creditsIncluded = product ? parseInt(product.metadata?.credits_included || '0') : 0;
+      
+      if (creditsIncluded > 0) {
+        // Initialize quota fields if not already set
+        const { data: currentSub } = await supabase
+          .from('user_subscriptions')
+          .select('monthly_credits_quota')
+          .eq('stripe_subscription_id', subscription.id)
+          .single();
+        
+        if (currentSub && !currentSub.monthly_credits_quota) {
+          devLog(`Initializing quota for new subscription ${subscription.id}: ${creditsIncluded} credits`);
+          
+          const currentPeriodStart = (subscription as any).current_period_start 
+            ? new Date((subscription as any).current_period_start * 1000).toISOString() 
+            : new Date().toISOString();
+          
+          const currentPeriodEnd = (subscription as any).current_period_end 
+            ? new Date((subscription as any).current_period_end * 1000).toISOString() 
+            : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+          
+          await supabase
+            .from('user_subscriptions')
+            .update({
+              monthly_credits_quota: creditsIncluded,
+              current_period_credits_used: 0,
+              last_quota_reset_at: currentPeriodStart,
+              updated_at: new Date().toISOString()
+            })
+            .eq('stripe_subscription_id', subscription.id);
+          
+          devLog(`Successfully initialized quota for ${subscription.id}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error initializing subscription quota:', error);
+      // Don't fail the webhook - this is not critical
+    }
+
+    // Handle duplicate subscriptions (existing logic)
     try {
       // First, check if this is an upgrade with a specific previous subscription to cancel
       const previousSubscriptionId = subscription.metadata?.previous_subscription_id;

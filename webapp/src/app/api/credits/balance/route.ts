@@ -15,41 +15,39 @@ async function handleGET() {
       )
     }
 
-    // Calculate credit balance by summing all non-expired transactions
-    const { data: creditSummary, error: creditError } = await supabase
-      .rpc('calculate_user_credit_balance', { user_uuid: user.id })
+    // Use new quota-based credit system
+    const { data: creditData, error: creditError } = await supabase
+      .rpc('get_available_credits', { p_user_id: user.id })
 
     if (creditError) {
-      console.error('Error calculating credit balance:', creditError)
+      console.error('Error getting available credits:', creditError)
       
-      // Fallback: calculate manually if RPC function doesn't exist
-      const { data: transactions, error: fallbackError } = await supabase
-        .from('user_credits')
-        .select('credits, transaction_type')
-        .eq('user_id', user.id)
-        .or('expires_at.is.null,expires_at.gt.' + new Date().toISOString())
+      // Fallback to calculate_user_credit_balance (also uses new system via wrapper)
+      const { data: fallbackBalance, error: fallbackError } = await supabase
+        .rpc('calculate_user_credit_balance', { p_user_id: user.id })
 
       if (fallbackError) {
-        console.error('Error fetching credit transactions:', fallbackError)
+        console.error('Error in fallback balance calculation:', fallbackError)
         return NextResponse.json(
           { error: 'Failed to calculate credit balance' },
           { status: 500 }
         )
       }
 
-      // Calculate balance manually
-      const balance = transactions?.reduce((total, transaction) => {
-        return transaction.transaction_type === 'earned' 
-          ? total + transaction.credits
-          : total - transaction.credits
-      }, 0) || 0
-
-      return NextResponse.json({ balance: Math.max(0, balance) })
+      return NextResponse.json({ balance: Math.max(0, fallbackBalance || 0) })
     }
 
-    // Return balance from RPC function
-    const balance = creditSummary || 0
-    return NextResponse.json({ balance: Math.max(0, balance) })
+    // Extract total from JSONB result
+    const balance = creditData?.total || 0
+    return NextResponse.json({ 
+      balance: Math.max(0, balance),
+      // Optional: include breakdown for debugging
+      breakdown: {
+        subscription: creditData?.subscription || 0,
+        purchased: creditData?.purchased || 0,
+        bonus: creditData?.bonus || 0
+      }
+    })
 
   } catch (error) {
     console.error('Error in credits balance API route:', error)

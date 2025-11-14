@@ -5,15 +5,13 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-cron-secret',
 };
 
-interface SubscriptionNeedingCredits {
+interface SubscriptionNeedingReset {
   subscription_id: string;
   user_id: string;
   plan_name: string;
-  credits_per_month: number;
-  months_elapsed: number;
-  last_awarded_month: number;
-  months_due: number;
-  subscription_start: string;
+  monthly_credits_quota: number;
+  current_period_end: string;
+  last_quota_reset_at: string;
 }
 
 Deno.serve(async (req) => {
@@ -44,12 +42,17 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    console.log('Starting monthly credit allocation job...');
+    console.log('🔄 Starting quota reset safety check...');
+    console.log('Note: Primary quota resets happen via Stripe webhooks. This is a safety net for edge cases.');
 
-    // Get all subscriptions needing credits
+    // Find subscriptions that might have missed quota resets
+    // This happens if webhook failed or was missed
     const { data: subscriptions, error: fetchError } = await supabase
-      .rpc('get_subscriptions_needing_monthly_credits')
-      .returns<SubscriptionNeedingCredits[]>();
+      .from('user_subscriptions')
+      .select('subscription_id:stripe_subscription_id, user_id, plan_name, monthly_credits_quota, current_period_end, current_period_start, last_quota_reset_at')
+      .eq('status', 'active')
+      .lt('current_period_end', new Date().toISOString())
+      .returns<SubscriptionNeedingReset[]>();
 
     if (fetchError) {
       console.error('Error fetching subscriptions:', fetchError);
@@ -57,25 +60,24 @@ Deno.serve(async (req) => {
     }
 
     if (!subscriptions || subscriptions.length === 0) {
-      console.log('No subscriptions need credit awards at this time');
+      console.log('✅ All subscriptions are up to date - no quota resets needed');
       return new Response(
         JSON.stringify({ 
           success: true, 
-          message: 'No subscriptions need credits',
-          subscriptions_processed: 0 
+          message: 'All quotas up to date',
+          subscriptions_processed: 0,
+          note: 'Primary resets happen via webhooks'
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log(`Found ${subscriptions.length} subscriptions needing credits`);
+    console.log(`⚠️ Found ${subscriptions.length} subscriptions with expired periods - resetting quotas as safety measure`);
 
     const results = {
       total: subscriptions.length,
       successful: 0,
       failed: 0,
-      skipped: 0,
-      credits_awarded: 0,
       errors: [] as Array<{ subscription_id: string; error: string }>,
     };
 
@@ -84,66 +86,38 @@ Deno.serve(async (req) => {
       try {
         console.log(`Processing subscription ${sub.subscription_id}:`, {
           plan: sub.plan_name,
-          months_due: sub.months_due,
-          last_awarded: sub.last_awarded_month,
-          months_elapsed: sub.months_elapsed,
+          quota: sub.monthly_credits_quota,
+          period_end: sub.current_period_end,
+          last_reset: sub.last_quota_reset_at,
         });
 
-        // Award credits for each missing month
-        for (let month = sub.last_awarded_month + 1; month <= sub.months_elapsed; month++) {
-          try {
-            const { data: result, error: awardError } = await supabase.rpc(
-              'award_monthly_subscription_credits',
-              {
-                p_user_id: sub.user_id,
-                p_subscription_id: sub.subscription_id,
-                p_month_number: month,
-                p_plan_name: sub.plan_name,
-                // No p_credits parameter - function looks it up from subscriptions table!
-              }
-            );
-
-            if (awardError) {
-              console.error(`Error awarding month ${month}:`, awardError);
-              results.failed++;
-              results.errors.push({
-                subscription_id: sub.subscription_id,
-                error: `Month ${month}: ${awardError.message}`,
-              });
-              break; // Stop processing this subscription if a month fails
-            }
-
-            console.log(`Month ${month} result:`, result);
-
-            if (result.status === 'awarded') {
-              results.successful++;
-              results.credits_awarded += sub.credits_per_month;
-              console.log(
-                `✓ Awarded ${sub.credits_per_month} credits for month ${month} to user ${sub.user_id}`
-              );
-            } else if (result.status === 'already_awarded') {
-              results.skipped++;
-              console.log(
-                `⊙ Month ${month} already awarded for subscription ${sub.subscription_id}`
-              );
-            }
-
-            // Small delay to avoid overwhelming the database
-            await new Promise((resolve) => setTimeout(resolve, 100));
-          } catch (monthError) {
-            const errorMessage = monthError instanceof Error ? monthError.message : 'Unknown error';
-            console.error(`Exception awarding month ${month}:`, errorMessage);
-            results.failed++;
-            results.errors.push({
-              subscription_id: sub.subscription_id,
-              error: `Month ${month} exception: ${errorMessage}`,
-            });
-            break;
+        // Reset the quota using the new system
+        const { error: resetError } = await supabase.rpc(
+          'reset_subscription_quota',
+          {
+            p_subscription_id: sub.subscription_id,
           }
+        );
+
+        if (resetError) {
+          console.error(`❌ Error resetting quota for ${sub.subscription_id}:`, resetError);
+          results.failed++;
+          results.errors.push({
+            subscription_id: sub.subscription_id,
+            error: resetError.message,
+          });
+        } else {
+          results.successful++;
+          console.log(
+            `✅ Reset quota for subscription ${sub.subscription_id} (${sub.plan_name} - ${sub.monthly_credits_quota} credits)`
+          );
         }
+
+        // Small delay to avoid overwhelming the database
+        await new Promise((resolve) => setTimeout(resolve, 100));
       } catch (subError) {
         const errorMessage = subError instanceof Error ? subError.message : 'Unknown error';
-        console.error(`Error processing subscription ${sub.subscription_id}:`, errorMessage);
+        console.error(`Exception processing subscription ${sub.subscription_id}:`, errorMessage);
         results.failed++;
         results.errors.push({
           subscription_id: sub.subscription_id,
@@ -152,25 +126,26 @@ Deno.serve(async (req) => {
       }
     }
 
-    console.log('Monthly credit allocation job completed:', results);
+    console.log('Quota reset safety check completed:', results);
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Monthly credit allocation completed',
+        message: 'Quota reset safety check completed',
         results,
+        note: 'Primary resets happen via Stripe webhooks - this catches edge cases',
         timestamp: new Date().toISOString(),
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Critical error in monthly credit allocation:', errorMessage);
+    console.error('Critical error in quota reset safety check:', errorMessage);
 
     return new Response(
       JSON.stringify({
         success: false,
-        error: 'Monthly credit allocation failed',
+        error: 'Quota reset safety check failed',
         message: errorMessage,
         timestamp: new Date().toISOString(),
       }),

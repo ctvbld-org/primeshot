@@ -1,3 +1,7 @@
+Using workdir /Users/ledave/Documents/Primeshot/App
+WARN: environment variable is unset: SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID
+WARN: environment variable is unset: SUPABASE_AUTH_EXTERNAL_APPLE_SECRET
+Connecting to db 5432
 export type Json =
   | string
   | number
@@ -104,6 +108,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      credit_award_audit: {
+        Row: {
+          award_type: string
+          awarded_at: string | null
+          awarded_by: string | null
+          created_at: string | null
+          credits_awarded: number
+          id: string
+          invoice_id: string | null
+          metadata: Json | null
+          month_number: number
+          subscription_id: string
+          user_id: string
+        }
+        Insert: {
+          award_type: string
+          awarded_at?: string | null
+          awarded_by?: string | null
+          created_at?: string | null
+          credits_awarded: number
+          id?: string
+          invoice_id?: string | null
+          metadata?: Json | null
+          month_number: number
+          subscription_id: string
+          user_id: string
+        }
+        Update: {
+          award_type?: string
+          awarded_at?: string | null
+          awarded_by?: string | null
+          created_at?: string | null
+          credits_awarded?: number
+          id?: string
+          invoice_id?: string | null
+          metadata?: Json | null
+          month_number?: number
+          subscription_id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       credit_costs: {
         Row: {
@@ -285,55 +331,31 @@ export type Database = {
       }
       explore_images: {
         Row: {
-          aspect_ratio: string | null
           category_id: string | null
-          color_id: string | null
           created_at: string | null
           generated_image_id: string | null
           id: string
-          inference_id: string | null
-          original_s3_path: string
-          resolution: string | null
           s3_path: string
-          scene_id: string | null
-          style_id: string | null
+          short_code: string | null
           updated_at: string | null
-          user_id: string | null
-          wardrobe_id: string | null
         }
         Insert: {
-          aspect_ratio?: string | null
           category_id?: string | null
-          color_id?: string | null
           created_at?: string | null
           generated_image_id?: string | null
           id?: string
-          inference_id?: string | null
-          original_s3_path: string
-          resolution?: string | null
           s3_path: string
-          scene_id?: string | null
-          style_id?: string | null
+          short_code?: string | null
           updated_at?: string | null
-          user_id?: string | null
-          wardrobe_id?: string | null
         }
         Update: {
-          aspect_ratio?: string | null
           category_id?: string | null
-          color_id?: string | null
           created_at?: string | null
           generated_image_id?: string | null
           id?: string
-          inference_id?: string | null
-          original_s3_path?: string
-          resolution?: string | null
           s3_path?: string
-          scene_id?: string | null
-          style_id?: string | null
+          short_code?: string | null
           updated_at?: string | null
-          user_id?: string | null
-          wardrobe_id?: string | null
         }
         Relationships: [
           {
@@ -341,55 +363,6 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "explore_categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "explore_images_color_id_fkey"
-            columns: ["color_id"]
-            isOneToOne: false
-            referencedRelation: "style_colors"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "explore_images_generated_image_id_fkey"
-            columns: ["generated_image_id"]
-            isOneToOne: true
-            referencedRelation: "generated_images"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "explore_images_inference_id_fkey"
-            columns: ["inference_id"]
-            isOneToOne: false
-            referencedRelation: "inference_jobs"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "explore_images_scene_id_fkey"
-            columns: ["scene_id"]
-            isOneToOne: false
-            referencedRelation: "style_scenes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "explore_images_style_id_fkey"
-            columns: ["style_id"]
-            isOneToOne: false
-            referencedRelation: "styles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "explore_images_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "explore_images_wardrobe_id_fkey"
-            columns: ["wardrobe_id"]
-            isOneToOne: false
-            referencedRelation: "style_wardrobes"
             referencedColumns: ["id"]
           },
         ]
@@ -630,6 +603,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      share_links: {
+        Row: {
+          aspect_ratio: string | null
+          click_count: number | null
+          color_id: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          quality: string | null
+          scene_id: string | null
+          short_code: string
+          signed_image_url: string | null
+          style_id: string | null
+          user_id: string | null
+          wardrobe_id: string | null
+        }
+        Insert: {
+          aspect_ratio?: string | null
+          click_count?: number | null
+          color_id?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          quality?: string | null
+          scene_id?: string | null
+          short_code: string
+          signed_image_url?: string | null
+          style_id?: string | null
+          user_id?: string | null
+          wardrobe_id?: string | null
+        }
+        Update: {
+          aspect_ratio?: string | null
+          click_count?: number | null
+          color_id?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          quality?: string | null
+          scene_id?: string | null
+          short_code?: string
+          signed_image_url?: string | null
+          style_id?: string | null
+          user_id?: string | null
+          wardrobe_id?: string | null
+        }
+        Relationships: []
       }
       style_colors: {
         Row: {
@@ -989,6 +1010,7 @@ export type Database = {
           description: string | null
           expires_at: string | null
           id: string
+          invoice_id: string | null
           metadata: Json | null
           source_id: string | null
           source_type: string
@@ -1001,6 +1023,7 @@ export type Database = {
           description?: string | null
           expires_at?: string | null
           id?: string
+          invoice_id?: string | null
           metadata?: Json | null
           source_id?: string | null
           source_type: string
@@ -1013,6 +1036,7 @@ export type Database = {
           description?: string | null
           expires_at?: string | null
           id?: string
+          invoice_id?: string | null
           metadata?: Json | null
           source_id?: string | null
           source_type?: string
@@ -1057,6 +1081,7 @@ export type Database = {
           current_period_end: string | null
           current_period_start: string | null
           id: string
+          last_awarded_month: number | null
           plan_name: string
           status: string
           stripe_customer_id: string
@@ -1071,6 +1096,7 @@ export type Database = {
           current_period_end?: string | null
           current_period_start?: string | null
           id?: string
+          last_awarded_month?: number | null
           plan_name: string
           status: string
           stripe_customer_id: string
@@ -1085,6 +1111,7 @@ export type Database = {
           current_period_end?: string | null
           current_period_start?: string | null
           id?: string
+          last_awarded_month?: number | null
           plan_name?: string
           status?: string
           stripe_customer_id?: string
@@ -1151,6 +1178,48 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_events: {
+        Row: {
+          created_at: string | null
+          error: string | null
+          event_type: string
+          id: string
+          processed_at: string | null
+          received_at: string | null
+          result: Json | null
+          retry_count: number | null
+          status: string
+          stripe_event_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error?: string | null
+          event_type: string
+          id?: string
+          processed_at?: string | null
+          received_at?: string | null
+          result?: Json | null
+          retry_count?: number | null
+          status?: string
+          stripe_event_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error?: string | null
+          event_type?: string
+          id?: string
+          processed_at?: string | null
+          received_at?: string | null
+          result?: Json | null
+          retry_count?: number | null
+          status?: string
+          stripe_event_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1159,6 +1228,15 @@ export type Database = {
       array_distinct: {
         Args: { arr: string[] } | { arr: unknown }
         Returns: unknown
+      }
+      award_monthly_subscription_credits: {
+        Args: {
+          p_month_number: number
+          p_plan_name: string
+          p_subscription_id: string
+          p_user_id: string
+        }
+        Returns: Json
       }
       award_subscription_credits: {
         Args: {
@@ -1172,6 +1250,21 @@ export type Database = {
           p_user_id: string
         }
         Returns: undefined
+      }
+      award_subscription_credits_idempotent: {
+        Args: {
+          p_credits: number
+          p_description: string
+          p_expires_at: string
+          p_invoice_id: string
+          p_metadata: Json
+          p_month_number: number
+          p_period_end: string
+          p_period_start: string
+          p_subscription_id: string
+          p_user_id: string
+        }
+        Returns: Json
       }
       calculate_user_credit_balance: {
         Args: { user_uuid: string }
@@ -1277,6 +1370,19 @@ export type Database = {
           credit_pack_revenue: number
           refund_amount: number
           subscription_revenue: number
+        }[]
+      }
+      get_subscriptions_needing_monthly_credits: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          credits_per_month: number
+          last_awarded_month: number
+          months_due: number
+          months_elapsed: number
+          plan_name: string
+          subscription_id: string
+          subscription_start: string
+          user_id: string
         }[]
       }
       get_top_users_by_generations: {
@@ -1538,3 +1644,5 @@ export const Constants = {
   },
 } as const
 
+A new version of Supabase CLI is available: v2.58.5 (currently installed v2.48.3)
+We recommend updating regularly for new features and bug fixes: https://supabase.com/docs/guides/cli/getting-started#updating-the-supabase-cli

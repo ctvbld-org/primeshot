@@ -118,24 +118,10 @@ function VerifyEmailContent() {
         return;
       }
       
-      // Check if user has an active subscription
-      const { data: { user: verifiedUser } } = await supabase.auth.getUser();
-      if (verifiedUser) {
-        const { data: subscription } = await supabase
-          .from('user_subscriptions')
-          .select('*')
-          .eq('user_id', verifiedUser.id)
-          .eq('status', 'active')
-          .limit(1)
-          .maybeSingle();
-        
-        toast.success(t('verify.otp.success'));
-        // Redirect to pricing page if no active subscription, otherwise go to app
-        router.push(subscription ? '/' : '/pricing');
-      } else {
-        toast.success(t('verify.otp.success'));
-        router.push('/');
-      }
+      // Redirect to post-login path (defaults to /create)
+      const postLoginPath = process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/create';
+      toast.success(t('verify.otp.success'));
+      router.push(postLoginPath);
     } catch (error) {
       toast.error(t('verify.otp.error.generic'));
       console.error("OTP verification error:", error);

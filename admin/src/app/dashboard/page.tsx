@@ -5,8 +5,8 @@ import { UserAnalytics } from '@/components/dashboard/user-analytics'
 import { SubscriptionAnalytics } from '@/components/dashboard/subscription-analytics'
 import { UsageAnalytics } from '@/components/dashboard/usage-analytics'
 import { TopUsersLeaderboard } from '@/components/dashboard/top-users-leaderboard'
-import { WaitlistWidget } from '@/components/dashboard/waitlist-widget'
 import RevenueAnalytics from '@/components/dashboard/revenue-analytics'
+import { ConversionAnalytics } from '@/components/dashboard/conversion-analytics'
 import { RealtimeStatus } from '@/components/dashboard/realtime-status'
 
 export default function DashboardPage() {
@@ -28,6 +28,13 @@ export default function DashboardPage() {
         <div className="themes-wrapper group relative grid gap-4 md:grid-cols-2 lg:grid-cols-4 overflow-hidden transition-all duration-200 ease-in-out hover:z-30 md:col-span-2 lg:col-span-4">
           <Suspense fallback={<AnalyticsCardSkeleton />}>
             <UserAnalytics />
+          </Suspense>
+        </div>
+
+        {/* Conversion Analytics */}
+        <div className="themes-wrapper group relative grid gap-4 md:grid-cols-1 lg:grid-cols-1 overflow-hidden transition-all duration-200 ease-in-out hover:z-30 md:col-span-2 lg:col-span-4">
+          <Suspense fallback={<ChartCardSkeleton />}>
+            <ConversionAnalytics />
           </Suspense>
         </div>
 
@@ -57,15 +64,6 @@ export default function DashboardPage() {
           {/* Usage Analytics */}
           <Suspense fallback={<ChartCardSkeleton />}>
             <UsageAnalytics />
-          </Suspense>
-        </div>
-
-
-
-        <div className="themes-wrapper group relative grid gap-4 md:grid-cols-1 lg:grid-cols-1 overflow-hidden transition-all duration-200 ease-in-out hover:z-30 md:col-span-2 lg:col-span-4">
-          {/* Waitlist Widget */}
-          <Suspense fallback={<WaitlistSkeleton />}>
-            <WaitlistWidget />
           </Suspense>
         </div>
       </div>
@@ -127,31 +125,6 @@ function LeaderboardSkeleton() {
               <Skeleton className="h-4 w-[60px]" />
             </div>
           ))}
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-function WaitlistSkeleton() {
-  return (
-    <Card>
-      <CardHeader>
-        <Skeleton className="h-6 w-[100px]" />
-        <Skeleton className="h-4 w-[200px]" />
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="grid grid-cols-4 gap-4">
-            {[...Array(4)].map((_, i) => (
-              <div key={i}>
-                <Skeleton className="h-4 w-[80px] mb-2" />
-                <Skeleton className="h-8 w-[60px]" />
-              </div>
-            ))}
-          </div>
-          <Skeleton className="h-[200px] w-full" />
-          <Skeleton className="h-[150px] w-full" />
         </div>
       </CardContent>
     </Card>
