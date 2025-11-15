@@ -457,6 +457,7 @@
 
 /* Quote overlay for last thumbnail during generation */
 .quoteOverlay {
+  color: #99EFEC;
   position: absolute;
   top: 0;
   left: 0;
@@ -468,6 +469,10 @@
   pointer-events: none;
 }
 
+.grayscale .quoteOverlay,
+.sepia .quoteOverlay {
+  color: #000;
+}
 
 .quoteOverlayIcon {
   position: absolute;
@@ -501,7 +506,6 @@
   font-size: 20px;
   font-weight: 500;
   line-height: 1;
-  color: #99EFEC;
   text-align: center;
   padding: 24px;
   letter-spacing: -0.01em;
@@ -551,3 +555,13 @@
   }
 }
 
+/* Visual effect filters */
+/* Apply filter during generation to fake the effect on preview images */
+/* Remove filter on completion to show the real post-processed image from workflow */
+.grayscale:not(.statusCompleted) .imageContainer {
+  filter: grayscale(100%);
+}
+
+.sepia:not(.statusCompleted) .imageContainer {
+  filter: sepia(100%);
+}

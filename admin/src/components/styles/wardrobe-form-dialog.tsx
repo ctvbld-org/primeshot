@@ -291,6 +291,7 @@ export function WardrobeFormDialog({
     try {
       if (uploaderRef.current) {
         await uploaderRef.current()
+        uploaderRef.current = null // Clear after upload to prevent duplication on subsequent saves
       }
       // Re-read latest form values after deferred uploads may have updated fields (e.g., image)
       const latest = form.getValues()

@@ -45,6 +45,10 @@ interface InferenceThumbnailProps {
    * If true, this is the last thumbnail and should show rotating quotes during generation
    */
   showQuotes?: boolean;
+  /**
+   * Color mode from style configuration
+   */
+  colorMode?: 'color' | 'monochrome' | 'sepia';
 }
 
 export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
@@ -52,7 +56,8 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
   jobStatus,
   onClick,
   variant = 'grid',
-  showQuotes = false
+  showQuotes = false,
+  colorMode
 }) => {
   const { t } = useTranslation('inference');
   // Track layered transition state between preview and final image
@@ -140,6 +145,21 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
       default:
         return '';
     }
+  };
+
+  // Get visual filter class based on color mode from database
+  const getVisualFilterClass = () => {
+    if (!colorMode || colorMode === 'color') return '';
+    
+    if (colorMode === 'monochrome') {
+      return styles.grayscale;
+    }
+    
+    if (colorMode === 'sepia') {
+      return styles.sepia;
+    }
+    
+    return '';
   };
 
   // Determine if we should apply zoom on initial mount only (no preview swap)
@@ -455,7 +475,7 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
 
   return (
     <div 
-      className={`${styles.thumbnail} ${getStatusClass()} ${!hasAnyImage ? styles.empty : ''}`}
+      className={`${styles.thumbnail} ${getStatusClass()} ${!hasAnyImage ? styles.empty : ''} ${getVisualFilterClass()}`}
       onClick={onClick}
       style={{ ['--stagger' as any]: thumbnail.index }}
     >
@@ -537,16 +557,16 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
         {shouldShowQuoteOverlay && (
           <div className={styles.quoteOverlay}>
             <svg className={styles.quoteOverlayIcon + ' ' + styles.quoteOverlayIconTopLeft} width="29" height="29" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M28.3965 1.7002H16.3984C8.39031 1.7002 1.89844 8.19207 1.89844 16.2002V28.2002H0.398438V16.2002C0.398438 7.36364 7.56188 0.200196 16.3984 0.200195H28.3965V1.7002Z" fill="#99EFEC"/>
+              <path d="M28.3965 1.7002H16.3984C8.39031 1.7002 1.89844 8.19207 1.89844 16.2002V28.2002H0.398438V16.2002C0.398438 7.36364 7.56188 0.200196 16.3984 0.200195H28.3965V1.7002Z" fill="currentColor"/>
             </svg>
             <svg className={styles.quoteOverlayIcon + ' ' + styles.quoteOverlayIconTopRight} width="29" height="29" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M0.400391 1.7002H12.3984C20.4066 1.7002 26.8984 8.19207 26.8984 16.2002V28.2002H28.3984V16.2002C28.3984 7.36364 21.235 0.200196 12.3984 0.200195H0.400391V1.7002Z" fill="#99EFEC"/>
+              <path d="M0.400391 1.7002H12.3984C20.4066 1.7002 26.8984 8.19207 26.8984 16.2002V28.2002H28.3984V16.2002C28.3984 7.36364 21.235 0.200196 12.3984 0.200195H0.400391V1.7002Z" fill="currentColor"/>
             </svg>
             <svg className={styles.quoteOverlayIcon + ' ' + styles.quoteOverlayIconBottomRight} width="29" height="29" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M0.400391 26.7002H12.3984C20.4066 26.7002 26.8984 20.2083 26.8984 12.2002V0.200195H28.3984V12.2002C28.3984 21.0368 21.235 28.2002 12.3984 28.2002H0.400391V26.7002Z" fill="#99EFEC"/>
+              <path d="M0.400391 26.7002H12.3984C20.4066 26.7002 26.8984 20.2083 26.8984 12.2002V0.200195H28.3984V12.2002C28.3984 21.0368 21.235 28.2002 12.3984 28.2002H0.400391V26.7002Z" fill="currentColor"/>
             </svg>
             <svg className={styles.quoteOverlayIcon + ' ' + styles.quoteOverlayIconBottomLeft} width="29" height="29" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M28.3965 26.7002H16.3984C8.39031 26.7002 1.89844 20.2083 1.89844 12.2002V0.200195H0.398438V12.2002C0.398438 21.0368 7.56188 28.2002 16.3984 28.2002H28.3965V26.7002Z" fill="#99EFEC"/>
+              <path d="M28.3965 26.7002H16.3984C8.39031 26.7002 1.89844 20.2083 1.89844 12.2002V0.200195H0.398438V12.2002C0.398438 21.0368 7.56188 28.2002 16.3984 28.2002H28.3965V26.7002Z" fill="currentColor"/>
             </svg>
 
             <div className={`${styles.quoteContent} ${quoteVisible ? styles.quoteVisible : styles.quoteHidden}`}>

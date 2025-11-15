@@ -46,6 +46,16 @@ const nextConfig: NextConfig = {
       rules.push(
         { source: '/create', destination: `${webapp}/create` },
         { source: '/create/:path*', destination: `${webapp}/create/:path*` },
+        // Auth routes - proxy to webapp for authentication flows
+        { 
+          source: '/auth/:path*', 
+          destination: `${webapp}/create/auth/:path*` 
+        },
+        // Locale-prefixed auth routes
+        { 
+          source: '/:locale(us|gb|cn|es|fr|pt|de|jp|it|nl)/auth/:path*', 
+          destination: `${webapp}/create/auth/:path*`
+        },
         // Locale-prefixed forwards for SSR i18n routing - strip locale and pass via header
         // BUT exclude API routes from locale handling to prevent webhook redirects
         { 

@@ -16,7 +16,8 @@ export const StyleSchema = z.object({
     translations: z.record(TranslationSchema),
     // NEW (optional for back-compat)
     wardrobe_category_order: z.array(z.string()).optional(),
-    wardrobe_order: z.record(z.array(z.string())).optional()
+    wardrobe_order: z.record(z.array(z.string())).optional(),
+    color_mode: z.enum(['color', 'monochrome', 'sepia']).optional()
 });
 export const StylesSchema = z.array(StyleSchema);
 // For backward compatibility and API validation

@@ -1,3 +1,7 @@
+.jobGroup:global(.style-silver-touch) .thumbnailGrid {
+  filter: grayscale(1);
+}
+
 .jobGroup {
   overflow: hidden;
 }

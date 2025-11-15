@@ -201,13 +201,14 @@ export function SceneFormDialog({
 
   // Defer upload integration
   const uploaders = React.useRef<(() => Promise<string[]>)[]>([])
-  const registerUploader = (u: () => Promise<string[]>) => { uploaders.current.push(u) }
+  const registerUploader = (u: () => Promise<string[]>) => { uploaders.current = [u] } // Replace instead of push to prevent accumulation
 
   const onSubmit = async (data: FormData) => {
     setIsSaving(true)
     try {
       // perform deferred uploads if any
       for (const up of uploaders.current) { await up() }
+      uploaders.current = [] // Clear after upload to prevent duplication on subsequent saves
       
       // Get fresh form data after uploads complete (includes uploaded image URLs)
       const freshData = form.getValues()

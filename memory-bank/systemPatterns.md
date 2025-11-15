@@ -2871,6 +2871,18 @@ Detected changes in:
 - webapp/src/lib/utils/share.ts
 - website/src/app/api/s/[code]/route.ts
 - website/src/app/s/[code]/page.tsx
+
+
+**Auto-update 2025-11-15**:
+Detected changes in:
+- admin/src/app/dashboard/page.tsx
+- admin/src/components/dashboard/conversion-analytics.tsx
+- admin/src/components/dashboard/revenue-analytics.tsx
+- webapp/src/app/api/credits/balance/route.ts
+- webapp/src/app/api/payment/webhook/route.ts
+- webapp/src/app/auth/callback/route.ts
+- webapp/src/app/auth/verify/page.tsx
+- webapp/src/lib/services/creditService.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

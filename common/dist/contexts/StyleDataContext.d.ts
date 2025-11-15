@@ -44,6 +44,7 @@ export declare function useStylesFromContext(): {
         updated_at?: string | undefined;
         wardrobe_category_order?: string[] | undefined;
         wardrobe_order?: Record<string, string[]> | undefined;
+        color_mode?: "color" | "monochrome" | "sepia" | undefined;
     }[];
     isLoading: boolean;
     error: Error | null;

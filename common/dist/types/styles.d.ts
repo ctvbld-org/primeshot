@@ -59,6 +59,7 @@ export declare const StyleSchema: z.ZodObject<{
     }>>;
     wardrobe_category_order: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     wardrobe_order: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString, "many">>>;
+    color_mode: z.ZodOptional<z.ZodEnum<["color", "monochrome", "sepia"]>>;
 }, "strip", z.ZodTypeAny, {
     id: string;
     name: string;
@@ -73,6 +74,7 @@ export declare const StyleSchema: z.ZodObject<{
     updated_at?: string | undefined;
     wardrobe_category_order?: string[] | undefined;
     wardrobe_order?: Record<string, string[]> | undefined;
+    color_mode?: "color" | "monochrome" | "sepia" | undefined;
 }, {
     id: string;
     name: string;
@@ -87,6 +89,7 @@ export declare const StyleSchema: z.ZodObject<{
     updated_at?: string | undefined;
     wardrobe_category_order?: string[] | undefined;
     wardrobe_order?: Record<string, string[]> | undefined;
+    color_mode?: "color" | "monochrome" | "sepia" | undefined;
 }>;
 export declare const StylesSchema: z.ZodArray<z.ZodObject<{
     id: z.ZodString;
@@ -106,6 +109,7 @@ export declare const StylesSchema: z.ZodArray<z.ZodObject<{
     }>>;
     wardrobe_category_order: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     wardrobe_order: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString, "many">>>;
+    color_mode: z.ZodOptional<z.ZodEnum<["color", "monochrome", "sepia"]>>;
 }, "strip", z.ZodTypeAny, {
     id: string;
     name: string;
@@ -120,6 +124,7 @@ export declare const StylesSchema: z.ZodArray<z.ZodObject<{
     updated_at?: string | undefined;
     wardrobe_category_order?: string[] | undefined;
     wardrobe_order?: Record<string, string[]> | undefined;
+    color_mode?: "color" | "monochrome" | "sepia" | undefined;
 }, {
     id: string;
     name: string;
@@ -134,6 +139,7 @@ export declare const StylesSchema: z.ZodArray<z.ZodObject<{
     updated_at?: string | undefined;
     wardrobe_category_order?: string[] | undefined;
     wardrobe_order?: Record<string, string[]> | undefined;
+    color_mode?: "color" | "monochrome" | "sepia" | undefined;
 }>, "many">;
 export type Style = z.infer<typeof StyleSchema>;
 export type Styles = z.infer<typeof StylesSchema>;
@@ -193,6 +199,7 @@ export declare const StyleConfigSchema: z.ZodObject<{
     }>>;
     wardrobe_category_order: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     wardrobe_order: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString, "many">>>;
+    color_mode: z.ZodOptional<z.ZodEnum<["color", "monochrome", "sepia"]>>;
 }, "strip", z.ZodTypeAny, {
     id: string;
     name: string;
@@ -207,6 +214,7 @@ export declare const StyleConfigSchema: z.ZodObject<{
     updated_at?: string | undefined;
     wardrobe_category_order?: string[] | undefined;
     wardrobe_order?: Record<string, string[]> | undefined;
+    color_mode?: "color" | "monochrome" | "sepia" | undefined;
 }, {
     id: string;
     name: string;
@@ -221,6 +229,7 @@ export declare const StyleConfigSchema: z.ZodObject<{
     updated_at?: string | undefined;
     wardrobe_category_order?: string[] | undefined;
     wardrobe_order?: Record<string, string[]> | undefined;
+    color_mode?: "color" | "monochrome" | "sepia" | undefined;
 }>;
 export declare const StyleConfigsSchema: z.ZodArray<z.ZodObject<{
     id: z.ZodString;
@@ -240,6 +249,7 @@ export declare const StyleConfigsSchema: z.ZodArray<z.ZodObject<{
     }>>;
     wardrobe_category_order: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     wardrobe_order: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString, "many">>>;
+    color_mode: z.ZodOptional<z.ZodEnum<["color", "monochrome", "sepia"]>>;
 }, "strip", z.ZodTypeAny, {
     id: string;
     name: string;
@@ -254,6 +264,7 @@ export declare const StyleConfigsSchema: z.ZodArray<z.ZodObject<{
     updated_at?: string | undefined;
     wardrobe_category_order?: string[] | undefined;
     wardrobe_order?: Record<string, string[]> | undefined;
+    color_mode?: "color" | "monochrome" | "sepia" | undefined;
 }, {
     id: string;
     name: string;
@@ -268,4 +279,5 @@ export declare const StyleConfigsSchema: z.ZodArray<z.ZodObject<{
     updated_at?: string | undefined;
     wardrobe_category_order?: string[] | undefined;
     wardrobe_order?: Record<string, string[]> | undefined;
+    color_mode?: "color" | "monochrome" | "sepia" | undefined;
 }>, "many">;

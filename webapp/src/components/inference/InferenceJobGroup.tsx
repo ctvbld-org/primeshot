@@ -584,6 +584,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
                   jobStatus={activeJob.status as any}
                   onClick={() => handleThumbnailClick(0)}
                   variant="hero"
+                  colorMode={styleData?.color_mode as any}
                 />
               );
             })()}
@@ -651,6 +652,7 @@ export const InferenceJobGroup: FC<InferenceJobGroupProps> = ({ job, shootNumber
               jobStatus={activeJob.status as any}
               onClick={() => handleThumbnailClick(index)}
               showQuotes={index === activeJob.thumbnails.length - 1}
+              colorMode={styleData?.color_mode as any}
             />
           ))
         ) : (

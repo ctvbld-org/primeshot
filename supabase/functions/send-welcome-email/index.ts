@@ -60,6 +60,7 @@ serve(async (req) => {
     const emailBody = {
       from,
       to: [email],
+      bcc: ["primeshot.ai+e7cde10c24@invite.trustpilot.com"],
       subject,
       text,
       html,
