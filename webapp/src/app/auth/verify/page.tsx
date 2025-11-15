@@ -118,10 +118,9 @@ function VerifyEmailContent() {
         return;
       }
       
-      // Redirect to post-login path (defaults to /create)
-      const postLoginPath = process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/create';
+      // Redirect to app root (basePath is handled automatically by Next.js)
       toast.success(t('verify.otp.success'));
-      router.push(postLoginPath);
+      router.push('/');
     } catch (error) {
       toast.error(t('verify.otp.error.generic'));
       console.error("OTP verification error:", error);

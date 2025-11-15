@@ -66,6 +66,7 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
   const [finalLoaded, setFinalLoaded] = useState(false);
   const [startZoom, setStartZoom] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [transitionComplete, setTransitionComplete] = useState(true); // Track if crossfade transition is complete
   const hasMountedRef = useRef(false);
   const zoomTriggeredRef = useRef(false);
   
@@ -86,6 +87,7 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
         setPrevUrl(null);
         setCurrentUrl(undefined);
         setFinalLoaded(false);
+        setTransitionComplete(true);
       }
       return;
     }
@@ -98,13 +100,18 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
       setPrevUrl(currentUrl);
       setCurrentUrl(nextUrl);
       setFinalLoaded(false);
+      setTransitionComplete(false); // Starting a new transition
     }
   }, [thumbnail.webImageUrl, thumbnail.imageUrl, currentUrl, prevUrl]);
 
   // Clear previous layer after crossfade completes
   useEffect(() => {
     if (!prevUrl || !finalLoaded) return;
-    const t = setTimeout(() => setPrevUrl(null), 320);
+    const t = setTimeout(() => {
+      setPrevUrl(null);
+      // Transition is now complete, safe to remove filter
+      setTransitionComplete(true);
+    }, 320);
     return () => clearTimeout(t);
   }, [prevUrl, finalLoaded]);
   
@@ -128,7 +135,12 @@ export const InferenceThumbnailComponent: FC<InferenceThumbnailProps> = ({
   }, [thumbnail.webImageUrl, thumbnail.imageUrl]);
   
   const getStatusClass = () => {
-    switch (thumbnail.status) {
+    // Don't show as completed until transition is done (to keep CSS filter active)
+    const effectiveStatus = (thumbnail.status === 'completed' && !transitionComplete) 
+      ? 'running' 
+      : thumbnail.status;
+      
+    switch (effectiveStatus) {
       case 'queued': {
         // Distinguish queued because job is queued vs queued while job is running
         if (jobStatus === 'running' || jobStatus === 'pending' || jobStatus === 'initializing' || jobStatus === 'generating' || jobStatus === 'starting') {

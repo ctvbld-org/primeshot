@@ -32,10 +32,9 @@ export async function GET(request: Request) {
         // User creation is now handled automatically by the database trigger
         // No need to manually create/update user in database
         
-        // Redirect to post-login path (defaults to /create)
+        // Redirect to app root (basePath is handled automatically by Next.js)
         const app_url = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-        const postLoginPath = process.env.NEXT_PUBLIC_POST_LOGIN_PATH || '/create'
-        const redirectUrl = `${app_url}${postLoginPath}`
+        const redirectUrl = `${app_url}/`
 
         const response = NextResponse.redirect(new URL(redirectUrl))
         
