@@ -1,65 +1,65 @@
 {
-  "dialog": {
-    "title": "アカウント",
-    "selectSection": "セクションを選択"
-  },
-  "navigation": {
-    "profile": "プロフィール",
-    "subscription": "サブスクリプション",
-    "settings": "設定",
-    "support": "サポート"
-  },
-  "buttons": {
-    "cancel": "キャンセル",
-    "save": "保存",
-    "saving": "保存中…",
-    "signOut": "サインアウト",
-    "subscribe": "サブスクライブ",
-    "opening": "開いています…",
-    "manage": "管理",
-    "renew": "更新",
-    "buyCredits": "クレジット購入",
-    "deleteAccount": "アカウント削除（近日公開）"
-  },
-  "profile": {
-    "title": "プロフィール",
-    "firstName": "名前",
-    "lastName": "姓",
-    "email": "メールアドレス"
-  },
-  "subscription": {
-    "title": "サブスクリプション",
-    "loading": "読み込み中...",
-    "noPlan": "プランなし",
-    "planSuffix": "プラン",
-    "cancelled": "キャンセル済み",
-    "expires": "{{date}}に期限切れ",
-    "renews": "{{date}}に更新",
-    "creditBalance": "クレジット残高",
-    "resets": "{{date}}にリセット"
-  },
-  "settings": {
-    "title": "設定",
-    "language": "言語",
-    "deleteAccount": {
-      "title": "アカウントを削除しますか？",
-      "description": "すべてのデータ、設定、履歴が削除されます。この操作は元に戻すことができません。"
+    "dialog": {
+        "title": "アカウント",
+        "selectSection": "セクションを選択"
+    },
+    "navigation": {
+        "profile": "プロフィール",
+        "subscription": "サブスクリプション",
+        "settings": "設定",
+        "support": "サポート"
+    },
+    "buttons": {
+        "cancel": "キャンセル",
+        "save": "保存",
+        "saving": "保存中…",
+        "signOut": "サインアウト",
+        "subscribe": "サブスクライブ",
+        "opening": "開いています…",
+        "manage": "管理",
+        "renew": "更新",
+        "buyCredits": "クレジット購入",
+        "deleteAccount": "アカウント削除（近日公開）"
+    },
+    "profile": {
+        "title": "プロフィール",
+        "firstName": "名前",
+        "lastName": "姓",
+        "email": "メールアドレス"
+    },
+    "subscription": {
+        "title": "サブスクリプション",
+        "loading": "読み込み中...",
+        "noPlan": "プランなし",
+        "planSuffix": "プラン",
+        "cancelled": "キャンセル済み",
+        "expires": "{{date}}に期限切れ",
+        "renews": "{{date}}に更新",
+        "creditBalance": "クレジット残高",
+        "resets": "{{date}}にリセット"
+    },
+    "settings": {
+        "title": "設定",
+        "language": "言語",
+        "deleteAccount": {
+            "title": "アカウントを削除しますか？",
+            "description": "すべてのデータ、設定、履歴が削除されます。この操作は元に戻すことができません。"
+        }
+    },
+    "support": {
+        "title": "サポートいたします",
+        "description": "ご質問やサポートが必要ですか？すべてのステップでお手伝いする準備ができています。通常24時間以内に返信いたします。",
+        "faq": "よくある質問",
+        "faqDescription": "よくある質問への迅速な回答については、{{helpCenter}}をご確認ください。",
+        "helpCenter": "ヘルプセンター",
+        "dmUs": "DMを送る",
+        "emailUs": "メールを送る"
+    },
+    "errors": {
+        "failedToSave": "変更の保存に失敗しました"
+    },
+    "accessibility": {
+        "avatar": "アバター",
+        "plan": "プラン"
     }
-  },
-  "support": {
-    "title": "サポートいたします",
-    "description": "ご質問やサポートが必要ですか？すべてのステップでお手伝いする準備ができています。通常24時間以内に返信いたします。",
-    "faq": "よくある質問",
-    "faqDescription": "よくある質問への迅速な回答については、{{helpCenter}}をご確認ください。",
-    "helpCenter": "ヘルプセンター",
-    "dmUs": "DMを送る",
-    "emailUs": "メールを送る"
-  },
-  "errors": {
-    "failedToSave": "変更の保存に失敗しました"
-  },
-  "accessibility": {
-    "avatar": "アバター",
-    "plan": "プラン"
-  }
 }

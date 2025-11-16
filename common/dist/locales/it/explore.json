@@ -1,27 +1,27 @@
 {
-  "title": "Galleria",
-  "loading": "Caricamento...",
-  "buttons": {
-    "customiseStyle": "Personalizza stile",
-    "showAllStyles": "Mostra tutti gli stili"
-  },
-  "noResults": "Nessun risultato per \"{{filter}}\"",
-  "styleFilters": {
-    "Corporate": {
-      "name": "Corporate",
-      "description": "Professionale e accessibile con un tocco moderno. Ideale per LinkedIn, foto aziendali, pagine team e presentazioni."
+    "title": "Galleria",
+    "loading": "Caricamento...",
+    "buttons": {
+        "customiseStyle": "Personalizza stile",
+        "showAllStyles": "Mostra tutti gli stili"
     },
-    "Blindlight": {
-      "name": "Blindlight",
-      "description": "Suggestivo e cinematografico con ombre e luci audaci. Perfetto per ritratti espressivi, profili e branding creativo."
-    },
-    "Golden Noir": {
-      "name": "Golden Noir",
-      "description": "Intenso e drammatico con toni ricchi e contrasto. Uno stile di ritratto cinematografico per personal branding audace e uso editoriale."
-    },
-    "Studio Pro": {
-      "name": "Studio Pro",
-      "description": "Pulito e raffinato con illuminazione da studio senza tempo. Una scelta versatile per foto professionali, personal branding e portfolio per attori."
+    "noResults": "Nessun risultato per \"{{filter}}\"",
+    "styleFilters": {
+        "Corporate": {
+            "name": "Corporate",
+            "description": "Professionale e accessibile con un tocco moderno. Ideale per LinkedIn, foto aziendali, pagine team e presentazioni."
+        },
+        "Blindlight": {
+            "name": "Blindlight",
+            "description": "Suggestivo e cinematografico con ombre e luci audaci. Perfetto per ritratti espressivi, profili e branding creativo."
+        },
+        "Golden Noir": {
+            "name": "Golden Noir",
+            "description": "Intenso e drammatico con toni ricchi e contrasto. Uno stile di ritratto cinematografico per personal branding audace e uso editoriale."
+        },
+        "Studio Pro": {
+            "name": "Studio Pro",
+            "description": "Pulito e raffinato con illuminazione da studio senza tempo. Una scelta versatile per foto professionali, personal branding e portfolio per attori."
+        }
     }
-  }
 }

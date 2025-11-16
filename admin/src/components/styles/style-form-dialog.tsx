@@ -39,6 +39,13 @@ import { Input } from '@primeshot/common/web/ui/input'
 import { Textarea } from '@primeshot/common/web/ui/textarea'
 import { Button } from '@primeshot/common/web/ui/button'
 import { MultiSelect } from '@/components/ui/multi-select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@primeshot/common/web/ui/select'
 import { ImageUpload } from '@/components/ui/image-upload'
 import { toast } from 'sonner'
 import type { Database } from '@/types/supabase'
@@ -88,6 +95,7 @@ const formSchema = z.object({
   available_scenes: z.array(z.string()).min(1, 'At least one scene is required'),
   available_wardrobes: z.array(z.string()).min(1, 'At least one wardrobe is required'),
   available_colors: z.array(z.string()), // No minimum required - colors are optional
+  color_mode: z.enum(['color', 'monochrome', 'sepia']),
   // NEW optional ordering fields
   wardrobe_category_order: z.array(z.string()).optional(),
   wardrobe_order: z.record(z.array(z.string())).optional(),
@@ -158,6 +166,7 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
       available_scenes: [],
       available_wardrobes: [],
       available_colors: [],
+      color_mode: 'color',
       // NEW
       wardrobe_category_order: [],
       wardrobe_order: {},
@@ -180,6 +189,7 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
       JSON.stringify(currentValues.available_scenes.sort()) !== JSON.stringify(originalValues.available_scenes.sort()) ||
       JSON.stringify(currentValues.available_wardrobes.sort()) !== JSON.stringify(originalValues.available_wardrobes.sort()) ||
       JSON.stringify(currentValues.available_colors.sort()) !== JSON.stringify(originalValues.available_colors.sort()) ||
+      currentValues.color_mode !== originalValues.color_mode ||
       JSON.stringify(currentValues.wardrobe_category_order || []) !== JSON.stringify(originalValues.wardrobe_category_order || []) ||
       JSON.stringify(currentValues.wardrobe_order || {}) !== JSON.stringify(originalValues.wardrobe_order || {})
     )
@@ -219,6 +229,7 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
       available_scenes: style.available_scenes || [],
       available_wardrobes: style.available_wardrobes || [],
       available_colors: style.available_colors || [],
+      color_mode: (style.color_mode || 'color') as 'color' | 'monochrome' | 'sepia',
       wardrobe_category_order: ((style as any)?.wardrobe_category_order || []) as string[],
       wardrobe_order: ((style as any)?.wardrobe_order || {}) as Record<string, string[]>,
     } : {
@@ -230,6 +241,7 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
       available_scenes: [],
       available_wardrobes: [],
       available_colors: [],
+      color_mode: 'color' as const,
       wardrobe_category_order: [],
       wardrobe_order: {},
     }
@@ -675,6 +687,29 @@ export function StyleFormDialog({ style, open, onOpenChange, onSuccess }: StyleF
                         )}
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="color_mode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Color Mode</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select color mode" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="color">Color</SelectItem>
+                        <SelectItem value="monochrome">Monochrome</SelectItem>
+                        <SelectItem value="sepia">Sepia</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

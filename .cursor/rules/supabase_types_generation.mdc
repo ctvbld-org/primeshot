@@ -1,0 +1,77 @@
+# Supabase Types Generation
+
+## Overview
+This document outlines best practices for generating Supabase TypeScript types to avoid common errors.
+
+## Type Generation Command
+
+Always generate types from the project root and redirect stdout properly to avoid capturing stderr output:
+
+```bash
+# ✅ Correct - from project root
+cd /path/to/project/root
+npx supabase gen types typescript --local > webapp/src/types/supabase.ts
+npx supabase gen types typescript --local > admin/src/types/supabase.ts
+
+# ❌ Incorrect - from subdirectory or capturing stderr
+cd webapp
+supabase gen types typescript --local > src/types/supabase.ts  # May include "Using workdir" text
+```
+
+## Common Issues
+
+### Issue: "Unknown keyword or identifier. Did you mean 'using'?"
+
+**Cause**: The types file contains stderr output (like `Using workdir...` or `WARN:` messages) at the beginning, which TypeScript interprets as code.
+
+**Symptoms**:
+- Build fails with TypeScript error at `supabase.ts:1:1`
+- First line of `supabase.ts` contains text like `Using workdir` or `WARN:`
+
+**Solution**:
+1. Regenerate the types file from project root:
+   ```bash
+   cd /path/to/project/root
+   npx supabase gen types typescript --local > admin/src/types/supabase.ts
+   ```
+
+2. Verify the file starts with `export type Json =` (not any text output)
+
+3. If stderr warnings persist, suppress them or use a temporary file:
+   ```bash
+   npx supabase gen types typescript --local > types.tmp 2>/dev/null
+   mv types.tmp admin/src/types/supabase.ts
+   ```
+
+## Environment Variable Warnings
+
+The following warnings are safe to ignore during type generation if the variables aren't needed locally:
+- `SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID`
+- `SUPABASE_AUTH_EXTERNAL_APPLE_SECRET`
+
+These are required in production but optional for local development.
+
+## Project Structure Requirements
+
+- **Admin project**: `admin/src/types/supabase.ts`
+- **Webapp project**: `webapp/src/types/supabase.ts`
+- Both should be generated from the project root
+- Both should be kept in sync with the database schema
+
+## Automation
+
+Consider adding a script to generate types for all projects:
+
+```bash
+#!/bin/bash
+# generate-types.sh
+cd "$(dirname "$0")"
+npx supabase gen types typescript --local > webapp/src/types/supabase.ts 2>/dev/null
+npx supabase gen types typescript --local > admin/src/types/supabase.ts 2>/dev/null
+echo "✅ Types generated for webapp and admin"
+```
+
+## Related Rules
+
+- See [supabase_migrations.mdc](mdc:.cursor/rules/supabase_migrations.mdc) for migration best practices
+- See [supabase_client.mdc](mdc:.cursor/rules/supabase_client.mdc) for client setup patterns

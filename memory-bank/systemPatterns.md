@@ -2883,6 +2883,21 @@ Detected changes in:
 - webapp/src/app/auth/callback/route.ts
 - webapp/src/app/auth/verify/page.tsx
 - webapp/src/lib/services/creditService.ts
+
+
+**Auto-update 2025-11-16**:
+Detected changes in:
+- admin/src/components/styles/scene-form-dialog.tsx
+- admin/src/components/styles/style-form-dialog.tsx
+- admin/src/components/styles/wardrobe-form-dialog.tsx
+- webapp/src/app/auth/callback/route.ts
+- webapp/src/app/auth/verify/page.tsx
+- webapp/src/components/inference/InferenceJobGroup.module.css
+- webapp/src/components/inference/InferenceJobGroup.tsx
+- webapp/src/components/inference/InferenceThumbnail.module.css
+- webapp/src/components/inference/InferenceThumbnail.tsx
+- website/src/app/[locale]/blog/sitemap.ts
+- website/src/app/sitemap.ts
 ## Component Organization
 
 Components are organized by feature and reusability:
