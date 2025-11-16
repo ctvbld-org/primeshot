@@ -1,7 +1,3 @@
-Using workdir /Users/ledave/Documents/Primeshot/App
-WARN: environment variable is unset: SUPABASE_AUTH_EXTERNAL_APPLE_CLIENT_ID
-WARN: environment variable is unset: SUPABASE_AUTH_EXTERNAL_APPLE_SECRET
-Connecting to db 5432
 export type Json =
   | string
   | number
@@ -182,6 +178,7 @@ export type Database = {
           credits_purchased: number
           expires_at: string
           id: string
+          remaining_credits: number
           status: string
           stripe_payment_intent_id: string
           stripe_price_id: string
@@ -193,6 +190,7 @@ export type Database = {
           credits_purchased: number
           expires_at: string
           id?: string
+          remaining_credits: number
           status: string
           stripe_payment_intent_id: string
           stripe_price_id: string
@@ -204,6 +202,7 @@ export type Database = {
           credits_purchased?: number
           expires_at?: string
           id?: string
+          remaining_credits?: number
           status?: string
           stripe_payment_intent_id?: string
           stripe_price_id?: string
@@ -762,6 +761,7 @@ export type Database = {
           available_colors: string[]
           available_scenes: string[]
           available_wardrobes: string[]
+          color_mode: Database["public"]["Enums"]["style_color_mode"]
           created_at: string | null
           id: string
           lora_path: string | null
@@ -778,6 +778,7 @@ export type Database = {
           available_colors?: string[]
           available_scenes?: string[]
           available_wardrobes?: string[]
+          color_mode?: Database["public"]["Enums"]["style_color_mode"]
           created_at?: string | null
           id?: string
           lora_path?: string | null
@@ -794,6 +795,7 @@ export type Database = {
           available_colors?: string[]
           available_scenes?: string[]
           available_wardrobes?: string[]
+          color_mode?: Database["public"]["Enums"]["style_color_mode"]
           created_at?: string | null
           id?: string
           lora_path?: string | null
@@ -1078,10 +1080,13 @@ export type Database = {
         Row: {
           cancel_at_period_end: boolean | null
           created_at: string | null
+          current_period_credits_used: number | null
           current_period_end: string | null
           current_period_start: string | null
           id: string
           last_awarded_month: number | null
+          last_quota_reset_at: string | null
+          monthly_credits_quota: number | null
           plan_name: string
           status: string
           stripe_customer_id: string
@@ -1093,10 +1098,13 @@ export type Database = {
         Insert: {
           cancel_at_period_end?: boolean | null
           created_at?: string | null
+          current_period_credits_used?: number | null
           current_period_end?: string | null
           current_period_start?: string | null
           id?: string
           last_awarded_month?: number | null
+          last_quota_reset_at?: string | null
+          monthly_credits_quota?: number | null
           plan_name: string
           status: string
           stripe_customer_id: string
@@ -1108,10 +1116,13 @@ export type Database = {
         Update: {
           cancel_at_period_end?: boolean | null
           created_at?: string | null
+          current_period_credits_used?: number | null
           current_period_end?: string | null
           current_period_start?: string | null
           id?: string
           last_awarded_month?: number | null
+          last_quota_reset_at?: string | null
+          monthly_credits_quota?: number | null
           plan_name?: string
           status?: string
           stripe_customer_id?: string
@@ -1326,6 +1337,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      deduct_credits: {
+        Args: { p_amount: number; p_description: string; p_user_id: string }
+        Returns: Json
+      }
       expire_credit_pack_credits: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -1333,6 +1348,10 @@ export type Database = {
       expire_credits: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      expire_old_purchased_credits: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       expire_subscription_credits: {
         Args: Record<PropertyKey, never>
@@ -1355,6 +1374,10 @@ export type Database = {
           updated_at: string
           user_id: string
         }[]
+      }
+      get_available_credits: {
+        Args: { p_user_id: string }
+        Returns: Json
       }
       get_language_preference: {
         Args: Record<PropertyKey, never>
@@ -1420,6 +1443,10 @@ export type Database = {
         Args: { character_id: string }
         Returns: undefined
       }
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       process_credit_pack_purchase: {
         Args: {
           p_amount_paid: number
@@ -1447,6 +1474,10 @@ export type Database = {
           success: boolean
         }[]
       }
+      reset_subscription_quota: {
+        Args: { p_subscription_id: string }
+        Returns: Json
+      }
       set_user_language: {
         Args: { new_language: string }
         Returns: undefined
@@ -1464,17 +1495,26 @@ export type Database = {
         Returns: boolean
       }
       spend_credits_with_job_tracking: {
-        Args: {
-          p_amount: number
-          p_description?: string
-          p_job_id: string
-          p_metadata?: Json
-          p_usage_type: string
-          p_user_id: string
-        }
+        Args:
+          | {
+              p_amount: number
+              p_description?: string
+              p_job_id: string
+              p_metadata?: Json
+              p_usage_type: string
+              p_user_id: string
+            }
+          | {
+              p_amount: number
+              p_description?: string
+              p_job_id: string
+              p_metadata?: Json
+              p_usage_type: string
+              p_user_id: string
+            }
         Returns: {
-          current_balance: number
           error_message: string
+          final_balance: number
           success: boolean
         }[]
       }
@@ -1510,7 +1550,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      style_color_mode: "color" | "monochrome" | "sepia"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1640,9 +1680,9 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      style_color_mode: ["color", "monochrome", "sepia"],
+    },
   },
 } as const
 
-A new version of Supabase CLI is available: v2.58.5 (currently installed v2.48.3)
-We recommend updating regularly for new features and bug fixes: https://supabase.com/docs/guides/cli/getting-started#updating-the-supabase-cli
