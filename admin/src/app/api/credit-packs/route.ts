@@ -27,17 +27,31 @@ export async function POST(request: NextRequest) {
     const supabase = createServiceClient()
     const body = await request.json()
     
-    const { error } = await supabase
+    // Remove id field if present - let PostgreSQL auto-generate it
+    const { id, ...dataWithoutId } = body
+    
+    const { data, error } = await supabase
       .from('credit_packs')
-      .insert([body])
+      .insert([dataWithoutId])
+      .select()
+      .single()
     
     if (error) throw error
     
-    return NextResponse.json({ success: true })
-  } catch (error) {
+    return NextResponse.json({ success: true, data })
+  } catch (error: any) {
     console.error('Error creating credit pack:', error)
+    
+    // Handle duplicate key constraint violations
+    if (error.code === '23505') {
+      return NextResponse.json(
+        { error: 'A credit pack with these values already exists' },
+        { status: 409 }
+      )
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to create credit pack' },
+      { error: error.message || 'Failed to create credit pack' },
       { status: 500 }
     )
   }

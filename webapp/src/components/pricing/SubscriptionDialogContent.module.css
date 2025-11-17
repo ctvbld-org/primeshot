@@ -93,20 +93,33 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 0;
   overflow: visible;
   justify-content: center;
 }
 
 .card {
-  background: #E5FBFA;
+  background: #FFF;
   color: #0C1013;
   padding: 32px;
   display: flex;
   flex-direction: column;
   gap: 20px;
   position: relative;
+}
+
+.card:first-child,
+.card:nth-child(2),
+.card:nth-child(3) {
+  border-right: 1px solid rgba(0,0,0,0.1);
+}
+.card:first-child,
+.card:nth-child(2) {
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+.card:last-child {
+  background: #99EFEC;
 }
 
 .cardHighlight {}
@@ -424,8 +437,6 @@
   border-bottom-right-radius: 16px;
 }
 
-:global(.standard).card { background: #99EFEC; }
-
 @media (max-width: 900px) {
   .bannerContainer {
     padding: 24px;
@@ -441,9 +452,29 @@
   }
 }
 
-@media (max-width: 828px) {
+@media (max-width: 880px) {
   .card {
     padding: 24px 16px;
+    border-radius: 0 !important;
+  }
+
+  .card:first-child {
+    border-top-left-radius: 16px !important;
+    border-bottom-left-radius: 0 !important;
+  }
+  .card:nth-child(2) {
+    border-top-right-radius: 16px !important;
+  }
+  .card:nth-child(3) {
+    border-bottom-left-radius: 16px !important;
+  }
+  .card:last-child {
+    border-bottom-right-radius: 16px !important;
+    border-top-right-radius: 0 !important;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .mainPrice,
@@ -476,6 +507,10 @@
     width: 64px;
     height: 64px;
   }
+}
+
+
+@media (max-width: 550px) {
 
   .grid {
     grid-template-columns: repeat(1, 1fr);
@@ -490,7 +525,12 @@
     border-top-left-radius: 16px !important;
     border-top-right-radius: 16px !important;
   }
-  
+  .card:nth-child(2) {
+    border-radius: 0 !important;
+  }
+  .card:nth-child(3) {
+    border-radius: 0 !important;
+  }
   .card:last-child {
     border-bottom-left-radius: 16px !important;
     border-bottom-right-radius: 16px !important;
@@ -504,6 +544,7 @@
   .originalPrice {
     font-size: 36px;
   }
+
 }
 
 /* Credit pack footer button */

@@ -105,6 +105,9 @@ export function GenerateBar({
   const [selectionVersion, setSelectionVersion] = useState(0)
   const [isSwitchingGender, setIsSwitchingGender] = useState(false)
 
+  // Track which panels have been animated to avoid re-animating on tab switches
+  const animatedPanelsRef = useRef<Set<PanelKey>>(new Set())
+
   // Validation error state for required selectors
   const [errors, setErrors] = useState<{ character?: boolean; scene?: boolean; wardrobe?: boolean; color?: boolean }>({})
   
@@ -314,7 +317,9 @@ export function GenerateBar({
   const close = () => { 
     setOpenPanel(null); 
     setSelectedWardrobeValue(null); 
-    setPanelQuery(''); 
+    setPanelQuery('');
+    // Reset animated panels so they animate again when reopened
+    animatedPanelsRef.current.clear();
     onPanelToggle?.(false)
     // Check sticky state after panel closes
     setTimeout(checkSticky, 300)
@@ -878,11 +883,16 @@ export function GenerateBar({
     const itemsContainer = viewport.firstElementChild as HTMLElement
     if (!itemsContainer) return
 
-    // Hide all items initially by removing the loaded class
+    // Check if this panel has already been animated in this session
+    const shouldAnimate = !animatedPanelsRef.current.has(panel)
+    
+    // Hide all items initially by removing the loaded class (only if animating)
     const allButtons = Array.from(itemsContainer.children) as HTMLElement[]
-    allButtons.forEach(button => {
-      button.classList.remove(styles.itemCardLoaded)
-    })
+    if (shouldAnimate) {
+      allButtons.forEach(button => {
+        button.classList.remove(styles.itemCardLoaded)
+      })
+    }
 
     let selectedIndex = -1
     let itemWidth = 0
@@ -962,12 +972,16 @@ export function GenerateBar({
         viewport.style.scrollBehavior = originalScrollBehavior
       }
 
-    // Fade in all items after scroll position is set
-    setTimeout(() => {
-      allButtons.forEach(button => {
-        button.classList.add(styles.itemCardLoaded)
-      })
-    }, 50)
+    // Fade in all items after scroll position is set (only if animating)
+    if (shouldAnimate) {
+      setTimeout(() => {
+        allButtons.forEach(button => {
+          button.classList.add(styles.itemCardLoaded)
+        })
+        // Mark this panel as animated
+        animatedPanelsRef.current.add(panel)
+      }, 50)
+    }
   }, [selectedStyleIndex, currentStyle, scenes, wardrobes, selectedGender, selectedWardrobeValue, stylesWithPreview, panelQuery])
 
   const updateNavButtons = useCallback(() => {
