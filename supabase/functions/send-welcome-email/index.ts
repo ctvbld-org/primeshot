@@ -29,6 +29,16 @@ serve(async (req) => {
   try {
     const hookSecret = Deno.env.get("WELCOME_HOOK_SECRET");
     const headerSecret = req.headers.get("x-hook-secret");
+    
+    // Debug logging
+    console.log("Auth check:", {
+      hasEnvSecret: !!hookSecret,
+      envSecretLength: hookSecret?.length,
+      hasHeaderSecret: !!headerSecret,
+      headerSecretLength: headerSecret?.length,
+      match: hookSecret === headerSecret
+    });
+    
     if (!hookSecret || headerSecret !== hookSecret) {
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
@@ -45,7 +55,7 @@ serve(async (req) => {
     }
 
     const resendKey = Deno.env.get("RESEND_API_KEY");
-    const from = Deno.env.get("RESEND_FROM") || "Primeshot <info@mail.primeshot.ai>";
+    const from = Deno.env.get("RESEND_FROM") || "Primeshot <team@mail.primeshot.ai>";
     const replyTo = Deno.env.get("RESEND_REPLY_TO") || from;
     if (!resendKey) {
       return new Response(

@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@primeshot/common/web/ui/card'
 import { Avatar } from '@primeshot/common/web/ui/avatar'
@@ -8,6 +8,7 @@ import { Badge } from '@primeshot/common/web/ui/badge'
 import { createClient } from '@/lib/supabase/client'
 import { Trophy, Medal, Award, Wifi, WifiOff } from 'lucide-react'
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription'
+import { UserDetailsDialog } from './UserDetailsDialog'
 
 interface TopUser {
   id: string
@@ -84,11 +85,19 @@ function getPlanBadgeVariant(plan: string | null): "default" | "secondary" | "ou
 }
 
 export function TopUsersLeaderboard() {
+  const [selectedUser, setSelectedUser] = useState<TopUser | null>(null)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  
   const { data: users, isLoading, refetch } = useQuery({
     queryKey: ['top-users'],
     queryFn: fetchTopUsers,
     refetchInterval: 60000, // Refresh every minute as fallback
   })
+
+  const handleUserClick = (user: TopUser) => {
+    setSelectedUser(user)
+    setDialogOpen(true)
+  }
 
   // Handle realtime updates for user-related tables
   const handleRealtimeUpdate = useCallback((table: string, eventType: string, record: any) => {
@@ -161,7 +170,19 @@ export function TopUsersLeaderboard() {
               .toUpperCase() || user.email[0].toUpperCase()
             
             return (
-              <div key={user.id} className="flex items-center justify-between">
+              <div 
+                key={user.id} 
+                className="flex items-center justify-between cursor-pointer hover:bg-muted/50 p-2 rounded-lg transition-colors"
+                onClick={() => handleUserClick(user)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    handleUserClick(user)
+                  }
+                }}
+              >
                 <div className="flex items-center space-x-4">
                   <div className="w-8 flex justify-center">
                     {getPositionIcon(position)}
@@ -194,6 +215,12 @@ export function TopUsersLeaderboard() {
           })}
         </div>
       </CardContent>
+      
+      <UserDetailsDialog
+        user={selectedUser}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+      />
     </Card>
   )
 }

@@ -24,7 +24,9 @@ async function streamToBuffer(stream: any): Promise<Buffer> {
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
-    const key = searchParams.get('key') || ''
+    // Decode the key in case it's double-encoded
+    const rawKey = searchParams.get('key') || ''
+    const key = decodeURIComponent(rawKey)
     const w = Math.max(32, Math.min(parseInt(searchParams.get('w') || '480', 10) || 480, 2048))
     if (!key) return new Response('Missing key', { status: 400 })
 
