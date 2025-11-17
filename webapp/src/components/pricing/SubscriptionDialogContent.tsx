@@ -130,8 +130,10 @@ export function SubscriptionDialogContent({
       return
     }
 
-    // If this is an upgrade (user has current subscription), show confirmation dialog
-    if (showOnlyUpgrades && currentSubscription) {
+    // If this is an upgrade (user has current paid subscription), show confirmation dialog
+    // Free plan users should go through direct purchase flow
+    const isFreePlan = currentSubscription?.plan_name === 'free'
+    if (showOnlyUpgrades && currentSubscription && !isFreePlan) {
       await handleUpgradePreview(priceId)
     } else {
       await handleDirectPurchase(priceId)

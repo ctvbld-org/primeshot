@@ -248,7 +248,7 @@ async function createCreditPackProducts(creditPacks) {
     return results;
 }
 async function updatePricingFile(subscriptionResults, creditPackResults) {
-    console.log('📝 Updating stripe-reference.ts with Stripe price IDs...\n');
+    console.log('📝 Regenerating stripe-reference.ts with Stripe price IDs...\n');
     const fs = await import('fs');
     const path = await import('path');
     const { fileURLToPath } = await import('url');
@@ -257,35 +257,33 @@ async function updatePricingFile(subscriptionResults, creditPackResults) {
     const stripeRefPath = path.join(__dirname, './stripe-reference.ts');
     // Determine which environment we're updating
     const envKey = environment;
-    console.log(`📝 Updating ${envKey} environment price IDs...`);
+    console.log(`📝 Regenerating ${envKey} environment in stripe-reference.ts...`);
     let content;
     if (fs.existsSync(stripeRefPath)) {
         content = fs.readFileSync(stripeRefPath, 'utf8');
-        // Update existing file - replace the specific environment
-        for (const result of subscriptionResults) {
-            // Replace monthly price ID
-            const monthlyPattern = new RegExp(`(${envKey}:[\\s\\S]*?subscriptions:[\\s\\S]*?${result.tier}:[\\s\\S]*?monthly: ')([^']*)'`, 'g');
-            content = content.replace(monthlyPattern, `$1${result.monthlyPrice}'`);
-            // Replace yearly price ID (if available)
-            if (result.yearlyPrice) {
-                const yearlyPattern = new RegExp(`(${envKey}:[\\s\\S]*?subscriptions:[\\s\\S]*?${result.tier}:[\\s\\S]*?yearly: ')([^']*)'`, 'g');
-                content = content.replace(yearlyPattern, `$1${result.yearlyPrice}'`);
-            }
-            // Replace product ID
-            const productPattern = new RegExp(`(${envKey}:[\\s\\S]*?subscriptions:[\\s\\S]*?${result.tier}:[\\s\\S]*?product: ')([^']*)'`, 'g');
-            content = content.replace(productPattern, `$1${result.product}'`);
+        // Build the complete new environment section from DB results
+        const subsEntries = subscriptionResults.map(result => `      ${result.tier}: { product: '${result.product}', monthly: '${result.monthlyPrice}', yearly: '${result.yearlyPrice || result.monthlyPrice}' }`).join(',\n');
+        const packsEntries = creditPackResults.map(result => `      ${result.pack}: { product: '${result.product}', price: '${result.price}' }`).join(',\n');
+        const newEnvSection = `${envKey}: {
+    subscriptions: {
+${subsEntries}
+    },
+    creditPacks: {
+${packsEntries}
+    }
+  }`;
+        // Replace the entire environment section
+        const envPattern = new RegExp(`${envKey}:\\s*\\{[\\s\\S]*?\\n  \\}`, 'm');
+        if (envPattern.test(content)) {
+            content = content.replace(envPattern, newEnvSection);
         }
-        // Update credit pack price IDs for the current environment
-        for (const result of creditPackResults) {
-            // Replace price ID
-            const pricePattern = new RegExp(`(${envKey}:[\\s\\S]*?creditPacks:[\\s\\S]*?${result.pack}:[\\s\\S]*?price: ')([^']*)'`, 'g');
-            content = content.replace(pricePattern, `$1${result.price}'`);
-            // Replace product ID
-            const productPattern = new RegExp(`(${envKey}:[\\s\\S]*?creditPacks:[\\s\\S]*?${result.pack}:[\\s\\S]*?product: ')([^']*)'`, 'g');
-            content = content.replace(productPattern, `$1${result.product}'`);
+        else {
+            // Environment doesn't exist, add it
+            console.warn(`⚠️  ${envKey} environment not found in stripe-reference.ts, creating new file...`);
+            content = null;
         }
     }
-    else {
+    if (!content) {
         // Create new file with all environments
         console.log('📝 Creating new stripe-reference.ts file...');
         const createEnvironmentData = (env) => {
