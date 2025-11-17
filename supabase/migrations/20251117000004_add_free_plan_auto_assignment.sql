@@ -12,7 +12,20 @@ DECLARE
   v_existing_subscription_id UUID;
   v_new_subscription_id UUID;
   v_current_time TIMESTAMPTZ := NOW();
+  v_free_plan_credits INTEGER;
 BEGIN
+  -- Look up credits from subscriptions table
+  SELECT credits INTO v_free_plan_credits
+  FROM subscriptions
+  WHERE name = 'free';
+
+  IF v_free_plan_credits IS NULL THEN
+    RETURN jsonb_build_object(
+      'status', 'error',
+      'message', 'Free plan not found in subscriptions table'
+    );
+  END IF;
+
   -- Check if user already has an active subscription
   SELECT id INTO v_existing_subscription_id
   FROM user_subscriptions
@@ -52,7 +65,7 @@ BEGIN
     NULL, -- No Stripe subscription for free plan
     NULL, -- No Stripe customer for free plan
     NULL, -- No Stripe price for free plan
-    10, -- 10 credits per month for free plan
+    v_free_plan_credits, -- Credits from subscriptions table
     0, -- Start with 0 credits used
     v_current_time,
     v_current_time + INTERVAL '1 month', -- Period ends in 1 month
@@ -62,7 +75,7 @@ BEGIN
   )
   RETURNING id INTO v_new_subscription_id;
 
-  -- Award initial 10 credits to the user
+  -- Award initial credits to the user (from subscriptions table)
   INSERT INTO user_credits (
     user_id,
     credits,
@@ -75,7 +88,7 @@ BEGIN
   )
   VALUES (
     p_user_id,
-    10,
+    v_free_plan_credits, -- Credits from subscriptions table
     'earned',
     'subscription',
     v_new_subscription_id::TEXT,
@@ -93,7 +106,7 @@ BEGIN
     'status', 'success',
     'message', 'Free plan assigned successfully',
     'subscription_id', v_new_subscription_id,
-    'credits_awarded', 10
+    'credits_awarded', v_free_plan_credits
   );
 
 EXCEPTION

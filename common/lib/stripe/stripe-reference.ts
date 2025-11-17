@@ -18,14 +18,14 @@ export const STRIPE_REFERENCE: Record<StripeEnv, any> = {
   },
   staging: {
     subscriptions: {
-      basic: { product: 'prod_TRIa4qWejSnH7F', monthly: 'price_1SUPzkCyDXbv4ZSnOmCSpVcL', yearly: 'price_1SUPzkCyDXbv4ZSniNnk4YUE' },
-      standard: { product: 'prod_TRIaDzPSIvduZV', monthly: 'price_1SUPzlCyDXbv4ZSnynqFfZpY', yearly: 'price_1SUPzlCyDXbv4ZSnwTSrUtoP' },
-      pro: { product: 'prod_TRIa0cq8nFDWGU', monthly: 'price_1SUPzmCyDXbv4ZSnlIwKBlPW', yearly: 'price_1SUPzmCyDXbv4ZSnZA8oscMz' }
+      basic: { product: 'prod_TRJC1rQsTPZRhY', monthly: 'price_1SUQZgCyDXbv4ZSnFHQjpfE0', yearly: 'price_1SUQZgCyDXbv4ZSngf1oJhoA' },
+      standard: { product: 'prod_TRJCZn7ZRed2u7', monthly: 'price_1SUQZgCyDXbv4ZSnWENeN4DI', yearly: 'price_1SUQZhCyDXbv4ZSnjkwIyUy4' },
+      pro: { product: 'prod_TRJCoeHmjHPhUY', monthly: 'price_1SUQZhCyDXbv4ZSnNikxXc4E', yearly: 'price_1SUQZiCyDXbv4ZSnsQioCYj7' }
     },
     creditPacks: {
-      credits_138: { product: 'prod_TRIaZrTK6WBmqp', price: 'price_1SUPzoCyDXbv4ZSn3SvHHqMr' },
-      credits_276: { product: 'prod_TRIbtHxUhszXY8', price: 'price_1SUPzoCyDXbv4ZSnnNouM2O3' },
-      credits_588: { product: 'prod_TRIbXvaEMadas3', price: 'price_1SUPzpCyDXbv4ZSngsUdOuYl' }
+      credits_138: { product: 'prod_TRJC9da38TXcvd', price: 'price_1SUQZjCyDXbv4ZSnmzLgq1ew' },
+      credits_276: { product: 'prod_TRJCg04eOpdDkn', price: 'price_1SUQZkCyDXbv4ZSncJ2QkYv3' },
+      credits_588: { product: 'prod_TRJCwEeNQ9YE1v', price: 'price_1SUQZkCyDXbv4ZSnV7zpb71v' }
     }
   },
   production: {
