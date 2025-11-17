@@ -260,6 +260,7 @@ export declare const resources: {
                         maxCharacters: string;
                         concurrentShoots: string;
                         commercialUse: string;
+                        personalUseOnly: string;
                     };
                 };
                 footer: {
@@ -1652,6 +1653,7 @@ export declare const resources: {
                         maxCharacters: string;
                         concurrentShoots: string;
                         commercialUse: string;
+                        personalUseOnly: string;
                     };
                 };
                 footer: {
@@ -3040,6 +3042,7 @@ export declare const resources: {
                         maxCharacters: string;
                         concurrentShoots: string;
                         commercialUse: string;
+                        personalUseOnly: string;
                     };
                 };
                 footer: {
@@ -4397,6 +4400,7 @@ export declare const resources: {
                         maxCharacters: string;
                         concurrentShoots: string;
                         commercialUse: string;
+                        personalUseOnly: string;
                     };
                 };
                 footer: {
@@ -5754,6 +5758,7 @@ export declare const resources: {
                         maxCharacters: string;
                         concurrentShoots: string;
                         commercialUse: string;
+                        personalUseOnly: string;
                     };
                 };
                 footer: {
@@ -7111,6 +7116,7 @@ export declare const resources: {
                         maxCharacters: string;
                         concurrentShoots: string;
                         commercialUse: string;
+                        personalUseOnly: string;
                     };
                 };
                 footer: {
@@ -8480,6 +8486,7 @@ export declare const resources: {
                         maxCharacters: string;
                         concurrentShoots: string;
                         commercialUse: string;
+                        personalUseOnly: string;
                     };
                 };
                 footer: {
@@ -9837,6 +9844,7 @@ export declare const resources: {
                         maxCharacters: string;
                         concurrentShoots: string;
                         commercialUse: string;
+                        personalUseOnly: string;
                     };
                 };
                 footer: {
@@ -11207,6 +11215,7 @@ export declare const resources: {
                         maxCharacters: string;
                         concurrentShoots: string;
                         commercialUse: string;
+                        personalUseOnly: string;
                     };
                 };
                 footer: {
@@ -12577,6 +12586,7 @@ export declare const resources: {
                         maxCharacters: string;
                         concurrentShoots: string;
                         commercialUse: string;
+                        personalUseOnly: string;
                     };
                 };
                 footer: {

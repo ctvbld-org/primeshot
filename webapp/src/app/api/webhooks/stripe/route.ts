@@ -150,26 +150,21 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 }
 
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
-  const supabase = await createClient()
+  const supabase = createServiceClient()
   
   console.log('Processing subscription deletion:', subscription.id)
 
-  // Update the subscription status to canceled
-  const { error } = await supabase
-    .from('user_subscriptions')
-    .update({
-      status: 'canceled',
-      cancel_at_period_end: false, // No longer relevant since it's fully canceled
-      updated_at: new Date().toISOString()
-    })
-    .eq('stripe_subscription_id', subscription.id)
+  // Switch user to Free plan (marks old subscription as canceled and creates Free subscription)
+  const { data: result, error } = await supabase.rpc('switch_to_free_plan_on_cancellation', {
+    p_stripe_subscription_id: subscription.id
+  })
 
   if (error) {
-    console.error('Error updating canceled subscription in database:', error)
+    console.error('Error switching to free plan after cancellation:', error)
     throw error
   }
 
-  console.log('Successfully marked subscription as canceled in database')
+  console.log('Successfully switched user to Free plan:', result)
 }
 
 /**

@@ -93,6 +93,9 @@ async function fetchConversionData(period: TimePeriod): Promise<{ data: Conversi
   let latestPeriodBasic = 0
   let latestPeriodStandard = 0
   let latestPeriodPro = 0
+  // Track latest period's users who subscribed for conversion calculation
+  let latestPeriodUserIds = new Set<string>()
+  let latestPeriodSubscribedUserIds = new Set<string>()
 
   // First, get ALL users who signed up in the entire date range
   const firstPeriod = periods[0]
@@ -166,11 +169,19 @@ async function fetchConversionData(period: TimePeriod): Promise<{ data: Conversi
     latestPeriodBasic = basic
     latestPeriodStandard = standard
     latestPeriodPro = pro
+    
+    // Track users from latest period for conversion calculation
+    latestPeriodUserIds = new Set(periodNewUsers.map(u => u.id))
+    // Find which of these users subscribed
+    latestPeriodSubscribedUserIds = new Set(
+      newSubs?.filter(sub => latestPeriodUserIds.has(sub.user_id)).map(sub => sub.user_id) || []
+    )
   }
 
-  // Calculate TRUE conversion rate: of all new signups in the entire date range, how many subscribed?
-  const totalSignups = allNewUsers?.length || 0
-  const conversionRate = totalSignups > 0 ? (usersWhoSubscribed.size / totalSignups) * 100 : 0
+  // Calculate conversion rate for the LATEST period only (to match displayed stats)
+  const conversionRate = latestPeriodSignups > 0 
+    ? (latestPeriodSubscribedUserIds.size / latestPeriodSignups) * 100 
+    : 0
 
   return {
     data: conversionData,

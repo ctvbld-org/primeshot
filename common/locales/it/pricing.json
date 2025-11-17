@@ -66,7 +66,8 @@
         "characterIncluded": "{{count}}x Personaggio incluso",
         "maxCharacters": "Fino a {{count}} archiviazione personaggi",
         "concurrentShoots": "Fino a {{count}} servizi simultanei",
-        "commercialUse": "Uso commerciale"
+        "commercialUse": "Uso commerciale",
+        "personalUseOnly": "Solo uso personale"
       }
     },
     "footer": {

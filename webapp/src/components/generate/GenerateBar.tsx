@@ -1606,7 +1606,7 @@ export function GenerateBar({
         <div className={styles.rightContent}>
             {/* Character */}
             <TooltipProvider>
-              <Tooltip open={errors.character}>
+              <Tooltip open={errors.character || false}>
                 <TooltipTrigger asChild>
                   <GenerateBarSelect
                       onClick={handleButtonClick}

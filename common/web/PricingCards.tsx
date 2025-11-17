@@ -65,7 +65,7 @@ export function PricingCards({
 
   return (
     <div className={`${styles.grid} ${className || ''}`}>
-      {tiers.map((tier) => {
+      {tiers.filter(tier => tier.monthly_price !== 0).map((tier) => {
         const price = billingCycle === 'yearly' ? tier.yearly_price : tier.monthly_price
         const isRecommended = tier.popular && !showOnlyUpgrades
         const name = tier.name
@@ -109,7 +109,7 @@ export function PricingCards({
 
             <div className={styles.priceBlock}>
               <div className={styles.priceWrap}>
-                {tier.original_price && tier.original_price > price && (
+                {tier.original_price !== 0 && tier.original_price && tier.original_price > price && (
                   <div className={styles.originalPrice + ' ' + styles.price}>
                     ${tier.original_price.toFixed(0)}
                   </div>

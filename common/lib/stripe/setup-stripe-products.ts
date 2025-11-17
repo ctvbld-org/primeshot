@@ -168,7 +168,12 @@ async function createSubscriptionProducts(subscriptionTiers) {
     yearlyPrice: string | null;
   }> = []
   
-  for (const tier of subscriptionTiers) {
+  // Filter out free plans (monthly_price = 0)
+  const paidTiers = subscriptionTiers.filter(tier => tier.monthly_price !== 0)
+  
+  console.log(`Found ${paidTiers.length} paid tiers (excluded ${subscriptionTiers.length - paidTiers.length} free plans)\n`)
+  
+  for (const tier of paidTiers) {
     try {
       // Create product
       console.log(`Creating product: ${tier.display_name}`)
@@ -445,7 +450,7 @@ async function main() {
     if (!skipCleanup) {
       console.log('✅ Archived existing active Primeshot products')
     }
-    console.log(`✅ Created ${subscriptionResults.length} subscription tiers`)
+    console.log(`✅ Created ${subscriptionResults.length} paid subscription tiers (excluded free plans)`)
     console.log(`✅ Created ${creditPackResults.length} credit packs`)
     console.log(`✅ Updated stripe-reference.ts with ${envMode} Stripe price IDs`)
     

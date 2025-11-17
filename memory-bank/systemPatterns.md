@@ -2898,6 +2898,14 @@ Detected changes in:
 - webapp/src/components/inference/InferenceThumbnail.tsx
 - website/src/app/[locale]/blog/sitemap.ts
 - website/src/app/sitemap.ts
+
+
+**Auto-update 2025-11-17**:
+Detected changes in:
+- admin/src/components/dashboard/subscription-analytics.tsx
+- admin/src/components/styles/style-form-dialog.tsx
+- website/src/app/robots.ts
+- website/src/app/sitemap.ts
 ## Component Organization
 
 Components are organized by feature and reusability:

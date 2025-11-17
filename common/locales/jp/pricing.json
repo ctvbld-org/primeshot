@@ -66,7 +66,8 @@
         "characterIncluded": "{{count}}キャラクター含む",
         "maxCharacters": "最大{{count}}キャラクターストレージ",
         "concurrentShoots": "最大{{count}}同時撮影",
-        "commercialUse": "商用利用"
+        "commercialUse": "商用利用",
+        "personalUseOnly": "個人利用のみ"
       }
     },
     "footer": {

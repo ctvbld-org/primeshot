@@ -218,8 +218,9 @@ export function SubscriptionFormDialog({
       if (!data.name || !data.display_name) {
         throw new Error('Name and display name are required')
       }
+      // Allow 0 for free plans, just prevent negative values
       if (data.monthly_price < 0 || data.yearly_price < 0 || data.original_price < 0) {
-        throw new Error('Prices must be positive')
+        throw new Error('Prices cannot be negative')
       }
       if (data.credits < 0 || data.concurrent_jobs < 1) {
         throw new Error('Invalid credit or job configuration')
@@ -408,9 +409,15 @@ export function SubscriptionFormDialog({
                           min="0"
                           step="0.01"
                           placeholder="e.g., 9.00"
-                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                          onChange={(e) => {
+                            const value = e.target.value === '' ? 0 : parseFloat(e.target.value)
+                            field.onChange(isNaN(value) ? 0 : value)
+                          }}
                         />
                       </FormControl>
+                      <FormDescription>
+                        Set to $0 for free plans
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -429,7 +436,10 @@ export function SubscriptionFormDialog({
                           min="0"
                           step="0.01"
                           placeholder="e.g., 6.75"
-                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                          onChange={(e) => {
+                            const value = e.target.value === '' ? 0 : parseFloat(e.target.value)
+                            field.onChange(isNaN(value) ? 0 : value)
+                          }}
                         />
                       </FormControl>
                       <FormDescription>
@@ -453,7 +463,10 @@ export function SubscriptionFormDialog({
                           min="0"
                           step="0.01"
                           placeholder="e.g., 12.00"
-                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                          onChange={(e) => {
+                            const value = e.target.value === '' ? 0 : parseFloat(e.target.value)
+                            field.onChange(isNaN(value) ? 0 : value)
+                          }}
                         />
                       </FormControl>
                       <FormDescription>

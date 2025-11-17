@@ -75,6 +75,20 @@ const nextConfig = {
   //   },
   // },
   reactStrictMode: false,
+  // Add proper MIME type for WASM files to fix MediaPipe loading
+  headers: async () => {
+    return [
+      {
+        source: '/:path*.wasm',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/wasm',
+          },
+        ],
+      },
+    ]
+  },
 }
 
 // Add dynamic hostname from environment variable if available

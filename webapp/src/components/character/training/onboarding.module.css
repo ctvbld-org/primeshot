@@ -266,4 +266,13 @@
 
 .fullWidth { width: 100%; }
 
+@media (max-width: 580px) {
+  .card {
+    padding: 24px;
+    max-width: 340px;
+  }
 
+  .title {
+    font-size: 28px;
+  }
+}
