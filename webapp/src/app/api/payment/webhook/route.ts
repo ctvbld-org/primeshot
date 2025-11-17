@@ -775,61 +775,44 @@ async function handleSubscriptionEvent(
       // Don't fail the webhook - this is not critical
     }
 
-    // Handle duplicate subscriptions (existing logic)
+    // Handle duplicate subscriptions - atomically cancel old subscriptions in database
     try {
-      // First, check if this is an upgrade with a specific previous subscription to cancel
-      const previousSubscriptionId = subscription.metadata?.previous_subscription_id;
-      
-      if (previousSubscriptionId && previousSubscriptionId !== '') {
-        devLog(`This is an upgrade subscription - canceling specific previous subscription: ${previousSubscriptionId}`);
-        
-        try {
-          // First check if the subscription still exists and is active
-          const previousSub = await stripe.subscriptions.retrieve(previousSubscriptionId);
-          
-          if (previousSub.status === 'active') {
-            // Cancel the specific previous subscription in Stripe
-            await stripe.subscriptions.cancel(previousSubscriptionId);
-            devLog(`Successfully canceled previous subscription: ${previousSubscriptionId}`);
-          } else {
-            devLog(`Previous subscription ${previousSubscriptionId} is already ${previousSub.status} - no need to cancel`);
-          }
-        } catch (cancelError) {
-          console.error(`Failed to cancel previous subscription ${previousSubscriptionId}:`, cancelError);
-          // Log the error but don't fail the webhook - the subscription might already be canceled
+      // Use RPC to atomically cancel all other active subscriptions (including Free plans)
+      const { data: cancellationResult, error: cancellationError } = await supabase.rpc(
+        'handle_subscription_activation',
+        {
+          p_user_id: subscriptionRecord.user_id,
+          p_new_stripe_subscription_id: subscription.id
         }
-      }
-      
-      // Also check for any other active subscriptions for this user (safety net)
-      const { data: userSubscriptions } = await supabase
-        .from('user_subscriptions')
-        .select('stripe_subscription_id')
-        .eq('user_id', subscriptionRecord.user_id)
-        .eq('status', 'active')
-        .neq('stripe_subscription_id', subscription.id); // Exclude the current subscription
+      );
 
-      // If there are other active subscriptions, cancel them
-      if (userSubscriptions && userSubscriptions.length > 0) {
-        devLog(`Found ${userSubscriptions.length} other active subscriptions for user ${subscriptionRecord.user_id}, canceling them`);
+      if (cancellationError) {
+        console.error('Error calling handle_subscription_activation:', cancellationError);
+        // Don't fail the webhook - log and continue
+      } else if (cancellationResult) {
+        devLog(`Subscription activation result:`, cancellationResult);
         
-        for (const oldSub of userSubscriptions) {
-          // Skip if this is the same subscription we already canceled above
-          if (oldSub.stripe_subscription_id === previousSubscriptionId) {
-            devLog(`Skipping ${oldSub.stripe_subscription_id} - already canceled above`);
-            continue;
-          }
-          
-          try {
-            // Cancel the old subscription in Stripe
-            await stripe.subscriptions.cancel(oldSub.stripe_subscription_id);
-            devLog(`Canceled old subscription: ${oldSub.stripe_subscription_id}`);
-          } catch (cancelError) {
-            console.error(`Failed to cancel old subscription ${oldSub.stripe_subscription_id}:`, cancelError);
+        // Now cancel the Stripe subscriptions for any paid plans that were canceled
+        const canceledSubs = cancellationResult.canceled_subscriptions || [];
+        
+        for (const canceledSub of canceledSubs) {
+          // Only cancel in Stripe if it's a paid plan (has stripe_subscription_id)
+          if (!canceledSub.was_free_plan && canceledSub.stripe_subscription_id) {
+            try {
+              await stripe.subscriptions.cancel(canceledSub.stripe_subscription_id);
+              devLog(`Canceled Stripe subscription: ${canceledSub.stripe_subscription_id} (${canceledSub.plan_name})`);
+            } catch (stripeCancelError) {
+              console.error(`Failed to cancel Stripe subscription ${canceledSub.stripe_subscription_id}:`, stripeCancelError);
+              // Don't fail - database is already updated
+            }
+          } else {
+            devLog(`Skipped Stripe cancellation for Free plan: ${canceledSub.plan_name}`);
           }
         }
       }
     } catch (error) {
-      console.error('Error checking for duplicate subscriptions:', error);
+      console.error('Error handling subscription activation:', error);
+      // Don't fail the webhook - this is a safety net operation
     }
   }
 
