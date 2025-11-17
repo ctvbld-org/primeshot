@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client'
+import { getApiUrl } from '@primeshot/common/lib/api/client'
 
 /**
  * Convert S3 keys/URLs to CloudFront CDN URLs
@@ -139,200 +139,60 @@ export async function fetchUserTrainingJobs(
   userId: string, 
   options?: { offset?: number; limit?: number }
 ): Promise<{ data: TrainingJobWithDetails[]; hasMore: boolean }> {
-  const supabase = createClient()
   const offset = options?.offset ?? 0
   const limit = options?.limit ?? 20
   
-  // Fetch limit + 1 to check if there are more records
-  const { data, error } = await supabase
-    .from('training_jobs')
-    .select(`
-      *,
-      character:characters(
-        id,
-        name,
-        thumbnail_url,
-        lora_path,
-        metadata,
-        status
-      )
-    `)
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-    .range(offset, offset + limit)
+  const response = await fetch(
+    getApiUrl(`/api/admin/users/${userId}/training-jobs?offset=${offset}&limit=${limit}`)
+  )
   
-  if (error) {
-    console.error('Error fetching training jobs:', error)
-    throw error
+  if (!response.ok) {
+    throw new Error('Failed to fetch training jobs')
   }
-
-  // Check if there are more records
-  const hasMore = data.length > limit
-  const resultData = hasMore ? data.slice(0, limit) : data
-
-  // Convert character thumbnails to CDN URLs
-  const jobsWithCdnUrls = resultData.map(job => {
-    if (job.character?.thumbnail_url) {
-      return {
-        ...job,
-        character: {
-          ...job.character,
-          thumbnail_url: getThumbUrl(job.character.thumbnail_url, 240)
-        }
-      }
-    }
-    return job
-  })
   
-  return { 
-    data: jobsWithCdnUrls as TrainingJobWithDetails[], 
-    hasMore 
-  }
+  return response.json()
 }
 
 export async function fetchUserInferenceJobs(
   userId: string,
   options?: { offset?: number; limit?: number }
 ): Promise<{ data: InferenceJobWithDetails[]; hasMore: boolean }> {
-  const supabase = createClient()
   const offset = options?.offset ?? 0
   const limit = options?.limit ?? 20
   
-  // Fetch limit + 1 to check if there are more records
-  const { data, error } = await supabase
-    .from('inference_jobs')
-    .select(`
-      *,
-      style:styles(
-        id,
-        name,
-        preview_images
-      ),
-      wardrobe:style_wardrobes(
-        id,
-        label,
-        image
-      ),
-      scene:style_scenes(
-        id,
-        label,
-        image
-      ),
-      color:style_colors(
-        id,
-        label,
-        value,
-        color
-      ),
-      character:characters(
-        id,
-        name,
-        thumbnail_url
-      )
-    `)
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-    .range(offset, offset + limit)
+  const response = await fetch(
+    getApiUrl(`/api/admin/users/${userId}/inference-jobs?offset=${offset}&limit=${limit}`)
+  )
   
-  if (error) {
-    console.error('Error fetching inference jobs:', error)
-    throw error
+  if (!response.ok) {
+    throw new Error('Failed to fetch inference jobs')
   }
-
-  // Check if there are more records
-  const hasMore = data.length > limit
-  const resultData = hasMore ? data.slice(0, limit) : data
-
-  // Convert all URLs to CDN URLs or proper placeholder paths
-  const jobsWithCdnUrls = resultData.map(job => {
-    const converted = { ...job }
-    
-    // Convert character thumbnail
-    if (job.character?.thumbnail_url) {
-      converted.character = {
-        ...job.character,
-        thumbnail_url: getThumbUrl(job.character.thumbnail_url, 240)
-      }
-    }
-
-    // Convert style preview images - from database paths like "styles/Repos-640.webp"
-    if (job.style?.preview_images && Array.isArray(job.style.preview_images)) {
-      converted.style = {
-        ...job.style,
-        preview_images: job.style.preview_images.map((img: string | null) => 
-          img ? toCdnUrl(`app-images/placeholders/styles/${img}`) : null
-        )
-      }
-    }
-
-    // Convert wardrobe placeholder image - from database value already includes extension
-    if (job.wardrobe?.image) {
-      converted.wardrobe = {
-        ...job.wardrobe,
-        image: toCdnUrl(`app-images/placeholders/options/wardrobes/${job.wardrobe.image}`)
-      }
-    }
-
-    // Convert scene placeholder image - from database value already includes extension
-    if (job.scene?.image) {
-      converted.scene = {
-        ...job.scene,
-        image: toCdnUrl(`app-images/placeholders/options/scenes/${job.scene.image}`)
-      }
-    }
-    
-    return converted
-  })
   
-  return { 
-    data: jobsWithCdnUrls as InferenceJobWithDetails[], 
-    hasMore 
-  }
+  return response.json()
 }
 
 export async function fetchTrainingImages(characterId: string): Promise<UploadedImage[]> {
-  const supabase = createClient()
+  const response = await fetch(
+    getApiUrl(`/api/admin/characters/${characterId}/uploaded-images`)
+  )
   
-  const { data, error } = await supabase
-    .from('uploaded_images')
-    .select('*')
-    .eq('character_id', characterId)
-    .order('created_at', { ascending: true })
-  
-  if (error) {
-    console.error('Error fetching uploaded images:', error)
-    throw error
+  if (!response.ok) {
+    throw new Error('Failed to fetch training images')
   }
-
-  // Convert image URLs to thumbnail API URLs
-  const imagesWithCdnUrls = data.map(image => ({
-    ...image,
-    url: getThumbUrl(image.url, 640)
-  }))
   
-  return imagesWithCdnUrls as UploadedImage[]
+  const { data } = await response.json()
+  return data
 }
 
 export async function fetchGeneratedImages(inferenceId: string): Promise<GeneratedImage[]> {
-  const supabase = createClient()
+  const response = await fetch(
+    getApiUrl(`/api/admin/inference/${inferenceId}/generated-images`)
+  )
   
-  const { data, error } = await supabase
-    .from('generated_images')
-    .select('*')
-    .eq('inference_id', inferenceId)
-    .order('image_index', { ascending: true })
-  
-  if (error) {
-    console.error('Error fetching generated images:', error)
-    throw error
+  if (!response.ok) {
+    throw new Error('Failed to fetch generated images')
   }
-
-  // Convert image URLs to thumbnail API URLs
-  const imagesWithCdnUrls = data.map(image => ({
-    ...image,
-    web_path: image.web_path ? getThumbUrl(image.web_path, 1280) : null,
-    original_path: image.original_path ? toCdnUrl(image.original_path) : null
-  }))
   
-  return imagesWithCdnUrls as GeneratedImage[]
+  const { data } = await response.json()
+  return data
 }
