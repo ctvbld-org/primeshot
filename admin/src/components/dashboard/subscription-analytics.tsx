@@ -43,6 +43,14 @@ const chartConfig = {
     label: "Pro",
     color: "#2ADED8",
   },
+  ultimate: {
+    label: "Ultimate",
+    color: "#00B4A8",
+  },
+  free: {
+    label: "Free",
+    color: "#CCCCCC",
+  },
   tier_1: {
     label: "Tier 1",
     color: "hsl(var(--chart-1))",
@@ -107,6 +115,8 @@ function getColorForPlan(planName: string): string {
     'basic': '#E5FBFA',
     'standard': '#99EFEC', 
     'pro': '#2ADED8',
+    'ultimate': '#00B4A8',
+    'free': '#CCCCCC',
     'tier_1': 'hsl(var(--chart-1))',
     'tier_2': 'hsl(var(--chart-2))',
     'tier_3': 'hsl(var(--chart-3))',

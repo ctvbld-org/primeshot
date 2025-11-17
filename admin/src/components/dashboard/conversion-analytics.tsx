@@ -27,6 +27,7 @@ interface ConversionData {
   basic: number
   standard: number
   pro: number
+  ultimate: number
   cancellations: number
 }
 
@@ -38,6 +39,7 @@ interface ConversionStats {
   basicCount: number
   standardCount: number
   proCount: number
+  ultimateCount: number
 }
 
 async function fetchConversionData(period: TimePeriod): Promise<{ data: ConversionData[], stats: ConversionStats }> {
@@ -93,6 +95,7 @@ async function fetchConversionData(period: TimePeriod): Promise<{ data: Conversi
   let latestPeriodBasic = 0
   let latestPeriodStandard = 0
   let latestPeriodPro = 0
+  let latestPeriodUltimate = 0
   // Track latest period's users who subscribed for conversion calculation
   let latestPeriodUserIds = new Set<string>()
   let latestPeriodSubscribedUserIds = new Set<string>()
@@ -128,12 +131,14 @@ async function fetchConversionData(period: TimePeriod): Promise<{ data: Conversi
     }) || []
     
     // Get new subscriptions in this period (any user, not just new ones)
+    // Exclude free plan to show only paid subscriptions
     const { data: newSubs } = await supabase
       .from('user_subscriptions')
       .select('plan_name, created_at, user_id')
       .gte('created_at', periodInfo.start.toISOString())
       .lte('created_at', periodInfo.end.toISOString())
       .eq('status', 'active')
+      .neq('plan_name', 'free')
 
     // Get cancellations in this period
     const { count: cancellationsCount } = await supabase
@@ -143,10 +148,11 @@ async function fetchConversionData(period: TimePeriod): Promise<{ data: Conversi
       .lte('updated_at', periodInfo.end.toISOString())
       .in('status', ['cancelled', 'expired', 'inactive'])
 
-    // Count subscriptions by plan (only new subscriptions in this period)
+    // Count subscriptions by plan (only new paid subscriptions in this period)
     const basic = newSubs?.filter(sub => sub.plan_name?.toLowerCase().includes('basic') || sub.plan_name?.toLowerCase().includes('tier_1')).length || 0
     const standard = newSubs?.filter(sub => sub.plan_name?.toLowerCase().includes('standard') || sub.plan_name?.toLowerCase().includes('tier_2')).length || 0
     const pro = newSubs?.filter(sub => sub.plan_name?.toLowerCase().includes('pro') || sub.plan_name?.toLowerCase().includes('tier_3')).length || 0
+    const ultimate = newSubs?.filter(sub => sub.plan_name?.toLowerCase().includes('ultimate')).length || 0
 
     const periodSignups = periodNewUsers.length
     const periodSubscriptions = newSubs?.length || 0
@@ -159,6 +165,7 @@ async function fetchConversionData(period: TimePeriod): Promise<{ data: Conversi
       basic,
       standard,
       pro,
+      ultimate,
       cancellations: periodCancellations
     })
 
@@ -169,6 +176,7 @@ async function fetchConversionData(period: TimePeriod): Promise<{ data: Conversi
     latestPeriodBasic = basic
     latestPeriodStandard = standard
     latestPeriodPro = pro
+    latestPeriodUltimate = ultimate
     
     // Track users from latest period for conversion calculation
     latestPeriodUserIds = new Set(periodNewUsers.map(u => u.id))
@@ -192,7 +200,8 @@ async function fetchConversionData(period: TimePeriod): Promise<{ data: Conversi
       conversionRate: Math.round(conversionRate * 10) / 10,
       basicCount: latestPeriodBasic,
       standardCount: latestPeriodStandard,
-      proCount: latestPeriodPro
+      proCount: latestPeriodPro,
+      ultimateCount: latestPeriodUltimate
     }
   }
 }
@@ -253,7 +262,7 @@ export function ConversionAnalytics() {
       color: '#E5FBFA', // light teal
     },
     subscriptions: {
-      label: 'New Subscriptions',
+      label: 'New Paid Subscriptions',
       color: '#2ADED8', // bright teal
     },
     cancellations: {
@@ -337,7 +346,7 @@ export function ConversionAnalytics() {
           <div className="flex flex-col items-center space-y-2 rounded-lg p-4 flex-1 bg-[#FFFFFF05]">
             <div className="flex items-center space-x-2">
               <UserCheck className="h-4 w-4" style={{ color: '#2ADED8' }} />
-              <p className="text-sm font-medium text-muted-foreground">New Subs</p>
+              <p className="text-sm font-medium text-muted-foreground">New Paid Subs</p>
             </div>
             <p className="text-2xl font-bold" style={{ color: '#2ADED8' }}>
               {data.stats.totalSubscriptions}
@@ -383,6 +392,12 @@ export function ConversionAnalytics() {
             <div className="h-3 w-3 rounded-sm" style={{ backgroundColor: '#2ADED8' }} />
             <span className="text-sm text-muted-foreground">
               Pro: {data.stats.proCount}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-3 w-3 rounded-sm" style={{ backgroundColor: '#00B4A8' }} />
+            <span className="text-sm text-muted-foreground">
+              Ultimate: {data.stats.ultimateCount}
             </span>
           </div>
         </div>
@@ -439,7 +454,7 @@ export function ConversionAnalytics() {
                 stroke="#2ADED8"
                 fill="url(#subscriptionsGradient)"
                 strokeWidth={2}
-                name="New Subscriptions"
+                name="New Paid Subscriptions"
               />
               
               {/* Cancellations line */}
