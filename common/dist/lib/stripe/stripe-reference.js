@@ -27,14 +27,14 @@ export const STRIPE_REFERENCE = {
     },
     production: {
         subscriptions: {
-            basic: { product: 'prod_TKNMPSqH0pC0m7', monthly: 'price_1SNibrCyDXbv4ZSnost4Y4rP', yearly: 'price_1SNibsCyDXbv4ZSneW4echDi' },
-            standard: { product: 'prod_TKNMZerJmdSzRy', monthly: 'price_1SNibsCyDXbv4ZSngX0q3mJl', yearly: 'price_1SNibtCyDXbv4ZSnPcYgIKGP' },
-            pro: { product: 'prod_TKNMoLUrEt4N3a', monthly: 'price_1SNibtCyDXbv4ZSnkN8UsCfL', yearly: 'price_1SNibtCyDXbv4ZSnnm55AB6j' }
+            basic: { product: 'prod_TRJDI8iPBzb8Pe', monthly: 'price_1SUQb7CyDXbv4ZSnzaVVKBUI', yearly: 'price_1SUQb8CyDXbv4ZSn4vnDSbnl' },
+            standard: { product: 'prod_TRJDARLe88bsw7', monthly: 'price_1SUQb8CyDXbv4ZSnFtonxzkF', yearly: 'price_1SUQb9CyDXbv4ZSnSNl3XkBe' },
+            pro: { product: 'prod_TRJDPN53tV1FAo', monthly: 'price_1SUQb9CyDXbv4ZSnYKh4Y20b', yearly: 'price_1SUQbACyDXbv4ZSnZkymv4Gh' }
         },
         creditPacks: {
-            credits_138: { product: 'prod_TKNMKj1JrGMMBw', price: 'price_1SNibuCyDXbv4ZSnQxFcwJ1d' },
-            credits_276: { product: 'prod_TKNMcFvhzlgtzB', price: 'price_1SNibvCyDXbv4ZSnYfaF4cZB' },
-            credits_588: { product: 'prod_TKNMV4BbK7mCYD', price: 'price_1SNibvCyDXbv4ZSnTCMNFBJX' }
+            credits_138: { product: 'prod_TRJDceHtaEZhNG', price: 'price_1SUQbBCyDXbv4ZSnNFCffG8A' },
+            credits_276: { product: 'prod_TRJDGCbqzSqb5v', price: 'price_1SUQbCCyDXbv4ZSnjMhFaovN' },
+            credits_588: { product: 'prod_TRJDVF8rjCazyN', price: 'price_1SUQbCCyDXbv4ZSno0Dib9Fj' }
         }
     }
 };

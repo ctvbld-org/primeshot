@@ -126,7 +126,6 @@
   font-size: 14px;
   line-height: 38px;
   font-weight: 400;
-  white-space: nowrap;
 }
 
 .divider {
@@ -220,6 +219,7 @@
   border-top-right-radius: 16px;
   border-bottom-right-radius: 16px;
 }
+
 /* Special Offer Banner */
 .specialOfferBanner {
   width: 100%;

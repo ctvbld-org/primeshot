@@ -42,15 +42,19 @@ const fallbackPricingData: PricingCategory[] = [
     features: [
       {
         name: "Credits per month",
+        free: "-",
         basic: "-",
         standard: "-",
-        pro: "-"
+        pro: "-",
+        ultimate: "-"
       },
       {
         name: "Price per credit",
+        free: "-",
         basic: "-",
         standard: "-",
-        pro: "-"
+        pro: "-",
+        ultimate: "-"
       }
     ]
   },
@@ -59,34 +63,35 @@ const fallbackPricingData: PricingCategory[] = [
     features: [
       {
         name: "Resolution",
+        free: "-",
         basic: "Basic quality",
         standard: "High quality",
-        pro: "High quality"
-      },
-      {
-        name: "Takes per shoot",
-        basic: "5",
-        standard: "10",
-        pro: "20"
-      },
-      
+        pro: "High quality",
+        ultimate: "High quality"
+      },      
       {
         name: "Portrait aspect ratio",
+        free: "✓",
         basic: "✓",
         standard: "✓",
-        pro: "✓"
+        pro: "✓",
+        ultimate: "✓"
       },
       {
         name: "Square aspect ratio",
-        basic: "",
+        free: "✓",
+        basic: "✓",
         standard: "✓",
-        pro: "✓"
+        pro: "✓",
+        ultimate: "✓"
       },
       {
         name: "Landscape aspect ratio",
-        basic: "",
-        standard: "",
-        pro: "✓"
+        free: "✓",
+        basic: "✓",
+        standard: "✓",
+        pro: "✓",
+        ultimate: "✓"
       }
     ]
   },
@@ -95,15 +100,19 @@ const fallbackPricingData: PricingCategory[] = [
     features: [
       {
         name: "Included",
+        free: "1",
         basic: "1",
         standard: "1",
-        pro: "3"
+        pro: "3",
+        ultimate: "10"
       },
       {
         name: "Storage",
+        free: "1",
         basic: "1",
         standard: "Upto 3",
-        pro: "Upto 8"
+        pro: "Upto 8",
+        ultimate: "Upto 20"
       }
     ]
   },
@@ -112,33 +121,43 @@ const fallbackPricingData: PricingCategory[] = [
     features: [
       {
         name: "Concurrent shoots",
+        free: "1",
         basic: "1",
         standard: "2",
-        pro: "4"
+        pro: "4",
+        ultimate: "8"
       },
       {
         name: "Commercial use",
+        free: "",
         basic: "✓",
         standard: "✓",
-        pro: "✓"
+        pro: "✓",
+        ultimate: "✓"
       },
       {
         name: "Priority access to new features",
+        free: "",
         basic: "",
-        standard: "✓",
-        pro: "✓"
+        standard: "✓", 
+        pro: "✓",
+        ultimate: "✓"
       },
       {
         name: "Premium styles",
+        free: "",
         basic: "",
         standard: "✓",
-        pro: "✓"
+        pro: "✓",
+        ultimate: "✓"
       },
       {
         name: "Beta testing access",
+        free: "",
         basic: "",
         standard: "",
-        pro: "✓"
+        pro: "✓",
+        ultimate: "✓"
       }
     ]
   },
@@ -147,21 +166,27 @@ const fallbackPricingData: PricingCategory[] = [
     features: [
       {
         name: "Email support",
+        free: "",
         basic: "✓",
         standard: "✓",
-        pro: "✓"
+        pro: "✓",
+        ultimate: "✓"
       },
       {
         name: "Chat support",
+        free: "",
         basic: "",
         standard: "✓",
-        pro: "✓"
+        pro: "✓",
+        ultimate: "✓"
       },
       {
         name: "Dedicated support",
+        free: "",
         basic: "",
         standard: "",
-        pro: "✓"
+        pro: "✓",
+        ultimate: "✓"
       }
     ]
   }
@@ -503,12 +528,14 @@ export default function PricingPage() {
                   {/* Category Header */}
                   <TableRow className={styles.categoryRow}>
                     <TableHead className={styles.categoryHeader}>{t(category.category)}</TableHead>
+                    <TableHead className={styles.tierHeader}>Free</TableHead>
                     <TableHead className={styles.tierHeader}>Basic</TableHead>
                     <TableHead className={styles.tierHeader}>
                       <span className={styles.tierHeaderStandardHidden}>Standard</span>
                       <span className={styles.tierHeaderStandardVisible}>Std</span>
                     </TableHead>
                     <TableHead className={styles.tierHeader}>Pro</TableHead>
+                    <TableHead className={styles.tierHeader}>Ultimate</TableHead>
                   </TableRow>
                   
 
@@ -516,9 +543,11 @@ export default function PricingPage() {
                   {category.features.map((feature, featureIndex) => (
                     <TableRow key={`${category.category}-${featureIndex}`} className={styles.featureRow}>
                       <TableCell className={styles.featureName}>{t(feature.name)}</TableCell>
+                      <TableCell className={styles.featureValueFree}>{renderCellContent(feature.free, t)}</TableCell>
                       <TableCell className={styles.featureValueBasic}>{renderCellContent(feature.basic, t)}</TableCell>
                       <TableCell className={styles.featureValueStandard}>{renderCellContent(feature.standard, t)}</TableCell>
                       <TableCell className={styles.featureValuePro}>{renderCellContent(feature.pro, t)}</TableCell>
+                      <TableCell className={styles.featureValueUltimate}>{renderCellContent(feature.ultimate, t)}</TableCell>
                     </TableRow>
                   ))}
                 </React.Fragment>

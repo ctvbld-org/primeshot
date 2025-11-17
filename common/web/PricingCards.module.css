@@ -204,17 +204,21 @@
 
 /* Specific card backgrounds and rounded outer corners */
 .card:first-child {
+  background: #FFFFFF;
   border-top-left-radius: 16px;
   border-bottom-left-radius: 16px;
 }
+.card:nth-child(2) {
+  background: #E5FBFA;
+}
+.card:nth-child(3) {
+  background: #99EFEC;
+}
 .card:last-child {
+  background: #2ADED8;
   border-top-right-radius: 16px;
   border-bottom-right-radius: 16px;
 }
-
-:global(.free).card { background: #FFFFFF; }
-:global(.standard).card { background: #c3fcfb; }
-:global(.pro).card { background: #99EFEC; }
 
 /* Special Offer Banner */
 .specialOfferBanner {

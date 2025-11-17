@@ -2906,6 +2906,17 @@ Detected changes in:
 - admin/src/components/styles/style-form-dialog.tsx
 - website/src/app/robots.ts
 - website/src/app/sitemap.ts
+
+
+**Auto-update 2025-11-17**:
+Detected changes in:
+- admin/src/components/dashboard/conversion-analytics.tsx
+- admin/src/components/subscriptions/subscription-form-dialog.tsx
+- webapp/src/app/api/webhooks/stripe/route.ts
+- webapp/src/components/character/CharacterTrainingDialog.module.css
+- webapp/src/components/character/training/onboarding.module.css
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.module.css
 ## Component Organization
 
 Components are organized by feature and reusability:

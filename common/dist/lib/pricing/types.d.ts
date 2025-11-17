@@ -36,9 +36,11 @@ export interface PricingData {
 }
 export interface PricingFeature {
     name: string;
+    free: string;
     basic: string;
     standard: string;
     pro: string;
+    ultimate: string;
 }
 export interface PricingCategory {
     category: string;
