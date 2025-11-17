@@ -1,6 +1,7 @@
 import * as React from 'react'
 import styles from './segmented-control.module.css'
 import { cn } from '../../lib/utils'
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from './tooltip'
 
 export type Option = { value: string | number; content?: React.ReactNode; disabled?: boolean; tooltip?: string }
 
@@ -108,44 +109,62 @@ export function SegmentedControl({
   )
 
   return (
-    <div
-      role="radiogroup"
-      aria-orientation="horizontal"
-      aria-label={ariaLabel}
-      ref={containerRef}
-      className={cn(styles.segmented, fullWidth && styles.segmentedFull, size === 'sm' ? styles['size-sm'] : styles['size-md'], className)}
-    >
-      {options.length > 0 && (
-        <div
-          className={styles.segmentThumb}
-          style={thumbStyle
-            ? { width: thumbStyle.width, transform: `translateX(${thumbStyle.x}px)` }
-            : { width: fallbackWidth, transform: fallbackTransform }
+    <TooltipProvider delayDuration={300}>
+      <div
+        role="radiogroup"
+        aria-orientation="horizontal"
+        aria-label={ariaLabel}
+        ref={containerRef}
+        className={cn(styles.segmented, fullWidth && styles.segmentedFull, size === 'sm' ? styles['size-sm'] : styles['size-md'], className)}
+      >
+        {options.length > 0 && (
+          <div
+            className={styles.segmentThumb}
+            style={thumbStyle
+              ? { width: thumbStyle.width, transform: `translateX(${thumbStyle.x}px)` }
+              : { width: fallbackWidth, transform: fallbackTransform }
+            }
+          />
+        )}
+        {options.map((opt, i) => {
+          const isActive = String(value) === String(opt.value)
+          const button = (
+            <button
+              key={String(opt.value)}
+              type="button"
+              role="radio"
+              aria-checked={isActive}
+              aria-disabled={opt.disabled || undefined}
+              title={opt.disabled && opt.tooltip ? opt.tooltip : undefined}
+              tabIndex={i === focusIndex ? 0 : -1}
+              ref={el => { itemRefs.current[i] = el }}
+              className={cn(styles.segment, isActive && styles.segmentActive, opt.disabled && styles.segmentDisabled)}
+              disabled={opt.disabled}
+              onClick={() => !opt.disabled && onChange(opt.value)}
+              onKeyDown={(e) => handleKeyDown(e, i)}
+            >
+              {opt.content ?? String(opt.value)}
+            </button>
+          )
+
+          // Only wrap with tooltip if disabled AND has tooltip text
+          if (opt.disabled && opt.tooltip) {
+            return (
+              <Tooltip key={String(opt.value)}>
+                <TooltipTrigger asChild>
+                  {button}
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{opt.tooltip}</p>
+                </TooltipContent>
+              </Tooltip>
+            )
           }
-        />
-      )}
-      {options.map((opt, i) => {
-        const isActive = String(value) === String(opt.value)
-        return (
-          <button
-            key={String(opt.value)}
-            type="button"
-            role="radio"
-            aria-checked={isActive}
-            aria-disabled={opt.disabled || undefined}
-            title={opt.disabled && opt.tooltip ? opt.tooltip : undefined}
-            tabIndex={i === focusIndex ? 0 : -1}
-            ref={el => { itemRefs.current[i] = el }}
-            className={cn(styles.segment, isActive && styles.segmentActive, opt.disabled && styles.segmentDisabled)}
-            disabled={opt.disabled}
-            onClick={() => !opt.disabled && onChange(opt.value)}
-            onKeyDown={(e) => handleKeyDown(e, i)}
-          >
-            {opt.content ?? String(opt.value)}
-          </button>
-        )
-      })}
-    </div>
+
+          return button
+        })}
+      </div>
+    </TooltipProvider>
   )
 }
 

@@ -1,223 +1,223 @@
 {
-  "buyCredits": {
-    "title": "Acquista crediti",
-    "description": "Scegli un pacchetto di crediti"
-  },
-  "upgradePlan": {
-    "title": "Aggiorna piano",
-    "description": "Scegli un piano di abbonamento"
-  },
-  "purchase": {
-    "success": {
-      "subscriptionTitle": "Hai aggiornato con successo a {{plan}}",
-      "subscriptionTitleNew": "Benvenuto in {{plan}}!",
-      "creditsTitle": "Crediti aggiunti!",
-      "subscriptionDescriptionWithCredits": "Il tuo nuovo ciclo di fatturazione dell'abbonamento inizia oggi. Goditi {{amount}} crediti e molto altro!",
-      "subscriptionDescriptionWithCreditsNew": "Il tuo ciclo di fatturazione inizia oggi. Goditi {{amount}} crediti e molto altro!",
-      "subscriptionDescription": "Il tuo nuovo ciclo di fatturazione dell'abbonamento inizia oggi. Goditi i tuoi nuovi vantaggi!",
-      "subscriptionDescriptionNew": "Il tuo ciclo di fatturazione inizia oggi. Goditi i tuoi nuovi vantaggi!",
-      "creditsDescription": "Il tuo saldo è stato aggiornato. Puoi iniziare a generare ora.",
-      "returnToShoot": "Torna al servizio",
-      "defaultPlan": "il tuo nuovo piano"
-    }
-  },
-  "subscription": {
-    "context": {
-      "characterLimit": { "title": "Hai raggiunto il limite di personaggi.", "description": "Aggiorna per ottenere personaggi aggiuntivi" },
-      "qualityUpgrade": { "title": "Vuoi una qualità superiore?", "description": "Aggiorna per immagini più nitide e vantaggi extra" },
-      "creditUpgrade": { "title": "Stai finendo i crediti?", "description": "Aggiorna per ottenere più crediti mensili" },
-      "general": { "title": "Aggiorna il tuo piano", "description": "Sblocca più funzionalità e flessibilità" },
-      "default": { "title": "Scegli il tuo piano", "description": "Scegli quello che svilupperemo, cambia quando vuoi" }
+    "buyCredits": {
+        "title": "Acquista crediti",
+        "description": "Scegli un pacchetto di crediti"
     },
-    "loading": "Caricamento piani...",
-    "empty": {
-      "title": "Nessun aggiornamento disponibile",
-      "description": "Sei già sul piano più alto disponibile."
+    "upgradePlan": {
+        "title": "Aggiorna piano",
+        "description": "Scegli un piano di abbonamento"
     },
-    "headers": {
-      "chooseYourPlan": "Scegli il tuo piano"
-    },
-    "banner": {
-      "titleStart": "Offerta a vita limitata",
-      "description": "Assicurati fino al 70% di sconto sui piani annuali, o il 50% sui piani mensili.",
-      "small": "Limitato a soli 300 membri. L'offerta a vita continua fino alla cancellazione."
-    },
-    "toggle": {
-      "monthly": "Mensile",
-      "yearly": "Annuale",
-      "aria": "Ciclo di fatturazione"
-    },
-    "card": {
-      "recommended": "Consigliato",
-      "save": "Risparmia {{pct}}%",
-      "perMonth": "/ mese",
-      "billed": "Fatturato {{cycle}}",
-      "creditsCount": "{{count}} crediti",
-      "perMonthWord": "al mese",
-      "perCredit": "{{price}} per credito",
-      "button": {
-        "select": "Seleziona piano",
-        "current": "Piano attuale",
-        "processing": "Elaborazione…",
-        "disabledTooltip": "Non disponibile durante l'offerta speciale 🚀"
-      },
-      "features": {
-        "quality": "Immagini di qualità {{quality}}",
-        "characterIncluded": "{{count}}x Personaggio incluso",
-        "maxCharacters": "Fino a {{count}} archiviazione personaggi",
-        "concurrentShoots": "Fino a {{count}} servizi simultanei",
-        "commercialUse": "Uso commerciale",
-        "personalUseOnly": "Solo uso personale"
-      }
-    },
-    "footer": {
-      "upgradeNotice": "Il tuo abbonamento attuale sarà cancellato e sostituito con il nuovo piano. I crediti esistenti saranno preservati.",
-      "buyCreditPack": "Acquista un pacchetto di crediti"
-    },
-    "toasts": {
-      "loginRequired": "Per favore accedi",
-      "selectPlan": "Per favore seleziona un piano",
-      "invalidPlan": "Piano di abbonamento selezionato non valido",
-      "openingPortal": "Apertura portale clienti Stripe...",
-      "customerPortalFailed": "Apertura del portale clienti fallita",
-      "upgradePreviewFailed": "Apertura dell'anteprima aggiornamento fallita",
-      "upgraded": "Abbonamento aggiornato con successo!",
-      "checkoutFailed": "Checkout fallito",
-      "invalidCheckout": "Risposta non valida dal checkout"
-    }
-  },
-  "credits": {
-    "dialog": {
-      "headerSub": {
-        "lowBalance": "Saldo crediti troppo basso.",
-        "creativity": "Alimenta la tua creatività 🚀"
-      },
-      "headerTitle": {
-        "lowBalance": "Ricarica i tuoi crediti per continuare a generare",
-        "fun": "Più crediti, più creazioni, più divertimento!"
-      }
-    },
-    "card": {
-      "images": "Fino a {{count}} immagini {{quality}}",
-      "characters": "Fino a {{count}} personaggi",
-      "footnote": "*Solo piani Standard e Pro",
-      "button": {
-        "buy": "Acquista",
-        "processing": "Elaborazione…"
-      },
-      "validity": "Valido per {{duration}}",
-      "oneTime": "una tantum",
-      "perCredit": "{{price}} per credito",
-      "perCreditWord": "per credito"
-    },
-    "toasts": {
-      "loginRequired": "Per favore accedi",
-      "invalidPackConfig": "Configurazione pacchetto crediti non valida",
-      "createCheckoutFailed": "Creazione sessione checkout fallita",
-      "purchaseFailed": "Acquisto pacchetto crediti fallito"
-    }
-  },
-  "comparisonTable": {
-    "categories": {
-      "credits": "Crediti",
-      "image": "Immagine",
-      "characters": "Personaggi",
-      "generation": "Generazione",
-      "support": "Assistenza"
-    },
-    "features": {
-      "creditsPerMonth": "Crediti al mese",
-      "pricePerCredit": "Prezzo per credito",
-      "resolution": "Risoluzione",
-      "takesPerShoot": "Scatti per sessione",
-      "portraitAspectRatio": "Formato verticale",
-      "squareAspectRatio": "Formato quadrato",
-      "landscapeAspectRatio": "Formato orizzontale",
-      "included": "Incluso",
-      "storage": "Spazio di archiviazione",
-      "concurrentShoots": "Sessioni simultanee",
-      "commercialUse": "Uso commerciale",
-      "priorityFeatures": "Accesso prioritario alle nuove funzionalità",
-      "premiumStyles": "Stili premium",
-      "betaAccess": "Accesso ai test beta",
-      "emailSupport": "Assistenza via email",
-      "chatSupport": "Assistenza via chat",
-      "dedicatedSupport": "Assistenza dedicata"
-    },
-    "values": {
-      "upTo": "Fino a {{value}}",
-      "basicQuality": "Qualità base",
-      "highQuality": "Alta qualità"
-    }
-  },
-  "page": {
-    "title": "Prezzi",
-    "header": {
-      "title": "Piani semplici, look infiniti.",
-      "subtitle": "Cancella o cambia quando vuoi.",
-      "savingsText": "Risparmia fino al",
-      "savingsHighlight": "40%",
-      "savingsOn": "sui piani annuali"
-    },
-    "tabs": {
-      "monthly": "Mensile",
-      "annual": "Annuale"
-    },
-    "buttons": {
-      "getStarted": "Inizia",
-      "selectPlan": "Seleziona piano",
-      "currentPlan": "Piano attuale",
-      "processing": "Elaborazione..."
-    },
-    "loading": "Caricamento prezzi...",
-    "comparison": {
-      "title": "Confronta i piani",
-      "description": "Aggiorna per sbloccare ritratti ad alta risoluzione, più crediti, personaggi riutilizzabili e priorità di elaborazione."
-    },
-    "faq": {
-      "title": "Domande?",
-      "subtitle": "Tutto quello che devi sapere sui nostri prezzi e funzionalità",
-      "items": {
-        "character": {
-          "question": "Cos'è un personaggio e come funziona?",
-          "answer": "Un personaggio è il tuo modello di IA personalizzato, addestrato con 9 selfie. Impara i tuoi tratti facciali esatti—struttura, incarnato, capelli—così ogni ritratto ti assomiglia autenticamente. A seconda del tuo piano, ottieni da 1 a 3 personaggi inclusi. I personaggi aggiuntivi costano 30 crediti ciascuno, e una volta creati, puoi riutilizzarli in qualsiasi momento per nuovi servizi con diversi outfit, scene e stili."
-        },
-        "credits": {
-          "question": "Come funzionano i crediti?",
-          "answer": "I crediti sono il tuo saldo per addestrare personaggi e generare immagini. Addestrare un personaggio costa 30 crediti. La generazione di immagini costa 1 credito per qualità base (1K), 2 per media (2K) e 3 per alta (4K). Il tuo piano include un'assegnazione mensile di crediti che si rinnova ogni ciclo di fatturazione."
-        },
-        "commercial": {
-          "question": "Posso utilizzare le mie immagini commercialmente?",
-          "answer": "Sì. Tutte le immagini che generi sono tue da utilizzare senza restrizioni—che sia per LinkedIn, siti web, marketing o stampa."
-        },
-        "privacy": {
-          "question": "Come proteggete la mia privacy e i miei dati?",
-          "answer": "Le tue foto e i tuoi personaggi sono archiviati in modo sicuro e non vengono mai condivisi, venduti o utilizzati per i nostri addestramento. Puoi eliminare personaggi singoli o il tuo account completo in qualsiasi momento. Nessun accesso di terze parti avviene senza il tuo consenso."
-        },
-        "changePlan": {
-          "question": "Posso cambiare o cancellare il mio piano?",
-          "answer": "Sì. Puoi aggiornare o ridurre il tuo piano in qualsiasi momento dalle impostazioni del tuo account. Gli aggiornamenti avvengono immediatamente con fatturazione proporzionale; le riduzioni entrano in vigore al ciclo successivo. Se cancelli, manterrai l'accesso fino alla fine del tuo ciclo attuale. Conserviamo i tuoi dati per 60 giorni così puoi riabbonarti senza perdere nulla—dopo di che vengono eliminati permanentemente."
-        },
-        "rollover": {
-          "question": "I crediti inutilizzati vengono trasferiti?",
-          "answer": "No. I crediti scadono alla fine di ogni ciclo di fatturazione, e la tua assegnazione si rinnova."
-        },
-        "moreCredits": {
-          "question": "Come posso ottenere più crediti?",
-          "answer": "Puoi aggiornare il tuo abbonamento per un limite mensile più alto o acquistare pacchetti di crediti una tantum dal tuo account."
-        },
-        "refund": {
-          "question": "Qual è la vostra politica di rimborso?",
-          "answer": "Gli abbonamenti e i pacchetti di crediti non sono rimborsabili. Se c'è un problema tecnico—come una generazione fallita—contatta l'assistenza per una revisione e un possibile aggiustamento dei crediti."
-        },
-        "deleteAccount": {
-          "question": "Come elimino il mio account?",
-          "answer": "Nelle impostazioni del tuo account, seleziona \"Elimina account\" per rimuovere permanentemente tutte le foto, i personaggi e le immagini. È irreversibile, quindi scarica prima tutto ciò che vuoi conservare."
+    "purchase": {
+        "success": {
+            "subscriptionTitle": "Hai aggiornato con successo a {{plan}}",
+            "subscriptionTitleNew": "Benvenuto in {{plan}}!",
+            "creditsTitle": "Crediti aggiunti!",
+            "subscriptionDescriptionWithCredits": "Il tuo nuovo ciclo di fatturazione dell'abbonamento inizia oggi. Goditi {{amount}} crediti e molto altro!",
+            "subscriptionDescriptionWithCreditsNew": "Il tuo ciclo di fatturazione inizia oggi. Goditi {{amount}} crediti e molto altro!",
+            "subscriptionDescription": "Il tuo nuovo ciclo di fatturazione dell'abbonamento inizia oggi. Goditi i tuoi nuovi vantaggi!",
+            "subscriptionDescriptionNew": "Il tuo ciclo di fatturazione inizia oggi. Goditi i tuoi nuovi vantaggi!",
+            "creditsDescription": "Il tuo saldo è stato aggiornato. Puoi iniziare a generare ora.",
+            "returnToShoot": "Torna al servizio",
+            "defaultPlan": "il tuo nuovo piano"
         }
-      }
     },
-    "signIn": {
-      "modalTitle": "Accedi per continuare"
+    "subscription": {
+        "context": {
+            "characterLimit": { "title": "Hai raggiunto il limite di personaggi.", "description": "Aggiorna per ottenere personaggi aggiuntivi" },
+            "qualityUpgrade": { "title": "Vuoi una qualità superiore?", "description": "Aggiorna per immagini più nitide e vantaggi extra" },
+            "creditUpgrade": { "title": "Stai finendo i crediti?", "description": "Aggiorna per ottenere più crediti mensili" },
+            "general": { "title": "Aggiorna il tuo piano", "description": "Sblocca più funzionalità e flessibilità" },
+            "default": { "title": "Scegli il tuo piano", "description": "Scegli quello che svilupperemo, cambia quando vuoi" }
+        },
+        "loading": "Caricamento piani...",
+        "empty": {
+            "title": "Nessun aggiornamento disponibile",
+            "description": "Sei già sul piano più alto disponibile."
+        },
+        "headers": {
+            "chooseYourPlan": "Scegli il tuo piano"
+        },
+        "banner": {
+            "titleStart": "Offerta a vita limitata",
+            "description": "Assicurati fino al 70% di sconto sui piani annuali, o il 50% sui piani mensili.",
+            "small": "Limitato a soli 300 membri. L'offerta a vita continua fino alla cancellazione."
+        },
+        "toggle": {
+            "monthly": "Mensile",
+            "yearly": "Annuale",
+            "aria": "Ciclo di fatturazione"
+        },
+        "card": {
+            "recommended": "Consigliato",
+            "save": "Risparmia {{pct}}%",
+            "perMonth": "/ mese",
+            "billed": "Fatturato {{cycle}}",
+            "creditsCount": "{{count}} crediti",
+            "perMonthWord": "al mese",
+            "perCredit": "{{price}} per credito",
+            "button": {
+                "select": "Seleziona piano",
+                "current": "Piano attuale",
+                "processing": "Elaborazione…",
+                "disabledTooltip": "Non disponibile durante l'offerta speciale 🚀"
+            },
+            "features": {
+                "quality": "Immagini di qualità {{quality}}",
+                "characterIncluded": "{{count}}x Personaggio incluso",
+                "maxCharacters": "Fino a {{count}} archiviazione personaggi",
+                "concurrentShoots": "Fino a {{count}} servizi simultanei",
+                "commercialUse": "Uso commerciale",
+                "personalUseOnly": "Solo uso personale"
+            }
+        },
+        "footer": {
+            "upgradeNotice": "Il tuo abbonamento attuale sarà cancellato e sostituito con il nuovo piano. I crediti esistenti saranno preservati.",
+            "buyCreditPack": "Acquista un pacchetto di crediti"
+        },
+        "toasts": {
+            "loginRequired": "Per favore accedi",
+            "selectPlan": "Per favore seleziona un piano",
+            "invalidPlan": "Piano di abbonamento selezionato non valido",
+            "openingPortal": "Apertura portale clienti Stripe...",
+            "customerPortalFailed": "Apertura del portale clienti fallita",
+            "upgradePreviewFailed": "Apertura dell'anteprima aggiornamento fallita",
+            "upgraded": "Abbonamento aggiornato con successo!",
+            "checkoutFailed": "Checkout fallito",
+            "invalidCheckout": "Risposta non valida dal checkout"
+        }
+    },
+    "credits": {
+        "dialog": {
+            "headerSub": {
+                "lowBalance": "Saldo crediti troppo basso.",
+                "creativity": "Alimenta la tua creatività 🚀"
+            },
+            "headerTitle": {
+                "lowBalance": "Ricarica i tuoi crediti per continuare a generare",
+                "fun": "Più crediti, più creazioni, più divertimento!"
+            }
+        },
+        "card": {
+            "images": "Fino a {{count}} immagini {{quality}}",
+            "characters": "Fino a {{count}} personaggi",
+            "footnote": "*Solo piani Standard e Pro",
+            "button": {
+                "buy": "Acquista",
+                "processing": "Elaborazione…"
+            },
+            "validity": "Valido per {{duration}}",
+            "oneTime": "una tantum",
+            "perCredit": "{{price}} per credito",
+            "perCreditWord": "per credito"
+        },
+        "toasts": {
+            "loginRequired": "Per favore accedi",
+            "invalidPackConfig": "Configurazione pacchetto crediti non valida",
+            "createCheckoutFailed": "Creazione sessione checkout fallita",
+            "purchaseFailed": "Acquisto pacchetto crediti fallito"
+        }
+    },
+    "comparisonTable": {
+        "categories": {
+            "credits": "Crediti",
+            "image": "Immagine",
+            "characters": "Personaggi",
+            "generation": "Generazione",
+            "support": "Assistenza"
+        },
+        "features": {
+            "creditsPerMonth": "Crediti al mese",
+            "pricePerCredit": "Prezzo per credito",
+            "resolution": "Risoluzione",
+            "takesPerShoot": "Scatti per sessione",
+            "portraitAspectRatio": "Formato verticale",
+            "squareAspectRatio": "Formato quadrato",
+            "landscapeAspectRatio": "Formato orizzontale",
+            "included": "Incluso",
+            "storage": "Spazio di archiviazione",
+            "concurrentShoots": "Sessioni simultanee",
+            "commercialUse": "Uso commerciale",
+            "priorityFeatures": "Accesso prioritario alle nuove funzionalità",
+            "premiumStyles": "Stili premium",
+            "betaAccess": "Accesso ai test beta",
+            "emailSupport": "Assistenza via email",
+            "chatSupport": "Assistenza via chat",
+            "dedicatedSupport": "Assistenza dedicata"
+        },
+        "values": {
+            "upTo": "Fino a {{value}}",
+            "basicQuality": "Qualità base",
+            "highQuality": "Alta qualità"
+        }
+    },
+    "page": {
+        "title": "Prezzi",
+        "header": {
+            "title": "Piani semplici, look infiniti.",
+            "subtitle": "Cancella o cambia quando vuoi.",
+            "savingsText": "Risparmia fino al",
+            "savingsHighlight": "40%",
+            "savingsOn": "sui piani annuali"
+        },
+        "tabs": {
+            "monthly": "Mensile",
+            "annual": "Annuale"
+        },
+        "buttons": {
+            "getStarted": "Inizia",
+            "selectPlan": "Seleziona piano",
+            "currentPlan": "Piano attuale",
+            "processing": "Elaborazione..."
+        },
+        "loading": "Caricamento prezzi...",
+        "comparison": {
+            "title": "Confronta i piani",
+            "description": "Aggiorna per sbloccare ritratti ad alta risoluzione, più crediti, personaggi riutilizzabili e priorità di elaborazione."
+        },
+        "faq": {
+            "title": "Domande?",
+            "subtitle": "Tutto quello che devi sapere sui nostri prezzi e funzionalità",
+            "items": {
+                "character": {
+                    "question": "Cos'è un personaggio e come funziona?",
+                    "answer": "Un personaggio è il tuo modello di IA personalizzato, addestrato con 9 selfie. Impara i tuoi tratti facciali esatti—struttura, incarnato, capelli—così ogni ritratto ti assomiglia autenticamente. A seconda del tuo piano, ottieni da 1 a 3 personaggi inclusi. I personaggi aggiuntivi costano 30 crediti ciascuno, e una volta creati, puoi riutilizzarli in qualsiasi momento per nuovi servizi con diversi outfit, scene e stili."
+                },
+                "credits": {
+                    "question": "Come funzionano i crediti?",
+                    "answer": "I crediti sono il tuo saldo per addestrare personaggi e generare immagini. Addestrare un personaggio costa 30 crediti. La generazione di immagini costa 1 credito per qualità base (1K), 2 per media (2K) e 3 per alta (4K). Il tuo piano include un'assegnazione mensile di crediti che si rinnova ogni ciclo di fatturazione."
+                },
+                "commercial": {
+                    "question": "Posso utilizzare le mie immagini commercialmente?",
+                    "answer": "Sì. Tutte le immagini che generi sono tue da utilizzare senza restrizioni—che sia per LinkedIn, siti web, marketing o stampa."
+                },
+                "privacy": {
+                    "question": "Come proteggete la mia privacy e i miei dati?",
+                    "answer": "Le tue foto e i tuoi personaggi sono archiviati in modo sicuro e non vengono mai condivisi, venduti o utilizzati per i nostri addestramento. Puoi eliminare personaggi singoli o il tuo account completo in qualsiasi momento. Nessun accesso di terze parti avviene senza il tuo consenso."
+                },
+                "changePlan": {
+                    "question": "Posso cambiare o cancellare il mio piano?",
+                    "answer": "Sì. Puoi aggiornare o ridurre il tuo piano in qualsiasi momento dalle impostazioni del tuo account. Gli aggiornamenti avvengono immediatamente con fatturazione proporzionale; le riduzioni entrano in vigore al ciclo successivo. Se cancelli, manterrai l'accesso fino alla fine del tuo ciclo attuale. Conserviamo i tuoi dati per 60 giorni così puoi riabbonarti senza perdere nulla—dopo di che vengono eliminati permanentemente."
+                },
+                "rollover": {
+                    "question": "I crediti inutilizzati vengono trasferiti?",
+                    "answer": "No. I crediti scadono alla fine di ogni ciclo di fatturazione, e la tua assegnazione si rinnova."
+                },
+                "moreCredits": {
+                    "question": "Come posso ottenere più crediti?",
+                    "answer": "Puoi aggiornare il tuo abbonamento per un limite mensile più alto o acquistare pacchetti di crediti una tantum dal tuo account."
+                },
+                "refund": {
+                    "question": "Qual è la vostra politica di rimborso?",
+                    "answer": "Gli abbonamenti e i pacchetti di crediti non sono rimborsabili. Se c'è un problema tecnico—come una generazione fallita—contatta l'assistenza per una revisione e un possibile aggiustamento dei crediti."
+                },
+                "deleteAccount": {
+                    "question": "Come elimino il mio account?",
+                    "answer": "Nelle impostazioni del tuo account, seleziona \"Elimina account\" per rimuovere permanentemente tutte le foto, i personaggi e le immagini. È irreversibile, quindi scarica prima tutto ciò che vuoi conservare."
+                }
+            }
+        },
+        "signIn": {
+            "modalTitle": "Accedi per continuare"
+        }
     }
-  }
 }

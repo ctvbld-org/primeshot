@@ -1256,6 +1256,7 @@ export declare const resources: {
                 tagline: string;
                 title: string;
                 badge: string;
+                cta: string;
             };
             cta: {
                 title: string;
@@ -2645,6 +2646,7 @@ export declare const resources: {
                 tagline: string;
                 title: string;
                 badge: string;
+                cta: string;
             };
             cta: {
                 title: string;
@@ -4016,6 +4018,7 @@ export declare const resources: {
                 tagline: string;
                 title: string;
                 badge: string;
+                cta: string;
             };
             cta: {
                 title: string;
@@ -5374,6 +5377,7 @@ export declare const resources: {
                 tagline: string;
                 title: string;
                 badge: string;
+                cta: string;
             };
             cta: {
                 title: string;
@@ -6732,6 +6736,7 @@ export declare const resources: {
                 tagline: string;
                 title: string;
                 badge: string;
+                cta: string;
             };
             cta: {
                 title: string;
@@ -8102,6 +8107,7 @@ export declare const resources: {
                 tagline: string;
                 title: string;
                 badge: string;
+                cta: string;
             };
             cta: {
                 title: string;
@@ -9460,6 +9466,7 @@ export declare const resources: {
                 tagline: string;
                 title: string;
                 badge: string;
+                cta: string;
             };
             cta: {
                 title: string;
@@ -10830,6 +10837,7 @@ export declare const resources: {
                 tagline: string;
                 title: string;
                 badge: string;
+                cta: string;
             };
             cta: {
                 title: string;
@@ -12201,6 +12209,7 @@ export declare const resources: {
                 tagline: string;
                 title: string;
                 badge: string;
+                cta: string;
             };
             cta: {
                 title: string;
@@ -13572,6 +13581,7 @@ export declare const resources: {
                 tagline: string;
                 title: string;
                 badge: string;
+                cta: string;
             };
             cta: {
                 title: string;

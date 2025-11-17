@@ -423,37 +423,36 @@ export function AccountDialog({ triggerSlot, onBuyCredits, onSubscribe }: Accoun
                       )}
                     </div>
                   </div>
-
-                  {/* Only show credit balance section when user has a subscription */}
-                  {subscription && (
-                    <div className={styles.creditsBlock}>
-                      <div className={styles.creditsHeader}>
-                        <span>{t('subscription.creditBalance')}</span>
+                  
+                  <div className={styles.creditsBlock}>
+                    <div className={styles.creditsHeader}>
+                      <span>{t('subscription.creditBalance')}</span>
+                      {subscription && subscription.plan_name !== 'free' && (
                         <Button variant="ghost" size="sm" className={styles.buyCredits} onClick={onBuyCredits ?? (() => openPortal())}>
                           {t('buttons.buyCredits')}
                         </Button>
-                      </div>
-                      <div className={styles.creditsValue}>
-                        {isLoading ? '—' : creditBalance ?? 0}
-                        <span className={styles.creditsTotal}>
-                          /{subscription?.credits_included ?? 0}
-                        </span>
-                      </div>
-                      <div className={styles.progressBar}>
-                        <div
-                          className={styles.progressFill}
-                          style={{
-                            width: `${Math.max(0, Math.min(100, ((creditBalance ?? 0) / (subscription?.credits_included || 1)) * 100))}%`
-                          }}
-                        />
-                      </div>
-                      {subscription?.current_period_end && (
-                        <div className={styles.creditsReset}>
-                          {t('subscription.resets', { date: new Date(subscription.current_period_end).toLocaleDateString() })}
-                        </div>
                       )}
                     </div>
-                  )}
+                    <div className={styles.creditsValue}>
+                      {isLoading ? '—' : creditBalance ?? 0}
+                      <span className={styles.creditsTotal}>
+                        /{subscription?.credits_included ?? 0}
+                      </span>
+                    </div>
+                    <div className={styles.progressBar}>
+                      <div
+                        className={styles.progressFill}
+                        style={{
+                          width: `${Math.max(0, Math.min(100, ((creditBalance ?? 0) / (subscription?.credits_included || 1)) * 100))}%`
+                        }}
+                      />
+                    </div>
+                    {subscription?.current_period_end && (
+                      <div className={styles.creditsReset}>
+                        {t('subscription.resets', { date: new Date(subscription.current_period_end).toLocaleDateString() })}
+                      </div>
+                    )}
+                  </div>
                 </section>
               )}
 

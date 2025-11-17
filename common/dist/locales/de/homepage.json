@@ -1,66 +1,67 @@
 {
-  "hero": {
-    "headline": "porträts die türen öffnen",
-    "tagline": "Die fortschrittlichsten <ai>KI</ai>-Porträts. <period>Punkt.</period>",
-    "subtitle": "Lass deinen ersten Eindruck zählen. Verwandle alltägliche Selfies in herausragende Porträts, personalisiert und in Minuten fertig."
-  },
-  "story": {
-    "paragraph1": "Wir haben die Kunst vergessen, uns von unserer besten Seite zu zeigen. Wir machen ein Selfie, justieren den Winkel und hoffen, dass es reicht, um einen Eindruck zu hinterlassen. In einer Welt, die schnell scrollt und noch schneller urteilt, brauchst du ein Foto, das spricht—klar, selbstbewusst und mit Absicht.",
-    "paragraph2": "Primeshot verwandelt deine alltäglichen Fotos in Premium-Porträts voller Stil und Persönlichkeit. Keine steifen Posen. Keine peinlichen Fotoshootings. Nur authentische, aufmerksamkeitsstarke Porträts, geliefert in Minuten.",
-    "callToAction": "Strahle so wie du bist—mit kühner Ambition."
-  },
-  "aria": {
-    "photoMetadata": "Foto-Metadaten-Visualisierung"
-  },
-  "waitlist": {
-    "placeholder": "E-Mail für frühen Zugang eingeben",
-    "ariaLabel": "E-Mail-Adresse für Warteliste",
-    "submitLabel": "E-Mail senden",
-    "submittingLabel": "Wird gesendet...",
-    "validation": {
-      "invalidEmail": "Bitte gib eine gültige E-Mail-Adresse ein"
+    "hero": {
+        "headline": "porträts die türen öffnen",
+        "tagline": "Die fortschrittlichsten <ai>KI</ai>-Porträts. <period>Punkt.</period>",
+        "subtitle": "Lass deinen ersten Eindruck zählen. Verwandle alltägliche Selfies in herausragende Porträts, personalisiert und in Minuten fertig."
     },
-    "messages": {
-      "alreadyOnWaitlist": "Du stehst bereits auf der Warteliste!",
-      "success": "Danke! Du erhältst eine E-Mail für deinen Frühzugang.",
-      "defaultError": "Etwas ist schiefgelaufen"
+    "story": {
+        "paragraph1": "Wir haben die Kunst vergessen, uns von unserer besten Seite zu zeigen. Wir machen ein Selfie, justieren den Winkel und hoffen, dass es reicht, um einen Eindruck zu hinterlassen. In einer Welt, die schnell scrollt und noch schneller urteilt, brauchst du ein Foto, das spricht—klar, selbstbewusst und mit Absicht.",
+        "paragraph2": "Primeshot verwandelt deine alltäglichen Fotos in Premium-Porträts voller Stil und Persönlichkeit. Keine steifen Posen. Keine peinlichen Fotoshootings. Nur authentische, aufmerksamkeitsstarke Porträts, geliefert in Minuten.",
+        "callToAction": "Strahle so wie du bist—mit kühner Ambition."
+    },
+    "aria": {
+        "photoMetadata": "Foto-Metadaten-Visualisierung"
+    },
+    "waitlist": {
+        "placeholder": "E-Mail für frühen Zugang eingeben",
+        "ariaLabel": "E-Mail-Adresse für Warteliste",
+        "submitLabel": "E-Mail senden",
+        "submittingLabel": "Wird gesendet...",
+        "validation": {
+            "invalidEmail": "Bitte gib eine gültige E-Mail-Adresse ein"
+        },
+        "messages": {
+            "alreadyOnWaitlist": "Du stehst bereits auf der Warteliste!",
+            "success": "Danke! Du erhältst eine E-Mail für deinen Frühzugang.",
+            "defaultError": "Etwas ist schiefgelaufen"
+        }
+    },
+    "sections": {
+        "characters": {
+            "title": "Charaktere",
+            "subtitle": "Erstelle dich aus nur 9 Fotos von dir. Erstelle für dich und andere. Dein digitales Ich bereit in weniger als 8 Minuten."
+        },
+        "scenes": {
+            "title": "Die Kulisse setzen",
+            "subtitle": "Wähle aus einer vielfältigen Sammlung von Hintergründen und Umgebungen, die deine Vision und deinen Stil perfekt ergänzen."
+        },
+        "styles": {
+            "title": "Fotostile",
+            "subtitle": "Von professionellen Porträts bis zu künstlerischen Interpretationen, wähle aus Dutzenden sorgfältig zusammengestellter Stile, die deine einzigartige Essenz einfangen."
+        },
+        "wardrobe": {
+            "title": "Kleide dich, um zu beeindrucken",
+            "titleColors": "In jeder Farbe",
+            "subtitle": "Wähle aus einer umfangreichen Garderobe-Kollektion. Von lässig bis formell, finde das perfekte Outfit für jeden Anlass.",
+            "subtitleColors": "Passe jedes Detail mit unserer umfangreichen Farbpalette an. Passe deinen Stil an oder erkunde mutige neue Kombinationen."
+        }
+    },
+    "grid": {
+        "tagline": "Dein KI-Studio für beeindruckende Porträts",
+        "title": "Dein bestes Ich, festgehalten.",
+        "badge": "4K",
+        "cta": "Kostenlos starten"
+    },
+    "cta": {
+        "title": "Bereit, dein bestes Ich zu treffen?",
+        "subtitle": "Schließe dich Tausenden an, die professionelle KI-Porträts mit Primeshot erstellen",
+        "pricing": "Ab 9 € pro Monat."
+    },
+    "ctaHero": {
+        "heading": "Professionelle Porträts für alle zugänglich.",
+        "subheading": "Bereit in Minuten.",
+        "googleButton": "Mit Google beitreten",
+        "createButton": "Erstelle dein Shooting",
+        "signInTitle": "Anmelden"
     }
-  },
-  "sections": {
-    "characters": {
-      "title": "Charaktere",
-      "subtitle": "Erstelle dich aus nur 9 Fotos von dir. Erstelle für dich und andere. Dein digitales Ich bereit in weniger als 8 Minuten."
-    },
-    "scenes": {
-      "title": "Die Kulisse setzen",
-      "subtitle": "Wähle aus einer vielfältigen Sammlung von Hintergründen und Umgebungen, die deine Vision und deinen Stil perfekt ergänzen."
-    },
-    "styles": {
-      "title": "Fotostile",
-      "subtitle": "Von professionellen Porträts bis zu künstlerischen Interpretationen, wähle aus Dutzenden sorgfältig zusammengestellter Stile, die deine einzigartige Essenz einfangen."
-    },
-    "wardrobe": {
-      "title": "Kleide dich, um zu beeindrucken",
-      "titleColors": "In jeder Farbe",
-      "subtitle": "Wähle aus einer umfangreichen Garderobe-Kollektion. Von lässig bis formell, finde das perfekte Outfit für jeden Anlass.",
-      "subtitleColors": "Passe jedes Detail mit unserer umfangreichen Farbpalette an. Passe deinen Stil an oder erkunde mutige neue Kombinationen."
-    }
-  },
-  "grid": {
-    "tagline": "Dein KI-Studio für beeindruckende Porträts",
-    "title": "Dein bestes Ich, festgehalten.",
-    "badge": "4K"
-  },
-  "cta": {
-    "title": "Bereit, dein bestes Ich zu treffen?",
-    "subtitle": "Schließe dich Tausenden an, die professionelle KI-Porträts mit Primeshot erstellen",
-    "pricing": "Ab 9 € pro Monat."
-  },
-  "ctaHero": {
-    "heading": "Professionelle Porträts für alle zugänglich.",
-    "subheading": "Bereit in Minuten.",
-    "googleButton": "Mit Google beitreten",
-    "createButton": "Erstelle dein Shooting",
-    "signInTitle": "Anmelden"
-  }
 }

@@ -307,23 +307,26 @@ export function SubscriptionDialogContent({
         onSelectPlan={handlePurchase}
       />
 
-      {/* Full price notice for upgrades */}
+      {/* Full price notice for upgrades - Hide credit pack button for Free plan users */}
       {showOnlyUpgrades && (
         <div className={styles.creditPackFooter}>
           <p className="text-xs text-muted-foreground text-center">
             {tp('subscription.footer.upgradeNotice')}
           </p>
         
-          <Button
-            variant="secondary"
-            onClick={() => {
-              closeDialog()
-              openCreditPackDialog()
-            }}
-            className={styles.creditPackBtn}
-          >
-            {tp('subscription.footer.buyCreditPack', { defaultValue: 'Buy a credit pack' })}
-          </Button>
+          {/* Only show credit pack button for paid subscription users */}
+          {effectiveCurrentPlan !== 'free' && (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                closeDialog()
+                openCreditPackDialog()
+              }}
+              className={styles.creditPackBtn}
+            >
+              {tp('subscription.footer.buyCreditPack', { defaultValue: 'Buy a credit pack' })}
+            </Button>
+          )}
         </div>
       )}
 

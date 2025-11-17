@@ -2917,6 +2917,16 @@ Detected changes in:
 - webapp/src/components/character/training/onboarding.module.css
 - webapp/src/components/generate/GenerateBar.tsx
 - webapp/src/components/pricing/SubscriptionDialogContent.module.css
+
+
+**Auto-update 2025-11-17**:
+Detected changes in:
+- admin/src/app/api/credit-packs/route.ts
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.module.css
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- website/src/app/[locale]/pricing/page.module.css
+- website/src/app/[locale]/pricing/page.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

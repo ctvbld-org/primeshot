@@ -1,103 +1,103 @@
 {
-  "welcome": "Welcome",
-  "error": {
-    "title": "Error",
-    "description": "An error occurred"
-  },
-  "language": "Language",
-  "loading": "Loading...",
-  "buttons": {
-    "customize": "Customize",
-    "confirmChanges": "Confirm changes",
-    "addToShoot": "Add to Shoot",
-    "edit": "Edit",
-    "delete": "Delete",
-    "save": "Save",
-    "cancel": "Cancel",
-    "back": "Back",
-    "close": "Close",
-    "next": "Next",
-    "previous": "Prev.",
-    "keep": "Keep it",
-    "discard": "Discard",
-    "confirm": "Confirm",
-    "remove": "Remove",
-    "add": "Add",
-    "explore": "Explore",
-    "signIn": "Sign in"
-  },
-  "navigation": {
-    "addStyles": "Add Styles",
-    "payment": "Payment",
-    "uploadPhotos": "Upload Photos",
-    "generate": "Generate",
-    "explore": "Explore",
-    "create": "Create",
-    "pricing": "Pricing",
-    "admin": "Admin",
-    "menu": "Menu",
-    "blog": "Blog"
-  },
-  "userNav": {
-    "signOut": "Sign out",
-    "accountSettings": "Account Settings"
-  },
-  "footer": {
-    "hero": "Own your image.",
-    "sections": {
-      "overview": "Overview",
-      "latestStyles": "Latest Styles",
-      "legal": "Legal",
-      "support": "Support"
+    "welcome": "Welcome",
+    "error": {
+        "title": "Error",
+        "description": "An error occurred"
     },
-    "links": {
-      "explore": "Explore",
-      "create": "Create",
-      "pricing": "Pricing & FAQ",
-      "studioPro": "Studio Pro",
-      "business": "Business",
-      "editorial": "Editorial",
-      "terms": "Terms and Conditions",
-      "privacy": "Privacy Policy",
-      "contact": "Contact us",
-      "about": "About us"
+    "language": "Language",
+    "loading": "Loading...",
+    "buttons": {
+        "customize": "Customize",
+        "confirmChanges": "Confirm changes",
+        "addToShoot": "Add to Shoot",
+        "edit": "Edit",
+        "delete": "Delete",
+        "save": "Save",
+        "cancel": "Cancel",
+        "back": "Back",
+        "close": "Close",
+        "next": "Next",
+        "previous": "Prev.",
+        "keep": "Keep it",
+        "discard": "Discard",
+        "confirm": "Confirm",
+        "remove": "Remove",
+        "add": "Add",
+        "explore": "Explore",
+        "signIn": "Sign in"
     },
-    "copyright": "© {{year}} Primeshot. All Rights Reserved"
-  },
-  "duration": {
-    "year_one": "{{count}} year",
-    "year_other": "{{count}} years",
-    "month_one": "{{count}} month",
-    "month_other": "{{count}} months",
-    "day_one": "{{count}} day",
-    "day_other": "{{count}} days"
-  },
-  "aria": {
-    "favorites": "Favorites",
-    "avatar": "User avatar",
-    "brandLogo": "Primeshot"
-  },
-  "explore": {
-    "generateTooltip": "Apply this style"
-  },
-  "credits": {
-    "remaining_one": "{{value}} credit remaining",
-    "remaining_other": "{{value}} credits remaining"
-  },
-  "contexts": {
-    "dialogService": {
-      "defaultTitle": "Dialog",
-      "defaultDescription": "Content",
-      "notReadyWarning": "DialogService not ready"
+    "navigation": {
+        "addStyles": "Add Styles",
+        "payment": "Payment",
+        "uploadPhotos": "Upload Photos",
+        "generate": "Generate",
+        "explore": "Explore",
+        "create": "Create",
+        "pricing": "Pricing",
+        "admin": "Admin",
+        "menu": "Menu",
+        "blog": "Blog"
     },
-    "errors": {
-      "missingProvider": {
-        "styleSelection": "useStyleSelection must be used within a StyleSelectionProvider",
-        "dialogService": "useDialogService must be used within DialogServiceProvider",
-        "inferenceQueue": "useInferenceQueue must be used within an InferenceQueueProvider",
-        "carousel": "useCarouselContext must be used within a CarouselProvider",
-        "realtime": "useRealtime must be used within a RealtimeProvider"
-      }
+    "userNav": {
+        "signOut": "Sign out",
+        "accountSettings": "Account Settings"
+    },
+    "footer": {
+        "hero": "Own your image.",
+        "sections": {
+            "overview": "Overview",
+            "latestStyles": "Latest Styles",
+            "legal": "Legal",
+            "support": "Support"
+        },
+        "links": {
+            "explore": "Explore",
+            "create": "Create",
+            "pricing": "Pricing & FAQ",
+            "studioPro": "Studio Pro",
+            "business": "Business",
+            "editorial": "Editorial",
+            "terms": "Terms and Conditions",
+            "privacy": "Privacy Policy",
+            "contact": "Contact us",
+            "about": "About us"
+        },
+        "copyright": "© {{year}} Primeshot. All Rights Reserved"
+    },
+    "duration": {
+        "year_one": "{{count}} year",
+        "year_other": "{{count}} years",
+        "month_one": "{{count}} month",
+        "month_other": "{{count}} months",
+        "day_one": "{{count}} day",
+        "day_other": "{{count}} days"
+    },
+    "aria": {
+        "favorites": "Favorites",
+        "avatar": "User avatar",
+        "brandLogo": "Primeshot"
+    },
+    "explore": {
+        "generateTooltip": "Apply this style"
+    },
+    "credits": {
+        "remaining_one": "{{value}} credit remaining",
+        "remaining_other": "{{value}} credits remaining"
+    },
+    "contexts": {
+        "dialogService": {
+            "defaultTitle": "Dialog",
+            "defaultDescription": "Content",
+            "notReadyWarning": "DialogService not ready"
+        },
+        "errors": {
+            "missingProvider": {
+                "styleSelection": "useStyleSelection must be used within a StyleSelectionProvider",
+                "dialogService": "useDialogService must be used within DialogServiceProvider",
+                "inferenceQueue": "useInferenceQueue must be used within an InferenceQueueProvider",
+                "carousel": "useCarouselContext must be used within a CarouselProvider",
+                "realtime": "useRealtime must be used within a RealtimeProvider"
+            }
+        }
     }
-  }
 }

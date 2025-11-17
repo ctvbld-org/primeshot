@@ -7,6 +7,11 @@ import { useTranslation } from 'react-i18next'
 import showcaseStyles from './ShowcaseSection.module.css'
 import styles from './HeroGrid.module.css'
 import { getWebsiteCdnUrl } from '@primeshot/common/lib/utils/cdn'
+import { Button } from '@primeshot/common/web/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, VisuallyHidden } from '@primeshot/common/web/ui/dialog'
+import { SignInForm } from '@primeshot/common/web'
+import { useAuth } from '@/contexts/auth-context'
+import { useGenerationIntent } from '@/hooks/useGenerationIntent'
 
 const cloudfrontLoader = makeCloudfrontLoader('website-images')
 
@@ -114,9 +119,26 @@ export function HeroGrid() {
   // Initialize true to match server render and avoid hydration mismatch
   // CSS will handle the initial fade-in animation
   const [headerVisible, setHeaderVisible] = useState(true)
+  const [isSignInOpen, setIsSignInOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const isFirstMove = useRef<boolean>(true)
   const isFirstTouch = useRef<boolean>(true)
+
+  // Auth and subscription state
+  const { isAuthenticated } = useAuth()
+  const { saveIntent } = useGenerationIntent()
+
+  // Handle CTA button click
+  const handleCtaClick = () => {
+    if (!isAuthenticated) {
+      // User not signed in: save intent and open signin dialog
+      saveIntent(0, 'subscribe')
+      setIsSignInOpen(true)
+    } else {
+      // User authenticated: redirect to app
+      window.location.href = '/create'
+    }
+  }
 
   const gridImages = [
     { 
@@ -328,6 +350,9 @@ export function HeroGrid() {
         <h2 className={`${showcaseStyles.title} ${showcaseStyles.headerTitle} ${headerVisible ? showcaseStyles.visible : ''}`}>
           {t('grid.title')}
         </h2>
+        <Button variant="ghost" size="lg" className={showcaseStyles.ctaButton} onClick={handleCtaClick}>
+          {t('grid.cta')}
+        </Button>
       </div>
       {/* Desktop Grid - 1 row × 5 columns */}
       <div className={styles.desktopGrid}>
@@ -430,6 +455,18 @@ export function HeroGrid() {
           )
         })}
       </div>
+
+      {/* Sign In Dialog */}
+      <Dialog open={isSignInOpen} onOpenChange={setIsSignInOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <VisuallyHidden>
+              <DialogTitle>{t('ctaHero.signInTitle')}</DialogTitle>
+            </VisuallyHidden>
+          </DialogHeader>
+          <SignInForm />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -29,18 +29,20 @@ async function handlePOST(request: NextRequest) {
       )
     }
 
-    // Ensure user has an active subscription before purchasing credit packs
+    // Ensure user has an active PAID subscription before purchasing credit packs
+    // Free plan users (stripe_subscription_id = NULL) cannot purchase credit packs
     const { data: activeSubscription } = await supabase
       .from('user_subscriptions')
-      .select('id')
+      .select('id, plan_name, stripe_subscription_id')
       .eq('user_id', user.id)
       .eq('status', 'active')
+      .not('stripe_subscription_id', 'is', null)
       .limit(1)
       .single()
 
     if (!activeSubscription) {
       return NextResponse.json(
-        { error: 'You must have an active subscription to purchase credit packs' },
+        { error: 'Credit packs are only available for paid subscription members. Please subscribe to a plan first.' },
         { status: 403 }
       )
     }

@@ -123,14 +123,17 @@ export function CreditDashboard({ className }: CreditDashboardProps) {
               <div className="text-3xl font-bold">{creditBalance.toLocaleString()}</div>
               <div className="text-sm text-muted-foreground">credits available</div>
             </div>
-            <Button 
-              onClick={() => openCreditPackDialog()}
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <Package className="w-4 h-4" />
-              Buy Credits
-            </Button>
+            {/* Only show Buy Credits button for paid subscription users */}
+            {subscription?.plan_name !== 'free' && (
+              <Button 
+                onClick={() => openCreditPackDialog()}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Package className="w-4 h-4" />
+                Buy Credits
+              </Button>
+            )}
           </div>
 
           {creditBalance < 10 && (
