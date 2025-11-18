@@ -1,24 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 
-function getThumbUrl(keyOrUrl: string, width: number = 480): string {
-  // Extract S3 key from URL if needed
-  let key = keyOrUrl
-  if (keyOrUrl.startsWith('http')) {
-    try {
-      const url = new URL(keyOrUrl)
-      key = url.pathname.substring(1)
-    } catch {
-      key = keyOrUrl
-    }
-  }
-
-  // Encode the entire key for the query parameter
-  return `/api/media/thumbnail?key=${encodeURIComponent(key)}&w=${width}`
-}
-
 /**
- * Convert S3 keys/URLs to CloudFront CDN URLs
+ * Convert S3 keys/URLs to CloudFront CDN URLs for placeholder images
  */
 function toCdnUrl(keyOrUrl: string): string {
   const cdn = process.env.NEXT_PUBLIC_AWS_DISTRIBUTION || ''
@@ -91,18 +75,15 @@ export async function GET(
     const hasMore = data.length > limit
     const jobs = hasMore ? data.slice(0, limit) : data
 
-    // Convert S3 URLs to CDN URLs
+    // Convert placeholder images to CDN URLs (style previews, wardrobes, scenes)
+    // But keep character thumbnails as raw S3 URLs for client-side processing
     const jobsWithCdnUrls = jobs.map(job => {
-      const converted: any = {
-        ...job,
-        character: job.character ? {
-          ...job.character,
-          thumbnail_url: job.character.thumbnail_url 
-            ? getThumbUrl(job.character.thumbnail_url, 240)
-            : null
-        } : null
-      }
+      const converted: any = { ...job }
 
+      // Keep character thumbnail_url as-is (client will convert to thumbnail API URL)
+      // No modification needed for character.thumbnail_url
+
+      // Convert style preview images (these are CDN placeholders, not S3)
       if (job.style?.preview_images && Array.isArray(job.style.preview_images)) {
         converted.style = {
           ...job.style,
@@ -112,7 +93,7 @@ export async function GET(
         }
       }
 
-      // Convert wardrobe placeholder image
+      // Convert wardrobe placeholder image (CDN)
       if (job.wardrobe?.image) {
         converted.wardrobe = {
           ...job.wardrobe,
@@ -120,7 +101,7 @@ export async function GET(
         }
       }
 
-      // Convert scene placeholder image
+      // Convert scene placeholder image (CDN)
       if (job.scene?.image) {
         converted.scene = {
           ...job.scene,

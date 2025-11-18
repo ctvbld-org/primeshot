@@ -1,28 +1,7 @@
 import { getApiUrl } from '@primeshot/common/lib/api/client'
 
 /**
- * Convert S3 keys/URLs to CloudFront CDN URLs
- */
-function toCdnUrl(keyOrUrl: string): string {
-  const cdn = process.env.NEXT_PUBLIC_AWS_DISTRIBUTION || ''
-  
-  // If already a full URL, extract the path
-  if (keyOrUrl.startsWith('http')) {
-    try {
-      const url = new URL(keyOrUrl)
-      const path = url.pathname.substring(1) // Remove leading slash
-      return `${cdn}/${path.split('/').map(encodeURIComponent).join('/')}`
-    } catch {
-      return keyOrUrl
-    }
-  }
-  
-  // Otherwise treat as S3 key
-  return `${cdn}/${keyOrUrl.split('/').map(encodeURIComponent).join('/')}`
-}
-
-/**
- * Get thumbnail URL using the media thumbnail API
+ * Get thumbnail URL using the media thumbnail API (client-side helper)
  */
 function getThumbUrl(keyOrUrl: string, width: number = 480): string {
   // Extract S3 key from URL if needed
@@ -36,10 +15,11 @@ function getThumbUrl(keyOrUrl: string, width: number = 480): string {
     }
   }
   
-  // Encode the entire key for the query parameter
-  return `/api/media/thumbnail?key=${encodeURIComponent(key)}&w=${width}`
+  // Use getApiUrl to handle basePath properly (like Media page does)
+  return getApiUrl(`/api/media/thumbnail?key=${encodeURIComponent(key)}&w=${width}`)
 }
 
+// Type definitions
 export interface TrainingJobWithDetails {
   id: string
   user_id: string
@@ -150,7 +130,20 @@ export async function fetchUserTrainingJobs(
     throw new Error('Failed to fetch training jobs')
   }
   
-  return response.json()
+  const { data, hasMore } = await response.json()
+  
+  // Convert character thumbnails client-side
+  const jobsWithThumbs = data.map((job: TrainingJobWithDetails) => ({
+    ...job,
+    character: job.character ? {
+      ...job.character,
+      thumbnail_url: job.character.thumbnail_url 
+        ? getThumbUrl(job.character.thumbnail_url, 240)
+        : null
+    } : null
+  }))
+  
+  return { data: jobsWithThumbs, hasMore }
 }
 
 export async function fetchUserInferenceJobs(
@@ -166,9 +159,22 @@ export async function fetchUserInferenceJobs(
   
   if (!response.ok) {
     throw new Error('Failed to fetch inference jobs')
-  }
+    }
   
-  return response.json()
+  const { data, hasMore } = await response.json()
+  
+  // Convert character thumbnails client-side
+  const jobsWithThumbs = data.map((job: InferenceJobWithDetails) => ({
+    ...job,
+    character: job.character ? {
+      ...job.character,
+      thumbnail_url: job.character.thumbnail_url 
+        ? getThumbUrl(job.character.thumbnail_url, 240)
+        : null
+    } : null
+  }))
+  
+  return { data: jobsWithThumbs, hasMore }
 }
 
 export async function fetchTrainingImages(characterId: string): Promise<UploadedImage[]> {
@@ -181,7 +187,14 @@ export async function fetchTrainingImages(characterId: string): Promise<Uploaded
   }
   
   const { data } = await response.json()
-  return data
+  
+  // Convert S3 URLs to thumbnail API URLs (client-side)
+  const imagesWithThumbs = data.map((image: UploadedImage) => ({
+    ...image,
+    url: getThumbUrl(image.url, 640)
+  }))
+  
+  return imagesWithThumbs
 }
 
 export async function fetchGeneratedImages(inferenceId: string): Promise<GeneratedImage[]> {
@@ -194,5 +207,13 @@ export async function fetchGeneratedImages(inferenceId: string): Promise<Generat
   }
   
   const { data } = await response.json()
-  return data
+  
+  // Convert S3 URLs to thumbnail API URLs (client-side)
+  const imagesWithThumbs = data.map((image: GeneratedImage) => ({
+    ...image,
+    web_path: image.web_path ? getThumbUrl(image.web_path, 1024) : null,
+    original_path: image.original_path ? getThumbUrl(image.original_path, 1024) : null
+  }))
+  
+  return imagesWithThumbs
 }

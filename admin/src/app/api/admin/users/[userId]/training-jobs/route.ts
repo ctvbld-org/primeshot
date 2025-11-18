@@ -1,41 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 
-function getThumbUrl(keyOrUrl: string, width: number = 480): string {
-  // Extract S3 key from URL if needed
-  let key = keyOrUrl
-  if (keyOrUrl.startsWith('http')) {
-    try {
-      const url = new URL(keyOrUrl)
-      key = url.pathname.substring(1)
-    } catch {
-      key = keyOrUrl
-    }
-  }
-
-  // Encode the entire key for the query parameter
-  return `/api/media/thumbnail?key=${encodeURIComponent(key)}&w=${width}`
-}
-
-/**
- * Convert S3 keys/URLs to CloudFront CDN URLs
- */
-function toCdnUrl(keyOrUrl: string): string {
-  const cdn = process.env.NEXT_PUBLIC_AWS_DISTRIBUTION || ''
-  
-  if (keyOrUrl.startsWith('http')) {
-    try {
-      const url = new URL(keyOrUrl)
-      const path = url.pathname.substring(1)
-      return `${cdn}/${path.split('/').map(encodeURIComponent).join('/')}`
-    } catch {
-      return keyOrUrl
-    }
-  }
-  
-  return `${cdn}/${keyOrUrl.split('/').map(encodeURIComponent).join('/')}`
-}
-
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ userId: string }> }
@@ -73,19 +38,9 @@ export async function GET(
     const hasMore = data.length > limit
     const jobs = hasMore ? data.slice(0, limit) : data
 
-    // Convert S3 URLs to CDN URLs
-    const jobsWithCdnUrls = jobs.map(job => ({
-      ...job,
-      character: job.character ? {
-        ...job.character,
-        thumbnail_url: job.character.thumbnail_url 
-          ? getThumbUrl(job.character.thumbnail_url, 240)
-          : null
-      } : null
-    }))
-
+    // Return raw data - let client handle URL building
     return NextResponse.json({
-      data: jobsWithCdnUrls,
+      data: jobs,
       hasMore
     })
   } catch (err) {
