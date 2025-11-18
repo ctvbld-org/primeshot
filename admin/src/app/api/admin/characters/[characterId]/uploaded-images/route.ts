@@ -19,10 +19,10 @@ function getThumbUrl(keyOrUrl: string, width: number = 480): string {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { characterId: string } }
+  { params }: { params: Promise<{ characterId: string }> }
 ) {
   try {
-    const { characterId } = params
+    const { characterId } = await params
 
     const supabase = createServiceClient()
     

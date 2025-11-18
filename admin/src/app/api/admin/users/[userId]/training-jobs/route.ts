@@ -38,10 +38,10 @@ function toCdnUrl(keyOrUrl: string): string {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const { userId } = params
+    const { userId } = await params
     const { searchParams } = new URL(req.url)
     const offset = parseInt(searchParams.get('offset') || '0', 10)
     const limit = parseInt(searchParams.get('limit') || '20', 10)
