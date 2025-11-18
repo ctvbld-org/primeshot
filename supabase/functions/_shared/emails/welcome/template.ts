@@ -138,8 +138,8 @@ export function renderWelcomeEmail(
   overrides: EmailOverrides = {}
 ) {
   const finalName = overrides.name ?? params.name ?? 'there';
-  const locale = (params.locale as SupportedWelcomeLocales) || 'en';
-  const copy = welcomeCopy[locale] ?? welcomeCopy['en'];
+  const locale = (params.locale as SupportedWelcomeLocales) || 'us';
+  const copy = welcomeCopy[locale] ?? welcomeCopy['us'];
   const subject = overrides.subject ?? copy.subject(finalName);
   const html = overrides.html ?? buildWelcomeHtml({ name: finalName, userId: params.userId, copy });
   const text = overrides.text ?? buildWelcomeText({ name: finalName, copy });

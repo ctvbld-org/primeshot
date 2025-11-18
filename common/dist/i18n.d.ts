@@ -231,8 +231,13 @@ export declare const resources: {
                     chooseYourPlan: string;
                 };
                 banner: {
-                    titleStart: string;
-                    description: string;
+                    titlePrimary: string;
+                    titleSecondary: string;
+                    descriptionPrefix: string;
+                    discount1: string;
+                    descriptionMiddle: string;
+                    discount2: string;
+                    descriptionSuffix: string;
                     small: string;
                 };
                 toggle: {
@@ -1625,8 +1630,13 @@ export declare const resources: {
                     chooseYourPlan: string;
                 };
                 banner: {
-                    titleStart: string;
-                    description: string;
+                    titlePrimary: string;
+                    titleSecondary: string;
+                    descriptionPrefix: string;
+                    discount1: string;
+                    descriptionMiddle: string;
+                    discount2: string;
+                    descriptionSuffix: string;
                     small: string;
                 };
                 toggle: {
@@ -3015,8 +3025,13 @@ export declare const resources: {
                     chooseYourPlan: string;
                 };
                 banner: {
-                    titleStart: string;
-                    description: string;
+                    titlePrimary: string;
+                    titleSecondary: string;
+                    descriptionPrefix: string;
+                    discount1: string;
+                    descriptionMiddle: string;
+                    discount2: string;
+                    descriptionSuffix: string;
                     small: string;
                 };
                 toggle: {
@@ -4374,8 +4389,13 @@ export declare const resources: {
                     chooseYourPlan: string;
                 };
                 banner: {
-                    titleStart: string;
-                    description: string;
+                    titlePrimary: string;
+                    titleSecondary: string;
+                    descriptionPrefix: string;
+                    discount1: string;
+                    descriptionMiddle: string;
+                    discount2: string;
+                    descriptionSuffix: string;
                     small: string;
                 };
                 toggle: {
@@ -5733,8 +5753,13 @@ export declare const resources: {
                     chooseYourPlan: string;
                 };
                 banner: {
-                    titleStart: string;
-                    description: string;
+                    titlePrimary: string;
+                    titleSecondary: string;
+                    descriptionPrefix: string;
+                    discount1: string;
+                    descriptionMiddle: string;
+                    discount2: string;
+                    descriptionSuffix: string;
                     small: string;
                 };
                 toggle: {
@@ -7092,8 +7117,13 @@ export declare const resources: {
                     chooseYourPlan: string;
                 };
                 banner: {
-                    titleStart: string;
-                    description: string;
+                    titlePrimary: string;
+                    titleSecondary: string;
+                    descriptionPrefix: string;
+                    discount1: string;
+                    descriptionMiddle: string;
+                    discount2: string;
+                    descriptionSuffix: string;
                     small: string;
                 };
                 toggle: {
@@ -8463,8 +8493,13 @@ export declare const resources: {
                     chooseYourPlan: string;
                 };
                 banner: {
-                    titleStart: string;
-                    description: string;
+                    titlePrimary: string;
+                    titleSecondary: string;
+                    descriptionPrefix: string;
+                    discount1: string;
+                    descriptionMiddle: string;
+                    discount2: string;
+                    descriptionSuffix: string;
                     small: string;
                 };
                 toggle: {
@@ -9822,8 +9857,13 @@ export declare const resources: {
                     chooseYourPlan: string;
                 };
                 banner: {
-                    titleStart: string;
-                    description: string;
+                    titlePrimary: string;
+                    titleSecondary: string;
+                    descriptionPrefix: string;
+                    discount1: string;
+                    descriptionMiddle: string;
+                    discount2: string;
+                    descriptionSuffix: string;
                     small: string;
                 };
                 toggle: {
@@ -11194,8 +11234,13 @@ export declare const resources: {
                     chooseYourPlan: string;
                 };
                 banner: {
-                    titleStart: string;
-                    description: string;
+                    titlePrimary: string;
+                    titleSecondary: string;
+                    descriptionPrefix: string;
+                    discount1: string;
+                    descriptionMiddle: string;
+                    discount2: string;
+                    descriptionSuffix: string;
                     small: string;
                 };
                 toggle: {
@@ -12566,8 +12611,13 @@ export declare const resources: {
                     chooseYourPlan: string;
                 };
                 banner: {
-                    titleStart: string;
-                    description: string;
+                    titlePrimary: string;
+                    titleSecondary: string;
+                    descriptionPrefix: string;
+                    discount1: string;
+                    descriptionMiddle: string;
+                    discount2: string;
+                    descriptionSuffix: string;
                     small: string;
                 };
                 toggle: {

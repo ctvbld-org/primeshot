@@ -7,5 +7,7 @@ export { AccountDialog } from '../web/AccountDialog';
 export { LanguageSwitcher } from '../web/LanguageSwitcher';
 export { PricingCards } from './PricingCards';
 export { SpecialOfferBanner } from './SpecialOfferBanner';
+export { CountdownTimer } from './CountdownTimer';
 export type { PricingCardsProps } from './PricingCards';
-export type { SpecialOfferBannerProps } from './SpecialOfferBanner'; 
+export type { SpecialOfferBannerProps } from './SpecialOfferBanner';
+export type { CountdownTimerProps } from './CountdownTimer'; 

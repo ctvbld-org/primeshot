@@ -7,9 +7,10 @@ interface HeaderProps {
   title: string | React.ReactNode;
   backgroundImage?: string;
   className?: string;
+  children?: React.ReactNode;
 }
 
-export default function ContentPageHeader({ title, backgroundImage, className = "" }: HeaderProps) {
+export default function ContentPageHeader({ title, backgroundImage, className = "", children }: HeaderProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -28,7 +29,7 @@ export default function ContentPageHeader({ title, backgroundImage, className = 
   }, [backgroundImage]);
 
   return (
-    <div className={styles.wrapper}>
+    <div className={styles.wrapper + ' ' + (children && styles.hasChildren)}>
       <div 
         ref={containerRef}
         className={`${styles.container} ${className}`}
@@ -54,6 +55,11 @@ export default function ContentPageHeader({ title, backgroundImage, className = 
         <div className={styles.contentWrapper}>
           <h1 className={`${styles.title} ${isVisible ? styles.visible : styles.hidden}`}>{title}</h1>
         </div>
+        {children && (
+          <div className={styles.childrenWrapper}>
+            {children}
+          </div>
+        )}
       </div>
     </div>
   );

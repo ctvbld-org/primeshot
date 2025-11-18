@@ -38,9 +38,14 @@
       "chooseYourPlan": "Scegli il tuo piano"
     },
     "banner": {
-      "titleStart": "Offerta a vita limitata",
-      "description": "Assicurati fino al 70% di sconto sui piani annuali, o il 50% sui piani mensili.",
-      "small": "Limitato a soli 300 membri. L'offerta a vita continua fino alla cancellazione."
+      "titlePrimary": "Black Friday",
+      "titleSecondary": "è qui!",
+      "descriptionPrefix": "Assicurati ",
+      "discount1": "fino al 70% di sconto",
+      "descriptionMiddle": " sui piani annuali, o ",
+      "discount2": "il 50% sui piani mensili",
+      "descriptionSuffix": ".",
+      "small": "L'offerta a vita continua fino alla cancellazione."
     },
     "toggle": {
       "monthly": "Mensile",

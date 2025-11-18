@@ -38,9 +38,14 @@
       "chooseYourPlan": "Elige tu plan"
     },
     "banner": {
-      "titleStart": "Oferta de por vida limitada",
-      "description": "Asegura hasta 70% de descuento en planes anuales, o 50% en planes mensuales.",
-      "small": "Limitado a solo 300 miembros. La oferta de por vida continúa hasta que canceles."
+      "titlePrimary": "Black Friday",
+      "titleSecondary": "está aquí!",
+      "descriptionPrefix": "Asegura ",
+      "discount1": "hasta 70% de descuento",
+      "descriptionMiddle": " en planes anuales, o ",
+      "discount2": "50% en planes mensuales",
+      "descriptionSuffix": ".",
+      "small": "La oferta de por vida continúa hasta que canceles."
     },
     "toggle": {
       "monthly": "Mensual",

@@ -38,9 +38,14 @@
       "chooseYourPlan": "プランを選択"
     },
     "banner": {
-      "titleStart": "期間限定の生涯オファー",
-      "description": "年間プランで最大70%オフ、または月間プランで50%オフを確保。",
-      "small": "300名様限定。生涯オファーはキャンセルまで継続されます。"
+      "titlePrimary": "ブラックフライデー",
+      "titleSecondary": "開催中！",
+      "descriptionPrefix": "",
+      "discount1": "年間プランで最大70%オフ",
+      "descriptionMiddle": "、または",
+      "discount2": "月間プランで50%オフ",
+      "descriptionSuffix": "を確保。",
+      "small": "生涯オファーはキャンセルまで継続されます。"
     },
     "toggle": {
       "monthly": "月間",

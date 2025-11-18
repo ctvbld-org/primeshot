@@ -38,9 +38,14 @@
       "chooseYourPlan": "Choisissez votre forfait"
     },
     "banner": {
-      "titleStart": "Offre à vie limitée",
-      "description": "Profitez de 70 % de réduction sur les forfaits annuels, ou 50 % sur les forfaits mensuels.",
-      "small": "Limité à 300 membres uniquement. L'offre à vie continue jusqu'à annulation."
+      "titlePrimary": "Black Friday",
+      "titleSecondary": "est là !",
+      "descriptionPrefix": "Profitez de ",
+      "discount1": "jusqu'à 70% de réduction",
+      "descriptionMiddle": " sur les forfaits annuels, ou ",
+      "discount2": "50% sur les forfaits mensuels",
+      "descriptionSuffix": ".",
+      "small": "L'offre à vie continue jusqu'à annulation."
     },
     "toggle": {
       "monthly": "Mensuel",

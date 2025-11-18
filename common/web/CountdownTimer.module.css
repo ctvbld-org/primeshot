@@ -1,0 +1,116 @@
+.countdownContainer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+}
+
+.timeUnit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 16px 20px;
+  height: 100%;
+  min-width: 76px;
+  gap: 8px;
+}
+
+.timeValue {
+  font-size: 36px;
+  line-height: 1;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+}
+
+.timeLabel {
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: lowercase;
+}
+
+
+@media (max-width: 1080px) {
+  .timeValue {
+    font-size: 28px;
+  } 
+  .timeLabel {
+    font-size: 11px;
+  }
+}
+
+.expiredText {
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+}
+
+/* Mobile responsive */
+@media (max-width: 900px) {
+  .countdownContainer {
+    gap: 8px;
+  }
+
+  .timeUnit {
+    padding: 12px 12px;
+    min-width: 60px;
+  }
+
+  .timeValue {
+    font-size: 24px;
+  }
+
+  .timeLabel {
+    font-size: 10px;
+  }
+
+  .expiredText {
+    font-size: 16px;
+    padding: 12px 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .countdownContainer {
+    gap: 6px;
+  }
+
+  .timeUnit {
+    padding: 10px 12px;
+    min-width: 60px;
+    border-radius: 8px;
+  }
+
+  .timeValue {
+    font-size: 24px;
+  }
+
+  .timeLabel {
+    font-size: 10px;
+  }
+
+  .expiredText {
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+}
+
+@media (max-width: 680px) {
+  .countdownContainer {
+    width: 100%;
+  }
+  .timeUnit {
+    flex: 1 1 25%;
+  }
+}

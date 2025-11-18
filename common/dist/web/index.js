@@ -7,3 +7,4 @@ export { AccountDialog } from '../web/AccountDialog';
 export { LanguageSwitcher } from '../web/LanguageSwitcher';
 export { PricingCards } from './PricingCards';
 export { SpecialOfferBanner } from './SpecialOfferBanner';
+export { CountdownTimer } from './CountdownTimer';

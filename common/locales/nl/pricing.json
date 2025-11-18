@@ -38,9 +38,14 @@
       "chooseYourPlan": "Kies je plan"
     },
     "banner": {
-      "titleStart": "Beperkt levenslang aanbod",
-      "description": "Profiteer van tot 70% korting op jaarplannen, of 50% op maandplannen.",
-      "small": "Beperkt tot slechts 300 leden. Levenslang aanbod loopt door tot je opzegt."
+      "titlePrimary": "Black Friday",
+      "titleSecondary": "is hier!",
+      "descriptionPrefix": "Profiteer van ",
+      "discount1": "tot 70% korting",
+      "descriptionMiddle": " op jaarplannen, of ",
+      "discount2": "50% op maandplannen",
+      "descriptionSuffix": ".",
+      "small": "Levenslang aanbod loopt door tot je opzegt."
     },
     "toggle": {
       "monthly": "Maandelijks",

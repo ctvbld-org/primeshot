@@ -64,6 +64,43 @@ serve(async (req) => {
       );
     }
 
+    // Add contact to Resend Audience (if configured)
+    let addedToAudience = false;
+    const audienceId = Deno.env.get("RESEND_AUDIENCE_ID");
+    
+    if (audienceId) {
+      try {
+        await fetch("https://api.resend.com/audiences/" + audienceId + "/contacts", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${resendKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        }).then(async (res) => {
+          if (!res.ok) {
+            const error = await res.json();
+            throw new Error(JSON.stringify(error));
+          }
+          return res.json();
+        });
+        addedToAudience = true;
+        console.log(`Contact ${email} added to Resend Audience ${audienceId}`);
+      } catch (audienceError: unknown) {
+        // Don't fail the entire request if audience addition fails
+        console.error('Failed to add contact to Resend Audience:', audienceError);
+        
+        // Check if contact already exists in audience (this is OK)
+        const errorMessage = audienceError instanceof Error ? audienceError.message : String(audienceError);
+        if (errorMessage.includes('already exists') || errorMessage.includes('Contact already exists')) {
+          console.log(`Contact ${email} already exists in Resend Audience`);
+          addedToAudience = true;
+        }
+      }
+    } else {
+      console.warn('RESEND_AUDIENCE_ID not configured - skipping audience addition');
+    }
+
     const name = getDisplayName(email, full_name ?? undefined);
     const { subject, html, text } = renderWelcomeEmail({ name, userId: id, locale: locale || 'en' });
 

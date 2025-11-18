@@ -5,6 +5,17 @@ export const carb = localFont({
   variable: '--font-carb',
   display: 'swap',
   src: [
+    // 700 (bold)
+    {
+      path: './assets/font/carb-bold-webfont.woff2',
+      weight: '700',
+      style: 'normal',
+    },
+    {
+      path: './assets/font/carb-bold-webfont.woff',
+      weight: '700',
+      style: 'normal',
+    },
     // 600 (semibold)
     {
       path: './assets/font/carb-semibold-webfont.woff2',

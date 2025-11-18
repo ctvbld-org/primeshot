@@ -2927,6 +2927,31 @@ Detected changes in:
 - webapp/src/components/pricing/SubscriptionDialogContent.tsx
 - website/src/app/[locale]/pricing/page.module.css
 - website/src/app/[locale]/pricing/page.tsx
+
+
+**Auto-update 2025-11-18**:
+Detected changes in:
+- admin/src/app/api/admin/characters/[characterId]/uploaded-images/route.ts
+- admin/src/app/api/admin/inference/[inferenceId]/generated-images/route.ts
+- admin/src/app/api/admin/users/[userId]/inference-jobs/route.ts
+- admin/src/app/api/admin/users/[userId]/training-jobs/route.ts
+- admin/src/app/api/media/thumbnail/route.ts
+- admin/src/app/api/s3/presign/route.ts
+- admin/src/components/dashboard/ImageGalleryViewer.tsx
+- admin/src/components/dashboard/InferenceJobsTable.tsx
+- admin/src/components/dashboard/TrainingJobsTable.tsx
+- admin/src/components/dashboard/UserDetailsDialog.tsx
+- admin/src/components/dashboard/conversion-analytics.tsx
+- admin/src/components/dashboard/subscription-analytics.tsx
+- admin/src/components/dashboard/top-users-leaderboard.tsx
+- admin/src/lib/api/adminUserDetails.ts
+- admin/src/lib/s3.ts
+- webapp/src/app/api/payment/credit-pack-checkout/route.ts
+- webapp/src/app/api/payment/webhook/route.ts
+- webapp/src/components/dashboard/CreditDashboard.tsx
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- website/src/components/InteractiveGenerateBar/HeroGrid.tsx
+- website/src/components/InteractiveGenerateBar/ShowcaseSection.module.css
 ## Component Organization
 
 Components are organized by feature and reusability:

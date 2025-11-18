@@ -8,10 +8,9 @@
 
 /* Special Offer Banner */
 .specialOfferBanner {
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 2rem;
-  max-width: 1280px !important;
+  padding: 0;
+  width: 100%;
+  max-width: none;
 }
 
 /* Tabs Wrapper */

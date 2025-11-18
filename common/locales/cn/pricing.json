@@ -38,9 +38,14 @@
       "chooseYourPlan": "选择您的套餐"
     },
     "banner": {
-      "titleStart": "限时终身优惠",
-      "description": "锁定年度套餐最高70%折扣，或月度套餐50%折扣。",
-      "small": "仅限300名会员。终身优惠持续到您取消为止。"
+      "titlePrimary": "黑色星期五",
+      "titleSecondary": "来了！",
+      "descriptionPrefix": "锁定",
+      "discount1": "年度套餐最高70%折扣",
+      "descriptionMiddle": "，或",
+      "discount2": "月度套餐50%折扣",
+      "descriptionSuffix": "。",
+      "small": "终身优惠持续到您取消为止。"
     },
     "toggle": {
       "monthly": "月付",

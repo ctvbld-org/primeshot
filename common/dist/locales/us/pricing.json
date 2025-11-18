@@ -38,9 +38,14 @@
       "chooseYourPlan": "Choose your plan"
     },
     "banner": {
-      "titleStart": "Limited lifetime offer",
-      "description": "Lock in up to 70% off annual plans, or 50% off monthly.",
-      "small": "Limited to 300 members only. Lifetime offer continues until canceled."
+      "titlePrimary": "Black Friday",
+      "titleSecondary": "is here!",
+      "descriptionPrefix": "Lock in ",
+      "discount1": "up to 70% off",
+      "descriptionMiddle": " annual plans, or ",
+      "discount2": "50% off",
+      "descriptionSuffix": " monthly.",
+      "small": "Lifetime offer continues until cancelled."
     },
     "toggle": {
       "monthly": "Monthly",

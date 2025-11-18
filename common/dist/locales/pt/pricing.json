@@ -38,9 +38,14 @@
       "chooseYourPlan": "Escolha o seu plano"
     },
     "banner": {
-      "titleStart": "Oferta vitalícia limitada",
-      "description": "Garante até 70% de desconto nos planos anuais, ou 50% nos planos mensais.",
-      "small": "Limitado a apenas 300 membros. A oferta vitalícia continua até cancelar."
+      "titlePrimary": "Black Friday",
+      "titleSecondary": "chegou!",
+      "descriptionPrefix": "Garante ",
+      "discount1": "até 70% de desconto",
+      "descriptionMiddle": " nos planos anuais, ou ",
+      "discount2": "50% nos planos mensais",
+      "descriptionSuffix": ".",
+      "small": "A oferta vitalícia continua até cancelar."
     },
     "toggle": {
       "monthly": "Mensal",

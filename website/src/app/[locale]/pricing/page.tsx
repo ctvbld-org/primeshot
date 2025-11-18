@@ -417,10 +417,10 @@ export default function PricingPage() {
       <ContentPageHeader 
         title={t('page.title')}
         backgroundImage={getWebsiteCdnUrl('/blindlight-01.webp')} 
-      />
-
-      {/* Special Offer Banner */}
-      {isSpecialOffer && !isLoading && <SpecialOfferBanner className={styles.specialOfferBanner} />}
+      >
+        {/* Special Offer Banner inside ContentPageHeader */}
+        {isSpecialOffer && !isLoading && <SpecialOfferBanner className={styles.specialOfferBanner} />}
+      </ContentPageHeader>
 
       {/* Pricing Plans */}
       <div className={styles.tabsWrapper}>

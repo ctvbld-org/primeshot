@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { CountdownTimer } from './CountdownTimer'
 import styles from './PricingCards.module.css'
 
 export interface SpecialOfferBannerProps {
@@ -12,23 +13,37 @@ export function SpecialOfferBanner({ className }: SpecialOfferBannerProps) {
   const { t } = useTranslation('pricing')
   const tp = (k: string, o?: any) => String((t as any)(k, o))
 
+  // Black Friday sale ends November 29, 2025 at 11:59 PM PST
+  const saleEndDate = new Date('2025-11-29T23:59:59-08:00')
+
   return (
     <div className={`${styles.specialOfferBanner} ${className || ''}`}>
       <div className={styles.bannerContainer}>
         <div className={styles.bannerLeft}>
-          <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M27.6523 3.78577C30.1446 1.61562 33.8554 1.61563 36.3477 3.78577L41.4884 8.26203C42.3846 9.04238 43.4743 9.56714 44.6432 9.78127L51.348 11.0095C54.5986 11.605 56.9123 14.5063 56.7695 17.8079L56.475 24.618C56.4237 25.8052 56.6928 26.9843 57.2542 28.0317L60.4743 34.0396C62.0354 36.9522 61.2097 40.5701 58.5394 42.517L53.0314 46.5327C52.0712 47.2328 51.3171 48.1784 50.8483 49.2703L48.1589 55.5337C46.855 58.5703 43.5116 60.1804 40.3245 59.3065L33.7507 57.504C32.6047 57.1898 31.3953 57.1898 30.2493 57.504L23.6755 59.3065C20.4884 60.1804 17.145 58.5703 15.8411 55.5337L13.1517 49.2703C12.6829 48.1784 11.9288 47.2328 10.9686 46.5327L5.46061 42.517C2.7903 40.5701 1.96455 36.9522 3.5257 34.0395L6.74582 28.0317C7.30718 26.9843 7.57631 25.8052 7.52497 24.618L7.23047 17.8079C7.08769 14.5063 9.40139 11.605 12.652 11.0095L19.3568 9.78127C20.5257 9.56714 21.6154 9.04238 22.5116 8.26203L27.6523 3.78577Z" fill="#ffffff"/>
-            <path d="M45.2445 22.0684L27.0376 40.2753L18.7617 31.9994" stroke="#FF491C" strokeWidth="4.41379" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <h2 className={styles.bannerTitle}>
-            <span>{tp('subscription.banner.titleStart')}</span>
-          </h2>
+          <div className={styles.bannerIcon}>
+            <svg width="49" height="65" viewBox="0 0 49 65" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9.23185 39.0703C10.2217 41.8899 11.7574 44.4868 13.7509 46.7129C15.7445 48.9392 18.1576 50.7509 20.8514 52.0448C23.5452 53.3387 26.4677 54.0899 29.4516 54.2545C32.4353 54.4189 35.4223 53.9944 38.2419 53.0047L41.4824 62.2356C37.4505 63.6509 33.1794 64.2586 28.9129 64.0234C24.6461 63.7882 20.4668 62.7151 16.6148 60.865C12.7628 59.0148 9.31297 56.4232 6.46225 53.2397C3.61166 50.0564 1.41543 46.343 9.19681e-09 42.3112L9.23185 39.0703ZM47.7868 21.4443C50.253 28.4694 46.557 36.1639 39.5319 38.6302L33.9323 40.5959L32.2904 35.9187L41.4504 32.7031L32.3505 6.78132L41.5105 3.5657L47.7868 21.4443ZM13.1808 0.352026C16.4149 -0.783308 19.9567 0.918079 21.0921 4.15209C22.2275 7.38618 20.5262 10.9281 17.2921 12.0635C14.058 13.1987 10.516 11.4974 9.38069 8.26339C8.24547 5.0294 9.94677 1.48743 13.1808 0.352026Z" fill="#2ADED8"/>
+            </svg>
+          </div>
+          <div className={styles.bannerContent}>
+            <h2 className={styles.bannerTitle}>
+              <span className={styles.bannerTitlePrimary}>{tp('subscription.banner.titlePrimary')}</span>
+              <span className={styles.bannerTitleSecondary}>{tp('subscription.banner.titleSecondary')}</span>
+            </h2>
+            <div className={styles.bannerDescriptionWrapper}>
+              <p className={styles.bannerDescription}>
+                {tp('subscription.banner.descriptionPrefix')}
+                <span className={styles.bannerHighlight1}>{tp('subscription.banner.discount1')}</span>
+                {tp('subscription.banner.descriptionMiddle')}
+                <span className={styles.bannerHighlight2}>{tp('subscription.banner.discount2')}</span>
+                {tp('subscription.banner.descriptionSuffix')}
+              </p>
+              <small className={styles.bannerSmall}>{tp('subscription.banner.small')}</small>
+            </div>
+          </div>
         </div>
         <div className={styles.bannerRight}>
-          <p className={styles.bannerDescription}>
-            {tp('subscription.banner.description')}
-          </p>
-          <small className={styles.bannerSmall}>{tp('subscription.banner.small')}</small>
+          <CountdownTimer targetDate={saleEndDate} className={styles.bannerCountdown} />
         </div>
       </div>
     </div>
