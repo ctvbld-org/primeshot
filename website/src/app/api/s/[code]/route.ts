@@ -21,6 +21,17 @@ export async function GET(
       .maybeSingle();
     
     if (shareLink) {
+      // Debug: Log retrieved share link
+      console.log('[Share Redirect] Share link found:', {
+        short_code: code,
+        style_id: shareLink.style_id,
+        scene_id: shareLink.scene_id,
+        wardrobe_id: shareLink.wardrobe_id,
+        color_id: shareLink.color_id,
+        quality: shareLink.quality,
+        aspect_ratio: shareLink.aspect_ratio
+      });
+      
       // Check if expired
       if (shareLink.expires_at && new Date(shareLink.expires_at) < new Date()) {
         return NextResponse.json({ redirectUrl: origin });
@@ -36,10 +47,18 @@ export async function GET(
       // Fetch the actual option values (not IDs) for the URL params
       const [style, scene, wardrobe, color] = await Promise.all([
         shareLink.style_id ? supabase.from('styles').select('id').eq('id', shareLink.style_id).maybeSingle() : Promise.resolve({ data: null }),
-        shareLink.scene_id ? supabase.from('scenes').select('value').eq('id', shareLink.scene_id).maybeSingle() : Promise.resolve({ data: null }),
-        shareLink.wardrobe_id ? supabase.from('wardrobes').select('value').eq('id', shareLink.wardrobe_id).maybeSingle() : Promise.resolve({ data: null }),
-        shareLink.color_id ? supabase.from('colors').select('value').eq('id', shareLink.color_id).maybeSingle() : Promise.resolve({ data: null }),
+        shareLink.scene_id ? supabase.from('style_scenes').select('value').eq('id', shareLink.scene_id).maybeSingle() : Promise.resolve({ data: null }),
+        shareLink.wardrobe_id ? supabase.from('style_wardrobes').select('value').eq('id', shareLink.wardrobe_id).maybeSingle() : Promise.resolve({ data: null }),
+        shareLink.color_id ? supabase.from('style_colors').select('value').eq('id', shareLink.color_id).maybeSingle() : Promise.resolve({ data: null }),
       ]);
+      
+      // Debug: Log fetched values
+      console.log('[Share Redirect] Fetched values:', {
+        style: style.data,
+        scene: scene.data,
+        wardrobe: wardrobe.data,
+        color: color.data
+      });
       
       // Build redirect URL with style parameters (using values, not IDs)
       const redirectUrl = new URL(`${origin}/create`);
@@ -50,6 +69,8 @@ export async function GET(
       if (color.data?.value) redirectUrl.searchParams.set('color', color.data.value);
       if (shareLink.quality) redirectUrl.searchParams.set('quality', shareLink.quality);
       if (shareLink.aspect_ratio) redirectUrl.searchParams.set('aspectRatio', shareLink.aspect_ratio);
+      
+      console.log('[Share Redirect] Final URL:', redirectUrl.toString());
       
       return NextResponse.json({ redirectUrl: redirectUrl.toString() });
     }

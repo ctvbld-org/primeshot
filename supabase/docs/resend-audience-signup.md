@@ -171,3 +171,4 @@ Failed to add contact to Resend Audience: [error details]
 - Contact email is the only field stored (no metadata yet)
 - Future: Could add contact metadata (signup source, user preferences, etc.)
 
+

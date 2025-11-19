@@ -83,3 +83,4 @@ COMMENT ON FUNCTION reset_subscription_quota(TEXT) IS
 -- Grant permissions
 GRANT EXECUTE ON FUNCTION reset_subscription_quota(TEXT) TO authenticated, service_role;
 
+

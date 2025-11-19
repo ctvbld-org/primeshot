@@ -2952,6 +2952,14 @@ Detected changes in:
 - webapp/src/components/pricing/SubscriptionDialogContent.tsx
 - website/src/components/InteractiveGenerateBar/HeroGrid.tsx
 - website/src/components/InteractiveGenerateBar/ShowcaseSection.module.css
+
+
+**Auto-update 2025-11-19**:
+Detected changes in:
+- website/src/app/[locale]/pricing/page.module.css
+- website/src/app/[locale]/pricing/page.tsx
+- website/src/components/ContentPageHeader.module.css
+- website/src/components/ContentPageHeader.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

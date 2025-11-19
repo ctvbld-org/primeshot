@@ -260,7 +260,7 @@
       }
     },
     "share": {
-      "text": "Check out my AI photoshoot! 📸✨\n\nCreated with Primeshot. Try it yourself:\n{{url}}\n",
+      "text": "My new AI shot! 🤩 Made with @primeshotai from a few selfies.\n\nCopy my shoot setup/style here: {{url}} - it's free to try!",
       "success": "Image shared successfully!",
       "copiedToClipboard": "Link copied to clipboard!",
       "error": "Failed to share image"

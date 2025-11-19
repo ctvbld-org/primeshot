@@ -21,11 +21,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (shareLink?.signed_image_url) {
     console.log('Share link found with signed URL:', shareLink.signed_image_url);
     return {
-      title: 'Check out my AI photoshoot! 📸✨ | Primeshot',
-      description: 'Created with Primeshot - Try it yourself!',
+      title: 'My new AI shot! 🤩 | Primeshot',
+      description: 'Made with @primeshotai from a few selfies - Copy my shoot setup/style, it\'s free to try!',
       openGraph: {
-        title: 'Check out my AI photoshoot! 📸✨',
-        description: 'Created with Primeshot\n\nTry it yourself!',
+        title: 'My new AI shot! 🤩',
+        description: 'Made with @primeshotai from a few selfies.\n\nCopy my shoot setup/style - it\'s free to try!',
         images: [
           {
             url: shareLink.signed_image_url,
@@ -38,8 +38,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
       twitter: {
         card: 'summary_large_image',
-        title: 'Check out my AI photoshoot! 📸✨',
-        description: 'Created with Primeshot\n\nTry it yourself!',
+        title: 'My new AI shot! 🤩',
+        description: 'Made with @primeshotai from a few selfies.\n\nCopy my shoot setup/style - it\'s free to try!',
         images: [shareLink.signed_image_url],
       },
     };

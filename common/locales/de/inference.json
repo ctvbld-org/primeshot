@@ -265,7 +265,7 @@
       "confirm": "Löschen"
     },
     "share": {
-      "text": "Schaut euch mein KI-Fotoshooting an! 📸✨\n\nErstellt mit Primeshot. Probiert es aus:\n{{url}}\n",
+      "text": "My new AI shot! 🤩 Made with @primeshotai from a few selfies.\n\nCopy my shoot setup/style here: {{url}} - it's free to try!",
       "success": "Bild erfolgreich geteilt!",
       "copiedToClipboard": "Link in Zwischenablage kopiert!",
       "error": "Fehler beim Teilen des Bildes"

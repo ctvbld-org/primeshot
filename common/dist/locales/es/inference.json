@@ -265,7 +265,7 @@
       "confirm": "Eliminar"
     },
     "share": {
-      "text": "¡Mira mi sesión de fotos con IA! 📸✨\n\nCreado con Primeshot. Pruébalo tú:\n{{url}}\n",
+      "text": "My new AI shot! 🤩 Made with @primeshotai from a few selfies.\n\nCopy my shoot setup/style here: {{url}} - it's free to try!",
       "success": "¡Imagen compartida con éxito!",
       "copiedToClipboard": "¡Enlace copiado al portapapeles!",
       "error": "Error al compartir la imagen"

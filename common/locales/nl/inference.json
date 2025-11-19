@@ -265,7 +265,7 @@
       "confirm": "Verwijderen"
     },
     "share": {
-      "text": "Bekijk mijn AI-fotoshoot! 📸✨\n\nGemaakt met Primeshot. Probeer het zelf:\n{{url}}\n",
+      "text": "My new AI shot! 🤩 Made with @primeshotai from a few selfies.\n\nCopy my shoot setup/style here: {{url}} - it's free to try!",
       "success": "Afbeelding succesvol gedeeld!",
       "copiedToClipboard": "Link gekopieerd naar klembord!",
       "error": "Fout bij delen van afbeelding"

@@ -265,7 +265,7 @@
       "confirm": "删除"
     },
     "share": {
-      "text": "看看我的 AI 照片！📸✨\n\n使用 Primeshot 创建。试试看：\n{{url}}\n",
+      "text": "My new AI shot! 🤩 Made with @primeshotai from a few selfies.\n\nCopy my shoot setup/style here: {{url}} - it's free to try!",
       "success": "图片分享成功！",
       "copiedToClipboard": "链接已复制到剪贴板！",
       "error": "分享图片失败"

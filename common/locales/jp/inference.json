@@ -265,7 +265,7 @@
       "confirm": "削除"
     },
     "share": {
-      "text": "AI フォトシュートをチェック！📸✨\n\nPrimeshot で作成。あなたも試してみて：\n{{url}}\n",
+      "text": "My new AI shot! 🤩 Made with @primeshotai from a few selfies.\n\nCopy my shoot setup/style here: {{url}} - it's free to try!",
       "success": "画像を共有しました！",
       "copiedToClipboard": "リンクをクリップボードにコピーしました！",
       "error": "画像の共有に失敗しました"

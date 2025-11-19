@@ -69,15 +69,15 @@ Implemented social media sharing functionality for generated images with URL sho
 - **Files**: `common/locales/*/inference.json` (all 10 languages)
 - Added translations for:
   - Share button label and aria-label
-  - Share text template: "Check out my AI photoshoot! 📸✨\n\nCreated with Primeshot. Try it yourself:\n{{url}}"
+  - Share text template: "My new AI shot! 🤩 Made with @primeshotai from a few selfies.\n\nCopy my shoot setup/style here: {{url}} - it's free to try!"
   - Success/error/clipboard messages
 - Languages: US, GB, FR, DE, ES, IT, PT, NL, CN, JP
 - **Copy Improvements**:
-  - ✅ Removed redundancy ("Created with Primeshot" appeared twice)
-  - ✅ Added engaging emojis (📸✨) for visual appeal
-  - ✅ More exciting language ("AI photoshoot" vs "new look")
-  - ✅ Stronger CTA ("Try it yourself" vs "Create your own")
-  - ✅ Better formatting with line breaks for readability
+  - ✅ More personal and engaging tone ("My new AI shot!")
+  - ✅ Includes Twitter handle (@primeshotai) for social attribution
+  - ✅ Emphasizes the "from a few selfies" simplicity
+  - ✅ Clear CTA to copy the setup/style
+  - ✅ Highlights "free to try" value proposition
 
 ## Share Flow
 
@@ -86,10 +86,9 @@ Implemented social media sharing functionality for generated images with URL sho
 3. Build short URL: `https://primeshot.ai/s/abc123`
 4. Create share text:
    ```
-   Check out my AI photoshoot! 📸✨
-   
-   Created with Primeshot. Try it yourself:
-   https://primeshot.ai/s/abc123
+   My new AI shot! 🤩 Made with @primeshotai from a few selfies.
+
+   Copy my shoot setup/style here: https://primeshot.ai/s/abc123 - it's free to try!
    ```
 5. **Attempt to share** via Web Share API or clipboard
 6. **Only if share succeeds**: Create DB entry with the short code

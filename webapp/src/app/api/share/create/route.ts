@@ -27,6 +27,17 @@ export async function POST(request: NextRequest) {
     const body: CreateShareLinkRequest = await request.json();
     const { shortCode: providedCode, imageUrl, styleId, sceneId, wardrobeId, colorId, quality, aspectRatio } = body;
     
+    // Debug logging to verify received parameters
+    console.log('[Share Create] Received parameters:', {
+      styleId,
+      sceneId,
+      wardrobeId,
+      colorId,
+      quality,
+      aspectRatio,
+      hasImageUrl: !!imageUrl
+    });
+    
     // Validate that at least one parameter is provided
     if (!styleId && !sceneId && !wardrobeId && !colorId) {
       return NextResponse.json({ 
@@ -107,20 +118,24 @@ export async function POST(request: NextRequest) {
     const expiresAt = new Date();
     expiresAt.setFullYear(expiresAt.getFullYear() + 1);
     
+    // Debug: Log what we're about to insert
+    const insertData = {
+      short_code: shortCode,
+      style_id: styleId,
+      scene_id: sceneId,
+      wardrobe_id: wardrobeId,
+      color_id: colorId,
+      quality,
+      aspect_ratio: aspectRatio,
+      user_id: user.id,
+      expires_at: expiresAt.toISOString(),
+      signed_image_url: publicImageUrl
+    };
+    console.log('[Share Create] Inserting into DB:', insertData);
+    
     const { data, error } = await supabase
       .from('share_links')
-      .insert({
-        short_code: shortCode,
-        style_id: styleId,
-        scene_id: sceneId,
-        wardrobe_id: wardrobeId,
-        color_id: colorId,
-        quality,
-        aspect_ratio: aspectRatio,
-        user_id: user.id,
-        expires_at: expiresAt.toISOString(),
-        signed_image_url: publicImageUrl // Store the public image URL
-      })
+      .insert(insertData)
       .select()
       .single();
     
