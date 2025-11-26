@@ -5,8 +5,9 @@ import { useQuery } from '@tanstack/react-query'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@primeshot/common/web/ui/card'
 import { Avatar } from '@primeshot/common/web/ui/avatar'
 import { Badge } from '@primeshot/common/web/ui/badge'
+import { Button } from '@primeshot/common/web/ui/button'
 import { createClient } from '@/lib/supabase/client'
-import { Trophy, Medal, Award, Wifi, WifiOff } from 'lucide-react'
+import { Trophy, Medal, Award, Wifi, WifiOff, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription'
 import { UserDetailsDialog } from './UserDetailsDialog'
 
@@ -20,12 +21,13 @@ interface TopUser {
   subscription_plan: string | null
 }
 
-async function fetchTopUsers(): Promise<TopUser[]> {
+async function fetchTopUsers(page: number): Promise<TopUser[]> {
   const supabase = createClient()
+  const offset = page * 10
   
   // Get top users by generation count
   const { data: topGenerators, error } = await supabase
-    .rpc('get_top_users_by_generations', { limit_count: 10 })
+    .rpc('get_top_users_by_generations', { limit_count: 10, offset_count: offset })
   
   if (error) {
     // If the RPC doesn't exist, fall back to manual query
@@ -58,23 +60,26 @@ async function fetchTopUsers(): Promise<TopUser[]> {
     
     return processedUsers
       .sort((a, b) => b.generation_count - a.generation_count)
-      .slice(0, 10)
+      .slice(offset, offset + 10)
   }
   
   return topGenerators || []
 }
 
-function getPositionIcon(position: number) {
-  switch (position) {
-    case 1:
-      return <Trophy className="h-5 w-5 text-yellow-500" />
-    case 2:
-      return <Medal className="h-5 w-5 text-gray-400" />
-    case 3:
-      return <Award className="h-5 w-5 text-orange-600" />
-    default:
-      return <span className="text-sm font-medium text-muted-foreground">{position}</span>
+function getPositionIcon(position: number, isFirstPage: boolean) {
+  if (isFirstPage) {
+    switch (position) {
+      case 1:
+        return <Trophy className="h-5 w-5 text-yellow-500" />
+      case 2:
+        return <Medal className="h-5 w-5 text-gray-400" />
+      case 3:
+        return <Award className="h-5 w-5 text-orange-600" />
+      default:
+        return <span className="text-sm font-medium text-muted-foreground">{position}</span>
+    }
   }
+  return <span className="text-sm font-medium text-muted-foreground">{position}</span>
 }
 
 function getPlanBadgeVariant(plan: string | null): "default" | "secondary" | "outline" {
@@ -87,10 +92,11 @@ function getPlanBadgeVariant(plan: string | null): "default" | "secondary" | "ou
 export function TopUsersLeaderboard() {
   const [selectedUser, setSelectedUser] = useState<TopUser | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [page, setPage] = useState(0)
   
   const { data: users, isLoading, refetch } = useQuery({
-    queryKey: ['top-users'],
-    queryFn: fetchTopUsers,
+    queryKey: ['top-users', page],
+    queryFn: () => fetchTopUsers(page),
     refetchInterval: 60000, // Refresh every minute as fallback
   })
 
@@ -136,24 +142,53 @@ export function TopUsersLeaderboard() {
     )
   }
 
+  const startPosition = page * 10 + 1
+  const endPosition = page * 10 + (users?.length || 0)
+  const hasNextPage = users && users.length === 10
+
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center gap-2">
-          <CardTitle className="text-base font-medium">Top Users</CardTitle>
-          {isConnected ? (
-            <div title="Live updates enabled">
-              <Wifi className="h-4 w-4 text-green-500" />
-            </div>
-          ) : connectionError ? (
-            <div title={`Connection error: ${connectionError}`}>
-              <WifiOff className="h-4 w-4 text-red-500" />
-            </div>
-          ) : (
-            <div title="Connecting to live updates...">
-              <WifiOff className="h-4 w-4 text-gray-400" />
-            </div>
-          )}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-base font-medium">Top Users</CardTitle>
+            {isConnected ? (
+              <div title="Live updates enabled">
+                <Wifi className="h-4 w-4 text-green-500" />
+              </div>
+            ) : connectionError ? (
+              <div title={`Connection error: ${connectionError}`}>
+                <WifiOff className="h-4 w-4 text-red-500" />
+              </div>
+            ) : (
+              <div title="Connecting to live updates...">
+                <WifiOff className="h-4 w-4 text-gray-400" />
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(p => Math.max(0, p - 1))}
+              disabled={page === 0 || isLoading}
+              className="h-8 w-8 p-0"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="text-xs text-muted-foreground min-w-[80px] text-center">
+              {startPosition}-{endPosition}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(p => p + 1)}
+              disabled={!hasNextPage || isLoading}
+              className="h-8 w-8 p-0"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
         <CardDescription className="text-xs mt-1 text-[#666666]">
           Most active users by image generations {isConnected && '• Live updates'}
@@ -162,7 +197,7 @@ export function TopUsersLeaderboard() {
       <CardContent>
         <div className="space-y-4">
           {users.map((user, index) => {
-            const position = index + 1
+            const position = page * 10 + index + 1
             const initials = user.full_name
               ?.split(' ')
               .map(n => n[0])
@@ -185,7 +220,7 @@ export function TopUsersLeaderboard() {
               >
                 <div className="flex items-center space-x-4">
                   <div className="w-8 flex justify-center">
-                    {getPositionIcon(position)}
+                    {getPositionIcon(position, page === 0)}
                   </div>
                   <Avatar
                     src={user.avatar_url}

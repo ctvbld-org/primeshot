@@ -16,3 +16,4 @@ comment on column public.styles.color_mode is
 create index idx_styles_color_mode on public.styles(color_mode);
 
 
+

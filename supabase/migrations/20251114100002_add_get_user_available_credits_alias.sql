@@ -18,3 +18,4 @@ $$;
 GRANT EXECUTE ON FUNCTION get_user_available_credits(UUID) TO authenticated, service_role;
 
 
+
