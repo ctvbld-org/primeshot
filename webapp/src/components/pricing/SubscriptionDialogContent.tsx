@@ -266,7 +266,7 @@ export function SubscriptionDialogContent({
 
   return (
     <>
-      {isSpecialOffer && <SpecialOfferBanner />}
+      {/* {isSpecialOffer && <SpecialOfferBanner />} */}
     <div className={styles.pricingContainer}>
       {/* Context-specific header */}
       <div className={styles.headerWrap + ' ' + styles.headerWrapRow}>
