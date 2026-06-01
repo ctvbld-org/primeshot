@@ -2,6 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
+- **2026-06-01 13:03:02** (ctvbld): Update Admin package
 - **2025-09-22 14:49:26** (ctvbld): Resend update + Vercelanalytics
 - **2025-09-22 09:00:28** (ctvbld): Website: Added randomness to image load
 - **2025-09-22 08:57:54** (ctvbld): Website: Added gradient overlay
