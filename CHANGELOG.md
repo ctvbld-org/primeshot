@@ -2,6 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
+- **2026-09-14 15:04:06** (ctvbld): Fixed: Admin profile no working
 - **2026-09-11 13:15:00** (David): Point S3/CDN config at env vars for AWS account migration; default bucket primeshot-uploads-02
 
 - **2026-06-01 13:07:55** (ctvbld): Update Admin package

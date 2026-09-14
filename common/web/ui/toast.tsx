@@ -24,6 +24,7 @@ const toastVariants = cva(styles.toast, {
   variants: {
     variant: {
       default: styles.default,
+      success: styles.default,
       destructive: styles.destructive,
     },
   },
