@@ -139,12 +139,12 @@ export async function loadModels(forceReload = false) {
     
     // Get CDN base URL from environment variable
     const cdnBase = process.env.NEXT_PUBLIC_AWS_DISTRIBUTION || '';
-    
-    // Use self-hosted MediaPipe assets to avoid ad blocker issues
-    // Falls back to public CDN if not configured
-    const wasmPath = cdnBase 
-      ? `${cdnBase}/mediapipe/wasm`
-      : 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm';
+
+    // Load WASM same-origin so WebAssembly.compileStreaming gets
+    // Content-Type: application/wasm. Direct S3 URLs fail that check
+    // (wrong MIME and/or a cached octet-stream response).
+    const appBasePath = process.env.NEXT_PUBLIC_VERCEL_TARGET_ENV !== 'local' ? '/create' : '';
+    const wasmPath = `${appBasePath}/mediapipe/wasm`;
     
     const faceDetectorPath = cdnBase
       ? `${cdnBase}/mediapipe/blaze_face_short_range.tflite`

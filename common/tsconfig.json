@@ -6,15 +6,14 @@
     "declaration": true,
     "declarationDir": "dist",
     "jsx": "react-jsx",
-    "baseUrl": ".",
     "noImplicitAny": false,
     "paths": {
       "@/*": ["./*"],
       "@primeshot/common/*": ["./*"],
-      "@/components/*": ["web/*"],
-      "@/hooks/*": ["hooks/*"],
-      "@/lib/*": ["lib/*"],
-      "@/types/*": ["types/*"]
+      "@/components/*": ["./web/*"],
+      "@/hooks/*": ["./hooks/*"],
+      "@/lib/*": ["./lib/*"],
+      "@/types/*": ["./types/*"]
     }
   },
   "include": ["hooks", "web", "lib", "types", "index.ts", "global.d.ts"]

@@ -97,6 +97,7 @@ export function CharacterTrainingDialog({ onComplete, wrapWithDialog = true }: C
   
   // Always start with onboarding intro step
   const [currentStep, setCurrentStep] = useState<DialogStep>('onboarding-intro')
+  const cdn = (process.env.NEXT_PUBLIC_AWS_DISTRIBUTION || '').replace(/\/$/, '')
   const [stepData, setStepData] = useState<StepData>({
     uploadedFiles: [],
     qualityResults: {},
@@ -109,8 +110,8 @@ export function CharacterTrainingDialog({ onComplete, wrapWithDialog = true }: C
         description: t('character:onboarding.guidelines.naturalLight.description'),
         icon: 'sun',
         images: [
-          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/natural-light-2-w320.webp', alt: t('character:onboarding.guidelines.naturalLight.goodAlt') },
-          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/natural-light-1-w320.webp', alt: t('character:onboarding.guidelines.naturalLight.badAlt') }
+          { src: `${cdn}/app-images/character-onboarding/natural-light-2-w320.webp`, alt: t('character:onboarding.guidelines.naturalLight.goodAlt') },
+          { src: `${cdn}/app-images/character-onboarding/natural-light-1-w320.webp`, alt: t('character:onboarding.guidelines.naturalLight.badAlt') }
         ]
       },
       {
@@ -119,8 +120,8 @@ export function CharacterTrainingDialog({ onComplete, wrapWithDialog = true }: C
         description: t('character:onboarding.guidelines.angles.description'),
         icon: 'angles',
         images: [
-          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/angles-1-w320.webp', alt: t('character:onboarding.guidelines.angles.goodAlt') },
-          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/angles-2-w320.webp', alt: t('character:onboarding.guidelines.angles.badAlt') }
+          { src: `${cdn}/app-images/character-onboarding/angles-1-w320.webp`, alt: t('character:onboarding.guidelines.angles.goodAlt') },
+          { src: `${cdn}/app-images/character-onboarding/angles-2-w320.webp`, alt: t('character:onboarding.guidelines.angles.badAlt') }
         ]
       },
       {
@@ -129,8 +130,8 @@ export function CharacterTrainingDialog({ onComplete, wrapWithDialog = true }: C
         description: t('character:onboarding.guidelines.expressions.description'),
         icon: 'smilyFace',
         images: [
-          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/expression-2-w320.webp', alt: t('character:onboarding.guidelines.expressions.goodAlt') },
-          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/expression-1-w320.webp', alt: t('character:onboarding.guidelines.expressions.badAlt') }
+          { src: `${cdn}/app-images/character-onboarding/expression-2-w320.webp`, alt: t('character:onboarding.guidelines.expressions.goodAlt') },
+          { src: `${cdn}/app-images/character-onboarding/expression-1-w320.webp`, alt: t('character:onboarding.guidelines.expressions.badAlt') }
         ]
       },
       {
@@ -140,8 +141,8 @@ export function CharacterTrainingDialog({ onComplete, wrapWithDialog = true }: C
         description2: t('character:onboarding.guidelines.variety.description2'),
         icon: 'variety',
         images: [
-          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/variety-1-w320.webp', alt: t('character:onboarding.guidelines.variety.goodAlt') },
-          { src: 'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/variety-2-w320.webp', alt: t('character:onboarding.guidelines.variety.badAlt') }
+          { src: `${cdn}/app-images/character-onboarding/variety-1-w320.webp`, alt: t('character:onboarding.guidelines.variety.goodAlt') },
+          { src: `${cdn}/app-images/character-onboarding/variety-2-w320.webp`, alt: t('character:onboarding.guidelines.variety.badAlt') }
         ]
       }
     ]

@@ -15,6 +15,12 @@ node_modules/
 .env.staging
 .env.production
 
+# AWS migration secrets (never commit)
+scripts/.aws-migration-output.env
+scripts/.aws-cf-keys/
+scripts/.aws-modal-secret.env
+scripts/.aws-modal-secret-old.env
+
 # Editor directories and files
 .idea
 .vscode

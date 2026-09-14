@@ -1,4 +1,10 @@
 import type { NextConfig } from "next";
+import { createRequire } from "module";
+
+const require = createRequire(import.meta.url);
+const { addAwsImageHosts } = require("../common/lib/utils/aws-image-hosts.cjs") as {
+  addAwsImageHosts: (patterns: { protocol?: string; hostname: string }[]) => void;
+};
 
 const nextConfig: NextConfig = {
   images: {
@@ -102,5 +108,7 @@ const nextConfig: NextConfig = {
   basePath: '',
   assetPrefix: '',
 };
+
+addAwsImageHosts(nextConfig.images?.remotePatterns || []);
 
 export default nextConfig;

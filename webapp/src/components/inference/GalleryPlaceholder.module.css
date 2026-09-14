@@ -209,16 +209,16 @@
 }
 
 .portrait:first-child {
-  background-image: url("https://d3el9qajjnmn76.cloudfront.net/website-images/example-generated-1-w320.webp");
+  background-image: var(--cdn-example-generated-1);
 }
 
 .portrait:nth-child(2) {
-  background-image: url("https://d3el9qajjnmn76.cloudfront.net/website-images/example-generated-2-w320.webp");
+  background-image: var(--cdn-example-generated-2);
 }
 
 .accentBlock {
   position: relative;
-  background: url("https://d3el9qajjnmn76.cloudfront.net/path=website-images/example-generated-1-w320.webp");
+  background: var(--cdn-example-generated-1);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

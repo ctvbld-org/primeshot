@@ -181,9 +181,15 @@ export const createPresignedGetUrl = async (key: string) => {
       throw new Error('Invalid key provided for presigned URL');
     }
 
-    // Use CloudFront signed URLs for protected paths
-    if (key.startsWith('source-images/') || key.startsWith('generated-images/')) {
-      return await getCloudFrontSignedUrl(key);
+    // CloudFront signed URLs for legacy prefixes when a CF distribution is configured
+    const distribution = process.env.NEXT_PUBLIC_AWS_DISTRIBUTION || '';
+    const useCloudFront = /cloudfront\.net|cdn\.primeshot\.ai/i.test(distribution);
+    if (useCloudFront && (key.startsWith('source-images/') || key.startsWith('generated-images/'))) {
+      try {
+        return await getCloudFrontSignedUrl(key);
+      } catch (error) {
+        console.warn('CloudFront signing failed, falling back to S3 presign:', error);
+      }
     }
     
     // For other paths, use S3 presigned URLs

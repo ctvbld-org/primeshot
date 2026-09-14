@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const path = require('path')
+const { addAwsImageHosts } = require('../common/lib/utils/aws-image-hosts.cjs')
 const isProd = process.env.NEXT_PUBLIC_VERCEL_TARGET_ENV !== 'local'
 
 const nextConfig = {
@@ -69,13 +70,17 @@ const nextConfig = {
     ],
     qualities: [75, 80, 85, 90, 100],
   },
-  // compiler: {
-  //   removeConsole: {
-  //     exclude: ['error'],
-  //   },
-  // },
   reactStrictMode: false,
-  // Add proper MIME type for WASM files to fix MediaPipe loading
+  async rewrites() {
+    const dist = (process.env.NEXT_PUBLIC_AWS_DISTRIBUTION || '').replace(/\/$/, '')
+    if (!dist) return []
+    return [
+      {
+        source: '/mediapipe/:path*',
+        destination: `${dist}/mediapipe/:path*`,
+      },
+    ]
+  },
   headers: async () => {
     return [
       {
@@ -87,9 +92,20 @@ const nextConfig = {
           },
         ],
       },
+      {
+        source: '/mediapipe/:path*.wasm',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/wasm',
+          },
+        ],
+      },
     ]
   },
 }
+
+addAwsImageHosts(nextConfig.images.remotePatterns)
 
 // Add dynamic hostname from environment variable if available
 if (process.env.NEXT_PUBLIC_APP_URL) {

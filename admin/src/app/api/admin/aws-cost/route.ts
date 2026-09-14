@@ -126,7 +126,7 @@ async function getS3Metrics(startDate: string, endDate: string) {
       const dimensions = [
         {
           Name: 'BucketName',
-          Value: process.env.AWS_S3_BUCKET || 'primeshot-uploads-01'
+          Value: process.env.AWS_S3_BUCKET || ''
         }
       ]
 
@@ -148,7 +148,7 @@ async function getS3Metrics(startDate: string, endDate: string) {
         Dimensions: dimensions
       })
 
-      console.log(`Fetching S3 metric: ${metric.name} for bucket: ${process.env.AWS_S3_BUCKET || 'primeshot-uploads-01'}`)
+      console.log(`Fetching S3 metric: ${metric.name} for bucket: ${process.env.AWS_S3_BUCKET}`)
       const response = await cloudwatch?.send(command)
       console.log(`S3 metric ${metric.name} returned ${response?.Datapoints?.length || 0} datapoints`)
       

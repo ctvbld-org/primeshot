@@ -282,7 +282,7 @@
   align-items: center;
   padding: 24px 36px;
   gap: 32px;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.3) 100%), url(https://d3el9qajjnmn76.cloudfront.net/website-images/landing-page-3-w1280.webp), #000000;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.3) 100%), var(--cdn-landing-page-3), #000000;
   border-radius: 26px;  
   background-position: 0px -295px;
 }

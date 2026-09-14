@@ -37,7 +37,7 @@ export function buildSubjectCompact(meta: any): string {
   const bodyType = (meta?.body_type || '').toString().trim()
   const skinTone = (meta?.skin_tone || '').toString().trim()
   const eyesColor = (meta?.eyes?.color || '').toString().trim()
-  const hair = meta?.hair.present === "false" ? false : meta?.hair
+  const hair = meta?.hair?.present === "false" ? false : meta?.hair
   const ethnicity = (meta?.ethnicity || '').toString().trim()
   let phrase = base
 
@@ -89,7 +89,7 @@ export function buildSubjectCompact(meta: any): string {
  */
 export function addArticleToColor(colorValue: string): string {
   if (!colorValue || typeof colorValue !== 'string') return colorValue
-  const trimmed = colorValue.trim()
+  const trimmed = colorValue.trim().replace(/-/g, ' ')
   if (!trimmed) return colorValue
   
   const needsAn = /^[aeiou]/i.test(trimmed)
@@ -181,56 +181,52 @@ export function fillStylePrompt(
   template: string,
   args: { meta: any; wardrobe?: string; scene?: string; atmosphere?: string }
 ): string {
+  const meta = args?.meta || {}
+  let subjectText = 'subject'
   try {
-    const meta = args?.meta || {}
-    const subjectText = buildSubjectCompact(meta)
+    subjectText = buildSubjectCompact(meta) || 'subject'
+  } catch (e) {
+    console.warn('buildSubjectCompact failed; using fallback subject', e)
+  }
 
-    const sceneText = String(args?.scene ?? '')
-    let wardrobeText = String(args?.wardrobe ?? '')
-    const atmosphereText = String(args?.atmosphere ?? '')
+  const sceneText = String(args?.scene ?? '')
+  let wardrobeText = String(args?.wardrobe ?? '')
+  const atmosphereText = String(args?.atmosphere ?? '')
 
-    // Append head covering to wardrobe if present
-    // Format: "Wearing [wardrobe], and with a pink hijab"
+  try {
     const headCoveringText = buildHeadCoveringForWardrobe(meta)
     if (headCoveringText) {
       if (wardrobeText) {
         wardrobeText = `${wardrobeText}, ${headCoveringText}`
       } else {
-        // If no wardrobe but head covering exists, strip "and with" prefix
         wardrobeText = headCoveringText.replace(/^and with /, 'with ')
       }
     }
-
-    let result = String(template || '')
-
-    const replacements: Record<string, string> = {
-      subject: subjectText,
-      scene: sceneText,
-      wardrobe: wardrobeText,
-      atmosphere: atmosphereText,
-    }
-
-    for (const key of Object.keys(replacements)) {
-      const value = replacements[key] ?? ''
-      const re = new RegExp(`\\[${key}\\]`, 'g')
-      result = result.replace(re, value)
-    }
-
-    // Cleanup common artifacts when optional placeholders are empty
-    // Remove sequences like "with ," that appear when [eyes] is empty in "with [eyes],"
-    result = result.replace(/\bwith\s*,/gi, '')
-    // Remove "Wearing ." if wardrobe is empty
-    result = result.replace(/\bWearing\s*\./g, '')
-    // Fix stray double spaces before punctuation
-    result = result.replace(/\s+([,\.])/g, '$1')
-    // Collapse multiple spaces
-    result = result.replace(/\s{2,}/g, ' ').trim()
-
-    return result
-  } catch (_e) {
-    // Fail-safe: return template unchanged on unexpected errors
-    return String(template || '')
+  } catch (e) {
+    console.warn('buildHeadCoveringForWardrobe failed', e)
   }
+
+  let result = String(template || '')
+
+  const replacements: Record<string, string> = {
+    subject: subjectText,
+    scene: sceneText,
+    wardrobe: wardrobeText,
+    atmosphere: atmosphereText,
+  }
+
+  for (const key of Object.keys(replacements)) {
+    const value = replacements[key] ?? ''
+    const re = new RegExp(`\\[${key}\\]`, 'g')
+    result = result.replace(re, value)
+  }
+
+  result = result.replace(/\bwith\s*,/gi, '')
+  result = result.replace(/\bWearing\s*\./g, '')
+  result = result.replace(/\s+([,\.])/g, '$1')
+  result = result.replace(/\s{2,}/g, ' ').trim()
+
+  return result
 }
 
 

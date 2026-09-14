@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+- **2026-09-11 13:15:00** (David): Point S3/CDN config at env vars for AWS account migration; default bucket primeshot-uploads-02
+
+- **2026-06-01 13:07:55** (ctvbld): Update Admin package
 - **2026-06-01 13:03:02** (ctvbld): Update Admin package
 - **2025-09-22 14:49:26** (ctvbld): Resend update + Vercelanalytics
 - **2025-09-22 09:00:28** (ctvbld): Website: Added randomness to image load

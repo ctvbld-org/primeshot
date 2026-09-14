@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const path = idx >= 0 ? `/${original.slice(idx)}` : original
 
     // Prefer explicit assets base url, otherwise default to CloudFront
-    const base = process.env.NEXT_PUBLIC_ASSETS_BASE_URL || 'https://d3el9qajjnmn76.cloudfront.net'
+    const base = process.env.NEXT_PUBLIC_AWS_DISTRIBUTION || process.env.NEXT_PUBLIC_ASSETS_BASE_URL || ''
     const resolved = `${base}${path.startsWith('/') ? '' : '/'}${path}`
     return NextResponse.json({ url: resolved })
   } catch (error) {

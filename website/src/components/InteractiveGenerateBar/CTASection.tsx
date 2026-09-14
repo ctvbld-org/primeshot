@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
+import { makeCloudfrontLoader } from '@/lib/utils/cloudfrontLoader'
 import { Button } from '@primeshot/common/web/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, VisuallyHidden } from '@primeshot/common/web/ui/dialog'
 import { Icon, SignInForm } from '@primeshot/common/web'
-import { getWebsiteCdnUrl } from '@primeshot/common/lib/utils/cdn'
 import { useAuth } from '@/contexts/auth-context'
 import { useSubscriptionStatus } from '@/hooks/useSubscriptionStatus'
 import { useGenerationIntent } from '@/hooks/useGenerationIntent'
@@ -110,7 +110,8 @@ export function CTASection() {
       {/* Background Image */}
       <div className={styles.backgroundContainer}>
         <Image
-          src={getWebsiteCdnUrl('/homepage/15.webp')}
+          src="homepage/15.webp"
+          loader={makeCloudfrontLoader('website-images')}
           alt="Background"
           fill
           className={styles.backgroundImage}

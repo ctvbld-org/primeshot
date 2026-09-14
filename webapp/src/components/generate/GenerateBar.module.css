@@ -329,6 +329,11 @@
   padding: 0; 
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+  cursor: grab;
+}
+.carouselViewport:global(.is-drag-scrolling) {
+  cursor: grabbing;
+  user-select: none;
 }
 .fadeSwitch { 
   transition: opacity 280ms cubic-bezier(.2,.7,.2,1); 

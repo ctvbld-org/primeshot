@@ -122,9 +122,9 @@ export async function getInferenceSettings(supabase: any): Promise<{
     return {
       qualities: ['1K','2K','4K'],
       quality_labels: { '1K': 'Basic', '2K': 'Medium', '4K': 'High' },
-      nb_takes_options: [5,15,20],
-      aspect_ratios: ['4:5','16:9','1:1','3:4'],
-      defaults: { quality: '1K', nb_takes: 5, aspect_ratio: '4:5' }
+      nb_takes_options: [4,8,16],
+      aspect_ratios: ['2:3','1:1','3:2'],
+      defaults: { quality: '2K', nb_takes: 4, aspect_ratio: '1:1' }
     };
   }
 
@@ -133,9 +133,9 @@ export async function getInferenceSettings(supabase: any): Promise<{
   const settings = {
     qualities: map['qualities'] || ['1K','2K','4K'],
     quality_labels: map['quality_labels'] || { '1K': 'Basic', '2K': 'Medium', '4K': 'High' },
-    nb_takes_options: map['nb_takes_options'] || [5,15,20],
+    nb_takes_options: map['nb_takes_options'] || [4,8,16],
     aspect_ratios: map['aspect_ratios'] || ['2:3','1:1','3:2'],
-    defaults: map['defaults'] || { quality: '1K', nb_takes: 5, aspect_ratio: '1:1' },
+    defaults: map['defaults'] || { quality: '2K', nb_takes: 4, aspect_ratio: '1:1' },
   } as const;
 
   cachedInferenceSettings = settings as any;

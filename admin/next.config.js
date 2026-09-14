@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const path = require('path')
+const { addAwsImageHosts } = require('../common/lib/utils/aws-image-hosts.cjs')
 const isProd = process.env.NEXT_PUBLIC_VERCEL_TARGET_ENV !== 'local'
 
 const nextConfig = {
@@ -69,8 +70,10 @@ const nextConfig = {
   //   removeConsole: {
   //     exclude: ['error'],
   //   },
-  // },
+  //   },
 }
+
+addAwsImageHosts(nextConfig.images.remotePatterns)
 
 // Add dynamic hostname from environment variable if available
 if (process.env.NEXT_PUBLIC_APP_URL) {

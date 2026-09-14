@@ -23,7 +23,7 @@ import { CreditBalanceProvider } from '@/contexts/credit-balance-context'
 import QueryParamCleaner from '@/components/shared/QueryParamCleaner'
 import { PurchaseSuccessHandler } from '@/components/providers/PurchaseSuccessHandler'
 import { CrispInitializer } from '@/components/providers/CrispInitializer'
-import { getWebsiteCdnUrl } from '@primeshot/common/lib/utils/cdn'
+import { getWebsiteCdnUrl, getCdnCssVars } from '@primeshot/common/lib/utils/cdn'
 
 const inter = Inter({
   subsets: ["latin"],
@@ -120,6 +120,7 @@ export default async function RootLayout({
         <link rel="icon" type="image/png" sizes="96x96" href={getWebsiteCdnUrl('favicon-96x96.png')} />
         <link rel="apple-touch-icon" href={getWebsiteCdnUrl('apple-touch-icon.png')} />
         <link rel="apple-touch-icon" sizes="180x180" href={getWebsiteCdnUrl('apple-touch-icon.png')} />
+        {getCdnCssVars() ? <style dangerouslySetInnerHTML={{ __html: getCdnCssVars() }} /> : null}
       </head>
       <body className={`${carb.variable} ${inter.className} dark`}>
         <I18nServerProvider language={serverLanguage}>

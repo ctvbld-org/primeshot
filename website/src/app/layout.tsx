@@ -2,6 +2,7 @@ import './globals.css'
 import { Inter } from 'next/font/google'
 import { carb } from '@primeshot/common'
 import { headers, cookies } from 'next/headers'
+import { getCdnCssVars } from '@primeshot/common/lib/utils/cdn'
 
 const SUPPORTED_LOCALES = ['us','gb','cn','es','fr','pt','de','jp','it','nl'] as const;
 
@@ -113,6 +114,9 @@ export default async function RootLayout({
   
   return (
     <html lang="en" className={`${carb.variable} bg-[#000000]`}>
+      <head>
+        {getCdnCssVars() ? <style dangerouslySetInnerHTML={{ __html: getCdnCssVars() }} /> : null}
+      </head>
       <body className={`${inter.variable} font-sans antialiased bg-[#000000] min-h-screen text-[#FFFFFF70] pt-[56px]`}>
         {children}
       </body>

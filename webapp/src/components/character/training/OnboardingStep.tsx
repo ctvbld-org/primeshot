@@ -38,14 +38,15 @@ export function OnboardingStep({ step, guidelineIndex, guidelines, onNext, onBac
   const [animatingOut, setAnimatingOut] = React.useState(false)
   const [fadeKey, setFadeKey] = React.useState(0)
 
+  const cdn = (process.env.NEXT_PUBLIC_AWS_DISTRIBUTION || '').replace(/\/$/, '')
   const floatingImageUrls = React.useMemo(() => ([
-    'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/onboard-character-1-w320.webp',
-    'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/onboard-character-2-w320.webp',
-    'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/onboard-character-3-w320.webp',
-    'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/onboard-character-4-w320.webp',
-    'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/onboard-character-5-w320.webp',
-    'https://d3el9qajjnmn76.cloudfront.net/app-images/character-onboarding/onboard-character-6-w320.webp'
-  ]), [])
+    `${cdn}/app-images/character-onboarding/onboard-character-1-w320.webp`,
+    `${cdn}/app-images/character-onboarding/onboard-character-2-w320.webp`,
+    `${cdn}/app-images/character-onboarding/onboard-character-3-w320.webp`,
+    `${cdn}/app-images/character-onboarding/onboard-character-4-w320.webp`,
+    `${cdn}/app-images/character-onboarding/onboard-character-5-w320.webp`,
+    `${cdn}/app-images/character-onboarding/onboard-character-6-w320.webp`
+  ]), [cdn])
 
   React.useEffect(() => {
     // Preload intro images once

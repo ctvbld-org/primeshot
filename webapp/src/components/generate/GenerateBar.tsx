@@ -38,6 +38,7 @@ import { OptionsPanel } from './OptionsPanel/OptionsPanel'
 import { Loader } from '@primeshot/common/web/ui/loader'
 import { GenerateBarSelect } from './GenerateBarSelect'
 import { useCreateCharacter } from './useCreateCharacter'
+import { useHorizontalDragScroll } from '@/hooks/useHorizontalDragScroll'
 import { Button } from '@primeshot/common/web/ui/button'
 import { SegmentedControl } from '@primeshot/common/web/ui/segmented-control'
 import { useToast } from '@primeshot/common/web/ui/use-toast'
@@ -403,6 +404,17 @@ export function GenerateBar({
       save(STORAGE_KEYS.QUALITY, targetQuality)
     }
   }, [inferenceSettings?.qualities, inferenceSettings?.defaults?.quality, subscription])
+
+  React.useEffect(() => {
+    const options = (inferenceSettings?.nb_takes_options || []) as number[]
+    if (options.length === 0) return
+    const defaultTakes = (inferenceSettings?.defaults?.nb_takes as number) || options[0]
+    setNbTakes((prev) => {
+      if (typeof prev === 'number' && options.includes(prev)) return prev
+      save(STORAGE_KEYS.NB_TAKES, defaultTakes)
+      return defaultTakes
+    })
+  }, [inferenceSettings?.nb_takes_options, inferenceSettings?.defaults?.nb_takes])
 
   // Panel contents
   // Characters panel hooks and logic (top-level to respect rules of hooks)
@@ -1040,6 +1052,11 @@ export function GenerateBar({
     viewportRef.current = el as any
     colorsContainerRef.current = el as any
   }, [])
+  useHorizontalDragScroll(
+    viewportRef,
+    Boolean(openPanel),
+    `${openPanel}-${Boolean(selectedWardrobeValue)}-${isColorsCompact}`,
+  )
 
   // Precompute available colors for current style (count used for threshold calc)
   const colorsForCurrentStyle = useMemo(() => {
