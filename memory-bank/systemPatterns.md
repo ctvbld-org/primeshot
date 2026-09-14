@@ -2960,6 +2960,17 @@ Detected changes in:
 - website/src/app/[locale]/pricing/page.tsx
 - website/src/components/ContentPageHeader.module.css
 - website/src/components/ContentPageHeader.tsx
+
+
+**Auto-update 2026-09-11**:
+Detected changes in:
+- admin/src/components/dashboard/top-users-leaderboard.tsx
+- webapp/src/app/api/share/create/route.ts
+- webapp/src/components/pricing/SubscriptionDialogContent.tsx
+- website/src/app/[locale]/pricing/page.tsx
+- website/src/app/api/s/[code]/route.ts
+- website/src/app/s/[code]/page.tsx
+- website/src/components/blog/BlogCard.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

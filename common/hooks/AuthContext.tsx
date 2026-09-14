@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { createClient } from '../lib/supabase/client'
 import type { AuthContextType, AuthState, User } from '../types/auth'
 import { formatAuthError } from '../lib/utils/auth'
@@ -33,17 +33,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         const mergedUser = { ...newUser, ...dbUser }
 
-        setState(prev => {
-          if (prev.user?.id !== mergedUser.id || prev.isLoading) {
-            return {
-              ...prev,
-              user: mergedUser,
-              isAuthenticated: true,
-              isLoading: false
-            }
-          }
-          return prev
-        })
+        // Always apply the DB profile. Skipping when the id already matched
+        // left a session user without `admin` if getSession and
+        // onAuthStateChange raced (website showed Admin, /admin did not).
+        setState(prev => ({
+          ...prev,
+          user: mergedUser,
+          isAuthenticated: true,
+          isLoading: false
+        }))
       } else {
         setState(prev => ({
           ...prev,
@@ -189,7 +187,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const clearError = () => setState(prev => ({ ...prev, error: null }))
 
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession()
       const current = session?.user as User | null
@@ -200,11 +198,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .eq('id', current.id)
         .single()
       const mergedUser = { ...current, ...dbUser }
-      setState(prev => ({ ...prev, user: mergedUser }))
+      setState(prev => ({ ...prev, user: mergedUser, isAuthenticated: true }))
     } catch (e) {
       console.error('Failed to refresh user', e)
     }
-  }
+  }, [supabase])
 
   const value: AuthContextType = {
     ...state,

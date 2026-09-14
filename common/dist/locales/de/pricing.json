@@ -1,228 +1,228 @@
 {
-  "buyCredits": {
-    "title": "Guthaben kaufen",
-    "description": "Wähle ein Guthaben-Paket"
-  },
-  "upgradePlan": {
-    "title": "Plan upgraden",
-    "description": "Wähle einen Abonnement-Plan"
-  },
-  "purchase": {
-    "success": {
-      "subscriptionTitle": "Du hast erfolgreich auf {{plan}} upgegraded",
-      "subscriptionTitleNew": "Willkommen bei {{plan}}!",
-      "creditsTitle": "Guthaben hinzugefügt!",
-      "subscriptionDescriptionWithCredits": "Dein neuer Abonnement-Abrechnungszyklus beginnt heute. Genieße {{amount}} Guthaben und vieles mehr!",
-      "subscriptionDescriptionWithCreditsNew": "Dein Abrechnungszyklus beginnt heute. Genieße {{amount}} Guthaben und vieles mehr!",
-      "subscriptionDescription": "Dein neuer Abonnement-Abrechnungszyklus beginnt heute. Genieße deine neuen Vorteile!",
-      "subscriptionDescriptionNew": "Dein Abrechnungszyklus beginnt heute. Genieße deine neuen Vorteile!",
-      "creditsDescription": "Dein Guthaben wurde aktualisiert. Du kannst jetzt mit der Generierung beginnen.",
-      "returnToShoot": "Zurück zum Shooting",
-      "defaultPlan": "dein neuer Plan"
-    }
-  },
-  "subscription": {
-    "context": {
-      "characterLimit": { "title": "Du hast dein Charakterlimit erreicht.", "description": "Upgrade für zusätzliche Charaktere" },
-      "qualityUpgrade": { "title": "Willst du höhere Qualität?", "description": "Upgrade für schärfere Bilder und zusätzliche Vorteile" },
-      "creditUpgrade": { "title": "Geht dir das Guthaben aus?", "description": "Upgrade für mehr monatliches Guthaben" },
-      "general": { "title": "Upgrade deinen Plan", "description": "Schalte mehr Funktionen und Flexibilität frei" },
-      "default": { "title": "Wähle deinen Plan", "description": "Wähle was passt, wechsle jederzeit" }
+    "buyCredits": {
+        "title": "Guthaben kaufen",
+        "description": "Wähle ein Guthaben-Paket"
     },
-    "loading": "Lade Pläne...",
-    "empty": {
-      "title": "Kein Upgrade verfügbar",
-      "description": "Du bist bereits auf dem höchsten verfügbaren Plan."
+    "upgradePlan": {
+        "title": "Plan upgraden",
+        "description": "Wähle einen Abonnement-Plan"
     },
-    "headers": {
-      "chooseYourPlan": "Wähle deinen Plan"
-    },
-    "banner": {
-      "titlePrimary": "Black Friday",
-      "titleSecondary": "ist da!",
-      "descriptionPrefix": "Sichere dir ",
-      "discount1": "bis zu 70% Rabatt",
-      "descriptionMiddle": " auf Jahrespläne oder ",
-      "discount2": "50% auf Monatspläne",
-      "descriptionSuffix": ".",
-      "small": "Lebenslang-Angebot läuft bis zur Kündigung weiter."
-    },
-    "toggle": {
-      "monthly": "Monatlich",
-      "yearly": "Jährlich",
-      "aria": "Abrechnungszyklus"
-    },
-    "card": {
-      "recommended": "Empfohlen",
-      "save": "Spare {{pct}}%",
-      "perMonth": "/ Monat",
-      "billed": "Abgerechnet {{cycle}}",
-      "creditsCount": "{{count}} Guthaben",
-      "perMonthWord": "pro Monat",
-      "perCredit": "{{price}} pro Guthaben",
-      "button": {
-        "select": "Plan wählen",
-        "current": "Aktueller Plan",
-        "processing": "Verarbeitet…",
-        "disabledTooltip": "Nicht verfügbar während Sonderangebot 🚀"
-      },
-      "features": {
-        "quality": "{{quality}} Qualitätsbilder",
-        "characterIncluded": "{{count}}x Charakter inklusive",
-        "maxCharacters": "Bis zu {{count}} Charakter-Speicher",
-        "concurrentShoots": "Bis zu {{count}} gleichzeitige Shootings",
-        "commercialUse": "Kommerzielle Nutzung",
-        "personalUseOnly": "Nur für den persönlichen Gebrauch"
-      }
-    },
-    "footer": {
-      "upgradeNotice": "Dein aktuelles Abonnement wird gekündigt und durch den neuen Plan ersetzt. Vorhandenes Guthaben bleibt erhalten.",
-      "buyCreditPack": "Kaufe ein Kreditpaket"
-    },
-    "toasts": {
-      "loginRequired": "Bitte melde dich an",
-      "selectPlan": "Bitte wähle einen Plan",
-      "invalidPlan": "Ungültiger Abonnement-Plan ausgewählt",
-      "openingPortal": "Öffne Stripe-Kundenportal...",
-      "customerPortalFailed": "Kundenportal konnte nicht geöffnet werden",
-      "upgradePreviewFailed": "Upgrade-Vorschau konnte nicht geöffnet werden",
-      "upgraded": "Abonnement erfolgreich upgegraded!",
-      "checkoutFailed": "Checkout fehlgeschlagen",
-      "invalidCheckout": "Ungültige Antwort vom Checkout"
-    }
-  },
-  "credits": {
-    "dialog": {
-      "headerSub": {
-        "lowBalance": "Guthaben-Saldo zu niedrig.",
-        "creativity": "Befeuere deine Kreativität 🚀"
-      },
-      "headerTitle": {
-        "lowBalance": "Lade dein Guthaben auf, um weiter zu generieren",
-        "fun": "Mehr Guthaben, mehr Kreationen, mehr Spaß!"
-      }
-    },
-    "card": {
-      "images": "Bis zu {{count}} {{quality}} Bilder",
-      "characters": "Bis zu {{count}} Charaktere",
-      "footnote": "*Nur Standard- und Pro-Pläne",
-      "button": {
-        "buy": "Kaufen",
-        "processing": "Verarbeitet…"
-      },
-      "validity": "Gültig für {{duration}}",
-      "oneTime": "einmalig",
-      "perCredit": "{{price}} pro Guthaben",
-      "perCreditWord": "pro Guthaben"
-    },
-    "toasts": {
-      "loginRequired": "Bitte melde dich an",
-      "invalidPackConfig": "Ungültige Guthaben-Paket-Konfiguration",
-      "createCheckoutFailed": "Checkout-Sitzung konnte nicht erstellt werden",
-      "purchaseFailed": "Guthaben-Paket-Kauf fehlgeschlagen"
-    }
-  },
-  "comparisonTable": {
-    "categories": {
-      "credits": "Guthaben",
-      "image": "Bild",
-      "characters": "Charaktere",
-      "generation": "Generierung",
-      "support": "Support"
-    },
-    "features": {
-      "creditsPerMonth": "Guthaben pro Monat",
-      "pricePerCredit": "Preis pro Guthaben",
-      "resolution": "Auflösung",
-      "takesPerShoot": "Aufnahmen pro Shooting",
-      "portraitAspectRatio": "Hochformat",
-      "squareAspectRatio": "Quadratisches Format",
-      "landscapeAspectRatio": "Querformat",
-      "included": "Enthalten",
-      "storage": "Speicher",
-      "concurrentShoots": "Gleichzeitige Shootings",
-      "commercialUse": "Kommerzielle Nutzung",
-      "priorityFeatures": "Prioritätszugang zu neuen Funktionen",
-      "premiumStyles": "Premium-Stile",
-      "betaAccess": "Beta-Test-Zugang",
-      "emailSupport": "E-Mail-Support",
-      "chatSupport": "Chat-Support",
-      "dedicatedSupport": "Dedizierter Support"
-    },
-    "values": {
-      "upTo": "Bis zu {{value}}",
-      "basicQuality": "Basisqualität",
-      "highQuality": "Hohe Qualität"
-    }
-  },
-  "page": {
-    "title": "Preise",
-    "header": {
-      "title": "Einfache Pläne, endlose Looks.",
-      "subtitle": "Jederzeit kündigen oder wechseln.",
-      "savingsText": "Spare bis zu",
-      "savingsHighlight": "40%",
-      "savingsOn": "bei Jahresplänen"
-    },
-    "tabs": {
-      "monthly": "Monatlich",
-      "annual": "Jährlich"
-    },
-    "buttons": {
-      "getStarted": "Loslegen",
-      "selectPlan": "Plan wählen",
-      "currentPlan": "Aktueller Plan",
-      "processing": "Wird bearbeitet..."
-    },
-    "loading": "Preise werden geladen...",
-    "comparison": {
-      "title": "Pläne vergleichen",
-      "description": "Upgrade für hochauflösende Porträts, mehr Guthaben, wiederverwendbare Charaktere und prioritäre Verarbeitung."
-    },
-    "faq": {
-      "title": "Fragen?",
-      "subtitle": "Alles, was du über unsere Preise und Funktionen wissen musst",
-      "items": {
-        "character": {
-          "question": "Was ist ein Charakter und wie funktioniert er?",
-          "answer": "Ein Charakter ist dein eigenes KI-Modell, trainiert mit 9 Selfies. Es lernt deine exakten Gesichtszüge—Struktur, Hautton, Haar—damit jedes Porträt authentisch nach dir aussieht. Je nach Plan erhältst du 1–3 Charaktere inklusive. Zusätzliche Charaktere kosten 30 Guthaben, und einmal erstellt, kannst du sie jederzeit für neue Shootings mit verschiedenen Outfits, Szenen und Stilen verwenden."
-        },
-        "credits": {
-          "question": "Wie funktioniert das Guthaben?",
-          "answer": "Guthaben ist dein Saldo für das Training von Charakteren und die Generierung von Bildern. Ein Charakter-Training kostet 30 Guthaben. Bildgenerierung kostet 1 Guthaben für Basisqualität (1K), 2 für Mittel (2K) und 3 für Hoch (4K). Dein Plan beinhaltet ein monatliches Guthaben-Kontingent, das sich mit jedem Abrechnungszyklus erneuert."
-        },
-        "commercial": {
-          "question": "Kann ich meine Bilder kommerziell nutzen?",
-          "answer": "Ja. Alle Bilder, die du generierst, gehören dir zur uneingeschränkten Nutzung—sei es für LinkedIn, Websites, Marketing oder Druck."
-        },
-        "privacy": {
-          "question": "Wie schützt ihr meine Privatsphäre und Daten?",
-          "answer": "Deine Fotos und Charaktere werden sicher gespeichert und niemals geteilt, verkauft oder für unser eigenes Training verwendet. Du kannst einzelne Charaktere oder dein gesamtes Konto jederzeit löschen. Zugriff durch Dritte erfolgt nicht ohne deine Zustimmung."
-        },
-        "changePlan": {
-          "question": "Kann ich meinen Plan ändern oder kündigen?",
-          "answer": "Ja. Du kannst deinen Plan jederzeit in deinen Kontoeinstellungen upgraden oder downgraden. Upgrades erfolgen sofort mit anteiliger Abrechnung; Downgrades treten im nächsten Zyklus in Kraft. Bei Kündigung behältst du Zugriff bis zum Ende deines aktuellen Zyklus. Wir speichern deine Daten für 60 Tage, damit du ohne Verlust erneut abonnieren kannst—danach werden sie dauerhaft gelöscht."
-        },
-        "rollover": {
-          "question": "Werden nicht genutzte Guthaben übertragen?",
-          "answer": "Nein. Guthaben verfallen am Ende jedes Abrechnungszyklus, und dein Kontingent wird erneuert."
-        },
-        "moreCredits": {
-          "question": "Wie kann ich mehr Guthaben erhalten?",
-          "answer": "Du kannst dein Abonnement für ein höheres monatliches Limit upgraden oder einmalige Guthaben-Pakete über dein Konto kaufen."
-        },
-        "refund": {
-          "question": "Was ist eure Rückerstattungsrichtlinie?",
-          "answer": "Abonnements und Guthaben-Pakete sind nicht erstattungsfähig. Bei technischen Problemen—wie einer fehlgeschlagenen Generierung—kontaktiere den Support für eine Prüfung und mögliche Guthaben-Anpassung."
-        },
-        "deleteAccount": {
-          "question": "Wie lösche ich mein Konto?",
-          "answer": "Wähle in deinen Kontoeinstellungen \"Konto löschen\", um alle Fotos, Charaktere und Bilder dauerhaft zu entfernen. Dies ist unwiderruflich, also lade zuerst alles herunter, was du behalten möchtest."
+    "purchase": {
+        "success": {
+            "subscriptionTitle": "Du hast erfolgreich auf {{plan}} upgegraded",
+            "subscriptionTitleNew": "Willkommen bei {{plan}}!",
+            "creditsTitle": "Guthaben hinzugefügt!",
+            "subscriptionDescriptionWithCredits": "Dein neuer Abonnement-Abrechnungszyklus beginnt heute. Genieße {{amount}} Guthaben und vieles mehr!",
+            "subscriptionDescriptionWithCreditsNew": "Dein Abrechnungszyklus beginnt heute. Genieße {{amount}} Guthaben und vieles mehr!",
+            "subscriptionDescription": "Dein neuer Abonnement-Abrechnungszyklus beginnt heute. Genieße deine neuen Vorteile!",
+            "subscriptionDescriptionNew": "Dein Abrechnungszyklus beginnt heute. Genieße deine neuen Vorteile!",
+            "creditsDescription": "Dein Guthaben wurde aktualisiert. Du kannst jetzt mit der Generierung beginnen.",
+            "returnToShoot": "Zurück zum Shooting",
+            "defaultPlan": "dein neuer Plan"
         }
-      }
     },
-    "signIn": {
-      "modalTitle": "Anmelden um fortzufahren"
+    "subscription": {
+        "context": {
+            "characterLimit": { "title": "Du hast dein Charakterlimit erreicht.", "description": "Upgrade für zusätzliche Charaktere" },
+            "qualityUpgrade": { "title": "Willst du höhere Qualität?", "description": "Upgrade für schärfere Bilder und zusätzliche Vorteile" },
+            "creditUpgrade": { "title": "Geht dir das Guthaben aus?", "description": "Upgrade für mehr monatliches Guthaben" },
+            "general": { "title": "Upgrade deinen Plan", "description": "Schalte mehr Funktionen und Flexibilität frei" },
+            "default": { "title": "Wähle deinen Plan", "description": "Wähle was passt, wechsle jederzeit" }
+        },
+        "loading": "Lade Pläne...",
+        "empty": {
+            "title": "Kein Upgrade verfügbar",
+            "description": "Du bist bereits auf dem höchsten verfügbaren Plan."
+        },
+        "headers": {
+            "chooseYourPlan": "Wähle deinen Plan"
+        },
+        "banner": {
+            "titlePrimary": "Black Friday",
+            "titleSecondary": "ist da!",
+            "descriptionPrefix": "Sichere dir ",
+            "discount1": "bis zu 70% Rabatt",
+            "descriptionMiddle": " auf Jahrespläne oder ",
+            "discount2": "50% auf Monatspläne",
+            "descriptionSuffix": ".",
+            "small": "Lebenslang-Angebot läuft bis zur Kündigung weiter."
+        },
+        "toggle": {
+            "monthly": "Monatlich",
+            "yearly": "Jährlich",
+            "aria": "Abrechnungszyklus"
+        },
+        "card": {
+            "recommended": "Empfohlen",
+            "save": "Spare {{pct}}%",
+            "perMonth": "/ Monat",
+            "billed": "Abgerechnet {{cycle}}",
+            "creditsCount": "{{count}} Guthaben",
+            "perMonthWord": "pro Monat",
+            "perCredit": "{{price}} pro Guthaben",
+            "button": {
+                "select": "Plan wählen",
+                "current": "Aktueller Plan",
+                "processing": "Verarbeitet…",
+                "disabledTooltip": "Nicht verfügbar während Sonderangebot 🚀"
+            },
+            "features": {
+                "quality": "{{quality}} Qualitätsbilder",
+                "characterIncluded": "{{count}}x Charakter inklusive",
+                "maxCharacters": "Bis zu {{count}} Charakter-Speicher",
+                "concurrentShoots": "Bis zu {{count}} gleichzeitige Shootings",
+                "commercialUse": "Kommerzielle Nutzung",
+                "personalUseOnly": "Nur für den persönlichen Gebrauch"
+            }
+        },
+        "footer": {
+            "upgradeNotice": "Dein aktuelles Abonnement wird gekündigt und durch den neuen Plan ersetzt. Vorhandenes Guthaben bleibt erhalten.",
+            "buyCreditPack": "Kaufe ein Kreditpaket"
+        },
+        "toasts": {
+            "loginRequired": "Bitte melde dich an",
+            "selectPlan": "Bitte wähle einen Plan",
+            "invalidPlan": "Ungültiger Abonnement-Plan ausgewählt",
+            "openingPortal": "Öffne Stripe-Kundenportal...",
+            "customerPortalFailed": "Kundenportal konnte nicht geöffnet werden",
+            "upgradePreviewFailed": "Upgrade-Vorschau konnte nicht geöffnet werden",
+            "upgraded": "Abonnement erfolgreich upgegraded!",
+            "checkoutFailed": "Checkout fehlgeschlagen",
+            "invalidCheckout": "Ungültige Antwort vom Checkout"
+        }
+    },
+    "credits": {
+        "dialog": {
+            "headerSub": {
+                "lowBalance": "Guthaben-Saldo zu niedrig.",
+                "creativity": "Befeuere deine Kreativität 🚀"
+            },
+            "headerTitle": {
+                "lowBalance": "Lade dein Guthaben auf, um weiter zu generieren",
+                "fun": "Mehr Guthaben, mehr Kreationen, mehr Spaß!"
+            }
+        },
+        "card": {
+            "images": "Bis zu {{count}} {{quality}} Bilder",
+            "characters": "Bis zu {{count}} Charaktere",
+            "footnote": "*Nur Standard- und Pro-Pläne",
+            "button": {
+                "buy": "Kaufen",
+                "processing": "Verarbeitet…"
+            },
+            "validity": "Gültig für {{duration}}",
+            "oneTime": "einmalig",
+            "perCredit": "{{price}} pro Guthaben",
+            "perCreditWord": "pro Guthaben"
+        },
+        "toasts": {
+            "loginRequired": "Bitte melde dich an",
+            "invalidPackConfig": "Ungültige Guthaben-Paket-Konfiguration",
+            "createCheckoutFailed": "Checkout-Sitzung konnte nicht erstellt werden",
+            "purchaseFailed": "Guthaben-Paket-Kauf fehlgeschlagen"
+        }
+    },
+    "comparisonTable": {
+        "categories": {
+            "credits": "Guthaben",
+            "image": "Bild",
+            "characters": "Charaktere",
+            "generation": "Generierung",
+            "support": "Support"
+        },
+        "features": {
+            "creditsPerMonth": "Guthaben pro Monat",
+            "pricePerCredit": "Preis pro Guthaben",
+            "resolution": "Auflösung",
+            "takesPerShoot": "Aufnahmen pro Shooting",
+            "portraitAspectRatio": "Hochformat",
+            "squareAspectRatio": "Quadratisches Format",
+            "landscapeAspectRatio": "Querformat",
+            "included": "Enthalten",
+            "storage": "Speicher",
+            "concurrentShoots": "Gleichzeitige Shootings",
+            "commercialUse": "Kommerzielle Nutzung",
+            "priorityFeatures": "Prioritätszugang zu neuen Funktionen",
+            "premiumStyles": "Premium-Stile",
+            "betaAccess": "Beta-Test-Zugang",
+            "emailSupport": "E-Mail-Support",
+            "chatSupport": "Chat-Support",
+            "dedicatedSupport": "Dedizierter Support"
+        },
+        "values": {
+            "upTo": "Bis zu {{value}}",
+            "basicQuality": "Basisqualität",
+            "highQuality": "Hohe Qualität"
+        }
+    },
+    "page": {
+        "title": "Preise",
+        "header": {
+            "title": "Einfache Pläne, endlose Looks.",
+            "subtitle": "Jederzeit kündigen oder wechseln.",
+            "savingsText": "Spare bis zu",
+            "savingsHighlight": "40%",
+            "savingsOn": "bei Jahresplänen"
+        },
+        "tabs": {
+            "monthly": "Monatlich",
+            "annual": "Jährlich"
+        },
+        "buttons": {
+            "getStarted": "Loslegen",
+            "selectPlan": "Plan wählen",
+            "currentPlan": "Aktueller Plan",
+            "processing": "Wird bearbeitet..."
+        },
+        "loading": "Preise werden geladen...",
+        "comparison": {
+            "title": "Pläne vergleichen",
+            "description": "Upgrade für hochauflösende Porträts, mehr Guthaben, wiederverwendbare Charaktere und prioritäre Verarbeitung."
+        },
+        "faq": {
+            "title": "Fragen?",
+            "subtitle": "Alles, was du über unsere Preise und Funktionen wissen musst",
+            "items": {
+                "character": {
+                    "question": "Was ist ein Charakter und wie funktioniert er?",
+                    "answer": "Ein Charakter ist dein eigenes KI-Modell, trainiert mit 9 Selfies. Es lernt deine exakten Gesichtszüge—Struktur, Hautton, Haar—damit jedes Porträt authentisch nach dir aussieht. Je nach Plan erhältst du 1–3 Charaktere inklusive. Zusätzliche Charaktere kosten 30 Guthaben, und einmal erstellt, kannst du sie jederzeit für neue Shootings mit verschiedenen Outfits, Szenen und Stilen verwenden."
+                },
+                "credits": {
+                    "question": "Wie funktioniert das Guthaben?",
+                    "answer": "Guthaben ist dein Saldo für das Training von Charakteren und die Generierung von Bildern. Ein Charakter-Training kostet 30 Guthaben. Bildgenerierung kostet 1 Guthaben für Basisqualität (1K), 2 für Mittel (2K) und 3 für Hoch (4K). Dein Plan beinhaltet ein monatliches Guthaben-Kontingent, das sich mit jedem Abrechnungszyklus erneuert."
+                },
+                "commercial": {
+                    "question": "Kann ich meine Bilder kommerziell nutzen?",
+                    "answer": "Ja. Alle Bilder, die du generierst, gehören dir zur uneingeschränkten Nutzung—sei es für LinkedIn, Websites, Marketing oder Druck."
+                },
+                "privacy": {
+                    "question": "Wie schützt ihr meine Privatsphäre und Daten?",
+                    "answer": "Deine Fotos und Charaktere werden sicher gespeichert und niemals geteilt, verkauft oder für unser eigenes Training verwendet. Du kannst einzelne Charaktere oder dein gesamtes Konto jederzeit löschen. Zugriff durch Dritte erfolgt nicht ohne deine Zustimmung."
+                },
+                "changePlan": {
+                    "question": "Kann ich meinen Plan ändern oder kündigen?",
+                    "answer": "Ja. Du kannst deinen Plan jederzeit in deinen Kontoeinstellungen upgraden oder downgraden. Upgrades erfolgen sofort mit anteiliger Abrechnung; Downgrades treten im nächsten Zyklus in Kraft. Bei Kündigung behältst du Zugriff bis zum Ende deines aktuellen Zyklus. Wir speichern deine Daten für 60 Tage, damit du ohne Verlust erneut abonnieren kannst—danach werden sie dauerhaft gelöscht."
+                },
+                "rollover": {
+                    "question": "Werden nicht genutzte Guthaben übertragen?",
+                    "answer": "Nein. Guthaben verfallen am Ende jedes Abrechnungszyklus, und dein Kontingent wird erneuert."
+                },
+                "moreCredits": {
+                    "question": "Wie kann ich mehr Guthaben erhalten?",
+                    "answer": "Du kannst dein Abonnement für ein höheres monatliches Limit upgraden oder einmalige Guthaben-Pakete über dein Konto kaufen."
+                },
+                "refund": {
+                    "question": "Was ist eure Rückerstattungsrichtlinie?",
+                    "answer": "Abonnements und Guthaben-Pakete sind nicht erstattungsfähig. Bei technischen Problemen—wie einer fehlgeschlagenen Generierung—kontaktiere den Support für eine Prüfung und mögliche Guthaben-Anpassung."
+                },
+                "deleteAccount": {
+                    "question": "Wie lösche ich mein Konto?",
+                    "answer": "Wähle in deinen Kontoeinstellungen \"Konto löschen\", um alle Fotos, Charaktere und Bilder dauerhaft zu entfernen. Dies ist unwiderruflich, also lade zuerst alles herunter, was du behalten möchtest."
+                }
+            }
+        },
+        "signIn": {
+            "modalTitle": "Anmelden um fortzufahren"
+        }
     }
-  }
 }

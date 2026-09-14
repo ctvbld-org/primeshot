@@ -1,309 +1,307 @@
 {
-  "common": {
-    "pleaseTryAgain": "Please try again",
-    "cancel": "Cancel"
-  },
-  "time": {
-    "justNow": "Just now",
-    "minutesAgo": "{{count}}m ago",
-    "hoursAgo": "{{count}}h ago",
-    "daysAgo": "{{count}}d ago"
-  },
-  "gallery": {
-    "error": "Failed to load inference jobs: {{error}}",
-    "retry": "Retry",
-    "loadingMore": "Loading more shoots",
-    "endOfList": "You've reached the end",
-    "howItWorksAria": "How it works",
-    "quotes": [
-      "Every detail is taking shape",
-      "Your portraits are coming to life",
-      "A few strays may show, happy surprises too",
-      "Play with wonder",
-      "And discover those true to you",
-      "Watch yourself transform",
-      "Magic is in the making",
-      "Your story unfolds",
-      "Embrace the unexpected",
-      "Artistry meets you",
-      "Each frame a revelation",
-      "Beauty in progress",
-      "Your essence captured",
-      "Moments becoming memories",
-      "Finding your light",
-      "Perfection takes time",
-      "Almost there, almost you",
-      "Creating something beautiful",
-      "Your unique vision emerges",
-      "Trust the process",
-      "Something special awaits",
-      "Your moment is coming",
-      "Let the art breathe",
-      "Patience makes perfect",
-      "Dreams taking form",
-      "Your canvas is alive",
-      "Watch the magic happen",
-      "Becoming extraordinary",
-      "Details make the difference",
-      "Your story in pixels",
-      "Art is patient",
-      "Crafting your moment",
-      "Every second counts",
-      "Your vision materializing",
-      "The wait is worth it",
-      "Beauty needs time",
-      "Almost ready to shine",
-      "Your masterpiece loading",
-      "Bringing you to life",
-      "One moment closer",
-      "Crafting the perfect you",
-      "Your vision awakening",
-      "Pieces falling into place",
-      "Watching you emerge",
-      "The best is yet to come",
-      "Your journey unfolds here",
-      "Creating pure magic",
-      "Moments of brilliance",
-      "Your truth revealed",
-      "Capturing your soul",
-      "Dreams becoming real",
-      "The art of becoming",
-      "Your beauty unfolding",
-      "Patience rewarded soon",
-      "Magic in motion",
-      "Your identity forming",
-      "Artistry in progress",
-      "The reveal approaches",
-      "Your essence shining through",
-      "Something beautiful brewing",
-      "Your picture perfecting",
-      "Time well spent",
-      "Creating your legacy",
-      "Your spark igniting",
-      "The finish line nears",
-      "Painting your portrait",
-      "Your wonder awaits",
-      "Brilliance in the making",
-      "Your moment to shine",
-      "Creating art from you",
-      "The magic touch applied",
-      "Your story taking shape",
-      "Weaving your magic",
-      "Your brilliance emerging",
-      "The final touches",
-      "Your transformation complete soon",
-      "Creating something timeless",
-      "Your authentic self",
-      "The journey is beautiful",
-      "Your radiance growing",
-      "Perfecting every detail",
-      "Your uniqueness captured",
-      "The art of you",
-      "Your beauty multiplied",
-      "Creating your moment",
-      "The magic unfolds",
-      "Your soul on canvas",
-      "Almost perfectly you",
-      "Creating pure beauty",
-      "Your light shines soon",
-      "The art comes alive",
-      "Your dream realized",
-      "Crafting excellence",
-      "Your masterwork loading",
-      "The perfect moment",
-      "Your story told beautifully"
-    ],
-    "steps": {
-      "choose": {
-        "title": "Choose a style",
-        "desc": "Pick the mood, scene, and outfit that fit your look."
-      },
-      "character": {
-        "title": "Create a Character",
-        "desc": "Upload a few photos so our AI learns exactly what makes you, you."
-      },
-      "generate": {
-        "title": "Generate your shoot",
-        "desc": "Get your portraits in minutes — authentic, polished, and ready to use."
-      }
+    "common": {
+        "pleaseTryAgain": "Please try again",
+        "cancel": "Cancel"
+    },
+    "time": {
+        "justNow": "Just now",
+        "minutesAgo": "{{count}}m ago",
+        "hoursAgo": "{{count}}h ago",
+        "daysAgo": "{{count}}d ago"
+    },
+    "gallery": {
+        "error": "Failed to load inference jobs: {{error}}",
+        "retry": "Retry",
+        "loadingMore": "Loading more shoots",
+        "endOfList": "You've reached the end",
+        "howItWorksAria": "How it works",
+        "quotes": [
+            "Every detail is taking shape",
+            "Your portraits are coming to life",
+            "A few strays may show, happy surprises too",
+            "Play with wonder",
+            "And discover those true to you",
+            "Watch yourself transform",
+            "Magic is in the making",
+            "Your story unfolds",
+            "Embrace the unexpected",
+            "Artistry meets you",
+            "Each frame a revelation",
+            "Beauty in progress",
+            "Your essence captured",
+            "Moments becoming memories",
+            "Finding your light",
+            "Perfection takes time",
+            "Almost there, almost you",
+            "Creating something beautiful",
+            "Your unique vision emerges",
+            "Trust the process",
+            "Something special awaits",
+            "Your moment is coming",
+            "Let the art breathe",
+            "Patience makes perfect",
+            "Dreams taking form",
+            "Your canvas is alive",
+            "Watch the magic happen",
+            "Becoming extraordinary",
+            "Details make the difference",
+            "Your story in pixels",
+            "Art is patient",
+            "Crafting your moment",
+            "Every second counts",
+            "Your vision materializing",
+            "The wait is worth it",
+            "Beauty needs time",
+            "Almost ready to shine",
+            "Your masterpiece loading",
+            "Bringing you to life",
+            "One moment closer",
+            "Crafting the perfect you",
+            "Your vision awakening",
+            "Pieces falling into place",
+            "Watching you emerge",
+            "The best is yet to come",
+            "Your journey unfolds here",
+            "Creating pure magic",
+            "Moments of brilliance",
+            "Your truth revealed",
+            "Capturing your soul",
+            "Dreams becoming real",
+            "The art of becoming",
+            "Your beauty unfolding",
+            "Patience rewarded soon",
+            "Magic in motion",
+            "Your identity forming",
+            "Artistry in progress",
+            "The reveal approaches",
+            "Your essence shining through",
+            "Something beautiful brewing",
+            "Your picture perfecting",
+            "Time well spent",
+            "Creating your legacy",
+            "Your spark igniting",
+            "The finish line nears",
+            "Painting your portrait",
+            "Your wonder awaits",
+            "Brilliance in the making",
+            "Your moment to shine",
+            "Creating art from you",
+            "The magic touch applied",
+            "Your story taking shape",
+            "Weaving your magic",
+            "Your brilliance emerging",
+            "The final touches",
+            "Your transformation complete soon",
+            "Creating something timeless",
+            "Your authentic self",
+            "The journey is beautiful",
+            "Your radiance growing",
+            "Perfecting every detail",
+            "Your uniqueness captured",
+            "The art of you",
+            "Your beauty multiplied",
+            "Creating your moment",
+            "The magic unfolds",
+            "Your soul on canvas",
+            "Almost perfectly you",
+            "Creating pure beauty",
+            "Your light shines soon",
+            "The art comes alive",
+            "Your dream realized",
+            "Crafting excellence",
+            "Your masterwork loading",
+            "The perfect moment",
+            "Your story told beautifully"
+        ],
+        "steps": {
+            "choose": {
+                "title": "Choose a style",
+                "desc": "Pick the mood, scene, and outfit that fit your look."
+            },
+            "character": {
+                "title": "Create a Character",
+                "desc": "Upload a few photos so our AI learns exactly what makes you, you."
+            },
+            "generate": {
+                "title": "Generate your shoot",
+                "desc": "Get your portraits in minutes — authentic, polished, and ready to use."
+            }
+        }
+    },
+    "viewer": {
+        "confirmDelete": {
+            "title": "Delete image?",
+            "description": "This will permanently delete the image. Can't be undone.",
+            "confirm": "Delete",
+            "cancel": "Cancel"
+        },
+        "closeAria": "Close viewer",
+        "carousel": {
+            "aria": "Carousel navigation",
+            "prevAria": "Previous image",
+            "nextAria": "Next image"
+        },
+        "overlay": {
+            "displayOriginal": "Display original",
+            "displayOriginalAria": "Display original image",
+            "originalUnavailableTitle": "Original unavailable",
+            "originalUnavailableDesc": "Couldn't load original image."
+        },
+        "viewOriginal": {
+            "label": "Preview full size",
+            "viewing": "Viewing full size",
+            "aria": "Switch to original quality image",
+            "viewingAria": "Currently viewing original quality image"
+        },
+        "title": "Shoot {{shootNumber}}",
+        "imageIndex": "IMG {{index}}",
+        "favourite": {
+            "ariaButton": "Favorite",
+            "add": "Add to Favorites",
+            "remove": "Remove from Favorites",
+            "updateErrorTitle": "Failed to update favorite"
+        },
+        "metadata": {
+            "labels": {
+                "aspectRatio": "Aspect Ratio",
+                "quality": "Quality",
+                "model": "Model",
+                "character": "Character"
+            },
+            "aspectLabels": {
+                "square": "Square",
+                "landscape": "Landscape",
+                "portrait": "Portrait"
+            }
+        },
+        "actions": {
+            "delete": {
+                "label": "Delete",
+                "aria": "Delete image"
+            },
+            "download": {
+                "label": "Download",
+                "aria": "Download image"
+            }
+        },
+        "alt": {
+            "generated": "Generated image {{index}}",
+            "thumbnail": "Thumbnail {{index}}"
+        }
+    },
+    "group": {
+        "status": {
+            "failed": "Generation failed"
+        },
+        "error": {
+            "generic": "Error generating images, credits refunded",
+            "timeout": "Generation took too long, credits refunded",
+            "serverBusy": "Server was busy, credits refunded",
+            "memory": "Server overloaded, credits refunded",
+            "connection": "Connection issue, credits refunded",
+            "imageGeneration": "Image generation failed, credits refunded",
+            "missingStyle": "The requested style or character is no longer available. Credits refunded.",
+            "validation": "Invalid settings provided. Credits refunded.",
+            "resourceError": "Insufficient resources. Credits refunded.",
+            "creditsRefunded": "Credits refunded"
+        },
+        "confirmDelete": {
+            "title": "Delete shoot?",
+            "description": "This will remove the shoot from your gallery. Can't be undone.",
+            "confirm": "Delete"
+        },
+        "deleteFailedTitle": "Delete failed",
+        "rerun": {
+            "cannot": "Cannot rerun",
+            "missingInfo": "Missing required job information.",
+            "failed": "Rerun failed"
+        },
+        "header": {
+            "shootTitle": "SHOOT #{{number}}"
+        },
+        "tooltips": {
+            "deleteShoot": "Delete shoot",
+            "rerunShoot": "Rerun shoot"
+        },
+        "aria": {
+            "thumbnailsPreview": "Thumbnails preview",
+            "viewAllImages": "View all images"
+        },
+        "alt": {
+            "preview": "Preview {{index}}"
+        },
+        "buttons": {
+            "viewAll": "View all"
+        }
+    },
+    "thumbnail": {
+        "alt": {
+            "generatingPreview": "Generating preview {{index}}",
+            "generated": "Generated image {{index}}"
+        },
+        "favourite": {
+            "add": "Add to favorites",
+            "remove": "Remove from favorites"
+        },
+        "loadingTitle": "Loading…",
+        "loadingDesc": "Image details are still loading. Please try again in a moment.",
+        "actions": {
+            "delete": {
+                "label": "Delete",
+                "aria": "Delete image"
+            },
+            "download": {
+                "label": "Download",
+                "aria": "Download image"
+            },
+            "share": {
+                "label": "Share",
+                "aria": "Share this image"
+            }
+        },
+        "share": {
+            "text": "My new AI shot! 🤩 Made with @primeshotai from a few selfies.\n\nCopy my shoot setup/style here: {{url}} - it's free to try!",
+            "success": "Image shared successfully!",
+            "copiedToClipboard": "Link copied to clipboard!",
+            "error": "Failed to share image"
+        },
+        "explore": {
+            "add": "Add to Explore",
+            "remove": "Remove from Explore",
+            "saved": "Added to Explore",
+            "removed": "Removed from Explore",
+            "error": "Failed to update Explore"
+        },
+        "confirmDelete": {
+            "title": "Delete image?",
+            "description": "This will remove the image from your gallery. Can't be undone.",
+            "confirm": "Delete"
+        }
+    },
+    "errors": {
+        "validation": {
+            "missingStyleOrCharacter": "The requested style or character is no longer available. Please try again or select a different style.",
+            "invalidParameter": "Invalid parameter value. Please try again with different settings.",
+            "workflowConfig": "Workflow configuration error. Please try again or contact support.",
+            "invalidRequest": "Invalid request parameters. Please try again."
+        },
+        "connection": {
+            "unavailable": "Service temporarily unavailable. Please try again in a moment."
+        },
+        "timeout": {
+            "idle": "Generation took too long without progress. This may be due to high server load. Please try again.",
+            "general": "Request timed out. Please try again or use lower quality settings."
+        },
+        "endpoint": {
+            "configuration": "Service configuration error. Please contact support."
+        },
+        "resource": {
+            "insufficient": "Insufficient resources. Please try again with lower resolution or fewer images.",
+            "missing": "Required resource not found. Please try again or contact support if the issue persists."
+        },
+        "generation": {
+            "failed": "Generation failed. Please try again with different settings.",
+            "general": "An error occurred during generation. Please try again."
+        }
     }
-  },
-  "viewer": {
-    "confirmDelete": {
-      "title": "Delete image?",
-      "description": "This will permanently delete the image. Can't be undone.",
-      "confirm": "Delete",
-      "cancel": "Cancel"
-    },
-    "closeAria": "Close viewer",
-    "carousel": {
-      "aria": "Carousel navigation",
-      "prevAria": "Previous image",
-      "nextAria": "Next image"
-    },
-    "overlay": {
-      "displayOriginal": "Display original",
-      "displayOriginalAria": "Display original image",
-      "originalUnavailableTitle": "Original unavailable",
-      "originalUnavailableDesc": "Couldn't load original image."
-    },
-    "viewOriginal": {
-      "label": "Preview full size",
-      "viewing": "Viewing full size",
-      "aria": "Switch to original quality image",
-      "viewingAria": "Currently viewing original quality image"
-    },
-    "title": "Shoot {{shootNumber}}",
-    "imageIndex": "IMG {{index}}",
-    "favourite": {
-      "ariaButton": "Favorite",
-      "add": "Add to Favorites",
-      "remove": "Remove from Favorites",
-      "updateErrorTitle": "Failed to update favorite"
-    },
-    "metadata": {
-      "labels": {
-        "aspectRatio": "Aspect Ratio",
-        "quality": "Quality",
-        "model": "Model",
-        "character": "Character"
-      },
-      "aspectLabels": {
-        "square": "Square",
-        "landscape": "Landscape",
-        "portrait": "Portrait"
-      }
-    },
-    "actions": {
-      "delete": {
-        "label": "Delete",
-        "aria": "Delete image"
-      },
-      "download": {
-        "label": "Download",
-        "aria": "Download image"
-      }
-    },
-    "alt": {
-      "generated": "Generated image {{index}}",
-      "thumbnail": "Thumbnail {{index}}"
-    }
-  },
-  "group": {
-    "status": {
-      "failed": "Generation failed"
-    },
-    "error": {
-      "generic": "Error generating images, credits refunded",
-      "timeout": "Generation took too long, credits refunded",
-      "serverBusy": "Server was busy, credits refunded",
-      "memory": "Server overloaded, credits refunded",
-      "connection": "Connection issue, credits refunded",
-      "imageGeneration": "Image generation failed, credits refunded",
-      "missingStyle": "The requested style or character is no longer available. Credits refunded.",
-      "validation": "Invalid settings provided. Credits refunded.",
-      "resourceError": "Insufficient resources. Credits refunded.",
-      "creditsRefunded": "Credits refunded"
-    },
-    "confirmDelete": {
-      "title": "Delete shoot?",
-      "description": "This will remove the shoot from your gallery. Can't be undone.",
-      "confirm": "Delete"
-    },
-    "deleteFailedTitle": "Delete failed",
-    "rerun": {
-      "cannot": "Cannot rerun",
-      "missingInfo": "Missing required job information.",
-      "failed": "Rerun failed"
-    },
-    "header": {
-      "shootTitle": "SHOOT #{{number}}"
-    },
-    "tooltips": {
-      "deleteShoot": "Delete shoot",
-      "rerunShoot": "Rerun shoot"
-    },
-    "aria": {
-      "thumbnailsPreview": "Thumbnails preview",
-      "viewAllImages": "View all images"
-    },
-    "alt": {
-      "preview": "Preview {{index}}"
-    },
-    "buttons": {
-      "viewAll": "View all"
-    }
-  },
-  "thumbnail": {
-    "alt": {
-      "generatingPreview": "Generating preview {{index}}",
-      "generated": "Generated image {{index}}"
-    },
-    "favourite": {
-      "add": "Add to favorites",
-      "remove": "Remove from favorites"
-    },
-    "loadingTitle": "Loading…",
-    "loadingDesc": "Image details are still loading. Please try again in a moment.",
-    "actions": {
-      "delete": {
-        "label": "Delete",
-        "aria": "Delete image"
-      },
-      "download": {
-        "label": "Download",
-        "aria": "Download image"
-      },
-      "share": {
-        "label": "Share",
-        "aria": "Share this image"
-      }
-    },
-    "share": {
-      "text": "My new AI shot! 🤩 Made with @primeshotai from a few selfies.\n\nCopy my shoot setup/style here: {{url}} - it's free to try!",
-      "success": "Image shared successfully!",
-      "copiedToClipboard": "Link copied to clipboard!",
-      "error": "Failed to share image"
-    },
-    "explore": {
-      "add": "Add to Explore",
-      "remove": "Remove from Explore",
-      "saved": "Added to Explore",
-      "removed": "Removed from Explore",
-      "error": "Failed to update Explore"
-    },
-    "confirmDelete": {
-      "title": "Delete image?",
-      "description": "This will remove the image from your gallery. Can't be undone.",
-      "confirm": "Delete"
-    }
-  },
-  "errors": {
-    "validation": {
-      "missingStyleOrCharacter": "The requested style or character is no longer available. Please try again or select a different style.",
-      "invalidParameter": "Invalid parameter value. Please try again with different settings.",
-      "workflowConfig": "Workflow configuration error. Please try again or contact support.",
-      "invalidRequest": "Invalid request parameters. Please try again."
-    },
-    "connection": {
-      "unavailable": "Service temporarily unavailable. Please try again in a moment."
-    },
-    "timeout": {
-      "idle": "Generation took too long without progress. This may be due to high server load. Please try again.",
-      "general": "Request timed out. Please try again or use lower quality settings."
-    },
-    "endpoint": {
-      "configuration": "Service configuration error. Please contact support."
-    },
-    "resource": {
-      "insufficient": "Insufficient resources. Please try again with lower resolution or fewer images.",
-      "missing": "Required resource not found. Please try again or contact support if the issue persists."
-    },
-    "generation": {
-      "failed": "Generation failed. Please try again with different settings.",
-      "general": "An error occurred during generation. Please try again."
-    }
-  }
 }
-
-

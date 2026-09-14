@@ -1,228 +1,228 @@
 {
-  "buyCredits": {
-    "title": "Credits kopen",
-    "description": "Kies een creditpakket"
-  },
-  "upgradePlan": {
-    "title": "Plan upgraden",
-    "description": "Kies een abonnement"
-  },
-  "purchase": {
-    "success": {
-      "subscriptionTitle": "Je hebt succesvol geüpgraded naar {{plan}}",
-      "subscriptionTitleNew": "Welkom bij {{plan}}!",
-      "creditsTitle": "Credits toegevoegd!",
-      "subscriptionDescriptionWithCredits": "Je nieuwe abonnement factureringscyclus begint vandaag. Geniet van {{amount}} credits en veel meer!",
-      "subscriptionDescriptionWithCreditsNew": "Je factureringscyclus begint vandaag. Geniet van {{amount}} credits en veel meer!",
-      "subscriptionDescription": "Je nieuwe abonnement factureringscyclus begint vandaag. Geniet van je nieuwe voordelen!",
-      "subscriptionDescriptionNew": "Je factureringscyclus begint vandaag. Geniet van je nieuwe voordelen!",
-      "creditsDescription": "Je saldo is bijgewerkt. Je kunt nu beginnen met genereren.",
-      "returnToShoot": "Terug naar shoot",
-      "defaultPlan": "je nieuwe plan"
-    }
-  },
-  "subscription": {
-    "context": {
-      "characterLimit": { "title": "Je hebt je karakterlimiet bereikt.", "description": "Upgrade voor extra karakters" },
-      "qualityUpgrade": { "title": "Wil je hogere kwaliteit?", "description": "Upgrade voor scherpere afbeeldingen en extra voordelen" },
-      "creditUpgrade": { "title": "Raken je credits op?", "description": "Upgrade voor meer maandelijkse credits" },
-      "general": { "title": "Upgrade je plan", "description": "Ontgrendel meer functies en flexibiliteit" },
-      "default": { "title": "Kies je plan", "description": "Kies wat past, wissel wanneer je wilt" }
+    "buyCredits": {
+        "title": "Credits kopen",
+        "description": "Kies een creditpakket"
     },
-    "loading": "Plannen laden...",
-    "empty": {
-      "title": "Geen upgrade beschikbaar",
-      "description": "Je bent al op het hoogste beschikbare plan."
+    "upgradePlan": {
+        "title": "Plan upgraden",
+        "description": "Kies een abonnement"
     },
-    "headers": {
-      "chooseYourPlan": "Kies je plan"
-    },
-    "banner": {
-      "titlePrimary": "Black Friday",
-      "titleSecondary": "is hier!",
-      "descriptionPrefix": "Profiteer van ",
-      "discount1": "tot 70% korting",
-      "descriptionMiddle": " op jaarplannen, of ",
-      "discount2": "50% op maandplannen",
-      "descriptionSuffix": ".",
-      "small": "Levenslang aanbod loopt door tot je opzegt."
-    },
-    "toggle": {
-      "monthly": "Maandelijks",
-      "yearly": "Jaarlijks",
-      "aria": "Factureringscyclus"
-    },
-    "card": {
-      "recommended": "Aanbevolen",
-      "save": "Bespaar {{pct}}%",
-      "perMonth": "/ maand",
-      "billed": "Gefactureerd {{cycle}}",
-      "creditsCount": "{{count}} credits",
-      "perMonthWord": "per maand",
-      "perCredit": "{{price}} per credit",
-      "button": {
-        "select": "Plan selecteren",
-        "current": "Huidig plan",
-        "processing": "Verwerken…",
-        "disabledTooltip": "Niet beschikbaar tijdens speciale aanbieding 🚀"
-      },
-      "features": {
-        "quality": "{{quality}} kwaliteit afbeeldingen",
-        "characterIncluded": "{{count}}x Karakter inbegrepen",
-        "maxCharacters": "Tot {{count}} karakter opslag",
-        "concurrentShoots": "Tot {{count}} gelijktijdige shoots",
-        "commercialUse": "Commercieel gebruik",
-        "personalUseOnly": "Alleen voor persoonlijk gebruik"
-      }
-    },
-    "footer": {
-      "upgradeNotice": "Je huidige abonnement wordt geannuleerd en vervangen door het nieuwe plan. Bestaande credits blijven behouden.",
-      "buyCreditPack": "Koop een creditpakket"
-    },
-    "toasts": {
-      "loginRequired": "Log in",
-      "selectPlan": "Selecteer een plan",
-      "invalidPlan": "Ongeldig abonnement geselecteerd",
-      "openingPortal": "Stripe klantportaal openen...",
-      "customerPortalFailed": "Klantportaal openen mislukt",
-      "upgradePreviewFailed": "Upgrade voorvertoning openen mislukt",
-      "upgraded": "Abonnement succesvol geüpgraded!",
-      "checkoutFailed": "Afrekenen mislukt",
-      "invalidCheckout": "Ongeldige respons van afrekenen"
-    }
-  },
-  "credits": {
-    "dialog": {
-      "headerSub": {
-        "lowBalance": "Credit saldo te laag.",
-        "creativity": "Voed je creativiteit 🚀"
-      },
-      "headerTitle": {
-        "lowBalance": "Laad je credits op om door te gaan met genereren",
-        "fun": "Meer credits, meer creaties, meer plezier!"
-      }
-    },
-    "card": {
-      "images": "Tot {{count}} {{quality}} afbeeldingen",
-      "characters": "Tot {{count}} karakters",
-      "footnote": "*Alleen Standard en Pro plannen",
-      "button": {
-        "buy": "Kopen",
-        "processing": "Verwerken…"
-      },
-      "validity": "Geldig voor {{duration}}",
-      "oneTime": "eenmalig",
-      "perCredit": "{{price}} per credit",
-      "perCreditWord": "per credit"
-    },
-    "toasts": {
-      "loginRequired": "Log in",
-      "invalidPackConfig": "Ongeldige creditpakket configuratie",
-      "createCheckoutFailed": "Afrekensessie maken mislukt",
-      "purchaseFailed": "Creditpakket kopen mislukt"
-    }
-  },
-  "comparisonTable": {
-    "categories": {
-      "credits": "Credits",
-      "image": "Afbeelding",
-      "characters": "Personages",
-      "generation": "Generatie",
-      "support": "Ondersteuning"
-    },
-    "features": {
-      "creditsPerMonth": "Credits per maand",
-      "pricePerCredit": "Prijs per credit",
-      "resolution": "Resolutie",
-      "takesPerShoot": "Opnames per shoot",
-      "portraitAspectRatio": "Portretformaat",
-      "squareAspectRatio": "Vierkant formaat",
-      "landscapeAspectRatio": "Landschapsformaat",
-      "included": "Inbegrepen",
-      "storage": "Opslag",
-      "concurrentShoots": "Gelijktijdige shoots",
-      "commercialUse": "Commercieel gebruik",
-      "priorityFeatures": "Prioritaire toegang tot nieuwe functies",
-      "premiumStyles": "Premium stijlen",
-      "betaAccess": "Beta-test toegang",
-      "emailSupport": "E-mailondersteuning",
-      "chatSupport": "Chatondersteuning",
-      "dedicatedSupport": "Toegewijde ondersteuning"
-    },
-    "values": {
-      "upTo": "Tot {{value}}",
-      "basicQuality": "Basiskwaliteit",
-      "highQuality": "Hoge kwaliteit"
-    }
-  },
-  "page": {
-    "title": "Prijzen",
-    "header": {
-      "title": "Eenvoudige plannen, eindeloze looks.",
-      "subtitle": "Annuleer of verander wanneer je wilt.",
-      "savingsText": "Bespaar tot",
-      "savingsHighlight": "40%",
-      "savingsOn": "op jaarplannen"
-    },
-    "tabs": {
-      "monthly": "Maandelijks",
-      "annual": "Jaarlijks"
-    },
-    "buttons": {
-      "getStarted": "Aan de slag",
-      "selectPlan": "Plan selecteren",
-      "currentPlan": "Huidig plan",
-      "processing": "Verwerken..."
-    },
-    "loading": "Prijzen laden...",
-    "comparison": {
-      "title": "Plannen vergelijken",
-      "description": "Upgrade voor portretten met hogere resolutie, meer credits, herbruikbare karakters en prioriteitsverwerking."
-    },
-    "faq": {
-      "title": "Vragen?",
-      "subtitle": "Alles wat je moet weten over onze prijzen en functies",
-      "items": {
-        "character": {
-          "question": "Wat is een karakter en hoe werkt het?",
-          "answer": "Een karakter is je eigen AI-model, getraind met 9 selfies. Het leert je exacte gezichtskenmerken—structuur, huidskleur, haar—zodat elk portret authentiek op jou lijkt. Afhankelijk van je plan krijg je 1–3 karakters inbegrepen. Extra karakters kosten 30 credits elk, en eenmaal gemaakt kun je ze op elk moment hergebruiken voor nieuwe shoots met verschillende outfits, scènes en stijlen."
-        },
-        "credits": {
-          "question": "Hoe werken credits?",
-          "answer": "Credits zijn je saldo voor het trainen van karakters en het genereren van afbeeldingen. Een karakter trainen kost 30 credits. Afbeeldingen genereren kost 1 credit voor basiskwaliteit (1K), 2 voor gemiddeld (2K) en 3 voor hoog (4K). Je plan bevat een maandelijkse credit toewijzing die elke factureringscyclus wordt vernieuwd."
-        },
-        "commercial": {
-          "question": "Kan ik mijn afbeeldingen commercieel gebruiken?",
-          "answer": "Ja. Alle afbeeldingen die je genereert zijn van jou om zonder beperkingen te gebruiken—of het nu voor LinkedIn, websites, marketing of print is."
-        },
-        "privacy": {
-          "question": "Hoe beschermen jullie mijn privacy en gegevens?",
-          "answer": "Je foto's en karakters worden veilig opgeslagen en nooit gedeeld, verkocht of gebruikt voor onze eigen training. Je kunt individuele karakters of je hele account op elk moment verwijderen. Toegang door derden vindt niet plaats zonder jouw toestemming."
-        },
-        "changePlan": {
-          "question": "Kan ik mijn plan wijzigen of opzeggen?",
-          "answer": "Ja. Je kunt je plan op elk moment upgraden of downgraden in je accountinstellingen. Upgrades gebeuren onmiddellijk met evenredige facturering; downgrades gaan in bij de volgende cyclus. Als je opzegt, behoud je toegang tot het einde van je huidige cyclus. We bewaren je gegevens 60 dagen zodat je zonder verlies opnieuw kunt abonneren—daarna worden ze permanent verwijderd."
-        },
-        "rollover": {
-          "question": "Worden ongebruikte credits overgedragen?",
-          "answer": "Nee. Credits verlopen aan het einde van elke factureringscyclus en je toewijzing wordt vernieuwd."
-        },
-        "moreCredits": {
-          "question": "Hoe kan ik meer credits krijgen?",
-          "answer": "Je kunt je abonnement upgraden voor een hoger maandelijks limiet of eenmalige creditpakketten kopen vanuit je account."
-        },
-        "refund": {
-          "question": "Wat is jullie terugbetalingsbeleid?",
-          "answer": "Abonnementen en creditpakketten zijn niet terugbetaalbaar. Als er een technisch probleem is—zoals een mislukte generatie—neem contact op met ondersteuning voor beoordeling en mogelijke credit aanpassing."
-        },
-        "deleteAccount": {
-          "question": "Hoe verwijder ik mijn account?",
-          "answer": "Selecteer in je accountinstellingen \"Account verwijderen\" om alle foto's, karakters en afbeeldingen permanent te verwijderen. Dit is onomkeerbaar, dus download eerst alles wat je wilt bewaren."
+    "purchase": {
+        "success": {
+            "subscriptionTitle": "Je hebt succesvol geüpgraded naar {{plan}}",
+            "subscriptionTitleNew": "Welkom bij {{plan}}!",
+            "creditsTitle": "Credits toegevoegd!",
+            "subscriptionDescriptionWithCredits": "Je nieuwe abonnement factureringscyclus begint vandaag. Geniet van {{amount}} credits en veel meer!",
+            "subscriptionDescriptionWithCreditsNew": "Je factureringscyclus begint vandaag. Geniet van {{amount}} credits en veel meer!",
+            "subscriptionDescription": "Je nieuwe abonnement factureringscyclus begint vandaag. Geniet van je nieuwe voordelen!",
+            "subscriptionDescriptionNew": "Je factureringscyclus begint vandaag. Geniet van je nieuwe voordelen!",
+            "creditsDescription": "Je saldo is bijgewerkt. Je kunt nu beginnen met genereren.",
+            "returnToShoot": "Terug naar shoot",
+            "defaultPlan": "je nieuwe plan"
         }
-      }
     },
-    "signIn": {
-      "modalTitle": "Inloggen om door te gaan"
+    "subscription": {
+        "context": {
+            "characterLimit": { "title": "Je hebt je karakterlimiet bereikt.", "description": "Upgrade voor extra karakters" },
+            "qualityUpgrade": { "title": "Wil je hogere kwaliteit?", "description": "Upgrade voor scherpere afbeeldingen en extra voordelen" },
+            "creditUpgrade": { "title": "Raken je credits op?", "description": "Upgrade voor meer maandelijkse credits" },
+            "general": { "title": "Upgrade je plan", "description": "Ontgrendel meer functies en flexibiliteit" },
+            "default": { "title": "Kies je plan", "description": "Kies wat past, wissel wanneer je wilt" }
+        },
+        "loading": "Plannen laden...",
+        "empty": {
+            "title": "Geen upgrade beschikbaar",
+            "description": "Je bent al op het hoogste beschikbare plan."
+        },
+        "headers": {
+            "chooseYourPlan": "Kies je plan"
+        },
+        "banner": {
+            "titlePrimary": "Black Friday",
+            "titleSecondary": "is hier!",
+            "descriptionPrefix": "Profiteer van ",
+            "discount1": "tot 70% korting",
+            "descriptionMiddle": " op jaarplannen, of ",
+            "discount2": "50% op maandplannen",
+            "descriptionSuffix": ".",
+            "small": "Levenslang aanbod loopt door tot je opzegt."
+        },
+        "toggle": {
+            "monthly": "Maandelijks",
+            "yearly": "Jaarlijks",
+            "aria": "Factureringscyclus"
+        },
+        "card": {
+            "recommended": "Aanbevolen",
+            "save": "Bespaar {{pct}}%",
+            "perMonth": "/ maand",
+            "billed": "Gefactureerd {{cycle}}",
+            "creditsCount": "{{count}} credits",
+            "perMonthWord": "per maand",
+            "perCredit": "{{price}} per credit",
+            "button": {
+                "select": "Plan selecteren",
+                "current": "Huidig plan",
+                "processing": "Verwerken…",
+                "disabledTooltip": "Niet beschikbaar tijdens speciale aanbieding 🚀"
+            },
+            "features": {
+                "quality": "{{quality}} kwaliteit afbeeldingen",
+                "characterIncluded": "{{count}}x Karakter inbegrepen",
+                "maxCharacters": "Tot {{count}} karakter opslag",
+                "concurrentShoots": "Tot {{count}} gelijktijdige shoots",
+                "commercialUse": "Commercieel gebruik",
+                "personalUseOnly": "Alleen voor persoonlijk gebruik"
+            }
+        },
+        "footer": {
+            "upgradeNotice": "Je huidige abonnement wordt geannuleerd en vervangen door het nieuwe plan. Bestaande credits blijven behouden.",
+            "buyCreditPack": "Koop een creditpakket"
+        },
+        "toasts": {
+            "loginRequired": "Log in",
+            "selectPlan": "Selecteer een plan",
+            "invalidPlan": "Ongeldig abonnement geselecteerd",
+            "openingPortal": "Stripe klantportaal openen...",
+            "customerPortalFailed": "Klantportaal openen mislukt",
+            "upgradePreviewFailed": "Upgrade voorvertoning openen mislukt",
+            "upgraded": "Abonnement succesvol geüpgraded!",
+            "checkoutFailed": "Afrekenen mislukt",
+            "invalidCheckout": "Ongeldige respons van afrekenen"
+        }
+    },
+    "credits": {
+        "dialog": {
+            "headerSub": {
+                "lowBalance": "Credit saldo te laag.",
+                "creativity": "Voed je creativiteit 🚀"
+            },
+            "headerTitle": {
+                "lowBalance": "Laad je credits op om door te gaan met genereren",
+                "fun": "Meer credits, meer creaties, meer plezier!"
+            }
+        },
+        "card": {
+            "images": "Tot {{count}} {{quality}} afbeeldingen",
+            "characters": "Tot {{count}} karakters",
+            "footnote": "*Alleen Standard en Pro plannen",
+            "button": {
+                "buy": "Kopen",
+                "processing": "Verwerken…"
+            },
+            "validity": "Geldig voor {{duration}}",
+            "oneTime": "eenmalig",
+            "perCredit": "{{price}} per credit",
+            "perCreditWord": "per credit"
+        },
+        "toasts": {
+            "loginRequired": "Log in",
+            "invalidPackConfig": "Ongeldige creditpakket configuratie",
+            "createCheckoutFailed": "Afrekensessie maken mislukt",
+            "purchaseFailed": "Creditpakket kopen mislukt"
+        }
+    },
+    "comparisonTable": {
+        "categories": {
+            "credits": "Credits",
+            "image": "Afbeelding",
+            "characters": "Personages",
+            "generation": "Generatie",
+            "support": "Ondersteuning"
+        },
+        "features": {
+            "creditsPerMonth": "Credits per maand",
+            "pricePerCredit": "Prijs per credit",
+            "resolution": "Resolutie",
+            "takesPerShoot": "Opnames per shoot",
+            "portraitAspectRatio": "Portretformaat",
+            "squareAspectRatio": "Vierkant formaat",
+            "landscapeAspectRatio": "Landschapsformaat",
+            "included": "Inbegrepen",
+            "storage": "Opslag",
+            "concurrentShoots": "Gelijktijdige shoots",
+            "commercialUse": "Commercieel gebruik",
+            "priorityFeatures": "Prioritaire toegang tot nieuwe functies",
+            "premiumStyles": "Premium stijlen",
+            "betaAccess": "Beta-test toegang",
+            "emailSupport": "E-mailondersteuning",
+            "chatSupport": "Chatondersteuning",
+            "dedicatedSupport": "Toegewijde ondersteuning"
+        },
+        "values": {
+            "upTo": "Tot {{value}}",
+            "basicQuality": "Basiskwaliteit",
+            "highQuality": "Hoge kwaliteit"
+        }
+    },
+    "page": {
+        "title": "Prijzen",
+        "header": {
+            "title": "Eenvoudige plannen, eindeloze looks.",
+            "subtitle": "Annuleer of verander wanneer je wilt.",
+            "savingsText": "Bespaar tot",
+            "savingsHighlight": "40%",
+            "savingsOn": "op jaarplannen"
+        },
+        "tabs": {
+            "monthly": "Maandelijks",
+            "annual": "Jaarlijks"
+        },
+        "buttons": {
+            "getStarted": "Aan de slag",
+            "selectPlan": "Plan selecteren",
+            "currentPlan": "Huidig plan",
+            "processing": "Verwerken..."
+        },
+        "loading": "Prijzen laden...",
+        "comparison": {
+            "title": "Plannen vergelijken",
+            "description": "Upgrade voor portretten met hogere resolutie, meer credits, herbruikbare karakters en prioriteitsverwerking."
+        },
+        "faq": {
+            "title": "Vragen?",
+            "subtitle": "Alles wat je moet weten over onze prijzen en functies",
+            "items": {
+                "character": {
+                    "question": "Wat is een karakter en hoe werkt het?",
+                    "answer": "Een karakter is je eigen AI-model, getraind met 9 selfies. Het leert je exacte gezichtskenmerken—structuur, huidskleur, haar—zodat elk portret authentiek op jou lijkt. Afhankelijk van je plan krijg je 1–3 karakters inbegrepen. Extra karakters kosten 30 credits elk, en eenmaal gemaakt kun je ze op elk moment hergebruiken voor nieuwe shoots met verschillende outfits, scènes en stijlen."
+                },
+                "credits": {
+                    "question": "Hoe werken credits?",
+                    "answer": "Credits zijn je saldo voor het trainen van karakters en het genereren van afbeeldingen. Een karakter trainen kost 30 credits. Afbeeldingen genereren kost 1 credit voor basiskwaliteit (1K), 2 voor gemiddeld (2K) en 3 voor hoog (4K). Je plan bevat een maandelijkse credit toewijzing die elke factureringscyclus wordt vernieuwd."
+                },
+                "commercial": {
+                    "question": "Kan ik mijn afbeeldingen commercieel gebruiken?",
+                    "answer": "Ja. Alle afbeeldingen die je genereert zijn van jou om zonder beperkingen te gebruiken—of het nu voor LinkedIn, websites, marketing of print is."
+                },
+                "privacy": {
+                    "question": "Hoe beschermen jullie mijn privacy en gegevens?",
+                    "answer": "Je foto's en karakters worden veilig opgeslagen en nooit gedeeld, verkocht of gebruikt voor onze eigen training. Je kunt individuele karakters of je hele account op elk moment verwijderen. Toegang door derden vindt niet plaats zonder jouw toestemming."
+                },
+                "changePlan": {
+                    "question": "Kan ik mijn plan wijzigen of opzeggen?",
+                    "answer": "Ja. Je kunt je plan op elk moment upgraden of downgraden in je accountinstellingen. Upgrades gebeuren onmiddellijk met evenredige facturering; downgrades gaan in bij de volgende cyclus. Als je opzegt, behoud je toegang tot het einde van je huidige cyclus. We bewaren je gegevens 60 dagen zodat je zonder verlies opnieuw kunt abonneren—daarna worden ze permanent verwijderd."
+                },
+                "rollover": {
+                    "question": "Worden ongebruikte credits overgedragen?",
+                    "answer": "Nee. Credits verlopen aan het einde van elke factureringscyclus en je toewijzing wordt vernieuwd."
+                },
+                "moreCredits": {
+                    "question": "Hoe kan ik meer credits krijgen?",
+                    "answer": "Je kunt je abonnement upgraden voor een hoger maandelijks limiet of eenmalige creditpakketten kopen vanuit je account."
+                },
+                "refund": {
+                    "question": "Wat is jullie terugbetalingsbeleid?",
+                    "answer": "Abonnementen en creditpakketten zijn niet terugbetaalbaar. Als er een technisch probleem is—zoals een mislukte generatie—neem contact op met ondersteuning voor beoordeling en mogelijke credit aanpassing."
+                },
+                "deleteAccount": {
+                    "question": "Hoe verwijder ik mijn account?",
+                    "answer": "Selecteer in je accountinstellingen \"Account verwijderen\" om alle foto's, karakters en afbeeldingen permanent te verwijderen. Dit is onomkeerbaar, dus download eerst alles wat je wilt bewaren."
+                }
+            }
+        },
+        "signIn": {
+            "modalTitle": "Inloggen om door te gaan"
+        }
     }
-  }
 }

@@ -1,6 +1,6 @@
 'use client';
 import { jsx as _jsx } from "react/jsx-runtime";
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { createClient } from '../lib/supabase/client';
 import { formatAuthError } from '../lib/utils/auth';
 const initialState = {
@@ -25,18 +25,15 @@ export const AuthProvider = ({ children }) => {
                 if (dbError)
                     console.error('Error fetching user data:', dbError);
                 const mergedUser = { ...newUser, ...dbUser };
-                setState(prev => {
-                    var _a;
-                    if (((_a = prev.user) === null || _a === void 0 ? void 0 : _a.id) !== mergedUser.id || prev.isLoading) {
-                        return {
-                            ...prev,
-                            user: mergedUser,
-                            isAuthenticated: true,
-                            isLoading: false
-                        };
-                    }
-                    return prev;
-                });
+                // Always apply the DB profile. Skipping when the id already matched
+                // left a session user without `admin` if getSession and
+                // onAuthStateChange raced (website showed Admin, /admin did not).
+                setState(prev => ({
+                    ...prev,
+                    user: mergedUser,
+                    isAuthenticated: true,
+                    isLoading: false
+                }));
             }
             else {
                 setState(prev => ({
@@ -178,7 +175,7 @@ export const AuthProvider = ({ children }) => {
         }
     };
     const clearError = () => setState(prev => ({ ...prev, error: null }));
-    const refreshUser = async () => {
+    const refreshUser = useCallback(async () => {
         try {
             const { data: { session } } = await supabase.auth.getSession();
             const current = session === null || session === void 0 ? void 0 : session.user;
@@ -190,12 +187,12 @@ export const AuthProvider = ({ children }) => {
                 .eq('id', current.id)
                 .single();
             const mergedUser = { ...current, ...dbUser };
-            setState(prev => ({ ...prev, user: mergedUser }));
+            setState(prev => ({ ...prev, user: mergedUser, isAuthenticated: true }));
         }
         catch (e) {
             console.error('Failed to refresh user', e);
         }
-    };
+    }, [supabase]);
     const value = {
         ...state,
         signIn,
