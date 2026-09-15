@@ -5,12 +5,13 @@ import Image from 'next/image';
 import React from 'react';
 import { useAuth } from '@primeshot/common';
 import { AccountDialog } from '@primeshot/common/web/AccountDialog';
+import { SignInModal } from '@primeshot/common/web/SignInModal';
 import styles from './AdminHeader.module.css';
 import { Button } from '@primeshot/common/web/ui/button';
 import { useRouter, usePathname } from 'next/navigation';
 
 export const AdminHeader: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   
@@ -54,7 +55,7 @@ export const AdminHeader: React.FC = () => {
         </div>
 
         <div className={styles.rightSection}>
-          {isAuthenticated && <AccountDialog />}
+          {!isLoading && (isAuthenticated ? <AccountDialog /> : <SignInModal />)}
         </div>
       </div>
     </header>

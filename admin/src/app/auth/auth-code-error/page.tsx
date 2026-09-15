@@ -23,7 +23,7 @@ export default function AuthCodeErrorPage() {
         </div>
 
         <Link
-          href="/auth/signin"
+          href="/"
           className="text-sm text-primary hover:underline"
         >
           Back to sign in

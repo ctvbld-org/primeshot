@@ -2971,6 +2971,27 @@ Detected changes in:
 - website/src/app/api/s/[code]/route.ts
 - website/src/app/s/[code]/page.tsx
 - website/src/components/blog/BlogCard.tsx
+
+
+**Auto-update 2026-09-15**:
+Detected changes in:
+- admin/src/app/api/admin/aws-cost/route.ts
+- admin/src/app/api/s3/sign/route.ts
+- admin/src/components/providers/AdminGuard.tsx
+- webapp/src/app/layout.tsx
+- webapp/src/components/character/CharacterTrainingDialog.tsx
+- webapp/src/components/character/training/OnboardingStep.tsx
+- webapp/src/components/generate/GenerateBar.module.css
+- webapp/src/components/generate/GenerateBar.tsx
+- webapp/src/components/inference/GalleryPlaceholder.module.css
+- webapp/src/components/inference/InferenceThumbnail.module.css
+- webapp/src/components/pricing/SubscriptionDialogContent.module.css
+- webapp/src/lib/cloudfront.ts
+- webapp/src/lib/image-quality.ts
+- webapp/src/lib/s3.ts
+- website/src/app/layout.tsx
+- website/src/components/ContentPageHeader.module.css
+- website/src/components/InteractiveGenerateBar/CTASection.tsx
 ## Component Organization
 
 Components are organized by feature and reusability:

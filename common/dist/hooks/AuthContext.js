@@ -10,6 +10,27 @@ const initialState = {
     isAuthenticated: false
 };
 const AuthContext = createContext(undefined);
+function getAuthBaseUrl() {
+    const appUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://primeshot.ai/create').replace(/\/$/, '');
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+    if (typeof window === 'undefined') {
+        return appUrl;
+    }
+    const origin = window.location.origin;
+    // Apps with a basePath (admin `/admin`, webapp `/create`) must return here.
+    if (basePath) {
+        return `${origin}${basePath}`;
+    }
+    try {
+        if (new URL(appUrl).origin === origin) {
+            return appUrl;
+        }
+    }
+    catch {
+        // ignore invalid NEXT_PUBLIC_APP_URL
+    }
+    return origin;
+}
 export const AuthProvider = ({ children }) => {
     const [state, setState] = useState(initialState);
     const supabase = createClient();
@@ -67,19 +88,7 @@ export const AuthProvider = ({ children }) => {
             });
             if (error)
                 throw error;
-            // Handle language prefix and basePath for proper redirect
-            let redirectPath = '/auth/verify';
-            // if (typeof window !== 'undefined') {
-            //   const currentPath = window.location.pathname
-            //   // Extract language prefix (e.g., /fr/, /en/, etc.)
-            //   const langMatch = currentPath.match(/^\/([a-z]{2})\//);
-            //   const langPrefix = langMatch ? `/${langMatch[1]}` : ''
-            //   // Extract basePath (e.g., /create)
-            //   const basePath = currentPath.startsWith('/create') || currentPath.includes('/create') ? '/create' : ''
-            //   redirectPath = `${basePath}/auth/verify`
-            // }
-            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '');
-            window.location.href = `${baseUrl}${redirectPath}?email=${encodeURIComponent(email)}`;
+            window.location.href = `${getAuthBaseUrl()}/auth/verify?email=${encodeURIComponent(email)}`;
         }
         catch (error) {
             setState(prev => ({ ...prev, error: formatAuthError(error) }));
@@ -88,12 +97,7 @@ export const AuthProvider = ({ children }) => {
             setState(prev => ({ ...prev, isLoading: false }));
         }
     };
-    // Helper to build redirect URL respecting optional base path
-    const getCallbackUrl = () => {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://primeshot.ai/create';
-        const callbackUrl = baseUrl + '/auth/callback';
-        return callbackUrl;
-    };
+    const getCallbackUrl = () => `${getAuthBaseUrl()}/auth/callback`;
     const signInWithGoogle = async () => {
         try {
             setState(prev => ({ ...prev, isLoading: true, error: null }));
